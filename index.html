@@ -1,0 +1,2253 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Verify This! - LEFT 2016</title>
+
+		<meta name="description" content="Curso Introductorio a UVM">
+		<meta name="author" content="LeaT - LEFT">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/forkit.css">
+		<link rel="stylesheet" href="css/demo.css">
+		<link rel="stylesheet" href="css/theme/night.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/monokai-sublime.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+				<section>
+					<h1>Verify This!</h1>
+					<h3><em>UVM Introduction</em></h3>
+					<p>
+						<small>Based on <a href="http://www.verificationacademy.com">Verification Academy</a></small>
+					</p>
+				</section>
+
+				<section data-transition="concave">
+					<h2>Agenda</h2>
+					<h4><em> Day 1</em> </h4>
+					<ul>
+						<li>Tendencias</li>
+						<li>Introducción</li>
+						<li>ALU Specs</li>
+						<li>TestBench Convencional</li>
+						<li>SV Interfaces & BFM</li>
+						<li>Classes y Extensiones</li>
+						<li>Polimorfismo</li>
+					</ul>	
+				</section>
+
+				<section>
+					<h2>Tendencias</h2>
+					<h4><em> ASIC: Tendencias de Diseño</em> </h4>
+					<img data-src="res/wilson/2014-WRG-BLOG-ASIC-7-1-520x390.png">
+					<img data-src="res/wilson/2014-WRG-BLOG-ASIC-7-2-520x390.png">
+				</section>
+
+				<section>
+					<h2>Tendencias</h2>
+					<h4><em> ASIC: Verificación cada vez más necesaria</em> </h4>
+					<img data-src="res/wilson/2014-WRG-BLOG-ASIC-8-1-520x390.png">
+					<img data-src="res/wilson/2014-WRG-BLOG-ASIC-8-2-520x390.png">
+				</section>
+
+				<section>
+					<h2>Tendencias</h2>
+					<h4><em> ASIC: Verificación cada vez más necesaria</em> </h4>
+					<img data-src="res/wilson/2014-WRG-BLOG-ASIC-8-3a-520x390.png">
+					<img data-src="res/wilson/2014-WRG-BLOG-ASIC-8-4-520x390.png">
+				</section>
+
+				<section>
+					<h2>Tendencias</h2>
+					<h4><em> ASIC: Técnicas de Verificación</em> </h4>
+					<img data-src="res/wilson/2014-WRG-BLOG-ASIC-8-5-520x390.png">
+					<img data-src="res/wilson/2014-WRG-BLOG-ASIC-9-1-520x390.png">
+				</section>
+
+				<section>
+					<h2>Tendencias</h2>
+					<h4><em> ASIC: Lenguajes</em> </h4>
+					<img data-src="res/wilson/2014-WRG-BLOG-ASIC-10-1-520x390.png">
+					<img data-src="res/wilson/2014-WRG-BLOG-ASIC-10-2-520x390.png">
+				</section>
+
+				<section>
+					<h2>Tendencias</h2>
+					<h4><em> ASIC: Verificación</em> </h4>
+					<img data-src="res/wilson/2014-WRG-BLOG-ASIC-10-3-520x390.png">
+					<img data-src="res/wilson/2014-WRG-BLOG-ASIC-10-4-520x390.png">
+				</section>
+
+				<section>
+					<h2>SystemVerilog es el <em>COBOL</em> de la electronica???</h2>
+					<table>
+						<thead>
+							<tr>
+								<th>Lenguaje</th>
+								<th>Reserved Keywords</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>ANSI COBOL 85</td>
+								<td>357</td>
+							</tr>
+							<tr>
+								<td>SystemVerilog</td>
+								<td>323</td>
+							</tr>
+							<tr>
+								<td>VHDL 2008</td>
+								<td>115</td>
+							</tr>
+							<tr>
+								<td>Verilog 95</td>
+								<td>102</td>
+							</tr>
+							<tr>
+								<td>C#</td>
+								<td>102</td>
+							</tr>
+							<tr>
+								<td>C++</td>
+								<td>82</td>
+							</tr>	
+							<tr>
+								<td>Python3.x</td>
+								<td>33</td>
+							</tr>																					
+						</tbody>
+					</table><center>
+					<pre> <em>"* No academic computer scientists participated in the design of COBOL;<br> all of those on the committee came from commerce or government"</em> Parecido no?</pre>
+					</center>		
+				</section>
+
+				<section>
+					<h2>Introduccion</h2>
+					<h4><em> Quien carajo es iUVieM????</em></h4>
+					<ul>
+						<li>Universal Verification Methodology</li>
+						<li>Esfuerzo llevado a cabo por <em>Accellera</em></li>
+						<li>Define una metodología de verificación standard y una librería de clases</li>
+						<li>Inspirada en VMM y OVM y en otras <em>buenas prácticas</em></li>
+						<li>Open Source y codeada integramente en SystemVerilog</li>
+						<li><em>IEEE Standard P1800.2</em> (UVM 1.2)</li>
+						<li>Su objetivo siniestro, es la <em>eficiencia</em> y la <em>reutilización</em> de piezas de software</li>
+						<li>Creado por y para la industria.</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Introduccion</h2>
+					<h4><em> UVM Origins</em></h4>
+					<img data-src="res/originUVM.png" height="500">
+				</section>
+
+				<section>
+					<h2>Introduccion</h2>
+					<h4><em> SystemVerilog Typical TB</em></h4>
+					<img data-src="res/TB.png">	
+				</section>
+
+				<section>
+					<h2>Introduccion</h2>
+					<h4><em> UVM Typical TB</em></h4>
+					<img data-src="res/TB_UVM.png" height="500">
+				</section>
+
+
+				<section>
+					<h2>Introduccion</h2>
+					<h4><em> UVM Clases</em></h4>
+					<img data-src="res/uvm_class_diagram.png" height="500">
+				</section>
+
+				<section>
+					<h2>Introduccion</h2>
+					<h4><em> Run More Tests, Write Less Code</em> </h4>
+					<ul>
+						<li><em>Environment y Component classes</em> rara vez cambian
+							<ul>
+								<li>Enviar <em>transactions</em> lo mas rapido posibles</li>
+								<li>Permite que los tests existentes no se rompan</li>
+								<li><em>Hooks</em> para que los tests puedan inyectar nuevos comportamientos: <em> virtual methods, factories, callbacks</em></li>
+							</ul>
+						</li>
+						<li>Los tests extienden las clases de testbench</li>
+						<ul>
+							<li>Agregar constraints para alcanzar casos corners</li>
+							<li><em>Override</em> de clases para agregar nuevas funcionabilidades</li>
+							<li>Injectar errores, delays con callbacks</li>
+						</ul>
+						<li>Se puede correr cada test con cientos de semillas</li>
+					</ul>
+				</section>		
+
+				<section>
+					<h2>1. ALU Specs</h2>
+					<img data-src="res/diagrams/wave-dut.png" style="background:#ffffff" alt="ALU waveform" >	
+					<ul>
+						<li><em>start</em> debe permanecer en 1 y los operadores estables hasta <br>
+							que termina la operacion</li>
+						<li><em>done</em> se levanta cuando termina la operacion</li>
+					</ul>			
+				</section>
+
+				<section>
+					<h2>1. ALU Specs</h2>
+					<table>
+						<thead>
+							<tr>
+								<th>Operation</th><th>Opcode</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>no_op</td><td>3'b000</td>
+							</tr>
+							<tr>
+								<td>add_op</td><td>3'b00</td>
+							</tr>
+							<tr>
+								<td>and_op</td><td>3'b010</td>
+							</tr>
+							<tr>
+								<td>xor_op</td><td>3'b011</td>
+							</tr>
+							<tr>
+								<td>mul_op</td><td>3'b100</td>
+							</tr>
+							<tr>
+								<td>unused</td><td>3'b101-3'b111</td>
+							</tr>
+						</tbody>
+					</table>	
+				</section>
+
+				<section>
+					<h3>1. VHDL ALU Implementation</h3>
+					<h4><em>Single Cycle: Add - AND - XOR</em></h4>
+					<pre><code class="vhdl" data-trim local-file style="max-height: 550px;">
+						code/tinyalu_dut/single_cycle_add_and_xor.vhd
+					</code></pre>		
+				</section>
+
+				<section>
+					<h3>1. VHDL ALU Implementation</h3>
+					<h4><em>Multi Cycle: Multiplicacion</em></h4>
+					<pre><code class="vhdl" data-trim local-file style="max-height: 550px;">
+						code/tinyalu_dut/three_cycle_mult.vhd
+					</code></pre>		
+				</section>
+
+				<section>
+					<h3>1. VHDL ALU Implementation</h3>
+					<h4><em>Top Level</em></h4>
+					<pre><code class="vhdl" data-trim local-file style="max-height: 550px;">
+						code/tinyalu_dut/tinyalu.vhd
+					</code></pre>		
+				</section>
+
+				<section>
+					<h2>2. TestBench Convencional</h2>
+					<h4><em> Coverage First Methodology</em> </h4>
+					<ul>
+						<li>Definimos que queremos cubrir y luego creamos el TB</li>
+						<li>El objetivo es testear toda la funcionabilidad de la ALU y <br>
+						    simular <em>TODAS</em> las lineas del codigo RTL</li>
+						<li>El TB tiene 3 partes: stimulus, self-checking y coverage</li>
+					</ul>			
+				</section>
+
+				<section>
+					<h3>2. TestBench Convencional</h3>
+					<ul>
+						<li>Testear todas las operaciones</li>
+						<li>Casos Border: entradas todas en 0/1 para todas las operaciones</li>
+						<li>Ejecutar todas las ops luego de un reset</li>
+						<li>Ejecutar una multiplicacion luego de una single cycle op y viceversa</li>
+						<li>Simular todas las operaciones ejecutadas 2 veces seguidas</li>
+					</ul>	
+					<pre><code class="systemverilog" data-trim local-file>
+						code/ch02/tinyalu_tb.sv
+					</code></pre>		
+				</section>
+
+				<section>
+					<h2>3. SV Interfaces & BFM</h2>
+					<ul>
+						<li>El primer paso hacia UVM es modularizar correctamente el TB</li>
+						<li>SV interface agrupa signals y permite modelar Bus Functional Models</li>
+						<li> Los BFM encapsulan el protocolo asociado a un bus en simples transactions</li>
+					</ul>	
+					<pre><code class="systemverilog" data-trim local-file>
+						code/ch03/tinyalu_bfm.sv
+					</code></pre>		
+				</section>
+
+				<section>
+					<h2>3. SV Interfaces & BFM</h2>
+					<h3><em> Modular TB </em></h3>
+					<ul>
+						<li>Dividimos el TB en tester, scoreboard y coverage</li>
+						<li>La conexion la realizamos mediante nuestra nueva BFM</li>
+					</ul>	
+					<pre><code class="systemverilog" data-trim local-file>
+						code/ch03/top.sv
+					</code></pre>		
+				</section>
+
+				<section>
+					<h2>3. SV Interfaces & BFM</h2>
+					<h3><em> Scoreboard </em></h3>
+					<pre><code class="systemverilog" data-trim local-file>
+						code/ch03/scoreboard.sv
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>3. SV Interfaces & BFM</h2>
+					<h3><em> Tester </em></h3>
+					<pre><code class="systemverilog" data-trim local-file>
+						code/ch03/tester.sv
+					</code></pre>		
+				</section>
+
+				<section>
+					<h2>4.5. Classes y Extensions</h2>
+					<h3><em>Por que es tan sexy OOP?</em></h3>
+					<ul>
+						<li><em>Code Reuse & Code Maintainability & Memory Management:</em></li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file>
+						code/ch05/classes.sv
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>6. Polimorfismo</h2>
+					<h3><em> Que carajo es???? </em></h3>
+					<p> Declaro una variable de tipo <em>rectangulo</em> y luego instancio un objeto <em>cuadrado</em>.</p>
+					<p> Siendo cuadrado una clase extendida de rectangulo.... </p>
+					<p> Puedo guardar el objeto cuadrado en la variable rectangulo????? </p>
+					<p> Obvio papito! Se llama <em>Polimorfimo</em> </p>
+				</section>
+
+				<section>
+					<h2>6. Polimorfismo: Ejemplo basico</h2>
+					<img data-src="res/diagrams/uml-poli.png" alt="Animal UML Diagram">
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 300px;">
+						code/ch06/01_Not_Virtual/not_virtual.sv
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>6. Polimorfismo: Virtual Methods</h2>
+					<ul>
+						<li>SV usa la keyword virtual por todos lados. </li>
+						<li> La idea de <em>virtual</em>, es avisar que lo vamos a definir despues</li>
+						<li>Cuando definimos un metodo como virtual, le estamos diciendo a SV que se fije en que tipo de objeto tiene, no en el tipo de la variable</li>
+					</ul>					
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+						code/ch06/02_Virtual/virtual.sv
+					</code></pre>
+				</section>				
+
+				<section>
+					<h2>6. Polimorfismo: Abstracts Classes and Pure Virtual Methods</h2>
+					<ul>
+						<li>La version anterior es re malaria. Estamos obligando a tener que hacer un override de make_sound() en las clases extendidas. Sino $fatal</li>
+						<li>Lo malo de esto, es que va a compilar, a correr y en el medio de la simulacion, te puede explotar... Seamos serios</li>
+						<li>SV permite definir <em>abstract class</em>, que solo pueden ser usadas como clases bases. <em>No se pueden instanciar</em></li>
+						<li>Estas clases permiten definir <em>pure virtual methods</em></li>
+						<li>Estos metodos son vacios y <em>deben ser redefinimos cuando extendemos la clase abstracta</em></li>
+						<li>Si no redefinimos un metodo pure virtual, obtenemos error de compilacion</li>
+					</ul>					
+				</section>	
+
+				<section>
+					<h2>6. Polimorfismo: Abstracts Classes and Pure Virtual Methods</h2>			
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 500px;">
+						code/ch06/03_Pure_Virtual/pure_virtual.sv
+					</code></pre>
+				</section>	
+
+				<section data-transition="concave">
+					<h2>Agenda</h2>
+					<h4><em> Day 2</em> </h4>
+					<ul>
+						<li>Static Methods and Variables</li>
+						<li>Clases parametricas</li>
+						<li>The Factory Pattern</li>
+						<li>Object Oriented TestBench</li>
+					</ul>	
+				</section>
+
+				<section>
+					<h2>7. Variables estaticas</h2>			
+					<ul>
+						<li>Muchas veces es util tener una estructura de datos global dentro de un TB </li>
+						<li>OK, uso Variables globales? Son dificiles de debuggear, de encontrar la declaracion... Una tragedia</li>
+						<li>OOP provee para este tipo de casos la magia de lo static</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+						code/ch07/01_Static_Variables/static_variables.sv
+					</code></pre>	
+				</section>	
+
+
+				<section>
+					<h2>7. Variables estaticas</h2>			
+					<ul>
+						<li>Solo tenemos una copia en memoria de una variable <em>static</em></li>
+						<li>Sin importar el numero de instancias que tengamos de esa clase </li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+						code/ch07/01_Static_Variables/ejemplo2.sv
+					</code></pre>	
+					<p class="fragment current-visible"><b><em>Y el encapsulamiento que onda???</em></b></p> 
+
+				</section>	
+
+				<section>
+					<h2>7. Metodos estaticos</h2>			
+					<ul>
+						<li>En los ejemplos anteriores, no escondiamos la implementacion. Si en el 1ero, queriamos cambiar la queue por otra estructura, debiamos cambiar por todos lados</li>
+						<li>Siempre hay que <em>encapsular</em> estas cosas. Declarar <em>protected</em> la variable estatica y armar los <em>metodos de acceso estaticos</em></li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+						code/ch07/02_Static_Methods/static_methods.sv
+					</code></pre>	
+				</section>
+
+				<section>
+					<h2>8. Clases Parametricas</h2>			
+					<ul>
+						<li>En la version anterior, creamos una lion_cage, ok, pero si ahora necesito una chicken_cage??? Copio y pego? NO!</li>
+						<li>SV incorpora las <em>parameterized class definitions</em></li>
+						<li>Son una extension de los famosos <em>parameters</em> de verilog</li>
+						<li>UVM las utiliza mucho, por eso hay que entenderlas</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+						code/ch08/01_memory_example/pres-ch8.sv
+					</code></pre>	
+				</section>
+
+				<section>
+					<h2>8. Clases Parametricas</h2>			
+					<ul>
+						<li>Version con clases estaticas</li>
+						<li>La queue es estatica, pero al instanciar 2 veces la clase con parametros distintos, SV crea 2 colas distintas</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+						code/ch08/02_static/cages.sv
+					</code></pre>	
+				</section>
+
+				<section>
+					<h2>8. Variables con Parametros</h2>			
+					<ul>
+						<li>En esta version no usamos metodos estaticos, sino que instanciamos <em>animal_cage</em> y usamos ese objeto 
+						    para almacenar otros objetos</li>
+						<li>Funciona igual que el codigo anterior, pero no podemos acceder al animal_cage desde cualquier lugar del TB</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+						code/ch08/03_instantiated/cages.sv
+					</code></pre>	
+				</section>
+
+				<section>
+					<h2>9. The Factory Pattern</h2>			
+					<ul>
+						<li>Design Pattern mas visible en <em>UVM</em> (Programming Trick)</li>
+						<li>Consiste en crear una clase constructora dedicada a la construcción de objetos de un subtipo</li>
+						<li>Veamos primero que soluciona:</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+						code/ch09/without-factory.sv
+					</code></pre>	
+					<pre><em>La idea es crear datos de tipos aleatorios sin cambiar el codigo. </em></pre>
+				</section>
+
+				<section>
+					<h2>9. The Factory Pattern</h2>	
+					<img data-src="res/diagrams/ch9_diagram.png" alt="UML Class Example Diagram" >	<br>		
+					<ul>
+						<li><em>Factory Pattern:</em> Queremos pasar un argumento a un metodo y que nos devuelva un objeto del tipo especificado</li>
+						<li><em>Polimorfismo:</em> Lion y chicken hacen un override de la clase animal. En una variable animal podemos guardar cualquiera de estos tipos</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>9. The Factory Pattern</h2>	
+					<ul>
+						<li> Vimos que <em> virtual </em> le decia que use el metodo del objeto y no del tipo del handler, pero que pasa si la clase heredada agrega cosas? </li>
+						<li><em>$cast:</em> system call que convierte la variable del segundo argumento en la clase del primer argumento</li>
+						<li>Solo funciona si la clase objetivo es derivada de la clase casteada</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+						code/ch09/factory.sv
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>9. The Factory Pattern</h2>	
+					<h3><em>Python Lunes Style</em></h3>
+					<pre><code class="python" data-trim local-file style="max-height: 500px;">
+						code/ch09/factory.py
+					</code></pre>
+				</section>	
+
+				<section>
+					<h2>10. An Object-Oriented Testbench</h2>	
+					<ul>
+						<li><em>Por que tanta lio si los unitarios de verilog funcionan?</em> Funcionan para cosas chicas, cosas complejas te vuelve loco, terminas a los gritos</li>
+						<li><em>OOP encapsula y abstrae</em>, por lo tanto permite manejar complejidades superiores y refuerza la reutilizacion de codigo</li>
+					</ul>	
+					<br><br>
+					<h3><em>TinyALU TB en objetos:</em></h2>	
+					<ul>
+						<li>top: Instancia la clase testbench </li>
+						<li>testbench: Top-Level Class </li>
+						<li>tester: Genera los estimulos</li>
+						<li>scoreboard: Chequea que la TinyAlu esta funcionando</li>
+						<li>coverage: Captura la informacion de cobertura funcional</li>
+					</ul>			
+				</section>
+
+				<section>
+					<h2>10. An Object-Oriented Testbench</h2>	
+					<h3><em>Top Module </em></h3>	
+					<ul>
+						<li>Importamos las definiciones de clases (package)</li>
+						<li>Instancia la DUT y el BFM y declara la clase testbench</li>
+						<li>Instancia y ejecuta la clase testbench</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 350px;">
+						code/ch10/top.sv
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>10. An Object-Oriented Testbench</h2>	
+					<h3><em>Testbench Class </em></h3>	
+					<ul>
+						<li>Los TB orientados a objetos tienen un unico objeto que instancias los demas objetos, los conecta y lanza sus metodos</li>
+						<li>Luego veremos que <em>UVM</em> maneja muchas de estas funciones por nosotros, pero como por ahora no estamos usando UVM, tenemos que hacer esto nosotros</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 300px;">
+						code/ch10/tb_classes/testbench.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>10. An Object-Oriented Testbench</h2>	
+					<h3><em>Tester Class </em></h3>	
+					<ul>
+						<li>Estimula el DUT con <em>Random Ops</em> que eventualmente van a cubrir todos los <em>coverpoints</em> funcionales</li>
+						<li>Muy similar a la version modular salvo que:
+							<ul>
+								<li>Definimos una clase en vez de un modulo, usamos una variable para acceder a la BFM (en vez de un port list)</li>
+								<li>Usamos el metodo <em>execute</em> en vez de un <em>initial block</em></li>
+							</ul>
+						</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 250px;">
+						code/ch10/tb_classes/tester.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>10. An Object-Oriented Testbench</h2>	
+					<h3><em>ScoreBoard Class </em></h3>	
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 450px;">
+						code/ch10/tb_classes/scoreboard.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>10. An Object-Oriented Testbench</h2>	
+					<h3><em>Coverage Class </em></h3>	
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 450px;">
+						code/ch10/tb_classes/coverage.svh
+					</code></pre>
+				</section>
+
+				<section data-transition="convex">
+					<h2>Agenda</h2>
+					<h4><em> Day 3</em> </h4>
+					<ul>
+						<li>UVM Tests</li>
+						<li>UVM Components</li>
+						<li>UVM Environment</li>
+						<li>New Paradigm</li>
+					</ul>	
+				</section>
+
+				<section>
+					<h2>11. UVM Tests</h2>	
+					<ul>
+						<li><em>Objetivo:</em> Necesitamos correr miles de tests sin tener que recompilar el TB para cada caso. Supongamos que tenemos 1000 tests y peron tarda 5 minutos por test en compilar todo. Eso significa <em>5000 minutos</em> o 3.5 dias de compilacion. <em>Drama</em></li>
+						<li>UVM permite armar un TB <em>dinamicamente configurable.</em> </li>
+						<li> Esto es, crear un TB definiendo las clases de objetos y luego instanciar distintos objetos para tests diferentes. <em>Sin tener que recompilar</em></li>
+						<li> El TB del tinyALU como esta hasta ahora, es enteramente hardcodeado, si queremos nuevos estimulos, tenemos que recompilar todo </li>
+					</ul>
+					<pre><code class="bash" data-trim style="max-height: 2000px;">
+						[leat@solchaga uvm-training]$ vsim testbench -coverage +UVM_TESTNAME=addtest (o randomtest)
+					</code></pre>
+					<pre><em>El objetivo es pasarle al TB previamente compilado los test que queremos correr<br>Definimos la clase addtest y UVM usa el argumento UVM_TESTNAME para llamar al factory y crear el test</em></pre>
+				</section>
+
+				<section>
+					<h2>11. UVM Tests</h2>	
+					<h3><em>Lanzando simulaciones con UVM</em></h3>
+					<ul>
+						<li><em>uvm_config_db:</em> Clase estatica y parametrizable que permite almacenar info global en el TB</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+						code/ch11/top.sv
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>11. UVM Tests</h2>	
+					<h3><em>Definiendo y Registrando un Test UVM</em></h3>
+					<ol>
+						<li>El test extiende uvm_test y lo registro con `uvm_component_utils</li>
+						<li>Constructor con ciertas reglas</li>
+						<li>Override del run_phase method</li>
+						<li>Mecanismo de objections</li>
+					</ol>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 320px;">
+						code/ch11/tb_classes/random_test.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>11. UVM Tests</h2>	
+					<h3><em>Definiendo y Registrando otro Test UVM</em></h3>
+					<ul>
+						<li>Ahora creamos el test add_test, de manera similar</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+						code/ch11/tb_classes/add_test.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>11. UVM Tests</h2>	
+					<h3><em>run.do y ejemplo de salida</em></h3>
+					<pre><code class="bash" data-trim local-file style="max-height: 250px;">
+						code/ch11/run.do
+					</code></pre>
+					<pre><code class="bash" data-trim local-file style="max-height: 220px;">
+						code/ch11/output.questa
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>12. UVM Components</h2>	
+					<ul>
+						<li>El diseño de un testbench se puede partir en 3:
+							<ol>
+								<li><em>Estructura:</em> Describe las partes del TB y como se conectan</li>
+								<li><em>Secuencias:</em> Comandos que le mandamos al DUT y en que orden</li>
+								<li><em>Data:</em> Datos de estimulo que usamos en los comandos</li>
+							</ol>
+						</li>
+						<li> UVM describe un TB utilizando una jerarquia de objetos</li>
+						<li> Nos da herramientas para instanciar, ejecutar y terminar todos los objetos de nuestro TB</li>
+						<li> La clase <em>uvm_component</em> es la base para armar la estructura del TB. Ejemplo: <em>uvm_test</em> que usamos previamente es un <em>uvm_component</em></li>
+					</ul>					
+				</section>	
+
+				<section>
+					<h2>12. UVM Components</h2>	
+					<h3><em>Definir e Instanciar UVM components</em></h3>
+					<ul>
+						<li>
+							<ol>
+								<li>Extender la clase <em>uvm_component</em> o clases hijas para definir nuestro componente</li>
+								<li>Utilizar la macro <em>`uvm_component_utils()</em> para registrar la clase en la factory </li>
+								<li>Proporcionar al menos el constructor minimo de <em>uvm_component</em></li>
+								<li>Override los <em>UVM phase methods</em> (de ser necesario)</li>
+							</ol>
+						</li>
+						<li> Antes, extendimos <em>uvm_test</em> e instanciamos las 3 partes del TB como objetos genericos</li>
+						<li> Ahora vamos a tratar al tester, coverage y scoreboard como <em>uvm_components</em> utilizando las practicas standard de UVM </li>
+					</ul>
+				</section>			
+
+				<section>
+					<h2>12. UVM Components</h2>	
+					<h3><em>Intro UVM phases</em></h3>	
+					<ul>
+						<li>Todos los uvm components tienen estos phase methods por herencia</li>
+						<li>UVM crea los TB y va llamando estos metodos en orden </li>
+						<li>Cuando hacemos un override de estos metodos, en el constructor debemos llamar a <em>super.(phase_method) primero</em></li>
+						<ul>
+							<li><em>function void build_phase(uvm_phase phase):</em> UVM crea el TB (top-down). Los componentes UVM se instancian en este metodo. Si tratas de instanciarlos en otro lado es error </li>
+							<li><em>function void connect_phase(uvm_phase phase):</em> Conexion de componentes</li>
+							<li><em>function void end_of_elaboration_phase(uvm_phase phase):</em> UVM lo llama una vez que creo y conecto todos los componentes</li>
+							<li><em>task run_phase(uvm_phase phase):</em> UVM ejecuta esta task en su propio thread. Todos los run_phase se ejecutan simultaneamente</li>
+							<li><em>function void report_phase(uvm_phase phase):</em> Se ejecuta cuando se termina la ultima objection del test. Muestra Resultados</li>
+						</ul>
+						</li>
+					</ul>
+				</section>	
+
+				<section>
+					<h2>12. UVM Components</h2>	
+					<h3><em>Scoreboard extends uvm_component</em></h3>	
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 500px;">
+						code/ch12/tb_classes/scoreboard.svh
+					</code></pre>
+				</section>	
+
+				<section>
+					<h2>12. UVM Components</h2>	
+					<h3><em>Building the TB</em></h3>	
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 250px;">
+						code/ch12/tb_classes/random_test.svh
+					</code></pre>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 250px;">
+						code/ch12/tb_classes/add_test.svh
+					</code></pre>
+				</section>	
+
+				<section>
+					<h2>13. UVM Environments</h2>	
+					<h3><em>Resumen hasta la fecha...</em></h3>
+					<ul>
+						<li>Vimos como la <em>factory</em> puede crear un objeto top del tipo <em>uvm_test</em> que se encarga de instanciar los <em>uvm_components</em></li>
+						<li>Sabemos que UVM llama automaticamente a los <em>phase methods</em> de nuestros componentes</li>
+						<li>Ademas, UVM va a correr los run_phases de cada componente en su propio thread</li>
+						<li>Hasta aca usamos <em>uvm_test</em> y <em>uvm_components</em> para crear un TB simple, donde instanciamos los componentes directamente en los tests</li>
+						<li>Esta forma de crear el TB es sencilla de entender pero dificil de reutilizar</li>
+						<li>La tipica discusion malaria: <em>Intractable Vs Adaptable Coding</em></li>
+					</ul>
+				</section>	
+
+				<section>
+					<h2>13. UVM Environments</h2>	
+					<h3><em>Intractable Vs Adaptable</em></h3>
+					<ul>
+						<li>Se llama intractable al codigo que escribis muy rapido sin pensar a futuro</li>
+						<li>Se vuelven cada vez mas dificil de modificar y mantener</li>
+						<li>Hay que escribir el codigo pensando que <em>otra persona lo va a modificar</em> y queremos que no nos putee (tanto)</li>
+						<li>El codigo adaptable es facilmente reutilizable por otra persona</li>
+						<li>Arrancamos codeando de mala gana el TB para nuestra ALU y lo estamos reformulando aplicando 3 reglas:
+						<ul>
+							<li>Crear clases que hagan una unica cosa muy bien y juntarlas para crear una solucion</li>
+							<li>Evitar el hardcodeo siempre que se pueda</li>
+							<li>Programar en base a la interface y no hacer suposiciones sobre la implementacion</li>
+						</li>
+					</ul>
+				</section>	
+
+				<section>
+					<h2>13. UVM Environments</h2>	
+					<h3><em>Intractable Vs Adaptable</em></h3>
+					<blockquote>
+						&ldquo;Tienen prohibido escribir codigo de mierda.&rdquo; <br>Guillermo Barros Schelotto
+					</blockquote>	
+					<img data-src="res/funs/gbarros.jpg" alt="el Guille" align="center">
+				</section>
+
+				<section>
+					<h2>13. UVM Environments</h2>
+					<h4><em>Architecturing Adaptable Code</em></h4>
+					<img data-src="res/diagrams/13_intract_sol_1.png">
+					<ul>
+						<li>Nuestro TB actualmente utiliza 2 tests: uno que manda operaciones random <em>(random_tester)</em> y otro puntual para la suma
+						<em>(add_tester)</em></li> 
+						<li>Random manda 1000 ops random y add manda 1000 sumas</li>
+						<li>Ambos test mandan los operadores (A y B) mediante constrained random</li>
+						<li>En nuestra solucion extendemos la clase <em>uvm_component</em> 2 veces, 1 vez por cada tester</li>
+						<li>Cada clase tiene un metodo <em>get_op()</em>, un <em>get_data()</em> y un <em>run_phase()</em></li>
+						<li>Lo que lo hace una mala solucion, es que estamos duplicando <em>run_phase()</em></li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>13. UVM Environments</h2>
+					<h4><em>Architecturing Adaptable Code</em></h4>
+					<img data-src="res/diagrams/13_using_virtual_class.png">
+					<ul>
+						<li>Creamos una clase abstracta (base_tester) que tenga el metodo run_phase() y que mande 1000 operaciones usando get_op() y get_data()</li>
+						<li>Al ser abstracta no la podemos instanciar y con los metodos <em>pure virtual</em> obligamos a que las clases heredadas redefinan los metodos</li>
+						<li>Todavia comparten codigo: ambos tester utilizan operadores random...</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>13. UVM Environments</h2>
+					<h4><em>Architecturing Adaptable Code</em></h4>
+					<img data-src="res/diagrams/13_adaptable_sol.png" align="right">
+					<ul align="left">
+						<li>random_test: crea operaciones random con operandos <br> aleatorios </li>
+						<li>Aprovechando esto es facil pensar que heredando la clase <br>
+						random_tester se pueden crear muchas otras clases utiles</li>
+						<li>Por ejemplo: xor_test, mult_test, etc </li>
+						<li>El resultado es que <em>add_tester</em> es muy simple:</li>
+						<pre><code class="systemverilog" data-trim local-file style="max-height: 300px;">
+						code/ch13/tb_classes/add_tester.svh
+						</code></pre>
+					</ul>
+				</section>
+
+				<section>
+					<h2>13. UVM Environments</h2>
+					<h4><em>Separating Structure from Stimulus</em></h4>
+					<ul>
+						<li>Muy lindo todo pero como lo usamos?</li>
+						<li>Creamos una familia de clases uvm_test? No es una buena idea</li> 
+						<li> Cada test que extienda random_test va a tener un objeto random_tester...
+							<pre><code class="systemverilog" data-trim local-file style="max-height: 130px;">
+							code/ch12/tb_classes/random_test.svh
+							</code></pre>	
+						</li>
+						<li>Le pifiamos cuando no cumplimos la promesa de que una clase solo haga 1 cosa muy bien, 
+						random_tester arma la estructura del TB y y especifica el test a realizar</li>
+						<li> UVM soluciona esto mediante la clase <em>uvm_env</em> que es donde armamos la estructura del TB</li>
+						<li>uvm_env usualmente solo contiene definiciones de los metodos <em>build_phase</em> y <em>connect_phase</em></li>
+					</ul>				
+				</section>
+
+				<section>
+					<h2>13. UVM Environments</h2>
+					<h4><em>Separating Structure from Stimulus</em></h4>
+					<img data-src="res/diagrams/13_struct_level.png" alt="" align="center">
+					<ul>
+						<li>Aca vemos el diagrama de clases luego de separar la estructura estructura respecto de los test mediante 
+						<em>uvm_env</em></li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>13. UVM Environments</h2>
+					<h4><em>env class</em></h4>
+					<ul>
+						<li>La clase <em>env</em> define la estructura del TB. Instancia los objetos y luego los conecta</li>
+						<li>OOP: Mientras mas dividamos a un problema en subproblemas mas chicos, obtendremos codigo mas simple</li>
+						<li>El metodo <em>build_phase()</em> hace llamadas a metodos static que crean los componentes</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 300px;">
+					code/ch13/tb_classes/env.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>13. UVM Environments</h2>
+					<h3><em>Creando UVM components con UVM Factory</em></h3>
+					<ul>
+						<li>UVM factory es mas sofisticada que el ejemplo simple que vimos de animales, donde teniamos que <em>castear</em> el resultado y 
+						hardcodear el codigo para agregar nuevos tipos a fabricar</li>
+						<li>En UVM agregamos nuevas clases a la factory utilizando los siguientes macros:
+							<ul>
+								<li><em>`uvm_component_utils()</em></li>
+								<li><em>`uvm_object_utils()</em></li>
+							</ul></li>
+						<li>UVM Factory retorna un objeto del tipo correcto, sin necesidad de caster el resultado</li>
+						<li>Veamos como hacemos esto... </li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>13. UVM Environments</h2>
+					<h3><em>Creando UVM components con UVM Factory</em></h3>
+					<img data-src="res/diagrams/ch13_uvm_incantation.png" align="center">
+					<ul>
+						<li>UVM utiliza la tecnica de static member/method que vimos previamente para entregar un <em>uvm_component</em>.</li>
+						<li>Las ventajas son las siguientes:
+						<ul>
+							<li>No hay que castear el resultado, UVM lo hace automaticamente</li>
+							<li>En tiempo de compilacion podemos encontrar si no definimos la clase o la escribimos mal</li>
+							<li>El compilador tambien ataja cuando olvidamos poner algun <em>`uvm_component_utils()</em></li>
+						</ul>
+						</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>13. UVM Environments</h2>
+					<h3><em>Creando UVM components con UVM Factory</em></h3>
+					<ul>
+						<li>Todo muy lindo pero tester_h pide como resultado un objeto del tipo base_tester y esta es una clase abstracta....</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 200px;">
+					code/ch13/tb_classes/base_class.svh
+					</code></pre>
+					<ul>
+						<li>Esto funciona porque env esta usando la variable base_tester como un placeholder</li>
+						<li>El codigo asume que la factory va a retornar un objeto de alguna clase derivada de base_tester</li>
+						<li>El objeto se determina mediante un override de la clase base_tester en la factory antes que build_phase se ejecute</li>
+						<li>Aca, el override lo hacemos en la clase test que instancia la clase env</li>
+					</ul>					
+				</section>
+
+				<section>
+					<h2>13. UVM Environments</h2>
+					<h3><em>Overriding the factory</em></h3>
+					<ul>
+						<li>Cuando vimos UVM Test, extendimos a random_test para crear un add_test</li>
+						<li>add_test reemplazaba al tester mediante un add_tester</li>
+						<li>Creamos nuestro add_test copiando el random_test y reemplazando el objeto tester por un objeto add_tester. Violando la regla
+						que dice que no vale copiar codigo</li>
+						<li>UVM factory soluciona este problema</li>
+						<li>Debido a que la clase add_tester es hija de la clase base_tester, podemos usar un objeto add_tester, en cualquier lugar que usemos
+						un base_tester</li>
+						<li>Es decir, le podemos decir a la factory que produzca un objeto add_tester en cualquier lugar que le pidamos un objeto base_tester</li>
+						<li> A esto se lo llama, <em>factory override</em></li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>13. UVM Environments</h2>
+					<h3><em>Overriding the factory</em></h3>
+					<img data-src="res/diagrams/ch13_uvm_incantation_2.png" align="center">
+					<ul>
+						<li>El metodo static <em>set_type_override()</em> le dice a la factory que cuando vea un pedido por una <em>base_class_name</em>
+						retorne un objeto del tipo <em>new_class_name</em></li>
+						<li>Esta feature es la que nos permite separar la estructura del TB (<em>uvm_env</em>) del tipo de estimulo generado 
+						(<em>uvm_test</em>)</li>
+					</ul>
+
+				</section>				
+
+				<section>
+					<h2>13. UVM Environments</h2>
+					<h3><em>Overriding the factory</em></h3>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 250px;">
+					code/ch13/tb_classes/random_test.svh
+					</code></pre>
+					<ul>
+						<li>Vemos que esta version es mas adaptable</li>
+						<li>Todos los Tests hace un override de base_tester en funcion del tester que necesitan para sus estimulos</li>
+						<li>La clase env crea el objeto y lo pone en ejecucion</li>
+						<li>Ahora la clase test hace una cosa bien (generar estimulos) y la clase env hace otra cosa muy bien (crear la estructura)</li>
+					</ul>
+				</section>	
+
+				<section>
+					<h2>14. A New Paradigm</h2>	
+					<ul>
+						<li>El <em>paradigma estructural</em> plantea que pasos/receta seguir para resolver un problema</li>
+						<li><em>OOP</em> plantea, como conectar objetos para poder resolver el problema</li>
+						<li>Es por eso, que debemos analizar los tipos de comunicaciones que podemos tener entre objetos</li>
+						<li><ul>
+						<li><em>Single-Thread:</em> Un objeto corriendo en un thread llama al metodo de otro objeto</li>
+						<li><em>Dual_Thread:</em> 2 objetos corriendo en threads diferentes necesitan comunicarse entre si y coordinarse</li>
+						</ul>
+						</li>
+						<li> Arrancaremos viendo single-thread y la fabulosa clase <em>uvm_analysis_port</em></li>
+					</ul>
+				</section>	
+
+				<section>
+					<h2>Agenda</h2>
+					<h4><em> Day 4</em> </h4>
+					<ul>
+						<li>Talking to Multiples Objects</li>
+						<li>Using Analysis Ports in a TestBench</li>
+						<li>Interthread Communication</li>
+						<li>Put and Get Ports in Action</li>
+					</ul>	
+				</section>
+
+				<section>
+					<h2>15. Talking Multiples Objects</h2>	
+					<h3><em>Problema Introductorio</em></h3>
+					
+					<ul>
+						<li>Escribir un programa que simule la ejecucion de tirar dos dados (2d6) 20 veces e informe lo siguiente
+						<ul>
+							<li>El promedio de los valores que dieron los dados</li>
+							<li>Un histograma con la frecuencia de valores</li>
+							<li>Un reporte de cobertura que muestre si salieron todos los posibles valores de 2 a 12</li>
+						</ul>
+						</li>
+					</ul>	
+					<img data-src="res/funs/two-purple-dice-hi.png"  height="182" width="200" align="center">				
+				</section>	
+
+				<section>
+					<h2>15. Talking Multiples Objects</h2>	
+					<h3><em>Solucion Inicial</em></h3>
+					<ul>
+						<li>Tenemos que Crear y conectar objetos que resuelvan el problema</li>
+						<li>Crearemos 3 uvm_components</li>
+						<li>La clase Average recolecta la data usando el metodo write() y luego informa el resultado utilizando report_phase()</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 350px;">
+					code/ch15/01_No_Analysis_Port/average.svh
+					</code></pre>
+				</section>	
+
+				<section>
+					<h2>15. Talking Multiples Objects</h2>	
+					<h3><em>Solucion Inicial</em></h3>
+					<ul>
+						<li>Class Histogram</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 450px;">
+					code/ch15/01_No_Analysis_Port/histogram.svh
+					</code></pre>
+				</section>	
+
+				<section>
+					<h2>15. Talking Multiples Objects</h2>	
+					<h3><em>Solucion Inicial</em></h3>
+					<ul>
+						<li>Class Coverage</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 450px;">
+					code/ch15/01_No_Analysis_Port/coverage.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>15. Talking Multiples Objects</h2>	
+					<h3><em>Solucion Inicial</em></h3>
+					<ul>
+						<li>Class Dice Roller</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 450px;">
+					code/ch15/01_No_Analysis_Port/dice_roller.svh
+					</code></pre>
+				</section>				
+
+				<section>
+					<h2>15. Talking Multiples Objects</h2>	
+					<h3><em>Solucion Inicial</em></h3>
+					<ul>
+						<li>UVM Practice: Creamos una clase dice_test que extiende uvm_test</li>
+						<li>Todo muy lindo, pero veamos en detalle run_phase</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 450px;">
+					code/ch15/01_No_Analysis_Port/dice_test.svh
+					</code></pre>
+				</section>	
+
+				<section>
+					<h2>15. Talking Multiples Objects</h2>	
+					<h3><em>Observer Design Pattern</em></h3>
+					<ul>
+						<li>Funciona como <em>Twitter</em>: Cuando escribimos un tweet y lo enviamos, todos nuestros followers pueden leerlo</li>
+						<li>Realmente no sabemos que van a hacer con ese tweet ni tampoco sabemos quienes son nuestros followers</li>
+						<li>Asi funciona <em>Observer Design Pattern</em>: Un objeto crea un dato y lo comparte con el mundo, sin importar cuantos 
+						observadores tiene</li>
+						<li>Como lo usamos aca: <em>dice_roller_h</em> crea el dato que otros objetos necesitan</li>
+						<li>dice_roller_h es el objeto observado y coverage_h, histogram_h y average_h son los observadores (subscribers)</li>
+					</ul>
+					<img data-src="res/funs/Twitter_logo_blue.png"  height="165" width="165" align="center">	
+				</section>	
+
+				<section>
+					<h2>15. Talking Multiples Objects</h2>	
+					<h3><em>Observer Design Pattern and UVM</em></h3>
+					<ul>
+						<li>UVM provee 2 clases que permiten implementar facilmente este pattern:
+							<ul>
+								<li><em>uvm_analysis_port:</em> Envia data a un conjunto de subscribers (observadores)</li>
+								<li><em>uvm_subscriber:</em> Extension de uvm_component que permite al componente subscribirse a un uvm_analysis_port</li>
+							</ul>
+						</li>
+					</ul>
+					<img data-src="res/diagrams/ch15_ports.png" align="center">
+				</section>	
+
+				<section>
+					<h2>15. Talking Multiples Objects</h2>	
+					<h3><em>uvm_analysis_port</em></h3>
+					<ul>
+						<li>Declaramos una variable del tipo <em>uvm_analysis_port</em> que defina el tipo de datos que va a transportar</li>
+						<li>Instanciamos el analysis port en <em>build_phase</em></li>
+						<li>Escribimos datos en el puerto mediante el metodo <em>.write()</em></li>
+						<li>Una vez que escribimos datos en el puerto, este va a todos sus subscribers</li>
+						<li>Utilizamos el metodo <em>connect()</em> para conectar los subscribers al puerto. Este metodo tiene un unico argumento:
+						un analysis_port</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 150px;">
+					code/ch15/02_With_Analysis_Port/ch15-analysis-port.sv
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>15. Talking Multiples Objects</h2>	
+					<h3><em>uvm_subscriber</em></h3>
+					<ul>
+						<li>Extendemos la clase <em>uvm_subscriber</em> parametricamente, para saber que tipo de datos va a leer</li>
+						<li>La clase nos da un objeto llamado <em>analysis_export</em></li>
+						<li>La clase requiere que creemos un metodo llamado <em>write()</em> que tiene un unico argumento <em>t</em>, que es del 
+						mismo tipo que la extension de la clase</li>
+						<li>En nuestro ejemplo, tenemos 3 subscribers (average, coverage y histogram)</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 250px;">
+					code/ch15/02_With_Analysis_Port/coverage.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>15. Talking Multiples Objects</h2>	
+					<h3><em>Dice_Roller: usando uvm_analysis_port</em></h3>
+					<ul>
+						<li>No usamos la Factory para instanciar ports</li>
+						<li>Cuando llamamos al metodo write en el producer, el analysis_port llama al metodo write() de todos los subscribers
+						y asi pasa los datos</li>
+						<li>Esto es lo lindo, no hay que preocuparse sobre quien lee nuestros datos</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 350px;">
+					code/ch15/02_With_Analysis_Port/dice_roller.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>15. Talking Multiples Objects</h2>	
+					<h3><em>Metodo connect_phase()</em></h3>
+					<ul>
+						<li>Necesitamos vincular al productor con el consumidor</li>
+						<li>UVM provee un phase method (<em>connect_phase()</em>) para conectar los objetos</li>
+						<li>UVM llama al metodo build_phase de manera TOPDOWN, una vez terminado con todos los objetos en la jerarquia,
+						 UVM llama al metodo connect_phase de manera BottomUP</li>
+						<li>El proceso de conexion tiene 2 partes fundamentales
+							<ul>
+								<li>Los uvm_subscribers contienen un objeto llamado analysis_export, que no debemos instanciarlo ya que 
+								viene cuando extendemos la clase uvm_subscriber</li>
+								<li>La clase uvm_analysis_port provee un metodo llamado connect()</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>15. Talking Multiples Objects</h2>	
+					<h3><em>Metodo connect_phase()</em></h3>
+					<ul>
+						<li>Veamos como hacemos que el subscriber sea <em>follower</em> del analysis_port</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 450px;">
+					code/ch15/02_With_Analysis_Port/dice_test.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>15. Talking Multiples Objects</h2>
+					<h3><em>Solucion Picante</em></h3>
+					<ul>
+						<li>En el diagrama de conexionado podemos ver que la clase dice_roller tiene un objeto uvm_analysis_port llamado roll_app</li>
+						<li>Cada subscriber tiene un objeto analysis_export</li>
+						<li>La conexion entre ambos se realiza mediante el metodo connect()</li>
+					</ul>
+					<img data-src="res/diagrams/ch15_spicy.png" align="center">
+				</section>
+
+				<section>
+					<h2>16. Using Analysis Ports in a TB</h2>
+					<h3><em>Introduccion</em></h3>
+					<ul>
+						<li>Una de las razones por la que la gente de UVM implemento el <em>observer design patter</em> es que es ideal
+						para monitoriar un DUT</li>
+						<li>Todos los TB hacen 2 cosas:
+							<ul>
+								<li>Enviar estimulos al DUT</li>
+								<li>Ver que pasa</li>
+							</ul>
+						</li>
+						<li>Actualmente nuestro TB hace eso con 1 objeto que envia estimulos <em>(tester_h)</em> y 2 que ven que pasa
+						<em>(scoreboard_h y coverage_h)</em></li>
+						<li>Al tener 2 objetos que neceistan ver los comandos del TinyALU, estamos duplicando codigo, vamos a cambiar esto
+						usando analysis_port</li>
+						<li>En la jerga UVM, scoreboard_h y coverage_h forman parte del <em>analysis layer</em>, de ahi el nombre de
+						<em>analysis_port</em></li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>16. Using Analysis Ports in a TB</h2>
+					<h3><em>Diagrama del Testbench</em></h3>
+					<img data-src="res/diagrams/ch16-fig102.png" width="891" height="514" align="center">
+				</section>
+
+				<section>
+					<h2>16. Using Analysis Ports in a TB</h2>
+					<h3><em>Object Handles in the BFM</em></h3>
+					<ul>
+						<li>Ahora vamos a conectar la BFM al TB mediante el handler de un objeto</li>
+					</ul>	
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 140px;">
+					code/ch16/tinyalu_bfm.sv
+					</code></pre>
+					<ul>
+						<li>Estos handlers, los seteamos desde las clases de los monitores</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 250px;">
+					code/ch16/tb_classes/command_monitor.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>16. Using Analysis Ports in a TB</h2>
+					<h3><em>Monitoreando los comandos del TinyALU</em></h3>
+					<ul>
+						<li>Dentro del BFM, monitoreamos los comandos y los resultados mediante 2 bloques always</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 200px;">
+					code/ch16/tinyalu_bfm.sv
+					</code></pre>
+					<ul>
+						<li>Clase command_monitor:</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 140px;">
+					code/ch16/tb_classes/command_monitor.svh
+					</code></pre>					
+				</section>
+
+				<section>
+					<h2>16. Using Analysis Ports in a TB</h2>
+					<h3><em>TinyALU Coverage Class como Subscriber</em></h3>
+					<ul>
+						<li>Mediante la clase command_monitor tenemos centralizado donde buscar que comandos ejecuta TinyALU</li>
+						<li>Los objetos que necesiten saber que cmd se ejecuta, se tienen que subscribir al analysis port de esta clase 
+						e implementar el metodo write</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 350px;">
+					code/ch16/tb_classes/coverage.svh
+					</code></pre>					
+				</section>
+
+				<section>
+					<h2>16. Using Analysis Ports in a TB</h2>
+					<h3><em>Subscribiendose a multiples analysis Ports</em></h3>
+					<ul>
+						<li>El mecanismo basico de analysis port de UVM permite que un uvm_subscriber agarre un unico analysis_port</li>
+						<li>Sin embargo, en casos como un scoreboard, necesitas que un uvm_subscriber agarre datos de 2 analysis port</li>
+						<li>La forma facil de solucionar esto, es instanciar otro subscriber y conectarlo al otro puerto</li>
+						<li>UVM provee la clase <em>uvm_tlm_analysis_fifo</em> para esto. </li>
+						<li>Esta clase parametrica provee un <em>analysis_export</em> de un lado y un metodo <em>try_get()</em> del otro</li>
+						<li>El metodo <em>try_get()</em> lee comandos de la FIFO y retorna 0 si esta vacia</li>
+						<li>Veamos el codigo....</li>
+					</ul>					
+				</section>
+
+				<section>
+					<h2>16. Using Analysis Ports in a TB</h2>
+					<h3><em>Subscribiendose a multiples analysis Ports</em></h3>
+					<ul>
+						<li>Clase Scoreboard:</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 450px;">
+					code/ch16/tb_classes/scoreboard.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>16. Using Analysis Ports in a TB</h2>
+					<h3><em>Subscribiendose los Monitores</em></h3>
+					<ul>
+						<li>Conectamos los analysis port a los monitores usando el metodo connect_phase() en la clase env:</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+					code/ch16/tb_classes/env.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>16. Using Analysis Ports in a TB</h2>
+					<h3><em>Resumen de la unidad</em></h3>
+					<ul>
+						<li>Usamos los <em>uvm_analysis_port</em> para implementar el Observer design pattern en nuestro TB </li>
+						<li>Vimos como consolidar todas las signals de la DUT en la BFM, el resto de los bloques ya ni saben como se usan</li>
+						<li>Comunicar objetos mediante uvm_analysis_port es un ejemplo de intra-thread communication</li>
+						<li>Todas las llamadas a funciones ocurren en un mismo thread</li>
+						<li>Cuando el bloque always del cmd_monitor llama al metodo write_to_monitor(), esta llamando a los metodos write()
+						de todos los subscribers del puerto</li>
+						<li>Esto es util para etapas de analysis, pero muchas veces necesitamos pasar informacion entre threads. UVM tambien ayuda a esto</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>17. Interthread Communication</h2>
+					<h3><em>Introduccion</em></h3>
+					<ul>
+						<li>Esto es algo que venimos haciendo hace rato, pero con otro nombre, veamos el siguiente programa</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 350px;">
+					code/ch17/01_Modules/modules.sv
+					</code></pre>
+					<ul>
+						<li>InterThread Communication es enviar data de un thread a otro usando los puertos de los modulos</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>17. Interthread Communication</h2>
+					<h3><em>Momento! No hay Objects Ports???</em></h3>
+					<ul>
+						<li>En el ejemplo anterior, todo sucede a traves de los puertos de los modulos. En OOP no existe tal cosa</li>
+						<li>SystemVerilog tiene la habilidad de compartir handlers entre objetos y tambien tiene sistemas de coordinacion,
+						tales como semaforos y mailboxes</li>
+						<li>Podemos crear una comunicacion entre threads usando estas magias pero cada solucion va a ser diferente</li>
+						<li>La solucion UVM para esto consta de 2 partes: 
+							<ul>
+								<li><em>Ports-Objects</em>: Los instanciamos en los uvm_components para permitir al metodo run_phase() comunicarse
+								con otros threads. Usamos <em>Put Ports</em> para enviar datos y <em>Get Ports</em> para recibir data de otros threads</li>
+								<li><em>TLM FIFO</em>: Objetos que conectan un put port con un get port. Rareza: Solo pueden almacenar 1 elemento,
+								si bien esto apesta en una FIFO, es muy util para comunicacion entre threads</li>
+							</ul>
+						</li>
+						<li>Ahora vamos a re-escribir el modulo inicial utilizando estas cuestiones</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>17. Interthread Communication</h2>
+					<h3><em>Productor como un objeto</em></h3>
+					<ul>
+						<li>Usamos <em>uvm_put_port</em> y obtenemos una solucion mas limpia, sin tener que lidear con handshaking de signals</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+					code/ch17/02_Blocking/producer.svh
+					</code></pre>					
+				</section>
+
+				<section>
+					<h2>17. Interthread Communication</h2>
+					<h3><em>Consumidor como un objeto</em></h3>
+					<ul>
+						<li>Usamos <em>uvm_get_port</em>. Cuando arranca la tarea, llamamos al metodo get() y como la FIFO esta vacia, bloquea la ejecucion</li>
+						<li>Cuando el productor manda un dato, el get() del consumidor se desbloquea y sigue la ejecucion con el dato ya leido</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 300px;">
+					code/ch17/02_Blocking/consumer.svh
+					</code></pre>					
+				</section>
+
+				<section>
+					<h2>17. Interthread Communication</h2>
+					<h3><em>Conectando los puertos</em></h3>
+					<ul>
+						<li><em>uvm_tlm_fifo</em> debe tener los mismos parametros que los puertos producer/consumer</li>
+						<li>UVM llama todos los metodos build_phase top-down, una vez q termino, arranca a llamar el connect_phase de forma bottom-up</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 300px;">
+					code/ch17/02_Blocking/communication_test.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>17. Interthread Communication</h2>
+					<h3><em>Conectando los puertos al FIFO TLM</em></h3>
+					<ul>
+						<li>Ya vimos que el objeto <em>uvm_analysis_port</em> tiene el metodo <em>connect()</em> cuyo argumento es un <em>analysis_export</em>
+						provisto por la clase <em>uvm_subscriber</em></li>
+						<li>El mismo enfoque funciona para los <em>put ports</em> y la <em>uvm_tlm_fifo</em>:</li>
+						<li><em>uvm_tlm_fifo</em> provee 2 objetos: <em>put_export</em> y <em>get_export</em> que usamos para conectar la FIFO</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 300px;">
+					code/ch17/02_Blocking/connect_phase.sv
+					</code></pre>	
+					<pre><code class="bash" data-trim local-file style="max-height: 300px;">
+					code/ch17/02_Blocking/result.txt
+					</code></pre>				
+				</section>
+
+				<section>
+					<h2>17. Interthread Communication</h2>
+					<h3><em>Comunicacion NO bloqueante</em></h3>
+					<ul>
+						<li>La comunicacion bloqueante previa anda joya siempre y cuando no tengamos que preocuparnos por relojes y tiempos</li>
+						<li>UVM no bloqueantes de <em>put()</em> y <em>get()</em> -> <em>try_put()</em> y <em> try_get()</em></li>
+						<li>Estas funciones devuelven 1 si son satisfactorias, o 0 en caso contrario</li>
+					</ul>	
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 220px;">
+					code/ch17/03_NonBlocking/consumer.svh
+					</code></pre>	
+					<pre><code class="bash" data-trim local-file style="max-height: 120px;">
+					code/ch17/03_NonBlocking/results.txt
+					</code></pre>									
+				</section>				
+
+				<section>
+					<h2>17. Interthread Communication</h2>
+					<h3><em>Diagramas Put Ports and Get Ports</em></h3>
+					<img data-src="res/diagrams/ch17-fig124.png" align="center">
+					<ul>
+						<li><em>Analysis Ports:</em>
+							<ul>
+								<li>Rombo: Analysis Port</li>
+								<li>Circulo: Analysis Export</li>
+							</ul>
+						</li>
+						<li><em>Put, Get Ports:</em>
+							<ul>
+								<li>Cuadrado: Put, Get Port</li>
+								<li>Circulo: Exports</li>
+							</ul>
+						</li>						
+					</ul>					
+				</section>
+
+				<section>
+					<h2>17. Interthread Communication</h2>
+					<h3><em>Resumen de la unidad</em></h3>
+					<ul>
+						<li>La comunicacion Intra-Thread de objetos es similar a la comunicacion intra-thread entre modulos </li>
+						<li>UVM provee un mecanismo de comunicacion intra-thread en terminos de <em>uvm_put_ports</em>,<em>uvm_get_ports</em>y
+						<em>uvm_tlm_fifos</em></li>
+						<li>Cualquier objeto que quiera comunicarse con otro thread, debe instanciar un port y conectarlo a una FIFO</li>
+						<li>Ahora tenemos que usar esto para conectar nuestro TB.</li>
+						<li>Vamos a separar la generacion de estimulo del driver de la DUT</li>
+					</ul>					
+				</section>				
+
+				<section>
+					<h2>18. Put and Get Ports in Action</h2>
+					<h3><em>Introduccion</em></h3>
+					<ul>
+						<li>Veamos como quedo nuestro <em>base_tester</em>, que hace 2 cosas:
+							<ul>
+								<li>Elije el tipo de operacion de la ALU</li>
+								<li>La aplica utilizando la BFM</li>
+							</ul>
+						</li>
+						<li>Si dividimos esto introduciendo un <em>driver</em> podemos tener un sistema mucho mas flexible</li>
+						<li>Driver se refiere a un objeto que toma data del TB y lo convierte a signals en la BFM</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 200px;">
+					code/ch16/tb_classes/base_tester.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>18. Put and Get Ports in Action</h2>
+					<h3><em>Introduccion</em></h3>
+					<ul>
+						<li>Ahora tenemos una clase que elije el estimulo, y otra dedicada a enviarlo</li>
+					</ul>					
+					<img data-src="res/diagrams/ch18-fig125.png" width="909" height="402" align="center">
+				</section>
+
+				<section>
+					<h2>18. Put and Get Ports in Action</h2>
+					<h3><em>Seteando env</em></h3>
+					<ul>
+						<li>Mantra: "Ports connects to exports"</li>
+					</ul>					
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+					code/ch18/tb_classes/env.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>18. Put and Get Ports in Action</h2>
+					<h3><em>Clase base_tester</em></h3>
+					<ul>
+						<li>La conexion de <em>base_tester</em> y el driver, no afeta las operaciones get_op() y get_data() que se especializan
+						en las clases heredades (random_tester, add_tester), con lo cual no debemos cambiar esas clases</li>
+						<li><em>base_tester</em>  es similar a la version anterior salvo que no tiene un handler al BFM, sino que usamos un 
+						<em>uvm_put_port</em> llamado command_port</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 300px;">
+					code/ch18/tb_classes/base_tester.svh
+					</code></pre>										
+				</section>
+
+				<section>
+					<h2>18. Put and Get Ports in Action</h2>
+					<h3><em>TinyALU Driver</em></h3>
+					<ul>
+						<li>Clase muy simple, agarra comandos del <em>get_port</em> y lo envia a la BFM a traves de la task <em>send_op()</em></li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+					code/ch18/tb_classes/driver.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>18. Put and Get Ports in Action</h2>
+					<h3><em>Resumen de la unidad</em></h3>
+					<ul>
+						<li>Tenemos un TB que separa entre la generacion de estimulos y el analisis</li>
+						<li>Yendo mas lejos, dividimos la generacion del estimulo (tester) de la aplicacion del mismo (driver)</li>
+						<li>En la proxima unidad, veremos como generar mejores reportes con la informacion generada</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Agenda</h2>
+					<h4><em> Day 5</em> </h4>
+					<ul>
+						<li>UVM Reporting</li>
+						<li>Class Hierarchies</li>
+						<li>UVM Transactions</li>
+					</ul>	
+				</section>
+
+				<section>
+					<h2>19. UVM Reporting</h2>
+					<h3><em>Introduccion</em></h3>
+					<ul>
+						<li>Los TB generan mucha informacion, si usaramos unicamente a nuestro querido <em>$display()</em> sin ningun tipo
+						de filtro, te volves loco</li>
+						<li>Lo ideal es tener algun mecanismo que controle el nivel de informacion que nos brinda el TB</li>
+						<li>UVM incorpora una serie de macros que reemplazan el $display y nos permite poder utilizar filtros para obtener unicamente
+						la informacion que necesitamos</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>19. UVM Reporting</h2>
+					<h3><em>UVM Reporting Macros</em></h3>
+					<ul>
+						<li>UVM provee 4 macros para reporting, se diferencian por la <em>Severity</em>, es decir: info no es lo mismo que un error</li>
+						<li><em>Message ID String:</em> String que identifica que modulo o parte del design manda el mensaje. Vamos a utilizar esta ID
+						para controlar las acciones de UVM asociadas a estos tipos de mensajes </li>
+						<li><em>Message String:</em> Contiene el mensaje que queremos mostrar</li>
+						<li><em>Verbosity:</em> Solo la macro <em>`uvm_info()</em> tiene un argumento de verbosidad que sirve para controlar que mensajes vamos a imprimir</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+					code/ch19/reporting.sv
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>19. UVM Reporting</h2>
+					<h3><em>UVM Reporting Macros</em></h3>
+					<ul>
+						<li>Veamos un ejemplo de como mostrariamos errores en un <em>scoreboard</em> mediante estas macros:</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+					code/ch19/tb_classes/score_ppt.svh
+					</code></pre>
+					<ul>
+						<li>Suponiendo que tenemos un error, obtendriamos algo como lo siguiente, donde UVM ademas nos informa que modulo tuvo el mensaje y el tiempo</li>
+					</ul>
+					<pre><code class="bash" data-trim local-file style="max-height: 400px;">
+					code/ch19/tb_classes/scoreboard_error.txt
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>19. UVM Reporting</h2>
+					<h3><em>UVM Verbosity Levels</em></h3>
+					<ul>
+						<li>Es comun debuggear llenando el codigo de <em>$display()</em>. Sin embargo, cuando corregimos el error, tenemos que borrar o
+						comentar todo este codigo. La verbosidad de UVM soluciona este problema</li>
+						<li>UVM usa 2 pasos para controlar los mensajes:
+							<ul>
+								<li>Verbosidad en todos las llamadas al macro <em>`uvm_info()</em></li>	
+								<li>Seteamos el techo de verbosidad en nuestra simulacion. Se puede setear globalmente o por modulo</li>
+							</ul>
+						</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+					code/ch19/tb_classes/verbosidad.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>19. UVM Reporting</h2>
+					<h3><em>Seteando el nivel de Verbosidad</em></h3>
+					<ul>
+						<li>Controlamos el numero de mensajes <em>`uvm_info</em> seteando el techo de verbosidad. Si bajamos el techo, menos mensajes 
+						veremos	</li>
+						<li>Lo podemos hacer de 2 maneras: globalmente y localmente para cada rama de la jerarquia UVM</li>
+					</ul>
+					<h4> Seteo Global de la verbosidad</h4>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+					code/ch19/tb_classes/verbosity_ceiling.txt
+					</code></pre>
+					<ul>
+						<li>Setear la verbosidad de manera global es muy sencillo</li>
+						<li>El problema es que si trabajamos con 10 personas mas, todos van a tener sus propios displays de debug, lo cual va a ser un 
+						infierno... Para eso utilizamos verbosidad por modulo</li>
+						</ul>
+				</section>
+
+				<section>
+					<h2>19. UVM Reporting</h2>
+					<h3><em>Seteando la verbosidad de manera jerarquica</em></h3>
+					<ul>
+						<li><em>uvm_component</em> proveen metodos de reportes que controlan la verbosidad</li>
+						<li>Estos vienen en 2 sabores: Uno controla la verbosidad del componente, otro controla el reporte para ese componente
+						y para todos los componentes por debajo de su jerarquia</li>
+						<li>Cuando hablamos de jerarquia, no nos referimos a la jerarquia de modulos del DUT. Estamos hablando de la jerarquia que 
+						UVM crea cuando llama a <em>build_phase()</em> en todos sus componente</li>
+					</ul>
+					<img data-src="res/diagrams/UVM-hierarchy.png" width="554" height="260" align="center">
+				</section>
+
+				<section>
+					<h2>19. UVM Reporting</h2>
+					<h3><em>Seteando la verbosidad de manera jerarquica</em></h3>
+					<ul>
+						<li>Si queremos usar la jerarquia de UVM para controlar el techo de verbosidad, necesitamos llamar a nuestros metodos de 
+						reporte luego de que se haya creado la jerarquia. Esto lo hacemos con el <em>UVM phase method</em> llamado
+						 <em>end_of_elaboration()</em> que se ejecuta justo antes	de <em>run_phase()</em></li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 400px;">
+					code/ch19/tb_classes/ceil_hierar.sv
+					</code></pre>	
+					<ul>
+						<li><em>set_report_verbosity_level_hier()</em> es jerarquico</li>
+						<li><em>set_report_verbosity_level()</em> unicamente setea la del componente</li>
+					</ul>				
+				</section>				
+
+				<section>
+					<h2>19. UVM Reporting</h2>
+					<h3><em>Disabling Warnings, Errores y Mensajes Fatales</em></h3>
+					<ul>
+						<li>Supongamos al ejecutar el TB tenemos un error. Al ver el reporte vemos que la DUT esta OK pero el Scoreboard 
+						no esta prediciendo bien la suma.</li>
+						<li>Esa clase la esta trabajando otra persona y va a tardar unos dias en arreglarla, como seguimos?</li>
+						<li>Estaria bueno poder apagar estos mensajes de error, suprimirlos</li>
+						<li>Tocamos el techo de verbosidad? No, eso solo afecta los <em>`uvm_info</em> y nosotros tenemos que apagar un
+						<em>`uvm_error</em></li>
+					</ul>
+					<pre><code class="bash" data-trim local-file style="max-height: 220px;">
+					code/ch19/scoreboard1.txt
+					</code></pre>
+
+				</section>
+
+				<section>
+					<h2>19. UVM Reporting</h2>
+					<h3><em>Disabling Warnings, Errores y Mensajes Fatales</em></h3>
+					<ul>
+						<li>Mensajes de warning, error y fatales son inmunes al techo de verbosidad que vimos previamente </li>
+						<li>Para poder controlarlos necesitamos usar otro control de <em>UVM Reporting</em> llamado <em>actions</em></li>
+						<li>Las macros de UVM reporting pueden hacer mucho mas que escribir en pantalla, de hecho es 1 de las 6 cosas que hacen</li>
+					</ul>
+					<pre><code class="bash" data-trim local-file style="max-height: 220px;">
+					code/ch19/tb_classes/UVM_report_actions.sv
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>19. UVM Reporting</h2>
+					<h3><em>Disabling Warnings, Errores y Mensajes Fatales</em></h3>
+					<ul>
+						<li><em>set_report_severity_action_hier()</em> le dice al sistema de reportes de UVM que no haga nada cuando encuentre
+						un mensaje de error dentro de scoreboard</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 220px;">
+					code/ch19/tb_classes/env_disable_error.sv
+					</code></pre>
+					<h4> Resultado de la Simulacion </h4>
+					<pre><code class="bash" data-trim local-file style="max-height: 220px;">
+					code/ch19/scoreboard2.txt
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>19. UVM Reporting</h2>
+					<h3><em>Resumen</em></h3>
+					<ul>
+						<li>UVM Reporting System</li>
+						<li>Podemos crear mensajes de debug, dejarlos en el codigo y aplicarles un filtro para verlos cuando necesitemos</li>
+						<li>Ahora necesitamos saber como representar la data de un TB como si fueran objetos. Ya que esto trae muchas ventajas</li>
+						<li>Pero primero necesitamos algunos conceptos extras de OOP: <em>deep operations</em></li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>20. Class Hierarchies</h2>
+					<h3>&</h3>
+					<h3><em>Deep Operations</em></h3>
+					<blockquote>
+						&ldquo;Si nos encontramos copiando codigo y haciendole pequeñas modificaciones dentro de nuestro programa, estamos haciendo las
+						cosas mal. Nunca hay que duplicar codigo.&rdquo;
+					</blockquote>
+					<p class="fragment grow">En OOP en vez de copiar codigo...</p> 
+					<p class="fragment current-visible"><b><em>extendemos clases</em></b></p> 
+
+				</section>
+
+				<section>
+					<h2>20. Ejemplo Convert2String</h2>
+					<img data-src="res/diagrams/ch20_fig141.png" alt="Diagrama Lions" align="right">
+					<ul>
+						<li>La jerarquia va de lo mas general a lo mas particular</li>
+						<li>Cada clase va agregando mayor informacion</li>
+						<li>Tenemos que lograr poder copiar objetos correctamente</li>
+						<li>Ademas de hacer una funcion <em>convert2string()</em> que <br>
+							nos permita imprimir en pantalla la data de todas las variables</li>
+					</ul>
+					<div style="height:100px;">
+						<pre><code class="systemverilog" data-trim local-file>
+							code/ch20/pre_convert2string.sv
+						</code></pre>
+					</div>
+				</section>
+
+				<section>
+					<h2>20. Ejemplo Convert2String: Deep</h2>
+					<img data-src="res/diagrams/ch20_fig142.png" alt="Diagrama Lions2" align="right">
+					<ul>
+						<li>Que pasa si alguien introduce un nuevo nivel de jerarquia???<br></li>
+						<li>Rompe el metodo, ya no imprime todas las variables</li>
+						<li>La keyword <em>super</em> permite referirse a variables y metodos <br>
+						    de la jerarquia superior</li>
+					</ul>
+					<div style="height:100px;">
+						<pre><code class="systemverilog" data-trim local-file>
+							code/ch20/pre_convert2string_ok.sv
+						</code></pre>
+					</div>
+				</section>
+
+				<section>
+					<h2>20. Deep Copy</h2>
+					<ul>
+						<li>Copiar objetos entre si no tan facil como parece</li>
+						<li><em>obj1_h = obj2_h</em> ..... No crea una copia del obj2_h</li>
+						<li>Sino que las 2 variables (handlers) apuntan al mismo objeto</li>
+						<li><em>Si cambio el objeto usando alguno de los handler, <br>
+						el otro lo ve reflejado</em></li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>20. Deep Copy</h2>
+					<p>Para copiar verdaderamente un objeto, debemos instanciar<br>
+						un nuevo objeto y copiar los datos de un objeto al otro
+					</p>
+					<pre><code class="systemverilog" data-trim local-file>
+						code/ch20/pre_copy.sv
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>20. Deep Copy</h2>
+					<p><em>do_copy():</em> Cada clase en la jerarquia, debe llamar a su clase superior, 
+					por lo tanto, todos los metodos do_copy() necesitan el mismo tipo de argumento
+					Pero tenemos clases distintas... Usamos <em> polimorfismo </em>
+					</p>
+					<pre><code class="systemverilog" data-trim local-file>
+						code/ch20/pre_copy2.sv
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>20. Resumen Solucion Pesima</h2>
+					<pre><code class="systemverilog" data-trim local-file>
+						code/ch20/wrong.sv
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>20. Resumen Solucion Deep Way</h2>
+					<pre><code class="systemverilog" data-trim local-file>
+						code/ch20/deep.sv
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Introduccion</em></h3>
+					<ul>
+						<li>Venimos barbaro con el TB, pero los datos que manejamos siguen en esa horrible estructura <em>command_s</em> y seguimos
+						leyendo los resultados en una <em>shortint</em>. Drama!</li>
+						<li> Pero para que tanto bardo? Todo bien con los OOP pero que ganamos agregando mas nivel de complejidad? Lo de siempre:
+						<em>adaptabilidad, capacidad de debug, encapsulamiento y reutilizacion</em></li>
+						<li>Consideremos el caso de imprimir el comando a ejecutar. Esto se ejecuta en multiples partes del TB (tester, driver, coverage y scoreboard). Lo cual, es un punto debil</li>
+						<li>Las clases a diferencia de las estructuras, tienen metodos. Esto permite que la clase interactue con los datos y esconda detalles
+						innecesarios para el usuario </li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Transaction Power</em></h3>
+					<ul>
+						<li>Es tiempo de dejar de hablar sobre clases y objetos y empecemos a utilizar el termino definido por la industria: Transacciones,
+						que basicamente son clases que almacenan datos y encapsulan todas las operaciones que podemos hacer sobre esos datos.
+						</li>
+						<li>Las operaciones principales son:
+							<ul>
+								<li><em>convert2string() - do_copy() - do_compare()</em></li>
+								<li>Randomizar los campos de datos (utilizando SV built-in <em>randomize</em>)</li>
+								<li>Encapsulando toda esta informacion en la transaction permite que el resto del TB sea mucho mas simple. Por ejemplo:
+								tester, no necesita saber que valores son legales para enviar al TB. Simplemente hara que la transaccion se randomize sola.</li>
+							</ul>
+
+					</ul>
+				</section>
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Definiendo Transactions</em></h3>
+					<ul>
+						<li>Las Transactions se definen extendiendo la clase base <em>uvm_transaction</em> y escribiendo los siguientes metodos:
+							<ul>
+								<li>do_copy()</li>
+								<li>do_compare()</li>
+								<li>convert2string()</li>
+							</ul>
+						</li>
+						<li>Ahora veremos como transformar nuestra vieja estructura <em>command_s</em> en una clase llamada <em>command_transaction</em></li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file>
+						code/ch21/command_s.sv
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Definiendo Transactions</em></h3>
+					<h4>Creando campos de datos randomizados</h4>
+					<ul>
+						<li>Actualmente, tenemos 2 funciones <em>get_op()</em> y <em>get_data()</em> que randomizan los datos de entrada</li>
+						<li>La realidad, es que las podemos refinar con un poco de magia de SV</li>
+						<li>Veamos que tenemos y como podemos mejorarlo</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 300px;">
+						code/ch21/prev-random.sv
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Definiendo Transactions</em></h3>
+					<h4>Creando campos de datos randomizados</h4>
+					<ul>
+						<li>Todas las clases de SV proveen un metodo implicito llamado <em>randomize()</em> que elije valores aleatorios
+						para las variables <em>rand</em> de la clase</li>
+						<li>Ya no necesitamos <em>get_op()</em> ya que SV va a elegir un valor entre los posibles de <em>operation_t</em></li>
+						<li>Nos sacamos de encima <em>get_data()</em> utilizando la magia de <em>constraint</em> que nos permite establecer 
+						probabilidades </li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 180px;">
+						code/ch21/tb_classes/command_transaction.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>uvm_object constructor</em></h3>
+					<ul>
+						<li>La clase <em>uvm_transaction</em> extiende <em>uvm_object</em>, no <em>uvm_component</em>. Por lo tanto, tiene
+						un constructor mas simple</li>
+						<li>Debido a que <em>uvm_component</em> no esta en la jerarquia de clases de UVM, el constructor no necesita un
+						handler al parent, solamente requiere un nombre</li>
+						<li>Es una buena practica darle a cada componente que instanciamos un nombre, pero el TB puede vivir si no lo hacemos </li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 180px;">
+						code/ch21/tb_classes/command_transaction_constructor.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Metodo do_copy()</em></h3>
+					<ul>
+						<li>La clase <em>uvm_object</em> y sus descendientes, proveen un metodo <em>copy()</em> para poder copiar los datos del objeto en otro del mismo tipo. </li>
+						<li>Ademas nos brinda el metodo <em>clone()</em> que retorna una nueva instancia
+						del objeto con los mismos datos</li>
+						<li>Este metodos funcionan si hacemos un <em>override del metodo do_copy()</em>, que funciona igual que lo visto 
+						anteriormente</li>
+						<li>La unica diferencia es que UVM requiere que el argumento que le pasamos se llame <em>rhs</em> 
+						(Right Hand Side)</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 180px;">
+						code/ch21/tb_classes/command_transaction_do_copy.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Metodo clone_me()</em></h3>
+					<ul>
+						<li>Transactions: Multiples objetos, pueden ver la misma data si tienen handlers al mismo objeto</li>
+						<li>Sin embargo, esto funciona si el equipo de programadores religiosamente implementa una regla de diseño
+						llamada <em>MOOCOW (Manual Obligatory Object Copy On Write)</em>. Asi lo llaman en Verification Academy</li>
+						<li><em>MOOCOW:</em> podemos compartir un handler a un objeto, siempre y cuando no modifiquemos la data en el objeto. 
+						La idea es no modificar nada sin que los demas se enteren. Evita el hampa</li>
+						<li>Si queremos modificar el objeto, estamos obligados moralmente a hacer una copia del mismo (de ahi el Copy on Write..)</li>
+						<li>UVM soporta MOOCOW mediante el metodo <em>clone()</em> que retorna un <em>uvm_object</em> que tenemos que 
+						<em>castear a la clase objetivo</em></li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Metodo clone_me()</em></h3>
+					<ul>
+						<li>Como debemos castear el objeto, esto crea una situacion en la que todos vamos a implementar nuestra propia
+						llamada al metodo <em>$cast()</em></li>
+						<li>Debido a esto, la gente de verificationAcademy recomienda crear un metodo <em>clone_me()</em> que haga la llamada
+						a <em>clone()</em> y luego castee el resultado</li>
+					</ul>
+				<pre><code class="systemverilog" data-trim local-file style="max-height: 180px;">
+					code/ch21/tb_classes/command_transaction_do_clone.svh
+				</code></pre>
+				</section>
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Metodo do_compare() - MOOCOW</em></h3>
+					<ul>
+						<li>Para poder comparar un objeto <em>uvm_transaction</em> UVM provee el metodo <em>compare()</em> que retorna 1
+						si dos objetos son iguales</li>
+						<li>Implementamos el metodo <em>do_compare()</em> que tiene 2 argumos, el <em>rhs</em> y un <em>uvm_comparer</em>, que es un objeto que determina la politica de comparacion (lo veremos despues, por ahora no es necesario)</li>
+					</ul>
+				<pre><code class="systemverilog" data-trim local-file style="max-height: 300px;">
+					code/ch21/tb_classes/command_transaction_do_comparer.svh
+				</code></pre>
+				</section>
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Metodo convert2string()</em></h3>
+					<ul>
+						<li>Por ultimo veamos la funcion que utilizaremos para decirle a la transaction que nos imprima en pantalla 
+						sus datos</li>
+						<li>El metodo <em>$sformatf()</em> utiliza los especificadores de formato de SV para convertir nuestros datos 
+						en strings</li>
+						<li>Los <em>enumerated type</em> tienen un metodo llamado <em>name()</em> que retorna su valor como un string</li>
+					</ul>
+				<pre><code class="systemverilog" data-trim local-file style="max-height: 300px;">
+					code/ch21/tb_classes/command_transaction_convert2string.svh
+				</code></pre>
+				</section>
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Utilizando Transactions</em></h3>
+					<ul>
+						<li>Hacer que nuestro actual TB soporte transactions va a requerir cambios fuertes. Lo ideal siempre es hacerlo
+						desde el principio.</li>
+						<li>Veamos cuales seran los cambios que realizaremos
+							<ol>
+								<li>Clase <em>result_transaction</em> para los datos correspondientes a resultados</li>
+								<li>Clase <em>add_transaction</em> que extienda <em>command_transaction</em> y genere solo operaciones
+								 suma</li>
+								<li>Renombrar <em>base_tester</em> a <em>tester</em> ya que ahora funciona para todos los tests</li>
+								<li>Modificar <em>command_monitor</em> para crear un <em>command_transaction</em></li>
+								<li>Modificar <em>result_monitor</em> para crear un <em>result_transaction</em></li>
+								<li>Obviamente modificar el <em>scoreboard</em> para que use los metodos de comparacion de 
+								<em>result_transaction</em></li>
+								<li>Por ultimo, modificar <em>add_test</em> para que use <em>add_transaction</em></li>
+							</ol>
+						</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Utilizando Transactions</em></h3>
+					<h4>Paso 1: crear una clase para los resultados (result_transaction)</h4>
+					<ul>
+						<li>Similar a <em>command_transaction</em> excepto que solo tiene un dato</li>
+						<li>El <em>scoreboard</em> utilizara el metodo <em>do_compare()</em> para comparar los resultados 
+						predichos con los resultados actuales</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 300px;">
+					code/ch21/tb_classes/result_transaction.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Utilizando Transactions</em></h3>
+					<h4>Paso 2: crear una clase add_transaction que solo genere operaciones sumas</h4>
+					<ul>
+						<li>La clase <em>add_transaction</em> extiende <em>command_transaction</em> y provee una unica
+						condicion de randomizacion</li>
+						<li>Esto permite generar diferentes estimulos sin cambiar el objeto <em>tester_h</em></li>
+						<li>El objeto <em>tester_h</em> utilizara <em>add_transaction</em> de la misma forma que usara 
+						<em>command_transaction</em>, pero solo recibira operaciones suma para hacer</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 300px;">
+					code/ch21/tb_classes/add_transaction.svh
+					</code></pre>
+				</section>	
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Utilizando Transactions</em></h3>
+					<h4>Paso 3: Renombrar base_tester a tester...</h4>
+					<ul>
+						<li>El TB previo tenia 2 clases tester para implementar 2 tipos distintos de tests. <em>base_tester</em> 
+						generaba valores random y <em>add_tester</em> solo generaba sumas con valores random</li>
+						<li>Ahora que tenemos la clase <em>add_transaction</em> podemos fusionar las 2 clases anteriores y utilizar el 
+						metodo <em>randomize()</em> para generar las operaciones</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 250px;">
+					code/ch21/tb_classes/tester.svh
+					</code></pre>
+				</section>	
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Utilizando Transactions</em></h3>
+					<h4>Paso 4: Modificar command_monitor para crear command_transactions</h4>
+					<ul>
+						<li><em>command_monitor</em> agarra datos del BFM, los empaqueta y los envia al TB</li>
+						<li>Ahora debemos mandar un <em>command_transaction</em></li>
+						<li>El codigo es muy parecido, nada mas que ahora mandamos un objeto</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 300px;">
+					code/ch21/tb_classes/command_monitor.svh
+					</code></pre>
+				</section>
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Utilizando Transactions</em></h3>
+					<h4>Paso 5: Modificar result_monitor para enviar result_transactions</h4>
+					<ul>
+						<li>Muy similar tambien. Aca obtenemos los resultados del BFM, armamos una <em>result transaction</em>
+						y la enviamos al TB</li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 300px;">
+					code/ch21/tb_classes/result_monitor.svh
+					</code></pre>
+				</section>	
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Utilizando Transactions</em></h3>
+					<h4>Paso 6: Modificar scoreboard para usar compare() de result_transaction</h4>
+					<ul>
+						<li>Las transactions, hacen muy faciles las comparaciones</li>
+						<li>Tanto el monitor como el predictor crean objetos <em>result_transaction</em></li>
+						<li>El <em>result_monitor</em> nos para el resultado actual llamado <em>t</em>. Luego obtenemos
+						el comando correspondiente mediante el <em>command_monitor</em> y usamos <em>predict_result()</em> 
+						para crear un <em>result_transaction</em></li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 250px;">
+					code/ch21/tb_classes/scoreboard.svh
+					</code></pre>					
+				</section>
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Utilizando Transactions</em></h3>
+					<h4>Paso 7: Modificar add_test para que use add_transactions</h4>
+					<ul>
+						<li>Mediante un override podemos crear un objeto <em>add_transaction</em> en vez de un <em>command_transaction</em>,
+						sin modificar el codigo de <em>tester</em></li>
+					</ul>
+					<pre><code class="systemverilog" data-trim local-file style="max-height: 300px;">
+					code/ch21/tb_classes/add_test.svh
+					</code></pre>					
+				</section>	
+
+				<section>
+					<h2>21. UVM Transactions</h2>
+					<h3><em>Resumen</em></h3>
+					<ul>
+						<li>Vimos como utilizar <em>uvm_transactions</em> para mover datos por el TB</li>
+						<li>Esto nos permite simplificar los componentes del TB y hasta remover una clase de nuestro TB inicial 
+						(add_tester)</li>
+						<li>La proxima unidad veremos algunas cuestiones mas relacionadas con la jerarquia UVM. La idea sera agrupar 
+						las clases asociadas a un modulo o a una misma interface para ser utilizadas como un conjunto <em>(uvm_agent)</em></li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Agenda</h2>
+					<h4><em> Day 6</em> </h4>
+					<ul>
+						<li>UVM Agents</li>
+						<li>UVM Sequences</li>
+					</ul>	
+				</section>
+
+				<section>
+					<h2>22. UVM Agents</h2>	
+				</section>	
+
+				<section>
+					<h2>23. UVM Sequences</h2>	
+				</section>	
+
+				<section>
+					<h2>The End!</h2>	
+				</section>	
+
+			</div>
+
+		</div>
+
+		<!-- Container: Machete -->
+		<div class="forkit-curtain">
+			<div class="close-button"></div>
+			<div id="machete">
+			<!-- Machete Day1 - Luego Jquery hace un override segun el dia -->
+				<img src=res/TB.png class=imagen style=float:right; padding=10px;>
+				<img src=res/diagrams/wave-dut.png class=imagen style='background:#ffffff; float=left;' alt=ALU waveform >
+			</div>
+		</div>
+
+		<!-- Machete -->
+		<a class="forkit" data-text="Machete UVM" data-text-detached="Bajalo pibe >">
+			<img style="position: absolute; top: 0; right: 0; border: 0;" src="res/puto.png" alt="CMOS">
+		</a>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+		<script src="js/forkit.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'convex', // none/fade/slide/convex/concave/zoom
+
+			    // The "normal" size of the presentation, aspect ratio will be preserved
+			    // when the presentation is scaled to fit different resolutions. Can be
+			    // specified using percentage units.
+			    width: 1100,
+			    height: 700,
+
+			    // Factor of the display size that should remain empty around the content
+			    margin: 0.1,
+
+			    // Bounds for smallest/largest possible scale to apply to content
+			    minScale: 0.2,
+			    maxScale: 1.5,
+
+			    slideNumber: false,
+
+			    menu: {
+			        // Specifies which side of the presentation the menu will 
+			        // be shown. Use 'left' or 'right'.
+			        side: 'left',
+
+			        // Add slide numbers to the titles in the slide list.
+			        // Use 'true' or format string (same as reveal.js slide numbers)
+			        numbers: false,
+
+			        // Specifies which slide elements will be used for generating
+			        // the slide titles in the menu. The default selects the first
+			        // heading element found in the slide, but you can specify any
+			        // valid css selector and the text from the first matching
+			        // element will be used.
+			        // Note: that a section data-menu-title attribute or an element
+			        // with a menu-title class will take precedence over this option
+			        titleSelector: '',
+
+			        // Hide slides from the menu that do not have a title.
+			        // Set to 'true' to only list slides with titles.
+			        hideMissingTitles: true,
+
+			        // Add markers to the slide titles to indicate the 
+			        // progress through the presentation
+			        markers: false,
+
+			        // Specify custom panels to be included in the menu, by
+			        // providing an array of objects with 'title', 'icon'
+			        // properties, and either a 'src' or 'content' property.
+			        custom: false,
+
+			        // Specifies the themes that will be available in the themes
+			        // menu panel. Set to 'false' to hide themes panel.
+			        themes: [
+			            { name: 'Black', theme: 'css/theme/black.css' },
+			            { name: 'White', theme: 'css/theme/white.css' },
+			            { name: 'League', theme: 'css/theme/league.css' },
+			            { name: 'Sky', theme: 'css/theme/sky.css' },
+			            { name: 'Beige', theme: 'css/theme/beige.css' },
+			            { name: 'Simple', theme: 'css/theme/simple.css' },
+			            { name: 'Serif', theme: 'css/theme/serif.css' },
+			            { name: 'Blood', theme: 'css/theme/blood.css' },
+			            { name: 'Night', theme: 'css/theme/night.css' },
+			            { name: 'Moon', theme: 'css/theme/moon.css' },
+			            { name: 'Solarized', theme: 'css/theme/solarized.css' }
+			        ],
+
+			        // Specifies if the transitions menu panel will be shown.
+			        transitions: true,
+
+			        // Adds a menu button to the slides to open the menu panel.
+			        // Set to 'false' to hide the button.
+			        openButton: true,
+
+			        // If 'true' allows the slide number in the presentation to
+			        // open the menu panel. The reveal.js slideNumber option must 
+			        // be displayed for this to take effect
+			        openSlideNumber: false,
+
+			        // If true allows the user to open and navigate the menu using
+			        // the keyboard. Standard keyboard interaction with reveal
+			        // will be disabled while the menu is open.
+			        keyboard: true
+			    },
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight_beauty.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true },
+					//{ src: 'plugin/menu/menu.js' },
+				]
+			});
+
+			Reveal.configure({
+			  keyboard: {
+			    48: function() {Reveal.slide( 0 );},   // Intro
+			    49: function() {Reveal.slide( 1 );},   // Day 1
+			    50: function() {Reveal.slide( 32 );},  // Day 2
+			    51: function() {Reveal.slide( 49 );},  // Day 3
+			    52: function() {Reveal.slide( 76 );},  // Day 4
+			    53: function() {Reveal.slide( 115 );}, // Day 5
+			    54: function() {Reveal.slide( 155 );}  // Day 6
+			  }
+			});
+
+			// Machete Stuff
+			var c_slide = 0;
+			Reveal.addEventListener( 'slidechanged', function( event ) {
+
+				c_slide = Reveal.getState();
+				if (c_slide.indexh < 31 )
+					$("#machete").html("<img src=res/uvm_class_diagram.png height=500>");
+				else if(c_slide.indexh < 101)
+					$("#machete").html("<img src=res/diagrams/ch16-fig102.png width=891 height=514 class=imagen style=float:right; padding=10px;><img src=res/diagrams/wave-dut.png class=imagen style='background:#ffffff; float=left;' alt=ALU waveform >");
+				else 
+					$("#machete").html("<img src=res/TB.png class=imagen style=float:right; padding=10px;><img src=res/diagrams/wave-dut.png class=imagen style='background:#ffffff; float=left;' alt=ALU waveform >");
+			} );
+
+		</script>
+
+	</body>
+</html>
