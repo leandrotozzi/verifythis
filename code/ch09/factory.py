@@ -1,4 +1,4 @@
-"""Ejemplo banana de Factory en Python."""
+"""Ejemplo de Factory en Python."""
 from __future__ import generators
 import random
 
@@ -80,7 +80,7 @@ def trago_generator(n):
 Tragos = [Trago.factory(i) for i in trago_generator(20)]
 
 
-# No importa que tipo de trago estoy pidiendo, lo tomo igual
+# No importa que tipo de trago estoy generando, sale igual
 for Trago in Tragos:
     Trago.hielo()
     Trago.graduacion()

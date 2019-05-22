@@ -15,5 +15,5 @@ chicken_cage.cage_animal(chicken_h);
 
 // Consideremos el caso en el que queremos leer un conjunto de animales aleatorios 
 // desde un archivo de forma dinamica. 
-//    --> Es imposible hacer esto con codigo hardcodeado
-//        Tenemos que hacer un script que genere el source, recompilarlo.... Horror
+//    --> Es imposible hacer esto con codigo NO hardcodeado
+//        Tenemos que hacer un script que genere el source, recompilarlo....
