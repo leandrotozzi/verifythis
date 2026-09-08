@@ -1,0 +1,866 @@
+/* Estilos propios del curso. Reemplaza al viejo css/demo.css.
+   Se carga despues del tema de reveal, para poder pisar sus variables. */
+
+:root {
+  /* Fuentes vendorizadas en css/fonts/ (ver tools/fonts.mjs). No se usa el CDN
+     de Google: el deck tiene que abrir con doble clic y sin internet. Tampoco
+     se dejan al sistema, porque system-ui cambia de maquina en maquina y el
+     deck se veria distinto en el proyector que en la notebook.
+
+     Chakra Petch para titulos: display angular, de terminales cortadas, que
+     rima con el tema (trazas, silicio, herramientas de EDA). Y tiene italica
+     de verdad, requisito no obvio: casi todos los subtitulos del curso van en
+     *italica*, y una fuente sin italica el browser la falsea inclinandola. */
+  --r-main-font: 'IBM Plex Sans', system-ui, -apple-system, Helvetica, Arial, sans-serif;
+  --r-heading-font: 'Chakra Petch', 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* reveal 5 subio la base a 40px; el deck se escribio contra los 30px del
+     night de reveal 3.3 y con 40 las slides densas se desbordan. Los tamanos
+     de heading (3.77 / 2.11 / 1.55 / 1em) son iguales en ambas versiones. */
+  --r-main-font-size: 30px;
+  --r-link-color: #74e685;
+  --r-link-color-hover: #d3f3d7;
+  --r-link-color-dark: #74e685;
+  --accent: #e7ad52;
+}
+
+/* ---- Arranque -------------------------------------------------------------
+   El #111 del tema lo pinta reveal recien al inicializar, sobre .reveal-viewport.
+   Hasta entonces la pagina es blanca y pega un flash. Se repone en el html, que
+   ya esta pintado cuando llega el primer frame. */
+html { background: var(--r-background-color, #111); }
+
+/* Overlay de carga. Aparece SOLO por CSS: initialize() parsea las 33 secciones
+   y corre el highlighter de forma sincrona, asi que un setTimeout no llegaria a
+   correr justo cuando hace falta; una animation con delay si, porque la maneja
+   el compositor. Con el init por debajo de 300 ms nunca se llega a ver.
+   La barra es indeterminada a proposito: initialize() no expone progreso y un
+   porcentaje inventado seria mentirle al que espera.
+   template.html lo saca del DOM apenas resuelve el .then(). */
+#cargando {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  background: var(--r-background-color, #111);
+  opacity: 0;
+  animation: cargando-aparece 0.15s linear 0.3s forwards;
+}
+#cargando b {
+  font-family: var(--r-heading-font);
+  font-weight: 700;
+  font-size: 34px;
+  letter-spacing: 0.01em;
+  color: var(--accent);
+}
+#cargando span {
+  position: relative;
+  overflow: hidden;
+  width: 190px;
+  height: 2px;
+  background: #2b2b2b;
+}
+#cargando span::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  animation: cargando-barra 1.1s ease-in-out infinite;
+}
+@keyframes cargando-aparece { to { opacity: 1; } }
+@keyframes cargando-barra {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #cargando span::after { animation: none; }
+}
+
+/* forkit.css traia un "* { box-sizing: border-box }" global, del que dependia
+   todo el deck; se removio porque le rompia el escalado a reveal 5. reveal 5 no
+   trae border-box global, asi que se repone scopeado: sin esto, cualquier
+   elemento con padding y width:100% desborda la slide. */
+.reveal *, .reveal *::before, .reveal *::after { box-sizing: border-box; }
+
+/* ---- Titulos --------------------------------------------------------------
+   Contraste de rol: el titulo va firme y con tracking cerrado (las display
+   piden tracking negativo al crecer); el subtitulo va en italica ambar. */
+.reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+  font-family: var(--r-heading-font);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.reveal h1 {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.reveal h3, .reveal h4 {
+  letter-spacing: 0.01em;
+  color: var(--accent);
+}
+/* el subtitulo ya va en ambar; el <em> adentro no necesita repetir el color */
+.reveal h3 em, .reveal h4 em { color: inherit; }
+
+/* Filete bajo el bloque de titulo: un hairline de 1px que se desvanece en las
+   dos puntas, asi no tiene bordes duros que compitan con el titulo. Va bajo el
+   ULTIMO heading seguido, no bajo cada uno, para no partir titulo + subtitulo. */
+.reveal .slides section > :is(h1, h2, h3, h4):not(:has(+ :is(h2, h3, h4)))::after {
+  content: '';
+  display: block;
+  width: 260px;
+  height: 1px;
+  margin: 18px auto 0;
+  background: linear-gradient(to right,
+    transparent, var(--accent) 22%, var(--accent) 78%, transparent);
+  opacity: 0.55;
+}
+
+/* reveal 5 saco el coloreado de <em> de los temas. El curso usa *enfasis* como
+   marcador de termino tecnico en casi todas las slides: sin esto se pierde. */
+.reveal em { color: var(--accent); font-style: italic; }
+.reveal p { line-height: 1.3; }
+
+/* reveal indenta las listas con margin-left:1em; sumado al width:100% que les
+   da el layout flex, eso desborda la slide 30px. Va como padding, que con
+   border-box queda adentro de la caja. */
+.reveal ul, .reveal ol { margin-left: 0; padding-left: 1.1em; }
+
+/* ---- Layout: ninguna slide se recorta -------------------------------------
+   El canvas de reveal mide 1100x700 y se escala al viewport. Medir en `vh`
+   (viewport) en vez de contra ese canvas era lo que hacia desbordar todo.
+
+   Cada slide es una columna flex: titulo y bullets toman lo que necesitan, y
+   el codigo o la imagen se quedan con el espacio que sobra -- el codigo
+   scrollea adentro, la imagen escala. Funciona con cualquier cantidad de
+   bloques (el r-stretch de reveal solo sirve para uno).
+
+   Se aplica solo a .present: reveal oculta el resto con display:none. */
+.reveal .slides > section.present {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 4px 0;
+}
+.reveal .slides > section.present > * {
+  flex: 0 0 auto;
+  max-width: 100%;
+  width: 100%;
+}
+/* flex: 0 1 auto -> cada bloque mide su contenido (grow 0, asi un bloque de dos
+   lineas no se estira a media slide) pero encoge y scrollea si no entra
+   (shrink 1). Con `1 1 0` todos se repartian el sobrante por igual. */
+/* min-height: piso para que un bloque apretado siga mostrando ~4 lineas y no
+   se reduzca a una tira inutil cuando comparte slide con una imagen grande. */
+.reveal .slides > section.present > pre { flex: 0 1 auto; min-height: 6.5em; display: flex; }
+.reveal .slides > section.present > pre > code { flex: 1 1 auto; }
+
+/* parrafos que solo contienen imagenes: toman el sobrante y las escalan */
+.reveal .slides > section.present > p:has(> img) {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 8px 0;
+}
+.reveal .slides > section.present > p:has(> img) img { min-height: 0; }
+
+/* ---- Referencias: credito del libro --------------------------------------
+   El curso arranco de "The UVM Primer" de Ray Salemi. La tarjeta vivia en la
+   portada; ahora que el material propio pesa mas que el derivado, la cita va
+   en la slide de Referencias, con el link a Amazon.
+
+   La tapa esta DIBUJADA EN CSS, no es la imagen de Amazon: el deck tiene que
+   andar offline (habria que vendorizar el archivo) y meter un cover ajeno en un
+   repo que puede publicarse es una decision que no corresponde tomar de oficio.
+   Un glifo abstracto ademas pega mejor con el trazo fino del resto. */
+.creditos { text-align: center; }
+/* En Referencias la tarjeta abre la slide y despues viene la lista: centrada
+   bajo el titulo, y sin el aire que necesitaba en la portada. */
+.creditos-ref { margin: 0 0 26px; }
+.libro-nota { margin: 10px 2px 0; font-size: 0.46em; color: #8d8d8d; }
+
+/* .reveal a le impone el color de link (verde); hay que ganarle en
+   especificidad para que la tapa tome el ambar del acento. */
+.reveal .libro {
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 30px 16px 22px;
+  border: 1px solid rgba(231, 173, 82, 0.3);
+  border-radius: 6px;
+  color: var(--accent);
+  text-decoration: none;
+  transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+}
+.reveal .libro:hover {
+  border-color: var(--accent);
+  background: rgba(231, 173, 82, 0.07);
+  transform: translateY(-2px);
+}
+
+/* tapa: lomo macizo a la izquierda + renglones insinuados */
+.libro-tapa {
+  position: relative;
+  flex: none;
+  width: 42px;
+  height: 56px;
+  border: 1px solid currentColor;
+  border-radius: 2px 4px 4px 2px;
+  background: linear-gradient(to right, currentColor 0 5px, transparent 5px);
+}
+.libro-tapa::after {
+  content: '';
+  position: absolute;
+  left: 14px;
+  right: 7px;
+  top: 15px;
+  height: 19px;
+  background: repeating-linear-gradient(to bottom, currentColor 0 1px, transparent 1px 5px);
+  opacity: 0.55;
+}
+
+.libro-txt { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.32; }
+.libro-kicker {
+  font-size: 0.4em;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #8d8d8d;
+}
+.libro-titulo {
+  font-family: var(--r-heading-font);
+  font-weight: 600;
+  font-size: 0.7em;
+  letter-spacing: 0.01em;
+  color: #f0f0f0;
+}
+.libro-pie { font-size: 0.43em; color: #8d8d8d; }
+
+.creditos-pie {
+  margin: 22px 0 0;
+  font-size: 0.46em;
+  color: #7a7a7a;
+}
+.creditos-pie a { color: #7a7a7a; }
+.reveal .creditos-pie a:hover { color: var(--r-link-color); }
+
+/* Saltar a un dia desde la portada. Las teclas 1-6 hacen lo mismo, pero no
+   sirven en el celular ni cuando alguien abre el link de Pages. Los href van a
+   los ids day1..day6 que ya declaran las slides de agenda; con hash:true reveal
+   los resuelve y ademas quedan en la URL, asi que se pueden compartir. */
+.dias {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 26px 0 0;
+}
+.reveal .dias a {
+  padding: 5px 14px;
+  border: 1px solid #333;
+  border-radius: 999px;
+  font-size: 0.42em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9a9a9a;
+  text-decoration: none;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.reveal .dias a:hover {
+  border-color: var(--r-link-color);
+  color: var(--r-link-color);
+}
+/* El dia 8 es opcional y va despues del cierre: el borde punteado lo dice sin
+   una nota al pie. */
+.reveal .dias a.opcional {
+  border-style: dashed;
+  color: #777;
+}
+
+/* ---- Bloques de codigo ----------------------------------------------------
+   El deck viejo traia 94 style="max-height:NNNpx" inline, todos distintos.
+   Una sola regla los reemplaza; el alto real lo decide el flex de arriba. */
+.reveal pre {
+  width: 100%;
+  box-shadow: none;
+  margin: 10px 0;
+}
+.reveal pre code {
+  max-height: 100%;
+  overflow: auto !important;
+  font-size: calc(0.86em * var(--code-scale, 1));
+  line-height: 1.3;
+  padding: 16px 18px;
+  border-radius: 4px;
+}
+.reveal code, .reveal pre code { font-family: var(--font-mono); }
+
+/* Un comando suelto no es un bloque de codigo: es una linea. El <pre> generico
+   tiene un piso de 6.5em para que un ejemplo apretado siga mostrando ~4 lineas,
+   y con una sola linea ese piso queda como un cajon vacio. Se marca en el
+   markdown, sobre un code inline:
+
+       `cd code/ejercicios/d1 && bash run.sh`
+       <!-- .element: class="comando" -->                                     */
+.reveal .slides > section.present > p.comando { flex: 0 0 auto; margin: 0.5em 0 0.9em; }
+.reveal p.comando code {
+  display: inline-block;
+  background: var(--code-bg);
+  color: var(--code-fg);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 4px;
+  padding: 0.4em 0.9em;
+  font-size: 0.92em;
+}
+/* el prompt no es texto que se pueda copiar sin querer */
+.reveal p.comando code::before {
+  content: "$";
+  color: var(--accent);
+  margin-right: 0.65em;
+  user-select: none;
+}
+
+/* Cuerpo de codigo mas grande, por slide. Se marca arriba de la slide con
+       <!-- .slide: class="codigo-grande" -->
+   Sirve donde el codigo es el punto y conviene leerlo aunque haya que scrollear
+   un poco mas. */
+.reveal .slides section.codigo-grande { --code-scale: 1.28; }
+
+/* Barra de scroll visible DESDE EL ARRANQUE: sin affordance nadie se entera de
+   que el bloque sigue mas abajo, y en el aula la slide pasa sin que se vea.
+   La version anterior no se veia nunca, y no era culpa de los colores: en
+   Chrome, declarar scrollbar-width/scrollbar-color desactiva por completo los
+   pseudo-elementos ::-webkit-scrollbar, y la barra estandar que quedaba es la
+   overlay de macOS -- se desvanece sola a los segundos. Aca se dejan solo los
+   pseudo-elementos, que dan una barra clasica, con lugar propio en el layout y
+   siempre a la vista mientras haya desborde.
+
+   El canal se pinta aunque el pulgar este arriba de todo: es lo que dice "hay
+   mas". Y va en gris azulado, no en ambar: el ambar significa contenido
+   importante en todo el deck y esto es cromo, no contenido. */
+.reveal pre code::-webkit-scrollbar { width: 12px; height: 12px; }
+.reveal pre code::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.13);
+  border-radius: 6px;
+}
+.reveal pre code::-webkit-scrollbar-thumb {
+  background: #93a1b3;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.reveal pre code::-webkit-scrollbar-thumb:hover { background: #aab6c6; background-clip: content-box; }
+.reveal pre code::-webkit-scrollbar-corner { background: transparent; }
+
+/* Firefox no tiene los pseudo-elementos: ahi si van las propiedades estandar. */
+@supports not selector(::-webkit-scrollbar) {
+  .reveal pre code { scrollbar-color: #93a1b3 rgba(255, 255, 255, 0.13); scrollbar-width: thin; }
+}
+
+/* macros de SystemVerilog citados en prosa (`uvm_component_utils) */
+.reveal li code, .reveal p code {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--accent);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+/* Teclas. El <kbd> del navegador es monoespaciado y nada mas: sobre el #111 del
+   tema una tecla suelta en medio de un bullet no se ve, y las slides que
+   explican como se maneja el deck son justo las que dependen de que se vea.
+   Se dibuja como tecla de verdad -- borde, borde inferior mas grueso, y un
+   pelo de relieve -- para que el ojo la encuentre sin leer la frase.
+   El ancho minimo es para que <kbd>i</kbd> y <kbd>Esc</kbd> se alineen entre si
+   en vez de quedar una flaca y otra ancha. */
+.reveal kbd {
+  display: inline-block;
+  min-width: 1.9em;
+  padding: 0.12em 0.5em;
+  margin: 0 0.12em;
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  line-height: 1.5;
+  text-align: center;
+  color: #f2f3f5;
+  background: linear-gradient(#3a4150, #2b313c);
+  border: 1px solid #545c6b;
+  border-bottom-width: 3px;
+  border-radius: 5px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+  vertical-align: baseline;
+  translate: 0 -0.06em;
+}
+/* En papel el relieve es tinta gastada: alcanza con el contorno. */
+html:is(.print-pdf, .imprimiendo, .libro) .reveal kbd {
+  color: #1f2430;
+  background: #f2f3f5;
+  border-color: #b9bfc9;
+  box-shadow: none;
+}
+
+/* ---- Imagenes -------------------------------------------------------------
+   Van sin fondo. El fondo blanco es opt-in, porque solo algunas lo necesitan
+   (PNG de trazo negro y fondo transparente, que sobre el #111 del tema no se
+   leen). Se marca en el markdown:
+       ![alt](res/x.png)
+       <!-- .element: class="fondo-blanco" -->
+   Ojo: reveal aplica esa clase al <p> que envuelve la imagen, no al <img>.  */
+.reveal section img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  border: none;
+  box-shadow: none;
+}
+.reveal section .fondo-blanco img,
+.reveal section img.fondo-blanco {
+  background: #fff;
+  padding: 8px;
+  border-radius: 4px;
+}
+/* varias imagenes en el mismo parrafo -> lado a lado, repartiendo el ancho */
+.reveal p > img:not(:only-child) { max-width: 48%; }
+
+/* Un <img> se dibuja a su tamano nativo; max-width/height solo lo topean, no lo
+   agrandan. Para los diagramas chicos que quedan ilegibles, opt-in por imagen:
+       ![alt](res/x.png)
+       <!-- .element: class="grande" -->
+   Le reserva un piso de alto en la columna flex y ahi si escala. Se combina con
+   fondo-blanco: class="grande fondo-blanco".                                  */
+.reveal .slides > section.present > p.grande { min-height: 38%; }
+.reveal section p.grande img { height: 100%; width: auto; max-width: 100%; }
+/* si hay dos en el mismo parrafo, el alto al 100% las pasa de ancho: se topean */
+.reveal section p.grande img:not(:only-child) { max-width: 48%; }
+
+.reveal table { font-size: 0.85em; }
+
+/* ---- "Machete": panel lateral con los diagramas de referencia ---- */
+/* fondo solido: las figuras son SVG temados y transparentes, y sobre la cortina
+   —que deja pasar el 10% de la slide— el texto de abajo se les mezclaba. */
+.imagen {
+  padding: 5px;
+  max-width: 50%;
+  height: auto;
+  background: #111;
+  border: 5px solid #000;
+  border-radius: 4px;
+}
+.forkit-curtain {
+  /* forkit.css la dimensiona al 100% y le suma padding-top: sin border-box
+     crece de mas y asoma sobre el deck. */
+  box-sizing: border-box;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.9);
+  /* forkit.js estaciona la cortina en top:-100%, o sea con el borde de ABAJO
+     apoyado en el borde de arriba de la pantalla. Con overflow visible, todo lo
+     que el contenido se pase de alto asoma ahi: el machete del dia 3 son cuatro
+     diagramas, se van 218 px, y se ven colgando arriba del deck en las 116
+     slides de esa region. overflow lo recorta, y con auto lo que no entra sigue
+     siendo alcanzable cuando la cortina esta abierta. */
+  overflow: auto;
+  /* En vh y no en %: el padding porcentual se calcula sobre el ANCHO, asi que
+     en una pantalla apaisada empujaba el contenido 160 px para abajo y era la
+     mitad del desborde. */
+  padding-top: 4vh;
+  z-index: 10000;
+}
+.forkit-curtain .close-button {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  right: 20px;
+  top: 20px;
+  cursor: pointer;
+  background: url(close-button.png) no-repeat;
+}
+/* El alto tambien topea: con cuatro diagramas son dos filas, y 40vh cada una
+   entra en cualquier pantalla sin depender del ancho. */
+#machete img { max-width: 46%; max-height: 40vh; height: auto; vertical-align: middle; }
+
+/* ---- Quiz de repaso -------------------------------------------------------
+   Al cierre de cada dia. La fuente en markdown es una lista de tareas: el item
+   marcado con [x] es el correcto. template.html la convierte en opciones
+   clickeables (ver "Quiz" ahi). Se responde con un click o con la tecla V.
+
+   La respuesta ocupa su lugar desde el arranque y solo cambia de opacidad: si
+   se ocultara con display:none, la slide crecerian al responder y podria
+   desbordar justo delante de la clase -- y npm run overflow no lo veria.      */
+.reveal section.quiz h2 { font-size: 1.9em; }
+.reveal section.quiz .pregunta {
+  font-size: 1em;
+  line-height: 1.25;
+  margin: 0.2em 0 0.7em;
+}
+
+/* El deck no tiene box-sizing global (el reset con '*' rompia el escalado de
+   reveal), asi que aca hay que pedirlo a mano: sin esto el padding y el borde
+   se SUMAN al 100% del ancho de la grilla y la slide desborda a lo ancho.
+   Y overflow-wrap porque los identificadores largos del curso
+   -- set_report_severity_action_hier() -- son un solo token y no cortan.
+   break-word y no anywhere: anywhere ademas lleva el min-content a un
+   caracter, y la columna 1fr de la opcion se desploma. */
+.reveal section.quiz .opciones,
+.reveal section.quiz .opcion,
+.reveal section.quiz .respuesta { box-sizing: border-box; }
+.reveal section.quiz .pregunta,
+.reveal section.quiz .opcion,
+.reveal section.quiz .respuesta { overflow-wrap: break-word; }
+
+.reveal section.quiz .opciones {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+.reveal section.quiz .opcion {
+  display: grid;
+  grid-template-columns: 2.1em 1fr 1.4em;
+  align-items: center;
+  gap: 0.6em;
+  text-align: left;
+  padding: 0.45em 0.7em;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.88em;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.reveal section.quiz .letra {
+  font-family: var(--r-heading-font);
+  font-weight: 600;
+  color: var(--accent);
+  text-align: center;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 0.05em 0;
+}
+/* La marca ✓/✗ vive en una columna propia, reservada desde el principio: si
+   apareciera al responder, el texto de la opcion se reacomodaria. */
+.reveal section.quiz .opcion::after { content: ''; text-align: center; font-weight: 700; }
+
+.reveal section.quiz:not(.respondida) .opcion:hover {
+  border-color: var(--accent);
+  background: rgba(231, 173, 82, 0.08);
+  transform: translateX(3px);
+}
+.reveal section.quiz.respondida .opcion { cursor: default; }
+.reveal section.quiz.respondida .opcion:not(.es-correcta):not(.elegida) { opacity: 0.45; }
+
+.reveal section.quiz.respondida .es-correcta {
+  border-color: var(--r-link-color);
+  background: rgba(116, 230, 133, 0.1);
+}
+.reveal section.quiz.respondida .es-correcta .letra {
+  color: var(--r-link-color);
+  border-color: var(--r-link-color);
+}
+.reveal section.quiz.respondida .es-correcta::after {
+  content: '\2713';
+  color: var(--r-link-color);
+}
+.reveal section.quiz.respondida .elegida:not(.es-correcta) {
+  border-color: #e0696f;
+  background: rgba(224, 105, 111, 0.1);
+}
+.reveal section.quiz.respondida .elegida:not(.es-correcta) .letra {
+  color: #e0696f;
+  border-color: #e0696f;
+}
+.reveal section.quiz.respondida .elegida:not(.es-correcta)::after {
+  content: '\2717';
+  color: #e0696f;
+}
+
+.reveal section.quiz .respuesta {
+  border-left: 3px solid var(--r-link-color);
+  background: rgba(116, 230, 133, 0.07);
+  border-radius: 4px;
+  padding: 0.5em 0.9em;
+  margin: 0.8em 0 0;
+  font-size: 0.78em;
+  font-style: normal;
+  text-align: left;
+  quotes: none;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.reveal section.quiz.respondida .respuesta { opacity: 1; }
+.reveal section.quiz .respuesta strong { color: var(--r-link-color); }
+
+/* Pista de que se puede clickear. Desaparece apenas se responde. */
+.reveal section.quiz .ayuda {
+  font-size: 0.62em;
+  color: #7a7a7a;
+  margin: 0.6em 0 0;
+  transition: opacity 0.2s;
+}
+.reveal section.quiz.respondida .ayuda { opacity: 0; }
+
+/* ---- Indice ---------------------------------------------------------------
+   Boton de tres barras arriba a la izquierda -> cajon con los 50 capitulos,
+   agrupados por dia. Existe porque el deck es plano y largo: el overview (Esc)
+   son 274 miniaturas ilegibles y la busqueda pide saber que buscar.
+
+   Vive fuera de .reveal, asi que no lo toca el escalado del deck: las medidas
+   van en px y no cambian con el zoom de la slide. */
+#indice-btn {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 40;
+  /* 44x44: el area de toque minima que recomienda WCAG. Las barras miden 22. */
+  width: 44px;
+  height: 44px;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(17, 17, 17, 0.5);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+#indice-btn span {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: #c9c9c9;
+  transition: background 0.2s ease;
+}
+#indice-btn:hover { background: rgba(231, 173, 82, 0.16); }
+#indice-btn:hover span { background: var(--accent); }
+/* El foco de teclado se marca con el anillo, no pintando el boton: relleno
+   ambar mas barras ambar se lee como "apretado", y el boton no esta apretado
+   —el cajon esta cerrado— sino nada mas enfocado. */
+#indice-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Cajon a la izquierda, del lado del boton que lo abre. */
+#indice {
+  position: fixed;
+  inset: 0 auto 0 0;
+  margin: 0;
+  padding: 0;
+  width: min(420px, 88vw);
+  max-width: none;
+  height: 100%;
+  max-height: 100%;
+  border: 0;
+  border-right: 1px solid #2a2a2a;
+  background: #141414;
+  color: #ddd;
+  font-family: var(--r-main-font);
+  translate: -100% 0;
+  transition: translate 0.28s ease;
+}
+/* Segunda declaracion a proposito: allow-discrete es reciente, y un valor que
+   el browser no entiende invalida la regla ENTERA -- incluida la animacion de
+   arriba. Separadas, el que no lo soporta se queda con la de arriba y el cajon
+   entra igual, nomas sin animar la salida. */
+#indice { transition: translate 0.28s ease, display 0.28s allow-discrete, overlay 0.28s allow-discrete; }
+#indice[open] { display: flex; flex-direction: column; translate: 0 0; }
+@starting-style { #indice[open] { translate: -100% 0; } }
+#indice::backdrop { background: rgba(0, 0, 0, 0.55); }
+
+.ind-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid #262626;
+}
+.ind-head h2 {
+  margin: 0;
+  font-family: var(--r-heading-font);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+#indice-cerrar {
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: #8d8d8d;
+  font-size: 22px;
+  line-height: 1;
+  padding: 2px 8px 5px;
+  cursor: pointer;
+}
+#indice-cerrar:is(:hover, :focus-visible) { background: #222; color: #f0f0f0; }
+#indice-cerrar:focus-visible { outline: 2px solid var(--accent); outline-offset: 0; }
+
+.ind-lista { flex: 1 1 auto; overflow-y: auto; padding-bottom: 20px; }
+.ind-lista ul { list-style: none; margin: 0 0 4px; padding: 0; }
+/* Sticky: en una lista de 50 items agrupados, el encabezado del dia tiene que
+   seguir a la vista mientras scrolleas adentro de ese dia. */
+.ind-grupo {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 16px 20px 6px;
+  background: #141414;
+  font-family: var(--r-heading-font);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #6f6f6f;
+}
+/* .reveal a pinta los links de verde; el indice esta afuera, pero conviene ser
+   explicito igual: aca el link es una fila de lista, no un link de texto. */
+.ind-lista a {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 20px;
+  border-left: 2px solid transparent;
+  color: #c2c2c2;
+  font-size: 15px;
+  line-height: 1.3;
+  text-decoration: none;
+}
+.ind-lista a:hover { background: #1c1c1c; color: #fff; }
+.ind-lista a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ind-lista a[aria-current] {
+  border-left-color: var(--accent);
+  background: rgba(231, 173, 82, 0.07);
+  color: var(--accent);
+}
+.ind-n {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #5c5c5c;
+}
+.ind-lista a:hover .ind-n { color: #8d8d8d; }
+
+@media (prefers-reduced-motion: reduce) {
+  #indice { transition: none; translate: none; }
+  #indice-btn, #indice-btn span { transition: none; }
+}
+
+
+/* ---- Paleta de impresion --------------------------------------------------
+   El deck vive sobre #111; el PDF tiene que poder salir por una impresora, en
+   papel blanco y con tinta negra, sin dejar de ser el mismo material. Se
+   invierten los valores, no el diseno: el ambar y el verde siguen siendo los
+   dos colores-senal del curso, oscurecidos hasta pasar 4.5:1 contra el papel.
+
+   Casi todo cuelga de cuatro variables, asi que el bloque es corto. Las
+   figuras son la excepcion: son <img> a un SVG externo -- un documento aparte,
+   que este CSS no alcanza -- y se cambian por su version clara (res/print/,
+   generada por tools/figs-print.mjs) desde template.html.
+
+   Dos ganchos, no uno: .print-pdf lo pone reveal en modo ?print-pdf (el PDF
+   que publicamos, y donde termina Ctrl+P), y .imprimiendo lo pone template.html
+   en beforeprint, para el que imprime desde el menu del navegador y cae en la
+   impresion generica de reveal. Con la misma paleta en los dos, no hay forma de
+   sacar una copia oscura. */
+html:is(.print-pdf, .imprimiendo, .libro) {
+  --r-background-color: #fff;
+  --r-main-color: #1c1e22;
+  --r-heading-color: #0f1115;
+  --r-link-color: #147a3c;
+  --r-link-color-dark: #147a3c;
+  --r-link-color-hover: #147a3c;
+  --accent: #9a6510;
+  --code-bg: #f7f8fa;
+  --code-fg: #1f2430;
+  background: #fff;
+}
+html:is(.print-pdf, .imprimiendo, .libro) :is(.reveal-viewport, .reveal, .pdf-page) {
+  background: #fff;
+  color: var(--r-main-color);
+}
+/* El filete bajo el titulo: al 55% sobre papel se destine, y en una impresora
+   sin buena trama directamente desaparece. */
+html:is(.print-pdf, .imprimiendo, .libro) .reveal .slides section > :is(h1, h2, h3, h4)::after { opacity: 0.8; }
+/* El numero de pagina: en pantalla es una chapita sobre el fondo negro, en
+   papel alcanza con el numero. */
+html:is(.print-pdf, .imprimiendo, .libro) .reveal .slide-number { background: none; color: #9aa0a8; }
+
+/* Codigo y figuras comparten plancha: gris muy tenue con un hairline. Es lo
+   que las apoya en la hoja en vez de dejarlas flotando, y lo que hace que el
+   bloque de codigo y el diagrama de al lado se lean como la misma familia.
+   El resaltado claro vive en css/code.css. */
+html:is(.print-pdf, .imprimiendo, .libro) .reveal :is(pre code.hljs, p.comando code) { border-color: #e3e6eb; }
+html:is(.print-pdf, .imprimiendo, .libro) .reveal .slides section img {
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #eceef2;
+  border-radius: 6px;
+  background: #fafbfc;
+}
+/* Los macros citados en prosa: el fondo era blanco al 10%, invisible en papel. */
+html:is(.print-pdf, .imprimiendo, .libro) .reveal :is(li, p) code { background: #f2f3f5; }
+
+/* Portada y Referencias: los grises pensados para el fondo negro. */
+html:is(.print-pdf, .imprimiendo, .libro) :is(.libro-kicker, .libro-pie, .libro-nota, .creditos-pie, .creditos-pie a, .reveal .dias a) { color: #5a6068; }
+html:is(.print-pdf, .imprimiendo, .libro) .libro-titulo { color: var(--r-heading-color); }
+html:is(.print-pdf, .imprimiendo, .libro) .reveal .libro { border-color: rgba(154, 101, 16, 0.35); }
+html:is(.print-pdf, .imprimiendo, .libro) .reveal .dias a { border-color: #d0d3d8; }
+
+/* Repaso: la opcion neutra con hairline claro. La correcta y la elegida ya
+   toman los colores-senal de las variables; el rojo del error no, porque no es
+   una variable -- sobre papel pasa de #e0696f a un rojo con cuerpo. */
+html:is(.print-pdf, .imprimiendo, .libro) .reveal section.quiz .opcion { border-color: #d9dce1; background: #fafbfc; }
+html:is(.print-pdf, .imprimiendo, .libro) .reveal section.quiz .letra { border-color: #d0d3d8; }
+html:is(.print-pdf, .imprimiendo, .libro) .reveal section.quiz.respondida .es-correcta { background: rgba(20, 122, 60, 0.09); }
+html:is(.print-pdf, .imprimiendo, .libro) .reveal section.quiz .respuesta { background: rgba(20, 122, 60, 0.06); }
+html:is(.print-pdf, .imprimiendo, .libro) .reveal section.quiz.respondida .elegida:not(.es-correcta) {
+  border-color: #b3352b;
+  background: rgba(179, 53, 43, 0.07);
+}
+html:is(.print-pdf, .imprimiendo, .libro) .reveal section.quiz.respondida .elegida:not(.es-correcta) :is(.letra) {
+  color: #b3352b;
+  border-color: #b3352b;
+}
+html:is(.print-pdf, .imprimiendo, .libro) .reveal section.quiz.respondida .elegida:not(.es-correcta)::after { color: #b3352b; }
+
+/* ---- Impresion / export PDF -----------------------------------------------
+   reveal marca <html class="print-pdf"> apenas arranca en modo ?print-pdf y
+   MIDE cada slide para decidir cuantas paginas ocupa. Si estas reglas vivieran
+   solo en @media print, mediria con el layout de pantalla (codigo recortado a
+   su caja), calcularia 1 pagina por slide, y recien al imprimir el codigo se
+   expandiria y se cortaria: .pdf-page tiene overflow:hidden. Por eso van sobre
+   la clase, no sobre el media query.
+
+   Sin max-height, un archivo largo ocupa las paginas que haga falta. */
+html:is(.print-pdf, .imprimiendo, .libro) .reveal .slides > section,
+html:is(.print-pdf, .imprimiendo, .libro) .reveal .slides > section.present {
+  display: block !important;
+  height: auto;
+}
+html:is(.print-pdf, .imprimiendo, .libro) .reveal .slides > section > pre { display: block; }
+html:is(.print-pdf, .imprimiendo, .libro) .reveal pre code {
+  max-height: none;
+  overflow: visible !important;
+  font-size: 0.72em;
+}
+html:is(.print-pdf, .imprimiendo, .libro) .reveal section img { max-height: 420px; }
+html:is(.print-pdf, .imprimiendo, .libro) .forkit,
+html:is(.print-pdf, .imprimiendo, .libro) .forkit-curtain,
+html:is(.print-pdf, .imprimiendo, .libro) #indice-btn,
+html:is(.print-pdf, .imprimiendo, .libro) #indice { display: none !important; }
+
+@media print {
+  .forkit, .forkit-curtain, #indice-btn, #indice { display: none !important; }
+}

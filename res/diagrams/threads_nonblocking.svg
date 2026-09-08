@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 84 900 334" font-family="IBM Plex Sans, system-ui, sans-serif">
+<title>Linea de tiempo del ejemplo no bloqueante: en 7 ns y 49 ns la FIFO esta vacia y try_get() devuelve 0</title>
+<defs>
+  <marker id="p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#5b6b7a"/>
+  </marker>
+</defs>
+
+<!-- verticales de los flancos del consumer: ambar los dos que se van vacios -->
+<g stroke="#2e2e2e" stroke-width="1" stroke-dasharray="2 5">
+  <path d="M374,110 V292"/>
+  <path d="M510,110 V292"/>
+  <path d="M781,110 V292"/>
+</g>
+<g stroke="#e7ad52" stroke-width="2" stroke-dasharray="5 5" opacity="0.85">
+  <path d="M238,110 V292"/>
+  <path d="M645,110 V292"/>
+</g>
+
+<!-- producer -->
+<text x="155" y="122" text-anchor="end" fill="#f0f0f0" font-size="21" font-family="IBM Plex Mono, ui-monospace, monospace">producer_h</text>
+<text x="155" y="144" text-anchor="end" fill="#8d8d8d" font-size="15">put() cada 17 ns</text>
+<path d="M170,116 H840" stroke="#333" stroke-width="1"/>
+<g stroke="#5b6b7a" stroke-width="2" fill="none" marker-end="url(#p)">
+  <path d="M335,122 V156"/>
+  <path d="M500,122 V156"/>
+  <path d="M665,122 V156"/>
+</g>
+<g fill="#8d8d8d" font-size="16" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">
+  <text x="335" y="106">put(1)</text>
+  <text x="500" y="106">put(2)</text>
+  <text x="665" y="106">put(3)</text>
+</g>
+
+<!-- fifo: cuanto tiempo el dato esta adentro -->
+<text x="155" y="192" text-anchor="end" fill="#f0f0f0" font-size="21" font-family="IBM Plex Mono, ui-monospace, monospace">fifo_h</text>
+<text x="155" y="214" text-anchor="end" fill="#8d8d8d" font-size="15">capacidad: 1</text>
+<path d="M170,166 H840 M170,206 H840" stroke="#2e2e2e" stroke-width="1" stroke-dasharray="2 5"/>
+<g fill="#ffffff" opacity="0.07">
+  <rect x="335" y="168" width="39" height="36"/>
+  <rect x="500" y="168" width="10" height="36"/>
+  <rect x="665" y="168" width="116" height="36"/>
+</g>
+<g fill="none" stroke="#5b6b7a" stroke-width="2">
+  <rect x="335" y="168" width="39" height="36"/>
+  <rect x="500" y="168" width="10" height="36"/>
+  <rect x="665" y="168" width="116" height="36"/>
+</g>
+<g fill="#f0f0f0" font-size="17" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">
+  <text x="354" y="228">1</text>
+  <text x="505" y="228">2</text>
+  <text x="723" y="228">3</text>
+</g>
+
+<!-- consumer -->
+<text x="155" y="262" text-anchor="end" fill="#f0f0f0" font-size="21" font-family="IBM Plex Mono, ui-monospace, monospace">consumer_h</text>
+<text x="155" y="284" text-anchor="end" fill="#8d8d8d" font-size="15">try_get() cada 14 ns</text>
+<path d="M170,256 H840" stroke="#333" stroke-width="1"/>
+<g stroke="#5b6b7a" stroke-width="2">
+  <path d="M374,244 V268"/>
+  <path d="M510,244 V268"/>
+  <path d="M781,244 V268"/>
+</g>
+<g stroke="#e7ad52" stroke-width="2">
+  <path d="M238,244 V268"/>
+  <path d="M645,244 V268"/>
+</g>
+
+<!-- lo que devuelve cada try_get() -->
+<g font-size="19" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">
+  <text x="238" y="298" fill="#e7ad52">0</text>
+  <text x="374" y="298" fill="#f0f0f0">1</text>
+  <text x="510" y="298" fill="#f0f0f0">1</text>
+  <text x="645" y="298" fill="#e7ad52">0</text>
+  <text x="781" y="298" fill="#f0f0f0">1</text>
+</g>
+<g font-size="14" text-anchor="middle">
+  <text x="238" y="318" fill="#e7ad52">FIFO vacía</text>
+  <text x="374" y="318" fill="#8d8d8d">Received: 1</text>
+  <text x="510" y="318" fill="#8d8d8d">Received: 2</text>
+  <text x="645" y="318" fill="#e7ad52">FIFO vacía</text>
+  <text x="781" y="318" fill="#8d8d8d">Received: 3</text>
+</g>
+
+<!-- eje de tiempo -->
+<path d="M170,348 H840" stroke="#333" stroke-width="1"/>
+<g stroke="#333" stroke-width="1">
+  <path d="M170,348 V355"/><path d="M267,348 V355"/><path d="M364,348 V355"/>
+  <path d="M461,348 V355"/><path d="M558,348 V355"/><path d="M655,348 V355"/>
+  <path d="M752,348 V355"/>
+</g>
+<g fill="#8d8d8d" font-size="15" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">
+  <text x="170" y="374">0</text><text x="267" y="374">10</text><text x="364" y="374">20</text>
+  <text x="461" y="374">30</text><text x="558" y="374">40</text><text x="655" y="374">50</text>
+  <text x="752" y="374">60</text>
+</g>
+<text x="848" y="354" fill="#8d8d8d" font-size="15" font-family="IBM Plex Mono, ui-monospace, monospace">ns</text>
+
+<text x="30" y="406" fill="#8d8d8d" font-size="18">Con <tspan font-family="IBM Plex Mono, ui-monospace, monospace" fill="#f0f0f0">get()</tspan> bloqueante, el consumer se quedaba esperando en los dos flancos en <tspan fill="#e7ad52">ámbar</tspan>.</text>
+</svg>

@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Curso de UVM en español, gratis y con Verilator · Verify This!</title>
+<meta name="description" content="Curso completo de UVM (Universal Verification Methodology) en español: 8 unidades —más una novena opcional sobre RAL—, 400 slides y 38 ejemplos de SystemVerilog que se ejecutan de verdad con Verilator, sin licencias de EDA. Cobertura funcional, agents, sequences y ejercicios que se corrigen solos. Gratis y con licencia abierta.">
+<link rel="canonical" href="https://leandrotozzi.github.io/verifythis/">
+<meta name="author" content="Leandro Tozzi">
+<meta name="robots" content="index, follow">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_AR">
+<meta property="og:site_name" content="Verify This!">
+<meta property="og:title" content="Curso de UVM en español, gratis y con Verilator">
+<meta property="og:description" content="8 unidades, 400 slides y 38 ejemplos que se ejecutan de verdad. Sin licencias de EDA, sin cuenta, sin formulario.">
+<meta property="og:url" content="https://leandrotozzi.github.io/verifythis/">
+<meta property="og:image" content="https://leandrotozzi.github.io/verifythis/portada.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Curso de UVM en español, gratis y con Verilator">
+<meta name="twitter:description" content="8 unidades, 400 slides y 38 ejemplos que se ejecutan de verdad. Sin licencias de EDA.">
+<meta name="twitter:image" content="https://leandrotozzi.github.io/verifythis/portada.png">
+
+<link rel="stylesheet" href="css/fonts.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": "Verify This! — Curso introductorio a UVM",
+  "description": "Curso de siete días —más un octavo opcional— sobre UVM (Universal Verification Methodology) e IEEE 1800.2 en español, con 38 ejemplos de SystemVerilog ejecutables en Verilator y cobertura funcional.",
+  "inLanguage": "es",
+  "isAccessibleForFree": true,
+  "url": "https://leandrotozzi.github.io/verifythis/",
+  "teaches": ["UVM", "SystemVerilog", "Verificación funcional", "Cobertura funcional", "Constrained random", "Diseño de testbench", "SystemVerilog Assertions", "Plan de verificación"],
+  "author": {"@type": "Person", "name": "Leandro Tozzi"},
+  "provider": {"@type": "Person", "name": "Leandro Tozzi"},
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "hasCourseInstance": {
+    "@type": "CourseInstance",
+    "courseMode": "online",
+    "courseWorkload": "P7D"
+  }
+}
+</script>
+
+<style>
+:root{
+  --bg:#111; --bg-alt:#171717; --panel:rgba(255,255,255,.045);
+  --txt:#f0f0f0; --dim:#8d8d8d; --line:#2b2b2b; --struct:#5b6b7a;
+  --acc:#e7ad52; --ok:#74e685;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,Helvetica,Arial,sans-serif;
+  --disp:'Chakra Petch','IBM Plex Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --wrap:1080px;
+}
+*{box-sizing:border-box}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--txt);font-family:var(--sans);
+  font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 24px}
+a{color:var(--ok);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+h1,h2,h3{font-family:var(--disp);font-weight:700;line-height:1.12;letter-spacing:.005em;margin:0}
+code,kbd{font-family:var(--mono);font-size:.9em}
+.mono{font-family:var(--mono)}
+
+/* ---------- trazas de fondo: el motivo visual del curso ---------- */
+.trazas{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.trazas::before{
+  content:"";position:absolute;inset:-2px;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 46px,rgba(91,107,122,.13) 46px 47px),
+    repeating-linear-gradient(90deg,transparent 0 46px,rgba(91,107,122,.09) 46px 47px);
+  mask-image:radial-gradient(120% 85% at 50% 0%,#000 20%,transparent 78%);
+  -webkit-mask-image:radial-gradient(120% 85% at 50% 0%,#000 20%,transparent 78%);
+}
+.trazas svg{position:absolute;left:0;right:0;bottom:-6px;width:200%;opacity:.42;
+  mask-image:linear-gradient(90deg,transparent,#000 22%,#000 100%);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 22%,#000 100%)}
+.pulso{animation:corre 26s linear infinite}
+@keyframes corre{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.pulso{animation:none}}
+
+/* ---------- hero ---------- */
+header.hero{position:relative;padding:78px 0 64px;border-bottom:1px solid var(--line);overflow:hidden}
+.hero .wrap{position:relative;z-index:1}
+.kicker{
+  font-family:var(--mono);font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--acc);margin:0 0 20px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;
+}
+.kicker span::after{content:"·";margin-left:14px;color:var(--struct)}
+.kicker span:last-child::after{content:""}
+h1{font-size:clamp(3.1rem,10vw,5.6rem);margin:0 0 6px}
+h1 .bang{color:var(--acc)}
+.lede{
+  font-family:var(--disp);font-weight:600;font-style:italic;
+  font-size:clamp(1.15rem,3.1vw,1.6rem);color:var(--txt);margin:0 0 10px;max-width:30ch;line-height:1.3;
+}
+.sub{color:var(--dim);max-width:60ch;margin:0 0 34px}
+.sub strong{color:var(--txt);font-weight:600}
+
+.cifras{display:flex;flex-wrap:wrap;gap:0;margin:0 0 36px;border:1px solid var(--line);border-radius:3px;overflow:hidden;background:var(--panel)}
+.cifra{flex:1 1 130px;padding:16px 18px;border-right:1px solid var(--line)}
+.cifra:last-child{border-right:0}
+.cifra b{display:block;font-family:var(--mono);font-size:1.75rem;color:var(--acc);line-height:1}
+.cifra span{display:block;font-size:12.5px;color:var(--dim);margin-top:6px;letter-spacing:.03em}
+
+.botones{display:flex;flex-wrap:wrap;gap:12px}
+.btn{
+  display:inline-flex;align-items:center;gap:9px;padding:13px 22px;border-radius:3px;
+  font-family:var(--disp);font-weight:700;font-size:1rem;letter-spacing:.01em;
+  border:1px solid var(--struct);color:var(--txt);transition:.16s ease;
+}
+.btn:hover{text-decoration:none;border-color:var(--ok);color:var(--ok);transform:translateY(-1px)}
+.btn.pri{background:var(--ok);border-color:var(--ok);color:#0e1a10}
+.btn.pri:hover{background:#8ff09d;border-color:#8ff09d;color:#0e1a10}
+.btn small{font-family:var(--mono);font-weight:400;font-size:12px;opacity:.75}
+
+/* ---------- secciones ---------- */
+section{padding:66px 0;border-bottom:1px solid var(--line)}
+.rotulo{
+  font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--struct);margin:0 0 12px;
+}
+h2{font-size:clamp(1.7rem,4.4vw,2.35rem);margin:0 0 14px}
+h2 + p.intro{color:var(--dim);max-width:64ch;margin:0 0 34px}
+
+.rejilla{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(258px,1fr))}
+.caja{border:1px solid var(--line);border-radius:3px;padding:22px;background:var(--panel)}
+.caja h3{font-size:1.12rem;margin:0 0 9px;color:var(--txt)}
+.caja p{margin:0;color:var(--dim);font-size:15.5px}
+.caja p + p{margin-top:10px}
+.caja .marca{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--acc);display:block;margin-bottom:11px}
+
+/* temario */
+.dias{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(310px,1fr))}
+.dia{border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:3px;padding:20px 22px;background:var(--panel)}
+.dia h3{font-family:var(--mono);font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--acc);font-weight:400;margin:0 0 12px}
+.dia ol{margin:0;padding-left:20px;color:var(--txt);font-size:15.5px}
+.dia li{margin-bottom:5px}
+.dia li::marker{color:var(--struct);font-family:var(--mono);font-size:12px}
+.dia .cola{margin:13px 0 0;font-size:13.5px;color:var(--dim);border-top:1px solid var(--line);padding-top:11px}
+.apendices{margin:26px auto 0;max-width:62ch;text-align:center;font-size:14.5px;color:var(--dim)}
+
+/* terminal */
+.term{border:1px solid var(--line);border-radius:3px;background:#0c0c0c;overflow:hidden;margin:0}
+.term .barra{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line);background:#141414}
+.term .barra i{width:9px;height:9px;border-radius:50%;background:var(--struct);display:block}
+.term .barra b{font-family:var(--mono);font-size:11.5px;color:var(--dim);font-weight:400;margin-left:6px;letter-spacing:.05em}
+.term pre{margin:0;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:13.2px;line-height:1.72;color:#cfcfcf}
+.term .p{color:var(--ok)}
+.term .a{color:var(--acc)}
+.term .d{color:var(--dim)}
+
+/* como correrlo */
+.ruta{border:1px solid var(--line);border-radius:3px;padding:22px;background:var(--panel);display:flex;flex-direction:column}
+.ruta h3{font-size:1.1rem;margin:0 0 4px}
+.ruta .quien{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);margin:0 0 13px}
+.ruta p{color:var(--dim);font-size:15px;margin:0 0 14px}
+.ruta pre{margin:0 0 12px;padding:12px 14px;background:#0c0c0c;border:1px solid var(--line);border-radius:3px;overflow-x:auto;font-family:var(--mono);font-size:12.8px;line-height:1.7;color:#cfcfcf}
+.ruta .nota{font-size:13.5px;color:var(--dim);margin-top:auto;padding-top:10px;border-top:1px solid var(--line)}
+
+/* faq */
+.faq{border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{
+  cursor:pointer;padding:18px 34px 18px 0;font-family:var(--disp);font-weight:600;
+  font-size:1.06rem;position:relative;list-style:none;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";position:absolute;right:6px;top:16px;color:var(--acc);font-family:var(--mono);font-size:1.3rem;transition:.18s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{margin:0 0 18px;color:var(--dim);max-width:76ch}
+.faq details p:first-of-type{margin-top:-4px}
+
+footer{padding:52px 0 60px;color:var(--dim);font-size:14.5px}
+footer .wrap{display:grid;gap:26px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+footer h3{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--struct);font-weight:400;margin:0 0 10px}
+footer ul{list-style:none;margin:0;padding:0}
+footer li{margin-bottom:6px}
+footer .cita{font-family:var(--mono);font-size:12.4px;color:var(--dim);border-left:2px solid var(--struct);padding-left:12px;line-height:1.7}
+
+.aparece{opacity:0;transform:translateY(14px);animation:sube .62s cubic-bezier(.22,.7,.3,1) forwards}
+@keyframes sube{to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.aparece{animation:none;opacity:1;transform:none}}
+
+@media (max-width:640px){
+  body{font-size:16px}
+  header.hero{padding:52px 0 46px}
+  section{padding:48px 0}
+  .cifra{flex:1 1 50%;border-bottom:1px solid var(--line)}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="trazas" aria-hidden="true">
+    <svg viewBox="0 0 1200 120" preserveAspectRatio="none" height="120">
+      <g class="pulso" fill="none" stroke="#e7ad52" stroke-width="2" opacity=".55">
+        <path d="M0,90 H70 V30 H150 V90 H230 V30 H300 V90 H380 V30 H455 V90 H600
+                 V30 H670 V90 H750 V30 H830 V90 H900 V30 H980 V90 H1060 V30 H1130 V90 H1200"/>
+        <path d="M1200,90 H1270 V30 H1350 V90 H1430 V30 H1500 V90 H1580 V30 H1655 V90 H1800
+                 V30 H1870 V90 H1950 V30 H2030 V90 H2100 V30 H2180 V90 H2260 V30 H2330 V90 H2400"/>
+      </g>
+      <g class="pulso" fill="none" stroke="#5b6b7a" stroke-width="2" opacity=".45"
+         transform="translate(0,26)">
+        <path d="M0,30 H110 V90 H190 V30 H340 V90 H420 V30 H560 V90 H640 V30 H790 V90 H870 V30 H1030 V90 H1110 V30 H1200"/>
+        <path d="M1200,30 H1310 V90 H1390 V30 H1540 V90 H1620 V30 H1760 V90 H1840 V30 H1990 V90 H2070 V30 H2230 V90 H2310 V30 H2400"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="wrap">
+    <p class="kicker aparece"><span>UVM</span><span>IEEE 1800.2</span><span>SystemVerilog</span><span>Verilator</span></p>
+    <h1 class="aparece" style="animation-delay:.06s">Verify This<span class="bang">!</span></h1>
+    <p class="lede aparece" style="animation-delay:.12s">Curso de UVM en español que corre entero con Verilator.</p>
+    <p class="sub aparece" style="animation-delay:.18s">
+      Casi todo el material de UVM que hay dando vueltas asume Questa, VCS o Xcelium
+      —licencias que un estudiante no tiene— y está en inglés. Este está en español,
+      es de siete días de clase, y <strong>todos sus ejemplos se ejecutan de verdad</strong>
+      con herramientas libres. Sin licencias, sin cuenta, sin formulario.
+    </p>
+    <p class="sub aparece" lang="en" style="animation-delay:.21s">
+      <strong>In English:</strong> a Spanish-language UVM course that runs entirely on
+      Verilator — no EDA licenses, no account, no signup. The material stays in Spanish;
+      the code and the commands read fine in any language.
+    </p>
+
+    <div class="cifras aparece" style="animation-delay:.24s">
+      <div class="cifra"><b>8</b><span>unidades</span></div>
+      <div class="cifra"><b>360</b><span>slides</span></div>
+      <div class="cifra"><b>35</b><span>ejemplos que corren</span></div>
+      <div class="cifra"><b>12</b><span>ejercicios autocorregibles</span></div>
+      <div class="cifra"><b>$0</b><span>en licencias</span></div>
+    </div>
+
+    <div class="botones aparece" style="animation-delay:.3s">
+      <a class="btn pri" href="curso.html">▶ Empezar el curso</a>
+      <a class="btn" href="libro/dia1.html">Leerlo de corrido <small>el libro</small></a>
+      <a class="btn" href="https://github.com/leandrotozzi/verifythis">Código en GitHub</a>
+      <a class="btn" href="curso-uvm.pdf">PDF <small>440 pág.</small></a>
+    </div>
+  </div>
+</header>
+
+<section id="por-que">
+  <div class="wrap">
+    <p class="rotulo">Por qué existe</p>
+    <h2>Un curso de verificación que se puede correr, no sólo leer</h2>
+    <p class="intro">
+      Verificar es la mitad del trabajo de un chip y casi nadie lo aprende con las manos,
+      porque el simulador cuesta más que el sueldo. Esto lo resuelve.
+    </p>
+
+    <div class="rejilla">
+      <div class="caja">
+        <span class="marca">Herramientas libres</span>
+        <h3>Verilator, y con cobertura funcional</h3>
+        <p>Desde la versión 5.050 Verilator mide <code>covergroup</code>, que es tema del curso.
+        No hay flujo Questa: el simulador te lo llevás a casa y seguís practicando sin pedirle
+        licencia a nadie.</p>
+      </div>
+      <div class="caja">
+        <span class="marca">En español</span>
+        <h3>Escrito, no traducido</h3>
+        <p>Siete días de clase con notas del presentador: la trampa clásica, el porqué del número,
+        el error que comete todo el mundo la primera vez. No es una referencia ni un manual
+        pasado por un traductor.</p>
+      </div>
+      <div class="caja">
+        <span class="marca">Verificado</span>
+        <h3>El badge dice si andan hoy</h3>
+        <p>Los 38 ejemplos los corre integración continua en cada cambio, y todas las noches
+        se corren también las quince soluciones de los ejercicios. La promesa no la sostiene
+        una captura de pantalla.</p>
+      </div>
+      <div class="caja">
+        <span class="marca">Libre de verdad</span>
+        <h3>MIT, Apache-2.0 y CC BY 4.0</h3>
+        <p>Dictalo en tu universidad, adaptalo, cobralo si querés. Sólo citá la fuente.
+        No hay muro de pago, ni lista de correo, ni «dejanos tu email». Y no hay
+        letra chica: se forkea sin consultar a nadie.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="prueba">
+  <div class="wrap">
+    <p class="rotulo">La prueba</p>
+    <h2>Así se ve una sección corriendo</h2>
+    <p class="intro">
+      UVM 2020.3.1 sobre Verilator, sobre el DUT del curso. Cero errores y el número real
+      de cobertura funcional — no un placeholder.
+    </p>
+    <div class="term">
+      <div class="barra"><i></i><i></i><i></i><b>make u4/tests</b></div>
+<pre><span class="d">$</span> <span class="p">make u4/tests</span>
+<span class="d">==&gt; code/u4/tests/run.sh</span>
+UVM_INFO @ 0: reporter [RNTST] Running test random_test...
+
+--- UVM Report Summary ---
+
+** Report counts by severity
+UVM_INFO   :    1
+UVM_WARNING:    0
+<span class="p">UVM_ERROR  :    0</span>
+<span class="p">UVM_FATAL  :    0</span>
+
+Coverage Summary:
+  <span class="a">covergroup : 86.8% (66/76)</span>
+</pre>
+    </div>
+  </div>
+</section>
+
+<section id="temario">
+  <div class="wrap">
+    <p class="rotulo">Temario</p>
+    <h2>Ocho unidades en siete días, de la primera clase a un testbench UVM escrito desde cero</h2>
+    <p class="intro">
+      Arranca en por qué existe la verificación como disciplina y termina con un capstone:
+      un esclavo APB, su especificación, y el testbench entero desde una hoja en blanco.
+      Cada día cierra con un repaso de opción múltiple y al menos un ejercicio que se
+      corrige solo, y son entre cuatro y cinco horas y media de clase — <strong>≈ 30 h 30</strong>, más el día 8 opcional.
+    </p>
+
+    <div class="dias">
+      <article class="dia">
+        <h3>Día 1 · Unidades 1 y 2 · Por qué se verifica, y el testbench sin UVM</h3>
+        <ol>
+          <li>Tendencias de la industria</li>
+          <li>Qué es UVM</li>
+          <li>La spec del VTALU (el DUT)</li>
+          <li>El plan de verificación: las cinco columnas</li>
+          <li>El testbench convencional</li>
+          <li>Cobertura funcional: <code>covergroup</code>, <code>bins</code>, <code>cross</code></li>
+          <li>Interfaces de SystemVerilog y BFM</li>
+        </ol>
+        <p class="cola"><b>≈ 4 h</b> · Se cierra viendo ondas de verdad con GTKWave.</p>
+      </article>
+
+      <article class="dia">
+        <h3>Día 2 · Unidad 3 · La OOP que UVM da por sabida</h3>
+        <ol>
+          <li>Clases y extensiones</li>
+          <li>Polimorfismo, <code>virtual</code> y clases abstractas</li>
+          <li>Variables y métodos estáticos</li>
+          <li>Clases paramétricas</li>
+          <li>El patrón Factory</li>
+          <li>Un testbench sin un solo módulo</li>
+        </ol>
+        <p class="cola"><b>≈ 4 h</b> · El muro real del que viene de RTL. Acá se gasta el tiempo que sobre.</p>
+      </article>
+
+      <article class="dia">
+        <h3>Día 3 · Unidad 4 · Entra UVM</h3>
+        <ol>
+          <li><code>uvm_test</code> y <code>+UVM_TESTNAME</code></li>
+          <li><code>uvm_component</code> y las fases</li>
+          <li><code>uvm_env</code>: estructura contra estímulo</li>
+          <li>Reporting: verbosidad y <em>actions</em></li>
+        </ol>
+        <p class="cola"><b>≈ 4 h 30</b> · El <code>uvm_config_db</code>, su ámbito jerárquico, y el reporting con el que se debuggea todo lo que viene.</p>
+      </article>
+
+      <article class="dia">
+        <h3>Día 4 · Unidad 5 · Cómo hablan los componentes</h3>
+        <ol>
+          <li>Un productor, muchos oyentes: el patrón Observer</li>
+          <li>Un solo lugar que mira el cable: <code>uvm_analysis_port</code></li>
+          <li>Cuando alguien tiene que esperar: threads</li>
+          <li>Quién espera a quién: <code>put</code> y <code>get</code></li>
+        </ol>
+        <p class="cola"><b>≈ 4 h</b> · Acá el estímulo se parte en dos: quién decide qué mandar y quién sabe cómo.</p>
+      </article>
+
+      <article class="dia">
+        <h3>Día 5 · Unidad 6 · El dato</h3>
+        <ol>
+          <li>Copiar un objeto que contiene otro: <em>deep copy</em></li>
+          <li>Transactions</li>
+          <li>Constrained random: <code>dist</code>, <code>inside</code>, <code>with</code></li>
+        </ol>
+        <p class="cola"><b>≈ 4 h</b> · Los datos dejan de ser una <code>struct</code> y pasan a ser objetos que viajan.</p>
+      </article>
+
+      <article class="dia">
+        <h3>Día 6 · Unidad 7 · El testbench reutilizable</h3>
+        <ol>
+          <li><code>uvm_agent</code>, <code>uvm_sequencer</code>, <code>is_active</code></li>
+          <li>Callbacks: <code>uvm_callback</code>, <code>`uvm_do_callbacks</code>, inyección de error en el driver</li>
+          <li><code>uvm_sequence</code>, <code>body()</code>, <code>start_item</code> / <code>finish_item</code></li>
+        </ol>
+        <p class="cola"><b>≈ 5 h 15</b> · El handshake <code>get_next_item</code> / <code>item_done</code>: el 90 % de lo que vas a escribir.</p>
+      </article>
+
+      <article class="dia">
+        <h3>Día 7 · Unidad 8 · La otra mitad</h3>
+        <ol>
+          <li>Assertions (SVA): <code>assert property</code>, <code>|-&gt;</code> contra <code>|=&gt;</code>, <code>cover property</code></li>
+          <li>El capstone: un esclavo APB, su spec, y el testbench entero desde cero</li>
+          <li>Los cuatro apéndices, el glosario y el cierre</li>
+        </ol>
+        <p class="cola"><b>≈ 4 h 45</b> · A la mañana, cómo se habla con el DUT. A la tarde, un testbench desde una hoja en blanco.</p>
+      </article>
+      <article class="dia">
+        <h3>Día 8 · Opcional · Lo que sigue después del capstone</h3>
+        <ol>
+          <li>RAL (unidad 9): el mapa de registros sobre el mismo APB del capstone</li>
+          <li>El modelo de referencia en C, por <code>import "DPI-C"</code></li>
+          <li>El segundo capstone: una FIFO con backpressure, donde el scoreboard no puede ser una tabla</li>
+        </ol>
+        <p class="cola"><b>≈ 4 h</b> · Va después del cierre: las tres cosas necesitan que el capstone ya esté hecho.</p>
+      </article>
+    </div>
+
+    <p class="apendices">El <b>día 8 es opcional y va después del cierre</b>, y las dos
+    cosas son a propósito: sus tres piezas necesitan que el capstone del día 7 ya esté
+    hecho. <b>RAL</b>, la capa de registros de UVM, reemplaza el scoreboard que acabás de
+    escribir — corre en Verilator, con las dos sequences de <code>uvm-core</code> que
+    generan sus propios tests desde el modelo, y hasta donde sabemos es la única versión
+    de esto que existe sobre un simulador libre. El <b>modelo de referencia en C por
+    DPI</b> reemplaza su predicción. Y el <b>segundo capstone</b> sólo enseña algo para el
+    que ya entregó el primero: el bug que hay que cazar está en una bandera y no en los
+    datos, así que un scoreboard que sólo compara lo que sale pasa en verde.</p>
+
+    <p class="apendices">El día 7 cierra con <b>cuatro apéndices</b>: <b>de la VTALU a
+    un bus real</b> —qué cambia y qué no cuando la interface es AXI o APB—, <b>la caja
+    de herramientas de debug</b> —las siete perillas del curso, y cuál usar según el
+    síntoma—, <b>las diecinueve trampas mudas</b> —todo lo que compila, corre y miente—
+    y un <b>glosario ES ↔ EN</b>, porque todo lo que leas después de este curso va a
+    estar en inglés.</p>
+  </div>
+</section>
+
+<section id="correrlo">
+  <div class="wrap">
+    <p class="rotulo">Cómo correrlo</p>
+    <h2>Cinco caminos, del que no instala nada al que compila todo</h2>
+    <p class="intro">
+      El deck se abre con doble clic en cualquier máquina y sin internet. Para <em>correr</em>
+      los ejemplos, empezá por el primero: es el único que no te pide nada.
+    </p>
+
+    <div class="rejilla">
+      <div class="ruta">
+        <p class="quien">Empezá por acá</p>
+        <h3>GitHub Codespaces</h3>
+        <p>El repositorio trae un <code>devcontainer</code> con Verilator, UVM y
+        <code>ccache</code> ya adentro. Abrís el repo en el navegador y corrés los ejemplos
+        ahí mismo, desde cualquier máquina — incluso una netbook.</p>
+<pre><span class="d"># Code ▸ Codespaces ▸ Create codespace</span>
+make u4/tests   <span class="d"># y la segunda sección, en segundos</span></pre>
+        <p class="nota">Las cuentas gratuitas traen 60 horas-core por mes, de sobra para el
+        curso. Va primero porque en macOS y en Windows instalar Verilator es media tarde
+        que no enseña nada de UVM.</p>
+      </div>
+
+      <div class="ruta">
+        <p class="quien">Sin instalar Verilator</p>
+        <h3>Docker</h3>
+        <p>La misma imagen del devcontainer, en tu máquina y con el repo montado desde
+        afuera: editás con tu editor de siempre y corrés adentro.</p>
+<pre>docker build -t verifythis .
+docker run --rm -it -v "$PWD":/work \
+  verifythis make u4/tests</pre>
+        <p class="nota">La cache de <code>ccache</code> queda en <code>.ccache/</code> del
+        repo montado, así que sobrevive al <code>--rm</code>. Ajuste de RAM en
+        <code>docs/docker.md</code>.</p>
+      </div>
+
+      <div class="ruta">
+        <p class="quien">Linux · macOS</p>
+        <h3>Nativo</h3>
+        <p>El camino más rápido una vez instalado. Ojo: hace falta Verilator
+        <strong>≥ 5.050</strong> —los covergroups entraron ahí— y el paquete de la distro
+        casi siempre está atrasado.</p>
+<pre>git clone https://github.com/leandrotozzi/verifythis
+cd verifythis
+verilator --version   <span class="d"># ≥ 5.050</span>
+make u4/tests</pre>
+        <p class="nota">Hacen falta dos paquetes más: <code>z3</code>, que es el solver
+        de <code>randomize()</code> y sin el cual el día 5 miente en silencio, y
+        <code>ccache</code>, que hace que la segunda sección con UVM compile en segundos.
+        La receta para compilar Verilator de fuente está en el README.</p>
+      </div>
+
+      <div class="ruta">
+        <p class="quien">Windows</p>
+        <h3>WSL 2</h3>
+        <p>Si querés el curso en tu máquina y no en el navegador: una vez instalado Ubuntu,
+        todo lo demás es idéntico a Linux.</p>
+<pre>wsl --install -d Ubuntu   <span class="d"># PowerShell, como admin</span>
+<span class="d"># y adentro de Ubuntu:</span>
+sudo apt install git make g++ perl ccache z3
+<span class="d"># Verilator 5.052 de fuente, y listo</span></pre>
+        <p class="nota">Cloná dentro del sistema de archivos de WSL (<code>~/</code>), no en
+        <code>/mnt/c</code>: ahí la compilación se vuelve varias veces más lenta.</p>
+      </div>
+
+      <div class="ruta">
+        <p class="quien">Ni eso</p>
+        <h3>EDA Playground</h3>
+        <p>Un simulador en el navegador, sin cuenta local ni instalación. Sirve para pegar
+        una clase suelta y experimentar con un concepto: polimorfismo, una <code>constraint</code>,
+        un <code>covergroup</code>.</p>
+<pre><span class="d"># edaplayground.com</span>
+<span class="d"># pegá el ejemplo de code/ch06 y dale Run</span></pre>
+        <p class="nota">No corre el curso entero —los testbenches son de muchos archivos—,
+        pero es la red de seguridad del que no puede instalar nada hoy. Y sus simuladores
+        comerciales soportan los <em>bins de transición</em> que Verilator todavía no.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <p class="rotulo">Preguntas frecuentes</p>
+    <h2>Lo que se pregunta siempre</h2>
+
+    <div class="faq">
+      <details open>
+        <summary>¿Necesito una licencia de Questa, VCS o Xcelium?</summary>
+        <p>No. El curso corre entero con <strong>Verilator</strong>, que es software libre, más la
+        implementación de referencia de UVM de Accellera (<code>uvm-core</code> 2020.3.1), que se
+        baja sola. No hay flujo Questa en el repositorio: los <code>run.do</code> se borraron.</p>
+      </details>
+
+      <details>
+        <summary>¿Sirve si vengo de diseño RTL y nunca escribí una clase?</summary>
+        <p>Sí, y está pensado justo para eso. El día 2 completo es programación orientada a
+        objetos en SystemVerilog —clases, herencia, polimorfismo, clases paramétricas, la
+        factory— porque es el muro real del que llega desde RTL. UVM recién aparece el día 3.</p>
+      </details>
+
+      <details>
+        <summary>Instalé todo y algo no anda: ¿por dónde empiezo?</summary>
+        <p>Por <code>make doctor</code>. Dice si esta máquina puede correr el curso y qué falta,
+        con el comando exacto para tu gestor de paquetes. Los dos modos de falla más caros son
+        <strong>mudos</strong>: sin <code>z3</code>, <code>randomize()</code> devuelve 0 sin decir
+        nada; con un Verilator anterior a 5.050, la cobertura funcional reporta 0 % sin una
+        advertencia.</p>
+        <p>Y si el problema es que el testbench <em>corre</em> pero miente, la lista está en
+        <a href="https://github.com/leandrotozzi/verifythis/blob/master/docs/trampas-mudas.md">las 19
+        trampas mudas</a>: todo lo que compila, corre y no da un warning.</p>
+      </details>
+
+      <details>
+        <summary>¿Cuánto tiempo lleva?</summary>
+        <p>Siete días de clase dictado, unas 30 horas y media — y un <strong>día 8 opcional</strong>,
+        después del cierre, con RAL, el modelo de referencia en C por DPI y un segundo capstone.
+        Si lo hacés solo, calculá el doble: la mitad del tiempo se va en correr los ejemplos, y
+        esa mitad es la que enseña. Como materia
+        de cuatrimestre, el mapa de 15 semanas está en
+        <a href="https://github.com/leandrotozzi/verifythis/blob/master/docs/para-docentes.md">docs/para-docentes.md</a>.</p>
+      </details>
+
+      <details>
+        <summary>¿Qué versión de UVM usa?</summary>
+        <p>UVM <strong>2020.3.1</strong>, la implementación de referencia de Accellera para
+        <strong>IEEE 1800.2-2020</strong>. No la 1.2, que es pre-IEEE. Verilator la soporta
+        oficialmente desde la 5.052.</p>
+      </details>
+
+      <details>
+        <summary>¿Puedo dictarlo en mi universidad o empresa?</summary>
+        <p>Sí, incluso cobrando. Las slides están bajo <strong>CC BY 4.0</strong>, los ejemplos de
+        <code>code/</code> bajo <strong>Apache-2.0</strong> y las herramientas bajo <strong>MIT</strong>:
+        la única condición es citar la fuente y conservar el <code>NOTICE</code>. El repositorio trae
+        el deck en PDF y en PPTX con texto editable y notas del orador.</p>
+        <p>Y para dictarlo como materia hay tres cosas más:
+        <a href="https://github.com/leandrotozzi/verifythis/blob/master/docs/para-docentes.md">docs/para-docentes.md</a> —el curso de siete
+        días pasado a un cuatrimestre de 15 semanas, qué se puede saltear y qué evaluar en cada
+        parcial—, <a href="https://github.com/leandrotozzi/verifythis/blob/master/docs/banco-de-examen.md">el banco con las 45 preguntas sin
+        la respuesta marcada</a>, y un <code>CITATION.cff</code> para el botón <em>Cite this
+        repository</em> de GitHub.</p>
+      </details>
+
+      <details>
+        <summary>¿Esto es <em>The UVM Primer</em> traducido?</summary>
+        <p>No. Es el libro con el que aprendí UVM, está en las referencias, y varios de los
+        ejemplos de <code>code/</code> derivan de los suyos —que su autor publicó bajo
+        Apache-2.0 y acá están acreditados en el <code>NOTICE</code>—. Pero la estructura es
+        otra: <strong>8 unidades</strong> agrupadas por el problema que resuelven, no 24
+        capítulos por feature. El DUT es otro. El simulador es otro. Y hay cuatro unidades de
+        material que el libro no cubre: cobertura funcional desde el principio, el plan de
+        verificación como columna vertebral, assertions (SVA) y un capstone con un DUT
+        distinto que se escribe desde una hoja en blanco. La lista completa está en
+        <a href="https://github.com/leandrotozzi/verifythis/blob/master/docs/en-que-se-diferencia.md">docs/en-que-se-diferencia.md</a>.</p>
+      </details>
+
+      <details>
+        <summary>¿Qué queda afuera?</summary>
+        <p>El RAL (modelo de registros), <code>uvm_event</code> y <code>uvm_barrier</code>, las
+        fases de run-time, y el TLM2. Están nombrados en la slide de cierre, con dónde seguir.
+        El curso es introductorio y prefiere decir qué no cubre.</p>
+      </details>
+
+      <details>
+        <summary>¿Todo funciona igual que en un simulador comercial?</summary>
+        <p>Casi. Verilator 5.052 todavía no compila los <em>bins de transición</em> de los
+        covergroups, ignora <code>binsof</code>/<code>intersect</code> en un <code>cross</code>, y
+        tiene dos limitaciones con <code>dist</code> y <code>solve…before</code>. Las cuatro están
+        documentadas con repro mínimo y con el rodeo portable, porque esconderlas sería peor
+        que no tenerlas.</p>
+      </details>
+
+      <details>
+        <summary>¿Cómo aviso de un error o pregunto algo?</summary>
+        <p>En las <a href="https://github.com/leandrotozzi/verifythis/discussions">Discussions</a>
+        del repositorio para preguntas, y en los
+        <a href="https://github.com/leandrotozzi/verifythis/issues">Issues</a> si encontraste algo
+        roto. Las correcciones por <em>pull request</em> son bienvenidas.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <h3>El curso</h3>
+      <ul>
+        <li><a href="curso.html">Ver las slides</a></li>
+        <li><a href="curso-uvm.pdf">Descargar el PDF</a></li>
+        <li><a href="curso-uvm.pptx">Descargar el PPTX</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>El repositorio</h3>
+      <ul>
+        <li><a href="https://github.com/leandrotozzi/verifythis">Código y slides</a></li>
+        <li><a href="https://github.com/leandrotozzi/verifythis/discussions">Discussions</a></li>
+        <li><a href="libro/dia1.html">El curso para leer de corrido</a></li>
+        <li><a href="https://github.com/leandrotozzi/verifythis/blob/master/docs/verilator.md">Qué anda en Verilator</a></li>
+        <li><a href="https://github.com/leandrotozzi/verifythis/blob/master/docs/plan-de-verificacion.md">El plan de verificación (plantilla)</a></li>
+        <li><a href="https://github.com/leandrotozzi/verifythis/blob/master/docs/uvm-en-la-entrevista.md">UVM en la entrevista</a></li>
+        <li><a href="https://github.com/leandrotozzi/verifythis/raw/master/docs/machete-uvm.pdf">El machete en PDF (una carilla)</a></li>
+        <li><a href="https://github.com/leandrotozzi/verifythis/blob/master/docs/en-que-se-diferencia.md">En qué se diferencia del <em>UVM Primer</em></a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Cómo citarlo</h3>
+      <p class="cita">«Verify This! — Curso introductorio a UVM»,<br>
+      por Leandro Tozzi · CC BY 4.0<br>
+      github.com/leandrotozzi/verifythis</p>
+      <p class="cita">Parte de <code>code/</code> deriva de los ejemplos de<br>
+      <em>The UVM Primer</em>, © 2013 Ray Salemi, Apache-2.0.<br>
+      <a href="https://github.com/leandrotozzi/verifythis/blob/master/NOTICE">NOTICE</a> ·
+      <a href="https://github.com/leandrotozzi/verifythis/blob/master/docs/en-que-se-diferencia.md">en qué se diferencia</a></p>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Los enlaces viejos apuntaban al deck en la raiz: verifythis/#/day3. Ahora la
+// raiz es esta pagina, asi que un hash de reveal se reenvia al deck sin perderlo.
+if (location.hash.startsWith('#/')) location.replace('curso.html' + location.hash);
+</script>
+
+</body>
+</html>

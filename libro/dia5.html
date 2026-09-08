@@ -1,0 +1,2462 @@
+<!DOCTYPE html>
+<html lang="es" class="libro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Día 5 · El dato — Verify This! · Curso de UVM en español</title>
+<meta name="description" content="Día 5 del curso de UVM en español, para leer de corrido: las slides con las notas del instructor adentro del texto y el código completo.">
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/course.css">
+<link rel="stylesheet" href="../css/code.css">
+<link rel="stylesheet" href="../css/libro.css">
+</head>
+<body class="reveal">
+<header class="cabecera">
+  <div class="wrap">
+    <p class="marca"><a href="../web/index.html">Verify This!</a> · el curso para leer</p>
+    <nav class="nav-dias">
+      <a href="dia1.html">Día 1</a>
+      <a href="dia2.html">Día 2</a>
+      <a href="dia3.html">Día 3</a>
+      <a href="dia4.html">Día 4</a>
+      <b>Día 5</b>
+      <a href="dia6.html">Día 6</a>
+      <a href="dia7.html">Día 7</a>
+      <a href="dia8.html">Día 8</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1 class="titulo-dia"><span>Día 5</span>El dato</h1>
+  <p class="bajada">Las mismas slides del deck, con <strong>las notas del
+  instructor adentro del texto</strong> y el código completo. Si estás haciendo
+  el curso solo, empezá por acá y tené el deck al lado para los repasos.</p>
+
+<section id="s224" class="slide">
+<h2 id="agenda">Agenda</h2>
+<h4 id="día-5-·-≈-4-h-·-unidad-6-·-el-dato"><em>Día 5 · ≈ 4 h · unidad 6 · el dato</em></h4>
+<ul>
+<li>Copiar un objeto que contiene otro</li>
+<li>Transactions</li>
+<li>Constrained random</li>
+</ul>
+<p class="al-deck"><a href="../index.html#/224">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s225" class="slide">
+<h2 id="copiar-un-objeto-que-contiene-otro">Copiar un objeto que contiene otro</h2>
+<h4 id="el-handle-no-es-el-objeto"><em>El handle no es el objeto</em></h4>
+<ul>
+<li>Desde las transactions los datos del testbench dejan de ser una <code>struct</code> y pasan a
+ser <strong>objetos que viajan</strong>: el monitor los crea, el scoreboard los compara</li>
+<li>Y ahí aparece un problema que una <code>struct</code> no tenía. Una <code>struct</code> se copia al
+asignarla; un objeto <strong>no</strong>: <code>obj1_h = obj2_h</code> copia el handle, no los datos</li>
+<li>O sea que dos partes del testbench pueden estar mirando el mismo objeto sin
+saberlo. Si una lo modifica, la otra ve el cambio a mitad de camino</li>
+<li>Copiarlo de verdad hay que escribirlo, y escribirlo <strong>en cada nivel de la
+jerarquía</strong>, o los campos de arriba se pierden en silencio</li>
+<li>Esta sección es la OOP que falta para que las transactions se
+puedan copiar, comparar e imprimir sin mentir</li>
+</ul>
+<div class="nota">
+<p>Es una sección de OOP en el medio de UVM, y conviene decir por qué está acá y no
+en el día 2: porque recién ahora hace falta. Hasta reporting —el cierre del día
+3— los datos eran una <code>struct</code> y se copiaban solos.
+El bug del segundo bullet lo escribe todo el mundo una vez, y el síntoma es
+horrible: mandás una transaction al scoreboard, seguís usando el mismo handle para
+la siguiente, la modificás, y el scoreboard compara contra datos que cambiaron
+después de que él los recibió. No falla siempre, y cuando falla parece un bug del
+DUT.
+La otra mitad —el <code>super</code> en cada nivel— tiene un síntoma distinto y más
+traicionero: el día que alguien mete una clase nueva en el medio de la jerarquía,
+el <code>convert2string()</code> deja de imprimir la mitad de los campos y <strong>nadie se
+entera</strong>, porque sigue imprimiendo algo.
+La pregunta para arrancar: si <code>handle_a = handle_b</code>, ¿cuántos objetos hay? Uno. Es
+la misma pregunta de clases y extensiones, ahora con consecuencias.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/225">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s226" class="slide">
+<h2 id="copiar-un-objeto-que-contiene-otro">Copiar un objeto que contiene otro</h2>
+<h4 id="nunca-dupliques-código"><em>Nunca dupliques código</em></h4>
+<blockquote>
+<p>“Si nos encontramos copiando código y haciéndole pequeñas modificaciones dentro de nuestro programa, estamos haciendo las cosas mal. Nunca hay que duplicar código.”</p>
+</blockquote>
+<p>En OOP en vez de copiar código...</p>
+<p><em><strong>extendemos clases</strong></em></p>
+<p class="al-deck"><a href="../index.html#/226">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s227" class="slide">
+<h2 id="copiar-un-objeto-que-contiene-otro">Copiar un objeto que contiene otro</h2>
+<h4 id="convert2string-el-problema"><em><code>convert2string()</code>: el problema</em></h4>
+<p><img src="../res/print/diagrams/jerarquias_convert2string.svg" alt="Los cuatro niveles de la jerarquía"></p>
+<ul>
+<li>La jerarquía va de lo general a lo particular, y cada clase agrega campos
+propios</li>
+<li>Queremos dos cosas de ella: poder <strong>copiar</strong> un objeto entero e <strong>imprimirlo</strong>
+entero, sin que se pierda nada de los niveles de arriba</li>
+<li>Esta primera versión funciona. Contá cuántas veces aparece el nombre de un campo
+de la clase base</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u6/jerarquias/pre_convert2string.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// Wrong Way de hacer convert2string!</span>
+<span class="hljs-comment">//class trago;</span>
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;Hielos: %0d&quot;</span>, hielos);
+   <span class="hljs-keyword">endfunction</span> : convert2string
+<span class="hljs-comment">//class fernet extends trago;</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-type">string</span> coca_s;
+      coca_s = (con_coca) ? <span class="hljs-string">&quot;si&quot;</span> : <span class="hljs-string">&quot;no&quot;</span>;
+      <span class="hljs-keyword">return</span> sformat(<span class="hljs-string">&quot;Hielos: %0d  Coca: &quot;</span>,hielos, coca_s);
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+<span class="hljs-comment">//class fernet_doble extends fernet;</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-keyword">return</span> {<span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;hielos: %0d  coca: %0b  mesa: %s&quot;</span>,
+      	       hielos, con_coca, mesa) };
+   <span class="hljs-keyword">endfunction</span> : convert2string</code></pre></figure><div class="nota">
+<p>Esta versión funciona, y ése es el problema: se ve bien y está mal. Cada
+<code>convert2string()</code> imprime a mano todos los campos, incluidos los que heredó.
+Andá al <code>$sformatf</code> de la clase de más abajo y contá cuántas veces se repite el
+nombre de un campo de la clase de arriba. Cada una de esas repeticiones es una
+línea que hay que acordarse de tocar el día que se agregue un campo.
+La pregunta que arma la slide siguiente: ¿qué pasa si mañana alguien mete una
+clase nueva <strong>en el medio</strong> de la jerarquía? Los de abajo siguen imprimiendo lo
+que sabían, la del medio no aparece, y no hay error. El método sigue devolviendo
+un string.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/227">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s228" class="slide">
+<h2 id="copiar-un-objeto-que-contiene-otro">Copiar un objeto que contiene otro</h2>
+<h4 id="convert2string-la-versión-deep"><em><code>convert2string()</code>: la versión deep</em></h4>
+<p><img src="../res/print/diagrams/jerarquias_convert2string_deep.svg" alt="La copia profunda, nivel por nivel"></p>
+<ul>
+<li>El día que alguien mete una clase <strong>en el medio</strong>, los de abajo siguen
+imprimiendo lo que sabían y la del medio no aparece. Y no hay error: el método
+sigue devolviendo un string</li>
+<li>La regla que lo arregla: cada clase imprime <strong>sólo lo suyo</strong> y le pide el resto a
+<code>super</code></li>
+<li>Nadie sabe qué hay más arriba, así que insertar un nivel no rompe nada</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u6/jerarquias/pre_convert2string_ok.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">//virtual class trago;</span>
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;Hielos: %0d&quot;</span>, hielos);
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+<span class="hljs-comment">//class con_alcohol extends trago;</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-keyword">return</span> {<span class="hljs-keyword">super</span>.convert2string(),
+              <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;\ngraduacion: %0d&quot;</span>,graduacion)};
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+<span class="hljs-comment">//class fernet extends con_alcohol;</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-type">string</span> coca_s;
+      coca_s = (con_coca) ? <span class="hljs-string">&quot;si&quot;</span> : <span class="hljs-string">&quot;no&quot;</span>;
+      <span class="hljs-keyword">return</span> {<span class="hljs-keyword">super</span>.convert2string(), <span class="hljs-string">&quot;\nCoca: &quot;</span>,coca_s};
+   <span class="hljs-keyword">endfunction</span> : convert2string</code></pre></figure><div class="nota">
+<p>La regla, corta: <strong>cada método de la jerarquía se ocupa sólo de sus propios
+campos y le pide el resto a <code>super</code>.</strong> Nadie sabe qué hay más arriba, y por eso
+insertar una clase en el medio no rompe nada.
+El patrón se repite igual en los tres métodos de la sección —<code>convert2string()</code>,
+<code>do_copy()</code>, <code>do_compare()</code>— y también en los tres de UVM. Si te acostumbrás a
+escribir la llamada a <code>super</code> <strong>primero</strong>, antes de tocar tus campos, no te la
+olvidás nunca.
+Vale la pena señalar el paralelo con algo que ya vieron: es exactamente el mismo
+argumento que el <code>super.new()</code> de clases y extensiones. La parte de arriba del objeto
+también hay que construirla — y también hay que imprimirla, copiarla y
+compararla.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/228">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s229" class="slide">
+<h2 id="copiar-un-objeto-que-contiene-otro">Copiar un objeto que contiene otro</h2>
+<h4 id="el-signo-igual-no-copia-nada"><em>El signo igual no copia nada</em></h4>
+<ul>
+<li><code>obj1_h = obj2_h</code> <strong>no copia nada</strong>: deja dos handles apuntando al mismo objeto</li>
+<li>Si lo modificás por uno, el otro lo ve. No hay aviso, no hay warning</li>
+<li>Con una <code>struct</code> eso no pasaba: se copia al asignarla. Es la diferencia que hay
+que tener presente desde acá hasta el final del curso</li>
+</ul>
+<div class="nota">
+<p>Copia el handle, no el objeto. Es el bug que todos escriben una vez: modificás
+la transaction que ya mandaste al scoreboard y el scoreboard ve el cambio a
+mitad de camino. De acá sale el clone() de las transactions.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/229">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s230" class="slide">
+<h2 id="copiar-un-objeto-que-contiene-otro">Copiar un objeto que contiene otro</h2>
+<h4 id="copiar-de-verdad-son-dos-pasos"><em>Copiar de verdad son dos pasos</em></h4>
+<p>Copiar de verdad son dos pasos, y hay que escribirlos: <strong>instanciar</strong> un objeto
+nuevo y <strong>pasarle los datos</strong> campo por campo</p>
+<figure class="codigo"><figcaption><code>code/u6/jerarquias/pre_copy.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+   fernet_hielo1_h =
+       <span class="hljs-keyword">new</span>(.hielos(<span class="hljs-number">2</span>), .con_coca(<span class="hljs-number">1</span>), .graduacion(<span class="hljs-number">2</span>), .mesa(<span class="hljs-string">&quot;mesa 4&quot;</span>), .medidas(<span class="hljs-number">2</span>));
+   <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 1 ---\n&quot;</span>, fernet_hielo1_h.convert2string());
+   fernet_hielo2_h = <span class="hljs-keyword">new</span>();
+   <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 antes de la copia ---\n&quot;</span>, fernet_hielo2_h.convert2string());
+   <span class="hljs-comment">// do_copy es un metodo que se encarga de copiar miembro a miembro</span>
+   <span class="hljs-comment">// sufre del mismo problema que ya vimos con convert2string()</span>
+   <span class="hljs-comment">// Cada clase puede copiar las variables definidas en esa clase</span>
+   <span class="hljs-comment">// Debemos usar super.do_copy() para copiar variables heredadas</span>
+   fernet_hielo2_h.do_copy(fernet_hielo1_h);
+   <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 despues de la copia ---\n&quot;</span>, fernet_hielo2_h.convert2string());
+<span class="hljs-keyword">end</span></code></pre></figure>
+
+<ul>
+<li>El <code>new()</code> es el primer paso y no es opcional: sin un objeto nuevo del otro
+lado, no hay adónde copiar</li>
+<li>El segundo paso es a mano, campo por campo. SystemVerilog no tiene una copia
+profunda incorporada</li>
+<li>Y campo por campo quiere decir <strong>también los de las clases de arriba</strong>, que es
+justo lo que se olvida</li>
+</ul>
+<div class="nota">
+<p>Vale hacer la comparación con la asignación de la slide anterior en voz alta:
+<code>a = b</code> es una línea y no copia nada; copiar de verdad son dos pasos y hay que
+acordarse de los dos.
+Que el lenguaje no traiga la copia profunda no es un olvido del comité: no
+existe una respuesta general. Si la clase tiene un handle a otro objeto,
+¿copiás el handle o el objeto? Depende, y por eso lo tenés que decidir vos en
+cada <code>do_copy()</code>.
+Es exactamente el mismo dilema que van a tener las transactions
+si algún día llevan un array de objetos adentro. En este curso no pasa, pero
+conviene que la pregunta quede planteada.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/230">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s231" class="slide">
+<h2 id="copiar-un-objeto-que-contiene-otro">Copiar un objeto que contiene otro</h2>
+<h4 id="do_copy-cada-clase-toca-lo-suyo"><em><code>do_copy()</code>: cada clase toca lo suyo</em></h4>
+<p><em>do_copy():</em> Cada clase en la jerarquía, debe llamar a su clase superior, por lo tanto, todos los métodos do_copy() necesitan el mismo tipo de argumento Pero tenemos clases distintas... Usamos <em>polimorfismo</em></p>
+<figure class="codigo"><figcaption><code>code/u6/jerarquias/pre_copy2.sv</code> · líneas 24-45 de 46</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">fernet_con_hielo</span> <span class="hljs-keyword">extends</span> fernet_doble;
+   <span class="hljs-type">byte</span> medidas;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos = <span class="hljs-number">0</span>, <span class="hljs-type">bit</span> con_coca = <span class="hljs-number">0</span>, <span class="hljs-type">int</span> graduacion = <span class="hljs-number">0</span>,
+                <span class="hljs-type">string</span> mesa = <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-type">byte</span> medidas = <span class="hljs-number">0</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, graduacion, con_coca, mesa);
+      <span class="hljs-keyword">this</span>.medidas = medidas;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-keyword">return</span> {<span class="hljs-keyword">super</span>.convert2string(), <span class="hljs-string">&quot;\n&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;medidas: %0d&quot;</span>, medidas)};
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-comment">//do_copy pasa el argumento a su clase superior</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
+      fernet_con_hielo copia_fernet_con_hielo;
+      <span class="hljs-keyword">super</span>.do_copy(copia);
+      <span class="hljs-comment">// Luego casteamos copia a una variable de su tipo de clase</span>
+      <span class="hljs-built_in">$cast</span>(copia_fernet_con_hielo, copia);
+      <span class="hljs-keyword">this</span>.medidas = copia_fernet_con_hielo.medidas;
+   <span class="hljs-keyword">endfunction</span> : do_copy
+</code></pre><details><summary>el archivo entero, 46 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">fernet_doble</span> <span class="hljs-keyword">extends</span> fernet;
+   <span class="hljs-type">string</span> mesa;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos = <span class="hljs-number">0</span>, <span class="hljs-type">int</span> graduacion = <span class="hljs-number">0</span>, <span class="hljs-type">bit</span> con_coca = <span class="hljs-number">0</span>,
+                <span class="hljs-type">string</span> mesa = <span class="hljs-string">&quot;&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, graduacion, con_coca);
+      <span class="hljs-keyword">this</span>.mesa = mesa;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-keyword">return</span> {<span class="hljs-keyword">super</span>.convert2string(), <span class="hljs-string">&quot;\nMesa: &quot;</span>, mesa};
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-comment">// Polimorfismo: do_copy toma como argumento una clase derivada de trago</span>
+   <span class="hljs-comment">// por lo tanto, usamos la clase trago como argumento</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
+      fernet_doble copia_fernet_doble;
+      <span class="hljs-keyword">super</span>.do_copy(copia);
+      <span class="hljs-built_in">$cast</span>(copia_fernet_doble, copia);
+      <span class="hljs-keyword">this</span>.mesa = copia_fernet_doble.mesa;
+   <span class="hljs-keyword">endfunction</span> : do_copy
+<span class="hljs-keyword">endclass</span> : fernet_doble
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet_con_hielo</span> <span class="hljs-keyword">extends</span> fernet_doble;
+   <span class="hljs-type">byte</span> medidas;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos = <span class="hljs-number">0</span>, <span class="hljs-type">bit</span> con_coca = <span class="hljs-number">0</span>, <span class="hljs-type">int</span> graduacion = <span class="hljs-number">0</span>,
+                <span class="hljs-type">string</span> mesa = <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-type">byte</span> medidas = <span class="hljs-number">0</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, graduacion, con_coca, mesa);
+      <span class="hljs-keyword">this</span>.medidas = medidas;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-keyword">return</span> {<span class="hljs-keyword">super</span>.convert2string(), <span class="hljs-string">&quot;\n&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;medidas: %0d&quot;</span>, medidas)};
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-comment">//do_copy pasa el argumento a su clase superior</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
+      fernet_con_hielo copia_fernet_con_hielo;
+      <span class="hljs-keyword">super</span>.do_copy(copia);
+      <span class="hljs-comment">// Luego casteamos copia a una variable de su tipo de clase</span>
+      <span class="hljs-built_in">$cast</span>(copia_fernet_con_hielo, copia);
+      <span class="hljs-keyword">this</span>.medidas = copia_fernet_con_hielo.medidas;
+   <span class="hljs-keyword">endfunction</span> : do_copy
+
+<span class="hljs-keyword">endclass</span> : fernet_con_hielo</code></pre></details></figure><div class="nota">
+<p>Acá está el detalle que parece burocrático y no lo es: <strong>todos</strong> los <code>do_copy()</code>
+de la jerarquía reciben un argumento de la clase <strong>base</strong>, no de la suya. Si cada
+uno recibiera su propio tipo, la llamada a <code>super.do_copy(rhs)</code> no compilaría —
+los tipos no coincidirían.
+El precio es que adentro de cada método hay que hacer <code>$cast</code> para poder leer los
+campos propios. Y como vimos en la factory, ese <code>$cast</code> chequea en runtime: si
+alguien intenta copiar un <code>gancia</code> sobre un <code>fernet</code>, devuelve 0 y hay que
+atajarlo.
+Es la primera vez que se ve una convención de firma que existe sólo para que el
+polimorfismo funcione. En UVM va a ser lo mismo y con más reglas: el argumento se
+tiene que llamar <code>rhs</code>, <code>do_compare()</code> recibe además un <code>uvm_comparer</code>, y así.
+Cuando en las transactions aparezcan esas firmas, la respuesta a &quot;¿por qué así?&quot; es
+esta slide.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/231">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s232" class="slide">
+<h2 id="copiar-un-objeto-que-contiene-otro">Copiar un objeto que contiene otro</h2>
+<h4 id="resumen-la-solución-pésima"><em>Resumen: la solución pésima</em></h4>
+<figure class="codigo"><figcaption><code>code/u6/jerarquias/wrong.sv</code> · líneas 69-79 de 108</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-keyword">return</span> {
+         <span class="hljs-built_in">$sformatf</span>(
+             <span class="hljs-string">&quot;hielos: %0d  coca: %0b  mesa: %s  medidas: %0d&quot;</span>,
+             hielos,
+             con_coca,
+             mesa,
+             medidas
+         )
+      };
+   <span class="hljs-keyword">endfunction</span> : convert2string</code></pre><details><summary>el archivo entero, 108 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
+   <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> a = <span class="hljs-number">0</span>);
+      hielos = a;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;Hielos: %0d&quot;</span>, hielos);
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
+      hielos = copia.hielos;
+   <span class="hljs-keyword">endfunction</span> : do_copy
+
+<span class="hljs-keyword">endclass</span> : trago
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet</span> <span class="hljs-keyword">extends</span> trago;
+   <span class="hljs-type">bit</span> con_coca;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos = <span class="hljs-number">0</span>, <span class="hljs-type">bit</span> con_coca = <span class="hljs-number">0</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos);
+      <span class="hljs-keyword">this</span>.con_coca = con_coca;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-type">string</span> coca_s;
+      coca_s = (con_coca) ? <span class="hljs-string">&quot;si&quot;</span> : <span class="hljs-string">&quot;no&quot;</span>;
+      <span class="hljs-keyword">return</span> sformat(<span class="hljs-string">&quot;Hielos: %0d  Coca: &quot;</span>, hielos, coca_s);
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
+      fernet copia_fernet;
+      <span class="hljs-keyword">super</span>.do_copy(copia);
+      <span class="hljs-built_in">$cast</span>(copia_fernet, copia);
+      <span class="hljs-keyword">this</span>.con_coca = copia_fernet.con_coca;
+   <span class="hljs-keyword">endfunction</span> : do_copy
+
+<span class="hljs-keyword">endclass</span> : fernet
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet_doble</span> <span class="hljs-keyword">extends</span> fernet;
+   <span class="hljs-type">string</span> mesa;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos = <span class="hljs-number">0</span>, <span class="hljs-type">bit</span> con_coca = <span class="hljs-number">0</span>, <span class="hljs-type">string</span> mesa = <span class="hljs-string">&quot;&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, con_coca);
+      <span class="hljs-keyword">this</span>.mesa = mesa;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-keyword">return</span> {<span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;hielos: %0d  coca: %0b  mesa: %s&quot;</span>, hielos, con_coca, mesa)};
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
+      fernet_doble copia_fernet_doble;
+      <span class="hljs-keyword">super</span>.do_copy(copia);
+      <span class="hljs-built_in">$cast</span>(copia_fernet_doble, copia);
+      <span class="hljs-keyword">this</span>.mesa = copia_fernet_doble.mesa;
+   <span class="hljs-keyword">endfunction</span> : do_copy
+<span class="hljs-keyword">endclass</span> : fernet_doble
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet_con_hielo</span> <span class="hljs-keyword">extends</span> fernet_doble;
+   <span class="hljs-type">byte</span> medidas;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos = <span class="hljs-number">0</span>, <span class="hljs-type">bit</span> con_coca = <span class="hljs-number">0</span>, <span class="hljs-type">string</span> mesa = <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-type">byte</span> medidas = <span class="hljs-number">0</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, con_coca, mesa);
+      <span class="hljs-keyword">this</span>.medidas = medidas;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-keyword">return</span> {
+         <span class="hljs-built_in">$sformatf</span>(
+             <span class="hljs-string">&quot;hielos: %0d  coca: %0b  mesa: %s  medidas: %0d&quot;</span>,
+             hielos,
+             con_coca,
+             mesa,
+             medidas
+         )
+      };
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
+      fernet_con_hielo copia_fernet_con_hielo;
+      <span class="hljs-keyword">super</span>.do_copy(copia);
+      <span class="hljs-built_in">$cast</span>(copia_fernet_con_hielo, copia);
+      <span class="hljs-keyword">this</span>.medidas = copia_fernet_con_hielo.medidas;
+   <span class="hljs-keyword">endfunction</span> : do_copy
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">bad_copy</span>(fernet_con_hielo copia_fernet_con_hielo);
+      medidas = copia_fernet_con_hielo.medidas;
+      mesa = copia_fernet_con_hielo.mesa;
+      con_coca = copia_fernet_con_hielo.con_coca;
+      hielos = copia_fernet_con_hielo.hielos;
+   <span class="hljs-keyword">endfunction</span>
+
+<span class="hljs-keyword">endclass</span> : fernet_con_hielo
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+   fernet_con_hielo fernet_hielo1_h, fernet_hielo2_h;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      fernet_hielo1_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">2</span>, <span class="hljs-number">1</span>, <span class="hljs-string">&quot;Agnus&quot;</span>, <span class="hljs-number">2</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 1 ---\n&quot;</span>, fernet_hielo1_h.convert2string());
+      fernet_hielo2_h = <span class="hljs-keyword">new</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 antes de la copia ---\n&quot;</span>, fernet_hielo2_h.convert2string());
+      fernet_hielo2_h.bad_copy(fernet_hielo1_h);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 despues de la copia ---\n&quot;</span>, fernet_hielo2_h.convert2string());
+   <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure>
+
+<ul>
+<li>Es el <code>convert2string()</code> de <code>fernet_con_hielo</code>, la clase de más abajo: imprime
+<strong>los cuatro campos a mano</strong>, incluidos los tres que heredó</li>
+<li>Funciona, y por eso es peligroso. El día que <code>fernet</code> gane un campo, este método
+sigue compilando y sigue imprimiendo — de menos</li>
+<li>El archivo entero está en <code>code/u6/jerarquias/wrong.sv</code>, y los <code>do_copy()</code> tienen el
+mismo vicio: cada uno toca campos que no son suyos</li>
+</ul>
+<div class="nota">
+<p>La regla que hay que dejar: <strong>una clase sólo escribe sobre sus propios campos.</strong>
+Todo lo demás se lo pide a <code>super</code>.
+Conviene contar en pantalla: <code>hielos</code> y <code>con_coca</code> aparecen en cuatro
+<code>convert2string()</code> distintos de este archivo. Cuatro lugares para acordarse, y
+ninguno falla si te olvidás de uno.
+Hay una <code>bad_copy()</code> un poco más abajo en el archivo que vale la pena abrir si
+sobra tiempo: toma un <code>fernet_con_hielo</code> como argumento en vez de un <code>trago</code>. Compila
+y anda... hasta que alguien la llama por un handle de la clase base, y ahí no hay
+polimorfismo que valga.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/232">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s233" class="slide">
+<h2 id="copiar-un-objeto-que-contiene-otro">Copiar un objeto que contiene otro</h2>
+<h4 id="resumen-la-solución-deep"><em>Resumen: la solución deep</em></h4>
+<figure class="codigo"><figcaption><code>code/u6/jerarquias/deep.sv</code> · líneas 47-58 de 117</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-type">string</span> coca_s;
+      coca_s = (con_coca) ? <span class="hljs-string">&quot;si&quot;</span> : <span class="hljs-string">&quot;no&quot;</span>;
+      <span class="hljs-keyword">return</span> {<span class="hljs-keyword">super</span>.convert2string(), <span class="hljs-string">&quot;\nCoca: &quot;</span>, coca_s};
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
+      fernet copia_fernet;
+      <span class="hljs-keyword">super</span>.do_copy(copia);
+      <span class="hljs-built_in">$cast</span>(copia_fernet, copia);
+      <span class="hljs-keyword">this</span>.con_coca = copia_fernet.con_coca;
+   <span class="hljs-keyword">endfunction</span> : do_copy</code></pre><details><summary>el archivo entero, 117 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
+   <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> a = <span class="hljs-number">0</span>);
+      hielos = a;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;Hielos: %0d&quot;</span>, hielos);
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
+      hielos = copia.hielos;
+   <span class="hljs-keyword">endfunction</span> : do_copy
+
+<span class="hljs-keyword">endclass</span> : trago
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">con_alcohol</span> <span class="hljs-keyword">extends</span> trago;
+   <span class="hljs-type">int</span> graduacion;
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> a = <span class="hljs-number">0</span>, b = <span class="hljs-number">0</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(a);
+      graduacion = b;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-keyword">return</span> {
+         <span class="hljs-keyword">super</span>.convert2string(), <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;\ngraduacion: %0d&quot;</span>, graduacion)
+      };
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
+      con_alcohol copia_con_alcohol;
+      <span class="hljs-keyword">super</span>.do_copy(copia);
+      <span class="hljs-built_in">$cast</span>(copia_con_alcohol, copia);
+      graduacion = copia_con_alcohol.graduacion;
+   <span class="hljs-keyword">endfunction</span> : do_copy
+<span class="hljs-keyword">endclass</span> : con_alcohol
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet</span> <span class="hljs-keyword">extends</span> con_alcohol;
+   <span class="hljs-type">bit</span> con_coca;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos = <span class="hljs-number">0</span>, <span class="hljs-type">int</span> graduacion = <span class="hljs-number">0</span>, <span class="hljs-type">bit</span> con_coca = <span class="hljs-number">0</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, graduacion);
+      <span class="hljs-keyword">this</span>.con_coca = con_coca;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-type">string</span> coca_s;
+      coca_s = (con_coca) ? <span class="hljs-string">&quot;si&quot;</span> : <span class="hljs-string">&quot;no&quot;</span>;
+      <span class="hljs-keyword">return</span> {<span class="hljs-keyword">super</span>.convert2string(), <span class="hljs-string">&quot;\nCoca: &quot;</span>, coca_s};
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
+      fernet copia_fernet;
+      <span class="hljs-keyword">super</span>.do_copy(copia);
+      <span class="hljs-built_in">$cast</span>(copia_fernet, copia);
+      <span class="hljs-keyword">this</span>.con_coca = copia_fernet.con_coca;
+   <span class="hljs-keyword">endfunction</span> : do_copy
+
+<span class="hljs-keyword">endclass</span> : fernet
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet_doble</span> <span class="hljs-keyword">extends</span> fernet;
+   <span class="hljs-type">string</span> mesa;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos = <span class="hljs-number">0</span>, <span class="hljs-type">int</span> graduacion = <span class="hljs-number">0</span>, <span class="hljs-type">bit</span> con_coca = <span class="hljs-number">0</span>,
+                <span class="hljs-type">string</span> mesa = <span class="hljs-string">&quot;&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, graduacion, con_coca);
+      <span class="hljs-keyword">this</span>.mesa = mesa;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-keyword">return</span> {<span class="hljs-keyword">super</span>.convert2string(), <span class="hljs-string">&quot;\nMesa: &quot;</span>, mesa};
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
+      fernet_doble copia_fernet_doble;
+      <span class="hljs-keyword">super</span>.do_copy(copia);
+      <span class="hljs-built_in">$cast</span>(copia_fernet_doble, copia);
+      <span class="hljs-keyword">this</span>.mesa = copia_fernet_doble.mesa;
+   <span class="hljs-keyword">endfunction</span> : do_copy
+<span class="hljs-keyword">endclass</span> : fernet_doble
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet_con_hielo</span> <span class="hljs-keyword">extends</span> fernet_doble;
+   <span class="hljs-type">byte</span> medidas;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos = <span class="hljs-number">0</span>, <span class="hljs-type">bit</span> con_coca = <span class="hljs-number">0</span>, <span class="hljs-type">int</span> graduacion = <span class="hljs-number">0</span>,
+                <span class="hljs-type">string</span> mesa = <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-type">byte</span> medidas = <span class="hljs-number">0</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, graduacion, con_coca, mesa);
+      <span class="hljs-keyword">this</span>.medidas = medidas;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-keyword">return</span> {<span class="hljs-keyword">super</span>.convert2string(), <span class="hljs-string">&quot;\n&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;medidas: %0d&quot;</span>, medidas)};
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
+      fernet_con_hielo copia_fernet_con_hielo;
+      <span class="hljs-keyword">super</span>.do_copy(copia);
+      <span class="hljs-built_in">$cast</span>(copia_fernet_con_hielo, copia);
+      <span class="hljs-keyword">this</span>.medidas = copia_fernet_con_hielo.medidas;
+   <span class="hljs-keyword">endfunction</span> : do_copy
+
+<span class="hljs-keyword">endclass</span> : fernet_con_hielo
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+   fernet_con_hielo fernet_hielo1_h, fernet_hielo2_h;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      fernet_hielo1_h = <span class="hljs-keyword">new</span>
+          (.hielos(<span class="hljs-number">2</span>), .con_coca(<span class="hljs-number">1</span>), .graduacion(<span class="hljs-number">2</span>), .mesa(<span class="hljs-string">&quot;mesa 4&quot;</span>), .medidas(<span class="hljs-number">2</span>));
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 1 ---\n&quot;</span>, fernet_hielo1_h.convert2string());
+      fernet_hielo2_h = <span class="hljs-keyword">new</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 antes de la copia ---\n&quot;</span>, fernet_hielo2_h.convert2string());
+      fernet_hielo2_h.do_copy(fernet_hielo1_h);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 despues de la copia ---\n&quot;</span>, fernet_hielo2_h.convert2string());
+   <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure>
+
+<ul>
+<li>Los mismos dos métodos, escritos como corresponde: cada uno llama a <code>super</code> y
+después toca <strong>un solo campo</strong>, el suyo</li>
+<li><code>convert2string()</code> <strong>concatena</strong> lo que devolvió el de arriba;
+<code>do_copy()</code> <strong>llama primero</strong> al de arriba y después copia lo propio</li>
+<li>Con esa forma, meter una clase nueva en el medio de la jerarquía funciona sola:
+la cadena de <code>super</code> la incluye sin que nadie edite nada</li>
+</ul>
+<div class="nota">
+<p>Cierre de la sección, y conviene decir adónde va todo esto: los tres métodos que
+acaban de escribir a mano son <strong>exactamente</strong> los tres que UVM pide en una
+transaction. <code>do_copy()</code>, <code>do_compare()</code> y <code>convert2string()</code>, con las mismas
+reglas de <code>super</code> y de <code>$cast</code>.
+La diferencia es que en UVM no se los llama directo: uno escribe <code>do_copy()</code> y el
+testbench llama a <code>copy()</code>, que es la que está en <code>uvm_object</code> y se encarga del
+resto. Misma idea que las fases — vos escribís la parte de abajo, la librería
+maneja el protocolo.
+Y la pregunta con la que hay que salir del día: si escribir esto bien cuesta tres
+métodos por clase, ¿por qué no lo genera alguien? Lo genera: son las macros
+<code>`uvm_field_*</code>. El curso no las usa, y el porqué está en la slide de
+<code>super.build_phase()</code> de los components — generan cientos de líneas que nadie lee y
+que aparecen en el stack cuando algo falla. Leerlas sí, escribirlas no.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/233">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s234" class="slide">
+<h2 id="copiar-un-objeto-que-contiene-otro">Copiar un objeto que contiene otro</h2>
+<h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
+<ul>
+<li><code>obj1_h = obj2_h</code> <strong>no copia nada</strong>: deja dos handles apuntando al mismo
+objeto. Si lo tocás por uno, el otro lo ve, y no hay ni un warning</li>
+<li>Con una <code>struct</code> eso no pasaba —se copia al asignarla—, y ésa es la diferencia
+que hay que tener presente hasta el final del curso</li>
+<li><strong>Copiar de verdad son dos pasos</strong>: instanciar un objeto nuevo y pasarle los
+datos. De ahí sale el <code>clone()</code> de las transactions</li>
+<li>En una jerarquía, cada clase debe tocar <strong>un solo campo, el suyo</strong>, y llamar a
+<code>super</code>. Escribir los cuatro campos a mano es la solución pésima</li>
+<li>Para que eso funcione, los <code>do_copy()</code> / <code>do_compare()</code> toman todos <strong>el mismo
+tipo de argumento</strong>, la clase base. Es polimorfismo, otra vez</li>
+<li>El día que alguien mete una clase <strong>en el medio</strong> de la jerarquía, la versión
+deep sigue andando sola. La otra hay que salir a corregirla</li>
+</ul>
+<div class="nota">
+<p>El bug del handle es el que todos escriben una vez: modificás la transaction que
+ya mandaste al scoreboard, y el scoreboard ve el cambio a mitad de camino. No
+falla en el momento; falla después, y en otro lado.
+La forma corta de cerrar: <strong>el <code>=</code> copia el papelito con la dirección, no la
+casa.</strong> Y por eso UVM trae <code>copy()</code>, <code>clone()</code> y <code>compare()</code> hechos — que es
+exactamente la unidad que sigue.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/234">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s235" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="el-testbench-está-bien-repartido-y-el-dato-no"><em>El testbench está bien repartido, y el dato no</em></h4>
+<ul>
+<li>El testbench ya está bien repartido, pero <strong>los datos siguen siendo una
+<code>struct</code></strong>: <code>command_s</code> para los comandos y una <code>shortint</code> pelada para los
+resultados</li>
+<li>Una <code>struct</code> no hace nada por sí sola. Imprimir un comando es un <code>$sformatf</code>
+escrito a mano, y está escrito <strong>cuatro veces</strong>: tester, driver, coverage y
+scoreboard</li>
+<li>Lo mismo con randomizar y con comparar: cada componente se arma el suyo, y el
+día que la <code>struct</code> gana un campo hay que acordarse de los cuatro</li>
+<li>Y el resultado ni siquiera es una <code>struct</code>: es un <code>shortint</code> <strong>pelado</strong>, así
+que el <code>ovf</code> del VTALU —la segunda salida— no tiene dónde viajar</li>
+<li>Una clase, en cambio, tiene métodos: los datos y lo que se hace con ellos viven
+juntos, y el resto del testbench se achica</li>
+</ul>
+<div class="nota">
+<p>La pregunta honesta del alumno es &quot;¿y por qué no una struct?&quot;. La respuesta: la
+struct no se randomiza sola, no se compara sola y no se imprime sola. Todo lo
+que el testbench hacía a mano con command_s pasa a ser un método de la clase, y
+el resto del testbench se achica.
+El cuarto bullet es el argumento más concreto y conviene apoyarse en él: hasta
+acá el analysis port del resultado lleva un <code>shortint</code>, o sea <strong>un número</strong>. El
+VTALU tiene dos salidas —<code>result</code> y <code>ovf</code>— y por eso el scoreboard de las
+unidades anteriores chequea la mitad del DUT y la otra mitad la deja pasar. Con
+un <code>result_transaction</code> con dos campos, el chequeo del <code>ovf</code> aparece solo. Es la
+primera vez en el curso que la clase no es prolijidad: es la única forma.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/235">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s236" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="una-transaction-es-un-dato-con-los-métodos-que-operan-sobre-ese-dato"><em>Una transaction es un dato con los métodos que operan sobre ese dato</em></h4>
+<ul>
+<li>Es la palabra que usa la industria, y no hay ninguna clase mágica atrás: una
+<strong>transaction</strong> es eso y nada más</li>
+<li>Los métodos son cuatro, y son siempre los mismos:<ul>
+<li><code>randomize()</code> — se llena sola, respetando sus <code>constraint</code></li>
+<li><code>convert2string()</code> — se imprime sola</li>
+<li><code>do_copy()</code> — se copia sola</li>
+<li><code>do_compare()</code> — se compara sola</li>
+</ul>
+</li>
+<li>Lo que cambia no es el dato: es <strong>quién sabe cosas sobre él</strong>. El <code>tester</code>
+dejaba de saber qué valores son legales; ahora sólo dice <em>&quot;randomizate&quot;</em></li>
+<li>Y el resto del testbench se achica: los cuatro <code>$sformatf</code> escritos a mano se
+vuelven una llamada a <code>convert2string()</code></li>
+</ul>
+<div class="nota">
+<p>La frase de la slide es la definición que hay que dejar escrita en el pizarrón:
+<strong>un dato con los métodos que operan sobre ese dato</strong>.
+El tercer bullet es el cambio de reparto de responsabilidades de la sección:
+hasta hoy el <code>tester</code> sabía qué valores eran legales —tenía un <code>get_data()</code> con
+el sesgo escrito a mano—. Desde hoy eso vive en la transaction, en una
+<code>constraint</code>.
+La pregunta para tirar: si mañana el DUT acepta operandos de 16 bits, ¿cuántas
+clases hay que tocar? Una.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/236">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s237" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="definir-una-transaction-de-qué-clase-se-extiende"><em>Definir una transaction: de qué clase se extiende</em></h4>
+<ul>
+<li>Las transactions se definen extendiendo la clase base <em>uvm_sequence_item</em> y escribiendo los siguientes métodos:<ul>
+<li>do_copy()</li>
+<li>do_compare()</li>
+<li>convert2string()</li>
+</ul>
+</li>
+<li>Lo que sigue es transformar la vieja estructura <code>command_s</code> en una clase,
+<code>command_transaction</code>, método por método</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u6/transactions/command_s.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> {
+   <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+   <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> B;
+   operation_t   op;
+} command_s;</code></pre></figure><div class="nota">
+<p>Ojo con la clase base, porque el material viejo dice otra cosa. La cadena es
+<code>uvm_sequence_item</code> → <code>uvm_transaction</code> → <code>uvm_object</code>, y se extiende siempre
+la primera.
+Dos razones. La chica: en IEEE 1800.2 <code>uvm_transaction</code> es una <em>virtual class</em>,
+no se puede instanciar sola. La grande: una <code>uvm_sequence</code> sólo sabe mandar
+<code>uvm_sequence_item</code>. Si la transaction extiende <code>uvm_transaction</code> a secas,
+todo lo del día 6 —<code>start_item</code> / <code>finish_item</code>— no compila.
+O sea que la clase base que elegimos hoy es la que nos deja seguir mañana.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/237">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s238" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="los-campos-randomizados-el-antes"><em>Los campos randomizados: el &quot;antes&quot;</em></h4>
+<ul>
+<li>Hoy el estímulo se arma con dos funciones escritas a mano, <code>get_op()</code> y
+<code>get_data()</code>, que sortean los valores con <code>$random</code> y <code>$urandom_range</code></li>
+<li>El rango legal de <code>A</code> y <code>B</code> y el sesgo a los bordes son propiedades <strong>del
+dato</strong>, no del test — y sin embargo viven en el tester</li>
+<li>SystemVerilog ya trae esto hecho, y no hace falta escribir ni un <code>$urandom</code></li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u6/transactions/prev-random.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// Mediante este funcion manejamos el hecho de que</span>
+<span class="hljs-comment">// el bus de operacion tiene 8 posibles valores,</span>
+<span class="hljs-comment">// pero solamente 6 son operaciones validas</span>
+<span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">operation_t </span><span class="hljs-title">get_op</span>();
+  <span class="hljs-type">bit</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] op_choice;
+  op_choice = <span class="hljs-built_in">$random</span>;
+  <span class="hljs-keyword">case</span> (op_choice)
+          <span class="hljs-number">3&#x27;b000</span> : <span class="hljs-keyword">return</span> no_op;
+          <span class="hljs-number">3&#x27;b001</span> : <span class="hljs-keyword">return</span> add_op;
+          <span class="hljs-number">3&#x27;b010</span> : <span class="hljs-keyword">return</span> sub_op;
+          <span class="hljs-number">3&#x27;b011</span> : <span class="hljs-keyword">return</span> and_op;
+          <span class="hljs-number">3&#x27;b100</span> : <span class="hljs-keyword">return</span> xor_op;
+          <span class="hljs-number">3&#x27;b101</span> : <span class="hljs-keyword">return</span> mul_op;
+          <span class="hljs-number">3&#x27;b110</span> : <span class="hljs-keyword">return</span> rst_op;
+          <span class="hljs-number">3&#x27;b111</span> : <span class="hljs-keyword">return</span> rst_op;
+  <span class="hljs-keyword">endcase</span> <span class="hljs-comment">// case (op_choice)</span>
+<span class="hljs-keyword">endfunction</span> : get_op
+
+<span class="hljs-comment">// Con esta funcion buscabamos distribuir mejor</span>
+<span class="hljs-comment">// la probabilidad de obtener todos zeros (prob = 1/3),</span>
+<span class="hljs-comment">// sesgando un poco la aleatoriedad, para que la prob no sea 1/256</span>
+<span class="hljs-comment">// ya que esto dificultaria alcanzar nuestro objetivo de cobertura</span>
+<span class="hljs-keyword">virtual</span>    <span class="hljs-keyword">function</span> <span class="hljs-type">byte </span><span class="hljs-title">get_data</span>();
+  <span class="hljs-type">bit</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]   zero_ones;
+  zero_ones = <span class="hljs-built_in">$random</span>;
+  <span class="hljs-keyword">if</span> (zero_ones == <span class="hljs-number">2&#x27;b00</span>)
+    <span class="hljs-keyword">return</span> <span class="hljs-number">8&#x27;h00</span>;
+  <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (zero_ones == <span class="hljs-number">2&#x27;b11</span>)
+    <span class="hljs-keyword">return</span> <span class="hljs-number">8&#x27;hFF</span>;
+  <span class="hljs-keyword">else</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">$random</span>;
+<span class="hljs-keyword">endfunction</span> : get_data</code></pre></figure><div class="nota">
+<p>Conviene leer este código como el &quot;antes&quot; y hacer la pregunta antes de dar la
+respuesta: ¿qué parte de esto es <em>del test</em> y qué parte es <em>del dato</em>? El rango
+legal de A y B, y el sesgo a los bordes, son propiedades del dato — no tienen
+nada que ver con qué querés probar.
+El <code>$random</code> y el <code>$urandom_range</code> escritos a mano son el síntoma: cada
+componente que quiera un comando válido tiene que repetirlos. Y si el DUT cambia,
+hay que acordarse de todos.
+El remate para la slide siguiente: SystemVerilog ya trae esto hecho, y no hace
+falta escribir ni un <code>$urandom</code>.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/238">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s239" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="los-campos-randomizados-el-después"><em>Los campos randomizados: el &quot;después&quot;</em></h4>
+<ul>
+<li>Toda clase de SystemVerilog trae un <code>randomize()</code> implícito, que elige valores
+para los campos marcados <code>rand</code></li>
+<li><code>get_op()</code> desaparece: un <code>enum</code> se randomiza solo sobre sus valores legales</li>
+<li><code>get_data()</code> también, y lo reemplaza una <code>constraint</code> con <code>dist</code>, que es donde
+se declara el sesgo a los bordes</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction.svh</code> · líneas 1-24 de 79</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">command_transaction</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence_item</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(command_transaction)
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> B;
+   <span class="hljs-keyword">rand</span> operation_t   op;
+
+   <span class="hljs-comment">// :/ y NO :=  ---  esta es la linea que reproduce el sesgo a los casos borde</span>
+   <span class="hljs-comment">// que el get_data() de la seccion Cobertura funcional hacia a mano (1/4 en 00, 1/4 en FF, 1/2 en</span>
+   <span class="hljs-comment">// el medio). Con &quot;:=&quot; el peso se aplica a CADA valor del rango, asi que el</span>
+   <span class="hljs-comment">// medio se lleva 254 de 256 y 00 sale 1 vez cada 256: la distribucion queda</span>
+   <span class="hljs-comment">// practicamente uniforme y los bins de borde no se llenan nunca.</span>
+   <span class="hljs-comment">// La unidad de Constrained Random tiene el experimento con los numeros.</span>
+   <span class="hljs-keyword">constraint</span> data {
+      A <span class="hljs-keyword">dist</span> {
+         <span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>,
+         [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>,
+         <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>
+      };
+      B <span class="hljs-keyword">dist</span> {
+         <span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>,
+         [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>,
+         <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>
+      };
+   }</code></pre><details><summary>el archivo entero, 79 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">command_transaction</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence_item</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(command_transaction)
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> B;
+   <span class="hljs-keyword">rand</span> operation_t   op;
+
+   <span class="hljs-comment">// :/ y NO :=  ---  esta es la linea que reproduce el sesgo a los casos borde</span>
+   <span class="hljs-comment">// que el get_data() de la seccion Cobertura funcional hacia a mano (1/4 en 00, 1/4 en FF, 1/2 en</span>
+   <span class="hljs-comment">// el medio). Con &quot;:=&quot; el peso se aplica a CADA valor del rango, asi que el</span>
+   <span class="hljs-comment">// medio se lleva 254 de 256 y 00 sale 1 vez cada 256: la distribucion queda</span>
+   <span class="hljs-comment">// practicamente uniforme y los bins de borde no se llenan nunca.</span>
+   <span class="hljs-comment">// La unidad de Constrained Random tiene el experimento con los numeros.</span>
+   <span class="hljs-keyword">constraint</span> data {
+      A <span class="hljs-keyword">dist</span> {
+         <span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>,
+         [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>,
+         <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>
+      };
+      B <span class="hljs-keyword">dist</span> {
+         <span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>,
+         [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>,
+         <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>
+      };
+   }
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(<span class="hljs-uvm-type">uvm_object</span> rhs);
+      command_transaction copied_transaction_h;
+
+      <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy from a null pointer&quot;</span>)
+
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(copied_transaction_h, rhs))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy wrong type.&quot;</span>)
+
+      <span class="hljs-keyword">super</span>.do_copy(rhs);  <span class="hljs-comment">// copy all parent class data</span>
+
+      A = copied_transaction_h.A;
+      B = copied_transaction_h.B;
+      op = copied_transaction_h.op;
+
+   <span class="hljs-keyword">endfunction</span> : do_copy
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">command_transaction </span><span class="hljs-title">clone_me</span>();
+      command_transaction clone;
+      <span class="hljs-uvm-type">uvm_object</span> tmp;
+
+      tmp = <span class="hljs-keyword">this</span>.clone();
+      <span class="hljs-built_in">$cast</span>(clone, tmp);
+      <span class="hljs-keyword">return</span> clone;
+   <span class="hljs-keyword">endfunction</span> : clone_me
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">bit </span><span class="hljs-title">do_compare</span>(<span class="hljs-uvm-type">uvm_object</span> rhs, <span class="hljs-uvm-type">uvm_comparer</span> comparer);
+      command_transaction compared_transaction_h;
+      <span class="hljs-type">bit</span> same;
+
+      <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to do comparison to a null pointer&quot;</span>);
+
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(compared_transaction_h, rhs)) same = <span class="hljs-number">0</span>;
+      <span class="hljs-keyword">else</span>
+         same = <span class="hljs-keyword">super</span>.do_compare(
+             rhs, comparer
+         ) &amp;&amp; (compared_transaction_h.A == A) &amp;&amp; (compared_transaction_h.B == B) &amp;&amp;
+             (compared_transaction_h.op == op);
+
+      <span class="hljs-keyword">return</span> same;
+   <span class="hljs-keyword">endfunction</span> : do_compare
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-type">string</span> s;
+      s = <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;A: %2h  B: %2h op: %s&quot;</span>, A, B, op.name());
+      <span class="hljs-keyword">return</span> s;
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+<span class="hljs-keyword">endclass</span> : command_transaction</code></pre></details></figure><div class="nota">
+<p>Tres cosas de este código, en orden de lo que se olvida.
+<code>rand</code> adelante de cada campo: sin eso el campo no entra en el sorteo y
+<code>randomize()</code> lo deja como estaba, <strong>sin avisar</strong>. Es el primer lugar donde
+mirar cuando un valor sale siempre igual.
+El <code>dist</code> con <code>:/</code> y no <code>:=</code>: reproduce el sesgo a los bordes que el <code>get_data()</code>
+del testbench convencional hacía a mano. La diferencia entre los dos operadores es una unidad
+entera del curso, y no es un detalle de estilo — con <code>:=</code> el bin <code>00</code> sale 1 vez
+cada 256 y los casos borde no se llenan nunca.
+Y el <code>op</code> sin constraint: un <code>enum</code> se randomiza sobre sus valores, así que
+también van a salir <code>no_op</code> y <code>rst_op</code>. Eso es a propósito — el plan de
+verificación pide operaciones después de un reset.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/239">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s240" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="el-constructor-un-uvm_object-no-tiene-padre"><em>El constructor: un <code>uvm_object</code> no tiene padre</em></h4>
+<ul>
+<li><em>uvm_sequence_item</em> extiende <em>uvm_transaction</em>, y ésta <em>uvm_object</em> — o sea que una transaction <strong>no</strong> es un <em>uvm_component</em>. Por lo tanto, tiene un constructor más simple</li>
+<li>Una transaction <strong>no vive en el árbol del testbench</strong>: ese árbol lo forman los
+<em>uvm_components</em>, y es el que UVM recorre en <code>build_phase</code>. Sin lugar en el
+árbol no hay padre, y por eso el constructor sólo pide un <code>name</code></li>
+<li>Los objetos se crean y se destruyen todo el tiempo mientras la simulación
+corre; los componentes se construyen una vez, antes de arrancar, y se quedan</li>
+<li>Igual conviene darles nombre: es el que aparece en los mensajes de UVM</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction_constructor.svh</code></figcaption><pre><code class="hljs">   <span class="hljs-comment">// Constructor para uvm_object. Ultra Sencillo</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span> (<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span></code></pre></figure><div class="nota">
+<p>Es la distinción que hay que dejar clara: <em>component</em> es estructura —está en el
+árbol, tiene padre, tiene fases—; <em>object</em> es dato —se crea, viaja por el
+testbench y se tira—. Las dos cosas son clases de UVM, pero sólo una arma la
+jerarquía.
+Truco para acordarse: si lo podés dibujar en el diagrama de bloques del
+testbench, es un component. Si viaja por una flecha del diagrama, es un object.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/240">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s241" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="do_copy-copiar-el-objeto-no-el-handle"><em><code>do_copy()</code>: copiar el objeto, no el handle</em></h4>
+<ul>
+<li><code>uvm_object</code> trae dos métodos hechos: <code>copy()</code>, que vuelca los datos sobre otro
+objeto <strong>que ya existe</strong>, y <code>clone()</code>, que además crea el objeto nuevo</li>
+<li>Los dos funcionan sólo si la clase implementa <code>do_copy()</code>: la librería sabe
+copiar, pero no sabe <strong>qué campos</strong> tiene tu transaction</li>
+<li>Es el mismo patrón que el resto de la sección: <code>copy()</code> es el que se llama,
+<code>do_copy()</code> es el que se escribe</li>
+<li>La única diferencia es que UVM requiere que el argumento que le pasamos se llame <em>rhs</em> (Right Hand Side)</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction_do_copy.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(<span class="hljs-uvm-type">uvm_object</span> rhs);
+   command_transaction copied_transaction_h;
+
+   <span class="hljs-comment">// Chequeos que facilitan el DEBUG</span>
+   <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy from a null pointer&quot;</span>)
+
+   <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(copied_transaction_h, rhs))
+      <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy wrong type.&quot;</span>)
+
+   <span class="hljs-keyword">super</span>.do_copy(rhs);  <span class="hljs-comment">// copy all parent class data</span>
+
+   A = copied_transaction_h.A;
+   B = copied_transaction_h.B;
+   op = copied_transaction_h.op;
+
+<span class="hljs-keyword">endfunction</span> : do_copy</code></pre></figure><div class="nota">
+<p>El patrón es el de las jerarquías de clases, con dos reglas de UVM encima.
+La primera, la que hace que compile: el argumento se llama <code>rhs</code> y es de tipo
+<code>uvm_object</code> —la clase base de todo—, así que lo primero que hay que hacer es
+castear. Y como el <code>$cast</code> chequea en runtime, va con su <code>uvm_fatal</code>: si alguien
+intenta copiar un <code>result_transaction</code> sobre un <code>command_transaction</code>, querés
+enterarte ahí y no tres componentes más adelante.
+La segunda: el <code>super.do_copy(rhs)</code> va <strong>antes</strong> de tocar los campos propios. Es
+la misma disciplina de las jerarquías de clases y acá importa más, porque <code>uvm_object</code> tiene
+campos propios que uno no ve.
+Y el detalle que confunde a todos: vos escribís <code>do_copy()</code>, pero <strong>nunca lo
+llamás</strong>. El testbench llama a <code>copy()</code>, que está en <code>uvm_object</code>, y ésa se
+encarga de invocar tu <code>do_copy()</code>. Es el mismo reparto que las fases — vos ponés
+la parte de abajo, la librería maneja el protocolo.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/241">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s242" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="la-regla-moocow-compartir-sí-modificar-no"><em>La regla MOOCOW: compartir sí, modificar no</em></h4>
+<ul>
+<li>Varios componentes pueden ver el mismo dato si tienen handles al mismo objeto.
+Es barato y funciona — mientras nadie lo modifique</li>
+<li>La regla que lo sostiene se llama <strong>MOOCOW</strong> —<em>Manual Obligatory Object Copy On
+Write</em>—, y así la nombra la Verification Academy</li>
+<li>Dice esto: compartir un handle está bien <strong>siempre que no toques el objeto</strong>.
+El que quiere modificar, copia primero</li>
+<li>Es una disciplina del equipo, no algo que el lenguaje imponga. UVM sólo pone la
+herramienta: <code>clone()</code>, que devuelve un <code>uvm_object</code> y hay que castear</li>
+</ul>
+<div class="nota">
+<p>El nombre es una joda de Verification Academy, pero la regla es la que evita el
+bug más caro de las jerarquías de clases: mandaste la transaction al scoreboard, seguís
+teniendo el handle, la modificás para la siguiente, y el scoreboard termina
+comparando contra datos que cambiaron después de que él los recibió. No falla
+siempre — falla cuando hay carga, que es cuando peor viene.
+La versión práctica, sin siglas: <strong>el que produce el dato no lo vuelve a tocar
+después de publicarlo.</strong> Si necesitás cambiarlo, cloná.
+Fijate cómo lo cumple el <code>tester</code> de esta sección: no reusa el handle. Cada
+vuelta del <code>repeat</code> hace un <code>create()</code> nuevo. Es más barato que clonar y evita
+la discusión.
+Y hay una excepción documentada que van a ver en el día 6: el driver escribe el
+resultado adentro del item que le prestó la sequence. Está acordado entre las dos
+partes y es el único lugar del testbench donde se hace.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/242">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s243" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="clone_me-el-cast-escrito-una-sola-vez"><em><code>clone_me()</code>: el <code>$cast</code> escrito una sola vez</em></h4>
+<ul>
+<li>Como <code>clone()</code> devuelve un <code>uvm_object</code>, cada componente que lo use termina
+escribiendo su propio <code>$cast</code> — el mismo, repetido</li>
+<li>La convención de la Verification Academy es agregarle a la transaction un
+<code>clone_me()</code> que haga las dos cosas y devuelva ya el tipo correcto</li>
+<li>No lo trae UVM: es cuatro líneas escritas una vez en el dato, para que ninguno
+de los que lo usan tenga que acordarse del cast</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction_do_clone.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">function</span> <span class="hljs-type">command_transaction </span><span class="hljs-title">clone_me</span>();
+   command_transaction clone;
+   <span class="hljs-uvm-type">uvm_object</span> tmp;
+
+   tmp = <span class="hljs-keyword">this</span>.clone();
+   <span class="hljs-built_in">$cast</span>(clone, tmp);
+   <span class="hljs-keyword">return</span> clone;
+<span class="hljs-keyword">endfunction</span> : clone_me</code></pre></figure><div class="nota">
+<p>Es un método de tres líneas y existe por una sola razón: <code>clone()</code> devuelve un
+<code>uvm_object</code>, así que todo el que lo use tiene que castear. Escribir el <code>$cast</code>
+una vez adentro de la clase es mejor que escribirlo cincuenta veces afuera.
+El nombre no está en el estándar: <code>clone_me()</code> es una convención de Verification
+Academy. En un proyecto ajeno puede llamarse distinto o no existir — y ahí vas a
+ver el <code>$cast</code> repetido en cada llamador.
+Y la trampa que hay que nombrar: <code>clone()</code> llama a <code>create()</code> y después a
+<code>copy()</code>, que termina en tu <code>do_copy()</code>. Si <code>do_copy()</code> se olvida un campo, el
+clon sale incompleto y <strong>nadie avisa</strong>. Es el mismo agujero de las jerarquías de clases, con
+otro nombre.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/243">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s244" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="do_compare-comparar-dos-objetos-sin-escribir-un-if-por-campo"><em><code>do_compare()</code>: comparar dos objetos sin escribir un <code>if</code> por campo</em></h4>
+<ul>
+<li><code>compare()</code> lo trae <code>uvm_object</code> y devuelve 1 si los dos objetos son iguales.
+Es el que se llama; el que se <strong>escribe</strong> es <code>do_compare()</code></li>
+<li>Toma dos argumentos: el <code>rhs</code> —el otro objeto— y un <code>uvm_comparer</code>, que es la
+política de comparación: cuántas diferencias reportar y con qué verbosidad</li>
+<li>Casi nadie toca el comparer, pero hay que declararlo porque la firma lo pide</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction_do_comparer.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">function</span> <span class="hljs-type">bit </span><span class="hljs-title">do_compare</span>(<span class="hljs-uvm-type">uvm_object</span> rhs, <span class="hljs-uvm-type">uvm_comparer</span> comparer);
+   command_transaction compared_transaction_h;
+   <span class="hljs-type">bit</span> same;
+
+   <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
+      <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to do comparison to a null pointer&quot;</span>);
+
+   <span class="hljs-comment">// Primero vemos si estamos comparando el mismo tipo</span>
+   <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(compared_transaction_h, rhs)) same = <span class="hljs-number">0</span>;
+   <span class="hljs-keyword">else</span>
+      <span class="hljs-comment">// Deep Comparation</span>
+      same = <span class="hljs-keyword">super</span>.do_compare(
+          rhs, comparer
+      ) &amp;&amp; (compared_transaction_h.A == A) &amp;&amp; (compared_transaction_h.B == B) &amp;&amp;
+          (compared_transaction_h.op == op);
+
+   <span class="hljs-keyword">return</span> same;
+<span class="hljs-keyword">endfunction</span> : do_compare</code></pre></figure><div class="nota">
+<p>Dos cosas que se copian mal.
+El <code>$cast</code> acá <strong>no</strong> va con <code>uvm_fatal</code>: si el tipo no da, la respuesta correcta
+es <code>same = 0</code> —son distintos, obvio, si ni siquiera son de la misma clase—, no
+matar la simulación. Es la diferencia con <code>do_copy()</code>, donde un tipo equivocado
+sí es un bug del testbench. Vale mostrarlo al lado.
+Y el <code>super.do_compare()</code> va <strong>encadenado con <code>&amp;&amp;</code></strong>, no llamado y descartado. El
+error clásico es escribir <code>super.do_compare(rhs, comparer);</code> en una línea suelta y
+después <code>same = (A == rhs.A) &amp;&amp; ...</code>: compila, corre, y silenciosamente deja de
+comparar todo lo de la clase de arriba.
+El <code>uvm_comparer</code> del segundo argumento es la política —cuántas diferencias
+reportar, con qué verbosidad—. Casi nadie lo toca, pero hay que declararlo porque
+la firma lo pide.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/244">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s245" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="convert2string-la-transaction-se-imprime-sola"><em><code>convert2string()</code>: la transaction se imprime sola</em></h4>
+<ul>
+<li>Es el método que devuelve el objeto como texto. Se escribe <strong>una vez</strong>, y lo
+usan el scoreboard, el monitor y cualquiera que tenga que reportar</li>
+<li><code>$sformatf()</code> arma el string con los mismos especificadores de formato de
+siempre</li>
+<li>Y el detalle que hace legible un log: un <code>enum</code> tiene <code>name()</code>, que devuelve
+<code>add_op</code> en vez de <code>3&#39;b001</code>. Sin eso el error dice un número y nadie lo lee</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction_convert2string.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+   <span class="hljs-type">string</span> s;
+   <span class="hljs-comment">// op.name() puede ser add_op, no_op ...</span>
+   s = <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;A: %2h  B: %2h op: %s&quot;</span>, A, B, op.name());
+   <span class="hljs-keyword">return</span> s;
+<span class="hljs-keyword">endfunction</span> : convert2string</code></pre></figure><div class="nota">
+<p>Es el método que más se usa de los tres, y el que menos atención recibe: cada
+mensaje del scoreboard y de los monitores del resto del curso sale de acá.
+El <code>.name()</code> del <code>enum</code> es el detalle que cambia el día: sin él, el log dice
+<code>op: 4</code> y hay que ir a buscar el <code>typedef</code>; con él dice <code>op: mul_op</code>. La regla
+para llevarse: <strong>si un campo es un enum, en el log va su nombre, nunca su valor.</strong>
+Vale nombrar el pariente que UVM trae y el curso no usa: <code>sprint()</code>, que imprime
+la transaction sola si registraste los campos con las macros <code>`uvm_field_*</code>.
+Sale automático, sale feo —tres líneas por campo, con tipo y radix— y no se puede
+adaptar. Un <code>convert2string()</code> de tres líneas escrito a mano entra en un renglón
+del log, y en un archivo de cien mil líneas eso importa.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/245">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s246" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="los-siete-pasos-y-por-qué-son-siete"><em>Los siete pasos, y por qué son siete</em></h4>
+<p>Lo que cuesta cambiarle el tipo de dato a un TB que ya existe. Vemos <strong>2, 3, 6
+y 7</strong>; <strong>1, 4 y 5</strong> son traducción directa y están en el repo:</p>
+<table>
+<thead>
+<tr>
+<th align="right">#</th>
+<th>Qué</th>
+<th>Dónde</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">1</td>
+<td>una <code>result_transaction</code> para la vuelta</td>
+<td><code>result_transaction.svh</code></td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td>una <code>add_transaction</code>, sólo sumas</td>
+<td><code>add_transaction.svh</code></td>
+</tr>
+<tr>
+<td align="right">3</td>
+<td>los dos testers se funden en uno</td>
+<td><code>tester.svh</code></td>
+</tr>
+<tr>
+<td align="right">4</td>
+<td>el <code>command_monitor</code> publica objetos</td>
+<td><code>command_monitor.svh</code></td>
+</tr>
+<tr>
+<td align="right">5</td>
+<td>el <code>result_monitor</code>, lo mismo</td>
+<td><code>result_monitor.svh</code></td>
+</tr>
+<tr>
+<td align="right">6</td>
+<td>el <code>scoreboard</code> usa <code>compare()</code></td>
+<td><code>scoreboard.svh</code></td>
+</tr>
+<tr>
+<td align="right">7</td>
+<td><code>add_test</code> overridea el <strong>dato</strong></td>
+<td><code>add_test.svh</code></td>
+</tr>
+</tbody></table>
+<div class="nota">
+<p>Los siete pasos son la parte más aburrida de la sección y también la más honesta,
+así que conviene enmarcarla en vez de correrla: <strong>esto es lo que cuesta cambiar
+el tipo de dato de un testbench que ya existe.</strong> El consejo real es hacerlo
+desde el principio.
+El que hay que mirar de reojo es el 3, porque es el único que <strong>borra</strong> una
+clase: <code>add_tester</code> desaparece. Ahí está el resultado de la sección, y vale
+adelantarlo — mover la decisión al dato hizo sobrar una clase entera de
+estructura.
+Si el grupo va rápido, los pasos 4 y 5 se abren en el editor y se comparan con
+los de los analysis ports: la diferencia es que en vez de llenar una <code>struct</code> se hace
+un <code>create()</code> y se llenan campos. Nada más.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/246">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s247" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="paso-2-·-una-add_transaction-que-sólo-suma"><em>Paso 2 · una <code>add_transaction</code> que sólo suma</em></h4>
+<ul>
+<li><code>add_transaction</code> extiende <code>command_transaction</code> y le agrega <strong>una sola</strong>
+constraint: <code>op == add_op</code></li>
+<li>Con eso alcanza para cambiar el estímulo, y el <code>tester_h</code> no se entera: usa la
+clase hija exactamente igual que a la madre</li>
+<li>Las constraints <strong>se heredan y se acumulan</strong>: el sesgo a los bordes de <code>A</code> y
+<code>B</code> sigue estando, porque la de la clase base no desaparece</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/add_transaction.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">add_transaction</span> <span class="hljs-keyword">extends</span> command_transaction;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(add_transaction)
+
+   <span class="hljs-keyword">constraint</span> add_only {op == add_op;}
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name);
+   <span class="hljs-keyword">endfunction</span>
+<span class="hljs-keyword">endclass</span> : add_transaction</code></pre></figure><div class="nota">
+<p>Ocho líneas, y de esas una sola hace algo: <code>constraint add_only {op == add_op;}</code>.
+Vale ponerla al lado del <code>add_tester</code> del env, que hacía lo mismo
+redefiniendo un método. Dos formas de decir &quot;sólo sumas&quot;, y la de hoy no toca
+código de comportamiento — sólo describe qué valores son legales.
+El punto conceptual, que es el que ordena el día: <strong>las constraints se heredan y
+se acumulan.</strong> <code>add_transaction</code> no reemplaza a <code>data</code>, se le suma. El solver
+tiene que satisfacer las dos a la vez, así que sigue habiendo sesgo a los bordes
+en <code>A</code> y <code>B</code> — y eso es exactamente lo que queremos.
+De ahí sale la advertencia: dos constraints heredadas que se contradicen no dan
+error de compilación, dan un <code>randomize()</code> que devuelve 0. Es el caso 1 del
+experimento de Constrained Random.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/247">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s248" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="paso-3-·-dos-testers-se-vuelven-uno"><em>Paso 3 · dos testers se vuelven uno</em></h4>
+<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/tester.svh</code> · líneas 14-34 de 49</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      command_transaction command;
+
+      phase.raise_objection(<span class="hljs-keyword">this</span>);
+
+      <span class="hljs-comment">// TODAS las transactions salen de la factory, tambien las dirigidas.</span>
+      <span class="hljs-comment">// Un new() aca compilaria y andaria igual, pero se saltearia el</span>
+      <span class="hljs-comment">// set_type_override de add_test: la factory no se entera de lo que</span>
+      <span class="hljs-comment">// construis a mano. Ver la slide &quot;el new() que se come el override&quot;.</span>
+      command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
+      command.op = rst_op;
+      command_port.put(command);
+
+      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">1000</span>) <span class="hljs-keyword">begin</span> : random_loop
+         command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
+         <span class="hljs-comment">// randomize() devuelve 0 si las constraints no tienen solucion, y no</span>
+         <span class="hljs-comment">// aborta nada. Un assert() pelado deja pasar en silencio una</span>
+         <span class="hljs-comment">// transaction sin randomizar: el TB sigue, mandando basura.</span>
+         <span class="hljs-keyword">if</span> (!command.<span class="hljs-keyword">randomize</span>()) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;TESTER&quot;</span>, <span class="hljs-string">&quot;randomize() fallo&quot;</span>)
+         command_port.put(command);
+      <span class="hljs-keyword">end</span> : random_loop</code></pre><details><summary>el archivo entero, 49 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">tester</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(tester)
+
+   <span class="hljs-uvm-type">uvm_put_port</span> #(<span class="hljs-type">command_transaction</span>) command_port;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      command_port = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;command_port&quot;</span>, <span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      command_transaction command;
+
+      phase.raise_objection(<span class="hljs-keyword">this</span>);
+
+      <span class="hljs-comment">// TODAS las transactions salen de la factory, tambien las dirigidas.</span>
+      <span class="hljs-comment">// Un new() aca compilaria y andaria igual, pero se saltearia el</span>
+      <span class="hljs-comment">// set_type_override de add_test: la factory no se entera de lo que</span>
+      <span class="hljs-comment">// construis a mano. Ver la slide &quot;el new() que se come el override&quot;.</span>
+      command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
+      command.op = rst_op;
+      command_port.put(command);
+
+      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">1000</span>) <span class="hljs-keyword">begin</span> : random_loop
+         command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
+         <span class="hljs-comment">// randomize() devuelve 0 si las constraints no tienen solucion, y no</span>
+         <span class="hljs-comment">// aborta nada. Un assert() pelado deja pasar en silencio una</span>
+         <span class="hljs-comment">// transaction sin randomizar: el TB sigue, mandando basura.</span>
+         <span class="hljs-keyword">if</span> (!command.<span class="hljs-keyword">randomize</span>()) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;TESTER&quot;</span>, <span class="hljs-string">&quot;randomize() fallo&quot;</span>)
+         command_port.put(command);
+      <span class="hljs-keyword">end</span> : random_loop
+
+      <span class="hljs-comment">// Dirigida: el caso de desborde del multiplicador, que 1000 operaciones</span>
+      <span class="hljs-comment">// al azar podrian no tocar nunca. Sale de la factory igual que las otras,</span>
+      <span class="hljs-comment">// pero como no se randomiza, la constraint de add_transaction no corre:</span>
+      <span class="hljs-comment">// la factory elige el TIPO, las constraints solo actuan en randomize().</span>
+      command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
+      command.op = mul_op;
+      command.A = <span class="hljs-number">8&#x27;hFF</span>;
+      command.B = <span class="hljs-number">8&#x27;hFF</span>;
+      command_port.put(command);
+
+      #<span class="hljs-number">500</span>;
+      phase.drop_objection(<span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endtask</span> : run_phase
+<span class="hljs-keyword">endclass</span> : tester</code></pre></details></figure>
+
+<ul>
+<li>El testbench del env tenía <code>base_tester</code> y <code>add_tester</code>: dos clases
+para dos tipos de estímulo</li>
+<li>Ahora hay <strong>una sola</strong>. El <code>repeat</code> crea una transaction y le dice
+<code>randomize()</code>; qué sale de ahí lo decide el <strong>dato</strong>, no el tester</li>
+<li>Ésa es la línea que borra una clase: la decisión se mudó de la estructura al
+tipo de la transaction</li>
+</ul>
+<div class="nota">
+<p>Es el resultado de la sección, medido en archivos: <code>add_tester.svh</code> deja de
+existir. Vale decirlo en voz alta, porque el env había gastado un rato en
+justificar esa jerarquía y ahora sobra la mitad.
+Y no es que el env estuviera mal: era la respuesta correcta mientras el
+dato fuera una <code>struct</code> muda. Cuando el dato sabe randomizarse, el escalón de la
+jerarquía deja de tener trabajo. Es un buen ejemplo de que las abstracciones se
+justifican contra el problema del momento, no para siempre.
+El <code>if (!command.randomize()) uvm_fatal</code> es la línea que hay que copiar bien:
+<code>randomize()</code> devuelve 0 si las constraints no tienen solución y no aborta nada.
+Hay una slide entera sobre eso más adelante.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/248">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s249" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="paso-6-·-el-scoreboard-compara-objetos-no-números"><em>Paso 6 · el scoreboard compara objetos, no números</em></h4>
+<ul>
+<li>Los dos lados de la comparación son ahora <code>result_transaction</code>: el que llega
+del <code>result_monitor</code> y el que arma el predictor</li>
+<li>El <code>write()</code> toma el resultado <code>t</code>, busca el comando que le corresponde en la
+cola del <code>command_monitor</code>, y le pide a <code>predict_result()</code> la predicción</li>
+<li>La comparación queda en una línea —<code>predicted.compare(t)</code>— y el mensaje de
+error se arma solo con los <code>convert2string()</code> de las tres transactions</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/scoreboard.svh</code> · líneas 30-53 de 59</figcaption><pre><code class="hljs">
+      <span class="hljs-keyword">return</span> predicted;
+
+   <span class="hljs-keyword">endfunction</span> : predict_result
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">write</span>(result_transaction t);
+      <span class="hljs-type">string</span> data_str;
+      command_transaction cmd;
+      result_transaction predicted;
+
+      <span class="hljs-keyword">do</span>
+      <span class="hljs-keyword">if</span> (!cmd_f.try_get(cmd))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;SELF CHECKER&quot;</span>, <span class="hljs-string">&quot;Missing command in self checker&quot;</span>)
+      <span class="hljs-keyword">while</span> ((cmd.op == no_op) || (cmd.op == rst_op));
+
+      predicted = predict_result(cmd);
+
+      data_str = {
+         cmd.convert2string(),
+         <span class="hljs-string">&quot; ==&gt;  Actual &quot;</span>,
+         t.convert2string(),
+         <span class="hljs-string">&quot;/Predicted &quot;</span>,
+         predicted.convert2string()
+      };</code></pre><details><summary>el archivo entero, 59 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">scoreboard</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_subscriber</span> #(<span class="hljs-type">result_transaction</span>);
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(scoreboard);
+
+   <span class="hljs-uvm-type">uvm_tlm_analysis_fifo</span> #(<span class="hljs-type">command_transaction</span>) cmd_f;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      cmd_f = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;cmd_f&quot;</span>, <span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">result_transaction </span><span class="hljs-title">predict_result</span>(command_transaction cmd);
+      result_transaction predicted;
+
+      predicted = result_transaction::type_id::create(<span class="hljs-string">&quot;predicted&quot;</span>);
+
+      <span class="hljs-keyword">case</span> (cmd.op)
+         add_op: predicted.result = cmd.A + cmd.B;
+         sub_op: predicted.result = cmd.A - cmd.B;
+         and_op: predicted.result = cmd.A &amp; cmd.B;
+         xor_op: predicted.result = cmd.A ^ cmd.B;
+         mul_op: predicted.result = cmd.A * cmd.B;
+      <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (op_set)</span>
+
+      <span class="hljs-comment">// El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de</span>
+      <span class="hljs-comment">// salida, ni la suma ni la multiplicacion se pasan.</span>
+      predicted.ovf = (cmd.op == sub_op) &amp;&amp; (cmd.A &lt; cmd.B);
+
+      <span class="hljs-keyword">return</span> predicted;
+
+   <span class="hljs-keyword">endfunction</span> : predict_result
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">write</span>(result_transaction t);
+      <span class="hljs-type">string</span> data_str;
+      command_transaction cmd;
+      result_transaction predicted;
+
+      <span class="hljs-keyword">do</span>
+      <span class="hljs-keyword">if</span> (!cmd_f.try_get(cmd))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;SELF CHECKER&quot;</span>, <span class="hljs-string">&quot;Missing command in self checker&quot;</span>)
+      <span class="hljs-keyword">while</span> ((cmd.op == no_op) || (cmd.op == rst_op));
+
+      predicted = predict_result(cmd);
+
+      data_str = {
+         cmd.convert2string(),
+         <span class="hljs-string">&quot; ==&gt;  Actual &quot;</span>,
+         t.convert2string(),
+         <span class="hljs-string">&quot;/Predicted &quot;</span>,
+         predicted.convert2string()
+      };
+
+      <span class="hljs-keyword">if</span> (!predicted.compare(t)) <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SELF CHECKER&quot;</span>, {<span class="hljs-string">&quot;FAIL: &quot;</span>, data_str})
+      <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;SELF CHECKER&quot;</span>, {<span class="hljs-string">&quot;PASS: &quot;</span>, data_str}, <span class="hljs-uvm-const">UVM_HIGH</span>)
+
+   <span class="hljs-keyword">endfunction</span> : write
+<span class="hljs-keyword">endclass</span> : scoreboard</code></pre></details></figure><div class="nota">
+<p>Comparar el <code>write()</code> con el de los analysis ports es la mejor forma de cerrar la
+sección: allá había un <code>case</code> con la predicción escrita adentro y una comparación
+a mano; acá hay un <code>predict_result()</code> que devuelve un objeto y un
+<code>predicted.compare(t)</code>.
+Lo que se ganó es concreto: el mensaje de error ahora se arma con
+<code>convert2string()</code> de las tres transactions, así que dice qué se mandó, qué salió
+y qué se esperaba, todo con los enums por nombre. Y el día que la transaction gane
+un campo, el log lo muestra solo.
+Un detalle que hay que señalar porque es la regla de la sección aplicada: el
+<code>predicted</code> sale de <code>type_id::create()</code>, no de <code>new()</code>. Es una transaction que
+viaja —aunque sólo viaje hasta el <code>compare()</code> de la línea siguiente—, así que sale
+de la factory como todas.
+Y el <code>do ... while</code> que saltea <code>no_op</code> y <code>rst_op</code> sigue igual que en los analysis ports: esas
+operaciones no producen resultado, y si no se descartan la comparación se corre un
+lugar y falla todo. Es el ejercicio del día 5.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/249">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s250" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="paso-7-·-el-override-ahora-sobre-el-dato"><em>Paso 7 · el override, ahora sobre el dato</em></h4>
+<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/add_test.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">add_test</span> <span class="hljs-keyword">extends</span> random_test;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(add_test);
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      command_transaction::type_id::set_type_override(add_transaction::get_type());
+      <span class="hljs-keyword">super</span>.build_phase(phase);
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+<span class="hljs-keyword">endclass</span></code></pre></figure>
+
+<ul>
+<li>El test entero son <strong>dos líneas</strong>: el override y el <code>super.build_phase()</code></li>
+<li>Y el override ya no cambia un <strong>component</strong> —el tester— sino un <strong>dato</strong> —la
+transaction—. La estructura del testbench dejó de tener opinión sobre el test</li>
+<li><code>super.build_phase(phase)</code> va <strong>después</strong> del override, y ese orden no es
+negociable: el env se construye ahí adentro</li>
+</ul>
+<div class="nota">
+<p>Vale poner esta slide al lado del <code>add_test</code> del env y contar líneas: la
+misma idea, un nivel más abajo. Antes se sustituía el que genera; ahora se
+sustituye lo generado.
+El orden del <code>super</code> es la trampa de la slide, y es hermana de la del env: la factory decide qué construir en el momento del <code>create()</code>. Si el override
+llega después, no hay error — el testbench corre con <code>command_transaction</code> y el
+test &quot;de sumas&quot; manda operaciones al azar. No rompe, miente.
+Y una pregunta que sale siempre: ¿por qué acá <code>add_test</code> sí llama a
+<code>super.build_phase()</code> si el curso dice que no hace falta? Porque su base es
+<code>random_test</code>, una clase <strong>nuestra</strong> que tiene un <code>build_phase</code> con trabajo real.
+La regla de los components hablaba de <code>uvm_component</code>, que no lo tiene.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/250">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s251" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="el-new-que-se-come-el-override"><em>El <code>new()</code> que se come el override</em></h4>
+<pre><code class="language-systemverilog">command = new(&quot;command&quot;);                                   // NO
+command.op = rst_op;
+
+command = command_transaction::type_id::create(&quot;command&quot;);  // SI
+command.op = rst_op;
+</code></pre>
+<ul>
+<li><code>set_type_override()</code> le habla <strong>a la factory</strong>, y la factory sólo se entera de
+lo que pasa por <code>type_id::create()</code></li>
+<li>Un <code>new()</code> construye el tipo que dice esa línea y nada más: el override <strong>no lo
+alcanza</strong>. Compila, corre, y no falla — ese objeto simplemente se quedó afuera</li>
+<li>Es la peor clase de bug: no rompe, <strong>miente</strong>. Con un test y una transaction no
+se nota nunca; el día que el override sí importaba, ya es tarde</li>
+<li>La regla, corta: <strong>todo <code>uvm_object</code> que viaje por el testbench sale de
+<code>type_id::create()</code></strong> — las transactions del tester, y también las que arman los
+monitores y el <code>predicted</code> del scoreboard</li>
+<li>Los <em>ports</em>, los <em>exports</em> y las <em>TLM FIFO</em> son la excepción: no están en la
+factory y se instancian con <code>new()</code>, como vimos en hablar con varios objetos</li>
+</ul>
+<div class="nota">
+<p>Esta slide sale de un bug que tenía el código de este mismo curso: el tester
+creaba las dos operaciones dirigidas —el reset y la multiplicación FF x FF— con
+<code>new()</code>, así que bajo <code>add_test</code> esas dos NO eran <code>add_transaction</code>. Nadie se
+daba cuenta porque el testbench funciona igual.
+La pregunta para tirar al grupo, que es la que ordena todo: si ahora el reset
+sale de la factory y bajo <code>add_test</code> es un <code>add_transaction</code>, ¿por qué la
+constraint <code>op == add_op</code> no lo convierte en una suma? Porque no lo randomizamos.
+<strong>La factory elige el tipo; las constraints sólo actúan en <code>randomize()</code>.</strong></p>
+</div>
+<p class="al-deck"><a href="../index.html#/251">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s252" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="y-randomize-nunca-va-solo"><em>Y <code>randomize()</code> nunca va solo</em></h4>
+<pre><code class="language-systemverilog">assert (command.randomize());                                  // NO
+if (!command.randomize()) `uvm_fatal(&quot;TESTER&quot;, &quot;randomize() fallo&quot;)  // SI
+</code></pre>
+<ul>
+<li><code>randomize()</code> devuelve <strong>0</strong> cuando las constraints no tienen solución. No
+aborta, no imprime nada por su cuenta: devuelve 0 y sigue</li>
+<li>Un <code>assert()</code> pelado reporta por afuera de UVM: no entra en el <em>Report Summary</em>
+—el mismo que aprendimos a leer en reporting— y en muchos simuladores la
+ejecución continúa con la transaction <strong>sin randomizar</strong></li>
+<li>Y si el proyecto compila con las aserciones apagadas, hay simuladores que ni
+evalúan la expresión: <code>randomize()</code> directamente <strong>no se llama</strong></li>
+<li>Con <code>`uvm_fatal</code> el error trae componente, tiempo y archivo, y frena la
+corrida ahí mismo</li>
+</ul>
+<div class="nota">
+<p>Es una línea de más que se paga sola la primera vez que alguien agrega una
+constraint contradictoria. Sin el <code>else</code>, el síntoma es un scoreboard que falla
+en transacciones con valores absurdos y media tarde buscándolo en el DUT.
+El <code>`uvm_fatal</code> no es exageración: una transaction sin randomizar no es un
+estímulo malo, es un estímulo que no elegiste. Mejor que la corrida muera con un
+mensaje que decirle a alguien que la regresión de anoche no significaba nada.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/252">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s253" class="slide">
+<h2 id="transactions">Transactions</h2>
+<h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
+<ul>
+<li>Vimos cómo utilizar <em>transactions</em> para mover datos por el TB</li>
+<li>Esto nos permite simplificar los componentes del TB y hasta remover una clase de nuestro TB inicial (add_tester)</li>
+<li>La unidad que sigue agrupa las clases que hablan con una misma interface en un
+solo bloque reutilizable: el <code>uvm_agent</code></li>
+</ul>
+<div class="nota">
+<p>Cierre del día 5, y conviene decir qué falta: hoy el estímulo lo genera un
+tester que escribiste vos; en UVM moderno eso es una uvm_sequence corriendo
+sobre un sequencer, y el conjunto driver + monitor + sequencer se empaqueta en
+un agent. Eso es el día 6.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/253">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s254" class="slide">
+<h2 id="constrained-random">Constrained random</h2>
+<h4 id="la-otra-mitad-de-la-pinza"><em>La otra mitad de la pinza</em></h4>
+<ul>
+<li>La cobertura funcional del testbench convencional te dice <strong>qué falta</strong>. No te dice cómo
+llegar: eso es el estímulo</li>
+<li>Escribir un test dirigido por cada bin no escala — son 73 en el VTALU, y un
+chip de verdad tiene miles</li>
+<li>La receta de la industria es al revés: <strong>random para el grueso, dirigido para
+los agujeros</strong>. Y el random tiene que ser <em>legal</em>, o el DUT se queja de cosas
+que nunca van a pasar en silicio</li>
+<li><em>Constrained random</em> es escribir las reglas del estímulo <strong>una vez, en la
+transaction</strong>, y dejar que el solver arme los casos</li>
+</ul>
+<div class="nota">
+<p>Es el par que faltaba: hasta acá el curso midió cobertura y armó las
+transactions, pero el estímulo seguía saliendo de un <code>get_op()</code> con
+un <code>case</code> escrito a mano.
+La frase que ordena la sección: <strong>una constraint no elige un valor, describe el
+conjunto de valores legales.</strong> El que elige es el solver, y elige distinto de lo
+que uno espera más seguido de lo que a uno le gustaría. Toda la sección es
+medir eso en vez de suponerlo.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/254">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s255" class="slide">
+<h2 id="constrained-random">Constrained random</h2>
+<h4 id="rand-y-randomize-lo-que-ya-viste"><em><code>rand</code> y <code>randomize()</code>: lo que ya viste</em></h4>
+<pre><code class="language-systemverilog">class command_transaction extends uvm_sequence_item;
+   rand byte unsigned A;      // rand  -&gt; entra en el sorteo
+   rand byte unsigned B;
+   rand operation_t   op;     // un enum se randomiza sobre sus valores
+
+   constraint data { ... }    // las reglas, en un bloque aparte
+endclass
+</code></pre>
+<ul>
+<li><code>randomize()</code> viene de SystemVerilog, no de UVM: <strong>toda</strong> clase lo tiene</li>
+<li>Elige valores para los campos <code>rand</code> que <strong>cumplan todas las constraints
+activas a la vez</strong></li>
+<li>Un <code>constraint</code> <strong>no es código secuencial</strong>: no se ejecuta de arriba abajo, no
+tiene orden. Es un conjunto de relaciones que el solver satisface junto</li>
+<li>Por eso dos constraints que se contradicen no dan error de compilación: dan un
+<code>randomize()</code> que devuelve 0</li>
+</ul>
+<div class="nota">
+<p>El bullet que hay que decir despacio es el tercero, porque es el modelo mental
+equivocado que trae todo el mundo: un <code>constraint</code> <strong>no se ejecuta</strong>. No es un
+<code>if</code> largo, no corre de arriba hacia abajo, y da lo mismo el orden en que estén
+escritas. Es un sistema de ecuaciones, y <code>randomize()</code> se lo pasa a un solver
+—en este curso, z3— para que le devuelva una solución al azar entre todas las
+que lo satisfacen.
+De ahí sale la consecuencia del último bullet, y es la trampa más cara de la
+sección: dos constraints incompatibles compilan perfecto. El error aparece en
+tiempo de simulación, <code>randomize()</code> devuelve 0, y <strong>si nadie chequea el valor de
+retorno la clase queda con los valores que tenía</strong>. El testbench sigue andando y
+manda basura.
+La regla que se lleva de acá, y que el curso cumple en todo <code>code/</code>: un
+<code>randomize()</code> va siempre adentro de un <code>if</code> o de un <code>assert</code>. Nunca suelto.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/255">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s256" class="slide">
+<h2 id="constrained-random">Constrained random</h2>
+<h4 id="dist--no-es-lo-mismo-que-"><em><code>dist</code>: <code>:=</code> no es lo mismo que <code>:/</code></em></h4>
+<pre><code class="language-systemverilog">A dist {8&#39;h00 := 1, [8&#39;h01 : 8&#39;hFE] := 1, 8&#39;hFF := 1};   // el peso va a CADA valor
+A dist {8&#39;h00 :/ 1, [8&#39;h01 : 8&#39;hFE] :/ 2, 8&#39;hFF :/ 1};   // el peso se REPARTE
+</code></pre>
+<ul>
+<li><code>dist</code> pone <strong>pesos</strong>: no cambia qué valores son legales, cambia con qué
+frecuencia salen</li>
+<li>Con <code>:=</code> el peso se aplica <strong>a cada valor del rango</strong>: el rango del medio pesa
+254 y los bordes 1 cada uno. Sale <code>A=00</code> <strong>1 vez cada 256</strong></li>
+<li>Con <code>:/</code> el peso es <strong>del rango entero</strong>: 1 – 2 – 1 da 25 % en <code>00</code>, 50 % en el
+medio, 25 % en <code>FF</code>. Que es exactamente el sesgo que el <code>get_data()</code> del testbench convencional hacía a mano</li>
+<li>Las dos líneas compilan, las dos corren, y <strong>una de las dos no llena los bins
+de borde nunca</strong></li>
+</ul>
+<div class="nota">
+<p>La cuenta hay que hacerla en el pizarrón, porque leída no entra: con <code>:=</code> los
+pesos son 1, 1 y 1, pero el del medio se le aplica a <strong>cada uno</strong> de sus 254
+valores. Total 256 partes iguales, y <code>A=00</code> sale una de cada 256. Con <code>:/</code> las
+partes son tres —1, 2 y 1— y <code>A=00</code> sale una de cada cuatro. Sesenta y cuatro
+veces más seguido, por dos caracteres.
+Y ahora la parte que la hace peligrosa: <strong>las dos versiones andan</strong>. Ninguna da
+warning, ninguna falla, el testbench corre las mil transacciones igual. Lo único
+que cambia es que con <code>:=</code> el bin <code>a_00</code> del covergroup tarda una eternidad en
+llenarse, y el que mira el reporte concluye que le falta un test.
+Es exactamente el tipo de bug que el curso llama trampa muda, y por eso la slide
+siguiente no explica: <strong>mide</strong>. La regla práctica que hay que bajar: si escribís
+un <code>dist</code>, corré un histograma antes de creerle.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/256">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s257" class="slide">
+<h2 id="constrained-random">Constrained random</h2>
+<h4 id="no-lo-supongas-medilo"><em>No lo supongas: medilo</em></h4>
+<figure class="codigo"><figcaption><code>code/u6/transactions/constraints/01_dist.sv</code> · líneas 8-19 de 49</figcaption><pre><code class="hljs">   <span class="hljs-comment">// El peso va a CADA valor del rango: el medio se lleva 254 de 256.</span>
+   <span class="hljs-keyword">class</span> <span class="hljs-title">por_valor</span>;
+      <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+      <span class="hljs-keyword">constraint</span> data {A <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> := <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] := <span class="hljs-number">1</span>, <span class="hljs-number">8&#x27;hFF</span> := <span class="hljs-number">1</span>};}
+   <span class="hljs-keyword">endclass</span>
+
+   <span class="hljs-comment">// El peso se REPARTE dentro del rango: 1/4 en 00, 1/2 en el medio, 1/4 en FF.</span>
+   <span class="hljs-comment">// Es el mismo sesgo que el get_data() de la seccion Cobertura funcional hacia a mano.</span>
+   <span class="hljs-keyword">class</span> <span class="hljs-title">por_rango</span>;
+      <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+      <span class="hljs-keyword">constraint</span> data {A <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>, <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>};}
+   <span class="hljs-keyword">endclass</span></code></pre><details><summary>el archivo entero, 49 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Constrained Random 1 -- dist: &quot;:=&quot; y &quot;:/&quot; NO reparten igual.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// El curso pide en su plan de verificacion &quot;entradas todas en 0 y todas en 1&quot;.</span>
+<span class="hljs-comment">// Si el sesgo no existe, esos bins no se llenan y la cobertura se clava. Este</span>
+<span class="hljs-comment">// ejemplo mide el sesgo de las dos escrituras en vez de creerle a la intuicion.</span>
+<span class="hljs-keyword">module</span> <span class="hljs-title">top_dist</span>;
+
+   <span class="hljs-comment">// El peso va a CADA valor del rango: el medio se lleva 254 de 256.</span>
+   <span class="hljs-keyword">class</span> <span class="hljs-title">por_valor</span>;
+      <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+      <span class="hljs-keyword">constraint</span> data {A <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> := <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] := <span class="hljs-number">1</span>, <span class="hljs-number">8&#x27;hFF</span> := <span class="hljs-number">1</span>};}
+   <span class="hljs-keyword">endclass</span>
+
+   <span class="hljs-comment">// El peso se REPARTE dentro del rango: 1/4 en 00, 1/2 en el medio, 1/4 en FF.</span>
+   <span class="hljs-comment">// Es el mismo sesgo que el get_data() de la seccion Cobertura funcional hacia a mano.</span>
+   <span class="hljs-keyword">class</span> <span class="hljs-title">por_rango</span>;
+      <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+      <span class="hljs-keyword">constraint</span> data {A <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>, <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>};}
+   <span class="hljs-keyword">endclass</span>
+
+   <span class="hljs-keyword">localparam</span> <span class="hljs-type">int</span> N = <span class="hljs-number">400</span>;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      por_valor v;
+      por_rango r;
+      <span class="hljs-type">int</span> v00, vff, r00, rff;
+
+      v = <span class="hljs-keyword">new</span>();
+      r = <span class="hljs-keyword">new</span>();
+
+      <span class="hljs-keyword">repeat</span> (N) <span class="hljs-keyword">begin</span>
+         <span class="hljs-keyword">if</span> (!v.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() de por_valor fallo&quot;</span>);
+         <span class="hljs-keyword">if</span> (v.A == <span class="hljs-number">8&#x27;h00</span>) v00 = v00 + <span class="hljs-number">1</span>;
+         <span class="hljs-keyword">if</span> (v.A == <span class="hljs-number">8&#x27;hFF</span>) vff = vff + <span class="hljs-number">1</span>;
+
+         <span class="hljs-keyword">if</span> (!r.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() de por_rango fallo&quot;</span>);
+         <span class="hljs-keyword">if</span> (r.A == <span class="hljs-number">8&#x27;h00</span>) r00 = r00 + <span class="hljs-number">1</span>;
+         <span class="hljs-keyword">if</span> (r.A == <span class="hljs-number">8&#x27;hFF</span>) rff = rff + <span class="hljs-number">1</span>;
+      <span class="hljs-keyword">end</span>
+
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;%0d randomizaciones de cada version&quot;</span>, N);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  :=   A=00 %5.1f%%   A=FF %5.1f%%   el peso va a cada valor&quot;</span>,
+               <span class="hljs-number">100.0</span> * v00 / N, <span class="hljs-number">100.0</span> * vff / N);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  :/   A=00 %5.1f%%   A=FF %5.1f%%   el peso se reparte&quot;</span>,
+               <span class="hljs-number">100.0</span> * r00 / N, <span class="hljs-number">100.0</span> * rff / N);
+      <span class="hljs-built_in">$finish</span>;
+   <span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">endmodule</span> : top_dist</code></pre></details></figure>
+
+<pre><code class="language-sh">$ cd code/u6/transactions/constraints &amp;&amp; bash run.sh
+400 randomizaciones de cada version
+  :=   A=00   0.2%   A=FF   0.2%   el peso va a cada valor
+  :/   A=00  23.2%   A=FF  27.0%   el peso se reparte
+</code></pre>
+<div class="nota">
+<p>Este experimento salió de un bug de este mismo curso: <code>command_transaction</code>
+tenía el <code>dist</code> escrito con <code>:=</code>, o sea que el sesgo a los casos borde que las transactions decía tener <strong>no existía</strong>. La distribución era prácticamente uniforme
+y nadie se enteraba, porque el testbench pasaba igual.
+Ése es el punto de fondo de la sección, y conviene decirlo así de crudo: una
+constraint mal escrita <strong>no falla, miente</strong>. No hay warning, no hay error de
+compilación, no hay un test en rojo. Lo único que lo delata es la cobertura que
+no sube — y eso recién se nota semanas después.
+Regla práctica para llevarse: cada vez que escribas un <code>dist</code>, corré unas
+cuantas miles de randomizaciones e imprimí el histograma <strong>una vez</strong>. Cuesta
+diez minutos y es la diferencia entre creer y saber.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/257">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s258" class="slide">
+<h2 id="constrained-random">Constrained random</h2>
+<h4 id="inside-y-randomize-with-"><em><code>inside</code> y <code>randomize() with {}</code></em></h4>
+<figure class="codigo"><figcaption><code>code/u6/transactions/constraints/02_with.sv</code> · líneas 16-29 de 74</figcaption><pre><code class="hljs">
+   <span class="hljs-keyword">class</span> <span class="hljs-title">comando</span>;
+      <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+      <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> B;
+      <span class="hljs-keyword">rand</span> operation_t   op;
+
+      <span class="hljs-keyword">constraint</span> data {
+         A <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>, <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>};
+         B <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>, <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>};
+      }
+
+      <span class="hljs-comment">// inside es un conjunto de valores legales. Sin esto el random tambien</span>
+      <span class="hljs-comment">// pide no_op y rst_op, que no calculan nada.</span>
+      <span class="hljs-keyword">constraint</span> utiles {op <span class="hljs-keyword">inside</span> {add_op, and_op, xor_op, mul_op};}</code></pre><details><summary>el archivo entero, 74 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Constrained Random 2 -- inside, y randomize() with {}.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// La constraint de la clase da el grueso del estimulo. El caso dirigido se pide</span>
+<span class="hljs-comment">// en el punto de uso, sin tocar la clase y sin escribir un tester nuevo.</span>
+<span class="hljs-keyword">module</span> <span class="hljs-title">top_with</span>;
+
+   <span class="hljs-keyword">typedef</span> <span class="hljs-keyword">enum</span> <span class="hljs-type">bit</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] {
+      no_op  = <span class="hljs-number">3&#x27;b000</span>,
+      add_op = <span class="hljs-number">3&#x27;b001</span>,
+      sub_op = <span class="hljs-number">3&#x27;b010</span>,
+      and_op = <span class="hljs-number">3&#x27;b011</span>,
+      xor_op = <span class="hljs-number">3&#x27;b100</span>,
+      mul_op = <span class="hljs-number">3&#x27;b101</span>,
+      rst_op = <span class="hljs-number">3&#x27;b111</span>
+   } operation_t;
+
+   <span class="hljs-keyword">class</span> <span class="hljs-title">comando</span>;
+      <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+      <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> B;
+      <span class="hljs-keyword">rand</span> operation_t   op;
+
+      <span class="hljs-keyword">constraint</span> data {
+         A <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>, <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>};
+         B <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>, <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>};
+      }
+
+      <span class="hljs-comment">// inside es un conjunto de valores legales. Sin esto el random tambien</span>
+      <span class="hljs-comment">// pide no_op y rst_op, que no calculan nada.</span>
+      <span class="hljs-keyword">constraint</span> utiles {op <span class="hljs-keyword">inside</span> {add_op, and_op, xor_op, mul_op};}
+   <span class="hljs-keyword">endclass</span>
+
+   <span class="hljs-keyword">localparam</span> <span class="hljs-type">int</span> N = <span class="hljs-number">400</span>;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      comando c;
+      <span class="hljs-type">int</span> maximos;
+
+      c = <span class="hljs-keyword">new</span>();
+
+      <span class="hljs-comment">// El bin mul_max de la cobertura de la seccion Cobertura funcional: una multiplicacion con</span>
+      <span class="hljs-comment">// las dos patas en 0xFF. Es el desborde del multiplicador.</span>
+      <span class="hljs-keyword">repeat</span> (N) <span class="hljs-keyword">begin</span>
+         <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() fallo&quot;</span>);
+         <span class="hljs-keyword">if</span> (c.op == mul_op &amp;&amp; c.A == <span class="hljs-number">8&#x27;hFF</span> &amp;&amp; c.B == <span class="hljs-number">8&#x27;hFF</span>) maximos = maximos + <span class="hljs-number">1</span>;
+      <span class="hljs-keyword">end</span>
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;al azar:  %0d intentos, mul_max se lleno %0d vez/veces&quot;</span>, N, maximos);
+
+      <span class="hljs-comment">// Lo mismo, pedido: with {} agrega constraints SOLO para esta llamada.</span>
+      <span class="hljs-comment">// El pedido es satisfacible, pero en 5.052 el dist se resuelve eligiendo</span>
+      <span class="hljs-comment">// un valor ANTES de chequear el with: si el sorteado no cumple, devuelve</span>
+      <span class="hljs-comment">// 0 en vez de reintentar. Con A y B en dist, que las dos caigan en 0xFF</span>
+      <span class="hljs-comment">// es 1/4 x 1/4. Las tasas medidas estan en</span>
+      <span class="hljs-comment">// code/verilator/repro-dist-with.sv; el detalle en docs/verilator.md.</span>
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>() <span class="hljs-keyword">with</span> {
+            op == mul_op;
+            A  == <span class="hljs-number">8&#x27;hFF</span>;
+            B  == <span class="hljs-number">8&#x27;hFF</span>;
+          })
+         <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;con with: randomize() dio 0  &lt;- limitacion de Verilator, no tuya&quot;</span>);
+
+      <span class="hljs-comment">// El rodeo portable mientras tanto: apagar el reparto, que para un caso</span>
+      <span class="hljs-comment">// dirigido no tiene sentido de todos modos.</span>
+      c.data.constraint_mode(<span class="hljs-number">0</span>);
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>() <span class="hljs-keyword">with</span> {
+            op == mul_op;
+            A  == <span class="hljs-number">8&#x27;hFF</span>;
+            B  == <span class="hljs-number">8&#x27;hFF</span>;
+          })
+         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() with fallo hasta con la constraint apagada&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;con with: 1 intento,   A=%2h %s B=%2h&quot;</span>, c.A, c.op.name(), c.B);
+      <span class="hljs-built_in">$finish</span>;
+   <span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">endmodule</span> : top_with</code></pre></details></figure>
+
+<figure class="codigo"><figcaption><code>code/u6/transactions/constraints/02_with.sv</code> · líneas 53-58 de 74</figcaption><pre><code class="hljs">      <span class="hljs-comment">// code/verilator/repro-dist-with.sv; el detalle en docs/verilator.md.</span>
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>() <span class="hljs-keyword">with</span> {
+            op == mul_op;
+            A  == <span class="hljs-number">8&#x27;hFF</span>;
+            B  == <span class="hljs-number">8&#x27;hFF</span>;
+          })</code></pre><details><summary>el archivo entero, 74 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Constrained Random 2 -- inside, y randomize() with {}.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// La constraint de la clase da el grueso del estimulo. El caso dirigido se pide</span>
+<span class="hljs-comment">// en el punto de uso, sin tocar la clase y sin escribir un tester nuevo.</span>
+<span class="hljs-keyword">module</span> <span class="hljs-title">top_with</span>;
+
+   <span class="hljs-keyword">typedef</span> <span class="hljs-keyword">enum</span> <span class="hljs-type">bit</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] {
+      no_op  = <span class="hljs-number">3&#x27;b000</span>,
+      add_op = <span class="hljs-number">3&#x27;b001</span>,
+      sub_op = <span class="hljs-number">3&#x27;b010</span>,
+      and_op = <span class="hljs-number">3&#x27;b011</span>,
+      xor_op = <span class="hljs-number">3&#x27;b100</span>,
+      mul_op = <span class="hljs-number">3&#x27;b101</span>,
+      rst_op = <span class="hljs-number">3&#x27;b111</span>
+   } operation_t;
+
+   <span class="hljs-keyword">class</span> <span class="hljs-title">comando</span>;
+      <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+      <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> B;
+      <span class="hljs-keyword">rand</span> operation_t   op;
+
+      <span class="hljs-keyword">constraint</span> data {
+         A <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>, <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>};
+         B <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>, <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>};
+      }
+
+      <span class="hljs-comment">// inside es un conjunto de valores legales. Sin esto el random tambien</span>
+      <span class="hljs-comment">// pide no_op y rst_op, que no calculan nada.</span>
+      <span class="hljs-keyword">constraint</span> utiles {op <span class="hljs-keyword">inside</span> {add_op, and_op, xor_op, mul_op};}
+   <span class="hljs-keyword">endclass</span>
+
+   <span class="hljs-keyword">localparam</span> <span class="hljs-type">int</span> N = <span class="hljs-number">400</span>;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      comando c;
+      <span class="hljs-type">int</span> maximos;
+
+      c = <span class="hljs-keyword">new</span>();
+
+      <span class="hljs-comment">// El bin mul_max de la cobertura de la seccion Cobertura funcional: una multiplicacion con</span>
+      <span class="hljs-comment">// las dos patas en 0xFF. Es el desborde del multiplicador.</span>
+      <span class="hljs-keyword">repeat</span> (N) <span class="hljs-keyword">begin</span>
+         <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() fallo&quot;</span>);
+         <span class="hljs-keyword">if</span> (c.op == mul_op &amp;&amp; c.A == <span class="hljs-number">8&#x27;hFF</span> &amp;&amp; c.B == <span class="hljs-number">8&#x27;hFF</span>) maximos = maximos + <span class="hljs-number">1</span>;
+      <span class="hljs-keyword">end</span>
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;al azar:  %0d intentos, mul_max se lleno %0d vez/veces&quot;</span>, N, maximos);
+
+      <span class="hljs-comment">// Lo mismo, pedido: with {} agrega constraints SOLO para esta llamada.</span>
+      <span class="hljs-comment">// El pedido es satisfacible, pero en 5.052 el dist se resuelve eligiendo</span>
+      <span class="hljs-comment">// un valor ANTES de chequear el with: si el sorteado no cumple, devuelve</span>
+      <span class="hljs-comment">// 0 en vez de reintentar. Con A y B en dist, que las dos caigan en 0xFF</span>
+      <span class="hljs-comment">// es 1/4 x 1/4. Las tasas medidas estan en</span>
+      <span class="hljs-comment">// code/verilator/repro-dist-with.sv; el detalle en docs/verilator.md.</span>
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>() <span class="hljs-keyword">with</span> {
+            op == mul_op;
+            A  == <span class="hljs-number">8&#x27;hFF</span>;
+            B  == <span class="hljs-number">8&#x27;hFF</span>;
+          })
+         <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;con with: randomize() dio 0  &lt;- limitacion de Verilator, no tuya&quot;</span>);
+
+      <span class="hljs-comment">// El rodeo portable mientras tanto: apagar el reparto, que para un caso</span>
+      <span class="hljs-comment">// dirigido no tiene sentido de todos modos.</span>
+      c.data.constraint_mode(<span class="hljs-number">0</span>);
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>() <span class="hljs-keyword">with</span> {
+            op == mul_op;
+            A  == <span class="hljs-number">8&#x27;hFF</span>;
+            B  == <span class="hljs-number">8&#x27;hFF</span>;
+          })
+         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() with fallo hasta con la constraint apagada&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;con with: 1 intento,   A=%2h %s B=%2h&quot;</span>, c.A, c.op.name(), c.B);
+      <span class="hljs-built_in">$finish</span>;
+   <span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">endmodule</span> : top_with</code></pre></details></figure>
+
+<ul>
+<li><code>inside {a, b, c}</code> es el conjunto de valores legales: sin él, el random también
+pide <code>no_op</code> y <code>rst_op</code>, que no calculan nada</li>
+<li><code>randomize() with { ... }</code> agrega constraints <strong>sólo para esa llamada</strong>: el
+caso dirigido se pide en el punto de uso, sin tocar la clase ni escribir un
+tester nuevo. Es la herramienta del <em>coverage closure</em></li>
+</ul>
+<div class="nota">
+<p>El número de la corrida es el argumento entero de la sección: 400 intentos al
+azar llenan <code>mul_max</code> unas 17 veces <strong>porque el <code>dist</code> sesga a los bordes</strong>. Con
+el <code>dist</code> mal escrito de la slide anterior, la probabilidad de que las dos patas
+caigan en <code>FF</code> es 1/65536 por operación: no lo tocás nunca.
+La secuencia mental es siempre la misma: corro random, miro qué bin quedó vacío,
+escribo un <code>with {}</code> de tres líneas, vuelvo a correr. Nunca &quot;escribo 73 tests&quot;.
+La limitación de Verilator que aparece en la salida está puesta a propósito, y
+conviene enunciarla bien porque no es &quot;anda o no anda&quot;. Verilator resuelve el
+<code>dist</code> <strong>eligiendo un valor concreto primero</strong> y recién después chequea el resto:
+si el sorteado no cumple el <code>with</code>, devuelve 0 en vez de buscar otro. La tasa de
+éxito es entonces la probabilidad del bin. Medido: <code>with {A == 8&#39;hFF}</code> resuelve
+el 25 % de las veces —el peso de ese bin—, <code>with {A inside {[1:10]}}</code> el 2 %, y
+un campo sin <code>dist</code> el 100 %.
+Por qué importa más de lo que parece: el síntoma es <strong>un caso dirigido
+intermitente</strong>, que anda cuando lo probás y falla en la regresión de la noche.
+Los números están en <code>code/verilator/repro-dist-with.sv</code>, y el rodeo —apagar la
+constraint— es el mismo <code>constraint_mode()</code> que ves dos slides más adelante.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/258">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s259" class="slide">
+<h2 id="constrained-random">Constrained random</h2>
+<h4 id="el-orden-de-resolución-sesga-sin-avisar"><em>El orden de resolución sesga sin avisar</em></h4>
+<pre><code class="language-systemverilog">rand bit           es_reset;
+rand byte unsigned A;
+constraint c {es_reset -&gt; A == 8&#39;h00;}   // &quot;si pido reset, los operandos en cero&quot;
+</code></pre>
+<ul>
+<li>Parece inofensiva. <strong>No lo es</strong>: el solver elige uniformemente entre las
+<em>soluciones</em>, no entre los valores de cada campo</li>
+<li>Con <code>es_reset = 1</code> hay <strong>una</strong> solución (<code>A = 00</code>). Con <code>es_reset = 0</code> hay
+<strong>256</strong>. Total: 257, y sólo una tiene el reset</li>
+<li>O sea: pediste reset la mitad de las veces y lo vas a ver <strong>1 de cada 257</strong>. El
+bin <em>&quot;cualquier operación después de un reset&quot;</em> del plan del testbench convencional no se
+llena, y el reporte no te dice por qué</li>
+<li>La respuesta del lenguaje es <code>solve es_reset before A</code>: elegí el campo de
+control primero</li>
+</ul>
+<div class="nota">
+<p>La frase que desarma la intuición es la del primer bullet, y conviene repetirla
+tal cual: <strong>el solver elige uniformemente entre las soluciones, no entre los
+valores de cada campo</strong>. Nadie escribió que <code>es_reset</code> fuera a salir 1 la mitad
+de las veces; salió de suponer que cada campo se sortea por separado, y no es así.
+Vale contar las 257 soluciones en voz alta, porque el número convence más que el
+argumento: <code>es_reset=1</code> obliga a <code>A=00</code>, o sea una sola combinación; <code>es_reset=0</code>
+deja <code>A</code> libre, o sea 256. El sorteo es sobre las 257, y el reset se lleva una.
+La conexión con el plan de verificación es lo que hace que esta slide valga: la
+fila <em>&quot;cualquier operación después de un reset&quot;</em> no se llena, la cobertura queda
+clavada, y el reporte no dice <strong>por qué</strong>. Un alumno sin esta slide agrega tests
+al azar durante una tarde.
+Y la advertencia sobre la cura, para que no se use de más: <code>solve ... before</code> no
+cambia qué soluciones son legales, sólo el orden en que el solver elige. Es una
+perilla de distribución, no de corrección — y cuesta tiempo de solver, así que
+va donde hace falta y no por costumbre.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/259">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s260" class="slide">
+<h2 id="constrained-random">Constrained random</h2>
+<h4 id="medido-con-el-rodeo-que-verilator-sí-respeta"><em>Medido, con el rodeo que Verilator sí respeta</em></h4>
+<figure class="codigo"><figcaption><code>code/u6/transactions/constraints/03_solve.sv</code> · líneas 10-25 de 52</figcaption><pre><code class="hljs">   <span class="hljs-keyword">class</span> <span class="hljs-title">sesgada</span>;
+      <span class="hljs-keyword">rand</span> <span class="hljs-type">bit</span>           es_reset;
+      <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+      <span class="hljs-keyword">constraint</span> c {es_reset -&gt; A == <span class="hljs-number">8&#x27;h00</span>;}
+   <span class="hljs-keyword">endclass</span>
+
+   <span class="hljs-comment">// La respuesta del lenguaje es &quot;solve es_reset before A&quot;: elegi el campo de</span>
+   <span class="hljs-comment">// control PRIMERO y despues resolve el resto. Verilator 5.052 acepta la</span>
+   <span class="hljs-comment">// sintaxis y NO la respeta -- deja es_reset clavado en 0, que es peor que</span>
+   <span class="hljs-comment">// ignorarla. Repro en code/verilator/repro-solve-before.sv.</span>
+   <span class="hljs-comment">//</span>
+   <span class="hljs-comment">// El rodeo que si es portable: pedir explicitamente el reparto del campo de</span>
+   <span class="hljs-comment">// control. Dice lo mismo y no depende de que el solver ordene bien.</span>
+   <span class="hljs-keyword">class</span> <span class="hljs-title">pareja</span> <span class="hljs-keyword">extends</span> sesgada;
+      <span class="hljs-keyword">constraint</span> reparto {es_reset <span class="hljs-keyword">dist</span> {<span class="hljs-number">1&#x27;b0</span> :/ <span class="hljs-number">1</span>, <span class="hljs-number">1&#x27;b1</span> :/ <span class="hljs-number">1</span>};}
+   <span class="hljs-keyword">endclass</span></code></pre><details><summary>el archivo entero, 52 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Constrained Random 3 -- el orden de resolucion sesga sin avisar.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// La constraint de abajo parece inofensiva y es la trampa clasica: el solver</span>
+<span class="hljs-comment">// elige uniformemente entre las SOLUCIONES, no entre los valores de cada campo.</span>
+<span class="hljs-comment">// Con es_reset=1 hay una sola solucion (A=00); con es_reset=0 hay 256.</span>
+<span class="hljs-comment">// Resultado: el reset se pide 1 de cada 257 veces, y el bin &quot;cualquier</span>
+<span class="hljs-comment">// operacion despues de un reset&quot; del plan de la seccion Cobertura funcional no se llena nunca.</span>
+<span class="hljs-keyword">module</span> <span class="hljs-title">top_solve</span>;
+
+   <span class="hljs-keyword">class</span> <span class="hljs-title">sesgada</span>;
+      <span class="hljs-keyword">rand</span> <span class="hljs-type">bit</span>           es_reset;
+      <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+      <span class="hljs-keyword">constraint</span> c {es_reset -&gt; A == <span class="hljs-number">8&#x27;h00</span>;}
+   <span class="hljs-keyword">endclass</span>
+
+   <span class="hljs-comment">// La respuesta del lenguaje es &quot;solve es_reset before A&quot;: elegi el campo de</span>
+   <span class="hljs-comment">// control PRIMERO y despues resolve el resto. Verilator 5.052 acepta la</span>
+   <span class="hljs-comment">// sintaxis y NO la respeta -- deja es_reset clavado en 0, que es peor que</span>
+   <span class="hljs-comment">// ignorarla. Repro en code/verilator/repro-solve-before.sv.</span>
+   <span class="hljs-comment">//</span>
+   <span class="hljs-comment">// El rodeo que si es portable: pedir explicitamente el reparto del campo de</span>
+   <span class="hljs-comment">// control. Dice lo mismo y no depende de que el solver ordene bien.</span>
+   <span class="hljs-keyword">class</span> <span class="hljs-title">pareja</span> <span class="hljs-keyword">extends</span> sesgada;
+      <span class="hljs-keyword">constraint</span> reparto {es_reset <span class="hljs-keyword">dist</span> {<span class="hljs-number">1&#x27;b0</span> :/ <span class="hljs-number">1</span>, <span class="hljs-number">1&#x27;b1</span> :/ <span class="hljs-number">1</span>};}
+   <span class="hljs-keyword">endclass</span>
+
+   <span class="hljs-keyword">localparam</span> <span class="hljs-type">int</span> N = <span class="hljs-number">2000</span>;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      sesgada s;
+      pareja  p;
+      <span class="hljs-type">int</span> s_reset, p_reset;
+
+      s = <span class="hljs-keyword">new</span>();
+      p = <span class="hljs-keyword">new</span>();
+
+      <span class="hljs-keyword">repeat</span> (N) <span class="hljs-keyword">begin</span>
+         <span class="hljs-keyword">if</span> (!s.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() de sesgada fallo&quot;</span>);
+         <span class="hljs-keyword">if</span> (s.es_reset) s_reset = s_reset + <span class="hljs-number">1</span>;
+
+         <span class="hljs-keyword">if</span> (!p.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() de pareja fallo&quot;</span>);
+         <span class="hljs-keyword">if</span> (p.es_reset) p_reset = p_reset + <span class="hljs-number">1</span>;
+      <span class="hljs-keyword">end</span>
+
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;%0d randomizaciones de cada version&quot;</span>, N);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  tal cual              es_reset=1 en %5.1f%%   (1 de cada 257)&quot;</span>,
+               <span class="hljs-number">100.0</span> * s_reset / N);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  con dist en es_reset  es_reset=1 en %5.1f%%&quot;</span>, <span class="hljs-number">100.0</span> * p_reset / N);
+      <span class="hljs-built_in">$finish</span>;
+   <span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">endmodule</span> : top_solve</code></pre></details></figure>
+
+<pre><code class="language-sh">2000 randomizaciones de cada version
+  tal cual              es_reset=1 en   0.3%   (1 de cada 257)
+  con dist en es_reset  es_reset=1 en  51.7%
+</code></pre>
+<ul>
+<li>Verilator 5.052 <strong>acepta <code>solve ... before</code> y no lo respeta</strong>: deja el campo
+clavado en 0, que es peor que ignorarlo. Repro en
+<code>code/verilator/repro-solve-before.sv</code></li>
+<li>El rodeo portable: pedir el reparto del campo de control con un <code>dist</code>. Dice lo
+mismo y no depende de que el solver ordene bien</li>
+</ul>
+<div class="nota">
+<p>Es el segundo agujero de Verilator del curso, junto con los bins de transición, y
+se trata igual: se dice de frente, con repro mínimo y con un rodeo que funciona.
+El concepto es del lenguaje, no del simulador.
+Lo que sí hay que remarcar es la asimetría: la constraint <strong>sesgada</strong> da 0,3 %,
+que es exactamente lo que predice la teoría — o sea que el solver de Verilator
+está bien; lo que falta es la directiva de orden.
+Y la moraleja general, que vale para cualquier herramienta: si el estímulo tiene
+un campo de control (un modo, un tipo de operación, un &quot;inyectar error&quot;), no
+confíes en que salga parejo. Medilo.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/260">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s261" class="slide">
+<h2 id="constrained-random">Constrained random</h2>
+<h4 id="cuando-no-hay-solución"><em>Cuando no hay solución</em></h4>
+<figure class="codigo"><figcaption><code>code/u6/transactions/constraints/04_falla.sv</code> · líneas 8-32 de 35</figcaption><pre><code class="hljs">   <span class="hljs-keyword">class</span> <span class="hljs-title">comando</span>;
+      <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+      <span class="hljs-keyword">constraint</span> chico {A &lt; <span class="hljs-number">8&#x27;h10</span>;}
+      <span class="hljs-keyword">constraint</span> grande {A &gt; <span class="hljs-number">8&#x27;hF0</span>;}  <span class="hljs-comment">// contradice a la anterior: no hay solucion</span>
+   <span class="hljs-keyword">endclass</span>
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      comando c;
+      c = <span class="hljs-keyword">new</span>();
+
+      <span class="hljs-comment">// 1. Las dos constraints activas: no hay ningun A que cumpla las dos.</span>
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;1. randomize() devolvio 0: las constraints no cierran&quot;</span>);
+      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;1. randomize() dio %2h  (no deberia llegar aca)&quot;</span>, c.A);
+
+      <span class="hljs-comment">// 2. constraint_mode(0) apaga una constraint en tiempo de ejecucion.</span>
+      c.grande.constraint_mode(<span class="hljs-number">0</span>);
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;2. randomize() devolvio 0  (no deberia llegar aca)&quot;</span>);
+      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;2. con &#x27;grande&#x27; apagada: A=%2h, y respeta &#x27;chico&#x27;&quot;</span>, c.A);
+
+      <span class="hljs-comment">// 3. rand_mode(0) saca al campo del sorteo: conserva su valor actual.</span>
+      c.A.rand_mode(<span class="hljs-number">0</span>);
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;3. randomize() devolvio 0  (no deberia llegar aca)&quot;</span>);
+      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;3. con A fuera del sorteo: A=%2h, el mismo de antes&quot;</span>, c.A);
+
+      <span class="hljs-built_in">$finish</span>;</code></pre><details><summary>el archivo entero, 35 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Constrained Random 4 -- cuando randomize() devuelve 0, y como apagar cosas.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// randomize() no aborta ni imprime nada por su cuenta: devuelve 0 y sigue. Si</span>
+<span class="hljs-comment">// nadie mira el valor de retorno, el testbench manda una transaction sin</span>
+<span class="hljs-comment">// randomizar y el bug aparece tres componentes mas adelante.</span>
+<span class="hljs-keyword">module</span> <span class="hljs-title">top_falla</span>;
+
+   <span class="hljs-keyword">class</span> <span class="hljs-title">comando</span>;
+      <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+      <span class="hljs-keyword">constraint</span> chico {A &lt; <span class="hljs-number">8&#x27;h10</span>;}
+      <span class="hljs-keyword">constraint</span> grande {A &gt; <span class="hljs-number">8&#x27;hF0</span>;}  <span class="hljs-comment">// contradice a la anterior: no hay solucion</span>
+   <span class="hljs-keyword">endclass</span>
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      comando c;
+      c = <span class="hljs-keyword">new</span>();
+
+      <span class="hljs-comment">// 1. Las dos constraints activas: no hay ningun A que cumpla las dos.</span>
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;1. randomize() devolvio 0: las constraints no cierran&quot;</span>);
+      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;1. randomize() dio %2h  (no deberia llegar aca)&quot;</span>, c.A);
+
+      <span class="hljs-comment">// 2. constraint_mode(0) apaga una constraint en tiempo de ejecucion.</span>
+      c.grande.constraint_mode(<span class="hljs-number">0</span>);
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;2. randomize() devolvio 0  (no deberia llegar aca)&quot;</span>);
+      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;2. con &#x27;grande&#x27; apagada: A=%2h, y respeta &#x27;chico&#x27;&quot;</span>, c.A);
+
+      <span class="hljs-comment">// 3. rand_mode(0) saca al campo del sorteo: conserva su valor actual.</span>
+      c.A.rand_mode(<span class="hljs-number">0</span>);
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;3. randomize() devolvio 0  (no deberia llegar aca)&quot;</span>);
+      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;3. con A fuera del sorteo: A=%2h, el mismo de antes&quot;</span>, c.A);
+
+      <span class="hljs-built_in">$finish</span>;
+   <span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">endmodule</span> : top_falla</code></pre></details></figure>
+
+<pre><code class="language-sh">1. randomize() devolvio 0: las constraints no cierran
+2. con &#39;grande&#39; apagada: A=06, y respeta &#39;chico&#39;
+3. con A fuera del sorteo: A=06, el mismo de antes
+</code></pre>
+<ul>
+<li><code>constraint_mode(0)</code> apaga <strong>una constraint</strong> en tiempo de ejecución;
+<code>rand_mode(0)</code> saca <strong>un campo</strong> del sorteo y le deja el valor que tenía</li>
+<li>Sirven para el test que necesita romper una regla a propósito — inyectar un
+opcode ilegal, por ejemplo — sin tocar la clase que todos los demás usan</li>
+</ul>
+<div class="nota">
+<p>Acá se cierra el círculo con la slide de <code>assert(randomize())</code>: el caso 1 es
+precisamente lo que pasa cuando dos constraints se contradicen, y sin el <code>else</code>
+el testbench sigue mandando la transaction anterior.
+<code>constraint_mode</code> tiene un pariente que conviene nombrar aunque no lo usemos: las
+constraints <code>soft</code>, que el solver descarta solas cuando estorban en vez de
+devolver 0. Están en IEEE 1800-2017 y son la forma moderna de escribir un valor
+por defecto que un <code>with {}</code> pueda pisar.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/261">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s262" class="slide">
+<h2 id="constrained-random">Constrained random</h2>
+<h4 id="así-se-cierra-la-cobertura"><em>Así se cierra la cobertura</em></h4>
+<table>
+<thead>
+<tr>
+<th>Paso</th>
+<th>Herramienta</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cubrir el grueso barato</td>
+<td><code>randomize()</code> con <code>dist</code> e <code>inside</code> en la transaction</td>
+</tr>
+<tr>
+<td>Ver qué quedó afuera</td>
+<td>el reporte de cobertura — <code>cov_report</code></td>
+</tr>
+<tr>
+<td>Llenar el bin que falta</td>
+<td><code>randomize() with { ... }</code>, tres líneas, sin clases nuevas</td>
+</tr>
+<tr>
+<td>Romper una regla a propósito</td>
+<td><code>constraint_mode(0)</code> / <code>rand_mode(0)</code></td>
+</tr>
+<tr>
+<td>Repetir</td>
+<td>otra semilla, y de nuevo</td>
+</tr>
+</tbody></table>
+<ul>
+<li>Eso es <em>coverage closure</em>, y es a lo que un verificador le dedica el día</li>
+<li>Lo que <strong>no</strong> es: escribir un test por bin. Ni mirar el porcentaje total</li>
+<li>El estímulo todavía sale de un <code>tester</code> que escribiste vos. En UVM moderno eso
+es una <code>uvm_sequence</code> — y es el día 6</li>
+</ul>
+<div class="nota">
+<p>Cerrar volviendo al testbench convencional: el 86,8 % de <code>u2/convencional</code> sale de 1000 operaciones al
+azar con el sesgo a los bordes puesto a mano. Ahora el alumno sabe escribir ese
+mismo sesgo en una constraint, medirlo, y agregarle el <code>with {}</code> de los casos que
+faltan.
+Y dejar tirada la pregunta del día 6: si el estímulo son constraints y no código,
+¿para qué sigue existiendo una clase <code>tester</code> con un <code>run_phase</code>? No sigue
+existiendo. Se llama sequence.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/262">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s263" class="slide">
+<h2 id="constrained-random">Constrained random</h2>
+<h4 id="«otra-semilla-y-de-nuevo»-qué-mueve-y-qué-no"><em>«Otra semilla, y de nuevo»: qué mueve y qué no</em></h4>
+<pre><code class="language-sh">$ SEED=7 bash run.sh    # u6/transactions/constraints, 400 randomizaciones
+    seed: 7
+  :/   A=00  25.0%   A=FF  22.0%   # con SEED=8: 20.8% y 27.0%
+$ SEED=7 bash run.sh    # u2/convencional, y de nuevo con SEED=8
+  covergroup : 86.8% (66/76)       # las dos veces. Y el merge, igual
+</code></pre>
+<ul>
+<li><code>SEED=N</code> pasa <code>+verilator+seed+N</code>, y <code>run_sim</code> <strong>imprime la que usó</strong>: un fallo
+que sale una vez cada diez corridas no se debuggea, se repite</li>
+<li><strong>Sí</strong> mueve los porcentajes de un <code>dist</code> medido con pocas muestras: 400
+randomizaciones dan 25 % o 21 % según el sorteo. Es una muestra, no la
+distribución</li>
+<li><strong>No</strong> mueve los 10 bins que faltan. Con 1000 operaciones el random ya llegó
+hasta donde puede, y otra semilla es tirar la moneda esperando otro resultado</li>
+<li>Por eso <em>&quot;repetir&quot;</em> es la <strong>última</strong> fila de la tabla anterior y no la primera:
+primero el <code>with {}</code></li>
+</ul>
+<div class="nota">
+<p>Esta slide existe para desactivar un malentendido que la tabla anterior invita:
+<em>&quot;si no cierro, corro otra semilla&quot;</em>. Se midió, y no: <code>code/u2/convencional</code> da 66 de 76 con
+la semilla por defecto, con la 7 y con la 8, y el merge de las tres da 66. Los 10
+que faltan no faltan por suerte — faltan porque son bins de transición que
+Verilator no mide y crosses que el estímulo no alcanza. Ninguna semilla los va a
+tocar.
+La semilla sirve para otras dos cosas, y las dos son de oficio. Primera:
+<strong>reproducir</strong>. Un bug intermitente no se debuggea, se repite; y para repetirlo
+hay que saber con qué semilla salió, que es exactamente por qué <code>run_sim</code> la
+imprime en cada corrida.
+Segunda: <strong>acumular</strong>, cuando el estímulo todavía no saturó. Una regresión de
+verdad es el mismo test por cien semillas de noche, y la cobertura se mergea —
+<code>verilator_coverage --write</code> hace en Verilator lo que el merge de ucdb en Questa.
+Acá no se nota porque el ejemplo es chico; en un chip es la mitad del trabajo.
+Y el <code>+verilator+rand+reset+2</code> que aparece en la documentación es otra cosa y
+conviene no mezclarlas: no toca <code>randomize()</code>, decide con qué arrancan las
+señales <strong>sin inicializar</strong> del DUT. Con <code>2</code> arrancan al azar en vez de en cero,
+que es la forma de descubrir el registro que nadie reseteó y que en silicio no
+arranca en cero.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/263">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s264" class="slide">
+<h2 id="constrained-random">Constrained random</h2>
+<h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
+<ul>
+<li>La cobertura te dice <strong>qué falta</strong>; constrained random es <strong>cómo llegar</strong>. Son
+las dos mitades de la misma pinza</li>
+<li>Escribir un test dirigido por bin no escala: son <strong>76 bins</strong> en el VTALU. La
+receta es al revés — <strong>random para el grueso, dirigido para lo que queda</strong></li>
+<li>Un <code>constraint</code> <strong>no es código secuencial</strong>: no se ejecuta de arriba abajo. Es
+un sistema de ecuaciones que el solver resuelve todo junto</li>
+<li>Por eso dos constraints que se contradicen <strong>no dan error de compilación</strong>:
+dan un <code>randomize()</code> que devuelve 0</li>
+<li><code>dist</code> pone <strong>pesos</strong>, no legalidad. Y <code>:=</code> no es <code>:/</code>: el primero pesa <strong>cada
+valor</strong> del rango, el segundo <strong>el rango entero</strong></li>
+<li><code>randomize()</code> devuelve 0 y sigue. Por eso va <strong>siempre</strong> adentro de un
+<code>assert()</code> — es la trampa muda más cara del curso</li>
+</ul>
+<div class="nota">
+<p>El último bullet es el que hay que dejar grabado y el que conecta con el
+apéndice de las trampas. Un <code>randomize()</code> sin chequear no rompe: deja los campos
+con el valor anterior y el testbench sigue mandando estímulo que no es el que
+creés. La cobertura te lo va a decir tres días después.
+Y el aviso de herramienta que hace falta desde hoy: sin <code>z3</code> instalado,
+Verilator resuelve <code>randomize()</code> devolviendo 0 <strong>en silencio</strong>. Está en
+<code>docs/verilator.md</code>, y es la razón por la que el día 5 pide el solver.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/264">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s265" class="slide quiz">
+<h2 id="repaso-·-día-5">Repaso · Día 5</h2>
+<h4 id="1-de-4-·-copia-profunda"><em>1 de 4 · Copia profunda</em></h4>
+<p><strong><code>obj1_h = obj2_h</code>. ¿Qué copié?</strong></p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Nada: los dos handles apuntan al mismo objeto</li>
+<li><input disabled="" type="checkbox"> Todos los campos de <code>obj2_h</code> a <code>obj1_h</code></li>
+<li><input disabled="" type="checkbox"> Sólo los campos <code>rand</code></li>
+<li><input disabled="" type="checkbox"> Una copia superficial del primer nivel</li>
+</ul>
+<blockquote>
+<p><strong>Nada</strong> — no hay copia, hay un segundo nombre para el mismo objeto. Si lo modificás por un handle, el otro lo ve. De ahí sale la regla del <em>MOOCOW</em>: si vas a modificar, copiá primero.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/265">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s266" class="slide quiz">
+<h2 id="repaso-·-día-5">Repaso · Día 5</h2>
+<h4 id="2-de-4-·-superdo_copy"><em>2 de 4 · super.do_copy()</em></h4>
+<p><strong>¿Por qué cada <code>do_copy()</code> de la jerarquía tiene que llamar a <code>super.do_copy()</code>?</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> Porque UVM lo exige para registrar la clase</li>
+<li><input disabled="" type="checkbox"> Para que el objeto quede registrado en la factory</li>
+<li><input checked="" disabled="" type="checkbox"> Porque si no, los campos de las clases de arriba no se copian</li>
+<li><input disabled="" type="checkbox"> Para poder randomizar después de copiar</li>
+</ul>
+<blockquote>
+<p><strong>Si no, se pierden los campos de arriba</strong> — es el mismo problema que <code>convert2string()</code>: el día que alguien mete un nivel nuevo en el medio, el método deja de ver la mitad de los datos y no te avisa nadie.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/266">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s267" class="slide quiz">
+<h2 id="repaso-·-día-5">Repaso · Día 5</h2>
+<h4 id="3-de-4-·-clone"><em>3 de 4 · clone()</em></h4>
+<p><strong><code>clone()</code> devuelve un <code>uvm_object</code>. ¿Por qué se recomienda escribir además un <code>clone_me()</code>?</strong></p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Para encapsular el <code>$cast</code> en un solo lugar y no repetirlo en todo el TB</li>
+<li><input disabled="" type="checkbox"> Porque <code>clone()</code> no copia los datos</li>
+<li><input disabled="" type="checkbox"> Porque <code>clone()</code> está deprecado en IEEE 1800.2</li>
+<li><input disabled="" type="checkbox"> Para poder clonar componentes además de transacciones</li>
+</ul>
+<blockquote>
+<p><strong>Para no repetir el <code>$cast</code></strong> — sin él, cada lugar que clona termina escribiendo su propio casteo. Es la misma idea de siempre: si lo vas a repetir, encapsulalo.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/267">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s268" class="slide quiz">
+<h2 id="repaso-·-día-5">Repaso · Día 5</h2>
+<h4 id="4-de-4-·-constrained-random"><em>4 de 4 · Constrained Random</em></h4>
+<p><strong><code>A dist {8&#39;h00 := 1, [8&#39;h01:8&#39;hFE] := 1, 8&#39;hFF := 1};</code> — ¿cada cuánto sale <code>A = 8&#39;h00</code>?</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> Un tercio de las veces: son tres entradas con el mismo peso</li>
+<li><input disabled="" type="checkbox"> La mitad: los bordes se reparten entre los dos</li>
+<li><input checked="" disabled="" type="checkbox"> Una vez cada 256: con <code>:=</code> el peso se aplica a <strong>cada valor</strong> del rango</li>
+<li><input disabled="" type="checkbox"> Nunca: <code>:=</code> sólo acepta valores sueltos, no rangos</li>
+</ul>
+<blockquote>
+<p><strong>1 de cada 256</strong> — <code>:=</code> le da peso 1 a <em>cada uno</em> de los 254 valores del medio, así que el rango pesa 254 contra 1 y 1 de los bordes. Para repartir el peso <em>dentro</em> del rango va <code>:/</code>. Las dos formas compilan y corren: la diferencia sólo aparece en la cobertura que no sube.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/268">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s269" class="slide">
+<h2 id="ejercicio-·-día-5-·-1-de-2">Ejercicio · Día 5 · 1 de 2</h2>
+<h4 id="el-scoreboard-grita-y-el-dut-está-sano"><em>El scoreboard grita y el DUT está sano</em></h4>
+<p><code>cd code/ejercicios/d5 &amp;&amp; bash run.sh</code></p>
+<ul>
+<li>El TB de las transactions reporta <code>FAIL</code> en casi todas las operaciones</li>
+<li>El DUT es el mismo que viene pasando desde la spec. El bug es del TB</li>
+<li>Los mensajes que lo delatan son <code>UVM_HIGH</code>: subí la verbosidad</li>
+<li>Si te trabás, el apéndice <strong>caja de debug</strong> tiene la fila de este síntoma; el
+de <strong>trampas mudas</strong>, la causa</li>
+</ul>
+<div class="nota">
+<p>Es el ejercicio que más se parece a un día de trabajo: el scoreboard grita y hay
+que decidir a quién creerle.
+Dejalos arrancar sin la pista. Casi todos van a mirar el RTL primero — eso ya es
+la mitad de la lección. Cuando se traben, la pista es la verbosidad: los
+<code>uvm_info</code> del monitor son UVM_HIGH y muestran lo que el monitor dice que vio,
+que no coincide con lo que el scoreboard compara.
+El bug está en cuatro líneas de <code>command_monitor.svh</code>.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/269">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s270" class="slide">
+<h2 id="ejercicio-·-día-5-·-2-de-2">Ejercicio · Día 5 · 2 de 2</h2>
+<h4 id="medí-tu-dist"><em>Medí tu <code>dist</code></em></h4>
+<p><code>cd code/ejercicios/d5b &amp;&amp; bash run.sh</code></p>
+<ul>
+<li>Una clase, un <code>dist</code> y un histograma. Sin UVM, sin DUT, sin testbench</li>
+<li>Los pesos <strong>ya dicen 10, 80 y 10</strong>. Corré primero, y mirá lo que sale</li>
+<li>Se pide que los tres casilleros den 10 / 80 / 10 con ±2 puntos de tolerancia</li>
+<li>La diferencia entre lo que hay y la solución es <strong>un carácter</strong></li>
+</ul>
+<div class="nota">
+<p>Es el ejercicio corto del curso y el que hay que dejar para el que se quedó sin
+tiempo: compila y corre solo, sin UVM.
+La gracia está en el orden: se corre <strong>antes</strong> de tocar nada. El archivo dice 10,
+80 y 10, la salida dice 0,1 % en los bordes, y ahí aparece sola la pregunta de la
+sección — si los números están bien, ¿qué está mal? Está mal el operador, y no
+hay warning que lo diga.
+Conviene pedirles que lo corran dos o tres veces con <code>SEED=</code> distintas antes de
+darlo por cerrado: con 4000 muestras el casillero del 10 % se mueve medio punto
+entre corridas. Un porcentaje medido es una muestra, no la distribución — que es
+la otra mitad de la regla de la sección.
+Detalle de infraestructura que vale mencionar si alguien pregunta por qué tarda
+veinte segundos un programa que no tiene DUT: Verilator resuelve cada
+<code>randomize()</code> con constraints llamando a <strong>z3</strong> por afuera, así que son 4000
+llamadas a un proceso externo. Y si no lo tienen instalado, <code>randomize()</code>
+devuelve 0 y todos los casilleros dan cero — otra que no rompe, miente.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/270">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+</main>
+
+<footer class="pie">
+  <div class="wrap">
+    <nav class="nav-dias">
+      <a href="dia1.html">Día 1</a>
+      <a href="dia2.html">Día 2</a>
+      <a href="dia3.html">Día 3</a>
+      <a href="dia4.html">Día 4</a>
+      <a href="dia5.html">Día 5</a>
+      <a href="dia6.html">Día 6</a>
+      <a href="dia7.html">Día 7</a>
+      <a href="dia8.html">Día 8</a>
+    </nav>
+    <p><a href="../web/index.html">Sitio del curso</a> ·
+       <a href="https://github.com/leandrotozzi/verifythis">Código en GitHub</a> ·
+       CC BY 4.0</p>
+  </div>
+</footer>
+
+<script>
+    const LETRAS = 'abcdefgh';
+    document.querySelectorAll('section.quiz').forEach(sec => {
+      const lista = sec.querySelector('ul');
+      if (!lista) return;
+      lista.classList.add('opciones');
+      sec.querySelector('blockquote')?.classList.add('respuesta');
+      sec.querySelector(':is(h1, h2, h3, h4) ~ p')?.classList.add('pregunta');
+      [...lista.children].forEach((li, i) => {
+        const box = li.querySelector('input[type=checkbox]');
+        li.classList.add('opcion');
+        li.classList.toggle('es-correcta', !!box?.checked);
+        box?.remove();
+        li.tabIndex = 0;
+        li.setAttribute('role', 'button');
+        const texto = document.createElement('span');
+        while (li.firstChild) texto.append(li.firstChild);
+        li.append(texto);
+        li.insertAdjacentHTML('afterbegin', `<b class="letra">${LETRAS[i]}</b>`);
+        const responder = () => {
+          if (sec.classList.contains('respondida')) return;
+          li.classList.add('elegida');
+          sec.classList.add('respondida');
+        };
+        li.addEventListener('click', responder);
+        li.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); responder(); }
+        });
+      });
+      lista.insertAdjacentHTML('afterend',
+        '<p class="ayuda">Elegí una opción para ver la respuesta</p>');
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+name: "Un ejemplo no corre"
+description: "make u4/tests, un run.sh o un ejercicio que falla en tu máquina"
+title: "[ejemplo] "
+labels: ["code"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Los ejemplos los corre el CI todas las noches, así que si falla en tu
+        máquina y no en la de él, la diferencia está en el entorno. Las tres
+        cosas de abajo son las que la encuentran.
+  - type: input
+    id: comando
+    attributes:
+      label: ¿Qué comando corriste?
+      placeholder: "make u7/agents   ·   cd code/ejercicios/d6-bins && bash run.sh"
+    validations:
+      required: true
+  - type: input
+    id: verilator
+    attributes:
+      label: Versión de Verilator
+      description: "`verilator --version`. El curso pide 5.050 o más nuevo: los covergroups entraron ahí"
+      placeholder: "Verilator 5.052 2026-09-05 rev v5.052"
+    validations:
+      required: true
+  - type: input
+    id: so
+    attributes:
+      label: Sistema operativo
+      placeholder: "Ubuntu 24.04 · macOS 14 · WSL2 sobre Windows 11 · Codespaces"
+    validations:
+      required: true
+  - type: textarea
+    id: salida
+    attributes:
+      label: La salida
+      description: "Pegá el error completo. Si son doscientas líneas, las últimas treinta alcanzan."
+      render: text
+    validations:
+      required: true
+  - type: checkboxes
+    id: chequeos
+    attributes:
+      label: Antes de mandar
+      options:
+        - label: "Tengo `z3` instalado (`z3 --version`). Sin él, `randomize()` devuelve 0 en silencio"
+        - label: "Corrí `make uvm` o existe `code/.uvm/src/uvm_pkg.sv`"
+        - label: "Miré [`docs/verilator.md`](../blob/master/docs/verilator.md), por si ya está documentado"

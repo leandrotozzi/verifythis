@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="es" class="libro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Día 8 · undefined — Verify This! · Curso de UVM en español</title>
+<meta name="description" content="Día 8 del curso de UVM en español, para leer de corrido: las slides con las notas del instructor adentro del texto y el código completo.">
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/course.css">
+<link rel="stylesheet" href="../css/code.css">
+<link rel="stylesheet" href="../css/libro.css">
+</head>
+<body class="reveal">
+<header class="cabecera">
+  <div class="wrap">
+    <p class="marca"><a href="../web/index.html">Verify This!</a> · el curso para leer</p>
+    <nav class="nav-dias">
+      <a href="dia1.html">Día 1</a>
+      <a href="dia2.html">Día 2</a>
+      <a href="dia3.html">Día 3</a>
+      <a href="dia4.html">Día 4</a>
+      <a href="dia5.html">Día 5</a>
+      <a href="dia6.html">Día 6</a>
+      <a href="dia7.html">Día 7</a>
+      <b>Día 8</b>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1 class="titulo-dia"><span>Día 8</span>undefined</h1>
+  <p class="bajada">Las mismas slides del deck, con <strong>las notas del
+  instructor adentro del texto</strong> y el código completo. Si estás haciendo
+  el curso solo, empezá por acá y tené el deck al lado para los repasos.</p>
+
+<section id="s381" class="slide">
+<h2 id="agenda">Agenda</h2>
+<h4 id="día-8-·-≈-4-h-·-opcional-·-lo-que-sigue-después-del-capstone"><em>Día 8 · ≈ 4 h · opcional · lo que sigue después del capstone</em></h4>
+<ul>
+<li>RAL, la unidad 9 — el modelo de registros sobre el mismo APB</li>
+<li>El modelo de referencia en C, por DPI</li>
+<li>El segundo capstone: una FIFO con backpressure</li>
+</ul>
+<div class="nota">
+<p>Este día es <strong>opcional y va después del cierre</strong>, y las dos cosas son a
+propósito. El curso termina en el día 7: el que hizo hasta ahí escribió un
+testbench de UVM completo desde una hoja en blanco y no le falta nada para
+trabajar. Lo de acá es lo que se agrega cuando ya pasó eso.
+Por qué son estos tres y no otros: los tres necesitan que el capstone ya esté
+hecho. RAL reemplaza el scoreboard que el alumno acaba de escribir —y no se
+entiende antes de haberlo escrito—; el golden model en C reemplaza la predicción
+del scoreboard, lo mismo; y el segundo capstone sólo tiene sentido para el que
+ya entregó el primero, porque lo que enseña es <strong>dónde deja de servir el patrón
+del primero</strong>.
+Para el que dicta: en una empresa esto es media jornada más, y suele darse
+cuando el grupo tiene registros de verdad en el proyecto. En un cuatrimestre es
+la unidad optativa, o el trabajo final de los que quieren nota alta.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/381">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s382" class="slide">
+<h2 id="ral">RAL</h2>
+<h4 id="unidad-9-·-opcional-·-el-registro-deja-de-ser-una-dirección"><em>Unidad 9 · opcional · el registro deja de ser una dirección</em></h4>
+<ul>
+<li>Todo chip tiene registros de configuración, y un SoC chico tiene <strong>doscientos</strong></li>
+<li>Sin RAL, el testbench los escribe así: <code>addr = 8&#39;h04</code>, <code>wdata = ...</code>, y el
+scoreboard guarda un <code>logic [31:0]</code> por cada uno</li>
+<li>El día que el arquitecto mueve <code>SCRATCH</code> de <code>0x04</code> a <code>0x24</code>, hay que buscar
+<code>8&#39;h04</code> en todo el testbench — y <code>0x04</code> también era el valor de otra cosa</li>
+<li><strong>RAL</strong> —<em>Register Abstraction Layer</em>— es la capa que le pone nombre a eso:
+<code>model.SCRATCH.write(status, &#39;h1000_0000)</code></li>
+<li>Es opcional y va al final a propósito: <strong>se entiende recién cuando ya
+escribiste el testbench que reemplaza</strong></li>
+</ul>
+<div class="nota">
+<p>Esta unidad es corta y es la última, y las dos cosas son deliberadas. RAL es la
+pieza de UVM que más se enseña sin contexto —hay cursos que la dan en el día
+2— y así no se entiende: parece una API más. Con el capstone recién hecho, en
+cambio, el alumno tiene la comparación adentro de la cabeza. Él escribió el
+scoreboard que predice <code>CTRL</code>; ahora le muestro la biblioteca que lo hace sola,
+y también dónde no lo hace.
+El número de 200 registros no es retórico. Un bloque de PHY o de controlador de
+memoria tiene esa cantidad, y la spec de registros llega como una planilla. El
+paso siguiente, que este curso no da, es <strong>generar el modelo</strong> desde esa planilla
+con IP-XACT o SystemRDL: nadie escribe 200 registros a mano. Vale decirlo, porque
+si no el alumno se lleva la idea de que RAL es tipear mucho.
+Y el argumento de la mudanza de <code>0x04</code> a <code>0x24</code> es el que convence a un
+escéptico: no es elegancia, es que el mapa quede escrito <strong>una sola vez</strong>.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/382">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s383" class="slide">
+<h2 id="ral">RAL</h2>
+<h4 id="tres-piezas-y-una-sola-sabe-qué-bus-hay-abajo"><em>Tres piezas, y una sola sabe qué bus hay abajo</em></h4>
+<table>
+<thead>
+<tr>
+<th>Pieza</th>
+<th>Qué es</th>
+<th>Cuántas veces se escribe</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>uvm_reg_block</code></td>
+<td>el mapa: registros, campos, direcciones</td>
+<td>una por <strong>DUT</strong></td>
+</tr>
+<tr>
+<td><code>uvm_reg_adapter</code></td>
+<td>traduce acceso ↔ transacción del bus</td>
+<td>una por <strong>protocolo</strong></td>
+</tr>
+<tr>
+<td><code>uvm_reg_predictor</code></td>
+<td>lo que el monitor vio, dicho en registros</td>
+<td>ninguna: viene hecha</td>
+</tr>
+</tbody></table>
+<ul>
+<li>El modelo <strong>no sabe</strong> que abajo hay un APB. Cambiás el adapter y el mismo
+modelo maneja AHB</li>
+<li>El adapter es el archivo que te viene con un VIP comprado. Son veinte líneas</li>
+<li>Y abajo de todo, sin un solo cambio: el driver, el monitor y el agent del
+capstone</li>
+</ul>
+<div class="nota">
+<p>La tabla es la slide. Que la tercera columna diga <em>una por DUT</em>, <em>una por
+protocolo</em> y <em>ninguna</em> es todo el argumento económico de RAL, y es el que
+sostiene la decisión en una reunión de proyecto.
+Conviene marcar con el dedo la última línea: acá no se reemplaza nada de lo que
+el alumno escribió ayer. El <code>code/u9/ral/</code> compila la interface, la transaction,
+el driver, el monitor y el agent de <code>d7-final/solucion/</code> tal cual están, por
+<code>+incdir</code>. RAL es una capa, no un testbench distinto — y es la razón por la que
+esta unidad entra en tres archivos.
+Si alguien pregunta por el backdoor: existe, se declara con <code>add_hdl_path</code> y lee
+la señal del RTL sin pasar por el bus. No entra en el curso porque depende del
+soporte de jerarquía del simulador, que es justo lo que cambia entre
+herramientas. El frontdoor —el que usa el bus de verdad— es el que hay que saber.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/383">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s384" class="slide">
+<h2 id="ral">RAL</h2>
+<h4 id="el-modelo-la-tabla-de-la-spec-en-código"><em>El modelo: la tabla de la spec, en código</em></h4>
+<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/apb_reg_block.svh</code> · líneas 12-36 de 148</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">ctrl_reg</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_reg</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(ctrl_reg)
+
+   <span class="hljs-keyword">rand</span> <span class="hljs-uvm-type">uvm_reg_field</span> EN;
+   <span class="hljs-keyword">rand</span> <span class="hljs-uvm-type">uvm_reg_field</span> CLR;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;ctrl_reg&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, <span class="hljs-number">32</span>, <span class="hljs-uvm-const">UVM_NO_COVERAGE</span>);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// configure(parent, size, lsb_pos, access, volatile, reset, has_reset,</span>
+   <span class="hljs-comment">//           is_rand, individually_accessible)</span>
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build</span>();
+      EN = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;EN&quot;</span>);
+      EN.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&quot;RW&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
+
+      <span class="hljs-comment">// &quot;WOC&quot; is the name UVM has for exactly this: the write goes through, the</span>
+      <span class="hljs-comment">// mirror drops to zero, and the read side of the field is not used to</span>
+      <span class="hljs-comment">// predict anything. Modelling it as &quot;RW&quot; is the classic mistake, and it is</span>
+      <span class="hljs-comment">// what +MAL does.</span>
+      CLR = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;CLR&quot;</span>);
+      CLR.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;MAL&quot;</span>) ? <span class="hljs-string">&quot;RW&quot;</span> : <span class="hljs-string">&quot;WOC&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
+   <span class="hljs-keyword">endfunction</span> : build
+
+<span class="hljs-keyword">endclass</span> : ctrl_reg</code></pre><details><summary>el archivo entero, 148 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The register map of spec.md, written as a UVM register model.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// The table of the spec maps one to one onto this file, and that is the check</span>
+<span class="hljs-comment">// worth doing out loud: four registers, six fields, four addresses. Nothing here</span>
+<span class="hljs-comment">// knows that the bus is APB -- swap the adapter and the same model drives AHB.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// The access string of every field IS the specification. Get it wrong and the</span>
+<span class="hljs-comment">// built-in sequences of the last file catch it; see the +MAL run of run.sh.</span>
+
+<span class="hljs-comment">// 0x00 -- CTRL. EN is an ordinary bit. CLR is not: writing a 1 clears ACC and</span>
+<span class="hljs-comment">// OVF, and the bit always reads back 0.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">ctrl_reg</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_reg</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(ctrl_reg)
+
+   <span class="hljs-keyword">rand</span> <span class="hljs-uvm-type">uvm_reg_field</span> EN;
+   <span class="hljs-keyword">rand</span> <span class="hljs-uvm-type">uvm_reg_field</span> CLR;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;ctrl_reg&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, <span class="hljs-number">32</span>, <span class="hljs-uvm-const">UVM_NO_COVERAGE</span>);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// configure(parent, size, lsb_pos, access, volatile, reset, has_reset,</span>
+   <span class="hljs-comment">//           is_rand, individually_accessible)</span>
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build</span>();
+      EN = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;EN&quot;</span>);
+      EN.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&quot;RW&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
+
+      <span class="hljs-comment">// &quot;WOC&quot; is the name UVM has for exactly this: the write goes through, the</span>
+      <span class="hljs-comment">// mirror drops to zero, and the read side of the field is not used to</span>
+      <span class="hljs-comment">// predict anything. Modelling it as &quot;RW&quot; is the classic mistake, and it is</span>
+      <span class="hljs-comment">// what +MAL does.</span>
+      CLR = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;CLR&quot;</span>);
+      CLR.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;MAL&quot;</span>) ? <span class="hljs-string">&quot;RW&quot;</span> : <span class="hljs-string">&quot;WOC&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
+   <span class="hljs-keyword">endfunction</span> : build
+
+<span class="hljs-keyword">endclass</span> : ctrl_reg
+
+<span class="hljs-comment">// 0x04 -- SCRATCH. A plain RW register. That every write to it also adds to ACC</span>
+<span class="hljs-comment">// is a side effect the model does not know about, and does not need to.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">scratch_reg</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_reg</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(scratch_reg)
+
+   <span class="hljs-keyword">rand</span> <span class="hljs-uvm-type">uvm_reg_field</span> VALUE;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;scratch_reg&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, <span class="hljs-number">32</span>, <span class="hljs-uvm-const">UVM_NO_COVERAGE</span>);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build</span>();
+      VALUE = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;VALUE&quot;</span>);
+      VALUE.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">32</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&quot;RW&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>);
+   <span class="hljs-keyword">endfunction</span> : build
+
+<span class="hljs-keyword">endclass</span> : scratch_reg
+
+<span class="hljs-comment">// 0x08 -- ACC. Read-only, and volatile: the DUT changes it behind the model&#x27;s</span>
+<span class="hljs-comment">// back, on every write to SCRATCH. See the comment on set_compare() below.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">acc_reg</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_reg</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(acc_reg)
+
+   <span class="hljs-uvm-type">uvm_reg_field</span> VALUE;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;acc_reg&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, <span class="hljs-number">32</span>, <span class="hljs-uvm-const">UVM_NO_COVERAGE</span>);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build</span>();
+      VALUE = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;VALUE&quot;</span>);
+      VALUE.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">32</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&quot;RO&quot;</span>, <span class="hljs-number">1</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>);
+   <span class="hljs-keyword">endfunction</span> : build
+
+<span class="hljs-keyword">endclass</span> : acc_reg
+
+<span class="hljs-comment">// 0x0C -- STATUS. Two read-only bits, and both are volatile for the same reason</span>
+<span class="hljs-comment">// as ACC: EN is a copy of CTRL.EN, and OVF turns on when the accumulator</span>
+<span class="hljs-comment">// overflows -- neither of them happens on a write to STATUS.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">status_reg</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_reg</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(status_reg)
+
+   <span class="hljs-uvm-type">uvm_reg_field</span> EN;
+   <span class="hljs-uvm-type">uvm_reg_field</span> OVF;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;status_reg&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, <span class="hljs-number">32</span>, <span class="hljs-uvm-const">UVM_NO_COVERAGE</span>);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build</span>();
+      EN = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;EN&quot;</span>);
+      EN.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&quot;RO&quot;</span>, <span class="hljs-number">1</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>);
+      OVF = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;OVF&quot;</span>);
+      OVF.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-string">&quot;RO&quot;</span>, <span class="hljs-number">1</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>);
+   <span class="hljs-keyword">endfunction</span> : build
+
+<span class="hljs-keyword">endclass</span> : status_reg
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">apb_reg_block</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_reg_block</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(apb_reg_block)
+
+   <span class="hljs-keyword">rand</span> ctrl_reg    CTRL;
+   <span class="hljs-keyword">rand</span> scratch_reg SCRATCH;
+   acc_reg          ACC;
+   status_reg       STATUS;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;apb_reg_block&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, <span class="hljs-uvm-const">UVM_NO_COVERAGE</span>);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// Not build_phase: a uvm_reg_block is a uvm_object, not a component. Nobody</span>
+   <span class="hljs-comment">// calls this for you -- the test does, right after the create().</span>
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build</span>();
+      <span class="hljs-comment">// create_map(name, base_addr, n_bytes, endian, byte_addressing)</span>
+      default_map = create_map(<span class="hljs-string">&quot;default_map&quot;</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">4</span>, <span class="hljs-uvm-const">UVM_LITTLE_ENDIAN</span>, <span class="hljs-number">1</span>);
+
+      CTRL = ctrl_reg::type_id::create(<span class="hljs-string">&quot;CTRL&quot;</span>);
+      CTRL.configure(<span class="hljs-keyword">this</span>, <span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;&quot;</span>);
+      CTRL.build();
+      default_map.add_reg(CTRL, CTRL_ADDR, <span class="hljs-string">&quot;RW&quot;</span>);
+
+      SCRATCH = scratch_reg::type_id::create(<span class="hljs-string">&quot;SCRATCH&quot;</span>);
+      SCRATCH.configure(<span class="hljs-keyword">this</span>, <span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;&quot;</span>);
+      SCRATCH.build();
+      default_map.add_reg(SCRATCH, SCRATCH_ADDR, <span class="hljs-string">&quot;RW&quot;</span>);
+
+      ACC = acc_reg::type_id::create(<span class="hljs-string">&quot;ACC&quot;</span>);
+      ACC.configure(<span class="hljs-keyword">this</span>, <span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;&quot;</span>);
+      ACC.build();
+      default_map.add_reg(ACC, ACC_ADDR, <span class="hljs-string">&quot;RO&quot;</span>);
+
+      STATUS = status_reg::type_id::create(<span class="hljs-string">&quot;STATUS&quot;</span>);
+      STATUS.configure(<span class="hljs-keyword">this</span>, <span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;&quot;</span>);
+      STATUS.build();
+      default_map.add_reg(STATUS, STATUS_ADDR, <span class="hljs-string">&quot;RO&quot;</span>);
+
+      <span class="hljs-comment">// The honest line of the whole unit. ACC and STATUS have an address, but</span>
+      <span class="hljs-comment">// they are not registers: their value is produced by writes to OTHER</span>
+      <span class="hljs-comment">// addresses. A register model predicts &quot;what I wrote is what I will read&quot;,</span>
+      <span class="hljs-comment">// and for these two that sentence is false, so mirror(UVM_CHECK) is turned</span>
+      <span class="hljs-comment">// off on them. Reads still update the mirror -- a read is a prediction --</span>
+      <span class="hljs-comment">// and the accumulator itself stays where it was in the capstone: in the</span>
+      <span class="hljs-comment">// scoreboard, which is the thing that does know how to add.</span>
+      ACC.VALUE.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);
+      STATUS.EN.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);
+      STATUS.OVF.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);
+
+      lock_model();
+   <span class="hljs-keyword">endfunction</span> : build
+
+<span class="hljs-keyword">endclass</span> : apb_reg_block</code></pre></details></figure>
+
+<ul>
+<li>Un campo se declara con <code>configure()</code>, y el argumento que importa es el
+<strong>string de acceso</strong>: <code>&quot;RW&quot;</code>, <code>&quot;RO&quot;</code>, <code>&quot;WOC&quot;</code>…</li>
+<li>Ese string <strong>es la especificación</strong>. No es documentación: es lo que UVM usa
+para predecir, y para generar los tests de la última slide</li>
+</ul>
+<div class="nota">
+<p><code>configure(parent, size, lsb_pos, access, volatile, reset, has_reset, is_rand, individually_accessible)</code> — nueve argumentos posicionales, y es la firma más fea
+de UVM. Vale escribirla en el pizarrón una vez; después el alumno la copia del
+ejemplo, que es lo que hace todo el mundo.
+<code>CLR</code> es el campo que justifica la slide. La spec del capstone dice <em>&quot;escribir un
+1 pone <code>ACC</code> y <code>OVF</code> en cero, y el bit siempre se lee 0&quot;</em>, y ésa es la trampa 2
+de la letra chica — la que hace fallar al scoreboard escrito a mano. UVM tiene un
+acceso que dice exactamente eso y se llama <strong><code>WOC</code></strong>: en la escritura el espejo
+baja a cero, y el lado de lectura del campo no se usa para predecir nada.
+La lista completa de accesos está en el LRM 1800.2, y son veinticinco. No hay que
+saberlos de memoria: hay que saber que <strong>existe la lista</strong>, y buscar ahí antes de
+inventar un <code>set_compare</code> o un callback. La mitad de los modelos de registros
+malos que uno se cruza son un campo <code>RW</code> con parches encima.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/384">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s385" class="slide">
+<h2 id="ral">RAL</h2>
+<h4 id="el-adapter-lo-único-que-sabe-que-hay-un-apb"><em>El adapter: lo único que sabe que hay un APB</em></h4>
+<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/apb_reg_adapter.svh</code> · líneas 16-37 de 39</figcaption><pre><code class="hljs">   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">uvm_sequence_item </span><span class="hljs-title">reg2bus</span>(<span class="hljs-keyword">const</span> <span class="hljs-keyword">ref</span> <span class="hljs-uvm-type">uvm_reg_bus_op</span> rw);
+      apb_transaction t = apb_transaction::type_id::create(<span class="hljs-string">&quot;t&quot;</span>);
+      t.write = (rw.kind == <span class="hljs-uvm-const">UVM_WRITE</span>);
+      t.addr  = rw.addr[<span class="hljs-number">7</span>:<span class="hljs-number">0</span>];
+      t.wdata = rw.data[<span class="hljs-number">31</span>:<span class="hljs-number">0</span>];
+      <span class="hljs-keyword">return</span> t;
+   <span class="hljs-keyword">endfunction</span> : reg2bus
+
+   <span class="hljs-comment">// Upstream: a bus item comes back -- from the driver&#x27;s response, or from the</span>
+   <span class="hljs-comment">// monitor when prediction is explicit -- and this fills the generic operation</span>
+   <span class="hljs-comment">// the model understands.</span>
+   <span class="hljs-comment">//</span>
+   <span class="hljs-comment">// PSLVERR is what makes status meaningful: an access to an unmapped address</span>
+   <span class="hljs-comment">// comes back UVM_NOT_OK, and the write()/read() call reports it.</span>
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">bus2reg</span>(<span class="hljs-uvm-type">uvm_sequence_item</span> bus_item, <span class="hljs-keyword">ref</span> <span class="hljs-uvm-type">uvm_reg_bus_op</span> rw);
+      apb_transaction t;
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(t, bus_item)) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;REG ADAPTER&quot;</span>, <span class="hljs-string">&quot;Not an apb_transaction&quot;</span>)
+      rw.kind   = t.write ? <span class="hljs-uvm-const">UVM_WRITE</span> : <span class="hljs-uvm-const">UVM_READ</span>;
+      rw.addr   = t.addr;
+      rw.data   = t.write ? t.wdata : t.rdata;
+      rw.status = t.slverr ? <span class="hljs-uvm-const">UVM_NOT_OK</span> : <span class="hljs-uvm-const">UVM_IS_OK</span>;
+   <span class="hljs-keyword">endfunction</span> : bus2reg</code></pre><details><summary>el archivo entero, 39 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The only class in the unit that knows the bus exists. Twenty lines, and they</span>
+<span class="hljs-comment">// are the whole reason the register model is portable: a generic uvm_reg_bus_op</span>
+<span class="hljs-comment">// in, an apb_transaction out.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// Written once per protocol, not once per project. This is the file you would</span>
+<span class="hljs-comment">// get with a commercial APB VIP.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">apb_reg_adapter</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_reg_adapter</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(apb_reg_adapter)
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;apb_reg_adapter&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// Downstream: the model asks for a register access, this builds the bus item</span>
+   <span class="hljs-comment">// the sequencer will hand to the driver.</span>
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">uvm_sequence_item </span><span class="hljs-title">reg2bus</span>(<span class="hljs-keyword">const</span> <span class="hljs-keyword">ref</span> <span class="hljs-uvm-type">uvm_reg_bus_op</span> rw);
+      apb_transaction t = apb_transaction::type_id::create(<span class="hljs-string">&quot;t&quot;</span>);
+      t.write = (rw.kind == <span class="hljs-uvm-const">UVM_WRITE</span>);
+      t.addr  = rw.addr[<span class="hljs-number">7</span>:<span class="hljs-number">0</span>];
+      t.wdata = rw.data[<span class="hljs-number">31</span>:<span class="hljs-number">0</span>];
+      <span class="hljs-keyword">return</span> t;
+   <span class="hljs-keyword">endfunction</span> : reg2bus
+
+   <span class="hljs-comment">// Upstream: a bus item comes back -- from the driver&#x27;s response, or from the</span>
+   <span class="hljs-comment">// monitor when prediction is explicit -- and this fills the generic operation</span>
+   <span class="hljs-comment">// the model understands.</span>
+   <span class="hljs-comment">//</span>
+   <span class="hljs-comment">// PSLVERR is what makes status meaningful: an access to an unmapped address</span>
+   <span class="hljs-comment">// comes back UVM_NOT_OK, and the write()/read() call reports it.</span>
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">bus2reg</span>(<span class="hljs-uvm-type">uvm_sequence_item</span> bus_item, <span class="hljs-keyword">ref</span> <span class="hljs-uvm-type">uvm_reg_bus_op</span> rw);
+      apb_transaction t;
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(t, bus_item)) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;REG ADAPTER&quot;</span>, <span class="hljs-string">&quot;Not an apb_transaction&quot;</span>)
+      rw.kind   = t.write ? <span class="hljs-uvm-const">UVM_WRITE</span> : <span class="hljs-uvm-const">UVM_READ</span>;
+      rw.addr   = t.addr;
+      rw.data   = t.write ? t.wdata : t.rdata;
+      rw.status = t.slverr ? <span class="hljs-uvm-const">UVM_NOT_OK</span> : <span class="hljs-uvm-const">UVM_IS_OK</span>;
+   <span class="hljs-keyword">endfunction</span> : bus2reg
+
+<span class="hljs-keyword">endclass</span> : apb_reg_adapter</code></pre></details></figure>
+
+<ul>
+<li><code>reg2bus</code> baja: el modelo pide un acceso genérico, esto arma la transaction
+del bus</li>
+<li><code>bus2reg</code> sube: la transaction vuelve —del driver, o <strong>del monitor</strong>— y esto
+la cuenta en términos de acceso</li>
+<li><code>PSLVERR</code> se convierte en <code>UVM_NOT_OK</code>, y ahí el <code>status</code> de cada <code>write()</code>
+deja de ser decorativo</li>
+</ul>
+<div class="nota">
+<p>Veintidós líneas, y es el archivo entero. Vale decir el número en voz alta,
+porque la fama de RAL es de ser pesado y la parte específica del proyecto es
+ésta.
+La simetría <code>reg2bus</code> / <code>bus2reg</code> es la que hay que fijar: una función por
+sentido, y ninguna de las dos tiene estado. El <code>uvm_reg_bus_op</code> es la moneda
+común —<code>kind</code>, <code>addr</code>, <code>data</code>, <code>status</code>— y es a propósito lo más chato posible:
+cualquier bus de registros entra ahí.
+El <code>const ref</code> del <code>reg2bus</code> es de la firma de la clase base y hay que copiarlo
+tal cual. Anda en Verilator 5.052, que no era obvio.
+Y una advertencia de campo: <code>bus2reg</code> lo llama <strong>también el predictor</strong>, con el
+item que vio el monitor. Un adapter que lea algo del driver —o que dependa de
+haber armado él la transaction— funciona con predicción automática y se rompe
+el día que se pasa a explícita. Por eso las dos funciones son puras.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/385">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s386" class="slide">
+<h2 id="ral">RAL</h2>
+<h4 id="engancharlo-tres-líneas-y-un-connect_phase"><em>Engancharlo: tres líneas y un <code>connect_phase</code></em></h4>
+<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/ral_base_test.svh</code> · líneas 40-50 de 85</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">connect_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-comment">// The three lines that turn a model into a testbench component: which</span>
+      <span class="hljs-comment">// sequencer carries the accesses, which adapter translates them, and where</span>
+      <span class="hljs-comment">// the truth about the DUT comes from.</span>
+      model.default_map.set_sequencer(agent_h.sequencer_h, adapter);
+      model.default_map.set_auto_predict(<span class="hljs-number">0</span>);
+
+      predictor.map     = model.default_map;
+      predictor.adapter = adapter;
+      agent_h.ap.connect(predictor.bus_in);
+   <span class="hljs-keyword">endfunction</span> : connect_phase</code></pre><details><summary>el archivo entero, 85 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The structure, and nothing else. It is the capstone&#x27;s active agent with three</span>
+<span class="hljs-comment">// objects on top: the register model, the adapter, and the predictor.</span>
+<span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">ral_base_test</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_test</span>;
+   <span class="hljs-uvm-macro">`uvm_component_abstract_utils</span>(ral_base_test)
+
+   apb_agent        agent_h;
+   apb_agent_config agent_cfg_h;
+
+   apb_reg_block    model;
+   apb_reg_adapter  adapter;
+
+   <span class="hljs-comment">// Parameterised by the BUS item, not by the register: the predictor&#x27;s job is</span>
+   <span class="hljs-comment">// to turn what the monitor saw into a prediction on the model.</span>
+   <span class="hljs-uvm-type">uvm_reg_predictor</span> #(<span class="hljs-type">apb_transaction</span>) predictor;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-keyword">virtual</span> apb_if bfm;
+
+      <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> apb_if)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RAL BASE TEST&quot;</span>, <span class="hljs-string">&quot;Failed to get bfm&quot;</span>)
+
+      agent_cfg_h = <span class="hljs-keyword">new</span>(.bfm(bfm), .is_active(<span class="hljs-uvm-const">UVM_ACTIVE</span>));
+      <span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-type">apb_agent_config</span>)::set(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;agent_h*&quot;</span>, <span class="hljs-string">&quot;config&quot;</span>, agent_cfg_h);
+      agent_h = apb_agent::type_id::create(<span class="hljs-string">&quot;agent_h&quot;</span>, <span class="hljs-keyword">this</span>);
+
+      <span class="hljs-comment">// A uvm_reg_block is a uvm_object: create() does not call build(), the way</span>
+      <span class="hljs-comment">// the component build_phase would. Forgetting this line leaves a model</span>
+      <span class="hljs-comment">// with zero registers and an error that says nothing.</span>
+      model = apb_reg_block::type_id::create(<span class="hljs-string">&quot;model&quot;</span>);
+      model.build();
+
+      adapter   = apb_reg_adapter::type_id::create(<span class="hljs-string">&quot;adapter&quot;</span>);
+      predictor = <span class="hljs-uvm-type">uvm_reg_predictor</span> #(<span class="hljs-type">apb_transaction</span>)::type_id::create(<span class="hljs-string">&quot;predictor&quot;</span>, <span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">connect_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-comment">// The three lines that turn a model into a testbench component: which</span>
+      <span class="hljs-comment">// sequencer carries the accesses, which adapter translates them, and where</span>
+      <span class="hljs-comment">// the truth about the DUT comes from.</span>
+      model.default_map.set_sequencer(agent_h.sequencer_h, adapter);
+      model.default_map.set_auto_predict(<span class="hljs-number">0</span>);
+
+      predictor.map     = model.default_map;
+      predictor.adapter = adapter;
+      agent_h.ap.connect(predictor.bus_in);
+   <span class="hljs-keyword">endfunction</span> : connect_phase
+
+   <span class="hljs-comment">// The reset the driver does at time 0 happens on the wire; the model has to</span>
+   <span class="hljs-comment">// be told, or its mirror starts out as &quot;unknown&quot; instead of as the reset</span>
+   <span class="hljs-comment">// values of the spec.</span>
+   <span class="hljs-keyword">task</span> <span class="hljs-title">reset_model</span>();
+      model.reset();
+   <span class="hljs-keyword">endtask</span> : reset_model
+
+   <span class="hljs-comment">// The model printed back as the table it came from. One line per field, in</span>
+   <span class="hljs-comment">// the order of the map, with the four things the spec says about it: where it</span>
+   <span class="hljs-comment">// lives, how wide it is, and how it is accessed.</span>
+   <span class="hljs-comment">//</span>
+   <span class="hljs-comment">// It is worth doing once out loud, because a register model is the only</span>
+   <span class="hljs-comment">// document in a project that is both the spec and the code -- and this is</span>
+   <span class="hljs-comment">// the diff between the two.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">print_map</span>();
+      <span class="hljs-uvm-type">uvm_reg</span>   regs[$];
+      <span class="hljs-uvm-type">uvm_reg_field</span> fields[$];
+      model.get_registers(regs);
+      <span class="hljs-keyword">foreach</span> (regs[i]) <span class="hljs-keyword">begin</span>
+         fields.delete();   <span class="hljs-comment">// get_fields() APPENDS: without this, register i</span>
+         regs[i].get_fields(fields);   <span class="hljs-comment">// prints the fields of 0..i as well</span>
+         <span class="hljs-keyword">foreach</span> (fields[j])
+            <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;MAPA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%-8s @0x%02h  %-7s [%0d+:%0d]  %s&quot;</span>,
+                      regs[i].get_name(), regs[i].get_offset(model.default_map),
+                      fields[j].get_name(), fields[j].get_lsb_pos(),
+                      fields[j].get_n_bits(), fields[j].get_access()), <span class="hljs-uvm-const">UVM_NONE</span>)
+      <span class="hljs-keyword">end</span>
+   <span class="hljs-keyword">endfunction</span> : print_map
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">start_of_simulation_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-keyword">if</span> (<span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;MAPA&quot;</span>)) print_map();
+   <span class="hljs-keyword">endfunction</span> : start_of_simulation_phase
+
+<span class="hljs-keyword">endclass</span> : ral_base_test</code></pre></details></figure>
+
+<ul>
+<li><code>set_sequencer</code> es lo que hace que <code>model.CTRL.write()</code> termine en el driver:
+el modelo manda items por <strong>el sequencer del agent que ya existía</strong></li>
+<li><code>set_auto_predict(0)</code> apaga la predicción automática, y el <code>uvm_reg_predictor</code>
+la reemplaza escuchando el <strong>analysis port del monitor</strong></li>
+<li>Y el <code>model.build()</code> del <code>build_phase</code>: un <code>uvm_reg_block</code> es un <code>uvm_object</code>,
+no un component. <strong>Nadie te lo llama</strong></li>
+</ul>
+<div class="nota">
+<p>La trampa de fases que se lleva la primera tarde de todo el mundo es la última
+línea de la slide. <code>apb_reg_block::type_id::create(&quot;model&quot;)</code> devuelve un objeto
+con cero registros, porque <code>build()</code> acá es un método normal que se llama a mano
+—no el <code>build_phase</code> de un component, que UVM recorre solo—. El síntoma es un
+<code>uvm_fatal</code> de <code>uvm_reg_map</code> que habla de un registro nulo y no menciona la
+palabra <code>build</code>.
+La segunda cosa que hay que remarcar es de dónde sale el sequencer: es
+<code>agent_h.sequencer_h</code>, el mismo del capstone, el mismo que corren las sequences
+normales. RAL no trae un sequencer propio. Eso quiere decir que una sequence de
+registros y una de tráfico compiten por el mismo driver, y ahí aparecen las
+prioridades — que es tema de otro curso, pero conviene que sepan que existe.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/386">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s387" class="slide">
+<h2 id="ral">RAL</h2>
+<h4 id="predicción-quién-le-cuenta-al-modelo-qué-pasó"><em>Predicción: quién le cuenta al modelo qué pasó</em></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Quién predice</th>
+<th>Qué pasa si el DUT hace otra cosa</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>automática</strong></td>
+<td>la propia llamada <code>write()</code></td>
+<td>el modelo <strong>no se entera</strong>: cree lo que quiso mandar</td>
+</tr>
+<tr>
+<td><strong>explícita</strong></td>
+<td>el <code>uvm_reg_predictor</code>, desde el monitor</td>
+<td>el modelo cree <strong>lo que pasó en el cable</strong></td>
+</tr>
+</tbody></table>
+<ul>
+<li>La automática es una línea menos y es la que sale en los tutoriales</li>
+<li>La explícita es la que hay que usar, y por la misma razón que el scoreboard
+del capstone mira el monitor y no el driver</li>
+<li>Y es gratis: el monitor y su analysis port <strong>ya estaban</strong></li>
+</ul>
+<div class="nota">
+<p>Ésta es la slide de criterio de la unidad y conviene no apurarla. Con
+<code>set_auto_predict(1)</code>, <code>model.CTRL.write(status, &#39;h1)</code> actualiza el espejo en el
+momento en que se llama, antes de que el bus haya hecho nada. Si el driver manda
+mal la transferencia, o el DUT la ignora, el modelo sigue convencido de que
+<code>EN=1</code>. Es exactamente el error de diseño que el curso ataca desde el día 1: <strong>el
+que chequea no puede creerle al que estimula</strong>.
+Con predicción explícita el camino es el largo y el correcto: el driver maneja,
+el monitor ve el cable, el analysis port lo publica, el predictor llama a
+<code>bus2reg</code> y recién ahí el espejo cambia. Es el mismo dibujo del scoreboard, con
+una pieza de la librería en lugar de una clase escrita a mano.
+El bonus, que se ve en el ejemplo: como el predictor escucha el bus y no las
+llamadas, el modelo también se entera de las transferencias que hizo <strong>otro</strong> —
+otra sequence, otro maestro, un módulo de siempre. La predicción automática no
+puede hacer eso ni en principio.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/387">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s388" class="slide">
+<h2 id="ral">RAL</h2>
+<h4 id="el-estímulo-sin-un-solo-paddr"><em>El estímulo, sin un solo <code>PADDR</code></em></h4>
+<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/ral_test.svh</code> · líneas 21-34 de 82</figcaption><pre><code class="hljs">      model.CTRL.write(status, <span class="hljs-number">&#x27;h1</span>);              <span class="hljs-comment">// EN = 1</span>
+      model.CTRL.read(status, data);
+      <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;RAL&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;CTRL read back 0x%08h (status %s)&quot;</span>, data, status.name()),
+                <span class="hljs-uvm-const">UVM_MEDIUM</span>)
+
+      <span class="hljs-comment">// --- prediction --------------------------------------------------------</span>
+      <span class="hljs-comment">// Nothing above updated the mirror by hand. The monitor saw the two</span>
+      <span class="hljs-comment">// transfers, the predictor turned them into predictions, and the model</span>
+      <span class="hljs-comment">// knows -- with set_auto_predict(0), which is the honest setting: what the</span>
+      <span class="hljs-comment">// model believes comes from the BUS, not from what the test meant to send.</span>
+      <span class="hljs-keyword">if</span> (model.CTRL.EN.get_mirrored_value() != <span class="hljs-number">1</span>)
+         <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;RAL&quot;</span>, <span class="hljs-string">&quot;the predictor did not update CTRL.EN&quot;</span>)
+      <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;RAL&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;mirrored CTRL.EN = %0d, and nobody assigned it&quot;</span>,
+                model.CTRL.EN.get_mirrored_value()), <span class="hljs-uvm-const">UVM_MEDIUM</span>)</code></pre><details><summary>el archivo entero, 82 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// What the register layer buys, in ten lines of stimulus: not one PADDR, not one</span>
+<span class="hljs-comment">// PWDATA, not one wait state. The same driver as the capstone is doing all of</span>
+<span class="hljs-comment">// that underneath.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">ral_test</span> <span class="hljs-keyword">extends</span> ral_base_test;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(ral_test)
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-uvm-type">uvm_status_e</span>   status;
+      <span class="hljs-uvm-type">uvm_reg_data_t</span> data;
+
+      phase.raise_objection(<span class="hljs-keyword">this</span>);
+      reset_model();
+
+      <span class="hljs-comment">// --- the frontdoor -----------------------------------------------------</span>
+      <span class="hljs-comment">// write() puts the value on the wire through the sequencer. There is no</span>
+      <span class="hljs-comment">// second argument for the address: the address is in the map.</span>
+      model.CTRL.write(status, <span class="hljs-number">&#x27;h1</span>);              <span class="hljs-comment">// EN = 1</span>
+      model.CTRL.read(status, data);
+      <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;RAL&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;CTRL read back 0x%08h (status %s)&quot;</span>, data, status.name()),
+                <span class="hljs-uvm-const">UVM_MEDIUM</span>)
+
+      <span class="hljs-comment">// --- prediction --------------------------------------------------------</span>
+      <span class="hljs-comment">// Nothing above updated the mirror by hand. The monitor saw the two</span>
+      <span class="hljs-comment">// transfers, the predictor turned them into predictions, and the model</span>
+      <span class="hljs-comment">// knows -- with set_auto_predict(0), which is the honest setting: what the</span>
+      <span class="hljs-comment">// model believes comes from the BUS, not from what the test meant to send.</span>
+      <span class="hljs-keyword">if</span> (model.CTRL.EN.get_mirrored_value() != <span class="hljs-number">1</span>)
+         <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;RAL&quot;</span>, <span class="hljs-string">&quot;the predictor did not update CTRL.EN&quot;</span>)
+      <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;RAL&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;mirrored CTRL.EN = %0d, and nobody assigned it&quot;</span>,
+                model.CTRL.EN.get_mirrored_value()), <span class="hljs-uvm-const">UVM_MEDIUM</span>)
+
+      <span class="hljs-comment">// --- mirror(UVM_CHECK): the read that checks itself --------------------</span>
+      model.SCRATCH.write(status, <span class="hljs-number">&#x27;h1000_0000</span>);
+      model.SCRATCH.mirror(status, <span class="hljs-uvm-const">UVM_CHECK</span>);
+
+      <span class="hljs-comment">// --- and the part RAL does not do --------------------------------------</span>
+      <span class="hljs-comment">// ACC changed because of the write to SCRATCH, at another address. The</span>
+      <span class="hljs-comment">// model never predicted that and never will: mirror(UVM_CHECK) is off on</span>
+      <span class="hljs-comment">// ACC (see the reg block). The read still updates the mirror, so after</span>
+      <span class="hljs-comment">// this line the model agrees with the DUT again.</span>
+      model.ACC.read(status, data);
+      <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;RAL&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;ACC = 0x%08h -- predicted by the SCOREBOARD, not by the model&quot;</span>,
+                data), <span class="hljs-uvm-const">UVM_MEDIUM</span>)
+      <span class="hljs-keyword">if</span> (data != <span class="hljs-number">&#x27;h1000_0000</span>)
+         <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;RAL&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;ACC read 0x%08h, expected 0x10000000&quot;</span>, data))
+
+      <span class="hljs-comment">// CLR is &quot;WOC&quot;: the write clears the accumulator and the bit reads 0. A</span>
+      <span class="hljs-comment">// mirror(UVM_CHECK) right after would pass -- which is the point of</span>
+      <span class="hljs-comment">// getting the access policy right.</span>
+      model.CTRL.write(status, <span class="hljs-number">&#x27;h3</span>);             <span class="hljs-comment">// EN = 1, CLR = 1</span>
+      model.CTRL.mirror(status, <span class="hljs-uvm-const">UVM_CHECK</span>);
+      model.ACC.read(status, data);
+      <span class="hljs-keyword">if</span> (data != <span class="hljs-number">0</span>) <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;RAL&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;after CLR, ACC = 0x%08h&quot;</span>, data))
+
+      <span class="hljs-comment">// STATUS.EN is a copy of CTRL.EN, and it got there through a transfer to a</span>
+      <span class="hljs-comment">// DIFFERENT address. Without the set_compare(UVM_NO_CHECK) of the reg</span>
+      <span class="hljs-comment">// block this line fails -- and the failure would be the model&#x27;s fault, not</span>
+      <span class="hljs-comment">// the DUT&#x27;s. Knowing which of the two is lying is the whole skill.</span>
+      <span class="hljs-comment">//</span>
+      <span class="hljs-comment">// The two UVM_WARNING it prints (UVM/FLD/GET_MIRRORED_VAL/VOL) are the</span>
+      <span class="hljs-comment">// library saying the same thing on its own: a volatile field&#x27;s mirror is</span>
+      <span class="hljs-comment">// not evidence. They are the expected output of this line, not noise.</span>
+      <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;RAL&quot;</span>, <span class="hljs-string">&quot;the two VOL warnings below are the point, not a problem&quot;</span>,
+                <span class="hljs-uvm-const">UVM_MEDIUM</span>)
+      model.STATUS.mirror(status, <span class="hljs-uvm-const">UVM_CHECK</span>);
+
+      <span class="hljs-comment">// --- the status that only a bus can give -------------------------------</span>
+      <span class="hljs-comment">// Every call returns a status, and it is not decoration: PSLVERR comes back</span>
+      <span class="hljs-comment">// through bus2reg as UVM_NOT_OK. A pure software model could not tell you</span>
+      <span class="hljs-comment">// that the slave refused the access -- it is the one thing in this file</span>
+      <span class="hljs-comment">// that could only come from the wire.</span>
+      <span class="hljs-keyword">if</span> (status != <span class="hljs-uvm-const">UVM_IS_OK</span>)
+         <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;RAL&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;the mapped accesses came back %s&quot;</span>, status.name()))
+
+      phase.drop_objection(<span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endtask</span> : run_phase
+
+<span class="hljs-keyword">endclass</span> : ral_test</code></pre></details></figure>
+
+<ul>
+<li>No hay dirección en ninguna llamada: la dirección está <strong>en el mapa</strong></li>
+<li>Nadie asignó el espejo. <code>get_mirrored_value()</code> devuelve 1 porque el monitor vio
+la transferencia y el predictor la contó</li>
+<li>Abajo, el driver del capstone está haciendo SETUP, ACCESS y el <em>wait state</em> de
+la lectura, igual que ayer</li>
+</ul>
+<p><code>bash run.sh</code> · <code>code/u9/ral/</code></p>
+<div class="nota">
+<p>Vale correrlo en vivo y mirar el log con <code>grep MONITOR</code>: por cada línea de
+estímulo hay una transferencia de APB completa, con su dirección y su handshake,
+hecha por el driver que escribieron ellos. Es la demostración de que RAL no
+reemplaza al testbench, lo maneja.
+La línea que más rinde discutir es <code>model.CTRL.read(status, data)</code> contra
+<code>model.CTRL.mirror(status, UVM_CHECK)</code>. Las dos leen del DUT. La diferencia es
+que <code>mirror</code> compara contra lo que el modelo creía <strong>antes</strong> de la lectura, y si
+no coincide reporta un <code>uvm_error</code> sin que nadie escriba un chequeo. Es un
+scoreboard de registros con una palabra.
+Y la tercera forma, que no está en la slide y conviene nombrar: <code>set()</code> +
+<code>update()</code>. <code>set()</code> cambia el valor deseado en el modelo, sin tocar el bus, y
+<code>update()</code> escribe <strong>sólo los registros cuyo valor deseado difiere del espejo</strong>.
+Es como se configura un bloque entero al arrancar un test, y es donde RAL deja de
+ser cómodo y pasa a ahorrar tiempo de simulación de verdad.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/388">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s389" class="slide">
+<h2 id="ral">RAL</h2>
+<h4 id="los-tests-que-no-escribiste"><em>Los tests que no escribiste</em></h4>
+<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/builtin_test.svh</code> · líneas 29-35 de 40</figcaption><pre><code class="hljs">      rst_seq = <span class="hljs-uvm-type">uvm_reg_hw_reset_seq</span>::type_id::create(<span class="hljs-string">&quot;rst_seq&quot;</span>);
+      rst_seq.model = model;
+      rst_seq.start(<span class="hljs-keyword">null</span>);
+
+      bash_seq = <span class="hljs-uvm-type">uvm_reg_bit_bash_seq</span>::type_id::create(<span class="hljs-string">&quot;bash_seq&quot;</span>);
+      bash_seq.model = model;
+      bash_seq.start(<span class="hljs-keyword">null</span>);</code></pre><details><summary>el archivo entero, 40 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The argument for RAL that survives a code review: tests you did not write.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// Both sequences below ship with uvm-core. They read the register model -- the</span>
+<span class="hljs-comment">// addresses, the field positions, the access strings -- and generate the</span>
+<span class="hljs-comment">// stimulus and the checks from it. Nothing here is specific to this DUT.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">//   uvm_reg_hw_reset_seq   reads every register after reset and compares it</span>
+<span class="hljs-comment">//                          against the reset value declared in configure()</span>
+<span class="hljs-comment">//   uvm_reg_bit_bash_seq   writes and reads back every writable bit of every</span>
+<span class="hljs-comment">//                          register, one at a time, in both directions</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// Run it with +MAL and the register model declares CTRL.CLR as &quot;RW&quot; instead of</span>
+<span class="hljs-comment">// &quot;WOC&quot; -- one wrong word in one string. bit_bash catches it without anyone</span>
+<span class="hljs-comment">// writing a test for CTRL.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">builtin_test</span> <span class="hljs-keyword">extends</span> ral_base_test;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(builtin_test)
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-uvm-type">uvm_reg_hw_reset_seq</span> rst_seq;
+      <span class="hljs-uvm-type">uvm_reg_bit_bash_seq</span> bash_seq;
+
+      phase.raise_objection(<span class="hljs-keyword">this</span>);
+      reset_model();
+
+      rst_seq = <span class="hljs-uvm-type">uvm_reg_hw_reset_seq</span>::type_id::create(<span class="hljs-string">&quot;rst_seq&quot;</span>);
+      rst_seq.model = model;
+      rst_seq.start(<span class="hljs-keyword">null</span>);
+
+      bash_seq = <span class="hljs-uvm-type">uvm_reg_bit_bash_seq</span>::type_id::create(<span class="hljs-string">&quot;bash_seq&quot;</span>);
+      bash_seq.model = model;
+      bash_seq.start(<span class="hljs-keyword">null</span>);
+
+      phase.drop_objection(<span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endtask</span> : run_phase
+
+<span class="hljs-keyword">endclass</span> : builtin_test</code></pre></details></figure>
+
+<ul>
+<li>Las dos salen de <code>uvm-core</code>. <strong>No saben nada de este DUT</strong>: leen el modelo y
+generan de ahí el estímulo y el chequeo</li>
+<li><code>uvm_reg_hw_reset_seq</code> lee todo después del reset y lo compara con el valor de
+reset declarado</li>
+<li><code>uvm_reg_bit_bash_seq</code> escribe y lee <strong>cada bit escribible de cada registro</strong>,
+uno por uno, en los dos sentidos</li>
+</ul>
+<div class="nota">
+<p>Este par de sequences es el argumento de RAL que gana discusiones, porque no
+apela al gusto: son dos tests reales, gratis, que en un bloque de 200 registros
+cubren el 80 % de los bugs de decodificación de direcciones y de campos
+cableados al revés.
+Hay más en la librería y vale nombrarlas: <code>uvm_reg_access_seq</code> (escribe por
+frontdoor y lee por backdoor, y viceversa), <code>uvm_reg_shared_access_seq</code> para
+registros en más de un mapa, y <code>uvm_mem_walk_seq</code> para memorias. Las que
+necesitan backdoor quedan fuera del curso por lo que se dijo antes.
+El detalle de implementación que conviene contar, porque explica por qué el
+modelo tiene que estar bien: <code>bit_bash</code> <strong>saltea</strong> los campos de sólo lectura y
+los que no son individualmente accesibles, y usa el string de acceso para saber
+qué esperar de vuelta. O sea que la calidad del test que te regalan es
+exactamente la calidad del modelo que escribiste.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/389">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s390" class="slide">
+<h2 id="ral">RAL</h2>
+<h4 id="y-por-eso-el-modelo-es-la-spec"><em>Y por eso el modelo es la spec</em></h4>
+<pre><code>    CTRL.CLR como &quot;WOC&quot;  0 UVM_ERROR
+    CTRL.CLR como &quot;RW&quot;   2 UVM_ERROR, de uvm_reg_bit_bash_seq
+    &gt; Writing a 1 in bit #1 of register &quot;model.CTRL&quot; ... yielded &#39;h0
+      instead of &#39;h2
+</code></pre>
+<ul>
+<li>Una palabra cambiada en un string, y una sequence que nadie escribió lo caza
+con el número del bit</li>
+<li>Es la <strong>trampa 2</strong> de la letra chica del capstone —<code>CLR</code> nunca se lee en 1— y
+ahí hacía falta un scoreboard entero para verla</li>
+<li>El modelo de registros es el único documento de un proyecto que es la spec <strong>y</strong>
+el código a la vez</li>
+</ul>
+<p><code>bash run.sh</code> corre las dos versiones y las compara</p>
+<div class="nota">
+<p>Ésta es la slide que justifica la unidad, y el <code>run.sh</code> del ejemplo la produce
+sola: corre <code>builtin_test</code> con el modelo bien y con <code>+MAL</code>, que declara <code>CLR</code>
+como <code>RW</code>, y muestra los dos números uno al lado del otro.
+El remate para decir en voz alta: en el capstone, esa misma trampa costó escribir
+un scoreboard, modelar el autoclear a mano y descubrir el bug con un mensaje
+propio. Acá cuesta <strong>elegir bien una palabra</strong>, y el mensaje de error lo escribe
+Accellera, con el número del bit adentro.
+La contra honesta, que hay que decir para que no suene a folleto: si te
+equivocás al revés —declarás <code>RW</code> un campo que el DUT implementó como <code>RW</code>
+cuando la spec decía otra cosa— el modelo y el DUT se ponen de acuerdo en el
+error y ninguna sequence dice nada. El modelo de registros verifica el DUT
+contra <strong>la spec escrita en el modelo</strong>, no contra la spec de verdad. Por eso la
+revisión del modelo contra el documento sigue siendo trabajo humano, y por eso
+la etapa 1 del ejercicio imprime el mapa para compararlo a mano.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/390">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s391" class="slide">
+<h2 id="ral">RAL</h2>
+<h4 id="lo-que-ral-no-hace-y-hay-que-decirlo"><em>Lo que RAL no hace, y hay que decirlo</em></h4>
+<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/apb_reg_block.svh</code> · líneas 141-143 de 148</figcaption><pre><code class="hljs">      ACC.VALUE.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);
+      STATUS.EN.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);
+      STATUS.OVF.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);</code></pre><details><summary>el archivo entero, 148 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The register map of spec.md, written as a UVM register model.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// The table of the spec maps one to one onto this file, and that is the check</span>
+<span class="hljs-comment">// worth doing out loud: four registers, six fields, four addresses. Nothing here</span>
+<span class="hljs-comment">// knows that the bus is APB -- swap the adapter and the same model drives AHB.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// The access string of every field IS the specification. Get it wrong and the</span>
+<span class="hljs-comment">// built-in sequences of the last file catch it; see the +MAL run of run.sh.</span>
+
+<span class="hljs-comment">// 0x00 -- CTRL. EN is an ordinary bit. CLR is not: writing a 1 clears ACC and</span>
+<span class="hljs-comment">// OVF, and the bit always reads back 0.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">ctrl_reg</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_reg</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(ctrl_reg)
+
+   <span class="hljs-keyword">rand</span> <span class="hljs-uvm-type">uvm_reg_field</span> EN;
+   <span class="hljs-keyword">rand</span> <span class="hljs-uvm-type">uvm_reg_field</span> CLR;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;ctrl_reg&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, <span class="hljs-number">32</span>, <span class="hljs-uvm-const">UVM_NO_COVERAGE</span>);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// configure(parent, size, lsb_pos, access, volatile, reset, has_reset,</span>
+   <span class="hljs-comment">//           is_rand, individually_accessible)</span>
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build</span>();
+      EN = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;EN&quot;</span>);
+      EN.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&quot;RW&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
+
+      <span class="hljs-comment">// &quot;WOC&quot; is the name UVM has for exactly this: the write goes through, the</span>
+      <span class="hljs-comment">// mirror drops to zero, and the read side of the field is not used to</span>
+      <span class="hljs-comment">// predict anything. Modelling it as &quot;RW&quot; is the classic mistake, and it is</span>
+      <span class="hljs-comment">// what +MAL does.</span>
+      CLR = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;CLR&quot;</span>);
+      CLR.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;MAL&quot;</span>) ? <span class="hljs-string">&quot;RW&quot;</span> : <span class="hljs-string">&quot;WOC&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
+   <span class="hljs-keyword">endfunction</span> : build
+
+<span class="hljs-keyword">endclass</span> : ctrl_reg
+
+<span class="hljs-comment">// 0x04 -- SCRATCH. A plain RW register. That every write to it also adds to ACC</span>
+<span class="hljs-comment">// is a side effect the model does not know about, and does not need to.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">scratch_reg</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_reg</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(scratch_reg)
+
+   <span class="hljs-keyword">rand</span> <span class="hljs-uvm-type">uvm_reg_field</span> VALUE;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;scratch_reg&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, <span class="hljs-number">32</span>, <span class="hljs-uvm-const">UVM_NO_COVERAGE</span>);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build</span>();
+      VALUE = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;VALUE&quot;</span>);
+      VALUE.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">32</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&quot;RW&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>);
+   <span class="hljs-keyword">endfunction</span> : build
+
+<span class="hljs-keyword">endclass</span> : scratch_reg
+
+<span class="hljs-comment">// 0x08 -- ACC. Read-only, and volatile: the DUT changes it behind the model&#x27;s</span>
+<span class="hljs-comment">// back, on every write to SCRATCH. See the comment on set_compare() below.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">acc_reg</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_reg</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(acc_reg)
+
+   <span class="hljs-uvm-type">uvm_reg_field</span> VALUE;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;acc_reg&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, <span class="hljs-number">32</span>, <span class="hljs-uvm-const">UVM_NO_COVERAGE</span>);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build</span>();
+      VALUE = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;VALUE&quot;</span>);
+      VALUE.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">32</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&quot;RO&quot;</span>, <span class="hljs-number">1</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>);
+   <span class="hljs-keyword">endfunction</span> : build
+
+<span class="hljs-keyword">endclass</span> : acc_reg
+
+<span class="hljs-comment">// 0x0C -- STATUS. Two read-only bits, and both are volatile for the same reason</span>
+<span class="hljs-comment">// as ACC: EN is a copy of CTRL.EN, and OVF turns on when the accumulator</span>
+<span class="hljs-comment">// overflows -- neither of them happens on a write to STATUS.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">status_reg</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_reg</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(status_reg)
+
+   <span class="hljs-uvm-type">uvm_reg_field</span> EN;
+   <span class="hljs-uvm-type">uvm_reg_field</span> OVF;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;status_reg&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, <span class="hljs-number">32</span>, <span class="hljs-uvm-const">UVM_NO_COVERAGE</span>);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build</span>();
+      EN = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;EN&quot;</span>);
+      EN.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&quot;RO&quot;</span>, <span class="hljs-number">1</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>);
+      OVF = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;OVF&quot;</span>);
+      OVF.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-string">&quot;RO&quot;</span>, <span class="hljs-number">1</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>);
+   <span class="hljs-keyword">endfunction</span> : build
+
+<span class="hljs-keyword">endclass</span> : status_reg
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">apb_reg_block</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_reg_block</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(apb_reg_block)
+
+   <span class="hljs-keyword">rand</span> ctrl_reg    CTRL;
+   <span class="hljs-keyword">rand</span> scratch_reg SCRATCH;
+   acc_reg          ACC;
+   status_reg       STATUS;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;apb_reg_block&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, <span class="hljs-uvm-const">UVM_NO_COVERAGE</span>);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// Not build_phase: a uvm_reg_block is a uvm_object, not a component. Nobody</span>
+   <span class="hljs-comment">// calls this for you -- the test does, right after the create().</span>
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build</span>();
+      <span class="hljs-comment">// create_map(name, base_addr, n_bytes, endian, byte_addressing)</span>
+      default_map = create_map(<span class="hljs-string">&quot;default_map&quot;</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">4</span>, <span class="hljs-uvm-const">UVM_LITTLE_ENDIAN</span>, <span class="hljs-number">1</span>);
+
+      CTRL = ctrl_reg::type_id::create(<span class="hljs-string">&quot;CTRL&quot;</span>);
+      CTRL.configure(<span class="hljs-keyword">this</span>, <span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;&quot;</span>);
+      CTRL.build();
+      default_map.add_reg(CTRL, CTRL_ADDR, <span class="hljs-string">&quot;RW&quot;</span>);
+
+      SCRATCH = scratch_reg::type_id::create(<span class="hljs-string">&quot;SCRATCH&quot;</span>);
+      SCRATCH.configure(<span class="hljs-keyword">this</span>, <span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;&quot;</span>);
+      SCRATCH.build();
+      default_map.add_reg(SCRATCH, SCRATCH_ADDR, <span class="hljs-string">&quot;RW&quot;</span>);
+
+      ACC = acc_reg::type_id::create(<span class="hljs-string">&quot;ACC&quot;</span>);
+      ACC.configure(<span class="hljs-keyword">this</span>, <span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;&quot;</span>);
+      ACC.build();
+      default_map.add_reg(ACC, ACC_ADDR, <span class="hljs-string">&quot;RO&quot;</span>);
+
+      STATUS = status_reg::type_id::create(<span class="hljs-string">&quot;STATUS&quot;</span>);
+      STATUS.configure(<span class="hljs-keyword">this</span>, <span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;&quot;</span>);
+      STATUS.build();
+      default_map.add_reg(STATUS, STATUS_ADDR, <span class="hljs-string">&quot;RO&quot;</span>);
+
+      <span class="hljs-comment">// The honest line of the whole unit. ACC and STATUS have an address, but</span>
+      <span class="hljs-comment">// they are not registers: their value is produced by writes to OTHER</span>
+      <span class="hljs-comment">// addresses. A register model predicts &quot;what I wrote is what I will read&quot;,</span>
+      <span class="hljs-comment">// and for these two that sentence is false, so mirror(UVM_CHECK) is turned</span>
+      <span class="hljs-comment">// off on them. Reads still update the mirror -- a read is a prediction --</span>
+      <span class="hljs-comment">// and the accumulator itself stays where it was in the capstone: in the</span>
+      <span class="hljs-comment">// scoreboard, which is the thing that does know how to add.</span>
+      ACC.VALUE.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);
+      STATUS.EN.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);
+      STATUS.OVF.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);
+
+      lock_model();
+   <span class="hljs-keyword">endfunction</span> : build
+
+<span class="hljs-keyword">endclass</span> : apb_reg_block</code></pre></details></figure>
+
+<ul>
+<li><code>ACC</code> y <code>STATUS</code> tienen dirección, pero <strong>no son registros</strong>: su valor lo
+produce una escritura a <em>otra</em> dirección</li>
+<li>Un modelo predice <em>&quot;lo que escribí es lo que voy a leer&quot;</em>, y para estos dos esa
+frase es falsa. <code>set_compare(UVM_NO_CHECK)</code> lo dice en el modelo</li>
+<li>El acumulador se sigue chequeando donde ya estaba: <strong>en el scoreboard</strong>, que es
+el que sabe sumar</li>
+<li>La lectura igual actualiza el espejo — una lectura <em>es</em> una predicción</li>
+</ul>
+<div class="nota">
+<p>Si de esta unidad se llevan una sola idea, que sea ésta: <strong>una dirección no es un
+registro</strong>. RAL modela almacenamiento direccionable, y lo hace muy bien. No
+modela comportamiento. El acumulador del capstone —que suma sólo con <code>EN=1</code>, que
+desborda, que se limpia con <code>CLR</code>— es comportamiento, y eso vive en el
+scoreboard, como vivía ayer.
+El modo de falla de no decirlo es el peor de todos y es cotidiano: el equipo pone
+RAL, prende <code>mirror(UVM_CHECK)</code> sobre todo el mapa, y la regresión se llena de
+errores en los registros de estado. Como son falsos positivos, alguien apaga el
+chequeo <strong>entero</strong> — y a partir de ahí el modelo no verifica nada y nadie se
+entera. La diferencia entre apagar tres campos con nombre y apagar el chequeo
+global es toda la diferencia.
+Los dos <code>UVM_WARNING</code> que imprime el ejemplo —<code>GET_MIRRORED_VAL/VOL</code>— son la
+librería diciendo lo mismo por su cuenta: el espejo de un campo <code>volatile</code> no es
+evidencia. Están a propósito en la salida.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/391">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s392" class="slide">
+<h2 id="ral">RAL</h2>
+<h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
+<ul>
+<li>El <strong>modelo</strong> es el mapa de la spec en código, y el string de acceso de cada
+campo es la parte que verifica</li>
+<li>El <strong>adapter</strong> es lo único que sabe del bus: veinte líneas, una vez por
+protocolo</li>
+<li>La predicción va <strong>por el monitor</strong>, no por la llamada — misma regla que el
+scoreboard</li>
+<li>Te regala <code>hw_reset_seq</code> y <code>bit_bash_seq</code>, y te cobra saber <strong>qué no es un
+registro</strong></li>
+<li>Y todo esto corre en <strong>Verilator 5.052</strong>, que hasta hoy nadie había mostrado</li>
+</ul>
+<div class="nota">
+<p>El cierre de la unidad y del curso técnico. La última línea no es marketing: al
+escribir esta unidad se probó primero si <code>uvm_reg_adapter</code> y el frontdoor
+funcionaban en Verilator, antes de escribir una sola slide, y el resultado está
+medido en <code>docs/verilator.md</code>. Anda todo lo que la unidad usa: el modelo, el
+adapter, el <code>uvm_reg_predictor</code>, <code>mirror(UVM_CHECK)</code> y las dos sequences de la
+librería.
+Para el que sigue solo, el orden de lo que falta: <code>uvm_reg_access_seq</code> con
+backdoor, la generación del modelo desde IP-XACT o SystemRDL —que es como se
+hace de verdad—, y <code>uvm_mem</code> para las memorias. Los tres son extensiones de lo
+que vieron acá, no temas nuevos.
+Y el puente al ejercicio: lo primero que le van a pedir en un proyecto con
+registros es exactamente esto, con la planilla de la spec del lado izquierdo de
+la pantalla.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/392">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s393" class="slide">
+<h2 id="ejercicio-·-día-8">Ejercicio · Día 8</h2>
+<h4 id="modelar-el-mapa-de-registros"><em>Modelar el mapa de registros</em></h4>
+<p><code>cd code/ejercicios/d8-ral &amp;&amp; cat README.md</code></p>
+<ul>
+<li>Es <strong>literalmente</strong> lo primero que te piden en un proyecto con registros: te
+dan la tabla de la spec y devolvés el modelo</li>
+<li>El DUT y el testbench son los del capstone. El adapter, el predictor y los
+tests salen de la unidad. <strong>Lo único que escribís es <code>apb_reg_block.svh</code></strong></li>
+<li>Cuatro registros, seis campos, cuarenta líneas</li>
+<li>El corrector va por etapas: el <strong>mapa</strong> —impreso y comparado con la tabla, sin
+simular nada—, los <strong>accesos</strong> —las dos sequences de la librería— y <strong>lo que el
+modelo no puede predecir</strong></li>
+</ul>
+<div class="nota">
+<p>Es el ejercicio más corto de los quince y el más parecido a una tarea real de
+las primeras semanas de un proyecto. Cuarenta líneas, y la mitad son copiar y
+pegar el patrón de <code>CTRL</code>.
+La etapa que enseña es la 1, y por una razón de método: el modelo se <strong>imprime</strong>
+—<code>+UVM_TESTNAME=mapa_test</code>— y se compara línea por línea contra la tabla de
+<code>spec.md</code>, antes de simular nada. Es lo que hay que hacer con un modelo de
+registros de verdad, donde el error típico no es de UVM sino un offset copiado
+mal de una planilla de 200 filas.
+La etapa 2 es donde cae <code>CLR</code>: el que lo declaró <code>RW</code> pasa la etapa 1 sin
+problema y se entera acá, con el número del bit, gracias a un test que no
+escribió. Vale dejar que caigan ahí — es el momento en que el argumento de RAL
+deja de ser una opinión.
+Y la etapa 3 es la que separa: pide <strong>apagar</strong> un chequeo, que es lo contrario de
+lo que el curso viene pidiendo hace siete días. La justificación tiene que salir
+de ellos: <code>STATUS.EN</code> cambió por una escritura a otra dirección, el modelo no
+puede saberlo, y un falso positivo que se deja pasar termina en alguien apagando
+el chequeo entero.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/393">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s394" class="slide">
+<h2 id="el-modelo-de-referencia-en-c">El modelo de referencia en C</h2>
+<h4 id="el-scoreboard-que-reescribe-la-spec"><em>El scoreboard que reescribe la spec</em></h4>
+<ul>
+<li>El scoreboard del curso predice <strong>en SystemVerilog</strong>: un <code>case</code> con la
+aritmética de la VTALU. Para cinco operaciones de ocho bits está perfecto</li>
+<li>Para un DSP, un codec o un motor cripto, esa aritmética <strong>ya existe, y en C</strong>:
+la escribió el equipo de algoritmo, y es contra ese modelo que se firmó la spec</li>
+<li>Reescribirla en SystemVerilog es mantener <strong>dos</strong> modelos y pasarse el proyecto
+debuggeando la diferencia entre ellos. Eso no es verificar: es tener dos specs</li>
+<li>La salida es no reescribirla. Verilator compila a C++, así que el modelo se
+<strong>enlaza adentro de la simulación</strong>: sin socket, sin proceso aparte, sin IPC</li>
+</ul>
+<div class="nota">
+<p>Ésta es la técnica que separa un testbench de curso de uno de producción, y el
+argumento no es de comodidad: es de <strong>autoridad</strong>. En un proyecto con aritmética
+seria, la spec no es un PDF — es un programa en C que alguien corrió contra mil
+vectores antes de que existiera el RTL. Un scoreboard que reimplementa ese
+programa en SystemVerilog no verifica el DUT contra la spec: verifica el DUT
+contra la lectura que el verificador hizo de la spec, que es otra cosa.
+La pregunta que conviene tirar al grupo antes de mostrar el código: <em>&quot;si el
+modelo de C y el scoreboard difieren, ¿quién tiene razón?&quot;</em>. La respuesta
+incómoda es que no se sabe, y averiguarlo cuesta días. Con DPI la pregunta no
+existe porque hay un solo modelo.
+Y el motivo por el que esta sección puede existir en este curso y no en otro:
+DPI es parte del LRM, pero llegar a usarla en un flujo comercial pide la
+licencia que la habilita. Acá el simulador compila a C++ por diseño, así que el
+puente es un archivo más en la línea de comandos.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/394">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s395" class="slide">
+<h2 id="el-modelo-de-referencia-en-c">El modelo de referencia en C</h2>
+<h4 id="import-dpi-c-una-declaración-de-cada-lado"><em><code>import &quot;DPI-C&quot;</code>: una declaración de cada lado</em></h4>
+<figure class="codigo"><figcaption><code>code/u8/dpi/vtalu_pkg.sv</code> · líneas 5-16 de 63</figcaption><pre><code class="hljs">   <span class="hljs-comment">// El modelo de referencia vive en vtalu_golden.c y se llama desde aca. Es</span>
+   <span class="hljs-comment">// todo lo que hace falta del lado de SystemVerilog: una declaracion por</span>
+   <span class="hljs-comment">// funcion, con los tipos del LRM que cruzan la frontera.</span>
+   <span class="hljs-comment">//</span>
+   <span class="hljs-comment">//   input int  -&gt; int          output int -&gt; int *</span>
+   <span class="hljs-comment">//   function   -&gt; devuelve     task       -&gt; puede consumir tiempo (no aca)</span>
+   <span class="hljs-comment">//</span>
+   <span class="hljs-comment">// El nombre despues de &quot;DPI-C&quot; es el simbolo que el linker busca, asi que</span>
+   <span class="hljs-comment">// tiene que coincidir con el del .c letra por letra.</span>
+   <span class="hljs-keyword">import</span> <span class="hljs-string">&quot;DPI-C&quot;</span> <span class="hljs-keyword">function</span> <span class="hljs-type">int  </span><span class="hljs-title">vtalu_golden</span>(<span class="hljs-keyword">input</span> <span class="hljs-type">int</span> op, <span class="hljs-keyword">input</span> <span class="hljs-type">int</span> a,
+                                             <span class="hljs-keyword">input</span> <span class="hljs-type">int</span> b, <span class="hljs-keyword">output</span> <span class="hljs-type">int</span> ovf);
+   <span class="hljs-keyword">import</span> <span class="hljs-string">&quot;DPI-C&quot;</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">vtalu_golden_bug</span>(<span class="hljs-keyword">input</span> <span class="hljs-type">int</span> on);</code></pre><details><summary>el archivo entero, 63 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">package</span> <span class="hljs-title">vtalu_pkg</span>;
+   <span class="hljs-keyword">import</span> <span class="hljs-uvm-type">uvm_pkg</span>::*;
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;uvm_macros.svh&quot;</span>
+
+   <span class="hljs-comment">// El modelo de referencia vive en vtalu_golden.c y se llama desde aca. Es</span>
+   <span class="hljs-comment">// todo lo que hace falta del lado de SystemVerilog: una declaracion por</span>
+   <span class="hljs-comment">// funcion, con los tipos del LRM que cruzan la frontera.</span>
+   <span class="hljs-comment">//</span>
+   <span class="hljs-comment">//   input int  -&gt; int          output int -&gt; int *</span>
+   <span class="hljs-comment">//   function   -&gt; devuelve     task       -&gt; puede consumir tiempo (no aca)</span>
+   <span class="hljs-comment">//</span>
+   <span class="hljs-comment">// El nombre despues de &quot;DPI-C&quot; es el simbolo que el linker busca, asi que</span>
+   <span class="hljs-comment">// tiene que coincidir con el del .c letra por letra.</span>
+   <span class="hljs-keyword">import</span> <span class="hljs-string">&quot;DPI-C&quot;</span> <span class="hljs-keyword">function</span> <span class="hljs-type">int  </span><span class="hljs-title">vtalu_golden</span>(<span class="hljs-keyword">input</span> <span class="hljs-type">int</span> op, <span class="hljs-keyword">input</span> <span class="hljs-type">int</span> a,
+                                             <span class="hljs-keyword">input</span> <span class="hljs-type">int</span> b, <span class="hljs-keyword">output</span> <span class="hljs-type">int</span> ovf);
+   <span class="hljs-keyword">import</span> <span class="hljs-string">&quot;DPI-C&quot;</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">vtalu_golden_bug</span>(<span class="hljs-keyword">input</span> <span class="hljs-type">int</span> on);
+
+   <span class="hljs-keyword">typedef</span> <span class="hljs-keyword">enum</span> <span class="hljs-type">bit</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] {
+      no_op  = <span class="hljs-number">3&#x27;b000</span>,
+      add_op = <span class="hljs-number">3&#x27;b001</span>,
+      sub_op = <span class="hljs-number">3&#x27;b010</span>,
+      and_op = <span class="hljs-number">3&#x27;b011</span>,
+      xor_op = <span class="hljs-number">3&#x27;b100</span>,
+      mul_op = <span class="hljs-number">3&#x27;b101</span>,
+      rst_op = <span class="hljs-number">3&#x27;b111</span>
+   } operation_t;
+
+   <span class="hljs-comment">// Los configs primero: el driver y los monitores los usan.</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;env_config.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;vtalu_agent_config.svh&quot;</span>
+
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;command_transaction.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;add_transaction.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;result_transaction.svh&quot;</span>
+
+   <span class="hljs-comment">// El sequencer no se extiende: se parametriza y se le pone nombre.</span>
+   <span class="hljs-comment">// Va DESPUES de command_transaction y ANTES del driver y del agent.</span>
+   <span class="hljs-keyword">typedef</span> <span class="hljs-uvm-type">uvm_sequencer</span> #(<span class="hljs-type">command_transaction</span>) sequencer;
+
+   <span class="hljs-comment">// Las sequences son uvm_object: van antes de los tests que las arrancan.</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;reset_sequence.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;random_sequence.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;maxmult_sequence.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;fibonacci_sequence.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;full_sequence.svh&quot;</span>
+
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;coverage.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;scoreboard.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;driver.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;command_monitor.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;result_monitor.svh&quot;</span>
+
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;vtalu_agent.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;env.svh&quot;</span>
+
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;base_test.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;full_test.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;fibonacci_test.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;add_test.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;default_seq_test.svh&quot;</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;no_objection_test.svh&quot;</span>
+
+<span class="hljs-keyword">endpackage</span> : vtalu_pkg</code></pre></details></figure>
+
+<figure class="codigo"><figcaption><code>code/u8/dpi/vtalu_golden.c</code> · líneas 39-58 de 62</figcaption><pre><code class="hljs">int vtalu_golden(int op, int a, int b, int *ovf) {
+   int r;
+
+   a &amp;= 0xff;
+   b &amp;= 0xff;
+   *ovf = 0;
+
+   switch (op) {
+      case ADD_OP: r = a + b; break;
+      /* 8-bit operands into a 16-bit result: a - b wraps, and the borrow is
+       * the second half of the answer the scoreboard has to check. */
+      case SUB_OP: r = a - b; *ovf = (a &lt; b); break;
+      case AND_OP: r = a &amp; b; break;
+      case XOR_OP: r = a ^ b; break;
+      case MUL_OP: r = mutar ? (a * b) &amp; 0xff : a * b; break;
+      default:     r = 0; break;   /* no_op and rst_op do not answer */
+   }
+
+   return r &amp; 0xffff;
+}</code></pre><details><summary>el archivo entero, 62 líneas</summary><pre><code class="hljs">/* The VTALU reference model, in C. This is the whole point of the example:
+ * the scoreboard does NOT predict in SystemVerilog -- it asks this file.
+ *
+ * Why it matters: for a DUT with real arithmetic -- a DSP, a codec, a crypto
+ * engine -- the reference model already exists in C, written by the algorithm
+ * team, and it is the thing the specification was signed off against.
+ * Rewriting it in SystemVerilog means maintaining two models and debugging the
+ * difference between them, which is not verification.
+ *
+ * Verilator compiles to C++, so this file is linked straight into the
+ * simulation: no IPC, no socket, no FLI. One `import &quot;DPI-C&quot;` on the
+ * SystemVerilog side (vtalu_pkg.sv) and one function call on this side.
+ *
+ * The `extern &quot;C&quot;` guard is not decoration: Verilator hands user sources to
+ * the C++ compiler, and without it the symbol gets mangled and the link fails
+ * with an undefined reference that names a function that is obviously there.
+ */
+#include &lt;svdpi.h&gt;
+
+#ifdef __cplusplus
+extern &quot;C&quot; {
+#endif
+
+/* Same opcodes as operation_t in vtalu_pkg.sv. Keeping the two in sync by hand
+ * is the tax of DPI, and it is the first thing to check when every comparison
+ * fails at once. */
+enum { NO_OP = 0, ADD_OP = 1, SUB_OP = 2, AND_OP = 3, XOR_OP = 4, MUL_OP = 5, RST_OP = 7 };
+
+/* A deliberate mutation, switched on with +GOLDEN_BUG. A scoreboard that never
+ * saw an error is not tested: this is what proves the DPI path is actually
+ * wired, and it is the same idea as the +BUG=1 of the day 7 capstone. */
+static int mutar = 0;
+
+void vtalu_golden_bug(int on) { mutar = on; }
+
+/* op, a and b arrive as SystemVerilog `int` (32-bit signed). The result goes
+ * back as the return value and the borrow through a pointer, which is how an
+ * `output int` argument crosses the boundary. */
+int vtalu_golden(int op, int a, int b, int *ovf) {
+   int r;
+
+   a &amp;= 0xff;
+   b &amp;= 0xff;
+   *ovf = 0;
+
+   switch (op) {
+      case ADD_OP: r = a + b; break;
+      /* 8-bit operands into a 16-bit result: a - b wraps, and the borrow is
+       * the second half of the answer the scoreboard has to check. */
+      case SUB_OP: r = a - b; *ovf = (a &lt; b); break;
+      case AND_OP: r = a &amp; b; break;
+      case XOR_OP: r = a ^ b; break;
+      case MUL_OP: r = mutar ? (a * b) &amp; 0xff : a * b; break;
+      default:     r = 0; break;   /* no_op and rst_op do not answer */
+   }
+
+   return r &amp; 0xffff;
+}
+
+#ifdef __cplusplus
+}
+#endif</code></pre></details></figure>
+
+<ul>
+<li>El nombre después de <code>&quot;DPI-C&quot;</code> es <strong>el símbolo que busca el linker</strong>: tiene que
+coincidir letra por letra con el del <code>.c</code></li>
+<li><code>input int</code> viaja como <code>int</code>; un <code>output int</code> llega como <code>int *</code>. Una
+<code>function</code> no puede consumir tiempo; una <code>task</code> de DPI sí</li>
+<li>El <code>.c</code> va en la línea de <code>verilator</code> como un fuente más. <strong>No hay un flag de
+DPI</strong></li>
+</ul>
+<div class="nota">
+<p>Vale leer las dos declaraciones al lado, porque la simetría es todo el
+mecanismo: la de arriba es la promesa y la de abajo es quien la cumple, y el
+compilador no las cruza — el que las junta es el linker, al final. De ahí sale el
+modo de falla número uno de DPI, que conviene nombrar antes de que aparezca: un
+<em>undefined reference</em> a una función que está escrita, ahí, a la vista. Casi
+siempre es una de dos cosas — el nombre no coincide, o el archivo se compiló como
+C++ y el símbolo salió con el nombre decorado.
+Eso último es literalmente lo que pasa acá: Verilator le pasa los fuentes del
+usuario al compilador de C++, así que el <code>.c</code> necesita el <code>extern &quot;C&quot;</code> que está
+en el archivo. Sin esa guarda, el ejemplo no enlaza y el error no dice por qué.
+La tabla de tipos del LRM es más larga —hay <code>svBitVecVal</code> para vectores anchos,
+<code>svOpenArrayHandle</code> para arreglos— y no hace falta acá. La regla práctica: si el
+dato entra en un <code>int</code>, la firma se escribe sola; si no, se busca el anexo H del
+1800 y se copia.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/395">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s396" class="slide">
+<h2 id="el-modelo-de-referencia-en-c">El modelo de referencia en C</h2>
+<h4 id="el-scoreboard-la-predicción-se-pide-no-se-escribe"><em>El scoreboard: la predicción se pide, no se escribe</em></h4>
+<figure class="codigo"><figcaption><code>code/u8/dpi/tb_classes/scoreboard.svh</code> · líneas 14-32 de 58</figcaption><pre><code class="hljs">   <span class="hljs-comment">// La UNICA diferencia con el scoreboard de las sequences, y es la seccion</span>
+   <span class="hljs-comment">// entera: aca no hay un case con la aritmetica de la spec. La prediccion se</span>
+   <span class="hljs-comment">// le pide al modelo de referencia en C, que es el que la firmo.</span>
+   <span class="hljs-comment">//</span>
+   <span class="hljs-comment">// Lo que no cambia: el monitor, el analysis port, la FIFO, el do_compare y</span>
+   <span class="hljs-comment">// el uvm_error. El golden model reemplaza SEIS LINEAS -- las de predecir --</span>
+   <span class="hljs-comment">// y ninguna otra pieza del testbench se entera.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">result_transaction </span><span class="hljs-title">predict_result</span>(command_transaction cmd);
+      result_transaction predicted;
+      <span class="hljs-type">int</span>                ovf;
+
+      predicted = result_transaction::type_id::create(<span class="hljs-string">&quot;predicted&quot;</span>);
+
+      predicted.result = vtalu_golden(<span class="hljs-type">int</span>&#x27;(cmd.op), <span class="hljs-type">int</span>&#x27;(cmd.A), <span class="hljs-type">int</span>&#x27;(cmd.B), ovf);
+      predicted.ovf    = (ovf != <span class="hljs-number">0</span>);
+
+      <span class="hljs-keyword">return</span> predicted;
+
+   <span class="hljs-keyword">endfunction</span> : predict_result</code></pre><details><summary>el archivo entero, 58 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">scoreboard</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_subscriber</span> #(<span class="hljs-type">result_transaction</span>);
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(scoreboard);
+
+   <span class="hljs-uvm-type">uvm_tlm_analysis_fifo</span> #(<span class="hljs-type">command_transaction</span>) cmd_f;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      cmd_f = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;cmd_f&quot;</span>, <span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-comment">// La UNICA diferencia con el scoreboard de las sequences, y es la seccion</span>
+   <span class="hljs-comment">// entera: aca no hay un case con la aritmetica de la spec. La prediccion se</span>
+   <span class="hljs-comment">// le pide al modelo de referencia en C, que es el que la firmo.</span>
+   <span class="hljs-comment">//</span>
+   <span class="hljs-comment">// Lo que no cambia: el monitor, el analysis port, la FIFO, el do_compare y</span>
+   <span class="hljs-comment">// el uvm_error. El golden model reemplaza SEIS LINEAS -- las de predecir --</span>
+   <span class="hljs-comment">// y ninguna otra pieza del testbench se entera.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">result_transaction </span><span class="hljs-title">predict_result</span>(command_transaction cmd);
+      result_transaction predicted;
+      <span class="hljs-type">int</span>                ovf;
+
+      predicted = result_transaction::type_id::create(<span class="hljs-string">&quot;predicted&quot;</span>);
+
+      predicted.result = vtalu_golden(<span class="hljs-type">int</span>&#x27;(cmd.op), <span class="hljs-type">int</span>&#x27;(cmd.A), <span class="hljs-type">int</span>&#x27;(cmd.B), ovf);
+      predicted.ovf    = (ovf != <span class="hljs-number">0</span>);
+
+      <span class="hljs-keyword">return</span> predicted;
+
+   <span class="hljs-keyword">endfunction</span> : predict_result
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">write</span>(result_transaction t);
+      <span class="hljs-type">string</span> data_str;
+      command_transaction cmd;
+      result_transaction predicted;
+
+      <span class="hljs-keyword">do</span>
+      <span class="hljs-keyword">if</span> (!cmd_f.try_get(cmd))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;SELF CHECKER&quot;</span>, <span class="hljs-string">&quot;Missing command in self checker&quot;</span>)
+      <span class="hljs-keyword">while</span> ((cmd.op == no_op) || (cmd.op == rst_op));
+
+      predicted = predict_result(cmd);
+
+      data_str = {
+         cmd.convert2string(),
+         <span class="hljs-string">&quot; ==&gt;  Actual &quot;</span>,
+         t.convert2string(),
+         <span class="hljs-string">&quot;/Predicted &quot;</span>,
+         predicted.convert2string()
+      };
+
+      <span class="hljs-keyword">if</span> (!predicted.compare(t)) <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SELF CHECKER&quot;</span>, {<span class="hljs-string">&quot;FAIL: &quot;</span>, data_str})
+      <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;SELF CHECKER&quot;</span>, {<span class="hljs-string">&quot;PASS: &quot;</span>, data_str}, <span class="hljs-uvm-const">UVM_HIGH</span>)
+
+   <span class="hljs-keyword">endfunction</span> : write
+<span class="hljs-keyword">endclass</span> : scoreboard</code></pre></details></figure>
+
+<ul>
+<li>Es <strong>la única</strong> diferencia con el scoreboard de las sequences. El monitor, el
+analysis port, la FIFO, el <code>do_compare</code> y el <code>uvm_error</code> no cambian</li>
+<li>El golden model reemplaza las seis líneas de predecir, y ninguna otra pieza
+del testbench se entera de que hay C del otro lado</li>
+<li>Y la frontera se cruza en los dos sentidos: <code>vtalu_golden_bug(1)</code> es
+SystemVerilog <strong>cambiándole el estado</strong> al modelo de C</li>
+</ul>
+<div class="nota">
+<p>El recuento vale hacerlo en voz alta porque es el argumento de diseño de toda la
+unidad: cambió una función de seis líneas y no cambió nada más. Eso pasa porque
+el scoreboard ya estaba bien repartido —predecir y comparar son dos trabajos, y
+estaban en dos métodos—, y es la recompensa tardía de haber separado
+<code>predict_result</code> de <code>write</code> hace tres días.
+La línea del <code>int&#39;(...)</code> es la que hay que señalar: los tipos de UVM no cruzan la
+frontera. Del otro lado no hay <code>command_transaction</code>, hay tres enteros. Cuando el
+dato es un objeto —una imagen, un paquete, una matriz— lo que se pasa es un
+puntero o un arreglo abierto, y el que decide el formato es el modelo de C, no el
+testbench.
+Y el <code>vtalu_golden_bug</code> no es un adorno: <strong>un scoreboard que nunca vio un error
+no está probado</strong>. <code>run.sh</code> corre el mismo test contra un modelo mutado —la
+multiplicación truncada a ocho bits— y exige que el scoreboard grite. Si no
+grita, el testbench está comparando contra sí mismo y nadie se iba a enterar. Es
+el mismo test de mutación que el corrector del capstone hace con <code>+BUG=1</code>, del
+otro lado del cable.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/396">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s397" class="slide">
+<h2 id="el-modelo-de-referencia-en-c">El modelo de referencia en C</h2>
+<h4 id="lo-que-se-gana-lo-que-se-paga"><em>Lo que se gana, lo que se paga</em></h4>
+<table>
+<thead>
+<tr>
+<th>Se gana</th>
+<th>Se paga</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Un solo modelo</strong>, el que firmó la spec</td>
+<td>los opcodes se sincronizan <strong>a mano</strong>: un <code>enum</code> de cada lado</td>
+</tr>
+<tr>
+<td>El modelo se testea con las herramientas de C</td>
+<td>un <code>undefined reference</code> no dice cuál de las dos declaraciones está mal</td>
+</tr>
+<tr>
+<td>Aritmética que en SystemVerilog es dolorosa —punto flotante, matrices, cripto—</td>
+<td>el modelo de C corre en <strong>tiempo cero</strong>: no puede esperar un flanco</td>
+</tr>
+<tr>
+<td>Rendimiento: es una llamada a función, no un IPC</td>
+<td>un <code>segfault</code> en el modelo se lleva puesta la simulación entera</td>
+</tr>
+</tbody></table>
+<ul>
+<li>La regla para decidir: si la predicción <strong>ya existe en C</strong>, DPI. Si la escribís
+vos de cero y son cinco líneas, un <code>case</code> en SystemVerilog y listo</li>
+<li>Corre: <code>make u8/dpi</code> — dos tests contra el modelo sano, y uno contra el mutado</li>
+</ul>
+<div class="nota">
+<p>La tabla es la que hay que dejar escrita, y la fila que más discusión da es la
+primera de la derecha: el <code>enum</code> duplicado. Es real y no tiene solución elegante
+—el LRM no comparte tipos entre los dos lados—, y es la primera cosa que hay que
+mirar cuando <strong>todas</strong> las comparaciones fallan a la vez. Si falla una de cada
+seis, es el DUT; si fallan todas, es el mapeo.
+La tercera fila de la derecha es la que sorprende y conviene anticipar: una
+<code>function</code> de DPI corre en tiempo cero, así que el modelo de C no puede
+sincronizar con el reloj. Para eso está <code>import &quot;DPI-C&quot; task</code>, que sí puede
+consumir tiempo — y ahí ya no es un golden model, es un modelo de bus, que es
+otro tema.
+La regla del anteúltimo bullet es la que hay que llevarse, porque el riesgo de
+esta sección es que alguien salga queriendo hacer todo por DPI. El VTALU <strong>no</strong>
+justifica DPI: cinco operaciones de ocho bits se escriben en un <code>case</code> y se leen
+mejor. El ejemplo existe para que la técnica esté vista cuando aparezca el DUT
+que sí la justifica, y ese DUT llega antes de lo que uno cree.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/397">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s398" class="slide">
+<h2 id="capstone-2-·-día-8">Capstone 2 · Día 8</h2>
+<h4 id="el-segundo-final-una-fifo-con-backpressure"><em>El segundo final: una FIFO con backpressure</em></h4>
+<p><code>cd code/ejercicios/d8-fifo &amp;&amp; cat spec.md</code></p>
+<ul>
+<li>Para el que ya entregó el APB. <strong>El protocolo es más simple</strong> —no hay
+direcciones, ni wait states, ni respuesta de error— y aun así es más difícil</li>
+<li>El del APB es un esclavo <strong>sin memoria útil</strong>: dirección y valor, y el
+scoreboard puede ser una tabla de cuatro filas. Una FIFO tiene <strong>orden</strong> y
+<strong>ocupación</strong>, y las dos hay que llevarlas</li>
+<li>El bug de <code>+BUG=1</code> no es de datos: <code>almost_full</code> se levanta <strong>un lugar tarde</strong>.
+Los datos siguen saliendo bien y en orden, así que un scoreboard que sólo
+compara <code>rd_data</code> pasa en verde</li>
+<li>La letra chica: las banderas describen el estado <strong>antes</strong> del flanco,
+<code>rd_data</code> llega <strong>un ciclo tarde</strong>, escribir con la FIFO llena <strong>no es un
+error</strong>, y una lectura simultánea <strong>le hace lugar</strong> a la escritura</li>
+</ul>
+<div class="nota">
+<p>Éste es el ejercicio que separa al que entendió del que copió el patrón, y el
+mecanismo por el que separa está en el tercer bullet: el bug está en una
+<strong>salida de control</strong>, no en el camino de datos. Un scoreboard que compara lo
+que sale por <code>rd_data</code> cierra seis de las siete filas del plan y pasa en verde
+con el DUT roto. Para verlo hay que predecir las banderas, y para predecir las
+banderas hay que modelar la ocupación — o sea, escribir un modelo de referencia
+con estado, que es lo que el primer capstone no podía pedir.
+Vale decir por qué va segundo y no primero: el APB es el DUT que se cruza el
+primer año, y el patrón tabla-direccion-valor es el correcto ahí. Éste enseña
+cuándo ese patrón deja de servir, y esa lección no se entiende sin haber usado
+el patrón antes.
+La trampa que más cae es la del orden de actualización del modelo: primero mirar
+si la lectura saca —eso libera un lugar— y recién después si la escritura entra.
+Al revés, la escritura simultánea con la FIFO llena aparece como un dato perdido
+que el DUT nunca perdió, y el alumno pasa una hora buscando el bug en el RTL.
+Y la segunda: el <code>check_phase</code> que reclama datos que nunca salieron. Casi
+siempre el test terminó un ciclo antes de tiempo, y es el <code>drain_time</code> del día 3
+apareciendo donde nadie lo esperaba.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/398">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s399" class="slide">
+<h2 id="fin">Fin</h2>
+<p class="al-deck"><a href="../index.html#/399">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+</main>
+
+<footer class="pie">
+  <div class="wrap">
+    <nav class="nav-dias">
+      <a href="dia1.html">Día 1</a>
+      <a href="dia2.html">Día 2</a>
+      <a href="dia3.html">Día 3</a>
+      <a href="dia4.html">Día 4</a>
+      <a href="dia5.html">Día 5</a>
+      <a href="dia6.html">Día 6</a>
+      <a href="dia7.html">Día 7</a>
+      <a href="dia8.html">Día 8</a>
+    </nav>
+    <p><a href="../web/index.html">Sitio del curso</a> ·
+       <a href="https://github.com/leandrotozzi/verifythis">Código en GitHub</a> ·
+       CC BY 4.0</p>
+  </div>
+</footer>
+
+<script>
+    const LETRAS = 'abcdefgh';
+    document.querySelectorAll('section.quiz').forEach(sec => {
+      const lista = sec.querySelector('ul');
+      if (!lista) return;
+      lista.classList.add('opciones');
+      sec.querySelector('blockquote')?.classList.add('respuesta');
+      sec.querySelector(':is(h1, h2, h3, h4) ~ p')?.classList.add('pregunta');
+      [...lista.children].forEach((li, i) => {
+        const box = li.querySelector('input[type=checkbox]');
+        li.classList.add('opcion');
+        li.classList.toggle('es-correcta', !!box?.checked);
+        box?.remove();
+        li.tabIndex = 0;
+        li.setAttribute('role', 'button');
+        const texto = document.createElement('span');
+        while (li.firstChild) texto.append(li.firstChild);
+        li.append(texto);
+        li.insertAdjacentHTML('afterbegin', `<b class="letra">${LETRAS[i]}</b>`);
+        const responder = () => {
+          if (sec.classList.contains('respondida')) return;
+          li.classList.add('elegida');
+          sec.classList.add('respondida');
+        };
+        li.addEventListener('click', responder);
+        li.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); responder(); }
+        });
+      });
+      lista.insertAdjacentHTML('afterend',
+        '<p class="ayuda">Elegí una opción para ver la respuesta</p>');
+    });
+</script>
+</body>
+</html>

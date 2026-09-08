@@ -1,0 +1,273 @@
+## Components y fases
+
+#### *Un component es lo que está en el árbol, y al árbol lo recorre UVM*
+
+- Un testbench tiene tres cosas distintas: la **estructura** —qué partes hay y
+  cómo se conectan—, las **secuencias** —qué comandos, en qué orden— y los
+  **datos**. Esta unidad es la primera; las otras dos son el día 6
+- En los tests el test hacía `new()` de tres objetos sueltos y los llamaba
+  él mismo. Eso no es una estructura: es una función larga
+- Un `uvm_component` es un **nodo con nombre y con padre**. UVM arma el árbol
+  completo y después lo recorre entero llamando **fases**, en un orden que
+  garantiza
+- Convertir una clase en component son cuatro pasos, siempre los mismos:
+
+  1. extender `uvm_component` o una hija suya
+  2. registrarla con `` `uvm_component_utils() ``
+  3. el constructor mínimo: `(string name, uvm_component parent)`
+  4. override de las fases que le hagan falta
+
+Note:
+La frase de la slide es la que ordena la unidad: *un component es lo que está en
+el árbol*. Todo lo demás —el nombre, el padre, las fases, el `print_topology` de
+los agents— sale de ahí.
+La consecuencia práctica que hay que decir en voz alta: si algo no es un
+component, UVM no lo ve. No lo construye, no le llama fases y no aparece en la
+topología. Más adelante vamos a tener objetos que a propósito **no** son
+components —las transactions— y ahí la distinción se cobra.
+Los tres ejes —estructura, secuencias, datos— valen como mapa del resto del
+curso: components y `env` son estructura, transactions son datos, sequences son
+secuencias.
+
+---
+
+## Components y fases
+
+#### *Intro UVM phases*
+
+- Todos los uvm components tienen estos phase methods por herencia
+- UVM crea los TB y va llamando estos métodos en orden
+- Las fases son *métodos*: se overridean como cualquier otro método virtual.
+  Si además conviene llamar a `super`, es tema de la slide que sigue
+
+- *function void build_phase(uvm_phase phase):* UVM crea el TB (top-down). Los componentes UVM se instancian en este método. Si tratas de instanciarlos en otro lado es error
+- *function void connect_phase(uvm_phase phase):* Conexión de componentes
+- *function void end_of_elaboration_phase(uvm_phase phase):* UVM lo llama una vez que creo y conecto todos los componentes
+- *task run_phase(uvm_phase phase):* UVM ejecuta esta task en su propio thread. Todos los run_phase se ejecutan simultáneamente
+- *function void report_phase(uvm_phase phase):* Se ejecuta cuando se termina la última objection del test. Muestra Resultados
+
+Note:
+Tres cosas que hay que decir sí o sí: build_phase es top-down, connect_phase es
+bottom-up, y todos los run_phase corren en paralelo, cada uno en su thread.
+Y el error clásico: instanciar componentes fuera de build_phase. UVM no te avisa
+amablemente.
+
+---
+
+## Components y fases
+
+#### *¿Y el `super.build_phase()`?*
+
+```systemverilog
+// uvm_component.svh — uvm-core 2020.3.1, tal cual
+function void uvm_component::build_phase(uvm_phase phase);
+   build();            // -> apply_config_settings(): la config automatica
+endfunction
+
+function void uvm_component::connect_phase(uvm_phase phase);
+   connect();          // -> return;  esta vacia, igual que las demas
+endfunction
+```
+
+- `build_phase` es la **única** fase que hace algo en `uvm_component`: recorre el
+  `uvm_config_db` y asigna sola los campos que registraste con `` `uvm_field_* ``
+- El curso **no usa esas macros** —los campos se leen a mano con
+  `uvm_config_db::get()`—, así que no hay nada que aplicar. Por eso ningún
+  `build_phase` de `code/` llama a `super`: **no es un olvido**
+- En cuanto aparezca un `` `uvm_field_int `` en tu proyecto, pasa a ser
+  obligatoria: sin ella la config automática no ocurre, el campo queda en su
+  default y **nadie te avisa**
+- Y el orden importa: lo que tenga que estar decidido *antes* de que se
+  construyan los hijos va antes del `super`. El `set_type_override` de
+  `add_test` (las transactions) es exactamente eso
+
+Note:
+Esta slide existe porque el alumno va a ver `super.build_phase(phase)` en todo el
+material de internet y en el código del curso no está. La respuesta honesta no es
+"se olvidaron": es que sin las macros de campo la llamada no hace nada.
+Y aprovechar para nombrar la diferencia de fondo: hay dos formas de configurar un
+componente. La automática (`` `uvm_field_* `` + config_db, magia por macros) y la
+manual (`uvm_config_db::get()` en el build_phase, que es la que usa el curso).
+La manual es más código y muchísimo más fácil de debuggear — las macros de campo
+generan cientos de líneas que no vas a leer nunca.
+Si alguien pregunta por qué las otras fases igual se suelen llamar: costumbre y
+seguro barato. En `uvm_component` son `return;`, pero si mañana heredás de una
+clase intermedia que sí las implementa, la llamada ya está puesta.
+
+---
+
+## Components y fases
+
+#### *El cuadro completo: son nueve, no cinco*
+
+| Fase | Para qué | Orden |
+| --- | --- | --- |
+| `build_phase` | instanciar los componentes | **top-down** |
+| `connect_phase` | conectar los ports | bottom-up |
+| `end_of_elaboration_phase` | jerarquía lista, antes de simular | bottom-up |
+| `start_of_simulation_phase` | último aviso antes del tiempo 0 | bottom-up |
+| `run_phase` | **task**: acá pasa la simulación | un thread c/u |
+| `extract_phase` | juntar los datos de la corrida | bottom-up |
+| `check_phase` | decidir si pasó o no | bottom-up |
+| `report_phase` | imprimir el veredicto | bottom-up |
+| `final_phase` | cerrar archivos y salir | bottom-up |
+
+- El curso usa cinco. Las otras cuatro existen, están vacías, y las vas a ver
+
+Note:
+La tabla está para que nadie se vaya creyendo que UVM tiene cinco fases: tiene
+nueve comunes y doce runtime. El curso usa cinco porque con un solo agent
+alcanza, y eso hay que decirlo — no es que las otras no importen.
+Las tres que más se van a cruzar afuera: `start_of_simulation_phase` es donde la
+gente imprime el banner de configuración del test; `check_phase` es donde un
+scoreboard prolijo decide el veredicto, en vez de contar errores sobre la
+marcha; y `report_phase` es la que ya vieron.
+Que `extract` / `check` / `report` estén separadas tiene una razón concreta: son
+bottom-up, así que un scoreboard hijo termina de extraer antes de que el env
+padre decida. Si hacés las tres cosas en `report_phase`, perdés esa garantía.
+La pregunta que ordena la tabla: ¿por qué `build_phase` es la única top-down?
+Porque un padre tiene que existir para poder crear a sus hijos. Todas las demás
+necesitan lo contrario — que los hijos ya estén.
+
+---
+
+## Components y fases
+
+#### *Y adentro del `run_phase`, un cronograma*
+
+```
+   reset          configure          main          shutdown
+  pre  post      pre     post      pre   post     pre    post
+```
+
+- En **paralelo** con `run_phase`, UVM recorre doce fases *runtime*, todas
+  `task`, en ese orden
+- Están para coordinar componentes de equipos distintos sin banderas a mano:
+  nadie manda tráfico en `main` hasta que **todos** terminaron `reset`
+- Cada una tiene su propio objection, con la regla de los tests: una fase
+  runtime sin objection **termina en cuanto arranca**
+- El curso usa `run_phase` y nada más — con un solo agent no hay nada que
+  coordinar. Pero el `default_sequence` del día 6 se engancha a **`main_phase`**
+
+Note:
+Esta slide existe para que `main_phase` no aparezca por primera vez en el día 6.
+La distinción exacta, que confunde a todo el mundo: `run_phase` y el cronograma
+`reset → configure → main → shutdown` corren **a la vez**, no uno adentro del
+otro. Un componente puede implementar cualquiera de los dos caminos; lo que no
+conviene es mezclarlos en el mismo testbench, porque después nadie sabe qué
+corre cuándo.
+La pregunta honesta es "¿y entonces cuál uso?". Para un testbench de un solo
+bloque, `run_phase`, que es lo que hace el curso. El cronograma se gana el
+sueldo en integración: el agent del bus de configuración termina su `configure`
+y recién ahí el de datos arranca su `main`, sin que ninguno de los dos equipos
+haya tenido que escribir un `uvm_event` ni una bandera compartida.
+
+---
+
+## Components y fases
+
+#### *El scoreboard, ahora como component*
+
+{{code:code/u4/components/tb_classes/scoreboard.svh|lines=1-18}}
+
+- Los cuatro pasos, en orden: extiende `uvm_component`, se registra, constructor
+  `(name, parent)`, y override de `build_phase`
+- El cambio de fondo no se ve en el diff: antes el **test** recibía la BFM y se
+  la pasaba al scoreboard por el constructor. Ahora el scoreboard **se la pide
+  solo** al config_db
+- El `run_phase` es el `execute()` del testbench en objetos sin tocar una coma: el
+  chequeo no cambió, cambió quién lo arranca
+
+Note:
+El punto de la slide es la autosuficiencia. Un componente que necesita que
+alguien le pase sus dependencias obliga a que ese alguien las conozca, y el test
+termina siendo un repartidor de handles que no usa. Con el config_db, el test no
+sabe que el scoreboard necesita una BFM.
+Eso es exactamente lo que hace que el `env` pueda existir: si
+cada componente se configura solo, el padre sólo tiene que construirlo.
+El precio también hay que decirlo: la dependencia dejó de estar en el
+constructor, donde se veía, y pasó a un string. `"bfm"` mal escrito compila. Por
+eso el `if (!get(...)) uvm_fatal` no es opcional.
+
+---
+
+## Components y fases
+
+#### *El test construye el árbol y se va*
+
+{{code:code/u4/components/tb_classes/random_test.svh}}
+
+- Los tres `new("nombre", this)` son lo que crea el árbol: `this` es el padre, y
+  el string es el nombre que va a salir en `print_topology` y en cada mensaje
+- Van en `build_phase` **y en ningún otro lado**. En el constructor todavía no
+  hay jerarquía; después de `build_phase`, UVM ya siguió
+- `random_test` **no tiene `run_phase`**: su trabajo terminó cuando el árbol
+  quedó armado. Los tres hijos tienen el suyo, y corren en paralelo
+
+Note:
+Es el cambio de mentalidad de la unidad, y conviene decirlo con estas palabras:
+el test dejó de *hacer* el test. Ahora lo arma y se corre a un costado.
+La objection también se mudó: ya no la levanta el test, la levantan los
+componentes que tienen trabajo — o, en este ejemplo, el tester. Vale mostrar
+`random_tester.svh` un segundo para que se vea.
+Y la trampa que va a aparecer sola: `new()` acá funciona porque el tipo está
+escrito en la declaración. En el env eso se reemplaza por
+`type_id::create()`, y ése es el cambio que habilita los overrides. Todavía no,
+pero conviene sembrarlo.
+
+---
+
+## Components y fases
+
+#### *El segundo test: hereda, y aun así copia*
+
+{{code:code/u4/components/tb_classes/add_test.svh}}
+
+- `add_test` extiende `random_test`, así que hereda `coverage_h` y
+  `scoreboard_h`. Sólo redeclara `tester_h`, con otro tipo
+- Pero el `build_phase` está **escrito de nuevo entero**, y las tres líneas son
+  idénticas salvo una. Heredar la clase no alcanzó para heredar la estructura
+- Y hay algo peor escondido: `add_tester tester_h;` **tapa** al `tester_h` de la
+  clase base. Son dos variables distintas con el mismo nombre
+- Es el mismo problema de los tests, disfrazado. El env lo resuelve de
+  verdad: **una** estructura, y la factory sustituye la pieza que cambia
+
+Note:
+Ésta es la slide que hay que dejar incómoda. Si el alumno sale pensando "esto
+sigue estando mal", el env se explica sola.
+El shadowing del handle merece un minuto: en la clase base hay un
+`random_tester tester_h` y acá un `add_tester tester_h`. Cualquier método
+heredado de `random_test` que use `tester_h` va a ver el de la base, que quedó en
+`null`. Acá no molesta porque no hay ninguno, pero es una bomba de tiempo y es
+exactamente el tipo de error mudo que el curso persigue.
+El enganche: en el `env` no hay dos tests, hay uno; y `add_test` pasa a ser una
+línea de `set_type_override_by_type`.
+
+---
+
+## Components y fases
+
+#### *Resumen de la unidad*
+
+- Un `uvm_component` es un **nodo con nombre y con padre**. UVM arma el árbol
+  con esos dos datos y después lo recorre solo
+- Convertir una clase en component son **cuatro pasos, siempre los mismos**:
+  extender, registrar con la macro, el constructor de dos argumentos, y las
+  fases
+- Las **fases** son métodos virtuales que UVM llama **en orden**: `build_phase`
+  (top-down), `connect_phase`, `end_of_elaboration_phase`, `run_phase`,
+  `report_phase`
+- Los componentes se instancian **en el `build_phase` y en ningún otro lado**
+- Todos los `run_phase` corren **en paralelo**, cada uno en su thread. Ninguno
+  decide solo cuándo termina la simulación: eso son las **objections**
+- `build_phase` es la única fase que hace algo en `uvm_component`, y por eso es
+  la única donde `super.build_phase()` cambia el comportamiento
+
+Note:
+La unidad que convierte el testbench en algo que UVM puede recorrer, y con eso
+aparecen las herramientas que no existían antes: `print_topology()` muestra el
+árbol, y el `uvm_config_db` puede usar rutas porque ahora hay rutas.
+El `super.build_phase()` merece la vuelta que le dimos porque es la pregunta más
+repetida de los foros: no llamarlo apaga la asignación automática de los campos
+registrados con `` `uvm_field_* ``. Este curso no los usa, así que no lo llama —
+pero lo que no es válido es hacer media cosa de cada una.

@@ -1,0 +1,97 @@
+name: build
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+
+      # Falla si index.html quedo desactualizado respecto de slides/
+      - name: index.html al dia
+        run: npm run check
+
+      - run: npm run build
+
+      - uses: browser-actions/setup-chrome@v1
+        id: chrome
+      # Falla si alguna slide se recorta, en pantalla o en el PDF
+      - name: Ninguna slide recortada
+        env:
+          CHROME: ${{ steps.chrome.outputs.chrome-path }}
+        run: npm run overflow
+
+      - name: PDF
+        env:
+          CHROME: ${{ steps.chrome.outputs.chrome-path }}
+        run: npm run pdf
+
+      - uses: pandoc/actions/setup@v1
+      - name: PPTX
+        run: npm run pptx
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: curso-uvm
+          path: |
+            dist/curso-uvm.pdf
+            dist/curso-uvm.pptx
+
+      # El sitio es index.html + sus assets. NO se sube el repo entero:
+      # node_modules/ pesa mas que todo el curso junto.
+      - name: Preparar sitio
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p _site
+          # La raiz del sitio es la landing, no el deck. Dos razones: reveal.js
+          # no le da a un buscador ni una linea de texto que indexar, y el que
+          # llega de Google necesita saber que es esto antes de caer en la slide
+          # 1 de 275. El deck queda en curso.html, y la landing reenvia los
+          # enlaces viejos con hash (verifythis/#/day3).
+          cp web/index.html web/robots.txt web/sitemap.xml _site/
+          cp index.html _site/curso.html
+          cp docs/portada.png _site/portada.png
+          cp -r css js res vendor _site/
+          # El libro: los seis dias para leer de corrido. css/ y res/ quedan en
+          # ../ igual que en el repo; las dos rutas que cambian se reescriben
+          # aca -- el deck se llama curso.html en el sitio, y la landing es la
+          # raiz en vez de web/index.html.
+          cp -r libro _site/
+          sed -i -e 's|"\.\./index\.html#|"../curso.html#|g' \
+                 -e 's|"\.\./web/index\.html"|"../index.html"|g' _site/libro/*.html
+          grep -q '\.\./curso\.html#' _site/libro/dia1.html  # que la reescritura no se rompa en silencio
+          cp dist/curso-uvm.pdf dist/curso-uvm.pptx _site/
+
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deploy

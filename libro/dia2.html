@@ -1,0 +1,2920 @@
+<!DOCTYPE html>
+<html lang="es" class="libro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Día 2 · La OOP que UVM da por sabida — Verify This! · Curso de UVM en español</title>
+<meta name="description" content="Día 2 del curso de UVM en español, para leer de corrido: las slides con las notas del instructor adentro del texto y el código completo.">
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/course.css">
+<link rel="stylesheet" href="../css/code.css">
+<link rel="stylesheet" href="../css/libro.css">
+</head>
+<body class="reveal">
+<header class="cabecera">
+  <div class="wrap">
+    <p class="marca"><a href="../web/index.html">Verify This!</a> · el curso para leer</p>
+    <nav class="nav-dias">
+      <a href="dia1.html">Día 1</a>
+      <b>Día 2</b>
+      <a href="dia3.html">Día 3</a>
+      <a href="dia4.html">Día 4</a>
+      <a href="dia5.html">Día 5</a>
+      <a href="dia6.html">Día 6</a>
+      <a href="dia7.html">Día 7</a>
+      <a href="dia8.html">Día 8</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1 class="titulo-dia"><span>Día 2</span>La OOP que UVM da por sabida</h1>
+  <p class="bajada">Las mismas slides del deck, con <strong>las notas del
+  instructor adentro del texto</strong> y el código completo. Si estás haciendo
+  el curso solo, empezá por acá y tené el deck al lado para los repasos.</p>
+
+<section id="s63" class="slide">
+<h2 id="agenda">Agenda</h2>
+<h4 id="día-2-·-≈-4-h-·-unidad-3-·-la-oop-que-uvm-da-por-sabida"><em>Día 2 · ≈ 4 h · unidad 3 · la OOP que UVM da por sabida</em></h4>
+<ul>
+<li>Clases y extensiones</li>
+<li>Polimorfismo</li>
+<li>Variables y métodos estáticos</li>
+<li>Clases paramétricas</li>
+<li>El patrón factory</li>
+<li>Un testbench sin un solo módulo</li>
+</ul>
+<p class="al-deck"><a href="../index.html#/63">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s64" class="slide">
+<h2 id="clases-y-extensiones">Clases y extensiones</h2>
+<h4 id="¿por-qué-oop-en-un-testbench"><em>¿Por qué OOP en un testbench?</em></h4>
+<ul>
+<li>El testbench convencional es un <strong>módulo</strong>: se elabora una vez, existe desde
+el <code>time 0</code> hasta el <code>$finish</code>, y siempre es el mismo</li>
+<li>Un estímulo no se parece en nada a eso: aparece, viaja por el testbench, se
+compara y se tira. Eso no es un módulo, es un <strong>objeto</strong></li>
+<li>Módulos = <em>estructura</em>, se elaboran. Clases = <em>datos y comportamiento</em>, se
+crean y se destruyen mientras la simulación corre</li>
+<li>Y no es opcional: <strong>UVM es una librería de clases</strong>. <code>uvm_test</code>,
+<code>uvm_component</code>, <code>uvm_object</code>. Sin esto, el resto del curso no se puede leer</li>
+</ul>
+<div class="nota">
+<p>Acá está el muro real del curso, y no es UVM: es OOP. El que llega de RTL nunca
+escribió una clase, y a partir de los tests todo son clases.
+Si el grupo viene de software, esta unidad se pasa rápido y se gana tiempo para
+el día 3. Si viene de RTL, es la unidad donde hay que gastar el tiempo que
+sobre, aunque haya que sacarlo de otro lado.
+La pregunta que ordena todo: ¿esto existe todo el tiempo o aparece y se va? Lo
+primero es un módulo; lo segundo, un objeto.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/64">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s65" class="slide">
+<h2 id="clases-y-extensiones">Clases y extensiones</h2>
+<h4 id="lo-que-una-struct-no-puede-hacer"><em>Lo que una <code>struct</code> no puede hacer</em></h4>
+<figure class="codigo"><figcaption><code>code/u3/clases/structs.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> {
+   <span class="hljs-type">int</span> length;
+   <span class="hljs-type">int</span> width;
+} rectangle_struct;
+
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> {<span class="hljs-type">int</span> side;} square_struct;
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top_struct</span>;
+   rectangle_struct rectangle_s;
+   square_struct    square_s;
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      rectangle_s.length = <span class="hljs-number">50</span>;
+      rectangle_s.width = <span class="hljs-number">20</span>;
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;rectangle area: %0d&quot;</span>, rectangle_s.length * rectangle_s.width);
+      square_s.side = <span class="hljs-number">50</span>;
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;square area: %0d&quot;</span>, square_s.side ** <span class="hljs-number">2</span>);
+   <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">endmodule</span></code></pre></figure>
+
+<ul>
+<li>La <code>struct</code> guarda datos y <strong>nada más</strong>: la cuenta del área hay que escribirla
+afuera, y de nuevo en cada lugar donde se necesite</li>
+<li><code>square_struct</code> no tiene ninguna relación con <code>rectangle_struct</code>, aunque un
+cuadrado sea un caso particular de un rectángulo</li>
+<li>No se randomiza sola, no se compara sola, no se imprime sola</li>
+</ul>
+<div class="nota">
+<p>Conviene arrancar preguntando qué tiene de malo la <code>struct</code>, porque la respuesta
+espontánea es &quot;nada&quot; — y tienen razón: para guardar tres campos anda perfecto. El
+curso no viene a decir que la <code>struct</code> esté mal, viene a decir dónde se queda
+corta.
+Los tres bullets son tres cosas distintas y conviene separarlas. La primera es
+<strong>cohesión</strong>: el dato está acá y la operación sobre el dato está en otro archivo,
+así que nada obliga a que estén de acuerdo. La segunda es <strong>herencia</strong>: un
+cuadrado <em>es</em> un rectángulo y el lenguaje no tiene forma de decirlo, así que se
+copia y pega. La tercera es la que se va a cobrar el día 5: un <code>command_s</code> no
+sabe randomizarse ni compararse consigo mismo, y todo eso hay que escribirlo
+afuera, una vez por cada lugar que lo use.
+El remate honesto, para que nadie se lleve una idea religiosa: el <code>command_s</code> del
+testbench convencional <strong>es</strong> una struct, funciona, y estuvo bien mientras el
+testbench era un módulo. Lo que cambia es la escala.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/65">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s66" class="slide">
+<h2 id="clases-y-extensiones">Clases y extensiones</h2>
+<h4 id="la-primera-clase-datos-métodos-y-constructor"><em>La primera clase: datos, métodos y constructor</em></h4>
+<figure class="codigo"><figcaption><code>code/u3/clases/rectangle_only.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">rectangle</span>;
+   <span class="hljs-type">int</span> length;
+   <span class="hljs-type">int</span> width;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> l, <span class="hljs-type">int</span> w);
+      length = l;
+      width = w;
+   <span class="hljs-keyword">endfunction</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">area</span>;
+      <span class="hljs-keyword">return</span> length * width;
+   <span class="hljs-keyword">endfunction</span>
+<span class="hljs-keyword">endclass</span> : rectangle
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top_rectangle</span>;
+
+   rectangle rectangle_h;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+
+      rectangle_h = <span class="hljs-keyword">new</span>(.l(<span class="hljs-number">50</span>), .w(<span class="hljs-number">20</span>));
+
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;rectangle area: %0d&quot;</span>, rectangle_h.area());
+
+   <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">endmodule</span> : top_rectangle</code></pre></figure>
+
+<ul>
+<li>La clase junta los <strong>datos</strong> (<code>length</code>, <code>width</code>) con <strong>lo que se hace con
+ellos</strong> (<code>area()</code>). El área se calcula en un solo lugar</li>
+<li><code>new()</code> es el <em>constructor</em>: corre una vez, cuando se crea el objeto</li>
+<li><code>.l(50)</code> es pasaje de argumentos <strong>por nombre</strong>. UVM lo usa todo el tiempo</li>
+</ul>
+<div class="nota">
+<p>La comparación con la slide anterior es la clase entera: los mismos dos campos,
+más una función que antes vivía suelta. Vale señalar <code>area()</code> y decir que ésa es
+toda la diferencia — el dato y lo que se hace con el dato viajan juntos.
+<code>new()</code> conviene presentarlo sin misterio: es una función común, con un nombre
+reservado, que el simulador llama sola cuando se crea el objeto. Devuelve el
+handle. No hace nada mágico y no hay un destructor del otro lado.
+El pasaje por nombre parece cosmético y no lo es: cuando el constructor tenga
+cinco argumentos —y el de <code>uvm_component</code> tiene dos que <strong>siempre</strong> son los
+mismos— <code>.l(50)</code> es lo que hace que la llamada se lea sin ir a buscar la firma.
+Todo <code>code/</code> del curso está escrito así.
+Y la pregunta para dejar picando, que se contesta en la slide siguiente: si
+declaro <code>rectangle r;</code> y no llamo a <code>new()</code>, ¿cuántos objetos hay?</p>
+</div>
+<p class="al-deck"><a href="../index.html#/66">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s67" class="slide">
+<h2 id="clases-y-extensiones">Clases y extensiones</h2>
+<h4 id="handle-y-objeto-no-son-la-misma-cosa"><em>Handle y objeto no son la misma cosa</em></h4>
+<pre><code class="language-systemverilog">rectangle rectangle_h;               // 1. un HANDLE. Todavia no hay objeto: vale null
+rectangle_h = new(.l(50), .w(20));   // 2. new() crea el OBJETO y devuelve su handle
+</code></pre>
+<ul>
+<li>Declarar un handle <strong>no crea nada</strong>. Hasta el <code>new()</code> vale <code>null</code>, y usarlo
+ahí revienta en tiempo de simulación, no de compilación</li>
+<li>El handle se parece a un puntero, pero no admite aritmética: no hay <code>h + 1</code></li>
+<li>La memoria de una <code>struct</code> la reserva el simulador apenas la ve; la de un
+objeto, recién en el <code>new()</code></li>
+<li>Y no hay <code>free()</code>: cuando no queda ningún handle apuntándolo, el objeto se
+recolecta solo</li>
+</ul>
+<div class="nota">
+<p>El null pointer es EL error de la primera semana, y el mensaje de Verilator no
+ayuda: te dice que dereferenciaste null, no dónde te faltó el <code>new()</code>.
+Vale la pena escribir las dos líneas en el pizarrón y preguntar cuántos objetos
+hay después de cada una. La respuesta es cero y uno.
+Esto vuelve dos veces más en el curso: en las jerarquías de clases, cuando <code>obj1_h = obj2_h</code>
+copia el handle y no el objeto; y en los tests, cuando la virtual interface que no
+se leyó del config_db queda en null.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/67">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s68" class="slide">
+<h2 id="clases-y-extensiones">Clases y extensiones</h2>
+<h4 id="extender-extends-y-super"><em>Extender: <code>extends</code> y <code>super</code></em></h4>
+<figure class="codigo"><figcaption><code>code/u3/clases/classes.sv</code> · líneas 6-29 de 48</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">rectangle</span>;
+   <span class="hljs-comment">// Data members</span>
+   <span class="hljs-type">int</span> length;
+   <span class="hljs-type">int</span> width;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> l, <span class="hljs-type">int</span> w);
+      length = l;
+      width = w;
+   <span class="hljs-keyword">endfunction</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">area</span>();
+      <span class="hljs-keyword">return</span> length * width;
+   <span class="hljs-keyword">endfunction</span>
+<span class="hljs-keyword">endclass</span>
+
+<span class="hljs-comment">// Extendiendo Clases!</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">square</span> <span class="hljs-keyword">extends</span> rectangle;
+   <span class="hljs-comment">// Override Constructor</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> side);
+      <span class="hljs-comment">//super: llamado a metodo de padre</span>
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(.l(side), .w(side));
+   <span class="hljs-keyword">endfunction</span>
+
+<span class="hljs-keyword">endclass</span></code></pre><details><summary>el archivo entero, 48 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Memory Management: Crear un objeto y pasarlos por el TB, es reservar memoria</span>
+<span class="hljs-comment">//                    y compartirla entre threads</span>
+<span class="hljs-comment">//                    El Simulador trata distinto una clase respecto de una struct</span>
+<span class="hljs-comment">//                    El simulador reserva la memoria de la struct apenas la ve</span>
+<span class="hljs-comment">//                    mientras que en las clases, se debe hacer mediante new()</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">rectangle</span>;
+   <span class="hljs-comment">// Data members</span>
+   <span class="hljs-type">int</span> length;
+   <span class="hljs-type">int</span> width;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> l, <span class="hljs-type">int</span> w);
+      length = l;
+      width = w;
+   <span class="hljs-keyword">endfunction</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">area</span>();
+      <span class="hljs-keyword">return</span> length * width;
+   <span class="hljs-keyword">endfunction</span>
+<span class="hljs-keyword">endclass</span>
+
+<span class="hljs-comment">// Extendiendo Clases!</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">square</span> <span class="hljs-keyword">extends</span> rectangle;
+   <span class="hljs-comment">// Override Constructor</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> side);
+      <span class="hljs-comment">//super: llamado a metodo de padre</span>
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(.l(side), .w(side));
+   <span class="hljs-keyword">endfunction</span>
+
+<span class="hljs-keyword">endclass</span>
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top_class</span>;
+   <span class="hljs-comment">//Handle: similar a un puntero, pero no permite operaciones aritmeticas</span>
+   rectangle rectangle_h;
+   square    square_h;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+
+      rectangle_h = <span class="hljs-keyword">new</span>(.l(<span class="hljs-number">50</span>), .w(<span class="hljs-number">20</span>));
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;rectangle area: %0d&quot;</span>, rectangle_h.area());
+
+      square_h = <span class="hljs-keyword">new</span>(.side(<span class="hljs-number">50</span>));
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;square area: %0d&quot;</span>, square_h.area());
+
+      <span class="hljs-comment">// Ya que un cuadrado es un caso particular de un rectangulo:</span>
+      <span class="hljs-comment">// rectangle_h puede apuntar a un square? Si, polimorfismo</span>
+
+   <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">endmodule</span></code></pre></details></figure>
+
+<ul>
+<li><code>square extends rectangle</code> hereda <code>length</code>, <code>width</code> y <code>area()</code> <strong>sin copiar
+una línea</strong>. Un cuadrado es un rectángulo con una restricción, y el código lo
+dice así</li>
+<li>El constructor del hijo llama a <code>super.new()</code>: la parte de arriba del objeto
+también hay que construirla, y va <strong>primero</strong></li>
+<li>Extender no es copiar: si mañana <code>area()</code> cambia, cambia para los dos</li>
+</ul>
+<div class="nota">
+<p>El orden del constructor es lo primero que hay que fijar, porque es obligatorio y
+falla feo: <code>super.new()</code> va <strong>antes</strong> que cualquier otra cosa del hijo. La razón
+es física — el objeto es uno solo, y la parte que aporta la clase base tiene que
+estar construida antes de tocar nada. Si te lo olvidás, SystemVerilog lo llama
+solo cuando el constructor de la base no lleva argumentos, y no compila cuando sí
+los lleva. El día 3, <code>uvm_component</code> los lleva.
+El último bullet es el argumento entero de la unidad y vale decirlo con un
+ejemplo: si <code>area()</code> cambia mañana, en la versión con <code>struct</code> hay que acordarse
+de los dos lugares; acá cambia en uno y el otro se entera solo. Ese &quot;se entera
+solo&quot; es lo que se compra con la herencia, y es la misma promesa que el día 6
+hace el <code>env</code> con los tests.
+Y el aviso de hacia dónde va, para que la palabra no aparezca fría en la slide
+siguiente: heredar deja al hijo <em>usar</em> lo del padre. Lo que todavía no se puede
+es que el padre llame a la versión del hijo — eso es polimorfismo, y es la sección
+que sigue.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/68">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s69" class="slide">
+<h2 id="clases-y-extensiones">Clases y extensiones</h2>
+<h4 id="dónde-reaparece-todo-esto"><em>Dónde reaparece todo esto</em></h4>
+<table>
+<thead>
+<tr>
+<th>Lo que acabás de ver</th>
+<th>Cómo se llama en UVM</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>clase con datos y métodos</td>
+<td><code>uvm_object</code> — las <em>transactions</em> del día 5</td>
+</tr>
+<tr>
+<td>clase que además vive en el árbol del TB</td>
+<td><code>uvm_component</code> — driver, monitor, scoreboard</td>
+</tr>
+<tr>
+<td><code>new()</code></td>
+<td>el constructor, con <code>name</code> (y <code>parent</code> si es un component)</td>
+</tr>
+<tr>
+<td><code>extends</code></td>
+<td>cada test, cada tester, cada agent del curso</td>
+</tr>
+<tr>
+<td><code>super.new()</code></td>
+<td>la primera línea obligatoria de todo constructor de UVM</td>
+</tr>
+</tbody></table>
+<ul>
+<li>Falta una pieza: guardar un objeto <code>square</code> en una variable <code>rectangle</code>.
+Eso es la unidad que sigue</li>
+</ul>
+<div class="nota">
+<p>Cerrar con la tabla y no con el ejemplo: el alumno tiene que irse sabiendo que
+esto no era un rodeo de programación, era el vocabulario del resto del curso.
+El último bullet deja la puerta abierta al polimorfismo, que es lo único que
+falta para poder leer una factory.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/69">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s70" class="slide">
+<h2 id="clases-y-extensiones">Clases y extensiones</h2>
+<h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
+<ul>
+<li><strong>Módulos = estructura</strong>, se elaboran una vez y viven para siempre.
+<strong>Clases = datos y comportamiento</strong>, se crean y se tiran en simulación</li>
+<li>Un estímulo se parece a lo segundo, no a lo primero. Por eso el testbench se
+muda a clases — y por eso <strong>UVM es una librería de clases</strong></li>
+<li>Una <code>struct</code> guarda datos y nada más. Una clase junta los datos <strong>con lo que
+se hace con ellos</strong>, y además se puede extender</li>
+<li><strong>Declarar un handle no crea nada.</strong> Hasta el <code>new()</code> vale <code>null</code>, y usarlo
+ahí es el error que más se repite en toda la semana</li>
+<li>No hay <code>free()</code>: cuando no queda ningún handle apuntando al objeto, se lo
+lleva el garbage collector</li>
+<li><strong>Extender</strong> una clase es agregarle o redefinirle cosas sin tocar la original.
+Es la base de todo lo que viene</li>
+</ul>
+<div class="nota">
+<p>Cierre de la unidad que abre el día más abstracto del curso. Conviene anclar con
+la promesa concreta: todo esto existe para que en el testbench en objetos el testbench del
+día 1 se pueda escribir sin un solo módulo, y en el <code>env</code> se pueda cambiar el
+estímulo sin tocar el env.
+El <code>null</code> merece una vuelta más porque vuelve tres veces: acá, en los tests
+con la virtual interface que no se leyó del <code>config_db</code>, y en las jerarquías de clases cuando
+<code>obj1_h = obj2_h</code> copia el handle y no el objeto.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/70">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s71" class="slide">
+<h2 id="polimorfismo">Polimorfismo</h2>
+<h4 id="una-variable-trago-un-objeto-fernet-¿cuál-servir-corre"><em>Una variable <code>trago</code>, un objeto <code>fernet</code>: ¿cuál <code>servir()</code> corre?</em></h4>
+<p><img src="../res/print/diagrams/uml-poli.svg" alt="Diagrama UML de los tragos"></p>
+<ul>
+<li>Un <code>fernet</code> <strong>es</strong> un <code>trago</code>, así que guardarlo en una variable <code>trago</code>
+compila y es legal</li>
+<li>La pregunta es la otra: cuando llamás al método por esa variable, ¿SystemVerilog
+mira el <strong>tipo de la variable</strong> o el <strong>tipo del objeto</strong>?</li>
+<li>La respuesta por defecto es la que no querés, y la palabra que la cambia es
+una sola</li>
+</ul>
+<div class="nota">
+<p>Es el concepto que sostiene todo lo que viene: la factory, los overrides, las
+transactions. El que se pierde acá se pierde el resto del curso, así que no
+conviene avanzar hasta que todos vean por qué la variable puede ser de la clase
+base.
+Conviene hacer votar antes de mostrar el código: &quot;¿qué imprime?&quot;. La mitad del
+aula dice <em>&quot;Fernet&quot;</em>, y ver que se equivocan es lo que fija el concepto.
+Y avisarlo antes de que lo pregunten: en SystemVerilog <code>virtual</code> está
+sobrecargado — virtual method, virtual class y virtual interface son tres cosas
+distintas. Acá es la primera.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/71">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s72" class="slide">
+<h2 id="polimorfismo">Polimorfismo</h2>
+<h4 id="las-tres-clases-un-trago-que-no-se-sabe-servir"><em>Las tres clases: un <code>trago</code> que no se sabe servir</em></h4>
+<figure class="codigo"><figcaption><code>code/u3/polimorfismo/01-sin-virtual/not_virtual.sv</code> · líneas 2-25 de 66</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
+   <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> a);
+      hielos = a;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Un trago generico no se sirve: pedi uno.&quot;</span>);
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : trago
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet</span> <span class="hljs-keyword">extends</span> trago;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernet: 70/30, y la coca al final&quot;</span>);
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : fernet</code></pre><details><summary>el archivo entero, 66 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Polimorfismo basico, SIN virtual: el caso que falla. Ver la unidad 6.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
+   <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> a);
+      hielos = a;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Un trago generico no se sirve: pedi uno.&quot;</span>);
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : trago
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet</span> <span class="hljs-keyword">extends</span> trago;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernet: 70/30, y la coca al final&quot;</span>);
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : fernet
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">gancia</span> <span class="hljs-keyword">extends</span> trago;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Gancia: con Sprite y una rodaja de limon&quot;</span>);
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : gancia
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+
+      fernet    fernet_h;
+      gancia gancia_h;
+      trago  trago_h;
+
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>);
+      fernet_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El fernet lleva %0d hielos&quot;</span>, fernet_h.hielos);
+
+      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>);
+      gancia_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El gancia lleva %0d hielos&quot;</span>, gancia_h.hielos);
+
+      <span class="hljs-comment">// La variable es trago, el objeto es fernet.</span>
+      trago_h = fernet_h;
+      trago_h.servir();  <span class="hljs-comment">// ** Fatal: Un trago generico no se sirve</span>
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+
+      trago_h = gancia_h;
+      trago_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+
+   <span class="hljs-keyword">end</span>  <span class="hljs-comment">// initial begin</span>
+
+<span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure>
+
+<ul>
+<li><code>trago</code> define <code>servir()</code> con un <code>$fatal</code>: la clase base no sabe con qué
+se sirve, y lo dice fuerte</li>
+<li><code>fernet</code> y <code>gancia</code> extienden <code>trago</code> y <strong>redefinen</strong> <code>servir()</code>, cada uno
+con el suyo</li>
+<li><code>gancia</code> —que no entra en pantalla— es igual que <code>fernet</code>, con otro <code>$display</code></li>
+</ul>
+<div class="nota">
+<p>El <code>$fatal</code> en la clase base es un patrón que se ve mucho y que en dos slides
+vamos a reemplazar por algo mejor: si el método no se puede implementar acá, lo
+correcto no es explotar en simulación, es no dejar compilar.
+Que las tres clases tengan un método con el mismo nombre y la misma firma es lo
+que hace posible todo lo que sigue. Ahora falta decidir <strong>cuál corre</strong>, y eso
+todavía no está dicho en ningún lado del código.
+El archivo entero está en <code>code/u3/polimorfismo/01-sin-virtual/not_virtual.sv</code>.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/72">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s73" class="slide">
+<h2 id="polimorfismo">Polimorfismo</h2>
+<h4 id="sin-virtual-manda-la-variable-y-eso-rompe"><em>Sin <code>virtual</code> manda la variable, y eso rompe</em></h4>
+<figure class="codigo"><figcaption><code>code/u3/polimorfismo/01-sin-virtual/not_virtual.sv</code> · líneas 47-62 de 66</figcaption><pre><code class="hljs">      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>);
+      fernet_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El fernet lleva %0d hielos&quot;</span>, fernet_h.hielos);
+
+      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>);
+      gancia_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El gancia lleva %0d hielos&quot;</span>, gancia_h.hielos);
+
+      <span class="hljs-comment">// La variable es trago, el objeto es fernet.</span>
+      trago_h = fernet_h;
+      trago_h.servir();  <span class="hljs-comment">// ** Fatal: Un trago generico no se sirve</span>
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+
+      trago_h = gancia_h;
+      trago_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);</code></pre><details><summary>el archivo entero, 66 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Polimorfismo basico, SIN virtual: el caso que falla. Ver la unidad 6.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
+   <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> a);
+      hielos = a;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Un trago generico no se sirve: pedi uno.&quot;</span>);
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : trago
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet</span> <span class="hljs-keyword">extends</span> trago;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernet: 70/30, y la coca al final&quot;</span>);
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : fernet
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">gancia</span> <span class="hljs-keyword">extends</span> trago;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Gancia: con Sprite y una rodaja de limon&quot;</span>);
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : gancia
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+
+      fernet    fernet_h;
+      gancia gancia_h;
+      trago  trago_h;
+
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>);
+      fernet_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El fernet lleva %0d hielos&quot;</span>, fernet_h.hielos);
+
+      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>);
+      gancia_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El gancia lleva %0d hielos&quot;</span>, gancia_h.hielos);
+
+      <span class="hljs-comment">// La variable es trago, el objeto es fernet.</span>
+      trago_h = fernet_h;
+      trago_h.servir();  <span class="hljs-comment">// ** Fatal: Un trago generico no se sirve</span>
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+
+      trago_h = gancia_h;
+      trago_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+
+   <span class="hljs-keyword">end</span>  <span class="hljs-comment">// initial begin</span>
+
+<span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure>
+
+<ul>
+<li>Las dos primeras llamadas andan: la variable <code>fernet_h</code> es de tipo <code>fernet</code> y el
+objeto también</li>
+<li>La tercera <strong>explota</strong>. <code>trago_h</code> apunta a un <code>fernet</code>, pero como el método no
+es virtual, SystemVerilog resuelve en <strong>compilación</strong> por el tipo de la
+variable, y llama al <code>servir()</code> de <code>trago</code></li>
+<li>Se llama <em>static binding</em>: la decisión de qué código correr ya está tomada
+antes de que exista el objeto</li>
+</ul>
+<div class="nota">
+<p>Acá conviene correrlo: <code>bash code/u3/polimorfismo/01-sin-virtual/run.sh</code>. El ejemplo
+termina en <code>$fatal</code> a propósito, y el <code>run.sh</code> da PASS justamente cuando ese
+mensaje aparece.
+La pregunta que siempre sale: &quot;¿y <code>hielos</code> por qué sí sale bien?&quot;. Porque los
+campos no son virtuales nunca: la variable ve los campos de su propio tipo, y
+<code>hielos</code> está en <code>trago</code>. Los métodos son lo único que se puede resolver por
+objeto, y sólo si se lo pedís.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/73">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s74" class="slide">
+<h2 id="polimorfismo">Polimorfismo</h2>
+<h4 id="métodos-virtuales-una-palabra-y-ahora-manda-el-objeto"><em>Métodos virtuales: una palabra, y ahora manda el objeto</em></h4>
+<figure class="codigo"><figcaption><code>code/u3/polimorfismo/02-virtual/virtual.sv</code> · líneas 11-13 de 67</figcaption><pre><code class="hljs">   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Un trago generico no se sirve: pedi uno.&quot;</span>);
+   <span class="hljs-keyword">endfunction</span> : servir</code></pre><details><summary>el archivo entero, 67 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Identico a 01-sin-virtual salvo por UNA palabra: el servir() de trago</span>
+<span class="hljs-comment">// ahora es virtual. Ver la unidad 6.</span>
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
+   <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> a);
+      hielos = a;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Un trago generico no se sirve: pedi uno.&quot;</span>);
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : trago
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet</span> <span class="hljs-keyword">extends</span> trago;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernet: 70/30, y la coca al final&quot;</span>);
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : fernet
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">gancia</span> <span class="hljs-keyword">extends</span> trago;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Gancia: con Sprite y una rodaja de limon&quot;</span>);
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : gancia
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+
+      fernet fernet_h;
+      gancia gancia_h;
+      trago trago_h;
+
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>);
+      fernet_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El fernet lleva %0d hielos&quot;</span>, fernet_h.hielos);
+
+      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>);
+      gancia_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El gancia lleva %0d hielos&quot;</span>, gancia_h.hielos);
+
+      trago_h = fernet_h;
+      trago_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+
+      trago_h = gancia_h;
+      trago_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+
+   <span class="hljs-keyword">end</span>  <span class="hljs-comment">// initial begin</span>
+
+<span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure>
+
+<ul>
+<li>Es la <strong>única</strong> diferencia entre <code>01-sin-virtual</code> y <code>02-virtual</code>: la keyword
+<code>virtual</code> en el método de la clase base</li>
+<li>Con eso la llamada se resuelve en <strong>simulación</strong>, mirando el objeto que hay
+adentro de la variable — <em>dynamic binding</em></li>
+<li><code>trago_h.servir()</code> ahora sirve un fernet o un gancia, sin que el que escribe
+esa línea sepa cuál le va a tocar</li>
+<li>Ésa es toda la idea: <strong>el que usa el objeto deja de ser el que elige el tipo</strong></li>
+</ul>
+<div class="nota">
+<p>Vale correr los dos ejemplos seguidos y mostrar el diff: una palabra.
+Un detalle que se pregunta siempre: <code>fernet</code> y <code>gancia</code> <strong>no</strong> escriben <code>virtual</code>
+en su <code>servir()</code>, y sin embargo lo son. Una vez que el método es virtual en
+la base, lo es para toda la descendencia. Escribirlo igual no molesta y mucha
+gente lo hace por prolijidad.
+La regla práctica para el resto del curso: en verificación, <strong>todo método que
+puedas querer redefinir va virtual</strong>. UVM lo hace así — <code>build_phase</code>,
+<code>run_phase</code>, <code>do_copy</code>, <code>do_compare</code> son todos virtuales, y por eso el override
+del env funciona.
+El costo existe y es real —una tabla de métodos y un salto indirecto— pero en un
+testbench no lo vas a medir nunca. En RTL sintetizable no hay clases, así que la
+discusión no aplica.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/74">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s75" class="slide">
+<h2 id="polimorfismo">Polimorfismo</h2>
+<h4 id="clases-abstractas-mover-el-error-a-la-compilación"><em>Clases abstractas: mover el error a la compilación</em></h4>
+<ul>
+<li>El <code>$fatal</code> de <code>trago</code> se entera <strong>tarde</strong>: compila, corre, y explota en el
+medio de la simulación. En una regresión de la noche eso es una corrida perdida</li>
+<li>SystemVerilog permite declarar una <strong>abstract class</strong> —<code>virtual class</code>—: sólo
+sirve como base, <strong>no se puede instanciar</strong></li>
+<li>Adentro puede declarar <strong>pure virtual methods</strong>: métodos sin cuerpo</li>
+<li>Extender la clase <strong>obliga</strong> a redefinirlos. Si no, es un <strong>error de
+compilación</strong></li>
+<li>El error no desapareció: se mudó a un momento en el que sale barato</li>
+</ul>
+<div class="nota">
+<p>Ésta es la slide que hay que dejar clara, porque el criterio se repite todo el
+curso: <em>cuanto antes falle, mejor</em>. Compilación mejor que simulación,
+simulación mejor que silicio.
+En verificación un error de compilación es una <strong>buena noticia</strong>: la regresión
+de la noche no se pierde, y el que rompió algo se entera en un minuto.
+Dónde se va a volver a ver: <code>uvm_object</code> y <code>uvm_component</code> son abstractas de
+hecho, y las macros <code>`uvm_component_utils</code> obligan a implementar cosas
+parecidas. Y en el ejercicio del día 2, la clase base del testbench.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/75">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s76" class="slide">
+<h2 id="polimorfismo">Polimorfismo</h2>
+<h4 id="pure-virtual-el-mismo-ejemplo-sin-fatal-posible"><em><code>pure virtual</code>: el mismo ejemplo, sin <code>$fatal</code> posible</em></h4>
+<figure class="codigo"><figcaption><code>code/u3/polimorfismo/03-virtual-pura/pure_virtual.sv</code> · líneas 1-12 de 67</figcaption><pre><code class="hljs"><span class="hljs-comment">// Clase abstracta: solo sirve como base, no se puede instanciar.</span>
+<span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
+   <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> a);
+      hielos = a;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// pure virtual: sin body. Extenderla obliga a redefinirlo.</span>
+   <span class="hljs-keyword">pure</span> <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+
+<span class="hljs-keyword">endclass</span> : trago</code></pre><details><summary>el archivo entero, 67 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Clase abstracta: solo sirve como base, no se puede instanciar.</span>
+<span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
+   <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> a);
+      hielos = a;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// pure virtual: sin body. Extenderla obliga a redefinirlo.</span>
+   <span class="hljs-keyword">pure</span> <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+
+<span class="hljs-keyword">endclass</span> : trago
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet</span> <span class="hljs-keyword">extends</span> trago;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernet: 70/30, y la coca al final&quot;</span>);
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : fernet
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">gancia</span> <span class="hljs-keyword">extends</span> trago;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// Borrar este override NO compila -- que es justo la gracia.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Gancia: con Sprite y una rodaja de limon&quot;</span>);
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : gancia
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+
+      fernet fernet_h;
+      gancia gancia_h;
+      trago trago_h;
+
+      <span class="hljs-comment">// trago_h = new(3);  &lt;- no compila: trago es abstracta</span>
+
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>);
+      fernet_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El fernet lleva %0d hielos&quot;</span>, fernet_h.hielos);
+
+      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>);
+      gancia_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El gancia lleva %0d hielos&quot;</span>, gancia_h.hielos);
+
+      trago_h = fernet_h;
+      trago_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+
+      trago_h = gancia_h;
+      trago_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+
+   <span class="hljs-keyword">end</span>  <span class="hljs-comment">// initial begin</span>
+
+<span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure>
+
+<ul>
+<li><code>virtual class trago</code> ya no tiene un <code>servir()</code> que explote: <strong>no tiene
+cuerpo</strong>, y por eso no hay nada que pueda correr mal</li>
+<li>La línea comentada del <code>top</code> —<code>trago_h = new(3)</code>— no compila: una clase
+abstracta no se instancia</li>
+<li>Si a <code>gancia</code> le borrás el override, el compilador dice
+<em>&quot;does not override virtual method servir&quot;</em> y ahí termina el asunto</li>
+</ul>
+<div class="nota">
+<p>El punto no es el <code>$fatal</code>, es <strong>cuándo te enterás</strong>: sin clase abstracta
+explota en el medio de la simulación, con pure virtual no compila.
+Vale hacerlo en vivo: comentar el <code>servir()</code> de <code>gancia</code> y compilar. El
+mensaje del compilador es el que enseña.
+Y el enganche hacia adelante: la factory usa esto para crear, y el <code>env</code> para
+los overrides. Lo que hoy es un fernet y un gancia, en dos días va a ser un
+<code>base_tester</code> y los testers que lo extienden — misma mecánica, otro vocabulario.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/76">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s77" class="slide">
+<h2 id="polimorfismo">Polimorfismo</h2>
+<h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
+<ul>
+<li>Un <code>fernet</code> <strong>es</strong> un <code>trago</code>, así que entra en una variable <code>trago</code>. La
+pregunta es <strong>qué código corre</strong> cuando llamás al método por esa variable</li>
+<li><strong>Sin <code>virtual</code> manda la variable</strong> (<em>static binding</em>): se decide al compilar,
+y la clase derivada queda ignorada</li>
+<li><strong>Con <code>virtual</code> manda el objeto</strong>: se resuelve en simulación, mirando qué hay
+adentro. Es una sola palabra y cambia todo</li>
+<li>La idea de fondo, que vuelve en cada sección que sigue: <strong>el que usa el
+objeto deja de ser el que elige el tipo</strong></li>
+<li>Una <strong>clase abstracta</strong> (<code>virtual class</code>, <code>pure virtual</code>) mueve el error de
+simulación a compilación: no se puede instanciar por accidente</li>
+<li>En SystemVerilog <code>virtual</code> está <strong>sobrecargado</strong>: virtual method, virtual
+class y virtual interface son tres cosas distintas</li>
+</ul>
+<div class="nota">
+<p>Es la unidad que habilita a la siguiente mitad del curso, y conviene decirlo:
+sin polimorfismo no hay factory, no hay <code>uvm_component</code> que sirva de base, y no
+hay override. Todo lo demás es plomería.
+El olvido de <code>virtual</code> es además la trampa del ejercicio del día 2 —<code>get_op()</code>
+está declarada sin <code>virtual</code> a propósito—, así que si alguien lo pregunta acá,
+no delatarlo: se entiende mucho mejor sufriéndolo.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/77">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s78" class="slide">
+<h2 id="variables-estáticas">Variables estáticas</h2>
+<h4 id="la-variable-global-que-sí-podés-defender"><em>La variable global que sí podés defender</em></h4>
+<ul>
+<li>En un testbench siempre hay algo que es <strong>uno solo</strong>: el contador de errores,
+la lista de transacciones en vuelo, el handle a la configuración</li>
+<li>La respuesta fácil es una variable global, y es la que después nadie puede
+debuggear: no se sabe quién la escribió, ni desde dónde, ni cuándo</li>
+<li><code>static</code> es la misma idea con apellido. La variable vive <strong>en la clase</strong>, no
+en el objeto, y para tocarla hay que nombrar la clase: <code>bandeja_de_fernet::vasos</code></li>
+<li>Ese <code>::</code> es todo el argumento. El día que el valor sea raro, un grep te dice
+exactamente quién lo puso</li>
+<li>No es un tema suelto de OOP: la <strong>factory</strong> y el <strong><code>uvm_config_db</code></strong> son las
+dos variables estáticas más importantes de un testbench UVM</li>
+</ul>
+<div class="nota">
+<p>La pregunta que ordena la unidad: ¿de qué hay uno solo en un testbench? De la
+factory, de la base de configuración, del contador de errores. Todo eso en UVM
+es <code>static</code>, y por eso se escribe <code>uvm_config_db#(T)::set(...)</code> con dos puntos
+dobles y sin instanciar nada.
+Y la segunda mitad, que es la que se lleva al trabajo: <code>static</code> resuelve el
+&quot;dónde vive&quot;, no el &quot;quién lo toca&quot;. Eso lo resuelve <code>protected</code> más los métodos
+de acceso, que es la tercera slide. Una <code>static</code> pública es una variable global
+con un prefijo más largo.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/78">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s79" class="slide">
+<h2 id="variables-estáticas">Variables estáticas</h2>
+<ul>
+<li><code>bandeja_de_fernet</code> no tiene métodos ni constructor: es una clase que existe <strong>sólo</strong>
+para ser el lugar donde vive la cola</li>
+<li>Nadie la instancia. Se la nombra con el operador <code>::</code>, que le dice al
+compilador <em>&quot;buscá esta variable en el namespace de esa clase&quot;</em></li>
+<li>Y ahí está la ventaja sobre la global: <code>bandeja_de_fernet::vasos</code> dice dónde está
+declarada. Un <code>vasos</code> suelto, no</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u3/estaticas/01-variables/static_variables.sv</code> · líneas 45-72 de 72</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">bandeja_de_fernet</span>;
+   <span class="hljs-comment">//Queue static</span>
+   <span class="hljs-keyword">static</span> fernet vasos[$];
+
+<span class="hljs-keyword">endclass</span> : bandeja_de_fernet
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      fernet fernet_h;
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">2</span>, <span class="hljs-string">&quot;Kimba&quot;</span>);
+      <span class="hljs-comment">// :: operator</span>
+      <span class="hljs-comment">//----------------</span>
+      <span class="hljs-comment">//   Accedemos a la variable en la clase bandeja_de_fernet</span>
+      <span class="hljs-comment">//   mencionando la clase y poniendo el operador :: antes de su nombre</span>
+      <span class="hljs-comment">//   Esto le dice al compilador que queremos acceder a una variable static dentro</span>
+      <span class="hljs-comment">//   del namespace de la clase</span>
+      bandeja_de_fernet::vasos.push_back(fernet_h);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">3</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>);
+      bandeja_de_fernet::vasos.push_back(fernet_h);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+
+      <span class="hljs-comment">// clase::variable_static. Inmediatamente sabemos donde esta declarada</span>
+      bandeja_de_fernet::vasos.push_back(fernet_h);
+
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernets en la bandeja:&quot;</span>);
+      <span class="hljs-keyword">foreach</span> (bandeja_de_fernet::vasos[i]) <span class="hljs-built_in">$display</span>(bandeja_de_fernet::vasos[i].get_name());
+   <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">endmodule</span> : top</code></pre><details><summary>el archivo entero, 72 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Variables Static</span>
+<span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
+   <span class="hljs-keyword">protected</span> <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
+      set_age(hielos);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">set_age</span>(<span class="hljs-type">int</span> a);
+      hielos = a;
+   <span class="hljs-keyword">endfunction</span> : set_age
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">get_age</span>();
+      <span class="hljs-keyword">if</span> (hielos == -<span class="hljs-number">1</span>) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;You didn&#x27;t set the hielos.&quot;</span>);
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> hielos;
+   <span class="hljs-keyword">endfunction</span> : get_age
+
+   <span class="hljs-keyword">pure</span> <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+
+<span class="hljs-keyword">endclass</span> : trago
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet</span> <span class="hljs-keyword">extends</span> trago;
+   <span class="hljs-keyword">protected</span> <span class="hljs-type">string</span> name;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> n);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos);
+      name = n;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;%s: 70/30, y la coca al final&quot;</span>, get_name());
+   <span class="hljs-keyword">endfunction</span> : servir
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">get_name</span>();
+      <span class="hljs-keyword">return</span> name;
+   <span class="hljs-keyword">endfunction</span> : get_name
+
+<span class="hljs-keyword">endclass</span> : fernet
+
+<span class="hljs-comment">// Static Variable to handle global var</span>
+<span class="hljs-comment">// Solo tenemos una copia en memoria de una variable static</span>
+<span class="hljs-comment">// sin importar cuantas intancias de la clase tengamos</span>
+<span class="hljs-comment">// Son como variables globales creadas de una forma controlada</span>
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">bandeja_de_fernet</span>;
+   <span class="hljs-comment">//Queue static</span>
+   <span class="hljs-keyword">static</span> fernet vasos[$];
+
+<span class="hljs-keyword">endclass</span> : bandeja_de_fernet
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      fernet fernet_h;
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">2</span>, <span class="hljs-string">&quot;Kimba&quot;</span>);
+      <span class="hljs-comment">// :: operator</span>
+      <span class="hljs-comment">//----------------</span>
+      <span class="hljs-comment">//   Accedemos a la variable en la clase bandeja_de_fernet</span>
+      <span class="hljs-comment">//   mencionando la clase y poniendo el operador :: antes de su nombre</span>
+      <span class="hljs-comment">//   Esto le dice al compilador que queremos acceder a una variable static dentro</span>
+      <span class="hljs-comment">//   del namespace de la clase</span>
+      bandeja_de_fernet::vasos.push_back(fernet_h);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">3</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>);
+      bandeja_de_fernet::vasos.push_back(fernet_h);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+
+      <span class="hljs-comment">// clase::variable_static. Inmediatamente sabemos donde esta declarada</span>
+      bandeja_de_fernet::vasos.push_back(fernet_h);
+
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernets en la bandeja:&quot;</span>);
+      <span class="hljs-keyword">foreach</span> (bandeja_de_fernet::vasos[i]) <span class="hljs-built_in">$display</span>(bandeja_de_fernet::vasos[i].get_name());
+   <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure><div class="nota">
+<p>Traducción rápida: static es la variable global que sí podés defender en un code
+review. Vive en la clase, no en el objeto.
+La segunda slide muestra por qué hay que encapsularla con métodos estáticos: si
+la dejás pública, el día que cambies la queue por otra estructura tenés que
+tocar todo el testbench.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/79">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s80" class="slide">
+<h2 id="variables-estáticas">Variables estáticas</h2>
+<ul>
+<li>Hay <strong>una sola</strong> copia en memoria, sin importar cuántos objetos se instancien</li>
+<li>Y existe aunque no se instancie ninguno: la <code>static</code> no espera al <code>new()</code></li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u3/estaticas/01-variables/ejemplo2.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">pepe</span>;
+   <span class="hljs-keyword">static</span>    <span class="hljs-type">int</span>    cant;
+   <span class="hljs-type">int</span>    val = -<span class="hljs-number">1</span>;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> a);
+      <span class="hljs-comment">// Static Variable</span>
+      cant++;
+      val = a;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+<span class="hljs-keyword">endclass</span> : pepe
+
+<span class="hljs-comment">//----------------------------------------</span>
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      pepe pepe1_h, pepe2_h;
+
+      pepe1_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">10</span>);
+      pepe2_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">254654</span>);
+
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;PEPE1 VAL = %0d&quot;</span>, pepe1_h.val);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;PEPE2 VAL = %0d&quot;</span>, pepe2_h.val);
+
+      <span class="hljs-comment">// Solo tenemos una copia en memoria de una variable static</span>
+      <span class="hljs-comment">// sin importar cuantas intancias de la clase tengamos</span>
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;CANTIDAD DE PEPES = %0d&quot;</span>, pepe::cant);
+
+   <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">endmodule</span> : top</code></pre></figure>
+
+<p><em><strong>¿Y el encapsulamiento?</strong></em></p>
+<div class="nota">
+<p><code>pepe::cant</code> cuenta cuántos objetos se crearon, y el detalle que hay que hacer
+notar es que <strong>el contador existe aunque no haya ni un objeto</strong>. Una <code>static</code> no
+espera al <code>new()</code>: está desde que arranca la simulación. Por eso sirve para
+contar instancias, y por eso no se puede inicializar con nada que dependa de un
+objeto.
+Buena pregunta para tirar: si <code>cant</code> se incrementa en el constructor, ¿qué pasa
+si alguien extiende <code>pepe</code> y se olvida del <code>super.new()</code>? No cuenta. Es el mismo
+tema de clases y extensiones visto desde otro lado.
+La pregunta de la slide es a propósito: <code>cant</code> está pública, y cualquiera del
+testbench puede escribirla. Dejar esa incomodidad en el aire un rato es lo que
+hace que la slide siguiente tenga sentido.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/80">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s81" class="slide">
+<h2 id="variables-estáticas">Variables estáticas</h2>
+<h4 id="métodos-estáticos"><em>Métodos estáticos</em></h4>
+<ul>
+<li>En los dos ejemplos anteriores la cola estaba a la vista, así que el día que se
+cambia por otra estructura hay que salir a corregir todo el testbench</li>
+<li>La versión que se defiende en un code review son dos palabras: la variable
+<code>protected</code>, y <strong>métodos de acceso estáticos</strong> que sean la única puerta</li>
+<li>Es lo mismo que hace UVM con la factory: nadie toca el diccionario de tipos, se
+le pide con <code>type_id::create()</code></li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u3/estaticas/02-metodos/static_methods.sv</code> · líneas 41-69 de 69</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">bandeja_de_fernet</span>;
+
+   <span class="hljs-keyword">protected</span> <span class="hljs-keyword">static</span> fernet vasos[$];
+
+   <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">bandeja_fernet</span>(fernet l);
+      vasos.push_back(l);
+   <span class="hljs-keyword">endfunction</span> : bandeja_fernet
+
+   <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">lista_fernets</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernets en la bandeja:&quot;</span>);
+      <span class="hljs-keyword">foreach</span> (vasos[i]) <span class="hljs-built_in">$display</span>(vasos[i].get_name());
+   <span class="hljs-keyword">endfunction</span> : lista_fernets
+
+<span class="hljs-keyword">endclass</span> : bandeja_de_fernet
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      fernet fernet_h;
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">2</span>, <span class="hljs-string">&quot;Kimba&quot;</span>);
+      bandeja_de_fernet::bandeja_fernet(fernet_h);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">3</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>);
+      bandeja_de_fernet::bandeja_fernet(fernet_h);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+      bandeja_de_fernet::bandeja_fernet(fernet_h);
+      bandeja_de_fernet::lista_fernets();
+   <span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">endmodule</span> : top</code></pre><details><summary>el archivo entero, 69 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Metodos Statics</span>
+<span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
+   <span class="hljs-keyword">protected</span> <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
+      set_age(hielos);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">set_age</span>(<span class="hljs-type">int</span> a);
+      hielos = a;
+   <span class="hljs-keyword">endfunction</span> : set_age
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">get_age</span>();
+      <span class="hljs-keyword">if</span> (hielos == -<span class="hljs-number">1</span>) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;You didn&#x27;t set the hielos.&quot;</span>);
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> hielos;
+   <span class="hljs-keyword">endfunction</span> : get_age
+
+   <span class="hljs-keyword">pure</span> <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+
+<span class="hljs-keyword">endclass</span> : trago
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet</span> <span class="hljs-keyword">extends</span> trago;
+
+   <span class="hljs-keyword">protected</span> <span class="hljs-type">string</span> name;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> n);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos);
+      name = n;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;%s: 70/30, y la coca al final&quot;</span>, get_name());
+   <span class="hljs-keyword">endfunction</span> : servir
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">get_name</span>();
+      <span class="hljs-keyword">return</span> name;
+   <span class="hljs-keyword">endfunction</span> : get_name
+
+<span class="hljs-keyword">endclass</span> : fernet
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">bandeja_de_fernet</span>;
+
+   <span class="hljs-keyword">protected</span> <span class="hljs-keyword">static</span> fernet vasos[$];
+
+   <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">bandeja_fernet</span>(fernet l);
+      vasos.push_back(l);
+   <span class="hljs-keyword">endfunction</span> : bandeja_fernet
+
+   <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">lista_fernets</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernets en la bandeja:&quot;</span>);
+      <span class="hljs-keyword">foreach</span> (vasos[i]) <span class="hljs-built_in">$display</span>(vasos[i].get_name());
+   <span class="hljs-keyword">endfunction</span> : lista_fernets
+
+<span class="hljs-keyword">endclass</span> : bandeja_de_fernet
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      fernet fernet_h;
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">2</span>, <span class="hljs-string">&quot;Kimba&quot;</span>);
+      bandeja_de_fernet::bandeja_fernet(fernet_h);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">3</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>);
+      bandeja_de_fernet::bandeja_fernet(fernet_h);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+      bandeja_de_fernet::bandeja_fernet(fernet_h);
+      bandeja_de_fernet::lista_fernets();
+   <span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure><div class="nota">
+<p>La diferencia entre las dos versiones es de dos palabras —<code>protected</code> adelante
+de la queue y <code>static function</code> en los accesos— y cambia quién puede romper qué.
+En la primera, cualquier línea del testbench puede hacerle <code>push_back</code> a la
+cola; en ésta, sólo <code>bandeja_fernet()</code>.
+El argumento no es purismo: es que ahora <code>vasos</code> se puede cambiar por un array
+asociativo, por una <code>uvm_tlm_fifo</code> o por lo que sea, sin salir a corregir el
+testbench entero. Encapsular es poder cambiar de opinión después.
+Un detalle de sintaxis que confunde: un método <code>static</code> <strong>no puede</strong> tocar
+variables de instancia, sólo <code>static</code>. Tiene sentido —se lo llama sin objeto,
+así que no hay <code>this</code>—, pero el mensaje de error del simulador no lo dice así.
+Y el enganche: <code>type_id::create()</code> de UVM, que van a escribir cien veces a
+partir del env, es exactamente esto — un método estático de acceso a una
+estructura estática.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/81">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s82" class="slide">
+<h2 id="variables-estáticas">Variables estáticas</h2>
+<h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
+<ul>
+<li><code>static</code> es <strong>la variable global que sí podés defender</strong>: vive en la clase, no
+en el objeto, y para tocarla hay que nombrar la clase con <code>::</code></li>
+<li>Ese <code>::</code> es todo el argumento. El día que el valor sea raro, un <code>grep</code> te dice
+exactamente quién lo puso</li>
+<li>Hay <strong>una sola copia</strong> por más objetos que instancies, y <strong>existe aunque no
+instancies ninguno</strong>: no espera al <code>new()</code></li>
+<li><code>static</code> resuelve <em>dónde vive</em>, no <em>quién lo toca</em>. Eso lo resuelve
+<strong><code>protected</code> más métodos de acceso estáticos</strong></li>
+<li>Una <code>static</code> pública es una variable global con un prefijo más largo</li>
+<li>Y no es un tema suelto de OOP: la <strong>factory</strong> y el <strong><code>uvm_config_db</code></strong> son las
+dos variables estáticas más importantes de un testbench UVM</li>
+</ul>
+<div class="nota">
+<p>El enganche que conviene dejar servido: <code>uvm_config_db#(T)::set(...)</code> se escribe
+con dos puntos dobles y sin instanciar nada, y ahora ya saben por qué. Lo mismo
+<code>type_id::create()</code>, que van a escribir cien veces a partir del env — es
+exactamente un método estático de acceso a una estructura estática.
+La pregunta que ordena la unidad y sirve de repaso: ¿de qué hay uno solo en un
+testbench? De la factory, de la base de configuración, del contador de errores.
+Todo eso es <code>static</code>, y no por casualidad.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/82">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s83" class="slide">
+<h2 id="clases-paramétricas">Clases paramétricas</h2>
+<h4 id="no-es-una-clase-es-un-molde"><em>No es una clase: es un molde</em></h4>
+<ul>
+<li>La <code>bandeja_de_fernet</code> de la sección anterior sirve para fernets. Para gancias hay que
+escribir otra igual, con una palabra cambiada</li>
+<li>Eso ya lo resolviste en RTL y no le decís OOP: una FIFO no se copia por cada
+ancho de dato, se parametriza. <code>#(.awidth(8), .dwidth(16))</code></li>
+<li>Una clase paramétrica es lo mismo, con <strong>tipos</strong> en vez de números:
+<code>bandeja #(fernet)</code> y <code>bandeja #(gancia)</code></li>
+<li>Y hay una consecuencia que sorprende: cada <code>#(...)</code> distinto es una <strong>clase
+distinta</strong>, generada en compilación. No comparten nada, ni siquiera lo <code>static</code></li>
+<li>Por qué importa: cada <code>#(...)</code> que veas en el resto del curso es esto.
+<code>uvm_analysis_port #(T)</code>, <code>uvm_subscriber #(T)</code>, <code>uvm_sequence #(T)</code></li>
+</ul>
+<div class="nota">
+<p>Empezar por el <code>parameter</code> de Verilog es deliberado: el alumno de RTL ya sabe
+parametrizar, sólo que con anchos. Acá el parámetro es un tipo, y el resto es
+igual.
+Lo que hay que dejar clarísimo antes de seguir es lo del tercer bullet, porque
+es la pregunta 6 del repaso y porque es la base de todo UVM:
+<code>bandeja#(fernet)</code> y <code>bandeja#(gancia)</code> <strong>no son la misma clase con un
+campo distinto</strong>. SystemVerilog genera una clase entera por cada combinación de
+parámetros, en tiempo de compilación. Por eso cada una tiene su propia queue
+<code>static</code>.
+La forma corta de decirlo: la clase paramétrica no es una clase, es la receta
+para fabricar clases. La clase aparece cuando escribís el <code>#(...)</code>.
+Y un límite que conviene nombrar ahora para que no los sorprenda: como se
+resuelve en compilación, el tipo tiene que conocerse ahí. No podés elegir el
+parámetro en runtime. Elegir en runtime es lo que resuelve la factory, que es la
+unidad que sigue.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/83">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s84" class="slide">
+<h2 id="clases-paramétricas">Clases paramétricas</h2>
+<ul>
+<li>Antes de la sintaxis nueva, el parámetro que ya conocés: una RAM que no se
+copia por cada ancho, se instancia con <code>#(.awidth(8), .dwidth(16))</code></li>
+<li>Cada instanciación con parámetros distintos produce <strong>hardware distinto</strong>, y
+nadie lo discute</li>
+<li>Las <em>parameterized class definitions</em> son eso mismo del lado del software, con
+una diferencia: el parámetro puede ser un <strong>tipo</strong></li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u3/parametricas/01-memoria/pres-ch8.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">module</span> <span class="hljs-title">RAM</span> #(
+    <span class="hljs-type">awidth</span>,
+    dwidth
+) (
+    <span class="hljs-keyword">input</span> <span class="hljs-type">wire</span> [awidth-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] address,
+    <span class="hljs-keyword">inout</span> <span class="hljs-type">wire</span> [dwidth-<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] data,
+    <span class="hljs-keyword">input</span> we
+);
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;awidth: %0d  dwidth %0d&quot;</span>, awidth, dwidth);
+   <span class="hljs-comment">// code to implement RAM</span>
+
+   <span class="hljs-comment">//...</span>
+
+<span class="hljs-keyword">endmodule</span>  <span class="hljs-comment">// RAM</span>
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+   <span class="hljs-type">wire</span> [ <span class="hljs-number">7</span>:<span class="hljs-number">0</span>] address;
+   <span class="hljs-type">wire</span> [<span class="hljs-number">15</span>:<span class="hljs-number">0</span>] data;
+   <span class="hljs-type">wire</span>        write_enable;
+   RAM #(
+       .awidth(<span class="hljs-number">8</span>),
+       .dwidth(<span class="hljs-number">16</span>)
+   ) my_ram (
+       address,
+       data,
+       write_enable
+   );
+<span class="hljs-keyword">endmodule</span>  <span class="hljs-comment">// top</span></code></pre></figure><div class="nota">
+<p>Conviene decir para qué las vamos a usar, si no parece un tema de OOP suelto:
+<code>uvm_analysis_port#(T)</code>, <code>uvm_subscriber#(T)</code>, <code>uvm_tlm_fifo#(T)</code>. Cada <code>#(...)</code>
+que aparezca en el resto del curso es esto.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/84">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s85" class="slide">
+<h2 id="clases-paramétricas">Clases paramétricas</h2>
+<ul>
+<li>Versión con métodos estáticos: la bandeja no se instancia, se le pide con <code>::</code></li>
+<li>La cola es <code>static</code> y aun así hay <strong>dos</strong>: <code>bandeja#(fernet)</code> y
+<code>bandeja#(gancia)</code> son dos clases distintas, cada una con la suya</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u3/parametricas/02-estatica/bandejas.sv</code> · líneas 53-91 de 91</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
+    type T
+);
+
+   <span class="hljs-keyword">protected</span> <span class="hljs-keyword">static</span> T vasos[$];
+
+   <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">bandeja_trago</span>(T l);
+      vasos.push_back(l);
+   <span class="hljs-keyword">endfunction</span> : bandeja_trago
+
+   <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">lista_tragos</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Tragos en la bandeja:&quot;</span>);
+      <span class="hljs-keyword">foreach</span> (vasos[i]) <span class="hljs-built_in">$display</span>(vasos[i].get_name());
+   <span class="hljs-keyword">endfunction</span> : lista_tragos
+
+<span class="hljs-keyword">endclass</span> : bandeja
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      fernet fernet_h;
+      gancia gancia_h;
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+      bandeja#(<span class="hljs-type">fernet</span>)::bandeja_trago(fernet_h);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>);
+      bandeja#(<span class="hljs-type">fernet</span>)::bandeja_trago(fernet_h);
+
+      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Clucker&quot;</span>);
+      bandeja#(<span class="hljs-type">gancia</span>)::bandeja_trago(gancia_h);
+      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Scratchy&quot;</span>);
+      bandeja#(<span class="hljs-type">gancia</span>)::bandeja_trago(gancia_h);
+
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Fernets --&quot;</span>);
+      bandeja#(<span class="hljs-type">fernet</span>)::lista_tragos();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Gancias --&quot;</span>);
+      bandeja#(<span class="hljs-type">gancia</span>)::lista_tragos();
+   <span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">endmodule</span> : top</code></pre><details><summary>el archivo entero, 91 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Static Class version</span>
+
+<span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
+   <span class="hljs-keyword">protected</span> <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
+   <span class="hljs-keyword">protected</span> <span class="hljs-type">string</span> name;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> a, <span class="hljs-type">string</span> n);
+      hielos = a;
+      name = n;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">get_age</span>();
+      <span class="hljs-keyword">return</span> hielos;
+   <span class="hljs-keyword">endfunction</span> : get_age
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">get_name</span>();
+      <span class="hljs-keyword">return</span> name;
+   <span class="hljs-keyword">endfunction</span> : get_name
+
+   <span class="hljs-keyword">pure</span> <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+
+<span class="hljs-keyword">endclass</span> : trago
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet</span> <span class="hljs-keyword">extends</span> trago;
+
+   <span class="hljs-keyword">protected</span> <span class="hljs-type">string</span> name;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> n);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, n);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El fernet %s: 70/30, y la coca al final&quot;</span>, get_name());
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : fernet
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">gancia</span> <span class="hljs-keyword">extends</span> trago;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> n);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, n);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El gancia %s: con Sprite y una rodaja de limon&quot;</span>, get_name());
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : gancia
+
+<span class="hljs-comment">// Parameterized class</span>
+<span class="hljs-comment">// mediante el parametro T (type) especificamos que</span>
+<span class="hljs-comment">// tipo de queue es.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
+    type T
+);
+
+   <span class="hljs-keyword">protected</span> <span class="hljs-keyword">static</span> T vasos[$];
+
+   <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">bandeja_trago</span>(T l);
+      vasos.push_back(l);
+   <span class="hljs-keyword">endfunction</span> : bandeja_trago
+
+   <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">lista_tragos</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Tragos en la bandeja:&quot;</span>);
+      <span class="hljs-keyword">foreach</span> (vasos[i]) <span class="hljs-built_in">$display</span>(vasos[i].get_name());
+   <span class="hljs-keyword">endfunction</span> : lista_tragos
+
+<span class="hljs-keyword">endclass</span> : bandeja
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      fernet fernet_h;
+      gancia gancia_h;
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+      bandeja#(<span class="hljs-type">fernet</span>)::bandeja_trago(fernet_h);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>);
+      bandeja#(<span class="hljs-type">fernet</span>)::bandeja_trago(fernet_h);
+
+      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Clucker&quot;</span>);
+      bandeja#(<span class="hljs-type">gancia</span>)::bandeja_trago(gancia_h);
+      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Scratchy&quot;</span>);
+      bandeja#(<span class="hljs-type">gancia</span>)::bandeja_trago(gancia_h);
+
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Fernets --&quot;</span>);
+      bandeja#(<span class="hljs-type">fernet</span>)::lista_tragos();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Gancias --&quot;</span>);
+      bandeja#(<span class="hljs-type">gancia</span>)::lista_tragos();
+   <span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure><div class="nota">
+<p>Esta es la slide donde se demuestra lo del molde, y conviene hacerlo corriendo
+el ejemplo: dos fernets y dos gancias entran, y cada <code>lista_tragos()</code> imprime
+sólo los suyos. La queue es <code>static</code> y aun así hay dos.
+La pregunta para el pizarrón: ¿cuántas queues hay en memoria? Dos. ¿Y cuántas
+habría con tres tragos? Tres. Cada <code>bandeja#(X)</code> que el compilador ve en
+el código genera su clase, con su <code>static</code> propio. Las que nadie usa no existen.
+Un detalle que se pregunta siempre: <code>T</code> no está declarado en ningún lado como
+&quot;trago o derivados&quot;. SystemVerilog no tiene esa restricción — el chequeo es
+por uso. Si metés un tipo que no tiene <code>get_name()</code>, el error aparece al
+compilar la especialización, no al declarar la clase, y el mensaje señala
+adentro de <code>bandeja</code>. Es confuso la primera vez.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/85">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s86" class="slide">
+<h2 id="clases-paramétricas">Clases paramétricas</h2>
+<h4 id="variables-con-parámetros"><em>Variables con parámetros</em></h4>
+<ul>
+<li>Acá la bandeja se instancia como cualquier objeto y hay que tener el handle para
+usarla — deja de verse desde todo el testbench</li>
+<li>Hace exactamente lo mismo que la versión anterior. Lo que cambia es el alcance,
+y ésa es la decisión: <strong><code>static</code> cuando de verdad hay uno solo, instanciado
+cuando puede haber más de uno</strong></li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u3/parametricas/03-instanciada/bandejas.sv</code> · líneas 48-76 de 98</figcaption><pre><code class="hljs"><span class="hljs-comment">// bandeja no es estatica ahora</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
+    type T
+);
+
+   <span class="hljs-keyword">protected</span> T vasos[$];
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">bandeja_trago</span>(T l);
+      vasos.push_back(l);
+   <span class="hljs-keyword">endfunction</span> : bandeja_trago
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">lista_tragos</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Tragos en la bandeja:&quot;</span>);
+      <span class="hljs-keyword">foreach</span> (vasos[i]) <span class="hljs-built_in">$display</span>(vasos[i].get_name());
+   <span class="hljs-keyword">endfunction</span> : lista_tragos
+
+<span class="hljs-keyword">endclass</span> : bandeja
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+
+   <span class="hljs-comment">// Como bandeja no es estatica, debemos instanciarla</span>
+   <span class="hljs-comment">// el parametro es un tipo de variable</span>
+   <span class="hljs-comment">// Si usamos como parametro un tipo que no tiene el</span>
+   <span class="hljs-comment">// metodo get_name() hay error de sintaxis</span>
+   fernet fernet_h;
+   gancia gancia_h;
+
+   bandeja #(<span class="hljs-type">fernet</span>) bandeja_de_fernet;
+   bandeja #(<span class="hljs-type">gancia</span>) bandeja_de_gancia;</code></pre><details><summary>el archivo entero, 98 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
+   <span class="hljs-keyword">protected</span> <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
+   <span class="hljs-keyword">protected</span> <span class="hljs-type">string</span> name;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> a, <span class="hljs-type">string</span> n);
+      hielos = a;
+      name = n;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">get_age</span>();
+      <span class="hljs-keyword">return</span> hielos;
+   <span class="hljs-keyword">endfunction</span> : get_age
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">get_name</span>();
+      <span class="hljs-keyword">return</span> name;
+   <span class="hljs-keyword">endfunction</span> : get_name
+
+   <span class="hljs-keyword">pure</span> <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+
+<span class="hljs-keyword">endclass</span> : trago
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet</span> <span class="hljs-keyword">extends</span> trago;
+
+   <span class="hljs-keyword">protected</span> <span class="hljs-type">string</span> name;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> n);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, n);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El fernet %s: 70/30, y la coca al final&quot;</span>, get_name());
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : fernet
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">gancia</span> <span class="hljs-keyword">extends</span> trago;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> n);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, n);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El gancia %s: con Sprite y una rodaja de limon&quot;</span>, get_name());
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : gancia
+
+<span class="hljs-comment">// bandeja no es estatica ahora</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
+    type T
+);
+
+   <span class="hljs-keyword">protected</span> T vasos[$];
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">bandeja_trago</span>(T l);
+      vasos.push_back(l);
+   <span class="hljs-keyword">endfunction</span> : bandeja_trago
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">lista_tragos</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Tragos en la bandeja:&quot;</span>);
+      <span class="hljs-keyword">foreach</span> (vasos[i]) <span class="hljs-built_in">$display</span>(vasos[i].get_name());
+   <span class="hljs-keyword">endfunction</span> : lista_tragos
+
+<span class="hljs-keyword">endclass</span> : bandeja
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+
+   <span class="hljs-comment">// Como bandeja no es estatica, debemos instanciarla</span>
+   <span class="hljs-comment">// el parametro es un tipo de variable</span>
+   <span class="hljs-comment">// Si usamos como parametro un tipo que no tiene el</span>
+   <span class="hljs-comment">// metodo get_name() hay error de sintaxis</span>
+   fernet fernet_h;
+   gancia gancia_h;
+
+   bandeja #(<span class="hljs-type">fernet</span>) bandeja_de_fernet;
+   bandeja #(<span class="hljs-type">gancia</span>) bandeja_de_gancia;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      bandeja_de_fernet = <span class="hljs-keyword">new</span>();
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+      bandeja_de_fernet.bandeja_trago(fernet_h);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>);
+      bandeja_de_fernet.bandeja_trago(fernet_h);
+
+      bandeja_de_gancia = <span class="hljs-keyword">new</span>();
+      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;el de la mesa 7&quot;</span>);
+      bandeja_de_gancia.bandeja_trago(gancia_h);
+
+      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;el de la vereda&quot;</span>);
+      bandeja_de_gancia.bandeja_trago(gancia_h);
+
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Fernets --&quot;</span>);
+      bandeja_de_fernet.lista_tragos();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Gancias --&quot;</span>);
+      bandeja_de_gancia.lista_tragos();
+   <span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure><div class="nota">
+<p>Las dos versiones hacen exactamente lo mismo y la diferencia es de diseño, no de
+sintaxis: en la anterior la bandeja es global —cualquiera del testbench la ve—; en
+ésta hay que tener el handle para poder usarla.
+La regla que se lleva al trabajo: <strong>estático cuando de verdad hay uno solo en
+todo el testbench, instanciado cuando puede haber más de uno</strong>. Y cuando dudes,
+instanciado: es más fácil agregar un segundo objeto que sacarle el <code>static</code> a
+algo que ya usa medio testbench.
+Con eso en la mano, ubicar UVM: el <code>uvm_config_db</code> es estático porque hay uno
+solo. Un <code>uvm_analysis_port#(command_transaction)</code> es instanciado porque cada
+monitor tiene el suyo. El alumno ya tiene el criterio para leer los dos.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/86">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s87" class="slide">
+<h2 id="clases-paramétricas">Clases paramétricas</h2>
+<h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
+<ul>
+<li>Es el <code>parameter</code> de RTL que ya conocés, pero el parámetro puede ser un
+<strong>tipo</strong>: <code>bandeja #(fernet)</code> en vez de <code>#(.dwidth(16))</code></li>
+<li>Una clase paramétrica <strong>no es una clase</strong>: es la receta para fabricar clases.
+La clase aparece cuando escribís el <code>#(...)</code></li>
+<li>Y cada <code>#(...)</code> distinto es una <strong>clase distinta</strong>, generada en compilación.
+No comparten nada — <strong>ni siquiera lo <code>static</code></strong></li>
+<li>El criterio que se lleva al trabajo: <strong><code>static</code> cuando de verdad hay uno solo,
+instanciado cuando puede haber más de uno</strong>. Ante la duda, instanciado</li>
+<li>El límite: se resuelve <strong>al compilar</strong>, así que el tipo tiene que conocerse
+ahí. Elegir en runtime es la unidad que sigue</li>
+<li>Cada <code>#(...)</code> del resto del curso es esto: <code>uvm_analysis_port #(T)</code>,
+<code>uvm_subscriber #(T)</code>, <code>uvm_sequence #(T)</code></li>
+</ul>
+<div class="nota">
+<p>El bullet de las clases distintas es el que hay que dejar clavado, porque es la
+pregunta del repaso y porque es la base de todo UVM. <code>bandeja#(fernet)</code> y
+<code>bandeja#(gancia)</code> no son la misma clase con un campo distinto: son dos
+clases enteras, cada una con su <code>static</code> propio.
+Y el último bullet ubica la sección: el <code>uvm_config_db</code> es estático porque hay
+uno solo; un <code>uvm_analysis_port#(command_transaction)</code> es instanciado porque
+cada monitor tiene el suyo. Con eso ya pueden leer los dos.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/87">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s88" class="slide">
+<h2 id="el-patrón-factory">El patrón factory</h2>
+<h4 id="¿quién-decide-el-tipo"><em>¿Quién decide el tipo?</em></h4>
+<ul>
+<li>Cada <code>new()</code> que escribís es una decisión <strong>hardcodeada</strong>: esa línea siempre va
+a construir esa clase, y para cambiarla hay que editarla y recompilar</li>
+<li>En un testbench eso no escala. Querés el mismo <code>env</code> mandando sumas hoy y
+multiplicaciones mañana, elegido por línea de comandos</li>
+<li>Las clases paramétricas de la unidad anterior tampoco alcanzan: el <code>#(...)</code> se
+resuelve al compilar, y acá hay que decidir <strong>en runtime</strong></li>
+<li>La factory es la respuesta: en vez de construir vos, le <strong>pedís</strong> el objeto a
+alguien que sabe qué tipo entregar</li>
+<li>Es el patrón más visible de UVM, y con él se entienden <code>type_id::create()</code> y
+<code>set_type_override()</code>, que van a estar en cada archivo del resto del curso</li>
+</ul>
+<div class="nota">
+<p>La frase que ordena la unidad: <strong>el que usa el objeto deja de ser el que elige
+el tipo</strong>. Todo lo demás son detalles de implementación.
+Conviene decir de entrada dónde termina esto, porque si no parece un rodeo de
+programación: el <code>+UVM_TESTNAME=add_test</code> de los tests ya era una factory —
+UVM lee un string de la línea de comandos y construye la clase que corresponde.
+Acá se ve el mecanismo por dentro.
+Y para el que viene de software: sí, es el Factory Method del GoF, y no
+inventamos nada. La versión en Python de la última slide está justamente para
+eso.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/88">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s89" class="slide">
+<h2 id="el-patrón-factory">El patrón factory</h2>
+<ul>
+<li>Un patrón de diseño, no una feature del lenguaje: una clase cuyo único trabajo
+es <strong>construir objetos por vos</strong></li>
+<li>Le pedís un objeto describiendo cuál querés —un string, un enum— y te lo
+devuelve ya construido, del subtipo que corresponda</li>
+<li>Antes de la solución, el problema. Mirá qué pasa cuando el <code>new()</code> está
+escrito en el lugar donde se usa el objeto:</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u3/factory/without-factory.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// En el ejemplo anterior, llamamos a new() cada vez que queremos crear un objeto</span>
+<span class="hljs-comment">// Si queremos crear un conjunto nuevo de tragos, debemos cambiar el codigo fuente</span>
+bandeja_de_fernet = <span class="hljs-keyword">new</span>();
+fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+bandeja_de_fernet.bandeja_trago(fernet_h);
+fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>);
+bandeja_de_fernet.bandeja_trago(fernet_h);
+
+bandeja_de_gancia = <span class="hljs-keyword">new</span>();
+gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;el de la mesa 7&quot;</span>);
+bandeja_de_gancia.bandeja_trago(gancia_h);
+
+gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;el de la vereda&quot;</span>);
+bandeja_de_gancia.bandeja_trago(gancia_h);
+
+<span class="hljs-comment">// Consideremos el caso en el que queremos leer un conjunto de tragos aleatorios</span>
+<span class="hljs-comment">// desde un archivo de forma dinamica.</span>
+<span class="hljs-comment">//    --&gt; Es imposible hacer esto con codigo NO hardcodeado</span>
+<span class="hljs-comment">//        Tenemos que hacer un script que genere el source, recompilarlo....</span></code></pre></figure>
+
+<blockquote>
+<p><em>La idea es crear datos de tipos aleatorios sin cambiar el código.</em></p>
+</blockquote>
+<div class="nota">
+<p>El problema primero, el patrón después: quiero cambiar el tipo de objeto que se
+crea sin tocar el código que lo crea. Con eso en la cabeza, la factory de UVM
+—el env— es la misma idea envuelta en macros.
+La versión en Python está al lado a propósito: al que viene de software le
+muestra que no inventamos nada.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/89">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s90" class="slide">
+<h2 id="el-patrón-factory">El patrón factory</h2>
+<p><img src="../res/print/diagrams/factory_diagram.svg" alt="UML Class Example Diagram"></p>
+<br>
+
+<ul>
+<li><strong>La factory</strong> es el método de arriba: recibe un argumento y devuelve un objeto
+del tipo que ese argumento pide</li>
+<li><strong>El polimorfismo</strong> es lo que la hace posible: <code>fernet</code> y <code>gancia</code> extienden
+<code>trago</code>, así que los dos entran en una variable <code>trago</code></li>
+<li>Sin lo segundo no hay dónde poner lo que devuelve lo primero. Son las dos
+mitades de la misma herramienta</li>
+</ul>
+<div class="nota">
+<p>La factory <strong>no funciona sin polimorfismo</strong>, y vale decirlo
+así: si <code>hacer_trago()</code> no pudiera devolver un <code>fernet</code> guardado en una variable
+<code>trago</code>, no habría nada que fabricar. Son las dos mitades de la misma cosa.
+La pregunta útil sobre el diagrama: ¿de qué tipo es lo que devuelve
+<code>hacer_trago()</code>? De <code>trago</code>, siempre. Lo que cambia es qué objeto viene
+adentro. El que llama nunca se entera, y ése es exactamente el punto.
+Y el límite que se ve enseguida: si el que llama necesita algo que sólo tiene
+<code>fernet</code> —el <code>sin_hielo</code> del ejemplo— se acabó la comodidad y hay que castear.
+Eso es la slide que sigue, y es la razón de que la factory de UVM sea mejor que
+ésta.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/90">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s91" class="slide">
+<h2 id="el-patrón-factory">El patrón factory</h2>
+<ul>
+<li><code>virtual</code> alcanza mientras uses métodos que la clase base ya declara. Pero
+<code>fernet</code> agrega un campo propio —<code>sin_hielo</code>— que <code>trago</code> no conoce</li>
+<li>Para llegar a él hay que bajar el handle a su tipo real, y eso es <code>$cast</code>:
+convierte la variable del segundo argumento a la clase del primero</li>
+<li>Chequea <strong>en runtime</strong> y devuelve 0 si no da, así que nunca va solo: siempre
+adentro de un <code>if</code> con su <code>$fatal</code></li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u3/factory/factory.sv</code> · líneas 50-73 de 133</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">cantina</span>;
+
+   <span class="hljs-comment">// Metodo estatico para crear los tragos</span>
+   <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">trago </span><span class="hljs-title">hacer_trago</span>(<span class="hljs-type">string</span> pedido, <span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> name);
+      gancia nuevo_gancia;
+      fernet    nuevo_fernet;
+      <span class="hljs-keyword">case</span> (pedido)
+         <span class="hljs-string">&quot;fernet&quot;</span>: <span class="hljs-keyword">begin</span>
+            nuevo_fernet = <span class="hljs-keyword">new</span>(hielos, name);
+            <span class="hljs-keyword">return</span> nuevo_fernet;
+         <span class="hljs-keyword">end</span>
+
+         <span class="hljs-string">&quot;gancia&quot;</span>: <span class="hljs-keyword">begin</span>
+            nuevo_gancia = <span class="hljs-keyword">new</span>(hielos, name);
+            <span class="hljs-keyword">return</span> nuevo_gancia;
+         <span class="hljs-keyword">end</span>
+
+         <span class="hljs-keyword">default</span>: <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, {<span class="hljs-string">&quot;No hay ese trago: &quot;</span>, pedido});
+
+      <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (pedido)</span>
+
+   <span class="hljs-keyword">endfunction</span> : hacer_trago
+
+<span class="hljs-keyword">endclass</span> : cantina</code></pre><details><summary>el archivo entero, 133 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Ejemplo: Factory</span>
+<span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
+   <span class="hljs-keyword">protected</span> <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
+   <span class="hljs-keyword">protected</span> <span class="hljs-type">string</span> name;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> a, <span class="hljs-type">string</span> n);
+      hielos = a;
+      name = n;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">get_age</span>();
+      <span class="hljs-keyword">return</span> hielos;
+   <span class="hljs-keyword">endfunction</span> : get_age
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">get_name</span>();
+      <span class="hljs-keyword">return</span> name;
+   <span class="hljs-keyword">endfunction</span> : get_name
+
+   <span class="hljs-keyword">pure</span> <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+<span class="hljs-keyword">endclass</span> : trago
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet</span> <span class="hljs-keyword">extends</span> trago;
+
+   <span class="hljs-comment">// Esta variable pertenece a fernet, pero no existe en trago</span>
+   <span class="hljs-type">bit</span> sin_hielo = <span class="hljs-number">0</span>;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> n);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, n);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El fernet %s: 70/30, y la coca al final&quot;</span>, get_name());
+   <span class="hljs-keyword">endfunction</span> : servir
+
+<span class="hljs-keyword">endclass</span> : fernet
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">gancia</span> <span class="hljs-keyword">extends</span> trago;
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> n);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, n);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El gancia %s: con Sprite y una rodaja de limon&quot;</span>, get_name());
+   <span class="hljs-keyword">endfunction</span> : servir
+<span class="hljs-keyword">endclass</span> : gancia
+
+<span class="hljs-comment">//*********************************************************************</span>
+<span class="hljs-comment">// Parte de la factory Class!</span>
+<span class="hljs-comment">//*********************************************************************</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">cantina</span>;
+
+   <span class="hljs-comment">// Metodo estatico para crear los tragos</span>
+   <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">trago </span><span class="hljs-title">hacer_trago</span>(<span class="hljs-type">string</span> pedido, <span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> name);
+      gancia nuevo_gancia;
+      fernet    nuevo_fernet;
+      <span class="hljs-keyword">case</span> (pedido)
+         <span class="hljs-string">&quot;fernet&quot;</span>: <span class="hljs-keyword">begin</span>
+            nuevo_fernet = <span class="hljs-keyword">new</span>(hielos, name);
+            <span class="hljs-keyword">return</span> nuevo_fernet;
+         <span class="hljs-keyword">end</span>
+
+         <span class="hljs-string">&quot;gancia&quot;</span>: <span class="hljs-keyword">begin</span>
+            nuevo_gancia = <span class="hljs-keyword">new</span>(hielos, name);
+            <span class="hljs-keyword">return</span> nuevo_gancia;
+         <span class="hljs-keyword">end</span>
+
+         <span class="hljs-keyword">default</span>: <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, {<span class="hljs-string">&quot;No hay ese trago: &quot;</span>, pedido});
+
+      <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (pedido)</span>
+
+   <span class="hljs-keyword">endfunction</span> : hacer_trago
+
+<span class="hljs-keyword">endclass</span> : cantina
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
+    type T = trago
+);
+
+   <span class="hljs-keyword">static</span> T vasos[$];
+
+   <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">bandeja_trago</span>(T l);
+      vasos.push_back(l);
+   <span class="hljs-keyword">endfunction</span> : bandeja_trago
+
+   <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">lista_tragos</span>();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Tragos en la bandeja:&quot;</span>);
+      <span class="hljs-keyword">foreach</span> (vasos[i]) <span class="hljs-built_in">$display</span>(vasos[i].get_name());
+   <span class="hljs-keyword">endfunction</span> : lista_tragos
+
+<span class="hljs-keyword">endclass</span> : bandeja
+
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      trago trago_h;
+      fernet fernet_h;
+      gancia gancia_h;
+      <span class="hljs-type">bit</span> cast_ok;
+
+      <span class="hljs-comment">// Usamos la factory!</span>
+      trago_h = cantina::hacer_trago(<span class="hljs-string">&quot;fernet&quot;</span>, <span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+      trago_h.servir();
+
+      <span class="hljs-comment">// Para acceder a un miembro de fernet (derivado de trago) mediante una variable trago</span>
+      <span class="hljs-comment">// es necesario castearlo a fernet.</span>
+      cast_ok = <span class="hljs-built_in">$cast</span>(fernet_h, trago_h);
+      <span class="hljs-keyword">if</span> (!cast_ok) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;No se pudo castear trago_h a fernet_h&quot;</span>);
+
+      <span class="hljs-keyword">if</span> (fernet_h.sin_hielo) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Y encima viene tibio!&quot;</span>);
+      bandeja#(<span class="hljs-type">fernet</span>)::bandeja_trago(fernet_h);
+
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(fernet_h, cantina::hacer_trago(<span class="hljs-string">&quot;fernet&quot;</span>, <span class="hljs-number">2</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>)))
+         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;No se pudo castear el trago de la cantina a fernet_h&quot;</span>);
+
+      bandeja#(<span class="hljs-type">fernet</span>)::bandeja_trago(fernet_h);
+
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(gancia_h, cantina::hacer_trago(<span class="hljs-string">&quot;gancia&quot;</span>, <span class="hljs-number">1</span>, <span class="hljs-string">&quot;Clucker&quot;</span>)))
+         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;No se pudo castear el resultado de la cantina a gancia_h&quot;</span>);
+
+      bandeja#(<span class="hljs-type">gancia</span>)::bandeja_trago(gancia_h);
+
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(gancia_h, cantina::hacer_trago(<span class="hljs-string">&quot;gancia&quot;</span>, <span class="hljs-number">1</span>, <span class="hljs-string">&quot;Boomer&quot;</span>)))
+         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;No se pudo castear el resultado de la cantina a gancia_h&quot;</span>);
+
+      bandeja#(<span class="hljs-type">gancia</span>)::bandeja_trago(gancia_h);
+
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Fernets --&quot;</span>);
+      bandeja#(<span class="hljs-type">fernet</span>)::lista_tragos();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Gancias --&quot;</span>);
+      bandeja#(<span class="hljs-type">gancia</span>)::lista_tragos();
+   <span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure><div class="nota">
+<p>Dos cosas de este código, y las dos vuelven en UVM.
+La primera: <code>$cast</code> <strong>chequea en runtime y devuelve 0</strong>, no aborta. Por eso en el
+ejemplo cada llamada va adentro de un <code>if (!$cast(...)) $fatal(...)</code>. Un <code>$cast</code>
+sin chequear es el <code>assert(randomize())</code> de las transactions con otro disfraz: si
+falla, seguís con un handle en <code>null</code> y el error aparece tres líneas después, en
+otro lado.
+La segunda: mirá el <code>case (pedido)</code> de <code>hacer_trago()</code>. Para agregar un trago
+nuevo hay que <strong>editar la factory</strong>. O sea que sacamos el hardcodeo del que usa
+y lo pusimos en un solo lugar — mejor, pero sigue estando.
+Ahí está lo que UVM resuelve, y conviene dejarlo dicho: <code>`uvm_component_utils</code>
+registra la clase **sola**, así que la factory de UVM no tiene ningún <code>case</code> que
+mantener, y <code>type_id::create()</code> devuelve el tipo correcto sin que nadie castee.
+Las dos molestias de esta slide desaparecen en el env.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/91">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s92" class="slide">
+<h2 id="el-patrón-factory">El patrón factory</h2>
+<h4 id="python-style"><em>Python Style</em></h4>
+<figure class="codigo"><figcaption><code>code/u3/factory/factory.py</code> · líneas 6-20 de 86</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Trago</span>(<span class="hljs-title class_ inherited__">object</span>):
+    <span class="hljs-string">&quot;&quot;&quot;Clase Factory que arma Trago.&quot;&quot;&quot;</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">factory</span>(<span class="hljs-params"><span class="hljs-built_in">type</span></span>):
+        <span class="hljs-string">&quot;&quot;&quot;Factory Method.&quot;&quot;&quot;</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;CubaLibre&quot;</span>:
+            <span class="hljs-keyword">return</span> CubaLibre()
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Fernet&quot;</span>:
+            <span class="hljs-keyword">return</span> Fernet()
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Gancia&quot;</span>:
+            <span class="hljs-keyword">return</span> Gancia()
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Whiscola&quot;</span>:
+            <span class="hljs-keyword">return</span> Whiscola()
+        <span class="hljs-keyword">assert</span> <span class="hljs-number">0</span>, <span class="hljs-string">&quot;Creaste mal el trago: &quot;</span> + <span class="hljs-built_in">type</span>
+    factory = <span class="hljs-built_in">staticmethod</span>(factory)</code></pre><details><summary>el archivo entero, 86 líneas</summary><pre><code class="hljs"><span class="hljs-string">&quot;&quot;&quot;Ejemplo de Factory en Python.&quot;&quot;&quot;</span>
+<span class="hljs-keyword">from</span> __future__ <span class="hljs-keyword">import</span> generators
+<span class="hljs-keyword">import</span> random
+
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Trago</span>(<span class="hljs-title class_ inherited__">object</span>):
+    <span class="hljs-string">&quot;&quot;&quot;Clase Factory que arma Trago.&quot;&quot;&quot;</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">factory</span>(<span class="hljs-params"><span class="hljs-built_in">type</span></span>):
+        <span class="hljs-string">&quot;&quot;&quot;Factory Method.&quot;&quot;&quot;</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;CubaLibre&quot;</span>:
+            <span class="hljs-keyword">return</span> CubaLibre()
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Fernet&quot;</span>:
+            <span class="hljs-keyword">return</span> Fernet()
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Gancia&quot;</span>:
+            <span class="hljs-keyword">return</span> Gancia()
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Whiscola&quot;</span>:
+            <span class="hljs-keyword">return</span> Whiscola()
+        <span class="hljs-keyword">assert</span> <span class="hljs-number">0</span>, <span class="hljs-string">&quot;Creaste mal el trago: &quot;</span> + <span class="hljs-built_in">type</span>
+    factory = <span class="hljs-built_in">staticmethod</span>(factory)
+
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">CubaLibre</span>(<span class="hljs-title class_ inherited__">Trago</span>):
+    <span class="hljs-string">&quot;&quot;&quot;Ron con coca.&quot;&quot;&quot;</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">hielo</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-string">&quot;&quot;&quot;Hielito.&quot;&quot;&quot;</span>
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;CubaLibre.hielo: 2&quot;</span>)
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">graduacion</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-string">&quot;&quot;&quot;Alcohol.&quot;&quot;&quot;</span>
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;CubaLibre.graduacion: pecho&quot;</span>)
+
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Whiscola</span>(<span class="hljs-title class_ inherited__">Trago</span>):
+    <span class="hljs-string">&quot;&quot;&quot;Whisky con coca.&quot;&quot;&quot;</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">hielo</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-string">&quot;&quot;&quot;Hielito.&quot;&quot;&quot;</span>
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Whiscola.hielo: 2&quot;</span>)
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">graduacion</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-string">&quot;&quot;&quot;Alcohol.&quot;&quot;&quot;</span>
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Whiscola.graduacion: bien&quot;</span>)
+
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Fernet</span>(<span class="hljs-title class_ inherited__">Trago</span>):
+    <span class="hljs-string">&quot;&quot;&quot;Cuadrados.&quot;&quot;&quot;</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">hielo</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-string">&quot;&quot;&quot;Hielito.&quot;&quot;&quot;</span>
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Fernet.hielo: 3&quot;</span>)
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">graduacion</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-string">&quot;&quot;&quot;Alcohol.&quot;&quot;&quot;</span>
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Fernet.graduacion: tibio&quot;</span>)
+
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Gancia</span>(<span class="hljs-title class_ inherited__">Trago</span>):
+    <span class="hljs-string">&quot;&quot;&quot;Gancia con Sprite.&quot;&quot;&quot;</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">hielo</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-string">&quot;&quot;&quot;Hielito.&quot;&quot;&quot;</span>
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Gancia.hielo: 5&quot;</span>)
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">graduacion</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-string">&quot;&quot;&quot;Alcohol.&quot;&quot;&quot;</span>
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Gancia.graduacion: ultra-pecho&quot;</span>)
+
+
+<span class="hljs-comment"># Generate Tragos: de una manera random</span>
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">trago_generator</span>(<span class="hljs-params">n</span>):
+    <span class="hljs-string">&quot;&quot;&quot;Factory Method.&quot;&quot;&quot;</span>
+    <span class="hljs-comment"># Pedimos que nos entreguen todas las subclases heredadas</span>
+    types = Trago.__subclasses__()
+    <span class="hljs-comment"># Armamos un generador</span>
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n):
+        <span class="hljs-keyword">yield</span> random.choice(types).__name__
+
+Tragos = [Trago.factory(i) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> trago_generator(<span class="hljs-number">20</span>)]
+
+
+<span class="hljs-comment"># No importa que tipo de trago estoy generando, sale igual</span>
+<span class="hljs-keyword">for</span> Trago <span class="hljs-keyword">in</span> Tragos:
+    Trago.hielo()
+    Trago.graduacion()</code></pre></details></figure>
+
+<ul>
+<li>La misma fábrica, en un lenguaje que no tiene nada que ver con hardware: un
+método estático con un <code>if</code> por tipo y un <code>assert</code> para lo que no existe</li>
+<li>Y la misma molestia: agregar un trago obliga a <strong>editar la fábrica</strong></li>
+<li>El archivo completo está en <code>code/u3/factory/factory.py</code> y se corre con <code>python3</code>:
+genera veinte tragos al azar y los sirve a todos igual</li>
+</ul>
+<div class="nota">
+<p>Está a propósito y la moraleja es corta: esto no es una rareza de verificación,
+es un patrón de diseño de 1994 que en Python ocupa diez líneas.
+La parte de abajo del archivo vale abrirla si sobra tiempo: <code>Trago.__subclasses__()</code>
+le pregunta al lenguaje qué clases heredan de <code>Trago</code>, y con eso el generador ya
+no necesita una lista escrita a mano. Es exactamente lo que hace el registro de
+la factory de UVM con <code>`uvm_component_utils</code>, pero de arriba abajo en vez de
+que cada clase se anote sola.
+El remate: el bucle final trata a los veinte tragos igual, sin preguntar de qué
+tipo son. Eso es polimorfismo, y es lo que hace que una factory
+sirva de algo.
+La slide sirve para dos públicos opuestos. Al que viene de software le baja la
+desconfianza —&quot;ah, es el factory de siempre&quot;—. Al que viene de RTL le muestra
+que lo que está aprendiendo no es &quot;cosas raras de SystemVerilog&quot;: es
+programación, y se puede ir a leer sobre el tema afuera del mundo EDA.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/92">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s93" class="slide">
+<h2 id="el-patrón-factory">El patrón factory</h2>
+<h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
+<ul>
+<li>Cada <code>new()</code> que escribís es una <strong>decisión hardcodeada</strong>: esa línea siempre
+construye esa clase, y cambiarla es editar y recompilar</li>
+<li>Las clases paramétricas no alcanzan: el <code>#(...)</code> se resuelve <strong>al compilar</strong>, y
+acá hay que decidir <strong>en runtime</strong></li>
+<li>La factory invierte quién manda: en vez de construir, <strong>pedís</strong> el objeto a
+alguien que sabe qué tipo entregar</li>
+<li><strong>No funciona sin polimorfismo</strong>: hacen falta las dos
+mitades — alguien que fabrique y una variable base donde guardarlo</li>
+<li><strong><code>$cast</code> chequea en runtime y devuelve 0</strong>, no aborta. Por eso nunca va
+solo: siempre adentro de un <code>if</code> con su <code>$fatal</code></li>
+<li>La molestia que queda —el <code>case</code> que hay que editar para agregar un tipo— es
+justo la que UVM resuelve: <code>`uvm_component_utils</code> <strong>registra la clase
+sola</strong></li>
+</ul>
+<div class="nota">
+<p>Cierre de la sección más abstracto del día 2, y conviene aterrizarlo con lo que
+ya vieron: el <code>+UVM_TESTNAME=add_test</code> de los tests <strong>ya era una factory</strong> —
+UVM lee un string de la línea de comandos y construye la clase que corresponde.
+Acá vieron el mecanismo por dentro.
+La frase que resume la sección entera: <strong>el que usa el objeto deja de ser el
+que elige el tipo.</strong> Todo lo demás son detalles de implementación.
+Y para el que viene de software: es el Factory Method del GoF, de 1994, y en
+Python ocupa diez líneas. No inventamos nada, y eso es una buena noticia.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/93">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s94" class="slide">
+<h2 id="un-testbench-sin-un-solo-módulo">Un testbench sin un solo módulo</h2>
+<h4 id="el-mismo-testbench-sin-un-solo-módulo"><em>El mismo testbench, sin un solo módulo</em></h4>
+<ul>
+<li>Nueve secciones después, esta sección <strong>no agrega ninguna funcionalidad</strong>:
+hace exactamente lo mismo que el testbench de interfaces y BFM</li>
+<li>Lo que cambia es de qué está hecho. Los tres módulos —tester, scoreboard,
+coverage— pasan a ser tres <strong>clases</strong>, y el <code>initial</code> pasa a ser un método</li>
+<li>Aparece la pieza que los une: una clase <code>testbench</code> que instancia a las otras,
+les pasa la BFM y lanza sus threads. Nadie la instancia por vos</li>
+<li>Es la <strong>última versión sin UVM</strong>, y por eso vale mirarla con atención: todo lo
+que hace a mano esta clase, desde los tests lo va a hacer la librería</li>
+<li>La pregunta con la que hay que salir de la sección: <em>¿qué parte reemplaza a qué?</em></li>
+</ul>
+<div class="nota">
+<p>El objetivo real de la sección no es enseñar nada nuevo, es dejar un punto de
+comparación. Si el alumno puede mirar <code>testbench.svh</code> y decir &quot;esto es el env,
+esto es el build_phase, esto es el run_phase&quot;, el día 3 arranca cuesta abajo.
+Vale escribir la tabla en el pizarrón antes de mostrar el código, y volver a ella
+al final del día 3:</p>
+<p>| Acá, a mano | Desde los tests |
+| <code>testbench.execute()</code> que hace <code>new()</code> de los tres | <code>build_phase</code> del env |
+| pasar la BFM por el constructor | <code>uvm_config_db</code> |
+| <code>fork ... join_none</code> | UVM corre un <code>run_phase</code> por componente |
+| <code>$finish</code> adentro del tester | objections |</p>
+<p>Y decir en voz alta lo que se ve solo: no hay un solo <code>module</code> en las clases del
+testbench. Los módulos quedaron para el DUT, el reloj y la interface — que es
+justamente lo que se sintetiza.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/94">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s95" class="slide">
+<h2 id="un-testbench-sin-un-solo-módulo">Un testbench sin un solo módulo</h2>
+<ul>
+<li>Un testbench de módulos funciona hasta que hay que reusarlo: para cambiar el
+estímulo hay que editar el módulo, y para tener dos versiones hay que copiarlo</li>
+<li>Con clases, cambiar el estímulo es <strong>extender una clase</strong>, y las dos versiones
+conviven. Eso es todo lo que compra la OOP acá</li>
+</ul>
+<br>
+
+<br>
+
+<h4 id="el-vtalu-tb-pieza-por-pieza"><em>El VTALU TB, pieza por pieza</em></h4>
+<ul>
+<li>top: Instancia la clase testbench</li>
+<li>testbench: Top-Level Class</li>
+<li>tester: Genera los estímulos</li>
+<li>scoreboard: Chequea que la VTALU está funcionando</li>
+<li>coverage: Captura la información de cobertura funcional</li>
+</ul>
+<div class="nota">
+<p>Es el mismo testbench de interfaces y BFM, pero en objetos: cambia la forma, no lo
+que hace. Si se puede, mostrarlos lado a lado.
+Es la última versión sin UVM. Desde los tests lo mismo lo arma UVM, y el
+alumno tiene que poder decir qué parte reemplaza a qué.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/95">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s96" class="slide">
+<h2 id="un-testbench-sin-un-solo-módulo">Un testbench sin un solo módulo</h2>
+<h4 id="el-top-lo-único-que-sigue-siendo-un-módulo"><em>El top: lo único que sigue siendo un módulo</em></h4>
+<ul>
+<li>El <code>top</code> sigue siendo un módulo, y va a seguir siéndolo hasta el final del
+curso: las clases no se elaboran, alguien tiene que existir antes del tiempo 0</li>
+<li>Importa el package con las clases, instancia el DUT y la BFM, y declara el
+handle al <code>testbench</code></li>
+<li>Adentro del <code>initial</code>, dos líneas: <code>new(bfm)</code> y <code>execute()</code></li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u3/tb-en-objetos/top.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+
+   <span class="hljs-comment">// Guardamos las definiciones de clase y recursos compartidos en un package</span>
+   <span class="hljs-keyword">import</span> vtalu_pkg::*;
+   <span class="hljs-comment">// Los macros que utilizamos tambien los definimos en comun. Esto tmb lo hace UVM</span>
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;vtalu_macros.svh&quot;</span>
+
+   <span class="hljs-comment">// Instanciamos la DUT y el BFM</span>
+   vtalu DUT (
+       .A(bfm.A),
+       .B(bfm.B),
+       .op(bfm.op_set),
+       .clk(bfm.clk),
+       .reset_n(bfm.reset_n),
+       .start(bfm.start),
+       .done(bfm.done),
+       .ovf(bfm.ovf),
+       .result(bfm.result)
+   );
+
+   vtalu_bfm bfm ();
+
+   <span class="hljs-comment">// Declaramos una variable que contenga nuestro TB</span>
+   testbench testbench_h;
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      <span class="hljs-comment">// Instanciamos y lanzamos el objeto testbench</span>
+      testbench_h = <span class="hljs-keyword">new</span>(bfm);
+      testbench_h.execute();
+   <span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">endmodule</span> : top</code></pre></figure><div class="nota">
+<p>El <code>top</code> sigue siendo un módulo y va a seguir siéndolo hasta el final del curso,
+incluso con UVM. La razón es que <strong>las clases no se elaboran</strong>: alguien tiene que
+existir antes del tiempo 0 para instanciar el DUT, la interface y el reloj.
+El detalle que hay que señalar con el dedo es el pasaje de la BFM: acá se la
+pasan al constructor, <code>new(bfm)</code>, y funciona porque el <code>top</code> conoce a la clase.
+En UVM esa línea no va a existir — el test lo crea la factory y nadie le puede
+pasar argumentos. Por eso aparece el <code>uvm_config_db</code> en los tests.
+Buena pregunta para dejar picando: ¿por qué el <code>import</code> del package está antes de
+todo? Porque las clases viven en un package y el módulo tiene que verlas. Es la
+primera vez que el orden de compilación importa, y no va a ser la última.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/96">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s97" class="slide">
+<h2 id="un-testbench-sin-un-solo-módulo">Un testbench sin un solo módulo</h2>
+<h4 id="la-clase-testbench-quien-arma-y-arranca"><em>La clase <code>testbench</code>: quien arma y arranca</em></h4>
+<ul>
+<li>Hay <strong>un</strong> objeto arriba de todo que instancia a los demás, les pasa lo que
+necesitan y lanza sus threads. Todo testbench OOP tiene uno</li>
+<li>Acá lo escribimos a mano: tres <code>new()</code> y un <code>fork ... join_none</code></li>
+<li>Desde el <code>env</code> esa clase se va a llamar <code>uvm_env</code>, los <code>new()</code> van a ser
+<code>type_id::create()</code> en el <code>build_phase</code>, y el <code>fork</code> lo va a hacer UVM sola</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u3/tb-en-objetos/tb_classes/testbench.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">testbench</span>;
+
+   <span class="hljs-comment">// virtual: el equivalente en objetos de la port list de un modulo. Le dice</span>
+   <span class="hljs-comment">// al compilador que esta variable va a recibir un handle a una interface</span>
+   <span class="hljs-comment">// en algun momento futuro. Ver la slide de la unidad 10.</span>
+   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
+
+   tester    tester_h;
+   coverage  coverage_h;
+   scoreboard scoreboard_h;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-keyword">virtual</span> vtalu_bfm b);
+      bfm = b;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">execute</span>();
+      tester_h = <span class="hljs-keyword">new</span>(bfm);
+      coverage_h = <span class="hljs-keyword">new</span>(bfm);
+      scoreboard_h = <span class="hljs-keyword">new</span>(bfm);
+
+      <span class="hljs-comment">// Un thread por objeto. join_none: execute() vuelve y los tres siguen.</span>
+      <span class="hljs-keyword">fork</span>
+         tester_h.execute();
+         coverage_h.execute();
+         scoreboard_h.execute();
+      <span class="hljs-keyword">join_none</span>
+   <span class="hljs-keyword">endtask</span> : execute
+<span class="hljs-keyword">endclass</span> : testbench</code></pre></figure><div class="nota">
+<p>Ésta es la clase que UVM se va a llevar puesta, así que conviene leerla línea por
+línea: <code>new()</code> de los tres objetos, <code>fork ... join_none</code> para arrancarlos, y
+listo. Eso es un <code>env</code> escrito a mano.
+Dos cosas para marcar. La primera es el <code>virtual vtalu_bfm bfm</code>: la palabra
+<code>virtual</code> acá <strong>no tiene nada que ver</strong> con los métodos virtuales de polimorfismo.
+Una virtual interface es un handle a una interface que se va a asignar más
+adelante — es el equivalente, en el mundo de los objetos, a la port list de un
+módulo. Es la tercera acepción de <code>virtual</code> en SystemVerilog y por eso conviene
+nombrarla en voz alta.
+La segunda es el <code>join_none</code>: los tres objetos corren en threads separados y
+<code>execute()</code> vuelve enseguida. Si fuera <code>join</code>, el testbench esperaría a que los
+tres terminen y el scoreboard no termina nunca. Es la misma decisión que UVM
+toma sola cuando corre un <code>run_phase</code> por componente.
+Y una que se pregunta siempre: ¿quién termina la simulación? El <code>$finish</code> del
+tester, adentro de <code>execute()</code>. Es feo y se nota: un objeto decide por todos. En
+los tests eso pasa a ser un objection, que es la forma prolija de lo mismo.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/97">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s98" class="slide">
+<h2 id="un-testbench-sin-un-solo-módulo">Un testbench sin un solo módulo</h2>
+<h4 id="la-clase-tester-el-estímulo-sin-cables"><em>La clase <code>tester</code>: el estímulo, sin cables</em></h4>
+<ul>
+<li>Manda mil operaciones al azar, con el mismo sesgo a los bordes del testbench convencional:
+el objetivo sigue siendo llenar los bins del covergroup</li>
+<li>Contra la versión modular cambian dos cosas y nada más:<ul>
+<li>la BFM llega por una <strong>variable</strong> —una <em>virtual interface</em>— en vez de por una
+port list</li>
+<li>el <code>initial</code> es ahora un método, <code>execute()</code>, que alguien tiene que llamar</li>
+</ul>
+</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u3/tb-en-objetos/tb_classes/tester.svh</code> · líneas 32-56 de 58</figcaption><pre><code class="hljs">   <span class="hljs-comment">// Reemplazamos el initial block por una task execute()</span>
+   <span class="hljs-keyword">task</span> <span class="hljs-title">execute</span>();
+      <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>     iA;
+      <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>     iB;
+      <span class="hljs-type">shortint</span> <span class="hljs-type">unsigned</span> result;
+      operation_t       op_set;
+      bfm.reset_alu();
+      op_set = rst_op;
+      iA = get_data();
+      iB = get_data();
+      bfm.send_op(iA, iB, op_set, result);
+      op_set = mul_op;
+      bfm.send_op(iA, iB, op_set, result);
+      bfm.send_op(iA, iB, op_set, result);
+      op_set = rst_op;
+      bfm.send_op(iA, iB, op_set, result);
+      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">1000</span>) <span class="hljs-keyword">begin</span> : random_loop
+         op_set = get_op();
+         iA = get_data();
+         iB = get_data();
+         bfm.send_op(iA, iB, op_set, result);
+         <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;%2h %6s %2h = %4h&quot;</span>, iA, op_set.name(), iB, result);
+      <span class="hljs-keyword">end</span> : random_loop
+      <span class="hljs-built_in">$finish</span>;
+   <span class="hljs-keyword">endtask</span> : execute</code></pre><details><summary>el archivo entero, 58 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">tester</span>;
+
+   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-keyword">virtual</span> vtalu_bfm b);
+      bfm = b;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">protected</span> <span class="hljs-keyword">function</span> <span class="hljs-type">operation_t </span><span class="hljs-title">get_op</span>();
+      <span class="hljs-type">bit</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] op_choice;
+      op_choice = <span class="hljs-built_in">$random</span>;
+      <span class="hljs-keyword">case</span> (op_choice)
+         <span class="hljs-number">3&#x27;b000</span>: <span class="hljs-keyword">return</span> no_op;
+         <span class="hljs-number">3&#x27;b001</span>: <span class="hljs-keyword">return</span> add_op;
+         <span class="hljs-number">3&#x27;b010</span>: <span class="hljs-keyword">return</span> sub_op;
+         <span class="hljs-number">3&#x27;b011</span>: <span class="hljs-keyword">return</span> and_op;
+         <span class="hljs-number">3&#x27;b100</span>: <span class="hljs-keyword">return</span> xor_op;
+         <span class="hljs-number">3&#x27;b101</span>: <span class="hljs-keyword">return</span> mul_op;
+         <span class="hljs-number">3&#x27;b110</span>: <span class="hljs-keyword">return</span> rst_op;
+         <span class="hljs-number">3&#x27;b111</span>: <span class="hljs-keyword">return</span> rst_op;
+      <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (op_choice)</span>
+   <span class="hljs-keyword">endfunction</span> : get_op
+
+   <span class="hljs-keyword">protected</span> <span class="hljs-keyword">function</span> <span class="hljs-type">byte </span><span class="hljs-title">get_data</span>();
+      <span class="hljs-type">bit</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] zero_ones;
+      zero_ones = <span class="hljs-built_in">$random</span>;
+      <span class="hljs-keyword">if</span> (zero_ones == <span class="hljs-number">2&#x27;b00</span>) <span class="hljs-keyword">return</span> <span class="hljs-number">8&#x27;h00</span>;
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (zero_ones == <span class="hljs-number">2&#x27;b11</span>) <span class="hljs-keyword">return</span> <span class="hljs-number">8&#x27;hFF</span>;
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> <span class="hljs-built_in">$random</span>;
+   <span class="hljs-keyword">endfunction</span> : get_data
+
+   <span class="hljs-comment">// Reemplazamos el initial block por una task execute()</span>
+   <span class="hljs-keyword">task</span> <span class="hljs-title">execute</span>();
+      <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>     iA;
+      <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>     iB;
+      <span class="hljs-type">shortint</span> <span class="hljs-type">unsigned</span> result;
+      operation_t       op_set;
+      bfm.reset_alu();
+      op_set = rst_op;
+      iA = get_data();
+      iB = get_data();
+      bfm.send_op(iA, iB, op_set, result);
+      op_set = mul_op;
+      bfm.send_op(iA, iB, op_set, result);
+      bfm.send_op(iA, iB, op_set, result);
+      op_set = rst_op;
+      bfm.send_op(iA, iB, op_set, result);
+      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">1000</span>) <span class="hljs-keyword">begin</span> : random_loop
+         op_set = get_op();
+         iA = get_data();
+         iB = get_data();
+         bfm.send_op(iA, iB, op_set, result);
+         <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;%2h %6s %2h = %4h&quot;</span>, iA, op_set.name(), iB, result);
+      <span class="hljs-keyword">end</span> : random_loop
+      <span class="hljs-built_in">$finish</span>;
+   <span class="hljs-keyword">endtask</span> : execute
+
+<span class="hljs-keyword">endclass</span> : tester</code></pre></details></figure><div class="nota">
+<p>Acá hay una trampa <strong>puesta a propósito</strong> y conviene no delatarla ahora: mirá la
+declaración de <code>get_op()</code>. Dice <code>protected function</code>, no <code>protected virtual function</code>. Sin <code>virtual</code>, <code>execute()</code> va a llamar siempre a la de esta clase,
+aunque el objeto sea de una clase derivada — que es exactamente lo que vieron en
+polimorfismo con <code>servir()</code>.
+Eso es el ejercicio del día 2, y está bueno que se lo coman: la herencia no se
+nota hasta que alguien escribe <code>virtual</code>, y eso se entiende mucho mejor
+sufriéndolo que leyéndolo.
+Lo otro que hay que señalar es lo que <strong>no</strong> está en esta clase: el protocolo.
+<code>reset_alu()</code> y <code>send_op()</code> siguen viviendo en la BFM, igual que en interfaces y BFM,
+y el tester los llama con <code>bfm.send_op(...)</code>. Esa es toda la gracia del BFM y por
+eso se sostiene sin cambios hasta el final del curso: la clase de arriba pide una
+operación, y ni sabe que existe un <code>done</code>.
+Y el detalle que se ve al principio del <code>execute()</code>: las cuatro operaciones
+dirigidas antes del <code>repeat (1000)</code> no están de adorno. Son el reset, la
+multiplicación después del reset y la mult repetida — o sea, tres puntos del plan
+de verificación del testbench convencional que al random no le conviene esperar.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/98">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s99" class="slide">
+<h2 id="un-testbench-sin-un-solo-módulo">Un testbench sin un solo módulo</h2>
+<h4 id="el-scoreboard-el-always-se-volvió-una-task"><em>El scoreboard: el <code>always</code> se volvió una task</em></h4>
+<ul>
+<li>La lista de sensibilidad no existe en una clase. Lo que la reemplaza es un
+<code>forever</code> con la espera adentro — misma semántica, escrita como código
+secuencial</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u3/tb-en-objetos/tb_classes/scoreboard.svh</code> · líneas 8-39 de 41</figcaption><pre><code class="hljs">   <span class="hljs-comment">// El always @(posedge done) de la version modular, como forever loop: un</span>
+   <span class="hljs-comment">// objeto no tiene lista de sensibilidad, tiene una task que se bloquea.</span>
+   <span class="hljs-keyword">task</span> <span class="hljs-title">execute</span>();
+      <span class="hljs-type">shortint</span> predicted_result;
+      <span class="hljs-type">bit</span>      predicted_ovf;
+      <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span> : self_checker
+         @(<span class="hljs-keyword">posedge</span> bfm.done) #<span class="hljs-number">1</span>;
+         <span class="hljs-keyword">case</span> (bfm.op_set)
+            add_op: predicted_result = bfm.A + bfm.B;
+            sub_op: predicted_result = bfm.A - bfm.B;
+            and_op: predicted_result = bfm.A &amp; bfm.B;
+            xor_op: predicted_result = bfm.A ^ bfm.B;
+            mul_op: predicted_result = bfm.A * bfm.B;
+         <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (op_set)</span>
+
+         <span class="hljs-comment">// El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de</span>
+         <span class="hljs-comment">// salida, ni la suma ni la multiplicacion se pasan.</span>
+         predicted_ovf = (bfm.op_set == sub_op) &amp;&amp; (bfm.A &lt; bfm.B);
+
+         <span class="hljs-keyword">if</span> ((bfm.op_set != no_op) &amp;&amp; (bfm.op_set != rst_op))
+            <span class="hljs-keyword">if</span> (predicted_result != bfm.result || predicted_ovf != bfm.ovf)
+               <span class="hljs-built_in">$error</span>(
+                   <span class="hljs-string">&quot;FAILED: A: %0h  B: %0h  op: %s result: %0h ovf: %0b&quot;</span>,
+                   bfm.A,
+                   bfm.B,
+                   bfm.op_set.name(),
+                   bfm.result,
+                   bfm.ovf
+               );
+
+      <span class="hljs-keyword">end</span> : self_checker
+   <span class="hljs-keyword">endtask</span> : execute</code></pre><details><summary>el archivo entero, 41 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">scoreboard</span>;
+   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-keyword">virtual</span> vtalu_bfm b);
+      bfm = b;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// El always @(posedge done) de la version modular, como forever loop: un</span>
+   <span class="hljs-comment">// objeto no tiene lista de sensibilidad, tiene una task que se bloquea.</span>
+   <span class="hljs-keyword">task</span> <span class="hljs-title">execute</span>();
+      <span class="hljs-type">shortint</span> predicted_result;
+      <span class="hljs-type">bit</span>      predicted_ovf;
+      <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span> : self_checker
+         @(<span class="hljs-keyword">posedge</span> bfm.done) #<span class="hljs-number">1</span>;
+         <span class="hljs-keyword">case</span> (bfm.op_set)
+            add_op: predicted_result = bfm.A + bfm.B;
+            sub_op: predicted_result = bfm.A - bfm.B;
+            and_op: predicted_result = bfm.A &amp; bfm.B;
+            xor_op: predicted_result = bfm.A ^ bfm.B;
+            mul_op: predicted_result = bfm.A * bfm.B;
+         <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (op_set)</span>
+
+         <span class="hljs-comment">// El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de</span>
+         <span class="hljs-comment">// salida, ni la suma ni la multiplicacion se pasan.</span>
+         predicted_ovf = (bfm.op_set == sub_op) &amp;&amp; (bfm.A &lt; bfm.B);
+
+         <span class="hljs-keyword">if</span> ((bfm.op_set != no_op) &amp;&amp; (bfm.op_set != rst_op))
+            <span class="hljs-keyword">if</span> (predicted_result != bfm.result || predicted_ovf != bfm.ovf)
+               <span class="hljs-built_in">$error</span>(
+                   <span class="hljs-string">&quot;FAILED: A: %0h  B: %0h  op: %s result: %0h ovf: %0b&quot;</span>,
+                   bfm.A,
+                   bfm.B,
+                   bfm.op_set.name(),
+                   bfm.result,
+                   bfm.ovf
+               );
+
+      <span class="hljs-keyword">end</span> : self_checker
+   <span class="hljs-keyword">endtask</span> : execute
+
+<span class="hljs-keyword">endclass</span> : scoreboard</code></pre></details></figure><div class="nota">
+<p>La traducción que hay que señalar: el <code>always @(posedge done)</code> del testbench
+modular acá es un <code>forever begin @(posedge bfm.done) ... end</code>. Es la misma
+espera, escrita como código secuencial adentro de un método. Un objeto no tiene
+lista de sensibilidad; tiene una task que se bloquea.
+El <code>#1</code> de la primera línea es de esos detalles que se pagan caro: sin él, el
+scoreboard lee las señales en el mismo instante en que <code>done</code> sube y se puede
+comer una carrera de deltas. Con él, lee cuando ya está todo asentado. Es la
+razón de que en verificación se muestree en el flanco que <strong>no</strong> usa el diseño.
+Y lo que este scoreboard todavía hace mal, para dejarlo picando: lee la operación
+del <strong>cable</strong> (<code>bfm.op_set</code>) en el momento del resultado. Funciona porque el
+protocolo obliga a mantener los operandos estables, pero es frágil — el día que
+el DUT tenga varias operaciones en vuelo, se rompe. En los analysis ports el scoreboard
+va a comparar contra una cola de comandos que le manda el monitor, y eso sí
+escala.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/99">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s100" class="slide">
+<h2 id="un-testbench-sin-un-solo-módulo">Un testbench sin un solo módulo</h2>
+<h4 id="la-clase-coverage-el-covergroup-adentro-de-un-objeto"><em>La clase <code>coverage</code>: el covergroup adentro de un objeto</em></h4>
+<figure class="codigo"><figcaption><code>code/u3/tb-en-objetos/tb_classes/coverage.svh</code> · líneas 86-103 de 119</figcaption><pre><code class="hljs">
+         <span class="hljs-keyword">bins</span> mul_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
+                       (binsof (a_leg.ones) || binsof (b_leg.ones));
+
+         <span class="hljs-keyword">bins</span> mul_max = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
+                        (binsof (a_leg.ones) &amp;&amp; binsof (b_leg.ones));
+
+         <span class="hljs-keyword">ignore_bins</span> others_only =
+                                  binsof(a_leg.others) &amp;&amp; binsof(b_leg.others);
+
+      }
+
+<span class="hljs-keyword">endgroup</span>
+
+  <span class="hljs-comment">// In a class, we don&#x27;t need to declare variables to hold the covergroups, but we do need</span>
+  <span class="hljs-comment">// to call a constructor to create them.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span> (<span class="hljs-keyword">virtual</span> vtalu_bfm b);
+     op_cov = <span class="hljs-keyword">new</span>();</code></pre><details><summary>el archivo entero, 119 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">coverage</span>;
+
+   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
+
+   <span class="hljs-type">byte</span>         <span class="hljs-type">unsigned</span>        A;
+   <span class="hljs-type">byte</span>         <span class="hljs-type">unsigned</span>        B;
+   operation_t  op_set;
+
+   <span class="hljs-keyword">covergroup</span> op_cov;
+
+      <span class="hljs-keyword">coverpoint</span> op_set {
+         <span class="hljs-keyword">bins</span> single_cycle[] = {[add_op : xor_op], rst_op,no_op};
+         <span class="hljs-keyword">bins</span> multi_cycle = {mul_op};
+
+         <span class="hljs-comment">// Bins de transicion. Verilator 5.052 todavia NO los implementa: cualquier</span>
+         <span class="hljs-comment">// forma con &quot;=&gt;&quot; o &quot;[* n]&quot; aborta con un Internal Error. Repro minimo en</span>
+         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. Quedan aca porque son parte del tema;</span>
+         <span class="hljs-comment">// cuando Verilator los soporte, se borra el ifndef y nada mas.</span>
+<span class="hljs-meta">`ifndef</span> VERILATOR
+         <span class="hljs-keyword">bins</span> opn_rst[] = ([add_op:mul_op] =&gt; rst_op);
+         <span class="hljs-keyword">bins</span> rst_opn[] = (rst_op =&gt; [add_op:mul_op]);
+
+         <span class="hljs-keyword">bins</span> sngl_mul[] = ([add_op:xor_op],no_op =&gt; mul_op);
+         <span class="hljs-keyword">bins</span> mul_sngl[] = (mul_op =&gt; [add_op:xor_op], no_op);
+
+         <span class="hljs-keyword">bins</span> twoops[] = ([add_op:mul_op] [* <span class="hljs-number">2</span>]);
+         <span class="hljs-keyword">bins</span> manymult = (mul_op [* <span class="hljs-number">3</span>:<span class="hljs-number">5</span>]);
+<span class="hljs-meta">`endif</span>
+
+      }
+
+   <span class="hljs-keyword">endgroup</span>
+
+   <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
+
+      all_ops : <span class="hljs-keyword">coverpoint</span> op_set {
+         <span class="hljs-keyword">ignore_bins</span> null_ops = {rst_op, no_op};}
+
+      a_leg: <span class="hljs-keyword">coverpoint</span> A {
+         <span class="hljs-keyword">bins</span> zeros = {<span class="hljs-number">8&#x27;h00</span>};
+         <span class="hljs-keyword">bins</span> others= {[<span class="hljs-number">8&#x27;h01</span>:<span class="hljs-number">8&#x27;hFE</span>]};
+         <span class="hljs-keyword">bins</span> ones  = {<span class="hljs-number">8&#x27;hFF</span>};
+      }
+
+      b_leg: <span class="hljs-keyword">coverpoint</span> B {
+         <span class="hljs-keyword">bins</span> zeros = {<span class="hljs-number">8&#x27;h00</span>};
+         <span class="hljs-keyword">bins</span> others= {[<span class="hljs-number">8&#x27;h01</span>:<span class="hljs-number">8&#x27;hFE</span>]};
+         <span class="hljs-keyword">bins</span> ones  = {<span class="hljs-number">8&#x27;hFF</span>};
+      }
+      <span class="hljs-comment">// rev2 del VTALU: el borrow de la resta, que es la fila del plan que el</span>
+      <span class="hljs-comment">// scoreboard solo puede cerrar mirando DOS salidas. Sin este bin, una</span>
+      <span class="hljs-comment">// resta que nunca dio negativa es indistinguible de una que si.</span>
+      borrow: <span class="hljs-keyword">coverpoint</span> ((op_set == sub_op) &amp;&amp; (A &lt; B)) {
+         <span class="hljs-keyword">bins</span> hubo_borrow = {<span class="hljs-number">1</span>};
+         <span class="hljs-keyword">ignore_bins</span> resto = {<span class="hljs-number">0</span>};
+      }
+
+
+      op_00_FF:  <span class="hljs-keyword">cross</span> a_leg, b_leg, all_ops {
+         <span class="hljs-keyword">bins</span> add_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {add_op} &amp;&amp;
+                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
+
+         <span class="hljs-keyword">bins</span> add_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {add_op} &amp;&amp;
+                       (binsof (a_leg.ones) || binsof (b_leg.ones));
+
+         <span class="hljs-keyword">bins</span> sub_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {sub_op} &amp;&amp;
+                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
+
+         <span class="hljs-keyword">bins</span> sub_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {sub_op} &amp;&amp;
+                       (binsof (a_leg.ones) || binsof (b_leg.ones));
+
+         <span class="hljs-keyword">bins</span> and_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {and_op} &amp;&amp;
+                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
+
+         <span class="hljs-keyword">bins</span> and_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {and_op} &amp;&amp;
+                       (binsof (a_leg.ones) || binsof (b_leg.ones));
+
+         <span class="hljs-keyword">bins</span> xor_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {xor_op} &amp;&amp;
+                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
+
+         <span class="hljs-keyword">bins</span> xor_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {xor_op} &amp;&amp;
+                       (binsof (a_leg.ones) || binsof (b_leg.ones));
+
+         <span class="hljs-keyword">bins</span> mul_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
+                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
+
+         <span class="hljs-keyword">bins</span> mul_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
+                       (binsof (a_leg.ones) || binsof (b_leg.ones));
+
+         <span class="hljs-keyword">bins</span> mul_max = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
+                        (binsof (a_leg.ones) &amp;&amp; binsof (b_leg.ones));
+
+         <span class="hljs-keyword">ignore_bins</span> others_only =
+                                  binsof(a_leg.others) &amp;&amp; binsof(b_leg.others);
+
+      }
+
+<span class="hljs-keyword">endgroup</span>
+
+  <span class="hljs-comment">// In a class, we don&#x27;t need to declare variables to hold the covergroups, but we do need</span>
+  <span class="hljs-comment">// to call a constructor to create them.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span> (<span class="hljs-keyword">virtual</span> vtalu_bfm b);
+     op_cov = <span class="hljs-keyword">new</span>();
+     zeros_or_ones_on_ops = <span class="hljs-keyword">new</span>();
+     bfm = b;
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">execute</span>();
+      <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span>  : sampling_block
+         @(<span class="hljs-keyword">negedge</span> bfm.clk);
+         A = bfm.A;
+         B = bfm.B;
+         op_set = bfm.op_set;
+         op_cov.sample();
+         zeros_or_ones_on_ops.sample();
+      <span class="hljs-keyword">end</span> : sampling_block
+   <span class="hljs-keyword">endtask</span> : execute
+
+<span class="hljs-keyword">endclass</span> : coverage</code></pre></details></figure>
+
+<ul>
+<li>El covergroup es <strong>el mismo</strong> del testbench convencional, línea por línea. Lo que cambió es
+dónde vive</li>
+<li>En un módulo, declarar el covergroup alcanzaba. En una clase hay que
+construirlo: el <code>new()</code> de la clase hace <code>op_cov = new()</code></li>
+<li>El <code>execute()</code> es el <code>always @(negedge clk)</code> de antes, escrito como <code>forever</code>:
+copia las señales de la BFM y llama a <code>sample()</code></li>
+</ul>
+<div class="nota">
+<p>El <code>op_cov = new()</code> adentro del constructor es la trampa de la slide: en un
+módulo el covergroup se instancia solo, en una clase <strong>no</strong>. Si te lo olvidás, el
+código compila, corre, y el reporte dice 0 %. Es la misma trampa muda del testbench convencional, con una vuelta de tuerca más.
+Los bins de transición siguen entre <code>`ifndef VERILATOR</code>, igual que en el testbench convencional, y por la misma razón: Verilator 5.052 todavía no los compila.
+Lo que hay que dejar dicho antes de los analysis ports: acá se muestrea en el **flanco
+del reloj**, o sea que se cuentan ciclos. Cuando el <code>coverage</code> sea un subscriber
+va a muestrear cuando <strong>llega un comando</strong>, y ahí se van a contar operaciones —
+que es lo que el plan de verificación pedía desde el testbench convencional.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/100">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s101" class="slide">
+<h2 id="un-testbench-sin-un-solo-módulo">Un testbench sin un solo módulo</h2>
+<h4 id="el-mapa-del-día-3-qué-reemplaza-a-qué"><em>El mapa del día 3: qué reemplaza a qué</em></h4>
+<table>
+<thead>
+<tr>
+<th>Acá, a mano</th>
+<th>Desde los tests</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>testbench.execute()</code> con tres <code>new()</code></td>
+<td>el <code>build_phase</code> del <code>env</code></td>
+</tr>
+<tr>
+<td>pasar la BFM por el constructor</td>
+<td><code>uvm_config_db</code></td>
+</tr>
+<tr>
+<td><code>fork ... join_none</code></td>
+<td>UVM corre un <code>run_phase</code> por componente</td>
+</tr>
+<tr>
+<td><code>$finish</code> adentro del tester</td>
+<td>objections</td>
+</tr>
+<tr>
+<td>elegir el tester editando el código</td>
+<td><code>set_type_override</code> de la factory</td>
+</tr>
+<tr>
+<td><code>$display</code> que se pone y se borra</td>
+<td><code>`uvm_info</code> y el techo de verbosidad</td>
+</tr>
+</tbody></table>
+<ul>
+<li>Éste es el testbench <strong>completo</strong>, sin UVM y sin nada que falte. Funciona</li>
+<li>Todo lo que viene en el día 3 reemplaza una fila de esta tabla, <strong>y nada más</strong></li>
+<li>Volvemos a esta slide al cerrar el día, para tacharlas</li>
+</ul>
+<div class="nota">
+<p>Ésta es la slide que conviene dejar anotada, porque es el mapa entero del día 3.
+La afirmación fuerte hay que hacerla explícita: <strong>UVM no agrega funcionalidad
+acá</strong>. El testbench de esta unidad hace todo lo que va a hacer el del env. Lo que agrega es convención — que la columna de la izquierda esté resuelta
+igual en todos los testbenches del mundo.
+Y la pregunta honesta que va a aparecer: &quot;¿entonces para qué?&quot;. Para que el que
+llega al proyecto sepa dónde mirar sin leer el testbench entero, y para que el
+tester nuevo cueste cuatro líneas en vez de una clase. Los dos beneficios son de
+escala, y por eso en un ejemplo de cien líneas UVM parece de más — hay que
+decirlo así, en vez de vender humo.
+Al cerrar el día 3, con el <code>env</code> y el override ya vistos, se vuelve acá y se lee
+la columna de la derecha de corrido. Ahí el día cierra solo.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/101">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s102" class="slide">
+<h2 id="un-testbench-sin-un-solo-módulo">Un testbench sin un solo módulo</h2>
+<h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
+<ul>
+<li>Esta sección <strong>no agrega funcionalidad</strong>: es el testbench del día 1, con las
+mismas tres piezas, escrito sin un solo módulo</li>
+<li>Aparece la clase que las une —<code>testbench</code>— que las instancia y las arranca.
+Es el antepasado directo del <code>uvm_env</code></li>
+<li>El <code>top</code> sigue siendo un <strong>módulo</strong>, y lo va a ser hasta el final: alguien
+tiene que instanciar el DUT y la BFM, y eso se elabora</li>
+<li>La BFM llega por una <strong>virtual interface</strong>, o sea una variable. Es la única
+forma que tiene una clase de tocar señales</li>
+<li>El <code>initial</code> se transforma en un método, <code>execute()</code>, que alguien llama. Ese
+alguien va a ser el <code>run_phase</code> en los tests</li>
+<li>Es la <strong>última versión sin UVM</strong>. De acá en adelante, cada pieza que
+escribimos a mano tiene una clase de la librería que la reemplaza</li>
+</ul>
+<div class="nota">
+<p>La slide con la que conviene cerrar el día 2 entero, porque deja el puente
+armado. La pregunta que hay que dejar planteada: <em>¿qué parte reemplaza a qué?</em>
+El día 3 la contesta pieza por pieza, y arranca cuesta abajo si el alumno sale
+de acá pudiendo dibujar el árbol de objetos en el pizarrón.
+Y el argumento de por qué valió la pena todo el día: con módulos, cambiar el
+estímulo es editar el archivo. Con clases es extender una clase, y las dos
+versiones conviven. Eso es el ejercicio que acaban de hacer.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/102">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s103" class="slide quiz">
+<h2 id="repaso-·-día-2">Repaso · Día 2</h2>
+<h4 id="1-de-8-·-handle-y-objeto"><em>1 de 8 · Handle y objeto</em></h4>
+<p><strong><code>rectangle rectangle_h;</code> — después de esa línea, ¿cuántos objetos hay?</strong></p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Ninguno: <code>rectangle_h</code> vale <code>null</code> hasta que alguien llame a <code>new()</code></li>
+<li><input disabled="" type="checkbox"> Uno, con <code>length</code> y <code>width</code> en 0</li>
+<li><input disabled="" type="checkbox"> Uno, a medio construir</li>
+<li><input disabled="" type="checkbox"> Depende de si la clase tiene constructor</li>
+</ul>
+<blockquote>
+<p><strong>Ninguno</strong> — declarar un handle no reserva nada. Ahí está la diferencia con una <code>struct</code>, que el simulador reserva apenas la ve. Y usar el handle antes del <code>new()</code> no falla al compilar: revienta en medio de la simulación.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/103">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s104" class="slide quiz">
+<h2 id="repaso-·-día-2">Repaso · Día 2</h2>
+<h4 id="2-de-8-·-polimorfismo"><em>2 de 8 · Polimorfismo</em></h4>
+<p><strong>Una variable de tipo <code>trago</code> guarda un objeto <code>fernet</code>. Si <code>servir()</code> no es <code>virtual</code>, ¿qué se ejecuta?</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> El <code>servir()</code> de <code>fernet</code></li>
+<li><input disabled="" type="checkbox"> Error de compilación</li>
+<li><input checked="" disabled="" type="checkbox"> El <code>servir()</code> de <code>trago</code></li>
+<li><input disabled="" type="checkbox"> Los dos, primero el de la clase base</li>
+</ul>
+<blockquote>
+<p><strong>El de <code>trago</code></strong> — sin <code>virtual</code>, SystemVerilog mira el <strong>tipo de la variable</strong>, no el del objeto. Es literal lo que imprime <code>code/u3/polimorfismo/01-sin-virtual</code>: <em>&quot;Generic tragos don&#39;t have a sound&quot;</em>.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/104">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s105" class="slide quiz">
+<h2 id="repaso-·-día-2">Repaso · Día 2</h2>
+<h4 id="3-de-8-·-clases-abstractas"><em>3 de 8 · Clases abstractas</em></h4>
+<p><strong>¿Qué gano usando una clase abstracta con métodos <code>pure virtual</code> en vez de una clase base cuyo método hace <code>$fatal</code>?</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> Nada, es cuestión de estilo</li>
+<li><input checked="" disabled="" type="checkbox"> Que el error pasa de la simulación al compilador</li>
+<li><input disabled="" type="checkbox"> Que se puede instanciar la clase base</li>
+<li><input disabled="" type="checkbox"> Que los métodos se ejecutan más rápido</li>
+</ul>
+<blockquote>
+<p><strong>El error pasa al compilador</strong> — con <code>$fatal</code> te enterás a mitad de la simulación de que faltaba un override. Con <code>pure virtual</code> no compila. Atajar antes siempre es más barato.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/105">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s106" class="slide quiz">
+<h2 id="repaso-·-día-2">Repaso · Día 2</h2>
+<h4 id="4-de-8-·-variables-estáticas"><em>4 de 8 · Variables estáticas</em></h4>
+<p><strong>Instancio 10 objetos de una clase que tiene una variable <code>static</code>. ¿Cuántas copias hay en memoria?</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> 10, una por objeto</li>
+<li><input disabled="" type="checkbox"> 0 hasta que alguien la escribe</li>
+<li><input checked="" disabled="" type="checkbox"> 1, compartida por todas las instancias</li>
+<li><input disabled="" type="checkbox"> Depende del simulador</li>
+</ul>
+<blockquote>
+<p><strong>Una sola</strong> — y existe aunque no instancies ningún objeto. Eso es lo que la hace útil para datos globales del TB, y lo que la hace peligrosa si la dejás pública.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/106">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s107" class="slide quiz">
+<h2 id="repaso-·-día-2">Repaso · Día 2</h2>
+<h4 id="5-de-8-·-métodos-estáticos"><em>5 de 8 · Métodos estáticos</em></h4>
+<p><strong>¿Por qué conviene declarar <code>protected</code> la variable estática y exponerla con métodos estáticos?</strong></p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Para poder cambiar la estructura de datos sin tocar a quien la usa</li>
+<li><input disabled="" type="checkbox"> Porque si no, no compila</li>
+<li><input disabled="" type="checkbox"> Para que ocupe menos memoria</li>
+<li><input disabled="" type="checkbox"> Porque UVM lo exige</li>
+</ul>
+<blockquote>
+<p><strong>Para poder cambiarla después</strong> — si la cola está a la vista, el día que la cambiás por otra estructura tenés que salir a corregir todos los lugares que la tocaban. Encapsular es poder cambiar de opinión.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/107">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s108" class="slide quiz">
+<h2 id="repaso-·-día-2">Repaso · Día 2</h2>
+<h4 id="6-de-8-·-clases-paramétricas"><em>6 de 8 · Clases paramétricas</em></h4>
+<p><strong><code>bandeja#(fernet)</code> y <code>bandeja#(gancia)</code> tienen adentro una queue <code>static</code>. ¿Comparten la queue?</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> Sí, <code>static</code> es una sola para todos</li>
+<li><input disabled="" type="checkbox"> Sí, salvo que se declare <code>protected</code></li>
+<li><input disabled="" type="checkbox"> Depende de si se instancian o no</li>
+<li><input checked="" disabled="" type="checkbox"> No: cada especialización del parámetro es una clase distinta, con su propia queue</li>
+</ul>
+<blockquote>
+<p><strong>No la comparten</strong> — SystemVerilog genera <strong>una clase por combinación de parámetros</strong>. <code>static</code> es único dentro de cada una de esas clases, no entre todas. UVM se apoya en esto todo el tiempo.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/108">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s109" class="slide quiz">
+<h2 id="repaso-·-día-2">Repaso · Día 2</h2>
+<h4 id="7-de-8-·-el-patrón-factory"><em>7 de 8 · El patrón factory</em></h4>
+<p><strong>¿Qué problema resuelve el patrón factory?</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> Crear objetos más rápido</li>
+<li><input checked="" disabled="" type="checkbox"> Decidir en tiempo de ejecución qué subtipo construir, sin hardcodear el <code>new</code></li>
+<li><input disabled="" type="checkbox"> Evitar tener que declarar clases</li>
+<li><input disabled="" type="checkbox"> Copiar objetos sin compartir el handle</li>
+</ul>
+<blockquote>
+<p><strong>Decidir el subtipo en runtime</strong> — le pedís un objeto a la fábrica y ella decide cuál. Es la pieza que después te va a dejar cambiar el estímulo de un test entero sin tocar el código del <code>env</code>.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/109">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s110" class="slide quiz">
+<h2 id="repaso-·-día-2">Repaso · Día 2</h2>
+<h4 id="8-de-8-·-cast"><em>8 de 8 · $cast</em></h4>
+<p><strong>¿Cuándo tiene éxito un <code>$cast(destino, origen)</code>?</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> Siempre: convierte cualquier clase en cualquier otra</li>
+<li><input disabled="" type="checkbox"> Sólo entre clases sin herencia</li>
+<li><input disabled="" type="checkbox"> Sólo en tiempo de compilación</li>
+<li><input checked="" disabled="" type="checkbox"> Sólo si el objeto de <code>origen</code> es realmente de la clase de <code>destino</code> o de una derivada</li>
+</ul>
+<blockquote>
+<p><strong>Sólo si el objeto lo permite</strong> — <code>$cast</code> chequea <strong>en runtime</strong> y devuelve 0 si no da. Por eso la factory de UVM es más cómoda que el ejemplo de los animales: devuelve el tipo correcto y te ahorra el casteo.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/110">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s111" class="slide">
+<h2 id="ejercicio-·-día-2">Ejercicio · Día 2</h2>
+<h4 id="un-tester-que-sólo-multiplica"><em>Un tester que sólo multiplica</em></h4>
+<p><code>cd code/ejercicios/d2 &amp;&amp; bash run.sh</code></p>
+<ul>
+<li>Extendé <code>tester</code>, redefiní <code>get_op()</code>, y que el testbench lo instancie</li>
+<li>Va a seguir mandando operaciones al azar. <strong>Ahí empieza el ejercicio</strong></li>
+<li>Pista: polimorfismo</li>
+</ul>
+<div class="nota">
+<p>El ejercicio está armado para que fallen: <code>get_op()</code> en el testbench en objetos no es
+virtual, así que <code>execute()</code> llama siempre a la de la clase base aunque el
+objeto sea un <code>mult_tester</code>. Hasta que no agreguen <code>virtual</code>, la herencia no se
+nota — y eso se entiende mucho mejor cuando lo sufrís que cuando lo leés.
+Es a propósito el mismo problema del ejercicio del día 3: ahí lo van a resolver
+con la factory, y recién entonces se ve para qué sirve.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/111">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+</main>
+
+<footer class="pie">
+  <div class="wrap">
+    <nav class="nav-dias">
+      <a href="dia1.html">Día 1</a>
+      <a href="dia2.html">Día 2</a>
+      <a href="dia3.html">Día 3</a>
+      <a href="dia4.html">Día 4</a>
+      <a href="dia5.html">Día 5</a>
+      <a href="dia6.html">Día 6</a>
+      <a href="dia7.html">Día 7</a>
+      <a href="dia8.html">Día 8</a>
+    </nav>
+    <p><a href="../web/index.html">Sitio del curso</a> ·
+       <a href="https://github.com/leandrotozzi/verifythis">Código en GitHub</a> ·
+       CC BY 4.0</p>
+  </div>
+</footer>
+
+<script>
+    const LETRAS = 'abcdefgh';
+    document.querySelectorAll('section.quiz').forEach(sec => {
+      const lista = sec.querySelector('ul');
+      if (!lista) return;
+      lista.classList.add('opciones');
+      sec.querySelector('blockquote')?.classList.add('respuesta');
+      sec.querySelector(':is(h1, h2, h3, h4) ~ p')?.classList.add('pregunta');
+      [...lista.children].forEach((li, i) => {
+        const box = li.querySelector('input[type=checkbox]');
+        li.classList.add('opcion');
+        li.classList.toggle('es-correcta', !!box?.checked);
+        box?.remove();
+        li.tabIndex = 0;
+        li.setAttribute('role', 'button');
+        const texto = document.createElement('span');
+        while (li.firstChild) texto.append(li.firstChild);
+        li.append(texto);
+        li.insertAdjacentHTML('afterbegin', `<b class="letra">${LETRAS[i]}</b>`);
+        const responder = () => {
+          if (sec.classList.contains('respondida')) return;
+          li.classList.add('elegida');
+          sec.classList.add('respondida');
+        };
+        li.addEventListener('click', responder);
+        li.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); responder(); }
+        });
+      });
+      lista.insertAdjacentHTML('afterend',
+        '<p class="ayuda">Elegí una opción para ver la respuesta</p>');
+    });
+</script>
+</body>
+</html>

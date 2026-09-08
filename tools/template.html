@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Verify This! — Introducción a UVM</title>
+  <meta name="description" content="Curso introductorio a UVM en español, que corre entero con Verilator. Sin licencias de EDA.">
+  <meta name="author" content="LeaT — LEFT">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- GENERADO POR tools/build.mjs — NO EDITAR A MANO.
+       Las slides viven en slides/*.md; el shell, en tools/template.html. -->
+
+  <link rel="stylesheet" href="vendor/reveal/dist/reset.css">
+  <link rel="stylesheet" href="vendor/reveal/dist/reveal.css">
+  <link rel="stylesheet" href="vendor/reveal/dist/theme/night.css" id="theme">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/forkit.css">
+  <link rel="stylesheet" href="css/course.css">
+  <!-- tema del resaltado de codigo: propio, no el monokai de reveal (ver css/code.css) -->
+  <link rel="stylesheet" href="css/code.css">
+</head>
+
+<body>
+  <!-- Tapa el arranque: reveal recien pinta el fondo oscuro cuando inicializa,
+       y antes de eso la pagina es un rectangulo blanco. El overlay se muestra
+       solo con CSS (animation-delay), no con un setTimeout: initialize() parsea
+       las 70 secciones y corre el highlighter de forma sincrona, y un timer no
+       llegaria a dispararse justo cuando mas hace falta. Si el init tarda menos
+       de 300 ms, no se llega a ver. -->
+  <div id="cargando">
+    <b>Verify This!</b>
+    <span></span>
+  </div>
+
+  <div class="reveal">
+    <div class="slides">
+<!--SLIDES-->
+    </div>
+  </div>
+
+  <!-- Indice. El <dialog> nativo trae gratis lo que un div con clases habria
+       que escribir a mano: foco atrapado adentro, fondo inerte, Esc para
+       cerrar y el foco de vuelta en el boton al salir. Los links son <a
+       href="#/N"> porque con hash:true reveal ya navega por hash: no hace
+       falta un handler de click para ir a la slide, solo para cerrar. -->
+  <button id="indice-btn" type="button" aria-label="Índice del curso"
+          aria-expanded="false" aria-controls="indice" title="Índice (tecla I)">
+    <span></span><span></span><span></span>
+  </button>
+  <dialog id="indice" aria-label="Índice del curso">
+    <header class="ind-head">
+      <h2>Índice</h2>
+      <button id="indice-cerrar" type="button" aria-label="Cerrar el índice">&times;</button>
+    </header>
+    <nav class="ind-lista">
+<!--INDICE-->
+    </nav>
+  </dialog>
+
+  <!-- "Machete": chuleta con los diagramas de referencia del dia -->
+  <div class="forkit-curtain">
+    <div class="close-button"></div>
+    <div id="machete"></div>
+  </div>
+  <a class="forkit" data-text="Machete UVM" data-text-detached="Ya lo vi >">
+    <img src="res/ribbon-machete.png" alt="" style="position:absolute; top:0; right:0; border:0;">
+  </a>
+
+  <script src="vendor/reveal/dist/reveal.js"></script>
+  <script src="vendor/reveal/plugin/markdown/markdown.js"></script>
+  <script src="vendor/reveal/plugin/highlight/highlight.js"></script>
+  <script src="vendor/reveal/plugin/notes/notes.js"></script>
+  <script src="vendor/reveal/plugin/search/search.js"></script>
+  <script src="vendor/reveal/plugin/zoom/zoom.js"></script>
+  <script src="js/forkit.js"></script>
+  <script>
+    Reveal.initialize({
+      controls: true,
+      progress: true,
+      hash: true,
+      center: false,
+      transition: 'convex',
+      width: 1100,
+      height: 700,
+      margin: 0.1,
+      minScale: 0.2,
+      maxScale: 1.5,
+      slideNumber: 'c/t',
+      pdfSeparateFragments: false,
+      plugins: [RevealMarkdown, RevealHighlight, RevealNotes, RevealSearch, RevealZoom]
+    }).then(async () => {
+      // Antes de la rama print-pdf: el splash no tiene que salir en el PDF.
+      document.getElementById('cargando')?.remove();
+
+      // Atajos por dia. Usan el id del slide, no su indice: agregar o mover
+      // slides ya no los rompe (el deck viejo hardcodeaba Reveal.slide(32)).
+      const days = ['portada', 'day1', 'day2', 'day3', 'day4', 'day5', 'day6', 'day7', 'day8'];
+      Reveal.addKeyBinding({ keyCode: 48, key: '0', description: 'Ir a la portada' }, () => go(0));
+      days.slice(1).forEach((_, i) =>
+        Reveal.addKeyBinding({ keyCode: 49 + i, key: String(i + 1), description: `Ir al Día ${i + 1}` }, () => go(i + 1)));
+      function go(i) {
+        const el = document.getElementById(days[i]);
+        if (!el) return;
+        // getIndices devuelve {h, v, f}, no un array: hay que desestructurarlo.
+        const { h, v } = Reveal.getIndices(el);
+        Reveal.slide(h, v);
+      }
+
+      // Indice. Lo que aporta sobre lo que ya trae reveal: el overview (Esc) son
+      // 274 miniaturas ilegibles y la busqueda (Ctrl+Shift+F) pide saber que
+      // buscar. Esto es la tabla de contenidos: una entrada por archivo de
+      // slides/, agrupada por dia.
+      const indice = document.getElementById('indice');
+      const indiceBtn = document.getElementById('indice-btn');
+      const secciones = [...indice.querySelectorAll('a[data-h]')];
+
+      // Marca la seccion en la que estas: el ultimo cuyo indice ya pasaste.
+      const marcarCapitulo = () => {
+        const h = Reveal.getIndices().h;
+        let actual = secciones[0];
+        for (const a of secciones) if (+a.dataset.h <= h) actual = a;
+        secciones.forEach(a => a.removeAttribute('aria-current'));
+        actual?.setAttribute('aria-current', 'true');
+        return actual;
+      };
+
+      const abrirIndice = () => {
+        const actual = marcarCapitulo();
+        indice.showModal();
+        indiceBtn.setAttribute('aria-expanded', 'true');
+        // Abrir un indice de 50 items en la seccion 1 cuando vas por el 40 es
+        // hacer scrollear al que ya sabe donde esta. Y el foco arranca ahi, no
+        // en la X: con teclado, Tab sigue desde donde estas parado.
+        actual?.focus({ preventScroll: true });
+        actual?.scrollIntoView({ block: 'center' });
+      };
+      indiceBtn.addEventListener('click', abrirIndice);
+
+      // Al cerrarse, <dialog> devuelve el foco al boton. Con teclado es lo que
+      // corresponde; con mouse no: el boton quedaba enfocado y la primera
+      // flecha para pasar de slide lo encendia, como si lo estuvieras
+      // apretando. e.detail vale 0 cuando el click lo genero el teclado
+      // (Enter/Espacio sobre la X) y >0 cuando lo genero un puntero.
+      let conMouse = false;
+      const cerrarIndice = e => { conMouse = e.detail > 0; indice.close(); };
+      document.getElementById('indice-cerrar').addEventListener('click', cerrarIndice);
+      indice.addEventListener('close', () => {
+        indiceBtn.setAttribute('aria-expanded', 'false');
+        if (conMouse) indiceBtn.blur();
+        conMouse = false;
+      });
+      // Click en el backdrop: el target es el propio <dialog>. Click en un
+      // seccion: el href ya navega, aca solo se cierra el cajon.
+      indice.addEventListener('click', e => {
+        if (e.target === indice || e.target.closest('a[data-h]')) cerrarIndice(e);
+      });
+      // Con el cajon abierto, las teclas son del cajon: sin esto el keydown
+      // llega al handler global de reveal y las flechas cambian de slide por
+      // detras del modal.
+      indice.addEventListener('keydown', e => e.stopPropagation());
+      Reveal.on('slidechanged', marcarCapitulo);
+      Reveal.addKeyBinding(
+        { keyCode: 73, key: 'I', description: 'Abrir el índice' },
+        () => indice.open ? indice.close() : abrirIndice());
+
+      // El machete va por regiones: data-machete se anota donde CAMBIA -- en la
+      // portada y en la agenda de cada dia -- y vale hasta la proxima marca. Si
+      // un dia no lo declara hereda el del dia anterior, que es como los dias 5
+      // y 6 terminaron mostrando el TB pre-UVM.
+      // Se busca hacia atras desde la
+      // slide actual en vez de arrastrar el ultimo visto: arrastrando, cualquier
+      // salto —las teclas 0-6, el Esc, un #/N en la URL, volver atras— dejaba el
+      // machete de la region equivocada, o vacio si el salto era el primer
+      // movimiento.
+      const box = document.getElementById('machete');
+      const paint = () => {
+        const slides = Reveal.getSlides();
+        let dm = '';
+        for (let i = slides.indexOf(Reveal.getCurrentSlide()); i >= 0; i--) {
+          if (slides[i].dataset.machete) { dm = slides[i].dataset.machete; break; }
+        }
+        box.innerHTML = dm.split(',').filter(Boolean)
+          .map(src => `<img class="imagen" src="${src.trim()}" alt="">`).join('');
+      };
+      Reveal.on('slidechanged', paint);
+      paint();
+
+      // Quiz de repaso: opciones clickeables.
+      //
+      // La fuente en slides/ es markdown a secas -- una lista de tareas donde
+      // el item correcto va con [x]:
+      //     - [ ] En escribir el testbench
+      //     - [x] En debug
+      // marked le pone un <input type=checkbox> a cada item; aca se lo saca y
+      // queda un boton. Que la correcta se marque en la lista y no como una
+      // letra escrita al final ("la b") es a proposito: la letra sale de la
+      // posicion, asi que reordenar las opciones nunca puede dejarla mintiendo.
+      //
+      // Se responde con click, con Enter/Espacio sobre la opcion enfocada, o
+      // con la tecla V -- que hace falta cuando se dicta con un clicker y no
+      // hay mouse a mano.
+      const LETRAS = 'abcdefgh';
+      const revelar = s => s?.classList.add('respondida');
+
+      document.querySelectorAll('section.quiz').forEach(sec => {
+        const lista = sec.querySelector('ul');
+        if (!lista) return;
+        lista.classList.add('opciones');
+        sec.querySelector('blockquote')?.classList.add('respuesta');
+        // La pregunta es el primer parrafo despues de los titulos.
+        sec.querySelector(':is(h1, h2, h3, h4) ~ p')?.classList.add('pregunta');
+
+        [...lista.children].forEach((li, i) => {
+          const box = li.querySelector('input[type=checkbox]');
+          li.classList.add('opcion');
+          li.classList.toggle('es-correcta', !!box?.checked);
+          box?.remove();
+          li.tabIndex = 0;
+          li.setAttribute('role', 'button');
+          // El texto va envuelto en un span porque .opcion es un grid de tres
+          // columnas: si quedaran sueltos el texto y los <code> inline, cada uno
+          // seria un grid item anonimo y se irian a filas implicitas -- una
+          // opcion con dos `code` adentro media 500px de alto.
+          const texto = document.createElement('span');
+          while (li.firstChild) texto.append(li.firstChild);
+          li.append(texto);
+          li.insertAdjacentHTML('afterbegin', `<b class="letra">${LETRAS[i]}</b>`);
+
+          const responder = () => {
+            if (sec.classList.contains('respondida')) return;
+            li.classList.add('elegida');
+            revelar(sec);
+          };
+          li.addEventListener('click', responder);
+          li.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); responder(); }
+          });
+        });
+
+        lista.insertAdjacentHTML('afterend',
+          '<p class="ayuda">Eleg\u00ed una opci\u00f3n \u2014 o tecla <kbd>V</kbd> para ver la respuesta</p>');
+      });
+
+      // En el PDF no hay quien clickee: todas las respuestas van a la vista.
+      if (/print-pdf/gi.test(window.location.search)) {
+        document.querySelectorAll('section.quiz').forEach(revelar);
+      }
+
+      Reveal.addKeyBinding(
+        { keyCode: 86, key: 'V', description: 'Ver la respuesta del repaso' },
+        () => revelar(Reveal.getCurrentSlide()?.closest('section.quiz')));
+
+      // Auto-ajuste: si una slide no entra en el canvas de 1100x700, se le baja
+      // el tamano de fuente hasta que entre. El layout flex de course.css ya
+      // resuelve el codigo y las imagenes (scrollean / escalan); esto cubre las
+      // slides que son puro texto denso, y vale tambien para las que agregues
+      // mas adelante.
+      //
+      // Se ajusta slide por slide, al mostrarla. Fitear las 159 al arrancar era
+      // trabajo tirado: reveal deja en display:none todo lo que cae fuera de su
+      // viewDistance (3), y ahi scrollHeight y clientHeight dan 0 -- el loop no
+      // entra y no ajusta nada, pero cada llamada fuerza un reflow igual.
+      const fit = s => {
+        if (!s) return;
+        s.style.fontSize = '';
+        for (let k = 100; s.scrollHeight > s.clientHeight + 1 && k > 60; k -= 4) {
+          s.style.fontSize = (k - 4) + '%';
+        }
+      };
+      const fitAll = () => Reveal.getSlides().forEach(fit);
+
+      // Tecla N: las notas del presentador ACA ABAJO, sin abrir otra ventana.
+      //
+      // Existe para el que hace el curso solo, que es la mayoria del que lo
+      // abra: las notas son la mitad del material —la trampa clasica, el
+      // porque del numero, lo que el instructor diria en voz alta— y con `s`
+      // hay que abrir un popup que muchos navegadores bloquean.
+      //
+      // La clase .show-notes y su CSS ya vienen en reveal. Lo que hace falta
+      // es ademas prender showNotes, porque el controlador de notas solo
+      // rellena el .speaker-notes cuando esa opcion esta activa: con la clase
+      // sola el panel aparece vacio.
+      //
+      // Y hay que re-fitear: con las notas abiertas la slide se queda con el
+      // 70% del alto (regla .reveal.show-notes de reveal.css), asi que lo que
+      // entraba justo deja de entrar.
+      let notasOn = false;
+      try { notasOn = localStorage.getItem('vt-notas') === '1'; } catch {}
+      const verNotas = v => {
+        notasOn = v;
+        Reveal.configure({ showNotes: v });
+        Reveal.getRevealElement().classList.toggle('show-notes', v);
+        Reveal.syncSlide();
+        Reveal.layout();
+        fit(Reveal.getCurrentSlide());
+        try { localStorage.setItem('vt-notas', v ? '1' : '0'); } catch {}
+      };
+      if (notasOn) verNotas(true);
+      Reveal.addKeyBinding(
+        { keyCode: 78, key: 'N', description: 'Ver las notas del presentador en la slide' },
+        () => verNotas(!notasOn));
+
+      // Deteccion por URL: reveal 3.x exponia isPrintingPDF(), reveal 5 la
+      // renombro a isPrintView(). La query no cambia entre versiones.
+      // Las figuras del deck son claras sobre negro: sobre papel desaparecen.
+      // res/print/ tiene las mismas en paleta clara (tools/figs-print.mjs). No
+      // alcanza con CSS: un <img> a un SVG externo es otro documento y no lo
+      // toca el estilo de esta pagina.
+      const figurasClaras = claro => document.querySelectorAll('.reveal img[src$=".svg"]')
+        .forEach(img => img.setAttribute('src', claro
+          ? img.getAttribute('src').replace(/^res\//, 'res/print/')
+          : img.getAttribute('src').replace(/^res\/print\//, 'res/')));
+
+      if (/print-pdf/gi.test(window.location.search)) {
+        figurasClaras(true);   // antes de esperar las imagenes, que es lo que sigue
+
+        // En ?print-pdf reveal decide cuantas paginas ocupa cada slide midiendo
+        // su alto, pero lo hace antes de que terminen de cargar las imagenes. Y
+        // .pdf-page tiene overflow:hidden, asi que lo que sobra NO fluye a la
+        // pagina siguiente: se pierde. Se recalcula con las imagenes ya cargadas.
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+        // reveal arma las .pdf-page despues del ready y avisa con 'pdf-ready',
+        // que emite justo despues de insertarlas. Hacen falta las dos mitades:
+        //   - el evento, porque el poll a secas se agotaba antes de tiempo: bajo
+        //     el --virtual-time-budget de Chrome headless los sleep no cuestan
+        //     tiempo real y las 200 vueltas se quemaban en un suspiro;
+        //   - el poll, porque esperar solo por evento deja la pagina ociosa y
+        //     con --print-to-pdf Chrome imprime apenas la ve ociosa (salia un
+        //     PDF de una pagina en blanco).
+        // El techo lo pone el propio --virtual-time-budget del que invoca.
+        let pdfListo = !!document.querySelector('.pdf-page');
+        Reveal.on('pdf-ready', () => { pdfListo = true; });
+        while (!pdfListo) await sleep(50);
+        await Promise.all([...document.images].filter(i => !i.complete)
+          .map(i => new Promise(r => { i.onload = i.onerror = r; })));
+        await sleep(200);
+        const pages = [...document.querySelectorAll('.pdf-page')];
+        const unit = Math.min(...pages.map(p => p.offsetHeight));
+        // Se mide contra el borde real de la pagina: reveal ubica la seccion
+        // unos px por debajo del tope, y ese offset tambien ocupa lugar.
+        // Dos pasadas porque fijar el alto puede reacomodar el contenido.
+        for (let pass = 0; pass < 2; pass++) {
+          for (const p of pages) {
+            const s = p.querySelector('section');
+            if (!s) continue;
+            const pr = p.getBoundingClientRect(), sr = s.getBoundingClientRect();
+            const need = Math.max(1, Math.ceil((sr.bottom - pr.top + 6) / unit));
+            if (need * unit > p.offsetHeight) p.style.height = need * unit + 'px';
+          }
+        }
+        // Señal para tools/overflow.mjs: la maquetacion de impresion ya esta lista.
+        document.documentElement.dataset.printLayoutReady = '1';
+
+        // Llegamos aca desde Ctrl+P: abrir el dialogo ahora que la maquetacion
+        // esta lista, y volver al deck —a la misma slide, que viaja en el hash—
+        // cuando se cierre. afterprint tambien dispara si se cancela.
+        if (/[?&]auto\b/.test(window.location.search)) {
+          addEventListener('afterprint', () => history.back(), { once: true });
+          window.print();
+        }
+      } else {
+        // Ctrl/Cmd+P. Reveal maqueta para papel solo en modo ?print-pdf; sin eso
+        // cae en su impresion generica, que sale legible pero no es el deck:
+        // titulos alineados a la izquierda, todo a 20pt, el bloque de codigo
+        // oscuro y las figuras —claras sobre negro— invisibles sobre la hoja.
+        // Se recarga en modo impresion, que es exactamente lo que sale en
+        // dist/curso-uvm.pdf, y el dialogo se abre alla. En capture porque
+        // reveal tambien escucha keydown, y con el hash intacto para volver.
+        addEventListener('keydown', e => {
+          if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'p') {
+            e.preventDefault();
+            window.location.search = '?print-pdf&auto';
+          }
+        }, true);
+
+        // Red de seguridad para el que imprime desde el menu del navegador, que
+        // no pasa por el atajo: ahi manda la impresion generica de reveal, pero
+        // al menos las figuras y el codigo salen en paleta clara.
+        addEventListener('beforeprint', () => {
+          document.documentElement.classList.add('imprimiendo');
+          figurasClaras(true);
+        });
+        addEventListener('afterprint', () => {
+          document.documentElement.classList.remove('imprimiendo');
+          figurasClaras(false);
+        });
+
+        Reveal.on('slidechanged', e => fit(e.currentSlide));
+        Reveal.on('resize', fitAll);   // en overview estan todas visibles
+        fit(Reveal.getCurrentSlide());
+      }
+    });
+  </script>
+</body>
+</html>

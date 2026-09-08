@@ -1,0 +1,194 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Machete de UVM · Verify This!</title>
+<!--
+  El machete de una carilla. Se abre con doble clic y se imprime con Ctrl+P;
+  `npm run machete` lo pasa a docs/machete-uvm.pdf con el Chrome que ya tenes.
+
+  Cuatro bloques, y son los cuatro que se olvidan: la jerarquia de clases, las
+  nueve fases, el handshake del driver y las perillas de debug. Todo lo demas
+  esta en el curso -- esto es lo que se pega al lado del monitor.
+
+  A4 apaisado, negro sobre blanco: se fotocopia bien y no se come un cartucho.
+  Sin fuentes de internet ni imagenes: un archivo, y anda en 2031.
+-->
+<style>
+  @page { size: A4 landscape; margin: 8mm; }
+  :root {
+    --acento: #a8620a;      /* el ambar del curso, bajado para papel */
+    --linea:  #b9b9b9;
+    --tenue:  #575757;
+    --mono: ui-monospace, "SF Mono", "IBM Plex Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0 1mm;
+    font: 8.1pt/1.32 system-ui, -apple-system, "IBM Plex Sans", Helvetica, Arial, sans-serif;
+    color: #000; background: #fff;
+  }
+  header { display: flex; align-items: baseline; gap: .8em;
+           border-bottom: 2px solid var(--acento); padding-bottom: 3px; margin-bottom: 7px; }
+  header h1 { font: 700 15pt/1 system-ui, sans-serif; margin: 0; letter-spacing: -.01em; }
+  header .sub { color: var(--tenue); font-size: 8pt; }
+  header .url { margin-left: auto; font-family: var(--mono); font-size: 7.5pt; color: var(--tenue); }
+
+  .grid { display: grid; grid-template-columns: .92fr 1.16fr 1.22fr; gap: 7px 12px; }
+  /* "bottom-up" partido en dos lineas come cuatro milimetros de alto, que es
+     justo lo que separa una carilla de dos. */
+  .nowrap td:last-child, .nowrap th:last-child { white-space: nowrap; }
+  section { break-inside: avoid; }
+  h2 { font: 700 9.5pt/1.2 system-ui, sans-serif; margin: 0 0 4px;
+       color: var(--acento); text-transform: uppercase; letter-spacing: .06em; }
+  h2 span { text-transform: none; letter-spacing: 0; color: var(--tenue); font-weight: 400; }
+
+  table { border-collapse: collapse; width: 100%; }
+  td, th { padding: 1.6px 4px 1.6px 0; vertical-align: top; text-align: left; }
+  thead th { border-bottom: 1px solid var(--linea); font-size: 7.4pt;
+             color: var(--tenue); font-weight: 600; }
+  tbody tr + tr td { border-top: 1px solid #ececec; }
+  code, .m { font-family: var(--mono); font-size: 7.8pt; }
+  .m-strong { font-family: var(--mono); font-size: 7.8pt; font-weight: 700; }
+  .nota { color: var(--tenue); font-size: 7.4pt; }
+
+  pre { font-family: var(--mono); font-size: 7.6pt; line-height: 1.4;
+        margin: 0; white-space: pre; }
+  .caja { border: 1px solid var(--linea); padding: 4px 6px; }
+  .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .dos h3 { font: 600 7.6pt/1 system-ui, sans-serif; margin: 0 0 3px; color: var(--tenue); }
+  .cmt { color: var(--tenue); }
+
+  /* El arbol de clases: un <pre> es mas fiel que una tabla, y se lee igual
+     impreso que en pantalla. */
+  .arbol { font-family: var(--mono); font-size: 7.7pt; line-height: 1.42; }
+  .arbol b { font-weight: 700; }
+  .arbol .tuyo { color: var(--acento); font-weight: 700; }
+
+  footer { margin-top: 7px; padding-top: 4px; border-top: 1px solid var(--linea);
+           display: flex; gap: 1.4em; color: var(--tenue); font-size: 7.3pt; }
+  footer b { color: #000; }
+</style>
+
+<header>
+  <h1>Machete de UVM</h1>
+  <span class="sub">IEEE 1800.2 · lo que no se acuerda nadie</span>
+  <span class="url">Verify This! · CC BY 4.0 · github.com/leandrotozzi/verifythis</span>
+</header>
+
+<div class="grid">
+
+  <section>
+    <h2>La jerarquía <span>— de quién extiende qué</span></h2>
+    <pre class="arbol">
+<b>uvm_void</b>
+└─ <b>uvm_object</b>       crear, copiar, comparar
+   ├─ <b>uvm_transaction</b>
+   │  └─ <b>uvm_sequence_item</b>  <span class="tuyo">tu transaction</span>
+   │     └─ uvm_sequence     <span class="tuyo">tus sequences</span>
+   └─ <b>uvm_report_object</b>
+      └─ <b>uvm_component</b>  está en el árbol:
+         │              nombre jerárquico,
+         │              padre y fases
+         ├─ uvm_test       <span class="tuyo">tus tests</span>
+         ├─ uvm_env        <span class="tuyo">tu env</span>
+         ├─ uvm_agent      <span class="tuyo">tu agent</span>
+         ├─ uvm_driver     <span class="tuyo">tu driver</span>
+         ├─ uvm_monitor    <span class="tuyo">tus monitores</span>
+         ├─ uvm_scoreboard <span class="tuyo">tu scoreboard</span>
+         ├─ uvm_subscriber <span class="tuyo">tu cobertura</span>
+         └─ uvm_sequencer  tal cual, con typedef</pre>
+    <p class="nota" style="margin:4px 0 0">
+      <b>La línea que importa:</b> un <span class="m">object</span> se crea, se usa y se tira;
+      un <span class="m">component</span> vive toda la simulación. Por eso el constructor de uno
+      es <span class="m">(name)</span> y el del otro <span class="m">(name, parent)</span>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Las nueve fases <span>— sólo una consume tiempo</span></h2>
+    <table class="nowrap">
+      <thead><tr><th>Fase</th><th>Para qué</th><th>Orden</th></tr></thead>
+      <tbody>
+        <tr><td class="m-strong">build</td><td>instanciar los componentes</td><td><b>top-down</b></td></tr>
+        <tr><td class="m">connect</td><td>conectar los ports</td><td>bottom-up</td></tr>
+        <tr><td class="m">end_of_elaboration</td><td>jerarquía lista, antes de simular</td><td>bottom-up</td></tr>
+        <tr><td class="m">start_of_simulation</td><td>último aviso antes del tiempo 0</td><td>bottom-up</td></tr>
+        <tr><td class="m-strong">run</td><td><b>task</b>: acá pasa la simulación</td><td>un thread c/u</td></tr>
+        <tr><td class="m">extract</td><td>juntar los datos de la corrida</td><td>bottom-up</td></tr>
+        <tr><td class="m">check</td><td>decidir si pasó o no</td><td>bottom-up</td></tr>
+        <tr><td class="m">report</td><td>imprimir el veredicto</td><td>bottom-up</td></tr>
+        <tr><td class="m">final</td><td>cerrar archivos y salir</td><td>bottom-up</td></tr>
+      </tbody>
+    </table>
+    <p class="nota" style="margin:4px 0 0">
+      <span class="m">build</span> es la única top-down porque el padre tiene que existir para
+      crear al hijo; las demás necesitan lo contrario. Todas son <span class="m">function</span>
+      salvo <span class="m">run</span>, y por eso ninguna otra puede esperar un flanco.
+    </p>
+    <p class="nota" style="margin:3px 0 0">
+      <b>Y el que decide cuándo termina no es <span class="m">run</span>:</b> son las objections.
+      <span class="m">raise</span> al empezar, <span class="m">drop</span> al terminar, y un
+      <span class="m">drain_time</span> si queda algo en vuelo sin comparar.
+    </p>
+  </section>
+
+  <section>
+    <h2>El handshake <span>— sequence ↔ driver</span></h2>
+    <div class="dos">
+      <div class="caja">
+        <h3>La sequence</h3>
+<pre>task body();
+  req = tipo::type_id
+          ::create("req");
+  start_item(req);   <span class="cmt">// espera</span>
+  assert(req.randomize());
+  finish_item(req);  <span class="cmt">// espera</span>
+  <span class="cmt">// req.result ya volvió</span>
+endtask</pre>
+      </div>
+      <div class="caja">
+        <h3>El driver</h3>
+<pre>task run_phase(uvm_phase f);
+  forever begin
+    seq_item_port
+      .get_next_item(cmd);
+    bfm.send_op(cmd.A,
+                cmd.B, cmd.op);
+    seq_item_port
+      .item_done();
+  end
+endtask</pre>
+      </div>
+    </div>
+    <p class="nota" style="margin:4px 0 0">
+      Es un <b>préstamo</b>, no una copia: la sequence sigue teniendo el handle, así que el
+      driver le escribe el resultado <b>adentro del item</b> antes de <span class="m">item_done()</span>.
+      Sin ese <span class="m">item_done()</span> la sequence se cuelga en su
+      <span class="m">finish_item()</span> <b>sin un solo mensaje de error</b>.
+    </p>
+  </section>
+
+  <section style="grid-column: 1 / -1">
+    <h2>Las siete perillas de debug <span>— cinco son plusargs: no se recompila nada</span></h2>
+    <table>
+      <thead><tr>
+        <th style="width:26%">Perilla</th><th style="width:36%">Para qué</th><th style="width:38%">El síntoma que resuelve</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="m">VLT_TRACE=1</td><td>volcar las ondas para GTKWave</td><td>cuando el log ya no alcanza — el 47 % del trabajo</td></tr>
+        <tr><td class="m">+UVM_VERBOSITY=UVM_HIGH</td><td>ver los mensajes de los monitores</td><td>el scoreboard <b>grita en todas</b>: el monitor muestrea mal, el DUT casi nunca es</td></tr>
+        <tr><td class="m">+UVM_OBJECTION_TRACE</td><td>quién la levantó y quién la bajó</td><td>termina en <b>t = 0</b> y dice PASS, o <b>no termina nunca</b></td></tr>
+        <tr><td class="m">+UVM_TIMEOUT=5ms</td><td>un techo, en vez de esperar</td><td>la simulación se colgó y no sabés dónde</td></tr>
+        <tr><td class="m">+UVM_CONFIG_DB_TRACE</td><td>quién puso qué, y quién lo leyó</td><td>el <span class="m">config_db</span> «no encuentra»: mirá el ámbito del <span class="m">set</span>, no el <span class="m">get</span></td></tr>
+        <tr><td class="m">uvm_root::get()<br>&nbsp;&nbsp;.print_topology()</td><td>el árbol que UVM armó <b>de verdad</b></td><td>el árbol no es el que dibujaste: un <span class="m">create()</span> sin factory, o un override tardío</td></tr>
+        <tr><td class="m">set_report_severity_<br>&nbsp;&nbsp;action_hier(…, UVM_COUNT)</td><td>matar la corrida al N-ésimo error</td><td>el log de cuatro gigas cuando el scoreboard falla en cada transacción</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</div>
+
+<footer>
+  <span><b>Regla de oro:</b> el sospechoso número uno nunca es el DUT — es el testbench que lo mira.</span>
+  <span><b>La cobertura da 0 %:</b> falta el <span class="m">new()</span> o el <span class="m">sample()</span> del covergroup.</span>
+  <span><b>Todo esto corre sin licencias:</b> Verilator + UVM 2020.3.1.</span>
+</footer>

@@ -1,0 +1,193 @@
+# La regresion nocturna de TU capstone, en GitHub Actions.
+#
+# ------------------------------------------------------------------------------
+# COMO SE USA
+#
+#   1. Copia este archivo a  .github/workflows/regresion.yml  de TU repo.
+#   2. Ajusta las tres variables de `env` de abajo: donde esta tu run.sh, con
+#      que test corres la regresion, y cuantas semillas.
+#   3. Commitea. A partir de ahi, cada push corre una semilla (rapido) y todas
+#      las noches corren las N, con el merge de cobertura.
+#
+# Lo que vas a ver en la pestana Actions, en el resumen del job:
+#
+#      cobertura de la regresion: 118/131 bins (90.1 %)
+#      la corrida anterior: 112/131
+#      bins que ningun test llenó: cross_dir_x_sentido.RD_0x0c, ...
+#
+# Ese numero subiendo commit a commit es coverage closure de verdad, que es lo
+# que hace un equipo de verificacion todos los dias. Y se puede hacer gratis
+# solo porque el simulador es libre: no hay licencias flotantes que pedirle a
+# nadie para que corra un runner de GitHub.
+#
+# ------------------------------------------------------------------------------
+# POR QUE ASI
+#
+# Verilator se compila DE FUENTE y se cachea. El paquete de la distro es viejo
+# y los covergroups entraron en 5.050: sin eso, esta regresion no mide nada.
+# La primera corrida tarda ~8 min compilando Verilator; las siguientes, con el
+# cache tibio, arrancan en segundos.
+#
+# Una regresion NO son N tests distintos: es EL MISMO test con otra semilla.
+# Eso es lo que hace el bucle de abajo, y es el ejercicio d6-semillas del curso
+# convertido en workflow.
+#
+# Si trabajas adentro de un fork del curso, `make regresion EJEMPLO=... N=...`
+# hace esto mismo en tu maquina y ademas escribe un reporte HTML con los bins
+# abiertos. Este archivo existe para el caso en que tu capstone vive en TU repo.
+
+name: regresion
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *' # 03:00 en Argentina
+
+permissions:
+  contents: read
+
+concurrency:
+  group: regresion-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # --- LO QUE HAY QUE TOCAR ---------------------------------------------------
+  DIR: code/ejercicios/d7-final # el directorio que tiene tu run.sh
+  TEST: random_test             # el test que se repite con N semillas
+  SEMILLAS: 10                  # cuantas. En cada push corre 1; de noche, todas
+  # ----------------------------------------------------------------------------
+  VERILATOR_VERSION: v5.052
+
+jobs:
+  regresion:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # z3 es el solver SMT que Verilator llama para randomize() con
+      # constraints. Sin z3 no falla: randomize() devuelve 0 y el estimulo se
+      # queda clavado en cero. Es el peor modo de falla del curso.
+      - name: ccache y z3
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ccache z3
+
+      - name: Cache de Verilator
+        id: cache-verilator
+        uses: actions/cache@v4
+        with:
+          path: ~/opt/verilator
+          key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
+
+      - name: Compilar Verilator
+        if: steps.cache-verilator.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get install -y --no-install-recommends \
+            git help2man perl python3 make autoconf g++ flex bison
+          git clone --depth 1 --branch "$VERILATOR_VERSION" \
+            https://github.com/verilator/verilator /tmp/verilator
+          cd /tmp/verilator
+          autoconf && ./configure --prefix="$HOME/opt/verilator"
+          make -j"$(nproc)" && make install
+
+      - name: Verilator al PATH
+        run: |
+          echo "$HOME/opt/verilator/bin" >> "$GITHUB_PATH"
+          "$HOME/opt/verilator/bin/verilator" --version
+
+      # La cache de g++ le ahorra a la corrida de manana lo que compilo hoy: el
+      # MISMO testbench, con el obj_dir borrado, baja de minutos a segundos.
+      - name: Cache de ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-${{ env.VERILATOR_VERSION }}-${{ github.run_id }}
+          restore-keys: ccache-${{ env.VERILATOR_VERSION }}-
+
+      - name: Cache de UVM
+        uses: actions/cache@v4
+        with:
+          path: code/.uvm
+          key: uvm-2020.3.1
+
+      - name: Bajar UVM
+        run: |
+          [ -f code/.uvm/src/uvm_pkg.sv ] && exit 0
+          mkdir -p code/.uvm
+          curl -sSL --max-time 180 \
+            https://github.com/accellera-official/uvm-core/archive/refs/tags/2020.3.1.tar.gz \
+            | tar xz -C code/.uvm --strip-components=1
+          test -f code/.uvm/src/uvm_pkg.sv
+
+      # El corazon del asunto, y son diez lineas: el mismo test, otra semilla,
+      # y el merge de todos los .dat al final. Un bin que llena CUALQUIER
+      # semilla queda llenado en el merge -- por eso una regresion cubre lo que
+      # una corrida sola no.
+      - name: La regresion
+        run: |
+          set -e
+          N=1; [ "${{ github.event_name }}" = push ] || N=$SEMILLAS
+          [ "${{ github.event_name }}" = pull_request ] && N=1
+          mkdir -p regresion
+          for s in $(seq 1 "$N"); do
+            printf '  SEED=%-4s ' "$s"
+            ( cd "$DIR" && SEED=$s bash run.sh ) > "regresion/seed.$s.log" 2>&1 \
+              || { echo FALLA; tail -30 "regresion/seed.$s.log"; exit 1; }
+            verilator_coverage --write "regresion/seed.$s.dat" \
+              "$DIR"/obj_dir/*/cov.*.dat > /dev/null
+            grep -m1 'covergroup *:' "regresion/seed.$s.log" || echo
+          done
+          verilator_coverage --write regresion/merge.dat regresion/seed.*.dat > /dev/null
+
+      # El numero, en el resumen del job. Es lo unico que hay que mirar: si no
+      # sube, el commit no agrego verificacion aunque agregara codigo.
+      - name: El numero, y los bins que quedaron abiertos
+        if: always()
+        run: |
+          set -e
+          # El .dat de Verilator es una linea por punto de cobertura: los campos
+          # van separados por \001 y \002, y el contador es lo que sigue a la
+          # comilla final. Se parsea a mano y no con `verilator_coverage
+          # --report` porque lo que hace falta es QUE bin quedo en cero, no el
+          # porcentaje del padre.
+          bins() {
+            awk -v modo="$1" '/^C \047/ {
+              if (match($0, /\047 [0-9]+$/) == 0) next
+              cnt = substr($0, RSTART + 2) + 0
+              n = split($0, a, "\001"); bin = ""
+              for (i = 1; i <= n; i++)
+                if (substr(a[i], 1, 4) == "bin\002") bin = substr(a[i], 5)
+              if ((modo == "llenos" && cnt > 0) || (modo == "abiertos" && cnt == 0))
+                print bin
+            }' regresion/merge.dat
+          }
+          total=$(grep -c "^C '" regresion/merge.dat || true)
+          llenos=$(bins llenos | wc -l | tr -d ' ')
+          semillas=$(ls regresion/seed.*.dat | wc -l | tr -d ' ')
+          # LC_ALL=C para que el porcentaje salga con punto en cualquier runner.
+          pct=$(LC_ALL=C awk "BEGIN{printf \"%.1f\", $llenos*100/($total?$total:1)}")
+          {
+            echo "## Cobertura de la regresión"
+            echo
+            echo "**$llenos / $total** bins — **$pct %**, con $semillas semilla(s)."
+            echo
+            echo '### Bins que ninguna semilla llenó'
+            echo
+            echo '```'
+            bins abiertos | sort -u | head -40
+            echo '```'
+            echo
+            echo '_Cada línea de ahí es un test que falta escribir. Si este'
+            echo 'número no sube commit a commit, agregaste código y no'
+            echo 'agregaste verificación._'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Guardar los .dat y los logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regresion-${{ github.run_number }}
+          path: regresion/
+          if-no-files-found: ignore

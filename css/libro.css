@@ -1,0 +1,260 @@
+/* El libro: el mismo curso, para leer de corrido.
+   ---------------------------------------------------------------------------
+   Reusa css/course.css y css/code.css enteros. Dos ganchos alcanzan:
+
+     html.libro    entra en el mismo :is() que .print-pdf, asi que hereda la
+                   paleta clara del PDF -- la que ya esta medida contra papel,
+                   4,5:1 los dos colores-senal. Tema claro por defecto porque
+                   esto se lee largo, no se proyecta.
+     body.reveal   hace que apliquen las reglas del curso que estan scopeadas
+                   ahi: el codigo, el inline code, las teclas y los quizzes.
+                   reveal.css NO se carga, asi que no entra nada de su layout.
+
+   Lo que queda aca es lo que el deck no tiene porque no lo necesita: una
+   columna de lectura, el ritmo vertical entre secciones, y la nota del
+   presentador convertida en prosa.                                          */
+
+html.libro { background: #fff; }
+
+html.libro body {
+  margin: 0;
+  background: #fff;
+  color: var(--r-main-color);
+  font-family: var(--r-main-font);
+  /* 19px y no los 30 del deck: aca se lee a 40 cm, no a cuatro metros. */
+  font-size: 19px;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* La medida de linea es el unico parametro que importa en un texto largo: ~72
+   caracteres. El codigo puede pasarse, y por eso desborda hacia afuera. */
+html.libro .wrap {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---- Cabecera y pie ------------------------------------------------------ */
+html.libro .cabecera {
+  border-bottom: 1px solid #e3e6eb;
+  background: #fbfbfc;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+html.libro .cabecera .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-top: 11px;
+  padding-bottom: 11px;
+  max-width: 60rem;
+}
+html.libro .marca {
+  margin: 0;
+  font-family: var(--r-heading-font);
+  font-size: 15px;
+  color: #5a6068;
+}
+html.libro .marca a { color: var(--r-heading-color); text-decoration: none; }
+html.libro .nav-dias {
+  display: flex;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+}
+html.libro .nav-dias a { color: #5a6068; text-decoration: none; }
+html.libro .nav-dias a:hover { color: var(--accent); }
+html.libro .nav-dias b { color: var(--accent); }
+
+html.libro .pie {
+  margin-top: 72px;
+  padding: 28px 0 48px;
+  border-top: 1px solid #e3e6eb;
+  color: #5a6068;
+  font-size: 14.5px;
+}
+html.libro .pie .nav-dias { margin-bottom: 12px; }
+html.libro .pie p { margin: 0; }
+
+/* ---- Portada del dia ----------------------------------------------------- */
+html.libro .titulo-dia {
+  font-family: var(--r-heading-font);
+  text-transform: none;
+  font-weight: 700;
+  font-size: 2.6rem;
+  line-height: 1.1;
+  margin: 56px 0 14px;
+  color: var(--r-heading-color);
+}
+html.libro .titulo-dia span {
+  display: block;
+  font-size: 0.95rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+html.libro .bajada {
+  margin: 0 0 8px;
+  color: #5a6068;
+  font-size: 17px;
+}
+
+/* ---- Una slide = una seccion --------------------------------------------- */
+/* El filete separa dos secciones sin gritar: en un dia hay cincuenta. */
+html.libro main section.slide {
+  padding: 34px 0 6px;
+  border-top: 1px solid #edeff2;
+}
+html.libro main section.slide:first-of-type { border-top: 0; }
+
+html.libro section.slide :is(h1, h2, h3) {
+  font-family: var(--r-heading-font);
+  color: var(--r-heading-color);
+  line-height: 1.2;
+  margin: 0 0 6px;
+  text-transform: none;
+}
+html.libro section.slide h2 { font-size: 1.62rem; }
+html.libro section.slide h3 { font-size: 1.3rem; }
+/* El #### del deck es el subtitulo en italica: aca es el subtitulo de la
+   seccion, y va en el color-senal para que se lea como bajada y no como titulo. */
+html.libro section.slide h4 {
+  font-family: var(--r-heading-font);
+  font-size: 1.06rem;
+  font-style: italic;
+  font-weight: 600;
+  color: var(--accent);
+  margin: 0 0 16px;
+}
+html.libro section.slide p { margin: 0 0 14px; }
+html.libro section.slide ul { margin: 0 0 16px; padding-left: 1.25em; }
+html.libro section.slide li { margin: 0 0 7px; }
+
+html.libro section.slide img {
+  display: block;
+  max-width: 100%;
+  max-height: none;
+  height: auto;
+  margin: 18px auto;
+  padding: 12px;
+  box-sizing: border-box;
+  border: 1px solid #eceef2;
+  border-radius: 6px;
+  background: #fafbfc;
+}
+
+html.libro section.slide table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 18px;
+  font-size: 0.93em;
+}
+html.libro section.slide :is(th, td) {
+  border-bottom: 1px solid #e3e6eb;
+  padding: 7px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+html.libro section.slide th {
+  font-family: var(--r-heading-font);
+  color: var(--r-heading-color);
+}
+
+/* ---- La nota del presentador, que aca es texto --------------------------- */
+/* En el deck vive detras de la tecla S. Aca es la mitad del curso, asi que no
+   se esconde: se marca como voz distinta -- lo que el instructor diria -- con
+   un filete y un cuerpo apenas menor. */
+html.libro .nota {
+  border-left: 3px solid var(--accent);
+  padding: 2px 0 2px 18px;
+  margin: 4px 0 18px;
+  color: #3c424a;
+  font-size: 0.97em;
+}
+html.libro .nota p { margin: 0 0 11px; }
+html.libro .nota p:last-child { margin-bottom: 0; }
+
+/* ---- Codigo -------------------------------------------------------------- */
+/* Se sale de la columna de lectura: una linea de codigo no mide 72 caracteres,
+   y partirla es peor que ensancharla. */
+html.libro figure.codigo {
+  margin: 0 0 20px;
+  max-width: 52rem;
+  width: calc(100% + 8rem);
+  margin-left: -4rem;
+}
+@media (max-width: 62rem) {
+  html.libro figure.codigo { width: 100%; margin-left: 0; }
+}
+html.libro figure.codigo figcaption {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: #5a6068;
+  margin-bottom: 6px;
+}
+html.libro figure.codigo figcaption code {
+  background: none;
+  color: #5a6068;
+  padding: 0;
+}
+html.libro pre { margin: 0; }
+html.libro pre code.hljs {
+  display: block;
+  max-height: none;
+  overflow-x: auto;
+  padding: 14px 16px;
+  border-radius: 4px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  word-wrap: normal;
+  white-space: pre;
+}
+html.libro details { margin-top: 8px; }
+html.libro details summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: #5a6068;
+  padding: 5px 0;
+}
+html.libro details summary:hover { color: var(--accent); }
+html.libro details pre code.hljs { margin-top: 6px; }
+
+/* ---- Enlace de vuelta al deck -------------------------------------------- */
+/* Discreto a proposito: esta en las 305 secciones, y el que lee de corrido no
+   lo necesita nunca. El que lo busca lo encuentra siempre en el mismo lugar. */
+html.libro .al-deck {
+  margin: 0 0 4px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+html.libro .al-deck a {
+  color: #9aa0a8;
+  text-decoration: none;
+  cursor: pointer;
+}
+html.libro .al-deck a:hover { color: var(--accent); }
+
+/* ---- Quizzes ------------------------------------------------------------- */
+/* El grueso lo pone css/course.css, que ya los tiene resueltos para .reveal y
+   ya los tematiza en claro para el PDF. Aca solo se los baja de tamano: en el
+   deck ocupan una pantalla entera y aca son un parrafo mas. */
+html.libro section.quiz .pregunta { font-size: 1.05em; }
+html.libro section.quiz .opciones { font-size: 0.95em; }
+html.libro section.quiz .respuesta { font-size: 0.95em; }
+html.libro section.quiz .ayuda { font-size: 12.5px; }
+/* En el deck la respuesta esta puesta con opacity 0 y ocupa su lugar: la slide
+   mide siempre igual y no salta al responder. En una pagina que scrollea eso es
+   un agujero blanco de 200px en cada repaso, asi que aca se colapsa. */
+html.libro section.quiz .respuesta { display: none; }
+html.libro section.quiz.respondida .respuesta { display: block; }
+html.libro section.quiz.respondida .ayuda { display: none; }
+
+/* La portada del deck trae su nav de dias y su pie de creditos: en el libro son
+   enlaces a anclas de reveal que aca no existen. */
+html.libro section.slide :is(.dias, .creditos-pie) { display: none; }

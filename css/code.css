@@ -1,0 +1,91 @@
+/* Tema de resaltado del codigo. Reemplaza al monokai que venia con reveal.
+   ---------------------------------------------------------------------------
+   Monokai pinta tres cosas y trata igual a todo lo demas; esta clase es de UVM,
+   asi que lo que tiene que saltar a la vista es lo que el curso ensena. La
+   gramatica que emite estos tokens es tools/hljs-sv.mjs.
+
+   Jerarquia, de mas a menos llamativo:
+     1. `uvm_* (macros)      ambar #e7ad52 + peso 600  -- el tema del curso
+     2. uvm_* (clases)       verde  #74e685            -- la jerarquia de UVM
+     3. UVM_* (constantes)   verde claro               -- misma familia
+     4. keywords / tipos     rosa / turquesa           -- el lenguaje
+     5. literales, sistema   salmon / azul
+     6. comentarios          gris azulado, sin italica
+
+   El ambar y el verde son los dos colores-senal del deck (--accent y
+   --r-link-color): en las 24 figuras ya significan "mira aca", y aca significan
+   lo mismo. El resto del codigo usa hues frios, bien separados entre si, para
+   no competir con esos dos.
+
+   Se proyecta: todos los tokens pasan 4.5:1 contra el fondo del bloque. Los
+   comentarios son el mas bajo a proposito (5.4:1) -- legibles, secundarios.
+   Sin italica porque de IBM Plex Mono solo se vendorizan 400 y 600, y el
+   browser falsearia la inclinacion.                                          */
+
+:root {
+  --code-bg: #1b1f27;
+  --code-fg: #e6e9ef;
+}
+
+.reveal pre code.hljs {
+  background: var(--code-bg);
+  color: var(--code-fg);
+  border: 1px solid #2b313d;
+}
+
+/* --- UVM: lo que el curso ensena ------------------------------------------ */
+.hljs-uvm-macro { color: #e7ad52; font-weight: 600; }
+.hljs-uvm-type  { color: #74e685; }
+.hljs-uvm-const { color: #a5f0ae; }
+
+/* --- El lenguaje ---------------------------------------------------------- */
+.hljs-keyword   { color: #ff79b8; }   /* class, function, begin, virtual...   */
+.hljs-type      { color: #2fd0c0; }   /* logic, bit, int, string, void...     */
+.hljs-title     { color: #ffffff; font-weight: 600; }  /* nombres declarados  */
+.hljs-built_in  { color: #82aaff; }   /* $display, $sformatf, $cast...        */
+.hljs-meta      { color: #56b6c2; }   /* `include, `define, `ifdef...         */
+
+/* --- Literales ------------------------------------------------------------ */
+.hljs-string    { color: #ce9178; }
+.hljs-number    { color: #c792ea; }   /* 8'hff, 3'b001, 16'd10, '0            */
+.hljs-literal   { color: #c792ea; }
+.hljs-symbol    { color: #c792ea; }
+
+.hljs-comment   { color: #8b95a3; }
+.hljs-doctag    { color: #8b95a3; font-weight: 600; }
+
+/* --- Sobras de los otros lenguajes (bash, python, tcl, vhdl) --------------- */
+.hljs-variable, .hljs-template-variable, .hljs-attr, .hljs-attribute { color: #82aaff; }
+.hljs-name, .hljs-selector-tag, .hljs-section { color: #ff79b8; }
+.hljs-params { color: var(--code-fg); }
+.hljs-subst, .hljs-formula { color: var(--code-fg); }
+.hljs-regexp, .hljs-link { color: #ce9178; }
+.hljs-addition { color: #74e685; }
+.hljs-deletion { color: #ff7a7a; }
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: 600; }
+
+/* --- El mismo resaltado, para papel ----------------------------------------
+   El PDF se imprime: fondo blanco, y estos tokens sobre #f7f8fa. Es el mismo
+   orden de importancia de arriba —ambar los macros, verde la jerarquia UVM,
+   frios el lenguaje— con los mismos hues bajados en luminosidad hasta pasar
+   4.5:1 contra la plancha clara. No es otro tema: es el mismo, del otro lado.
+   El fondo y el color base salen de --code-bg/--code-fg, que ya los pisa
+   css/course.css en html:is(.print-pdf, .imprimiendo, .libro).                                          */
+html:is(.print-pdf, .imprimiendo, .libro) .hljs-uvm-macro { color: #8a5a0d; }
+html:is(.print-pdf, .imprimiendo, .libro) .hljs-uvm-type  { color: #146c37; }
+html:is(.print-pdf, .imprimiendo, .libro) .hljs-uvm-const { color: #1f7f5c; }
+
+html:is(.print-pdf, .imprimiendo, .libro) .hljs-keyword   { color: #b4256f; }
+html:is(.print-pdf, .imprimiendo, .libro) .hljs-type      { color: #0e6f7a; }
+html:is(.print-pdf, .imprimiendo, .libro) .hljs-title     { color: #101318; }
+html:is(.print-pdf, .imprimiendo, .libro) .hljs-built_in  { color: #2551c9; }
+html:is(.print-pdf, .imprimiendo, .libro) .hljs-meta      { color: #106b86; }
+
+html:is(.print-pdf, .imprimiendo, .libro) .hljs-string    { color: #9a4a2f; }
+html:is(.print-pdf, .imprimiendo, .libro) :is(.hljs-number, .hljs-literal, .hljs-symbol) { color: #6b34b8; }
+
+html:is(.print-pdf, .imprimiendo, .libro) :is(.hljs-comment, .hljs-doctag) { color: #6a7280; }
+
+html:is(.print-pdf, .imprimiendo, .libro) :is(.hljs-variable, .hljs-template-variable, .hljs-attr, .hljs-attribute) { color: #2551c9; }
+html:is(.print-pdf, .imprimiendo, .libro) :is(.hljs-name, .hljs-selector-tag, .hljs-section) { color: #b4256f; }

@@ -1,0 +1,143 @@
+name: ejemplos
+
+# El otro workflow (build.yml) compila el deck. Este corre el CODIGO, que es la
+# promesa fuerte del curso: "38 ejemplos que se ejecutan de verdad".
+#
+#   push / PR que toque code/  ->  los ejemplos sin UVM (segundos) + u4/tests
+#   todas las noches           ->  los 38, y ademas las 15 soluciones
+#
+# Los de UVM tardan minutos cada uno de COMPILAR, por eso no van en cada push.
+# u4/tests va igual: es el canario que dice que UVM sigue enlazando.
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # 03:00 en Argentina
+  workflow_dispatch:
+  push:
+    paths:
+      - 'code/**'
+      - 'Makefile'
+      - 'tools/verilator-matrix.sh'
+      - 'tools/get-uvm.sh'
+      - '.github/workflows/ejemplos.yml'
+  pull_request:
+    paths:
+      - 'code/**'
+      - 'Makefile'
+      - 'tools/verilator-matrix.sh'
+      - 'tools/get-uvm.sh'
+      - '.github/workflows/ejemplos.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ejemplos-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Los covergroups entraron en 5.050 y son tema del curso, asi que el paquete
+  # de la distro no sirve: hay que compilar de fuente. Sale cacheado.
+  VERILATOR_VERSION: v5.052
+
+jobs:
+  ejemplos:
+    runs-on: ubuntu-latest
+    # La corrida completa son ~13 builds con UVM. Holgado a proposito.
+    timeout-minutes: 240
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Dos que se necesitan SIEMPRE, y por eso no pueden vivir adentro del paso
+      # que compila Verilator: ese se saltea en cuanto hay cache hit.
+      #   ccache  la cache de g++
+      #   z3      el solver SMT de randomize() con constraints. Sin el, u5/varios-objetos,
+      #           u6/transactions, u7/agents y u7/sequences corren y randomize() devuelve 0.
+      - name: Instalar ccache y z3
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ccache z3
+
+      # La cache sirve ENTRE CORRIDAS, no entre ejemplos: medido, dos capitulos
+      # distintos comparten apenas el 22 % de los buckets de g++ —Verilator
+      # renombra los simbolos por diseno— pero el MISMO ejemplo, con el obj_dir
+      # borrado, baja de 92 s a 15 s. O sea: lo que esta cache le ahorra al CI es
+      # recompilar todas las noches lo que ya compilo anoche.
+      # La key lleva run_id para que cada corrida escriba su propia entrada
+      # (actions/cache no actualiza una key que ya existe); restore-keys levanta
+      # la ultima.
+      - name: Cache de ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-${{ env.VERILATOR_VERSION }}-${{ github.run_id }}
+          restore-keys: ccache-${{ env.VERILATOR_VERSION }}-
+
+      - name: Cache de Verilator
+        id: cache-verilator
+        uses: actions/cache@v4
+        with:
+          path: ~/opt/verilator
+          key: verilator-${{ env.VERILATOR_VERSION }}-${{ runner.os }}
+
+      - name: Compilar Verilator
+        if: steps.cache-verilator.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            git help2man perl python3 make autoconf g++ flex bison
+          git clone --depth 1 --branch "$VERILATOR_VERSION" \
+            https://github.com/verilator/verilator /tmp/verilator
+          cd /tmp/verilator
+          autoconf
+          ./configure --prefix="$HOME/opt/verilator"
+          make -j"$(nproc)"
+          make install
+
+      # Si esto falla despues de un cache hit, la imagen del runner cambio y el
+      # binario cacheado quedo viejo: subile el numero a la key del cache.
+      - name: Verilator al PATH
+        run: |
+          echo "$HOME/opt/verilator/bin" >> "$GITHUB_PATH"
+          "$HOME/opt/verilator/bin/verilator" --version
+
+      # UVM son varios MB de libreria de terceros que no se commitean.
+      - name: Cache de UVM
+        uses: actions/cache@v4
+        with:
+          path: code/.uvm
+          key: uvm-2020.3.1
+
+      - name: Bajar UVM
+        run: make uvm
+
+      - name: Ejemplos sin UVM
+        run: make rapido
+
+      # El canario: si UVM dejo de enlazar, se ve aca sin esperar a la noche.
+      - name: u4/tests - UVM enlaza y da 0 UVM_ERROR
+        run: make u4/tests
+
+      - name: Los 38 ejemplos
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: make matrix
+
+      # Las soluciones no se corrigen solas: esto comprueba que los doce
+      # ejercicios sigan siendo RESOLUBLES cuando cambia el codigo del curso.
+      - name: Las 15 soluciones de los ejercicios
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: make ejercicios
+
+      # Si el hit rate se desploma, es que la key del cache dejo de servir.
+      - name: Hit rate de ccache
+        if: always()
+        run: ccache -s
+
+      # docs/verilator.md se regenera con la fecha y la version de ESTA corrida.
+      # No se commitea desde el CI: queda como artefacto para mirarlo.
+      - name: Guardar la matriz de esta corrida
+        if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        uses: actions/upload-artifact@v4
+        with:
+          name: matriz-verilator
+          path: docs/verilator.md
+          if-no-files-found: ignore

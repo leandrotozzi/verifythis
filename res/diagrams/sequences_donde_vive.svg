@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="IBM Plex Sans, system-ui, sans-serif">
+<title>El sequencer vive en el arbol de componentes; las sequences viven afuera</title>
+<defs>
+  <marker id="v-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#e7ad52"/>
+  </marker>
+</defs>
+
+<!-- ============ contenedor: el arbol ============ -->
+<rect x="30" y="130" width="440" height="340" rx="6" fill="#ffffff" opacity="0.03"/>
+<rect x="30" y="130" width="440" height="340" rx="6" fill="none" stroke="#5b6b7a" stroke-width="2" stroke-dasharray="7 5"/>
+<text x="30" y="112" fill="#f0f0f0" font-size="20">El árbol de componentes</text>
+<text x="46" y="158" fill="#8d8d8d" font-size="14">uvm_component · tiene padre · tiene fases</text>
+<text x="46" y="176" fill="#8d8d8d" font-size="14">se construye una vez y no cambia</text>
+
+<g fill="none" stroke="#5b6b7a" stroke-width="2">
+  <path d="M255,232 V244"/>
+  <path d="M255,292 V304"/>
+  <path d="M255,352 V366"/>
+  <path d="M127,366 H332"/>
+  <path d="M127,366 V384 M332,366 V384 M222,366 V430"/>
+</g>
+
+<rect x="140" y="192" width="230" height="40" rx="4" fill="#ffffff" fill-opacity="0.06" stroke="#5b6b7a" stroke-width="2"/>
+<text x="255" y="219" text-anchor="middle" fill="#f0f0f0" font-size="19" font-family="IBM Plex Mono, ui-monospace, monospace">uvm_test_top</text>
+
+<rect x="140" y="252" width="230" height="40" rx="4" fill="#ffffff" fill-opacity="0.06" stroke="#5b6b7a" stroke-width="2"/>
+<text x="255" y="279" text-anchor="middle" fill="#f0f0f0" font-size="19" font-family="IBM Plex Mono, ui-monospace, monospace">env_h</text>
+
+<rect x="140" y="312" width="230" height="40" rx="4" fill="#ffffff" fill-opacity="0.06" stroke="#5b6b7a" stroke-width="2"/>
+<text x="255" y="339" text-anchor="middle" fill="#f0f0f0" font-size="19" font-family="IBM Plex Mono, ui-monospace, monospace">clase_agent_h</text>
+
+<rect x="42" y="384" width="170" height="40" rx="4" fill="#ffffff" fill-opacity="0.06" stroke="#5b6b7a" stroke-width="2"/>
+<text x="127" y="411" text-anchor="middle" fill="#f0f0f0" font-size="17" font-family="IBM Plex Mono, ui-monospace, monospace">driver_h</text>
+
+<rect x="232" y="384" width="200" height="40" rx="4" fill="#e7ad52" fill-opacity="0.14" stroke="#e7ad52" stroke-width="2"/>
+<text x="332" y="411" text-anchor="middle" fill="#e7ad52" font-size="17" font-family="IBM Plex Mono, ui-monospace, monospace">sequencer_h</text>
+<circle cx="432" cy="404" r="9" fill="#e7ad52"/>
+
+<rect x="42" y="430" width="390" height="32" rx="4" fill="#ffffff" fill-opacity="0.06" stroke="#5b6b7a" stroke-width="2"/>
+<text x="237" y="452" text-anchor="middle" fill="#8d8d8d" font-size="14" font-family="IBM Plex Mono, ui-monospace, monospace">command_monitor_h · result_monitor_h</text>
+
+<!-- ============ afuera: las sequences ============ -->
+<text x="640" y="112" fill="#e7ad52" font-size="20">Afuera del árbol</text>
+<text x="640" y="152" fill="#8d8d8d" font-size="14">uvm_object · sin padre</text>
+<text x="640" y="170" fill="#8d8d8d" font-size="14">sin fases · se crea y se tira</text>
+
+<rect x="640" y="188" width="230" height="42" rx="4" fill="#e7ad52" fill-opacity="0.14" stroke="#e7ad52" stroke-width="2"/>
+<text x="755" y="216" text-anchor="middle" fill="#e7ad52" font-size="17" font-family="IBM Plex Mono, ui-monospace, monospace">full_sequence</text>
+
+<rect x="656" y="262" width="214" height="38" rx="4" fill="#e7ad52" fill-opacity="0.09" stroke="#e7ad52" stroke-width="2"/>
+<text x="763" y="287" text-anchor="middle" fill="#e7ad52" font-size="16" font-family="IBM Plex Mono, ui-monospace, monospace">reset_sequence</text>
+
+<rect x="656" y="318" width="214" height="38" rx="4" fill="#e7ad52" fill-opacity="0.09" stroke="#e7ad52" stroke-width="2"/>
+<text x="763" y="343" text-anchor="middle" fill="#e7ad52" font-size="16" font-family="IBM Plex Mono, ui-monospace, monospace">random_sequence</text>
+
+<rect x="656" y="374" width="214" height="38" rx="4" fill="#e7ad52" fill-opacity="0.09" stroke="#e7ad52" stroke-width="2"/>
+<text x="763" y="399" text-anchor="middle" fill="#e7ad52" font-size="16" font-family="IBM Plex Mono, ui-monospace, monospace">maxmult_sequence</text>
+
+<!-- la unica via de entrada -->
+<path d="M636,209 H553 V404 H444" fill="none" stroke="#e7ad52" stroke-width="2" marker-end="url(#v-a)"/>
+<text x="553" y="428" text-anchor="middle" fill="#e7ad52" font-size="15" font-family="IBM Plex Mono, ui-monospace, monospace">start(sequencer_h)</text>
+
+<!-- ============ pie ============ -->
+<text x="30" y="506" fill="#8d8d8d" font-size="16">Aunque no esté en el árbol, UVM la reporta colgada del sequencer, con <tspan fill="#e7ad52" font-family="IBM Plex Mono, ui-monospace, monospace">@@</tspan> en el medio:</text>
+<text x="30" y="534" font-size="16" font-family="IBM Plex Mono, ui-monospace, monospace"><tspan fill="#f0f0f0">uvm_test_top.env_h.clase_agent_h.sequencer_h</tspan><tspan fill="#e7ad52">@@</tspan><tspan fill="#f0f0f0">full_seq.random_seq</tspan></text>
+</svg>
