@@ -1261,7 +1261,7 @@ All of that is <code>static</code>, and not by accident.</p>
 </section>
 
 <section id="s84" class="slide">
-<!-- es-sha: 36a2d28c326c -->
+<!-- es-sha: 91d743330f47 -->
 <h2 id="parameterized-classes">Parameterized classes</h2>
 <h4 id="it-is-not-a-class-it-is-a-mould"><em>It is not a class: it is a mould</em></h4>
 <ul>
@@ -1500,130 +1500,8 @@ use it — it stops being visible from the whole testbench</li>
 and that is the decision: <strong><code>static</code> when there really is only one, instantiated
 when there can be more than one</strong></li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u3/parametricas/03-instanciada/bandejas.sv</code> · líneas 46-74 de 96</figcaption><pre><code class="hljs"><span class="hljs-comment">// bandeja is not static any more</span>
-<span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
-    type T
-);
-
-   <span class="hljs-keyword">protected</span> T vasos[$];
-
-   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">bandeja_trago</span>(T l);
-      vasos.push_back(l);
-   <span class="hljs-keyword">endfunction</span> : bandeja_trago
-
-   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">lista_tragos</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Drinks on the tray:&quot;</span>);
-      <span class="hljs-keyword">foreach</span> (vasos[i]) <span class="hljs-built_in">$display</span>(vasos[i].get_name());
-   <span class="hljs-keyword">endfunction</span> : lista_tragos
-
-<span class="hljs-keyword">endclass</span> : bandeja
-
-<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
-
-   <span class="hljs-comment">// Since bandeja is not static, it has to be instantiated</span>
-   <span class="hljs-comment">// the parameter is a variable type</span>
-   <span class="hljs-comment">// Using a type that does not have the get_name()</span>
-   <span class="hljs-comment">// method is a syntax error</span>
-   fernet fernet_h;
-   mojito mojito_h;
-
-   bandeja #(<span class="hljs-type">fernet</span>) bandeja_de_fernet;
-   bandeja #(<span class="hljs-type">mojito</span>) bandeja_de_mojito;</code></pre><details><summary>el archivo entero, 96 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
-   <span class="hljs-keyword">protected</span> <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
-   <span class="hljs-keyword">protected</span> <span class="hljs-type">string</span> name;
-
-   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> a, <span class="hljs-type">string</span> n);
-      hielos = a;
-      name = n;
-   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
-
-   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">get_hielos</span>();
-      <span class="hljs-keyword">return</span> hielos;
-   <span class="hljs-keyword">endfunction</span> : get_hielos
-
-   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">get_name</span>();
-      <span class="hljs-keyword">return</span> name;
-   <span class="hljs-keyword">endfunction</span> : get_name
-
-   <span class="hljs-keyword">pure</span> <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-
-<span class="hljs-keyword">endclass</span> : trago
-
-<span class="hljs-keyword">class</span> <span class="hljs-title">fernet</span> <span class="hljs-keyword">extends</span> trago;
-
-   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> n);
-      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, n);
-   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
-
-   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The fernet %s: 70/30, and the coke last&quot;</span>, get_name());
-   <span class="hljs-keyword">endfunction</span> : servir
-
-<span class="hljs-keyword">endclass</span> : fernet
-
-<span class="hljs-keyword">class</span> <span class="hljs-title">mojito</span> <span class="hljs-keyword">extends</span> trago;
-
-   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> n);
-      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, n);
-   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
-
-   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The mojito %s: mint, lime and crushed ice&quot;</span>, get_name());
-   <span class="hljs-keyword">endfunction</span> : servir
-
-<span class="hljs-keyword">endclass</span> : mojito
-
-<span class="hljs-comment">// bandeja is not static any more</span>
-<span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
-    type T
-);
-
-   <span class="hljs-keyword">protected</span> T vasos[$];
-
-   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">bandeja_trago</span>(T l);
-      vasos.push_back(l);
-   <span class="hljs-keyword">endfunction</span> : bandeja_trago
-
-   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">lista_tragos</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Drinks on the tray:&quot;</span>);
-      <span class="hljs-keyword">foreach</span> (vasos[i]) <span class="hljs-built_in">$display</span>(vasos[i].get_name());
-   <span class="hljs-keyword">endfunction</span> : lista_tragos
-
-<span class="hljs-keyword">endclass</span> : bandeja
-
-<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
-
-   <span class="hljs-comment">// Since bandeja is not static, it has to be instantiated</span>
-   <span class="hljs-comment">// the parameter is a variable type</span>
-   <span class="hljs-comment">// Using a type that does not have the get_name()</span>
-   <span class="hljs-comment">// method is a syntax error</span>
-   fernet fernet_h;
-   mojito mojito_h;
-
-   bandeja #(<span class="hljs-type">fernet</span>) bandeja_de_fernet;
-   bandeja #(<span class="hljs-type">mojito</span>) bandeja_de_mojito;
-
-   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
-      bandeja_de_fernet = <span class="hljs-keyword">new</span>();
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at the bar&quot;</span>);
-      bandeja_de_fernet.bandeja_trago(fernet_h);
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at table 4&quot;</span>);
-      bandeja_de_fernet.bandeja_trago(fernet_h);
-
-      bandeja_de_mojito = <span class="hljs-keyword">new</span>();
-      mojito_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;the one at table 7&quot;</span>);
-      bandeja_de_mojito.bandeja_trago(mojito_h);
-
-      mojito_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;the one on the sidewalk&quot;</span>);
-      bandeja_de_mojito.bandeja_trago(mojito_h);
-
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Fernets --&quot;</span>);
-      bandeja_de_fernet.lista_tragos();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Mojitos --&quot;</span>);
-      bandeja_de_mojito.lista_tragos();
-   <span class="hljs-keyword">end</span>
-
-<span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure><div class="nota">
+<p>{{code:code/u3/parametricas/03-instanciada/bandejas.sv|from=module top;|to=endmodule : top}}</p>
+<div class="nota">
 <p>The two versions do exactly the same thing and the difference is one of design, not of
 syntax: in the previous one the tray is global —anybody in the testbench sees it—; in
 this one you have to have the handle to be able to use it.
@@ -1668,7 +1546,7 @@ each monitor has its own. With that they can already read both.</p>
 </section>
 
 <section id="s89" class="slide">
-<!-- es-sha: 589b6c3c4412 -->
+<!-- es-sha: 6978771daf5e -->
 <h2 id="the-factory-pattern">The factory pattern</h2>
 <h4 id="who-decides-the-type"><em>Who decides the type?</em></h4>
 <ul>
@@ -1932,7 +1810,14 @@ inside an <code>if</code> with its <code>$fatal</code></li>
       bandeja#(<span class="hljs-type">mojito</span>)::lista_tragos();
    <span class="hljs-keyword">end</span>
 
-<span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure><div class="nota">
+<span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure>
+
+<ul>
+<li>And <code>$cast</code> in use, in the <code>top</code>: the factory always returns a <code>trago</code>, and
+to reach <code>sin_hielo</code> you have to bring it down to <code>fernet</code></li>
+</ul>
+<p>{{code:code/u3/factory/factory.sv|from=// Using the factory!|to=cantina drink to fernet_h}}</p>
+<div class="nota">
 <p>Two things about this code, and both come back in UVM.
 The first: <code>$cast</code> <strong>checks at runtime and returns 0</strong>, it does not abort. That is why in the
 example every call goes inside an <code>if (!$cast(...)) $fatal(...)</code>. A <code>$cast</code>
@@ -2112,7 +1997,7 @@ Python it takes ten lines. We invented nothing, and that is good news.</p>
 </section>
 
 <section id="s95" class="slide">
-<!-- es-sha: c58c93778ad6 -->
+<!-- es-sha: 946e0fd3d423 -->
 <h2 id="a-testbench-without-a-single-module">A testbench without a single module</h2>
 <h4 id="the-same-testbench-without-a-single-module"><em>The same testbench, without a single module</em></h4>
 <ul>
@@ -2503,143 +2388,7 @@ scale.</p>
 <section id="s101" class="slide">
 <h2 id="a-testbench-without-a-single-module">A testbench without a single module</h2>
 <h4 id="the-coverage-class-the-covergroup-inside-an-object"><em>The <code>coverage</code> class: the covergroup inside an object</em></h4>
-<figure class="codigo"><figcaption><code>code/u3/tb-en-objetos/tb_classes/coverage.svh</code> · líneas 86-103 de 119</figcaption><pre><code class="hljs">
-         <span class="hljs-keyword">bins</span> mul_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
-                       (binsof (a_leg.ones) || binsof (b_leg.ones));
-
-         <span class="hljs-keyword">bins</span> mul_max = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
-                        (binsof (a_leg.ones) &amp;&amp; binsof (b_leg.ones));
-
-         <span class="hljs-keyword">ignore_bins</span> others_only =
-                                  binsof(a_leg.others) &amp;&amp; binsof(b_leg.others);
-
-      }
-
-<span class="hljs-keyword">endgroup</span>
-
-  <span class="hljs-comment">// In a class, we don&#x27;t need to declare variables to hold the covergroups, but we do need</span>
-  <span class="hljs-comment">// to call a constructor to create them.</span>
-   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span> (<span class="hljs-keyword">virtual</span> vtalu_bfm b);
-     op_cov = <span class="hljs-keyword">new</span>();</code></pre><details><summary>el archivo entero, 119 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">coverage</span>;
-
-   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
-
-   <span class="hljs-type">byte</span>         <span class="hljs-type">unsigned</span>        A;
-   <span class="hljs-type">byte</span>         <span class="hljs-type">unsigned</span>        B;
-   operation_t  op_set;
-
-   <span class="hljs-keyword">covergroup</span> op_cov;
-
-      <span class="hljs-keyword">coverpoint</span> op_set {
-         <span class="hljs-keyword">bins</span> single_cycle[] = {[add_op : xor_op], rst_op,no_op};
-         <span class="hljs-keyword">bins</span> multi_cycle = {mul_op};
-
-         <span class="hljs-comment">// Transition bins. Verilator 5.052 does NOT implement them yet: any form</span>
-         <span class="hljs-comment">// with &quot;=&gt;&quot; or &quot;[* n]&quot; aborts with an Internal Error. Minimal repro in</span>
-         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. They stay because they are part</span>
-         <span class="hljs-comment">// of the topic; when Verilator supports them, drop the ifndef, nothing else.</span>
-<span class="hljs-meta">`ifndef</span> VERILATOR
-         <span class="hljs-keyword">bins</span> opn_rst[] = ([add_op:mul_op] =&gt; rst_op);
-         <span class="hljs-keyword">bins</span> rst_opn[] = (rst_op =&gt; [add_op:mul_op]);
-
-         <span class="hljs-keyword">bins</span> sngl_mul[] = ([add_op:xor_op],no_op =&gt; mul_op);
-         <span class="hljs-keyword">bins</span> mul_sngl[] = (mul_op =&gt; [add_op:xor_op], no_op);
-
-         <span class="hljs-keyword">bins</span> twoops[] = ([add_op:mul_op] [* <span class="hljs-number">2</span>]);
-         <span class="hljs-keyword">bins</span> manymult = (mul_op [* <span class="hljs-number">3</span>:<span class="hljs-number">5</span>]);
-<span class="hljs-meta">`endif</span>
-
-      }
-
-   <span class="hljs-keyword">endgroup</span>
-
-   <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
-
-      all_ops : <span class="hljs-keyword">coverpoint</span> op_set {
-         <span class="hljs-keyword">ignore_bins</span> null_ops = {rst_op, no_op};}
-
-      a_leg: <span class="hljs-keyword">coverpoint</span> A {
-         <span class="hljs-keyword">bins</span> zeros = {<span class="hljs-number">8&#x27;h00</span>};
-         <span class="hljs-keyword">bins</span> others= {[<span class="hljs-number">8&#x27;h01</span>:<span class="hljs-number">8&#x27;hFE</span>]};
-         <span class="hljs-keyword">bins</span> ones  = {<span class="hljs-number">8&#x27;hFF</span>};
-      }
-
-      b_leg: <span class="hljs-keyword">coverpoint</span> B {
-         <span class="hljs-keyword">bins</span> zeros = {<span class="hljs-number">8&#x27;h00</span>};
-         <span class="hljs-keyword">bins</span> others= {[<span class="hljs-number">8&#x27;h01</span>:<span class="hljs-number">8&#x27;hFE</span>]};
-         <span class="hljs-keyword">bins</span> ones  = {<span class="hljs-number">8&#x27;hFF</span>};
-      }
-      <span class="hljs-comment">// VTALU rev2: the borrow of the subtraction, the row of the plan that the</span>
-      <span class="hljs-comment">// scoreboard can only close by looking at TWO outputs. Without this bin, a</span>
-      <span class="hljs-comment">// subtraction that never went negative looks exactly like one that did.</span>
-      borrow: <span class="hljs-keyword">coverpoint</span> ((op_set == sub_op) &amp;&amp; (A &lt; B)) {
-         <span class="hljs-keyword">bins</span> hubo_borrow = {<span class="hljs-number">1</span>};
-         <span class="hljs-keyword">ignore_bins</span> resto = {<span class="hljs-number">0</span>};
-      }
-
-
-      op_00_FF:  <span class="hljs-keyword">cross</span> a_leg, b_leg, all_ops {
-         <span class="hljs-keyword">bins</span> add_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {add_op} &amp;&amp;
-                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
-
-         <span class="hljs-keyword">bins</span> add_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {add_op} &amp;&amp;
-                       (binsof (a_leg.ones) || binsof (b_leg.ones));
-
-         <span class="hljs-keyword">bins</span> sub_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {sub_op} &amp;&amp;
-                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
-
-         <span class="hljs-keyword">bins</span> sub_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {sub_op} &amp;&amp;
-                       (binsof (a_leg.ones) || binsof (b_leg.ones));
-
-         <span class="hljs-keyword">bins</span> and_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {and_op} &amp;&amp;
-                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
-
-         <span class="hljs-keyword">bins</span> and_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {and_op} &amp;&amp;
-                       (binsof (a_leg.ones) || binsof (b_leg.ones));
-
-         <span class="hljs-keyword">bins</span> xor_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {xor_op} &amp;&amp;
-                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
-
-         <span class="hljs-keyword">bins</span> xor_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {xor_op} &amp;&amp;
-                       (binsof (a_leg.ones) || binsof (b_leg.ones));
-
-         <span class="hljs-keyword">bins</span> mul_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
-                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
-
-         <span class="hljs-keyword">bins</span> mul_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
-                       (binsof (a_leg.ones) || binsof (b_leg.ones));
-
-         <span class="hljs-keyword">bins</span> mul_max = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
-                        (binsof (a_leg.ones) &amp;&amp; binsof (b_leg.ones));
-
-         <span class="hljs-keyword">ignore_bins</span> others_only =
-                                  binsof(a_leg.others) &amp;&amp; binsof(b_leg.others);
-
-      }
-
-<span class="hljs-keyword">endgroup</span>
-
-  <span class="hljs-comment">// In a class, we don&#x27;t need to declare variables to hold the covergroups, but we do need</span>
-  <span class="hljs-comment">// to call a constructor to create them.</span>
-   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span> (<span class="hljs-keyword">virtual</span> vtalu_bfm b);
-     op_cov = <span class="hljs-keyword">new</span>();
-     zeros_or_ones_on_ops = <span class="hljs-keyword">new</span>();
-     bfm = b;
-   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
-
-   <span class="hljs-keyword">task</span> <span class="hljs-title">execute</span>();
-      <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span>  : sampling_block
-         @(<span class="hljs-keyword">negedge</span> bfm.clk);
-         A = bfm.A;
-         B = bfm.B;
-         op_set = bfm.op_set;
-         op_cov.sample();
-         zeros_or_ones_on_ops.sample();
-      <span class="hljs-keyword">end</span> : sampling_block
-   <span class="hljs-keyword">endtask</span> : execute
-
-<span class="hljs-keyword">endclass</span> : coverage</code></pre></details></figure>
-
+<p>{{code:code/u3/tb-en-objetos/tb_classes/coverage.svh|from=// In a class, we don&#39;t need to declare variables|to=endtask : execute}}</p>
 <ul>
 <li>The covergroup is <strong>the same</strong> as the conventional testbench&#39;s, line by line. What changed is
 where it lives</li>

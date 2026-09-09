@@ -416,7 +416,7 @@ Hay una slide entera sobre eso más adelante.
 - La comparación queda en una línea —`predicted.compare(t)`— y el mensaje de
   error se arma solo con los `convert2string()` de las tres transactions
 
-{{code:code/u6/transactions/tb_classes/scoreboard.svh|lines=30-53}}
+{{code:code/u6/transactions/tb_classes/scoreboard.svh|from=function void write(result_transaction t);|to=endfunction : write}}
 
 Note:
 Comparar el `write()` con el de los analysis ports es la mejor forma de cerrar la

@@ -32,11 +32,18 @@ El código **no se pega** en la slide: se referencia el archivo real de `code/`.
 
 {{code:code/u2/interfaces-bfm/vtalu_bfm.sv}}
 {{code:code/u2/interfaces-bfm/top.sv|lines=12-24}}
+{{code:code/u2/interfaces-bfm/vtalu_bfm.sv|from=task send_op|to=endtask : send_op}}
 ```
 
 `tools/build.mjs` expande la directiva leyendo el archivo, así que las slides
 nunca se desincronizan de los ejemplos. **Si la ruta no existe, el build falla**
 en vez de emitir una slide vacía.
+
+Para recortar hay dos formas y **conviene la segunda**: `lines=12-24` se pudre en
+silencio —cuando el ejemplo crece arriba del bloque, el rango no se mueve y la
+slide muestra otro código—, mientras que `from=…|to=…` recorta entre la primera
+línea que contiene cada ancla y sigue al bloque. Si el ancla desaparece o queda
+duplicada, el build muere en vez de mentir.
 
 <div align="center">
 <img src="slide-codigo.png" width="760" height="484" alt="Slide con bloque de código: resaltado propio de SystemVerilog y UVM">

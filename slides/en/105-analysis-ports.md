@@ -1,4 +1,4 @@
-<!-- es-sha: 5c18ae0fbc01 -->
+<!-- es-sha: d1a0eb738104 -->
 ## A single place that watches the wire
 
 #### *A single place that watches the wire*
@@ -76,7 +76,7 @@ the section that follows the other one gets done.
 - Up to now the class read the interface. Here it flips around: **the interface
   keeps a handle to the class** and it is the interface that calls the method
 
-{{code:code/u5/analysis-ports/vtalu_bfm.sv|lines=1-15}}
+{{code:code/u5/analysis-ports/vtalu_bfm.sv|from=interface vtalu_bfm;|to=op_set;}}
 
 - These handles are set by each monitor in its `build_phase`, right after pulling
   the BFM out of the config_db
@@ -110,7 +110,7 @@ affects tasks — here the one declaring the task is the class, not the interfac
   reset one on the falling edge of `reset_n`, and the result one when the DUT
   raises `done`
 
-{{code:code/u5/analysis-ports/vtalu_bfm.sv|lines=17-36}}
+{{code:code/u5/analysis-ports/vtalu_bfm.sv|from=// Here is the first monitor|to=end : rslt_monitor}}
 
 - And on the other side, the method they give notice to: it packs the `command_s`
   up and publishes it on the analysis port
@@ -144,7 +144,7 @@ And the detail that gets collected in the transactions: what travels is still a
 - Whoever needs to know which operation ran subscribes to its analysis port and
   implements `write()`. They never look at a signal again
 
-{{code:code/u5/analysis-ports/tb_classes/coverage.svh|lines=88-104}}
+{{code:code/u5/analysis-ports/tb_classes/coverage.svh|from=// With the analysis port this is far simpler|to=endfunction : write}}
 
 Note:
 It is worth opening the `coverage` class of the object-based testbench alongside
@@ -189,7 +189,7 @@ compare in pairs.
 
 - Scoreboard class:
 
-{{code:code/u5/analysis-ports/tb_classes/scoreboard.svh|lines=10-48}}
+{{code:code/u5/analysis-ports/tb_classes/scoreboard.svh|from=uvm_tlm_analysis_fifo #(command_s) cmd_f;|to=endfunction : write}}
 
 Note:
 The scoreboard is asymmetric and that is where the whole point is: the **result**

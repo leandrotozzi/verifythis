@@ -95,9 +95,10 @@ Codespaces del README los trae adentro y no hay que instalar nada.
 - **Toda slide de concepto lleva `Note:`**, que es lo que un instructor diría en
   voz alta. Es la mitad del curso para el que estudia solo, y `npm run check` te
   dice cuántas slides quedaron sin nota.
-- El código **no se pega**: se incluye desde `code/` con `{{code:ruta}}` o
-  `{{code:ruta|lines=12-24}}`. Así el ejemplo de la slide es literalmente el que
-  corre.
+- El código **no se pega**: se incluye desde `code/` con `{{code:ruta}}`. Así el
+  ejemplo de la slide es literalmente el que corre. Para recortar, `|from=…|to=…`
+  antes que `|lines=12-24`: las anclas siguen al bloque cuando el archivo crece,
+  los números no.
 - El **título** va en `## Nombre de la sección` y el subtítulo en
   `#### *en itálica*`. Un `###` hace fallar el lint: se dibuja más grande y
   parte la voz del deck en dos.

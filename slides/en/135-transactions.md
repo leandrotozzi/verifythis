@@ -1,4 +1,4 @@
-<!-- es-sha: 545c942aa266 -->
+<!-- es-sha: 8e4a8bd3bf72 -->
 ## Transactions
 
 #### *The testbench is well divided up, and the data is not*
@@ -432,7 +432,7 @@ There is a whole slide on that further on.
 - The comparison comes down to one line —`predicted.compare(t)`— and the error
   message builds itself out of the `convert2string()` of the three transactions
 
-{{code:code/u6/transactions/tb_classes/scoreboard.svh|lines=30-53}}
+{{code:code/u6/transactions/tb_classes/scoreboard.svh|from=function void write(result_transaction t);|to=endfunction : write}}
 
 Note:
 Comparing this `write()` with the one from the analysis ports is the best way to

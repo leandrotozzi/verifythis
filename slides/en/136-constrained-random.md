@@ -1,4 +1,4 @@
-<!-- es-sha: 5c0ef74263d6 -->
+<!-- es-sha: 06ec3ce2e16d -->
 ## Constrained random
 
 #### *The other half of the pincer*
@@ -133,7 +133,7 @@ the difference between believing and knowing.
 
 {{code:code/u6/transactions/constraints/02_with.sv|lines=16-29}}
 
-{{code:code/u6/transactions/constraints/02_with.sv|lines=53-58}}
+{{code:code/u6/transactions/constraints/02_with.sv|from=c.data.constraint_mode(0);|to=with with: 1 try}}
 
 - `inside {a, b, c}` is the set of legal values: without it, the random also asks
   for `no_op` and `rst_op`, which compute nothing

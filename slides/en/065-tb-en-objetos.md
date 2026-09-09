@@ -1,4 +1,4 @@
-<!-- es-sha: c58c93778ad6 -->
+<!-- es-sha: 946e0fd3d423 -->
 ## A testbench without a single module
 
 #### *The same testbench, without a single module*
@@ -183,7 +183,7 @@ scale.
 
 #### *The `coverage` class: the covergroup inside an object*
 
-{{code:code/u3/tb-en-objetos/tb_classes/coverage.svh|lines=86-103}}
+{{code:code/u3/tb-en-objetos/tb_classes/coverage.svh|from=// In a class, we don't need to declare variables|to=endtask : execute}}
 
 - The covergroup is **the same** as the conventional testbench's, line by line. What changed is
   where it lives

@@ -687,7 +687,7 @@ ready-made — which is exactly the unit that follows.</p>
 </section>
 
 <section id="s236" class="slide">
-<!-- es-sha: 545c942aa266 -->
+<!-- es-sha: 8e4a8bd3bf72 -->
 <h2 id="transactions">Transactions</h2>
 <h4 id="the-testbench-is-well-divided-up-and-the-data-is-not"><em>The testbench is well divided up, and the data is not</em></h4>
 <ul>
@@ -1403,88 +1403,8 @@ in the <code>command_monitor</code> queue, and asks <code>predict_result()</code
 <li>The comparison comes down to one line —<code>predicted.compare(t)</code>— and the error
 message builds itself out of the <code>convert2string()</code> of the three transactions</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/scoreboard.svh</code> · líneas 30-53 de 59</figcaption><pre><code class="hljs">
-      <span class="hljs-keyword">return</span> predicted;
-
-   <span class="hljs-keyword">endfunction</span> : predict_result
-
-   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">write</span>(result_transaction t);
-      <span class="hljs-type">string</span> data_str;
-      command_transaction cmd;
-      result_transaction predicted;
-
-      <span class="hljs-keyword">do</span>
-      <span class="hljs-keyword">if</span> (!cmd_f.try_get(cmd))
-         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;SELF CHECKER&quot;</span>, <span class="hljs-string">&quot;Missing command in self checker&quot;</span>)
-      <span class="hljs-keyword">while</span> ((cmd.op == no_op) || (cmd.op == rst_op));
-
-      predicted = predict_result(cmd);
-
-      data_str = {
-         cmd.convert2string(),
-         <span class="hljs-string">&quot; ==&gt;  Actual &quot;</span>,
-         t.convert2string(),
-         <span class="hljs-string">&quot;/Predicted &quot;</span>,
-         predicted.convert2string()
-      };</code></pre><details><summary>el archivo entero, 59 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">scoreboard</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_subscriber</span> #(<span class="hljs-type">result_transaction</span>);
-   <span class="hljs-uvm-macro">`uvm_component_utils</span>(scoreboard);
-
-   <span class="hljs-uvm-type">uvm_tlm_analysis_fifo</span> #(<span class="hljs-type">command_transaction</span>) cmd_f;
-
-   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
-      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
-   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
-
-   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
-      cmd_f = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;cmd_f&quot;</span>, <span class="hljs-keyword">this</span>);
-   <span class="hljs-keyword">endfunction</span> : build_phase
-
-   <span class="hljs-keyword">function</span> <span class="hljs-type">result_transaction </span><span class="hljs-title">predict_result</span>(command_transaction cmd);
-      result_transaction predicted;
-
-      predicted = result_transaction::type_id::create(<span class="hljs-string">&quot;predicted&quot;</span>);
-
-      <span class="hljs-keyword">case</span> (cmd.op)
-         add_op: predicted.result = cmd.A + cmd.B;
-         sub_op: predicted.result = cmd.A - cmd.B;
-         and_op: predicted.result = cmd.A &amp; cmd.B;
-         xor_op: predicted.result = cmd.A ^ cmd.B;
-         mul_op: predicted.result = cmd.A * cmd.B;
-      <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (op_set)</span>
-
-      <span class="hljs-comment">// ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit</span>
-      <span class="hljs-comment">// output, neither the addition nor the multiplication can overflow.</span>
-      predicted.ovf = (cmd.op == sub_op) &amp;&amp; (cmd.A &lt; cmd.B);
-
-      <span class="hljs-keyword">return</span> predicted;
-
-   <span class="hljs-keyword">endfunction</span> : predict_result
-
-   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">write</span>(result_transaction t);
-      <span class="hljs-type">string</span> data_str;
-      command_transaction cmd;
-      result_transaction predicted;
-
-      <span class="hljs-keyword">do</span>
-      <span class="hljs-keyword">if</span> (!cmd_f.try_get(cmd))
-         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;SELF CHECKER&quot;</span>, <span class="hljs-string">&quot;Missing command in self checker&quot;</span>)
-      <span class="hljs-keyword">while</span> ((cmd.op == no_op) || (cmd.op == rst_op));
-
-      predicted = predict_result(cmd);
-
-      data_str = {
-         cmd.convert2string(),
-         <span class="hljs-string">&quot; ==&gt;  Actual &quot;</span>,
-         t.convert2string(),
-         <span class="hljs-string">&quot;/Predicted &quot;</span>,
-         predicted.convert2string()
-      };
-
-      <span class="hljs-keyword">if</span> (!predicted.compare(t)) <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SELF CHECKER&quot;</span>, {<span class="hljs-string">&quot;FAIL: &quot;</span>, data_str})
-      <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;SELF CHECKER&quot;</span>, {<span class="hljs-string">&quot;PASS: &quot;</span>, data_str}, <span class="hljs-uvm-const">UVM_HIGH</span>)
-
-   <span class="hljs-keyword">endfunction</span> : write
-<span class="hljs-keyword">endclass</span> : scoreboard</code></pre></details></figure><div class="nota">
+<p>{{code:code/u6/transactions/tb_classes/scoreboard.svh|from=function void write(result_transaction t);|to=endfunction : write}}</p>
+<div class="nota">
 <p>Comparing this <code>write()</code> with the one from the analysis ports is the best way to
 close the section: over there was a <code>case</code> with the prediction written inside it
 and a hand-written comparison; here there is a <code>predict_result()</code> that returns an
@@ -1634,7 +1554,7 @@ an agent. That is day 6.</p>
 </section>
 
 <section id="s255" class="slide">
-<!-- es-sha: 5c0ef74263d6 -->
+<!-- es-sha: 06ec3ce2e16d -->
 <h2 id="constrained-random">Constrained random</h2>
 <h4 id="the-other-half-of-the-pincer"><em>The other half of the pincer</em></h4>
 <ul>
@@ -1909,86 +1829,7 @@ the difference between believing and knowing.</p>
 
 <span class="hljs-keyword">endmodule</span> : top_with</code></pre></details></figure>
 
-<figure class="codigo"><figcaption><code>code/u6/transactions/constraints/02_with.sv</code> · líneas 53-58 de 74</figcaption><pre><code class="hljs">      <span class="hljs-comment">// code/verilator/repro-dist-with.sv; the detail in docs/verilator.md.</span>
-      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>() <span class="hljs-keyword">with</span> {
-            op == mul_op;
-            A  == <span class="hljs-number">8&#x27;hFF</span>;
-            B  == <span class="hljs-number">8&#x27;hFF</span>;
-          })</code></pre><details><summary>el archivo entero, 74 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Constrained Random 2 -- inside, and randomize() with {}.</span>
-<span class="hljs-comment">//</span>
-<span class="hljs-comment">// The class constraint gives the bulk of the stimulus. The directed case is asked</span>
-<span class="hljs-comment">// for at the point of use, without touching the class and without a new tester.</span>
-<span class="hljs-keyword">module</span> <span class="hljs-title">top_with</span>;
-
-   <span class="hljs-keyword">typedef</span> <span class="hljs-keyword">enum</span> <span class="hljs-type">bit</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] {
-      no_op  = <span class="hljs-number">3&#x27;b000</span>,
-      add_op = <span class="hljs-number">3&#x27;b001</span>,
-      sub_op = <span class="hljs-number">3&#x27;b010</span>,
-      and_op = <span class="hljs-number">3&#x27;b011</span>,
-      xor_op = <span class="hljs-number">3&#x27;b100</span>,
-      mul_op = <span class="hljs-number">3&#x27;b101</span>,
-      rst_op = <span class="hljs-number">3&#x27;b111</span>
-   } operation_t;
-
-   <span class="hljs-keyword">class</span> <span class="hljs-title">comando</span>;
-      <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
-      <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> B;
-      <span class="hljs-keyword">rand</span> operation_t   op;
-
-      <span class="hljs-keyword">constraint</span> data {
-         A <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>, <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>};
-         B <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>, <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>};
-      }
-
-      <span class="hljs-comment">// inside is a set of legal values. Without it the random also asks for</span>
-      <span class="hljs-comment">// no_op and rst_op, which compute nothing.</span>
-      <span class="hljs-keyword">constraint</span> utiles {op <span class="hljs-keyword">inside</span> {add_op, and_op, xor_op, mul_op};}
-   <span class="hljs-keyword">endclass</span>
-
-   <span class="hljs-keyword">localparam</span> <span class="hljs-type">int</span> N = <span class="hljs-number">400</span>;
-
-   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
-      comando c;
-      <span class="hljs-type">int</span> maximos;
-
-      c = <span class="hljs-keyword">new</span>();
-
-      <span class="hljs-comment">// The mul_max bin of the coverage in the Functional coverage section: a multiplication with</span>
-      <span class="hljs-comment">// both legs at 0xFF. It is the multiplier overflow.</span>
-      <span class="hljs-keyword">repeat</span> (N) <span class="hljs-keyword">begin</span>
-         <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() failed&quot;</span>);
-         <span class="hljs-keyword">if</span> (c.op == mul_op &amp;&amp; c.A == <span class="hljs-number">8&#x27;hFF</span> &amp;&amp; c.B == <span class="hljs-number">8&#x27;hFF</span>) maximos = maximos + <span class="hljs-number">1</span>;
-      <span class="hljs-keyword">end</span>
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;random:   %0d tries, mul_max filled %0d time(s)&quot;</span>, N, maximos);
-
-      <span class="hljs-comment">// The same thing, asked for: with {} adds constraints ONLY for this call.</span>
-      <span class="hljs-comment">// The request is satisfiable, but in 5.052 the dist is solved by picking a</span>
-      <span class="hljs-comment">// value BEFORE checking the with: if the draw does not comply, it returns</span>
-      <span class="hljs-comment">// 0 instead of retrying. With A and B on dist, both landing on 0xFF is</span>
-      <span class="hljs-comment">// 1/4 x 1/4. The measured rates are in</span>
-      <span class="hljs-comment">// code/verilator/repro-dist-with.sv; the detail in docs/verilator.md.</span>
-      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>() <span class="hljs-keyword">with</span> {
-            op == mul_op;
-            A  == <span class="hljs-number">8&#x27;hFF</span>;
-            B  == <span class="hljs-number">8&#x27;hFF</span>;
-          })
-         <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;with with: randomize() gave 0  &lt;- a Verilator limitation, not yours&quot;</span>);
-
-      <span class="hljs-comment">// The portable workaround meanwhile: turn off the split, which for a</span>
-      <span class="hljs-comment">// directed case makes no sense anyway.</span>
-      c.data.constraint_mode(<span class="hljs-number">0</span>);
-      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>() <span class="hljs-keyword">with</span> {
-            op == mul_op;
-            A  == <span class="hljs-number">8&#x27;hFF</span>;
-            B  == <span class="hljs-number">8&#x27;hFF</span>;
-          })
-         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() with failed even with the constraint turned off&quot;</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;with with: 1 try,      A=%2h %s B=%2h&quot;</span>, c.A, c.op.name(), c.B);
-      <span class="hljs-built_in">$finish</span>;
-   <span class="hljs-keyword">end</span>
-
-<span class="hljs-keyword">endmodule</span> : top_with</code></pre></details></figure>
-
+<p>{{code:code/u6/transactions/constraints/02_with.sv|from=c.data.constraint_mode(0);|to=with with: 1 try}}</p>
 <ul>
 <li><code>inside {a, b, c}</code> is the set of legal values: without it, the random also asks
 for <code>no_op</code> and <code>rst_op</code>, which compute nothing</li>

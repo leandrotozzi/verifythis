@@ -129,7 +129,7 @@ diez minutos y es la diferencia entre creer y saber.
 
 {{code:code/u6/transactions/constraints/02_with.sv|lines=16-29}}
 
-{{code:code/u6/transactions/constraints/02_with.sv|lines=53-58}}
+{{code:code/u6/transactions/constraints/02_with.sv|from=c.data.constraint_mode(0);|to=with with: 1 try}}
 
 - `inside {a, b, c}` es el conjunto de valores legales: sin él, el random también
   pide `no_op` y `rst_op`, que no calculan nada

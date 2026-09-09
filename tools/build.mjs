@@ -47,15 +47,21 @@ const fail = (file, msg) => errors.push(`${file}: ${msg}`);
 // salen de aca, para no volver a desactualizarlos a mano.
 const stats = { includes: 0, recortados: 0 };
 
-// {{code:ruta}} o {{code:ruta|lines=12-24}}
-const RE_CODE = /^([ \t]*)\{\{code:([^}|]+?)(?:\|lines=(\d+)-(\d+))?\}\}[ \t]*$/gm;
+// {{code:ruta}}, {{code:ruta|lines=12-24}} o {{code:ruta|from=texto|to=texto}}.
+//
+// La forma con numeros se pudre en silencio: cuando el ejemplo crece arriba del
+// bloque, el rango no se mueve y la slide muestra otro codigo. La forma con
+// anclas recorta entre la primera linea que contiene `from` y la primera que
+// contiene `to` a partir de ahi, asi que sigue al bloque -- y si el ancla
+// desaparece o se duplica, el build muere en vez de mentir.
+const RE_CODE = /^([ \t]*)\{\{code:([^}|]+?)(?:\|lines=(\d+)-(\d+)|\|from=([^}|]+)\|to=([^}|]+))?\}\}[ \t]*$/gm;
 
 async function expand(md, src) {
   const jobs = [];
   md.replace(RE_CODE, (...m) => { jobs.push(m); return ''; });
 
   const done = new Map();
-  for (const [full, , file, from, to] of jobs) {
+  for (const [full, , file, from, to, desde, hasta] of jobs) {
     const rel = file.trim();
     let text;
     try {
@@ -68,6 +74,13 @@ async function expand(md, src) {
       const lines = text.split('\n');
       if (+to > lines.length) fail(src, `{{code:${rel}|lines=${from}-${to}}} -> solo tiene ${lines.length} lineas`);
       text = lines.slice(+from - 1, +to).join('\n');
+    } else if (desde) {
+      const lines = text.split('\n');
+      const abre = lines.map((l, n) => l.includes(desde) ? n : -1).filter(n => n >= 0);
+      const cierra = abre.length === 1 ? lines.findIndex((l, n) => n >= abre[0] && l.includes(hasta)) : -1;
+      if (abre.length !== 1) fail(src, `{{code:${rel}|from=${desde}}} -> el ancla aparece ${abre.length} veces, tiene que aparecer una sola`);
+      else if (cierra < 0) fail(src, `{{code:${rel}|to=${hasta}}} -> no hay ninguna linea con el ancla despues de "${desde}"`);
+      else text = lines.slice(abre[0], cierra + 1).join('\n');
     }
     text = text.replace(/\s+$/, '');
     // Un ``` o un --- suelto dentro del codigo romperia el fence o el separador
@@ -77,7 +90,7 @@ async function expand(md, src) {
     if (/<\/textarea/i.test(text)) fail(src, `${rel} contiene </textarea — rompe el inline en index.html`);
 
     stats.includes++;
-    if (from) stats.recortados++;
+    if (from || desde) stats.recortados++;
     const lang = LANG[path.extname(rel).toLowerCase()] ?? 'plaintext';
     done.set(full, '```' + lang + '\n' + text + '\n```');
   }
@@ -322,7 +335,7 @@ await writeFile(OUT_MD, md);
 const slides = chapters.reduce((n, c) => n + 1 + (c.md.match(/^---$/gm) || []).length, 0);
 const blocks = chapters.reduce((n, c) => n + (c.md.match(/^```/gm) || []).length / 2, 0);
 console.log(`${OUT_HTML}  ${chapters.length} secciones, ${slides} slides, ${blocks} bloques de codigo`);
-console.log(`            ${stats.includes} vienen de code/ (${stats.recortados} recortados con lines=)`);
+console.log(`            ${stats.includes} vienen de code/ (${stats.recortados} recortados)`);
 console.log(`${OUT_MD}  para pandoc`);
 if (preguntas.length) console.log(`${OUT_BANCO}  ${preguntas.length} preguntas de repaso, sin la respuesta marcada`);
 if (nTrampas) console.log(`${OUT_TRAMPAS}  ${nTrampas} trampas mudas, fuera del deck`);

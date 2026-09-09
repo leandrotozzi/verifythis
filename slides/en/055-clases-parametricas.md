@@ -1,4 +1,4 @@
-<!-- es-sha: 36a2d28c326c -->
+<!-- es-sha: 91d743330f47 -->
 ## Parameterized classes
 
 #### *It is not a class: it is a mould*
@@ -83,7 +83,7 @@ inside `bandeja`. It is confusing the first time.
   and that is the decision: **`static` when there really is only one, instantiated
   when there can be more than one**
 
-{{code:code/u3/parametricas/03-instanciada/bandejas.sv|lines=46-74}}
+{{code:code/u3/parametricas/03-instanciada/bandejas.sv|from=module top;|to=endmodule : top}}
 
 Note:
 The two versions do exactly the same thing and the difference is one of design, not of

@@ -2942,7 +2942,7 @@ All of that is `static`, and not by accident.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 36a2d28c326c -->
+<!-- es-sha: 91d743330f47 -->
 ## Parameterized classes
 
 #### *It is not a class: it is a mould*
@@ -3098,24 +3098,6 @@ inside `bandeja`. It is confusing the first time.
   when there can be more than one**
 
 ```sv
-// bandeja is not static any more
-class bandeja #(
-    type T
-);
-
-   protected T vasos[$];
-
-   function void bandeja_trago(T l);
-      vasos.push_back(l);
-   endfunction : bandeja_trago
-
-   function void lista_tragos();
-      $display("Drinks on the tray:");
-      foreach (vasos[i]) $display(vasos[i].get_name());
-   endfunction : lista_tragos
-
-endclass : bandeja
-
 module top;
 
    // Since bandeja is not static, it has to be instantiated
@@ -3127,6 +3109,28 @@ module top;
 
    bandeja #(fernet) bandeja_de_fernet;
    bandeja #(mojito) bandeja_de_mojito;
+
+   initial begin
+      bandeja_de_fernet = new();
+      fernet_h = new(15, "the one at the bar");
+      bandeja_de_fernet.bandeja_trago(fernet_h);
+      fernet_h = new(15, "the one at table 4");
+      bandeja_de_fernet.bandeja_trago(fernet_h);
+
+      bandeja_de_mojito = new();
+      mojito_h = new(1, "the one at table 7");
+      bandeja_de_mojito.bandeja_trago(mojito_h);
+
+      mojito_h = new(1, "the one on the sidewalk");
+      bandeja_de_mojito.bandeja_trago(mojito_h);
+
+      $display("-- Fernets --");
+      bandeja_de_fernet.lista_tragos();
+      $display("-- Mojitos --");
+      bandeja_de_mojito.lista_tragos();
+   end
+
+endmodule : top
 ```
 
 Note:
@@ -3174,7 +3178,7 @@ each monitor has its own. With that they can already read both.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 589b6c3c4412 -->
+<!-- es-sha: 6978771daf5e -->
 ## The factory pattern
 
 #### *Who decides the type?*
@@ -3308,6 +3312,26 @@ class cantina;
 endclass : cantina
 ```
 
+- And `$cast` in use, in the `top`: the factory always returns a `trago`, and
+  to reach `sin_hielo` you have to bring it down to `fernet`
+
+```sv
+      // Using the factory!
+      trago_h = cantina::hacer_trago("fernet", 15, "the one at the bar");
+      trago_h.servir();
+
+      // Reaching a member of fernet (derived from trago) through a trago variable
+      // requires casting it to fernet.
+      cast_ok = $cast(fernet_h, trago_h);
+      if (!cast_ok) $fatal(1, "Could not cast trago_h to fernet_h");
+
+      if (fernet_h.sin_hielo) $display("And on top of that it comes warm!");
+      bandeja#(fernet)::bandeja_trago(fernet_h);
+
+      if (!$cast(fernet_h, cantina::hacer_trago("fernet", 2, "the one at table 4")))
+         $fatal(1, "Could not cast the cantina drink to fernet_h");
+```
+
 Note:
 Two things about this code, and both come back in UVM.
 The first: `$cast` **checks at runtime and returns 0**, it does not abort. That is why in the
@@ -3404,7 +3428,7 @@ Python it takes ten lines. We invented nothing, and that is good news.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: c58c93778ad6 -->
+<!-- es-sha: 946e0fd3d423 -->
 ## A testbench without a single module
 
 #### *The same testbench, without a single module*
@@ -3711,24 +3735,24 @@ scale.
 #### *The `coverage` class: the covergroup inside an object*
 
 ```sv
-
-         bins mul_FF = binsof (all_ops) intersect {mul_op} &&
-                       (binsof (a_leg.ones) || binsof (b_leg.ones));
-
-         bins mul_max = binsof (all_ops) intersect {mul_op} &&
-                        (binsof (a_leg.ones) && binsof (b_leg.ones));
-
-         ignore_bins others_only =
-                                  binsof(a_leg.others) && binsof(b_leg.others);
-
-      }
-
-endgroup
-
   // In a class, we don't need to declare variables to hold the covergroups, but we do need
   // to call a constructor to create them.
    function new (virtual vtalu_bfm b);
      op_cov = new();
+     zeros_or_ones_on_ops = new();
+     bfm = b;
+   endfunction : new
+
+   task execute();
+      forever begin  : sampling_block
+         @(negedge bfm.clk);
+         A = bfm.A;
+         B = bfm.B;
+         op_set = bfm.op_set;
+         op_cov.sample();
+         zeros_or_ones_on_ops.sample();
+      end : sampling_block
+   endtask : execute
 ```
 
 - The covergroup is **the same** as the conventional testbench's, line by line. What changed is
@@ -6597,7 +6621,7 @@ naming convention, it is the language telling you which side you are on.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 5c18ae0fbc01 -->
+<!-- es-sha: d1a0eb738104 -->
 ## A single place that watches the wire
 
 #### *A single place that watches the wire*
@@ -6691,6 +6715,7 @@ interface vtalu_bfm;
    wire                   done;
    wire            [15:0] result;
    wire                   ovf;
+   operation_t            op_set;
 ```
 
 - These handles are set by each monitor in its `build_phase`, right after pulling
@@ -6738,7 +6763,6 @@ affects tasks — here the one declaring the task is the class, not the interfac
   raises `done`
 
 ```sv
-
    // Here is the first monitor (commands)
    // A very simple FSM. If start is up, check whether this is a new command
    // If it is, send it to the TB with commands_monitor.write_to_monitor()
@@ -6758,6 +6782,7 @@ affects tasks — here the one declaring the task is the class, not the interfac
 
    always @(posedge clk) begin : rslt_monitor
       if (done) result_monitor_h.write_to_monitor(result);
+   end : rslt_monitor
 ```
 
 - And on the other side, the method they give notice to: it packs the `command_s`
@@ -6803,23 +6828,17 @@ And the detail that gets collected in the transactions: what travels is still a
   implements `write()`. They never look at a signal again
 
 ```sv
-
-         bins mul_FF = binsof (all_ops) intersect {mul_op} &&
-                       (binsof (a_leg.ones) || binsof (b_leg.ones));
-
-         bins mul_max = binsof (all_ops) intersect {mul_op} &&
-                        (binsof (a_leg.ones) && binsof (b_leg.ones));
-
-         ignore_bins others_only =
-                                  binsof(a_leg.others) && binsof(b_leg.others);
-
-      }
-
-endgroup
-
-   function new (string name, uvm_component parent);
-      super.new(name, parent);
-      op_cov = new();
+   // With the analysis port this is far simpler,
+   // because nothing here has to know about the ALU signals:
+   // what arrives is a command_s struct that wraps the command
+   //
+   function void write(command_s t);
+         A = t.A;
+         B = t.B;
+         op_set = t.op;
+         op_cov.sample();
+         zeros_or_ones_on_ops.sample();
+   endfunction : write
 ```
 
 Note:
@@ -6905,6 +6924,7 @@ compare in pairs.
                     t,
                     predicted_result
                     ))
+   endfunction : write
 ```
 
 Note:
@@ -8420,7 +8440,7 @@ ready-made — which is exactly the unit that follows.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 545c942aa266 -->
+<!-- es-sha: 8e4a8bd3bf72 -->
 ## Transactions
 
 #### *The testbench is well divided up, and the data is not*
@@ -9008,11 +9028,6 @@ There is a whole slide on that further on.
   message builds itself out of the `convert2string()` of the three transactions
 
 ```sv
-
-      return predicted;
-
-   endfunction : predict_result
-
    function void write(result_transaction t);
       string data_str;
       command_transaction cmd;
@@ -9032,6 +9047,11 @@ There is a whole slide on that further on.
          "/Predicted ",
          predicted.convert2string()
       };
+
+      if (!predicted.compare(t)) `uvm_error("SELF CHECKER", {"FAIL: ", data_str})
+      else `uvm_info("SELF CHECKER", {"PASS: ", data_str}, UVM_HIGH)
+
+   endfunction : write
 ```
 
 Note:
@@ -9188,7 +9208,7 @@ an agent. That is day 6.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 5c0ef74263d6 -->
+<!-- es-sha: 06ec3ce2e16d -->
 ## Constrained random
 
 #### *The other half of the pincer*
@@ -9352,12 +9372,14 @@ the difference between believing and knowing.
 ```
 
 ```sv
-      // code/verilator/repro-dist-with.sv; the detail in docs/verilator.md.
+      c.data.constraint_mode(0);
       if (!c.randomize() with {
             op == mul_op;
             A  == 8'hFF;
             B  == 8'hFF;
           })
+         $fatal(1, "randomize() with failed even with the constraint turned off");
+      $display("with with: 1 try,      A=%2h %s B=%2h", c.A, c.op.name(), c.B);
 ```
 
 - `inside {a, b, c}` is the set of legal values: without it, the random also asks

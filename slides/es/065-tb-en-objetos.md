@@ -182,7 +182,7 @@ escala.
 
 #### *La clase `coverage`: el covergroup adentro de un objeto*
 
-{{code:code/u3/tb-en-objetos/tb_classes/coverage.svh|lines=86-103}}
+{{code:code/u3/tb-en-objetos/tb_classes/coverage.svh|from=// In a class, we don't need to declare variables|to=endtask : execute}}
 
 - El covergroup es **el mismo** del testbench convencional, línea por línea. Lo que cambió es
   dónde vive

@@ -87,6 +87,11 @@ Eso es la slide que sigue, y es la razón de que la factory de UVM sea mejor que
 
 {{code:code/u3/factory/factory.sv|lines=50-73}}
 
+- Y el `$cast` en uso, en el `top`: la factory siempre devuelve un `trago`, y
+  para llegar a `sin_hielo` hay que bajarlo a `fernet`
+
+{{code:code/u3/factory/factory.sv|from=// Using the factory!|to=cantina drink to fernet_h}}
+
 Note:
 Dos cosas de este código, y las dos vuelven en UVM.
 La primera: `$cast` **chequea en runtime y devuelve 0**, no aborta. Por eso en el

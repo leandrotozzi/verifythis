@@ -1,4 +1,4 @@
-<!-- es-sha: 589b6c3c4412 -->
+<!-- es-sha: 6978771daf5e -->
 ## The factory pattern
 
 #### *Who decides the type?*
@@ -86,6 +86,11 @@ this one.
   inside an `if` with its `$fatal`
 
 {{code:code/u3/factory/factory.sv|lines=50-73}}
+
+- And `$cast` in use, in the `top`: the factory always returns a `trago`, and
+  to reach `sin_hielo` you have to bring it down to `fernet`
+
+{{code:code/u3/factory/factory.sv|from=// Using the factory!|to=cantina drink to fernet_h}}
 
 Note:
 Two things about this code, and both come back in UVM.

@@ -83,7 +83,7 @@ adentro de `bandeja`. Es confuso la primera vez.
   y ésa es la decisión: **`static` cuando de verdad hay uno solo, instanciado
   cuando puede haber más de uno**
 
-{{code:code/u3/parametricas/03-instanciada/bandejas.sv|lines=46-74}}
+{{code:code/u3/parametricas/03-instanciada/bandejas.sv|from=module top;|to=endmodule : top}}
 
 Note:
 Las dos versiones hacen exactamente lo mismo y la diferencia es de diseño, no de
