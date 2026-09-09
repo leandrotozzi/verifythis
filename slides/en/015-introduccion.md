@@ -38,7 +38,7 @@ always is not — except in this course, which is what all of this is about.
 
 #### *Where it comes from*
 
-![From eRM, VMM, AVM and OVM to UVM](res/originUVM.svg)
+![From eRM, VMM, AVM and OVM to UVM](res/en/originUVM.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -58,7 +58,7 @@ testbench from before 2011 that nobody migrated. It happens more than it seems.
 
 #### *A SystemVerilog testbench, from the inside*
 
-![Anatomy of a SystemVerilog testbench](res/TB.svg)
+![Anatomy of a SystemVerilog testbench](res/en/TB.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -75,7 +75,7 @@ testbench, in any language. UVM did not invent them; it standardized them.
 
 #### *The same testbench, with UVM structure*
 
-![The same testbench with UVM structure](res/TB_UVM.svg)
+![The same testbench with UVM structure](res/en/TB_UVM.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -94,7 +94,7 @@ not little.
 
 #### *The class tree*
 
-![UVM base class tree](res/uvm_class_diagram.svg)
+![UVM base class tree](res/en/uvm_class_diagram.svg)
 <!-- .element: class="grande" -->
 
 Note:

@@ -34,7 +34,7 @@ with functional coverage, on the **VTALU** DUT
 [PPTX](https://leandrotozzi.github.io/verifythis/uvm-course.pptx) ·
 or clone the repo and open `en/index.html` with a double click
 
-<img src="docs/portada.png" width="820" height="431" alt="Verify This! course cover: an open source UVM course on Verilator, SystemVerilog verification without EDA licences">
+<img src="docs/en/portada.png" width="820" height="431" alt="Verify This! course cover: an open source UVM course on Verilator, SystemVerilog verification without EDA licences">
 
 </div>
 

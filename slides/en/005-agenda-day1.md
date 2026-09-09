@@ -1,5 +1,5 @@
 <!-- es-sha: dc538de84272 -->
-<!-- .slide: id="day1" data-machete="res/diagrams/en/wave-dut.svg,res/TB.svg" -->
+<!-- .slide: id="day1" data-machete="res/diagrams/en/wave-dut.svg,res/en/TB.svg" -->
 
 <!-- .slide: data-transition="concave" -->
 

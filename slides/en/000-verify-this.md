@@ -1,5 +1,5 @@
 <!-- es-sha: c0a16628fc0a -->
-<!-- .slide: id="portada" data-machete="res/uvm_class_diagram.svg" -->
+<!-- .slide: id="portada" data-machete="res/en/uvm_class_diagram.svg" -->
 
 # Verify This!
 

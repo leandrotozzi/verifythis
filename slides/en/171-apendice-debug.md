@@ -1,5 +1,5 @@
 <!-- es-sha: d485ca9d682c -->
-<!-- .slide: id="apendice-debug" data-machete="res/machete-debug.svg" -->
+<!-- .slide: id="apendice-debug" data-machete="res/en/machete-debug.svg" -->
 
 ## Appendix · The debug toolbox
 

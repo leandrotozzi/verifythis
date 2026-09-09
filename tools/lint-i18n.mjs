@@ -18,6 +18,11 @@
 //                slides/en/ lleva el sha del archivo ES del que salio (regla 7):
 //                si el ES cambio, el check falla y dice cual hay que revisar.
 //
+// Y una CUARTA, que no esta en los .md: las FIGURAS (regla 9). El deck las
+// incluye con <img>, asi que un SVG es un documento aparte y ninguna regla de
+// arriba lo abre -- el curso en castellano estuvo mostrando en ingles casi todas
+// sus figuras, sin que nada avisara.
+//
 // Y una tercera, que no es divergencia sino traduccion a medias (regla 8):
 // castellano que quedo sin traducir en el arbol EN. Estructuralmente no se ve
 // -- la slide tiene la misma cantidad de bullets -- y el sello es-sha tampoco,
@@ -282,6 +287,70 @@ for (const [es, en] of PARES_SUELTOS) {
   sueltos++;
 }
 
+// --- 4. las figuras, en el idioma del deck -----------------------------------
+// El bug que motiva la regla: el commit que tradujo el curso tradujo los SVG EN
+// EL MISMO ARCHIVO, y el deck en castellano paso a mostrarlas todas en ingles
+// --incluida la anatomia del testbench de la slide 11--. Ninguna regla de
+// arriba lo ve: una figura no es un .md, y la slide que la incluye es identica
+// en los dos idiomas salvo la ruta.
+//
+// La convencion es la del resto del repo: res/<X>.svg en castellano, res/<X>/en/
+// en ingles. Aca no se chequea la ruta sino lo que dice la figura, que es lo que
+// el alumno ve.
+//
+// Se buscan palabras funcionales del OTRO idioma fuera del texto MONOESPACIADO
+// --que es codigo, y `this`, `type_id::create` o `set()` no son ingles-- y se
+// pide un minimo de dos por figura: una sola suele ser un nombre propio o una
+// sigla, dos es una frase.
+const INGLES = ['the', 'of', 'and', 'with', 'what', 'which', 'when', 'where', 'this', 'these',
+  'those', 'each', 'every', 'from', 'until', 'between', 'about', 'also', 'more', 'never',
+  'always', 'same', 'other', 'how', 'besides', 'although', 'then', 'now', 'after', 'before',
+  'while', 'are', 'is', 'has', 'have', 'can', 'does', 'not', 'only', 'they', 'its', 'your', 'you'];
+const RE_INGLES = new RegExp(String.raw`(?<![\w'-])(${INGLES.join('|')})(?![\w'-])`, 'gi');
+
+// El texto que se LEE de una figura: los <text> y el <title>, sin lo que este en
+// monoespaciado (un <text> mono entero, o un <tspan> mono adentro de uno sans).
+const MONO = /IBM Plex Mono/;
+function prosaDeFigura(svg) {
+  const partes = [...svg.matchAll(/<title>([\s\S]*?)<\/title>/g)].map(m => m[1]);
+  for (const m of svg.matchAll(/<text\b([^>]*)>([\s\S]*?)<\/text>/g)) {
+    if (MONO.test(m[1])) continue;
+    partes.push(m[2].replace(/<tspan\b([^>]*)>([\s\S]*?)<\/tspan>/g,
+      (_, attr, txt) => (MONO.test(attr) ? ' ' : txt)));
+  }
+  return partes.join(' ').replace(/<[^>]+>/g, ' ');
+}
+
+// Las figuras que muestra un deck: las imagenes de las slides y las del machete
+// (data-machete, que es una lista separada por comas).
+async function figurasDe(dir) {
+  const out = new Set();
+  for (const f of (await readdir(dir).catch(() => [])).filter(f => f.endsWith('.md'))) {
+    const md = await readFile(path.join(dir, f), 'utf8');
+    for (const m of md.matchAll(/!\[[^\]]*\]\(([^)]+\.svg)\)/g)) out.add(m[1]);
+    for (const m of md.matchAll(/data-machete="([^"]+)"/g))
+      for (const r of m[1].split(',')) if (r.trim().endsWith('.svg')) out.add(r.trim());
+  }
+  return [...out].sort();
+}
+
+let figuras = 0;
+for (const [dir, re, otro] of [[ES, RE_INGLES, 'ingles'], [EN, RE_CASTELLANO, 'castellano']]) {
+  for (const fig of await figurasDe(dir)) {
+    const svg = await readFile(fig, 'utf8').catch(() => null);
+    if (svg === null) { fail(fig, `la referencia ${dir}/ y el archivo no existe`); continue; }
+    figuras++;
+    const hits = [...prosaDeFigura(svg).matchAll(re)].map(m => m[0]);
+    // La figura del otro idioma: la del ingles vive en un en/ al lado de la del
+    // castellano, asi que el par se saca agregando o sacando ese segmento.
+    const par = fig.includes('/en/') ? fig.replace('/en/', '/')
+                                     : path.join(path.dirname(fig), 'en', path.basename(fig));
+    if (hits.length >= 2)
+      fail(fig, `la muestra el deck de ${dir.slice(-2)} y tiene texto en ${otro} ("${[...new Set(hits)].slice(0, 4).join(' ')}"...)`
+        + ` — traducila; la del otro idioma es ${par}`);
+  }
+}
+
 // --- el informe --------------------------------------------------------------
 if (errores.length) {
   console.error(`✗ ${errores.length} divergencia(s) entre las dos versiones del curso:`);
@@ -297,4 +366,4 @@ for (const f of enFiles) {
 }
 const detalle = dias.size ? ` · dias ${[...dias].sort().join(', ')}` : '';
 console.log(`✓ i18n: en/ no diverge de es/ — ${enFiles.length}/${esFiles.length} secciones (${pct}%)${detalle}`
-  + `, ${paresMd} README y ${sueltos} pagina(s) pareadas`);
+  + `, ${paresMd} README, ${sueltos} pagina(s) pareadas y ${figuras} figuras en el idioma del deck`);

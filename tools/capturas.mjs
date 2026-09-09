@@ -1,5 +1,5 @@
-// Las dos capturas del deck que usan el README, la landing y las tarjetas de
-// Twitter/OpenGraph. Existian a mano, y por eso envejecieron: la portada seguia
+// Las capturas del deck que usan el README, la landing y las tarjetas de
+// Twitter/OpenGraph: la portada en los dos idiomas y una slide de codigo. Existian a mano, y por eso envejecieron: la portada seguia
 // anunciando seis dias, y un contador de slides de varias fases atras.
 // Una imagen no la mira ningun --check, asi que la unica defensa es que se
 // regenere con el resto del build.
@@ -37,6 +37,11 @@ const DECK = SALIDAS.es.html;
 // asi que reveal centra y quedan dos bandas del fondo del tema: es lo que hay que
 // hacer igual, recortar una slide para llenar el ancho le come el titulo.
 const PORTADA = { out: 'docs/portada.png', w: 1200, h: 630, i: 0, limpia: true };
+// La misma, del deck en ingles. El README en ingles la pone de hero y la landing
+// en ingles la declara como og:image: hasta que existio esta, el lector en
+// ingles abria el repo y lo primero que veia era una portada que decia
+// "Introduccion a UVM" y "DIA 1..8".
+const PORTADA_EN = { ...PORTADA, out: 'docs/en/portada.png', deck: SALIDAS.en.html };
 
 // La portada es la og:image: la que sale en Twitter, LinkedIn, Slack y el rich
 // result de Google. Ahi el chrome del deck -- la hamburguesa, el toggle ES/EN,
@@ -164,10 +169,12 @@ const NAV = n => `
 })();
 </script>`;
 
-for (const c of [PORTADA, CODIGO]) {
+for (const c of [PORTADA, PORTADA_EN, CODIGO]) {
   const destino = c.out;
-  const copia = path.join(path.dirname(DECK) || '.', `_captura_${path.basename(c.out, '.png')}.html`);
-  await writeFile(copia, (await readFile(DECK, 'utf8'))
+  // Cada captura sale de SU deck: la portada en ingles, del deck en ingles.
+  const deck = c.deck ?? DECK;
+  const copia = path.join(path.dirname(deck) || '.', `_captura_${path.basename(c.out, '.png')}.html`);
+  await writeFile(copia, (await readFile(deck, 'utf8'))
     .replace('</body>', NAV(c.i ?? 0) + (c.limpia ? SIN_CHROME : '') + '\n</body>'));
   try {
     await chromeRun([`--window-size=${c.w},${c.h}`, '--virtual-time-budget=60000',
@@ -180,4 +187,5 @@ for (const c of [PORTADA, CODIGO]) {
 
 await writeFile(SELLO, JSON.stringify({ slides: hoy.slides, dias: hoy.dias }, null, 2) + '\n');
 console.log(`✓ docs/portada.png  ${PORTADA.w}x${PORTADA.h}  (slide 0 de ${reporte.total})`);
+console.log(`✓ ${PORTADA_EN.out}  ${PORTADA_EN.w}x${PORTADA_EN.h}  (la misma, del deck en ingles)`);
 console.log(`✓ docs/slide-codigo.png  ${CODIGO.w}x${CODIGO.h}  (slide ${CODIGO.i} de ${reporte.total})`);

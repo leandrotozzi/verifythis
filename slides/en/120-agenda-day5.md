@@ -1,5 +1,5 @@
 <!-- es-sha: 91f8640a07af -->
-<!-- .slide: id="day5" data-machete="res/machete-debug.svg,res/uvm_class_diagram.svg" -->
+<!-- .slide: id="day5" data-machete="res/en/machete-debug.svg,res/en/uvm_class_diagram.svg" -->
 
 ## Agenda
 

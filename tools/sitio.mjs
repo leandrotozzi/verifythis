@@ -36,6 +36,7 @@ export const MANIFIESTO = [
   ['web/sitemap.xml',     'sitemap.xml'],
   ['index.html',          'curso.html'],
   ['docs/portada.png',    'portada.png'],
+  ['docs/en/portada.png', 'en/portada.png'],
   ['css',                 'css'],
   ['js',                  'js'],
   ['res',                 'res'],
@@ -62,9 +63,12 @@ export const MANIFIESTO = [
 // no tener canonical. Con esto, si el layout cambia, se cambia en un solo lugar.
 export const SITIO = 'https://leandrotozzi.github.io/verifythis/';
 
-// docs/portada.png publicada en la raiz. Las medidas las fija tools/capturas.mjs
-// (la constante PORTADA); si cambian alla, cambian aca.
-const OG_IMG = { url: SITIO + 'portada.png', w: 1200, h: 630 };
+// docs/portada.png publicada en la raiz, y la del deck en ingles en en/. Las
+// medidas las fija tools/capturas.mjs (la constante PORTADA); si cambian alla,
+// cambian aca. Una sola imagen para los dos idiomas era una tarjeta que decia
+// "Introduccion a UVM · DIA 1..8" cuando la compartia alguien que leia el curso
+// en ingles.
+const OG_IMG = lang => ({ url: SITIO + (lang === 'en' ? 'en/portada.png' : 'portada.png'), w: 1200, h: 630 });
 const LOCALE = { es: 'es_AR', en: 'en_US' };
 
 const attr = t => String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
@@ -85,6 +89,7 @@ const attr = t => String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').repla
 //          que no son CSS (close-button.png).
 export function seo({ es, en, lang, css, titulo, desc, tipo = 'website' }) {
   const propia = lang === 'en' ? en : es;
+  const img = OG_IMG(lang);
   const url = SITIO + propia;
   const alt = [['es', es], ['en', en], ['x-default', es]]
     .filter(([, p]) => p != null)
@@ -101,14 +106,14 @@ export function seo({ es, en, lang, css, titulo, desc, tipo = 'website' }) {
     `  <meta property="og:title" content="${attr(titulo)}">`,
     `  <meta property="og:description" content="${attr(desc)}">`,
     `  <meta property="og:url" content="${url}">`,
-    `  <meta property="og:image" content="${OG_IMG.url}">`,
-    `  <meta property="og:image:width" content="${OG_IMG.w}">`,
-    `  <meta property="og:image:height" content="${OG_IMG.h}">`,
+    `  <meta property="og:image" content="${img.url}">`,
+    `  <meta property="og:image:width" content="${img.w}">`,
+    `  <meta property="og:image:height" content="${img.h}">`,
     `  <meta property="og:image:alt" content="${attr(titulo)}">`,
     '  <meta name="twitter:card" content="summary_large_image">',
     `  <meta name="twitter:title" content="${attr(titulo)}">`,
     `  <meta name="twitter:description" content="${attr(desc)}">`,
-    `  <meta name="twitter:image" content="${OG_IMG.url}">`,
+    `  <meta name="twitter:image" content="${img.url}">`,
     `  <meta name="twitter:image:alt" content="${attr(titulo)}">`,
   ].join('\n');
 }

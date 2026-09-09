@@ -1,5 +1,5 @@
 <!-- es-sha: d2a64b8fc1b9 -->
-<!-- .slide: id="day8" data-machete="res/uvm_class_diagram.svg,res/diagrams/en/sequences_tb_completo.svg" -->
+<!-- .slide: id="day8" data-machete="res/en/uvm_class_diagram.svg,res/diagrams/en/sequences_tb_completo.svg" -->
 
 ## Agenda
 
