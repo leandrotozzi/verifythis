@@ -966,8 +966,8 @@ y nada más pasa en verde con el <code>ovf</code> clavado en cero.</p>
         mul_op: predicted_result = A * B;
       <span class="hljs-keyword">endcase</span> <span class="hljs-comment">// case (op_set)</span>
 
-      <span class="hljs-comment">// El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de</span>
-      <span class="hljs-comment">// salida, ni la suma ni la multiplicacion se pasan.</span>
+      <span class="hljs-comment">// ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit</span>
+      <span class="hljs-comment">// output, neither the addition nor the multiplication can overflow.</span>
       predicted_ovf = (op_set == sub_op) &amp;&amp; (A &lt; B);
 
       <span class="hljs-keyword">if</span> ((op_set != no_op) &amp;&amp; (op_set != rst_op))
@@ -977,9 +977,9 @@ y nada más pasa en verde con el <code>ovf</code> clavado en cero.</p>
 
    <span class="hljs-keyword">end</span> : scoreboard
 
-   <span class="hljs-comment">// Randomizamos los estimulos</span>
-   <span class="hljs-comment">// get_op y get_data son Constrained Random Data</span>
-   <span class="hljs-comment">// La idea de CRD es crear valores random pero legales</span>
+   <span class="hljs-comment">// Randomize the stimulus</span>
+   <span class="hljs-comment">// get_op and get_data are Constrained Random Data</span>
+   <span class="hljs-comment">// The point of CRD is to build values that are random but legal</span>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span> : tester
       reset_n = <span class="hljs-number">1&#x27;b0</span>;
       @(<span class="hljs-keyword">negedge</span> clk);
@@ -988,15 +988,15 @@ y nada más pasa en verde con el <code>ovf</code> clavado en cero.</p>
       start = <span class="hljs-number">1&#x27;b0</span>;
       <span class="hljs-keyword">repeat</span> (<span class="hljs-number">1000</span>) <span class="hljs-keyword">begin</span>
          @(<span class="hljs-keyword">negedge</span> clk);
-         op_set = get_op();</code></pre><details><summary>el archivo entero, 239 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Tipycal TB:</span>
-<span class="hljs-comment">// -----------</span>
+         op_set = get_op();</code></pre><details><summary>el archivo entero, 239 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
+<span class="hljs-comment">// ----------</span>
 <span class="hljs-comment">//  * Functional Coverage</span>
 <span class="hljs-comment">//  * Self Checking</span>
 <span class="hljs-comment">//  * Constrained Random Stimulus</span>
 
-<span class="hljs-comment">// Porque es malo?</span>
-<span class="hljs-comment">//  * Falta de modularidad (todo en un mismo archivo)</span>
-<span class="hljs-comment">//  * Escasa posibilidad de reusarlo</span>
+<span class="hljs-comment">// Why is this bad?</span>
+<span class="hljs-comment">//  * No modularity (everything in a single file)</span>
+<span class="hljs-comment">//  * Almost nothing here can be reused</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
 
    <span class="hljs-keyword">typedef</span> <span class="hljs-keyword">enum</span> <span class="hljs-type">bit</span>[<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] {no_op  = <span class="hljs-number">3&#x27;b000</span>,
@@ -1022,26 +1022,26 @@ y nada más pasa en verde con el <code>ovf</code> clavado en cero.</p>
    vtalu DUT (.A, .B, .clk, .op, .reset_n, .start, .done, .ovf, .result);
 
 <span class="hljs-meta">`ifdef</span> VLT_TRACE
-   <span class="hljs-comment">// Ondas para GTKWave:  VLT_TRACE=1 bash run.sh  &amp;&amp;  gtkwave vtalu.vcd</span>
-   <span class="hljs-comment">// Va detras de un `ifdef porque $dumpvars no compila sin --trace, y el</span>
-   <span class="hljs-comment">// define lo pone el mismo VLT_TRACE que agrega el flag (common.sh).</span>
+   <span class="hljs-comment">// Waves for GTKWave:  VLT_TRACE=1 bash run.sh  &amp;&amp;  gtkwave vtalu.vcd</span>
+   <span class="hljs-comment">// Behind an `ifdef because $dumpvars does not compile without --trace, and</span>
+   <span class="hljs-comment">// the define comes from the same VLT_TRACE that adds the flag (common.sh).</span>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       <span class="hljs-built_in">$dumpfile</span>(<span class="hljs-string">&quot;vtalu.vcd&quot;</span>);
       <span class="hljs-built_in">$dumpvars</span>;
    <span class="hljs-keyword">end</span>
 <span class="hljs-meta">`endif</span>
 
-   <span class="hljs-comment">//op_cov: Nos aseguramos cubrir todas las operaciones y su interaccion</span>
+   <span class="hljs-comment">//op_cov: make sure every operation, and every interaction between them, is covered</span>
    <span class="hljs-keyword">covergroup</span> op_cov;
       <span class="hljs-keyword">coverpoint</span> op_set {
          <span class="hljs-keyword">bins</span> single_cycle[] = {[add_op : xor_op], rst_op,no_op};
          <span class="hljs-keyword">bins</span> multi_cycle = {mul_op};
 
          <span class="hljs-comment">// =&gt; are transitional coverage. From =&gt; To</span>
-         <span class="hljs-comment">// Bins de transicion. Verilator 5.052 todavia NO los implementa: cualquier</span>
-         <span class="hljs-comment">// forma con &quot;=&gt;&quot; o &quot;[* n]&quot; aborta con un Internal Error. Repro minimo en</span>
-         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. Quedan aca porque son parte del tema;</span>
-         <span class="hljs-comment">// cuando Verilator los soporte, se borra el ifndef y nada mas.</span>
+         <span class="hljs-comment">// Transition bins. Verilator 5.052 does NOT implement them yet: any form</span>
+         <span class="hljs-comment">// with &quot;=&gt;&quot; or &quot;[* n]&quot; aborts with an Internal Error. Minimal repro in</span>
+         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. They stay because they are part</span>
+         <span class="hljs-comment">// of the topic; when Verilator supports them, drop the ifndef, nothing else.</span>
 <span class="hljs-meta">`ifndef</span> VERILATOR
          <span class="hljs-keyword">bins</span> opn_rst[] = ([add_op:mul_op] =&gt; rst_op);
          <span class="hljs-keyword">bins</span> rst_opn[] = (rst_op =&gt; [add_op:mul_op]);
@@ -1055,7 +1055,7 @@ y nada más pasa en verde con el <code>ovf</code> clavado en cero.</p>
       }
    <span class="hljs-keyword">endgroup</span>
 
-   <span class="hljs-comment">// Chequeamos los casos en que la entrada son todas 0 o 1</span>
+   <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
    <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
 
       all_ops : <span class="hljs-keyword">coverpoint</span> op_set {
@@ -1072,9 +1072,9 @@ y nada más pasa en verde con el <code>ovf</code> clavado en cero.</p>
          <span class="hljs-keyword">bins</span> others= {[<span class="hljs-number">8&#x27;h01</span>:<span class="hljs-number">8&#x27;hFE</span>]};
          <span class="hljs-keyword">bins</span> ones  = {<span class="hljs-number">8&#x27;hFF</span>};
       }
-      <span class="hljs-comment">// rev2 del VTALU: el borrow de la resta, que es la fila del plan que el</span>
-      <span class="hljs-comment">// scoreboard solo puede cerrar mirando DOS salidas. Sin este bin, una</span>
-      <span class="hljs-comment">// resta que nunca dio negativa es indistinguible de una que si.</span>
+      <span class="hljs-comment">// VTALU rev2: the borrow of the subtraction, the row of the plan that the</span>
+      <span class="hljs-comment">// scoreboard can only close by looking at TWO outputs. Without this bin, a</span>
+      <span class="hljs-comment">// subtraction that never went negative looks exactly like one that did.</span>
       borrow: <span class="hljs-keyword">coverpoint</span> ((op_set == sub_op) &amp;&amp; (A &lt; B)) {
          <span class="hljs-keyword">bins</span> hubo_borrow = {<span class="hljs-number">1</span>};
          <span class="hljs-keyword">ignore_bins</span> resto = {<span class="hljs-number">0</span>};
@@ -1157,7 +1157,7 @@ y nada más pasa en verde con el <code>ovf</code> clavado en cero.</p>
    <span class="hljs-keyword">endfunction</span> : get_op
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">byte </span><span class="hljs-title">get_data</span>();
-      <span class="hljs-comment">// Mediante esta tecnica, sesgamos el random</span>
+      <span class="hljs-comment">// This is how the random gets biased</span>
       <span class="hljs-type">bit</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] zero_ones;
       zero_ones = <span class="hljs-built_in">$random</span>;
       <span class="hljs-keyword">if</span> (zero_ones == <span class="hljs-number">2&#x27;b00</span>)
@@ -1168,7 +1168,7 @@ y nada más pasa en verde con el <code>ovf</code> clavado en cero.</p>
         <span class="hljs-keyword">return</span> <span class="hljs-built_in">$random</span>;
    <span class="hljs-keyword">endfunction</span> : get_data
 
-   <span class="hljs-comment">// Scoreboard loop chequea si dio todo OK</span>
+   <span class="hljs-comment">// Scoreboard loop: checks that everything came out right</span>
    <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> done) <span class="hljs-keyword">begin</span> : scoreboard
       <span class="hljs-type">shortint</span> predicted_result;
       <span class="hljs-type">bit</span>      predicted_ovf;
@@ -1181,8 +1181,8 @@ y nada más pasa en verde con el <code>ovf</code> clavado en cero.</p>
         mul_op: predicted_result = A * B;
       <span class="hljs-keyword">endcase</span> <span class="hljs-comment">// case (op_set)</span>
 
-      <span class="hljs-comment">// El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de</span>
-      <span class="hljs-comment">// salida, ni la suma ni la multiplicacion se pasan.</span>
+      <span class="hljs-comment">// ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit</span>
+      <span class="hljs-comment">// output, neither the addition nor the multiplication can overflow.</span>
       predicted_ovf = (op_set == sub_op) &amp;&amp; (A &lt; B);
 
       <span class="hljs-keyword">if</span> ((op_set != no_op) &amp;&amp; (op_set != rst_op))
@@ -1192,9 +1192,9 @@ y nada más pasa en verde con el <code>ovf</code> clavado en cero.</p>
 
    <span class="hljs-keyword">end</span> : scoreboard
 
-   <span class="hljs-comment">// Randomizamos los estimulos</span>
-   <span class="hljs-comment">// get_op y get_data son Constrained Random Data</span>
-   <span class="hljs-comment">// La idea de CRD es crear valores random pero legales</span>
+   <span class="hljs-comment">// Randomize the stimulus</span>
+   <span class="hljs-comment">// get_op and get_data are Constrained Random Data</span>
+   <span class="hljs-comment">// The point of CRD is to build values that are random but legal</span>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span> : tester
       reset_n = <span class="hljs-number">1&#x27;b0</span>;
       @(<span class="hljs-keyword">negedge</span> clk);
@@ -1260,7 +1260,7 @@ y <code>:/</code>. Conviene nombrarlo ahora para que después se vea el ahorro.<
    <span class="hljs-keyword">endfunction</span> : get_op
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">byte </span><span class="hljs-title">get_data</span>();
-      <span class="hljs-comment">// Mediante esta tecnica, sesgamos el random</span>
+      <span class="hljs-comment">// This is how the random gets biased</span>
       <span class="hljs-type">bit</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] zero_ones;
       zero_ones = <span class="hljs-built_in">$random</span>;
       <span class="hljs-keyword">if</span> (zero_ones == <span class="hljs-number">2&#x27;b00</span>)
@@ -1271,15 +1271,15 @@ y <code>:/</code>. Conviene nombrarlo ahora para que después se vea el ahorro.<
         <span class="hljs-keyword">return</span> <span class="hljs-built_in">$random</span>;
    <span class="hljs-keyword">endfunction</span> : get_data
 
-   <span class="hljs-comment">// Scoreboard loop chequea si dio todo OK</span></code></pre><details><summary>el archivo entero, 239 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Tipycal TB:</span>
-<span class="hljs-comment">// -----------</span>
+   <span class="hljs-comment">// Scoreboard loop: checks that everything came out right</span></code></pre><details><summary>el archivo entero, 239 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
+<span class="hljs-comment">// ----------</span>
 <span class="hljs-comment">//  * Functional Coverage</span>
 <span class="hljs-comment">//  * Self Checking</span>
 <span class="hljs-comment">//  * Constrained Random Stimulus</span>
 
-<span class="hljs-comment">// Porque es malo?</span>
-<span class="hljs-comment">//  * Falta de modularidad (todo en un mismo archivo)</span>
-<span class="hljs-comment">//  * Escasa posibilidad de reusarlo</span>
+<span class="hljs-comment">// Why is this bad?</span>
+<span class="hljs-comment">//  * No modularity (everything in a single file)</span>
+<span class="hljs-comment">//  * Almost nothing here can be reused</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
 
    <span class="hljs-keyword">typedef</span> <span class="hljs-keyword">enum</span> <span class="hljs-type">bit</span>[<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] {no_op  = <span class="hljs-number">3&#x27;b000</span>,
@@ -1305,26 +1305,26 @@ y <code>:/</code>. Conviene nombrarlo ahora para que después se vea el ahorro.<
    vtalu DUT (.A, .B, .clk, .op, .reset_n, .start, .done, .ovf, .result);
 
 <span class="hljs-meta">`ifdef</span> VLT_TRACE
-   <span class="hljs-comment">// Ondas para GTKWave:  VLT_TRACE=1 bash run.sh  &amp;&amp;  gtkwave vtalu.vcd</span>
-   <span class="hljs-comment">// Va detras de un `ifdef porque $dumpvars no compila sin --trace, y el</span>
-   <span class="hljs-comment">// define lo pone el mismo VLT_TRACE que agrega el flag (common.sh).</span>
+   <span class="hljs-comment">// Waves for GTKWave:  VLT_TRACE=1 bash run.sh  &amp;&amp;  gtkwave vtalu.vcd</span>
+   <span class="hljs-comment">// Behind an `ifdef because $dumpvars does not compile without --trace, and</span>
+   <span class="hljs-comment">// the define comes from the same VLT_TRACE that adds the flag (common.sh).</span>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       <span class="hljs-built_in">$dumpfile</span>(<span class="hljs-string">&quot;vtalu.vcd&quot;</span>);
       <span class="hljs-built_in">$dumpvars</span>;
    <span class="hljs-keyword">end</span>
 <span class="hljs-meta">`endif</span>
 
-   <span class="hljs-comment">//op_cov: Nos aseguramos cubrir todas las operaciones y su interaccion</span>
+   <span class="hljs-comment">//op_cov: make sure every operation, and every interaction between them, is covered</span>
    <span class="hljs-keyword">covergroup</span> op_cov;
       <span class="hljs-keyword">coverpoint</span> op_set {
          <span class="hljs-keyword">bins</span> single_cycle[] = {[add_op : xor_op], rst_op,no_op};
          <span class="hljs-keyword">bins</span> multi_cycle = {mul_op};
 
          <span class="hljs-comment">// =&gt; are transitional coverage. From =&gt; To</span>
-         <span class="hljs-comment">// Bins de transicion. Verilator 5.052 todavia NO los implementa: cualquier</span>
-         <span class="hljs-comment">// forma con &quot;=&gt;&quot; o &quot;[* n]&quot; aborta con un Internal Error. Repro minimo en</span>
-         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. Quedan aca porque son parte del tema;</span>
-         <span class="hljs-comment">// cuando Verilator los soporte, se borra el ifndef y nada mas.</span>
+         <span class="hljs-comment">// Transition bins. Verilator 5.052 does NOT implement them yet: any form</span>
+         <span class="hljs-comment">// with &quot;=&gt;&quot; or &quot;[* n]&quot; aborts with an Internal Error. Minimal repro in</span>
+         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. They stay because they are part</span>
+         <span class="hljs-comment">// of the topic; when Verilator supports them, drop the ifndef, nothing else.</span>
 <span class="hljs-meta">`ifndef</span> VERILATOR
          <span class="hljs-keyword">bins</span> opn_rst[] = ([add_op:mul_op] =&gt; rst_op);
          <span class="hljs-keyword">bins</span> rst_opn[] = (rst_op =&gt; [add_op:mul_op]);
@@ -1338,7 +1338,7 @@ y <code>:/</code>. Conviene nombrarlo ahora para que después se vea el ahorro.<
       }
    <span class="hljs-keyword">endgroup</span>
 
-   <span class="hljs-comment">// Chequeamos los casos en que la entrada son todas 0 o 1</span>
+   <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
    <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
 
       all_ops : <span class="hljs-keyword">coverpoint</span> op_set {
@@ -1355,9 +1355,9 @@ y <code>:/</code>. Conviene nombrarlo ahora para que después se vea el ahorro.<
          <span class="hljs-keyword">bins</span> others= {[<span class="hljs-number">8&#x27;h01</span>:<span class="hljs-number">8&#x27;hFE</span>]};
          <span class="hljs-keyword">bins</span> ones  = {<span class="hljs-number">8&#x27;hFF</span>};
       }
-      <span class="hljs-comment">// rev2 del VTALU: el borrow de la resta, que es la fila del plan que el</span>
-      <span class="hljs-comment">// scoreboard solo puede cerrar mirando DOS salidas. Sin este bin, una</span>
-      <span class="hljs-comment">// resta que nunca dio negativa es indistinguible de una que si.</span>
+      <span class="hljs-comment">// VTALU rev2: the borrow of the subtraction, the row of the plan that the</span>
+      <span class="hljs-comment">// scoreboard can only close by looking at TWO outputs. Without this bin, a</span>
+      <span class="hljs-comment">// subtraction that never went negative looks exactly like one that did.</span>
       borrow: <span class="hljs-keyword">coverpoint</span> ((op_set == sub_op) &amp;&amp; (A &lt; B)) {
          <span class="hljs-keyword">bins</span> hubo_borrow = {<span class="hljs-number">1</span>};
          <span class="hljs-keyword">ignore_bins</span> resto = {<span class="hljs-number">0</span>};
@@ -1440,7 +1440,7 @@ y <code>:/</code>. Conviene nombrarlo ahora para que después se vea el ahorro.<
    <span class="hljs-keyword">endfunction</span> : get_op
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">byte </span><span class="hljs-title">get_data</span>();
-      <span class="hljs-comment">// Mediante esta tecnica, sesgamos el random</span>
+      <span class="hljs-comment">// This is how the random gets biased</span>
       <span class="hljs-type">bit</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] zero_ones;
       zero_ones = <span class="hljs-built_in">$random</span>;
       <span class="hljs-keyword">if</span> (zero_ones == <span class="hljs-number">2&#x27;b00</span>)
@@ -1451,7 +1451,7 @@ y <code>:/</code>. Conviene nombrarlo ahora para que después se vea el ahorro.<
         <span class="hljs-keyword">return</span> <span class="hljs-built_in">$random</span>;
    <span class="hljs-keyword">endfunction</span> : get_data
 
-   <span class="hljs-comment">// Scoreboard loop chequea si dio todo OK</span>
+   <span class="hljs-comment">// Scoreboard loop: checks that everything came out right</span>
    <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> done) <span class="hljs-keyword">begin</span> : scoreboard
       <span class="hljs-type">shortint</span> predicted_result;
       <span class="hljs-type">bit</span>      predicted_ovf;
@@ -1464,8 +1464,8 @@ y <code>:/</code>. Conviene nombrarlo ahora para que después se vea el ahorro.<
         mul_op: predicted_result = A * B;
       <span class="hljs-keyword">endcase</span> <span class="hljs-comment">// case (op_set)</span>
 
-      <span class="hljs-comment">// El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de</span>
-      <span class="hljs-comment">// salida, ni la suma ni la multiplicacion se pasan.</span>
+      <span class="hljs-comment">// ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit</span>
+      <span class="hljs-comment">// output, neither the addition nor the multiplication can overflow.</span>
       predicted_ovf = (op_set == sub_op) &amp;&amp; (A &lt; B);
 
       <span class="hljs-keyword">if</span> ((op_set != no_op) &amp;&amp; (op_set != rst_op))
@@ -1475,9 +1475,9 @@ y <code>:/</code>. Conviene nombrarlo ahora para que después se vea el ahorro.<
 
    <span class="hljs-keyword">end</span> : scoreboard
 
-   <span class="hljs-comment">// Randomizamos los estimulos</span>
-   <span class="hljs-comment">// get_op y get_data son Constrained Random Data</span>
-   <span class="hljs-comment">// La idea de CRD es crear valores random pero legales</span>
+   <span class="hljs-comment">// Randomize the stimulus</span>
+   <span class="hljs-comment">// get_op and get_data are Constrained Random Data</span>
+   <span class="hljs-comment">// The point of CRD is to build values that are random but legal</span>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span> : tester
       reset_n = <span class="hljs-number">1&#x27;b0</span>;
       @(<span class="hljs-keyword">negedge</span> clk);
@@ -1701,17 +1701,17 @@ dos slides.</p>
 <h4 id="el-covergroup-del-vtalu"><em>El covergroup del VTALU</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · líneas 42-64 de 239</figcaption><pre><code class="hljs"><span class="hljs-meta">`endif</span>
 
-   <span class="hljs-comment">//op_cov: Nos aseguramos cubrir todas las operaciones y su interaccion</span>
+   <span class="hljs-comment">//op_cov: make sure every operation, and every interaction between them, is covered</span>
    <span class="hljs-keyword">covergroup</span> op_cov;
       <span class="hljs-keyword">coverpoint</span> op_set {
          <span class="hljs-keyword">bins</span> single_cycle[] = {[add_op : xor_op], rst_op,no_op};
          <span class="hljs-keyword">bins</span> multi_cycle = {mul_op};
 
          <span class="hljs-comment">// =&gt; are transitional coverage. From =&gt; To</span>
-         <span class="hljs-comment">// Bins de transicion. Verilator 5.052 todavia NO los implementa: cualquier</span>
-         <span class="hljs-comment">// forma con &quot;=&gt;&quot; o &quot;[* n]&quot; aborta con un Internal Error. Repro minimo en</span>
-         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. Quedan aca porque son parte del tema;</span>
-         <span class="hljs-comment">// cuando Verilator los soporte, se borra el ifndef y nada mas.</span>
+         <span class="hljs-comment">// Transition bins. Verilator 5.052 does NOT implement them yet: any form</span>
+         <span class="hljs-comment">// with &quot;=&gt;&quot; or &quot;[* n]&quot; aborts with an Internal Error. Minimal repro in</span>
+         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. They stay because they are part</span>
+         <span class="hljs-comment">// of the topic; when Verilator supports them, drop the ifndef, nothing else.</span>
 <span class="hljs-meta">`ifndef</span> VERILATOR
          <span class="hljs-keyword">bins</span> opn_rst[] = ([add_op:mul_op] =&gt; rst_op);
          <span class="hljs-keyword">bins</span> rst_opn[] = (rst_op =&gt; [add_op:mul_op]);
@@ -1721,15 +1721,15 @@ dos slides.</p>
 
          <span class="hljs-keyword">bins</span> twoops[] = ([add_op:mul_op] [* <span class="hljs-number">2</span>]);
          <span class="hljs-keyword">bins</span> manymult = (mul_op [* <span class="hljs-number">3</span>:<span class="hljs-number">5</span>]);
-<span class="hljs-meta">`endif</span></code></pre><details><summary>el archivo entero, 239 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Tipycal TB:</span>
-<span class="hljs-comment">// -----------</span>
+<span class="hljs-meta">`endif</span></code></pre><details><summary>el archivo entero, 239 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
+<span class="hljs-comment">// ----------</span>
 <span class="hljs-comment">//  * Functional Coverage</span>
 <span class="hljs-comment">//  * Self Checking</span>
 <span class="hljs-comment">//  * Constrained Random Stimulus</span>
 
-<span class="hljs-comment">// Porque es malo?</span>
-<span class="hljs-comment">//  * Falta de modularidad (todo en un mismo archivo)</span>
-<span class="hljs-comment">//  * Escasa posibilidad de reusarlo</span>
+<span class="hljs-comment">// Why is this bad?</span>
+<span class="hljs-comment">//  * No modularity (everything in a single file)</span>
+<span class="hljs-comment">//  * Almost nothing here can be reused</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
 
    <span class="hljs-keyword">typedef</span> <span class="hljs-keyword">enum</span> <span class="hljs-type">bit</span>[<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] {no_op  = <span class="hljs-number">3&#x27;b000</span>,
@@ -1755,26 +1755,26 @@ dos slides.</p>
    vtalu DUT (.A, .B, .clk, .op, .reset_n, .start, .done, .ovf, .result);
 
 <span class="hljs-meta">`ifdef</span> VLT_TRACE
-   <span class="hljs-comment">// Ondas para GTKWave:  VLT_TRACE=1 bash run.sh  &amp;&amp;  gtkwave vtalu.vcd</span>
-   <span class="hljs-comment">// Va detras de un `ifdef porque $dumpvars no compila sin --trace, y el</span>
-   <span class="hljs-comment">// define lo pone el mismo VLT_TRACE que agrega el flag (common.sh).</span>
+   <span class="hljs-comment">// Waves for GTKWave:  VLT_TRACE=1 bash run.sh  &amp;&amp;  gtkwave vtalu.vcd</span>
+   <span class="hljs-comment">// Behind an `ifdef because $dumpvars does not compile without --trace, and</span>
+   <span class="hljs-comment">// the define comes from the same VLT_TRACE that adds the flag (common.sh).</span>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       <span class="hljs-built_in">$dumpfile</span>(<span class="hljs-string">&quot;vtalu.vcd&quot;</span>);
       <span class="hljs-built_in">$dumpvars</span>;
    <span class="hljs-keyword">end</span>
 <span class="hljs-meta">`endif</span>
 
-   <span class="hljs-comment">//op_cov: Nos aseguramos cubrir todas las operaciones y su interaccion</span>
+   <span class="hljs-comment">//op_cov: make sure every operation, and every interaction between them, is covered</span>
    <span class="hljs-keyword">covergroup</span> op_cov;
       <span class="hljs-keyword">coverpoint</span> op_set {
          <span class="hljs-keyword">bins</span> single_cycle[] = {[add_op : xor_op], rst_op,no_op};
          <span class="hljs-keyword">bins</span> multi_cycle = {mul_op};
 
          <span class="hljs-comment">// =&gt; are transitional coverage. From =&gt; To</span>
-         <span class="hljs-comment">// Bins de transicion. Verilator 5.052 todavia NO los implementa: cualquier</span>
-         <span class="hljs-comment">// forma con &quot;=&gt;&quot; o &quot;[* n]&quot; aborta con un Internal Error. Repro minimo en</span>
-         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. Quedan aca porque son parte del tema;</span>
-         <span class="hljs-comment">// cuando Verilator los soporte, se borra el ifndef y nada mas.</span>
+         <span class="hljs-comment">// Transition bins. Verilator 5.052 does NOT implement them yet: any form</span>
+         <span class="hljs-comment">// with &quot;=&gt;&quot; or &quot;[* n]&quot; aborts with an Internal Error. Minimal repro in</span>
+         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. They stay because they are part</span>
+         <span class="hljs-comment">// of the topic; when Verilator supports them, drop the ifndef, nothing else.</span>
 <span class="hljs-meta">`ifndef</span> VERILATOR
          <span class="hljs-keyword">bins</span> opn_rst[] = ([add_op:mul_op] =&gt; rst_op);
          <span class="hljs-keyword">bins</span> rst_opn[] = (rst_op =&gt; [add_op:mul_op]);
@@ -1788,7 +1788,7 @@ dos slides.</p>
       }
    <span class="hljs-keyword">endgroup</span>
 
-   <span class="hljs-comment">// Chequeamos los casos en que la entrada son todas 0 o 1</span>
+   <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
    <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
 
       all_ops : <span class="hljs-keyword">coverpoint</span> op_set {
@@ -1805,9 +1805,9 @@ dos slides.</p>
          <span class="hljs-keyword">bins</span> others= {[<span class="hljs-number">8&#x27;h01</span>:<span class="hljs-number">8&#x27;hFE</span>]};
          <span class="hljs-keyword">bins</span> ones  = {<span class="hljs-number">8&#x27;hFF</span>};
       }
-      <span class="hljs-comment">// rev2 del VTALU: el borrow de la resta, que es la fila del plan que el</span>
-      <span class="hljs-comment">// scoreboard solo puede cerrar mirando DOS salidas. Sin este bin, una</span>
-      <span class="hljs-comment">// resta que nunca dio negativa es indistinguible de una que si.</span>
+      <span class="hljs-comment">// VTALU rev2: the borrow of the subtraction, the row of the plan that the</span>
+      <span class="hljs-comment">// scoreboard can only close by looking at TWO outputs. Without this bin, a</span>
+      <span class="hljs-comment">// subtraction that never went negative looks exactly like one that did.</span>
       borrow: <span class="hljs-keyword">coverpoint</span> ((op_set == sub_op) &amp;&amp; (A &lt; B)) {
          <span class="hljs-keyword">bins</span> hubo_borrow = {<span class="hljs-number">1</span>};
          <span class="hljs-keyword">ignore_bins</span> resto = {<span class="hljs-number">0</span>};
@@ -1890,7 +1890,7 @@ dos slides.</p>
    <span class="hljs-keyword">endfunction</span> : get_op
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">byte </span><span class="hljs-title">get_data</span>();
-      <span class="hljs-comment">// Mediante esta tecnica, sesgamos el random</span>
+      <span class="hljs-comment">// This is how the random gets biased</span>
       <span class="hljs-type">bit</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] zero_ones;
       zero_ones = <span class="hljs-built_in">$random</span>;
       <span class="hljs-keyword">if</span> (zero_ones == <span class="hljs-number">2&#x27;b00</span>)
@@ -1901,7 +1901,7 @@ dos slides.</p>
         <span class="hljs-keyword">return</span> <span class="hljs-built_in">$random</span>;
    <span class="hljs-keyword">endfunction</span> : get_data
 
-   <span class="hljs-comment">// Scoreboard loop chequea si dio todo OK</span>
+   <span class="hljs-comment">// Scoreboard loop: checks that everything came out right</span>
    <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> done) <span class="hljs-keyword">begin</span> : scoreboard
       <span class="hljs-type">shortint</span> predicted_result;
       <span class="hljs-type">bit</span>      predicted_ovf;
@@ -1914,8 +1914,8 @@ dos slides.</p>
         mul_op: predicted_result = A * B;
       <span class="hljs-keyword">endcase</span> <span class="hljs-comment">// case (op_set)</span>
 
-      <span class="hljs-comment">// El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de</span>
-      <span class="hljs-comment">// salida, ni la suma ni la multiplicacion se pasan.</span>
+      <span class="hljs-comment">// ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit</span>
+      <span class="hljs-comment">// output, neither the addition nor the multiplication can overflow.</span>
       predicted_ovf = (op_set == sub_op) &amp;&amp; (A &lt; B);
 
       <span class="hljs-keyword">if</span> ((op_set != no_op) &amp;&amp; (op_set != rst_op))
@@ -1925,9 +1925,9 @@ dos slides.</p>
 
    <span class="hljs-keyword">end</span> : scoreboard
 
-   <span class="hljs-comment">// Randomizamos los estimulos</span>
-   <span class="hljs-comment">// get_op y get_data son Constrained Random Data</span>
-   <span class="hljs-comment">// La idea de CRD es crear valores random pero legales</span>
+   <span class="hljs-comment">// Randomize the stimulus</span>
+   <span class="hljs-comment">// get_op and get_data are Constrained Random Data</span>
+   <span class="hljs-comment">// The point of CRD is to build values that are random but legal</span>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span> : tester
       reset_n = <span class="hljs-number">1&#x27;b0</span>;
       @(<span class="hljs-keyword">negedge</span> clk);
@@ -1989,7 +1989,7 @@ herramienta no hace es un curso que miente.</p>
 <h4 id="ignore_bins-decir-en-voz-alta-lo-que-no-se-cubre"><em>ignore_bins: decir en voz alta lo que no se cubre</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · líneas 66-82 de 239</figcaption><pre><code class="hljs">   <span class="hljs-keyword">endgroup</span>
 
-   <span class="hljs-comment">// Chequeamos los casos en que la entrada son todas 0 o 1</span>
+   <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
    <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
 
       all_ops : <span class="hljs-keyword">coverpoint</span> op_set {
@@ -2003,15 +2003,15 @@ herramienta no hace es un curso que miente.</p>
 
       b_leg: <span class="hljs-keyword">coverpoint</span> B {
          <span class="hljs-keyword">bins</span> zeros = {<span class="hljs-number">8&#x27;h00</span>};
-         <span class="hljs-keyword">bins</span> others= {[<span class="hljs-number">8&#x27;h01</span>:<span class="hljs-number">8&#x27;hFE</span>]};</code></pre><details><summary>el archivo entero, 239 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Tipycal TB:</span>
-<span class="hljs-comment">// -----------</span>
+         <span class="hljs-keyword">bins</span> others= {[<span class="hljs-number">8&#x27;h01</span>:<span class="hljs-number">8&#x27;hFE</span>]};</code></pre><details><summary>el archivo entero, 239 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
+<span class="hljs-comment">// ----------</span>
 <span class="hljs-comment">//  * Functional Coverage</span>
 <span class="hljs-comment">//  * Self Checking</span>
 <span class="hljs-comment">//  * Constrained Random Stimulus</span>
 
-<span class="hljs-comment">// Porque es malo?</span>
-<span class="hljs-comment">//  * Falta de modularidad (todo en un mismo archivo)</span>
-<span class="hljs-comment">//  * Escasa posibilidad de reusarlo</span>
+<span class="hljs-comment">// Why is this bad?</span>
+<span class="hljs-comment">//  * No modularity (everything in a single file)</span>
+<span class="hljs-comment">//  * Almost nothing here can be reused</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
 
    <span class="hljs-keyword">typedef</span> <span class="hljs-keyword">enum</span> <span class="hljs-type">bit</span>[<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] {no_op  = <span class="hljs-number">3&#x27;b000</span>,
@@ -2037,26 +2037,26 @@ herramienta no hace es un curso que miente.</p>
    vtalu DUT (.A, .B, .clk, .op, .reset_n, .start, .done, .ovf, .result);
 
 <span class="hljs-meta">`ifdef</span> VLT_TRACE
-   <span class="hljs-comment">// Ondas para GTKWave:  VLT_TRACE=1 bash run.sh  &amp;&amp;  gtkwave vtalu.vcd</span>
-   <span class="hljs-comment">// Va detras de un `ifdef porque $dumpvars no compila sin --trace, y el</span>
-   <span class="hljs-comment">// define lo pone el mismo VLT_TRACE que agrega el flag (common.sh).</span>
+   <span class="hljs-comment">// Waves for GTKWave:  VLT_TRACE=1 bash run.sh  &amp;&amp;  gtkwave vtalu.vcd</span>
+   <span class="hljs-comment">// Behind an `ifdef because $dumpvars does not compile without --trace, and</span>
+   <span class="hljs-comment">// the define comes from the same VLT_TRACE that adds the flag (common.sh).</span>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       <span class="hljs-built_in">$dumpfile</span>(<span class="hljs-string">&quot;vtalu.vcd&quot;</span>);
       <span class="hljs-built_in">$dumpvars</span>;
    <span class="hljs-keyword">end</span>
 <span class="hljs-meta">`endif</span>
 
-   <span class="hljs-comment">//op_cov: Nos aseguramos cubrir todas las operaciones y su interaccion</span>
+   <span class="hljs-comment">//op_cov: make sure every operation, and every interaction between them, is covered</span>
    <span class="hljs-keyword">covergroup</span> op_cov;
       <span class="hljs-keyword">coverpoint</span> op_set {
          <span class="hljs-keyword">bins</span> single_cycle[] = {[add_op : xor_op], rst_op,no_op};
          <span class="hljs-keyword">bins</span> multi_cycle = {mul_op};
 
          <span class="hljs-comment">// =&gt; are transitional coverage. From =&gt; To</span>
-         <span class="hljs-comment">// Bins de transicion. Verilator 5.052 todavia NO los implementa: cualquier</span>
-         <span class="hljs-comment">// forma con &quot;=&gt;&quot; o &quot;[* n]&quot; aborta con un Internal Error. Repro minimo en</span>
-         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. Quedan aca porque son parte del tema;</span>
-         <span class="hljs-comment">// cuando Verilator los soporte, se borra el ifndef y nada mas.</span>
+         <span class="hljs-comment">// Transition bins. Verilator 5.052 does NOT implement them yet: any form</span>
+         <span class="hljs-comment">// with &quot;=&gt;&quot; or &quot;[* n]&quot; aborts with an Internal Error. Minimal repro in</span>
+         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. They stay because they are part</span>
+         <span class="hljs-comment">// of the topic; when Verilator supports them, drop the ifndef, nothing else.</span>
 <span class="hljs-meta">`ifndef</span> VERILATOR
          <span class="hljs-keyword">bins</span> opn_rst[] = ([add_op:mul_op] =&gt; rst_op);
          <span class="hljs-keyword">bins</span> rst_opn[] = (rst_op =&gt; [add_op:mul_op]);
@@ -2070,7 +2070,7 @@ herramienta no hace es un curso que miente.</p>
       }
    <span class="hljs-keyword">endgroup</span>
 
-   <span class="hljs-comment">// Chequeamos los casos en que la entrada son todas 0 o 1</span>
+   <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
    <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
 
       all_ops : <span class="hljs-keyword">coverpoint</span> op_set {
@@ -2087,9 +2087,9 @@ herramienta no hace es un curso que miente.</p>
          <span class="hljs-keyword">bins</span> others= {[<span class="hljs-number">8&#x27;h01</span>:<span class="hljs-number">8&#x27;hFE</span>]};
          <span class="hljs-keyword">bins</span> ones  = {<span class="hljs-number">8&#x27;hFF</span>};
       }
-      <span class="hljs-comment">// rev2 del VTALU: el borrow de la resta, que es la fila del plan que el</span>
-      <span class="hljs-comment">// scoreboard solo puede cerrar mirando DOS salidas. Sin este bin, una</span>
-      <span class="hljs-comment">// resta que nunca dio negativa es indistinguible de una que si.</span>
+      <span class="hljs-comment">// VTALU rev2: the borrow of the subtraction, the row of the plan that the</span>
+      <span class="hljs-comment">// scoreboard can only close by looking at TWO outputs. Without this bin, a</span>
+      <span class="hljs-comment">// subtraction that never went negative looks exactly like one that did.</span>
       borrow: <span class="hljs-keyword">coverpoint</span> ((op_set == sub_op) &amp;&amp; (A &lt; B)) {
          <span class="hljs-keyword">bins</span> hubo_borrow = {<span class="hljs-number">1</span>};
          <span class="hljs-keyword">ignore_bins</span> resto = {<span class="hljs-number">0</span>};
@@ -2172,7 +2172,7 @@ herramienta no hace es un curso que miente.</p>
    <span class="hljs-keyword">endfunction</span> : get_op
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">byte </span><span class="hljs-title">get_data</span>();
-      <span class="hljs-comment">// Mediante esta tecnica, sesgamos el random</span>
+      <span class="hljs-comment">// This is how the random gets biased</span>
       <span class="hljs-type">bit</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] zero_ones;
       zero_ones = <span class="hljs-built_in">$random</span>;
       <span class="hljs-keyword">if</span> (zero_ones == <span class="hljs-number">2&#x27;b00</span>)
@@ -2183,7 +2183,7 @@ herramienta no hace es un curso que miente.</p>
         <span class="hljs-keyword">return</span> <span class="hljs-built_in">$random</span>;
    <span class="hljs-keyword">endfunction</span> : get_data
 
-   <span class="hljs-comment">// Scoreboard loop chequea si dio todo OK</span>
+   <span class="hljs-comment">// Scoreboard loop: checks that everything came out right</span>
    <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> done) <span class="hljs-keyword">begin</span> : scoreboard
       <span class="hljs-type">shortint</span> predicted_result;
       <span class="hljs-type">bit</span>      predicted_ovf;
@@ -2196,8 +2196,8 @@ herramienta no hace es un curso que miente.</p>
         mul_op: predicted_result = A * B;
       <span class="hljs-keyword">endcase</span> <span class="hljs-comment">// case (op_set)</span>
 
-      <span class="hljs-comment">// El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de</span>
-      <span class="hljs-comment">// salida, ni la suma ni la multiplicacion se pasan.</span>
+      <span class="hljs-comment">// ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit</span>
+      <span class="hljs-comment">// output, neither the addition nor the multiplication can overflow.</span>
       predicted_ovf = (op_set == sub_op) &amp;&amp; (A &lt; B);
 
       <span class="hljs-keyword">if</span> ((op_set != no_op) &amp;&amp; (op_set != rst_op))
@@ -2207,9 +2207,9 @@ herramienta no hace es un curso que miente.</p>
 
    <span class="hljs-keyword">end</span> : scoreboard
 
-   <span class="hljs-comment">// Randomizamos los estimulos</span>
-   <span class="hljs-comment">// get_op y get_data son Constrained Random Data</span>
-   <span class="hljs-comment">// La idea de CRD es crear valores random pero legales</span>
+   <span class="hljs-comment">// Randomize the stimulus</span>
+   <span class="hljs-comment">// get_op and get_data are Constrained Random Data</span>
+   <span class="hljs-comment">// The point of CRD is to build values that are random but legal</span>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span> : tester
       reset_n = <span class="hljs-number">1&#x27;b0</span>;
       @(<span class="hljs-keyword">negedge</span> clk);
@@ -2295,9 +2295,9 @@ el problema es un cross sin filtrar, no un test que falta.</p>
 <h2 id="cobertura-funcional">Cobertura funcional</h2>
 <h4 id="el-cross-del-vtalu"><em>El cross del VTALU</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · líneas 84-114 de 239</figcaption><pre><code class="hljs">      }
-      <span class="hljs-comment">// rev2 del VTALU: el borrow de la resta, que es la fila del plan que el</span>
-      <span class="hljs-comment">// scoreboard solo puede cerrar mirando DOS salidas. Sin este bin, una</span>
-      <span class="hljs-comment">// resta que nunca dio negativa es indistinguible de una que si.</span>
+      <span class="hljs-comment">// VTALU rev2: the borrow of the subtraction, the row of the plan that the</span>
+      <span class="hljs-comment">// scoreboard can only close by looking at TWO outputs. Without this bin, a</span>
+      <span class="hljs-comment">// subtraction that never went negative looks exactly like one that did.</span>
       borrow: <span class="hljs-keyword">coverpoint</span> ((op_set == sub_op) &amp;&amp; (A &lt; B)) {
          <span class="hljs-keyword">bins</span> hubo_borrow = {<span class="hljs-number">1</span>};
          <span class="hljs-keyword">ignore_bins</span> resto = {<span class="hljs-number">0</span>};
@@ -2324,15 +2324,15 @@ el problema es un cross sin filtrar, no un test que falta.</p>
                        (binsof (a_leg.ones) || binsof (b_leg.ones));
 
          <span class="hljs-keyword">bins</span> xor_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {xor_op} &amp;&amp;
-                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));</code></pre><details><summary>el archivo entero, 239 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Tipycal TB:</span>
-<span class="hljs-comment">// -----------</span>
+                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));</code></pre><details><summary>el archivo entero, 239 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
+<span class="hljs-comment">// ----------</span>
 <span class="hljs-comment">//  * Functional Coverage</span>
 <span class="hljs-comment">//  * Self Checking</span>
 <span class="hljs-comment">//  * Constrained Random Stimulus</span>
 
-<span class="hljs-comment">// Porque es malo?</span>
-<span class="hljs-comment">//  * Falta de modularidad (todo en un mismo archivo)</span>
-<span class="hljs-comment">//  * Escasa posibilidad de reusarlo</span>
+<span class="hljs-comment">// Why is this bad?</span>
+<span class="hljs-comment">//  * No modularity (everything in a single file)</span>
+<span class="hljs-comment">//  * Almost nothing here can be reused</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
 
    <span class="hljs-keyword">typedef</span> <span class="hljs-keyword">enum</span> <span class="hljs-type">bit</span>[<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] {no_op  = <span class="hljs-number">3&#x27;b000</span>,
@@ -2358,26 +2358,26 @@ el problema es un cross sin filtrar, no un test que falta.</p>
    vtalu DUT (.A, .B, .clk, .op, .reset_n, .start, .done, .ovf, .result);
 
 <span class="hljs-meta">`ifdef</span> VLT_TRACE
-   <span class="hljs-comment">// Ondas para GTKWave:  VLT_TRACE=1 bash run.sh  &amp;&amp;  gtkwave vtalu.vcd</span>
-   <span class="hljs-comment">// Va detras de un `ifdef porque $dumpvars no compila sin --trace, y el</span>
-   <span class="hljs-comment">// define lo pone el mismo VLT_TRACE que agrega el flag (common.sh).</span>
+   <span class="hljs-comment">// Waves for GTKWave:  VLT_TRACE=1 bash run.sh  &amp;&amp;  gtkwave vtalu.vcd</span>
+   <span class="hljs-comment">// Behind an `ifdef because $dumpvars does not compile without --trace, and</span>
+   <span class="hljs-comment">// the define comes from the same VLT_TRACE that adds the flag (common.sh).</span>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       <span class="hljs-built_in">$dumpfile</span>(<span class="hljs-string">&quot;vtalu.vcd&quot;</span>);
       <span class="hljs-built_in">$dumpvars</span>;
    <span class="hljs-keyword">end</span>
 <span class="hljs-meta">`endif</span>
 
-   <span class="hljs-comment">//op_cov: Nos aseguramos cubrir todas las operaciones y su interaccion</span>
+   <span class="hljs-comment">//op_cov: make sure every operation, and every interaction between them, is covered</span>
    <span class="hljs-keyword">covergroup</span> op_cov;
       <span class="hljs-keyword">coverpoint</span> op_set {
          <span class="hljs-keyword">bins</span> single_cycle[] = {[add_op : xor_op], rst_op,no_op};
          <span class="hljs-keyword">bins</span> multi_cycle = {mul_op};
 
          <span class="hljs-comment">// =&gt; are transitional coverage. From =&gt; To</span>
-         <span class="hljs-comment">// Bins de transicion. Verilator 5.052 todavia NO los implementa: cualquier</span>
-         <span class="hljs-comment">// forma con &quot;=&gt;&quot; o &quot;[* n]&quot; aborta con un Internal Error. Repro minimo en</span>
-         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. Quedan aca porque son parte del tema;</span>
-         <span class="hljs-comment">// cuando Verilator los soporte, se borra el ifndef y nada mas.</span>
+         <span class="hljs-comment">// Transition bins. Verilator 5.052 does NOT implement them yet: any form</span>
+         <span class="hljs-comment">// with &quot;=&gt;&quot; or &quot;[* n]&quot; aborts with an Internal Error. Minimal repro in</span>
+         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. They stay because they are part</span>
+         <span class="hljs-comment">// of the topic; when Verilator supports them, drop the ifndef, nothing else.</span>
 <span class="hljs-meta">`ifndef</span> VERILATOR
          <span class="hljs-keyword">bins</span> opn_rst[] = ([add_op:mul_op] =&gt; rst_op);
          <span class="hljs-keyword">bins</span> rst_opn[] = (rst_op =&gt; [add_op:mul_op]);
@@ -2391,7 +2391,7 @@ el problema es un cross sin filtrar, no un test que falta.</p>
       }
    <span class="hljs-keyword">endgroup</span>
 
-   <span class="hljs-comment">// Chequeamos los casos en que la entrada son todas 0 o 1</span>
+   <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
    <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
 
       all_ops : <span class="hljs-keyword">coverpoint</span> op_set {
@@ -2408,9 +2408,9 @@ el problema es un cross sin filtrar, no un test que falta.</p>
          <span class="hljs-keyword">bins</span> others= {[<span class="hljs-number">8&#x27;h01</span>:<span class="hljs-number">8&#x27;hFE</span>]};
          <span class="hljs-keyword">bins</span> ones  = {<span class="hljs-number">8&#x27;hFF</span>};
       }
-      <span class="hljs-comment">// rev2 del VTALU: el borrow de la resta, que es la fila del plan que el</span>
-      <span class="hljs-comment">// scoreboard solo puede cerrar mirando DOS salidas. Sin este bin, una</span>
-      <span class="hljs-comment">// resta que nunca dio negativa es indistinguible de una que si.</span>
+      <span class="hljs-comment">// VTALU rev2: the borrow of the subtraction, the row of the plan that the</span>
+      <span class="hljs-comment">// scoreboard can only close by looking at TWO outputs. Without this bin, a</span>
+      <span class="hljs-comment">// subtraction that never went negative looks exactly like one that did.</span>
       borrow: <span class="hljs-keyword">coverpoint</span> ((op_set == sub_op) &amp;&amp; (A &lt; B)) {
          <span class="hljs-keyword">bins</span> hubo_borrow = {<span class="hljs-number">1</span>};
          <span class="hljs-keyword">ignore_bins</span> resto = {<span class="hljs-number">0</span>};
@@ -2493,7 +2493,7 @@ el problema es un cross sin filtrar, no un test que falta.</p>
    <span class="hljs-keyword">endfunction</span> : get_op
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">byte </span><span class="hljs-title">get_data</span>();
-      <span class="hljs-comment">// Mediante esta tecnica, sesgamos el random</span>
+      <span class="hljs-comment">// This is how the random gets biased</span>
       <span class="hljs-type">bit</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>] zero_ones;
       zero_ones = <span class="hljs-built_in">$random</span>;
       <span class="hljs-keyword">if</span> (zero_ones == <span class="hljs-number">2&#x27;b00</span>)
@@ -2504,7 +2504,7 @@ el problema es un cross sin filtrar, no un test que falta.</p>
         <span class="hljs-keyword">return</span> <span class="hljs-built_in">$random</span>;
    <span class="hljs-keyword">endfunction</span> : get_data
 
-   <span class="hljs-comment">// Scoreboard loop chequea si dio todo OK</span>
+   <span class="hljs-comment">// Scoreboard loop: checks that everything came out right</span>
    <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> done) <span class="hljs-keyword">begin</span> : scoreboard
       <span class="hljs-type">shortint</span> predicted_result;
       <span class="hljs-type">bit</span>      predicted_ovf;
@@ -2517,8 +2517,8 @@ el problema es un cross sin filtrar, no un test que falta.</p>
         mul_op: predicted_result = A * B;
       <span class="hljs-keyword">endcase</span> <span class="hljs-comment">// case (op_set)</span>
 
-      <span class="hljs-comment">// El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de</span>
-      <span class="hljs-comment">// salida, ni la suma ni la multiplicacion se pasan.</span>
+      <span class="hljs-comment">// ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit</span>
+      <span class="hljs-comment">// output, neither the addition nor the multiplication can overflow.</span>
       predicted_ovf = (op_set == sub_op) &amp;&amp; (A &lt; B);
 
       <span class="hljs-keyword">if</span> ((op_set != no_op) &amp;&amp; (op_set != rst_op))
@@ -2528,9 +2528,9 @@ el problema es un cross sin filtrar, no un test que falta.</p>
 
    <span class="hljs-keyword">end</span> : scoreboard
 
-   <span class="hljs-comment">// Randomizamos los estimulos</span>
-   <span class="hljs-comment">// get_op y get_data son Constrained Random Data</span>
-   <span class="hljs-comment">// La idea de CRD es crear valores random pero legales</span>
+   <span class="hljs-comment">// Randomize the stimulus</span>
+   <span class="hljs-comment">// get_op and get_data are Constrained Random Data</span>
+   <span class="hljs-comment">// The point of CRD is to build values that are random but legal</span>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span> : tester
       reset_n = <span class="hljs-number">1&#x27;b0</span>;
       @(<span class="hljs-keyword">negedge</span> clk);
@@ -2835,7 +2835,7 @@ falta. Compila, corre, y el reporte da cero.</p>
 <h2 id="interfaces-y-bfm">Interfaces y BFM</h2>
 <h4 id="primero-las-señales-dejan-de-estar-sueltas"><em>Primero: las señales dejan de estar sueltas</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/interfaces-bfm/vtalu_bfm.sv</code> · líneas 1-28 de 71</figcaption><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
-   <span class="hljs-comment">// guardamos operation_t. Ej: (no_op  = 3&#x27;b000)</span>
+   <span class="hljs-comment">// brings in operation_t. e.g. (no_op  = 3&#x27;b000)</span>
    <span class="hljs-keyword">import</span> vtalu_pkg::*;
 
    <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>        A;
@@ -2851,18 +2851,18 @@ falta. Compila, corre, y el reporte da cero.</p>
 
    <span class="hljs-keyword">assign</span> op = op_set;
 
-   <span class="hljs-comment">// BFM nos da un primer paso en la modularizacion</span>
-   <span class="hljs-comment">// Se encarga de manejar todas las signals de bajo nivel</span>
-   <span class="hljs-comment">// encapsulando el protocolo en un mismo y unico lugar</span>
+   <span class="hljs-comment">// The BFM is a first step towards modularity</span>
+   <span class="hljs-comment">// It takes care of driving every low-level signal</span>
+   <span class="hljs-comment">// and keeps the protocol in one single place</span>
 
-   <span class="hljs-comment">// Clock del DUT</span>
+   <span class="hljs-comment">// DUT clock</span>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       clk = <span class="hljs-number">0</span>;
       <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span>
          #<span class="hljs-number">10</span>;
          clk = ~clk;
       <span class="hljs-keyword">end</span></code></pre><details><summary>el archivo entero, 71 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
-   <span class="hljs-comment">// guardamos operation_t. Ej: (no_op  = 3&#x27;b000)</span>
+   <span class="hljs-comment">// brings in operation_t. e.g. (no_op  = 3&#x27;b000)</span>
    <span class="hljs-keyword">import</span> vtalu_pkg::*;
 
    <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>        A;
@@ -2878,11 +2878,11 @@ falta. Compila, corre, y el reporte da cero.</p>
 
    <span class="hljs-keyword">assign</span> op = op_set;
 
-   <span class="hljs-comment">// BFM nos da un primer paso en la modularizacion</span>
-   <span class="hljs-comment">// Se encarga de manejar todas las signals de bajo nivel</span>
-   <span class="hljs-comment">// encapsulando el protocolo en un mismo y unico lugar</span>
+   <span class="hljs-comment">// The BFM is a first step towards modularity</span>
+   <span class="hljs-comment">// It takes care of driving every low-level signal</span>
+   <span class="hljs-comment">// and keeps the protocol in one single place</span>
 
-   <span class="hljs-comment">// Clock del DUT</span>
+   <span class="hljs-comment">// DUT clock</span>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       clk = <span class="hljs-number">0</span>;
       <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span>
@@ -2891,7 +2891,7 @@ falta. Compila, corre, y el reporte da cero.</p>
       <span class="hljs-keyword">end</span>
    <span class="hljs-keyword">end</span>
 
-   <span class="hljs-comment">// Reset del DUT</span>
+   <span class="hljs-comment">// DUT reset</span>
    <span class="hljs-keyword">task</span> <span class="hljs-title">reset_alu</span>();
       reset_n = <span class="hljs-number">1&#x27;b0</span>;
       @(<span class="hljs-keyword">negedge</span> clk);
@@ -2900,8 +2900,8 @@ falta. Compila, corre, y el reporte da cero.</p>
       start = <span class="hljs-number">1&#x27;b0</span>;
    <span class="hljs-keyword">endtask</span> : reset_alu
 
-   <span class="hljs-comment">// Podemos modificar el manejo del protocolo en un unico lugar.</span>
-   <span class="hljs-comment">// Si arreglamos el Fix Aca, se propaga en el resto del codigo</span>
+   <span class="hljs-comment">// The protocol handling can now be changed in one single place.</span>
+   <span class="hljs-comment">// Fix it here once, and the fix propagates through the rest of the code</span>
    <span class="hljs-keyword">task</span> <span class="hljs-title">send_op</span>(<span class="hljs-keyword">input</span> <span class="hljs-type">byte</span> iA, <span class="hljs-keyword">input</span> <span class="hljs-type">byte</span> iB, <span class="hljs-keyword">input</span> operation_t iop,
                 <span class="hljs-keyword">output</span> <span class="hljs-type">shortint</span> alu_result);
 
@@ -2956,7 +2956,7 @@ dos mundos.</p>
 <section id="s44" class="slide">
 <h2 id="interfaces-y-bfm">Interfaces y BFM</h2>
 <h4 id="después-el-protocolo-se-esconde-en-una-task"><em>Después: el protocolo se esconde en una task</em></h4>
-<figure class="codigo"><figcaption><code>code/u2/interfaces-bfm/vtalu_bfm.sv</code> · líneas 41-68 de 71</figcaption><pre><code class="hljs">   <span class="hljs-comment">// Si arreglamos el Fix Aca, se propaga en el resto del codigo</span>
+<figure class="codigo"><figcaption><code>code/u2/interfaces-bfm/vtalu_bfm.sv</code> · líneas 41-68 de 71</figcaption><pre><code class="hljs">   <span class="hljs-comment">// Fix it here once, and the fix propagates through the rest of the code</span>
    <span class="hljs-keyword">task</span> <span class="hljs-title">send_op</span>(<span class="hljs-keyword">input</span> <span class="hljs-type">byte</span> iA, <span class="hljs-keyword">input</span> <span class="hljs-type">byte</span> iB, <span class="hljs-keyword">input</span> operation_t iop,
                 <span class="hljs-keyword">output</span> <span class="hljs-type">shortint</span> alu_result);
 
@@ -2984,7 +2984,7 @@ dos mundos.</p>
          <span class="hljs-keyword">end</span>
       <span class="hljs-keyword">end</span>
 </code></pre><details><summary>el archivo entero, 71 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
-   <span class="hljs-comment">// guardamos operation_t. Ej: (no_op  = 3&#x27;b000)</span>
+   <span class="hljs-comment">// brings in operation_t. e.g. (no_op  = 3&#x27;b000)</span>
    <span class="hljs-keyword">import</span> vtalu_pkg::*;
 
    <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>        A;
@@ -3000,11 +3000,11 @@ dos mundos.</p>
 
    <span class="hljs-keyword">assign</span> op = op_set;
 
-   <span class="hljs-comment">// BFM nos da un primer paso en la modularizacion</span>
-   <span class="hljs-comment">// Se encarga de manejar todas las signals de bajo nivel</span>
-   <span class="hljs-comment">// encapsulando el protocolo en un mismo y unico lugar</span>
+   <span class="hljs-comment">// The BFM is a first step towards modularity</span>
+   <span class="hljs-comment">// It takes care of driving every low-level signal</span>
+   <span class="hljs-comment">// and keeps the protocol in one single place</span>
 
-   <span class="hljs-comment">// Clock del DUT</span>
+   <span class="hljs-comment">// DUT clock</span>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       clk = <span class="hljs-number">0</span>;
       <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span>
@@ -3013,7 +3013,7 @@ dos mundos.</p>
       <span class="hljs-keyword">end</span>
    <span class="hljs-keyword">end</span>
 
-   <span class="hljs-comment">// Reset del DUT</span>
+   <span class="hljs-comment">// DUT reset</span>
    <span class="hljs-keyword">task</span> <span class="hljs-title">reset_alu</span>();
       reset_n = <span class="hljs-number">1&#x27;b0</span>;
       @(<span class="hljs-keyword">negedge</span> clk);
@@ -3022,8 +3022,8 @@ dos mundos.</p>
       start = <span class="hljs-number">1&#x27;b0</span>;
    <span class="hljs-keyword">endtask</span> : reset_alu
 
-   <span class="hljs-comment">// Podemos modificar el manejo del protocolo en un unico lugar.</span>
-   <span class="hljs-comment">// Si arreglamos el Fix Aca, se propaga en el resto del codigo</span>
+   <span class="hljs-comment">// The protocol handling can now be changed in one single place.</span>
+   <span class="hljs-comment">// Fix it here once, and the fix propagates through the rest of the code</span>
    <span class="hljs-keyword">task</span> <span class="hljs-title">send_op</span>(<span class="hljs-keyword">input</span> <span class="hljs-type">byte</span> iA, <span class="hljs-keyword">input</span> <span class="hljs-type">byte</span> iB, <span class="hljs-keyword">input</span> operation_t iop,
                 <span class="hljs-keyword">output</span> <span class="hljs-type">shortint</span> alu_result);
 
@@ -3085,11 +3085,11 @@ viajando, hay una sola interface que las tres comparten</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u2/interfaces-bfm/top.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
    vtalu_bfm bfm ();
-   <span class="hljs-comment">// Tester: Genera el estimulo</span>
+   <span class="hljs-comment">// Tester: generates the stimulus</span>
    tester tester_i (bfm);
-   <span class="hljs-comment">// Coverage: Provee Functional Coverage</span>
+   <span class="hljs-comment">// Coverage: provides functional coverage</span>
    coverage coverage_i (bfm);
-   <span class="hljs-comment">// ScoreBoard: Chequea los resultados</span>
+   <span class="hljs-comment">// ScoreBoard: checks the results</span>
    scoreboard scoreboard_i (bfm);
 
    vtalu DUT (
@@ -3139,8 +3139,8 @@ versión anterior había que acordarse de cablearla en cada instancia.</p>
          mul_op: predicted_result = bfm.A * bfm.B;
       <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (op_set)</span>
 
-      <span class="hljs-comment">// El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de</span>
-      <span class="hljs-comment">// salida, ni la suma ni la multiplicacion se pasan.</span>
+      <span class="hljs-comment">// ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit</span>
+      <span class="hljs-comment">// output, neither the addition nor the multiplication can overflow.</span>
       predicted_ovf = (bfm.op_set == sub_op) &amp;&amp; (bfm.A &lt; bfm.B);
 
       <span class="hljs-keyword">if</span> ((bfm.op_set != no_op) &amp;&amp; (bfm.op_set != rst_op))
@@ -3197,8 +3197,8 @@ dejar de saber que existe un <code>clk</code>.</p>
       <span class="hljs-keyword">end</span> : random_loop
       <span class="hljs-built_in">$finish</span>;
    <span class="hljs-keyword">end</span>  <span class="hljs-comment">// initial begin</span>
-<span class="hljs-keyword">endmodule</span> : tester</code></pre><details><summary>el archivo entero, 46 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// El modulo Tester ahora es mas sencillo ya que no</span>
-<span class="hljs-comment">// tiene que ocuparse de signals de bajo nivel</span>
+<span class="hljs-keyword">endmodule</span> : tester</code></pre><details><summary>el archivo entero, 46 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The Tester module is simpler now, because it no</span>
+<span class="hljs-comment">// longer has to deal with low-level signals</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">tester</span> (
     vtalu_bfm bfm
 );
@@ -3328,29 +3328,29 @@ detalle.</p>
 <h2 id="interfaces-y-bfm">Interfaces y BFM</h2>
 <h4 id="el-agujero-que-deja-la-bfm-el-temporizado"><em>El agujero que deja la BFM: el temporizado</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/clocking/sin_clocking.sv</code> · líneas 22-39 de 50</figcaption><pre><code class="hljs">
-      <span class="hljs-comment">// 1. Muestrear EN el flanco. El always_ff del DUT actualiza d_out con una</span>
-      <span class="hljs-comment">//    asignacion no bloqueante, que se aplica despues de que este initial</span>
-      <span class="hljs-comment">//    ya corrio: se lee el valor VIEJO.</span>
+      <span class="hljs-comment">// 1. Sample AT the edge. The DUT always_ff updates d_out with a</span>
+      <span class="hljs-comment">//    nonblocking assignment, which lands after this initial already ran:</span>
+      <span class="hljs-comment">//    you read the OLD value.</span>
       @(<span class="hljs-keyword">posedge</span> clk);
       en_el_flanco = d_out;
 
-      <span class="hljs-comment">// 2. El mismo flanco, un delta mas tarde. Ahora la no bloqueante ya se</span>
-      <span class="hljs-comment">//    aplico y se lee el valor NUEVO. El &quot;#1&quot; no se ve en ningun lado y</span>
-      <span class="hljs-comment">//    cambia el resultado.</span>
+      <span class="hljs-comment">// 2. The same edge, one delta later. The nonblocking assignment landed</span>
+      <span class="hljs-comment">//    already and you read the NEW value. That &quot;#1&quot; is visible nowhere and</span>
+      <span class="hljs-comment">//    changes the result.</span>
       @(<span class="hljs-keyword">posedge</span> clk);
       #<span class="hljs-number">1</span>;
       un_delta_despues = d_out;
 
-      <span class="hljs-comment">// 3. El flanco opuesto: el truco que usa toda la BFM del curso. Anda,</span>
-      <span class="hljs-comment">//    pero le pide al que lo lee que sepa por que.</span>
+      <span class="hljs-comment">// 3. The opposite edge: the trick the whole course BFM uses. It works,</span>
+      <span class="hljs-comment">//    but it asks whoever reads it to know why.</span>
       @(<span class="hljs-keyword">negedge</span> clk);
-      en_el_flanco_opuesto = d_out;</code></pre><details><summary>el archivo entero, 50 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// El muestreo a mano: sin clocking block hay que elegir el flanco Y el delta,</span>
-<span class="hljs-comment">// en cada task, una y otra vez. Este top corre las tres variantes que se</span>
-<span class="hljs-comment">// escriben la primera semana y muestra que dan TRES numeros distintos.</span>
+      en_el_flanco_opuesto = d_out;</code></pre><details><summary>el archivo entero, 50 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Sampling by hand: without a clocking block you have to pick the edge AND the</span>
+<span class="hljs-comment">// delta, in every task, over and over. This top runs the three variants people</span>
+<span class="hljs-comment">// write in their first week and shows they give THREE different numbers.</span>
 <span class="hljs-comment">//</span>
 <span class="hljs-comment">//   bash run.sh</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">dut_reg</span> (<span class="hljs-keyword">input</span> <span class="hljs-type">bit</span> clk, <span class="hljs-keyword">input</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> d_in, <span class="hljs-keyword">output</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> d_out);
-   <span class="hljs-comment">// El DUT cuenta: en cada flanco, la salida pasa a ser la entrada + 1.</span>
+   <span class="hljs-comment">// The DUT counts: on every edge, the output becomes the input + 1.</span>
    <span class="hljs-keyword">always_ff</span> @(<span class="hljs-keyword">posedge</span> clk) d_out &lt;= d_in + <span class="hljs-number">8&#x27;d1</span>;
 <span class="hljs-keyword">endmodule</span>
 
@@ -3366,31 +3366,31 @@ detalle.</p>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       d_in = <span class="hljs-number">8&#x27;d10</span>;
 
-      <span class="hljs-comment">// 1. Muestrear EN el flanco. El always_ff del DUT actualiza d_out con una</span>
-      <span class="hljs-comment">//    asignacion no bloqueante, que se aplica despues de que este initial</span>
-      <span class="hljs-comment">//    ya corrio: se lee el valor VIEJO.</span>
+      <span class="hljs-comment">// 1. Sample AT the edge. The DUT always_ff updates d_out with a</span>
+      <span class="hljs-comment">//    nonblocking assignment, which lands after this initial already ran:</span>
+      <span class="hljs-comment">//    you read the OLD value.</span>
       @(<span class="hljs-keyword">posedge</span> clk);
       en_el_flanco = d_out;
 
-      <span class="hljs-comment">// 2. El mismo flanco, un delta mas tarde. Ahora la no bloqueante ya se</span>
-      <span class="hljs-comment">//    aplico y se lee el valor NUEVO. El &quot;#1&quot; no se ve en ningun lado y</span>
-      <span class="hljs-comment">//    cambia el resultado.</span>
+      <span class="hljs-comment">// 2. The same edge, one delta later. The nonblocking assignment landed</span>
+      <span class="hljs-comment">//    already and you read the NEW value. That &quot;#1&quot; is visible nowhere and</span>
+      <span class="hljs-comment">//    changes the result.</span>
       @(<span class="hljs-keyword">posedge</span> clk);
       #<span class="hljs-number">1</span>;
       un_delta_despues = d_out;
 
-      <span class="hljs-comment">// 3. El flanco opuesto: el truco que usa toda la BFM del curso. Anda,</span>
-      <span class="hljs-comment">//    pero le pide al que lo lee que sepa por que.</span>
+      <span class="hljs-comment">// 3. The opposite edge: the trick the whole course BFM uses. It works,</span>
+      <span class="hljs-comment">//    but it asks whoever reads it to know why.</span>
       @(<span class="hljs-keyword">negedge</span> clk);
       en_el_flanco_opuesto = d_out;
 
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;d_in = %0d, y el DUT calcula d_in + 1 = %0d&quot;</span>, <span class="hljs-number">8&#x27;d10</span>, <span class="hljs-number">8&#x27;d11</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  muestreado EN el posedge      : %0d&quot;</span>, en_el_flanco);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  muestreado un delta despues   : %0d&quot;</span>, un_delta_despues);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  muestreado en el negedge      : %0d&quot;</span>, en_el_flanco_opuesto);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;d_in = %0d, and the DUT computes d_in + 1 = %0d&quot;</span>, <span class="hljs-number">8&#x27;d10</span>, <span class="hljs-number">8&#x27;d11</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  sampled AT the posedge        : %0d&quot;</span>, en_el_flanco);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  sampled one delta later       : %0d&quot;</span>, un_delta_despues);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  sampled at the negedge        : %0d&quot;</span>, en_el_flanco_opuesto);
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;&quot;</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Tres lineas que parecen lo mismo y no lo son. Y la decision&quot;</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;esta repetida en cada task de la interface.&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Three lines that look the same and are not. And that decision&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;is repeated in every task of the interface.&quot;</span>);
       <span class="hljs-built_in">$finish</span>;
    <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">endmodule</span> : top_sin</code></pre></details></figure>
@@ -3428,20 +3428,20 @@ visto clocking blocks, no porque sea lo que se escribe en un proyecto.</p>
 <figure class="codigo"><figcaption><code>code/u2/clocking/con_clocking.sv</code> · líneas 9-24 de 73</figcaption><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">reg_bfm</span> (<span class="hljs-keyword">input</span> <span class="hljs-type">bit</span> clk);
    <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> d_in, d_out;
 
-   <span class="hljs-comment">// Las dos unicas lineas de temporizado del testbench:</span>
-   <span class="hljs-comment">//   input  #1step  muestrea el valor ESTABLE justo antes del flanco, que es</span>
-   <span class="hljs-comment">//                  lo que ve el hardware. Nunca lo que la no bloqueante</span>
-   <span class="hljs-comment">//                  acaba de escribir en ese mismo flanco.</span>
-   <span class="hljs-comment">//   output #0      maneja EN el flanco, en la region de las no bloqueantes,</span>
-   <span class="hljs-comment">//                  asi que el DUT no lo ve hasta el flanco siguiente.</span>
+   <span class="hljs-comment">// The only two timing lines in the testbench:</span>
+   <span class="hljs-comment">//   input  #1step  samples the STABLE value right before the edge, which is</span>
+   <span class="hljs-comment">//                  what the hardware sees. Never what the nonblocking</span>
+   <span class="hljs-comment">//                  assignment just wrote on that same edge.</span>
+   <span class="hljs-comment">//   output #0      drives ON the edge, in the nonblocking region, so the DUT</span>
+   <span class="hljs-comment">//                  does not see it until the next edge.</span>
    <span class="hljs-keyword">clocking</span> cb @(<span class="hljs-keyword">posedge</span> clk);
       <span class="hljs-keyword">default</span> <span class="hljs-keyword">input</span> #1step <span class="hljs-keyword">output</span> #<span class="hljs-number">0</span>;
       <span class="hljs-keyword">output</span> d_in;
       <span class="hljs-keyword">input</span>  d_out;
    <span class="hljs-keyword">endclocking</span>
 
-   <span class="hljs-keyword">modport</span> tb (<span class="hljs-keyword">clocking</span> cb);</code></pre><details><summary>el archivo entero, 73 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// El mismo DUT, con clocking block: el flanco y el delta se declaran UNA vez,</span>
-<span class="hljs-comment">// adentro de la interface, y ninguna task vuelve a elegirlos.</span>
+   <span class="hljs-keyword">modport</span> tb (<span class="hljs-keyword">clocking</span> cb);</code></pre><details><summary>el archivo entero, 73 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The same DUT, with a clocking block: the edge and the delta are declared ONCE,</span>
+<span class="hljs-comment">// inside the interface, and no task ever picks them again.</span>
 <span class="hljs-comment">//</span>
 <span class="hljs-comment">//   bash run.sh</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">dut_reg</span> (<span class="hljs-keyword">input</span> <span class="hljs-type">bit</span> clk, <span class="hljs-keyword">input</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> d_in, <span class="hljs-keyword">output</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> d_out);
@@ -3451,12 +3451,12 @@ visto clocking blocks, no porque sea lo que se escribe en un proyecto.</p>
 <span class="hljs-keyword">interface</span> <span class="hljs-title">reg_bfm</span> (<span class="hljs-keyword">input</span> <span class="hljs-type">bit</span> clk);
    <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> d_in, d_out;
 
-   <span class="hljs-comment">// Las dos unicas lineas de temporizado del testbench:</span>
-   <span class="hljs-comment">//   input  #1step  muestrea el valor ESTABLE justo antes del flanco, que es</span>
-   <span class="hljs-comment">//                  lo que ve el hardware. Nunca lo que la no bloqueante</span>
-   <span class="hljs-comment">//                  acaba de escribir en ese mismo flanco.</span>
-   <span class="hljs-comment">//   output #0      maneja EN el flanco, en la region de las no bloqueantes,</span>
-   <span class="hljs-comment">//                  asi que el DUT no lo ve hasta el flanco siguiente.</span>
+   <span class="hljs-comment">// The only two timing lines in the testbench:</span>
+   <span class="hljs-comment">//   input  #1step  samples the STABLE value right before the edge, which is</span>
+   <span class="hljs-comment">//                  what the hardware sees. Never what the nonblocking</span>
+   <span class="hljs-comment">//                  assignment just wrote on that same edge.</span>
+   <span class="hljs-comment">//   output #0      drives ON the edge, in the nonblocking region, so the DUT</span>
+   <span class="hljs-comment">//                  does not see it until the next edge.</span>
    <span class="hljs-keyword">clocking</span> cb @(<span class="hljs-keyword">posedge</span> clk);
       <span class="hljs-keyword">default</span> <span class="hljs-keyword">input</span> #1step <span class="hljs-keyword">output</span> #<span class="hljs-number">0</span>;
       <span class="hljs-keyword">output</span> d_in;
@@ -3476,40 +3476,40 @@ visto clocking blocks, no porque sea lo que se escribe en un proyecto.</p>
    <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> primera, segunda, tercera;
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
-      <span class="hljs-comment">// Manejar es &quot;&lt;=&quot; contra el clocking block. No hay flanco que elegir.</span>
+      <span class="hljs-comment">// Driving is &quot;&lt;=&quot; against the clocking block. There is no edge to pick.</span>
       bfm.cb.d_in &lt;= <span class="hljs-number">8&#x27;d10</span>;
 
-      <span class="hljs-comment">// @(bfm.cb) es &quot;esperar el flanco de este clocking block&quot;. Van TRES, y</span>
-      <span class="hljs-comment">// el motivo es la leccion entera:</span>
-      <span class="hljs-comment">//   1er flanco  el output #0 recien pone d_in en 10, en la region de las</span>
-      <span class="hljs-comment">//               no bloqueantes, asi que el DUT todavia no lo vio.</span>
-      <span class="hljs-comment">//   2do flanco  ahora si el DUT toma d_in=10 y calcula d_out &lt;= 11.</span>
-      <span class="hljs-comment">//   3er flanco  el input #1step muestrea el valor ESTABLE antes de este</span>
-      <span class="hljs-comment">//               flanco, que ya es 11.</span>
-      <span class="hljs-comment">// Un testbench sin clocking block tapa esto con un #1 y funciona por</span>
-      <span class="hljs-comment">// accidente. Aca la cuenta esta a la vista y no depende del simulador.</span>
+      <span class="hljs-comment">// @(bfm.cb) is &quot;wait for this clocking block&#x27;s edge&quot;. There are THREE, and</span>
+      <span class="hljs-comment">// the reason is the whole lesson:</span>
+      <span class="hljs-comment">//   1st edge  the output #0 only now puts d_in at 10, in the nonblocking</span>
+      <span class="hljs-comment">//             region, so the DUT has not seen it yet.</span>
+      <span class="hljs-comment">//   2nd edge  now the DUT takes d_in=10 and computes d_out &lt;= 11.</span>
+      <span class="hljs-comment">//   3rd edge  the input #1step samples the STABLE value before this edge,</span>
+      <span class="hljs-comment">//             which is already 11.</span>
+      <span class="hljs-comment">// A testbench without a clocking block hides this behind a #1 and works by</span>
+      <span class="hljs-comment">// accident. Here the arithmetic is visible and does not depend on the tool.</span>
       @(bfm.cb);
       @(bfm.cb);
       @(bfm.cb);
 
-      <span class="hljs-comment">// Y muestrear es leer cb.d_out. Se lee tres veces, en tres momentos</span>
-      <span class="hljs-comment">// distintos del mismo ciclo, y da lo mismo las tres: ese es el punto.</span>
+      <span class="hljs-comment">// And sampling is reading cb.d_out. It is read three times, at three</span>
+      <span class="hljs-comment">// different points of the same cycle, and gives the same value all three.</span>
       primera = bfm.cb.d_out;
       #<span class="hljs-number">2</span>;
       segunda = bfm.cb.d_out;
       #<span class="hljs-number">3</span>;
       tercera = bfm.cb.d_out;
 
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;d_in = %0d, y el DUT calcula d_in + 1 = %0d&quot;</span>, <span class="hljs-number">8&#x27;d10</span>, <span class="hljs-number">8&#x27;d11</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  cb.d_out, apenas pasa el flanco : %0d&quot;</span>, primera);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  cb.d_out, dos unidades despues  : %0d&quot;</span>, segunda);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  cb.d_out, cinco despues         : %0d&quot;</span>, tercera);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;d_in = %0d, and the DUT computes d_in + 1 = %0d&quot;</span>, <span class="hljs-number">8&#x27;d10</span>, <span class="hljs-number">8&#x27;d11</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  cb.d_out, right after the edge  : %0d&quot;</span>, primera);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  cb.d_out, two units later       : %0d&quot;</span>, segunda);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  cb.d_out, five later            : %0d&quot;</span>, tercera);
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;&quot;</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El mismo numero las tres veces, y ni un solo #1 en el testbench.&quot;</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El flanco y el delta se declararon una vez, en el clocking block.&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The same number all three times, and not a single #1 in the testbench.&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The edge and the delta were declared once, in the clocking block.&quot;</span>);
 
       <span class="hljs-keyword">if</span> (primera != <span class="hljs-number">8&#x27;d11</span> || segunda != <span class="hljs-number">8&#x27;d11</span> || tercera != <span class="hljs-number">8&#x27;d11</span>)
-        <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;el clocking block deberia dar 11 las tres veces&quot;</span>);
+        <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;the clocking block should give 11 all three times&quot;</span>);
       <span class="hljs-built_in">$finish</span>;
    <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">endmodule</span> : top_con</code></pre></details></figure>
@@ -3597,16 +3597,16 @@ El material largo, con las fuentes, está en <code>docs/clocking-blocks.md</code
 <h2 id="interfaces-y-bfm">Interfaces y BFM</h2>
 <h4 id="el-precio-dos-nombres-para-el-mismo-cable"><em>El precio: dos nombres para el mismo cable</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/clocking/mezcla.sv</code> · líneas 36-46 de 53</figcaption><pre><code class="hljs">
-      <span class="hljs-comment">// Las dos lecturas, en el MISMO instante, sobre el MISMO cable.</span>
+      <span class="hljs-comment">// The two reads, at the SAME instant, on the SAME wire.</span>
       por_cb = bfm.cb.d_out;
       crudo  = bfm.d_out;
 
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;en el mismo instante, sobre el mismo cable:&quot;</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  bfm.cb.d_out (lo que muestreo el clocking block) : %0d&quot;</span>, por_cb);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  bfm.d_out    (el cable, en vivo)                 : %0d&quot;</span>, crudo);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;at the same instant, on the same wire:&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  bfm.cb.d_out (what the clocking block sampled) : %0d&quot;</span>, por_cb);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  bfm.d_out    (the live wire)                   : %0d&quot;</span>, crudo);
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;&quot;</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Difieren en un ciclo, y ningun warning lo dice. Un monitor que&quot;</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;lea por el clocking block y un scoreboard que lea el cable&quot;</span>);</code></pre><details><summary>el archivo entero, 53 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The trap that comes with the clocking block: mixing the two domains.</span>
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;They differ by one cycle, and no warning says so. A monitor that&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;reads through the clocking block and a scoreboard that reads the&quot;</span>);</code></pre><details><summary>el archivo entero, 53 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The trap that comes with the clocking block: mixing the two domains.</span>
 <span class="hljs-comment">//</span>
 <span class="hljs-comment">// Once a signal belongs to a clocking block, there are TWO names for the same</span>
 <span class="hljs-comment">// wire -- bfm.d_out and bfm.cb.d_out -- and they are NOT the same value. One is</span>
@@ -3642,20 +3642,20 @@ El material largo, con las fuentes, está en <code>docs/clocking-blocks.md</code
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       <span class="hljs-keyword">repeat</span> (<span class="hljs-number">4</span>) @(bfm.cb);
 
-      <span class="hljs-comment">// Las dos lecturas, en el MISMO instante, sobre el MISMO cable.</span>
+      <span class="hljs-comment">// The two reads, at the SAME instant, on the SAME wire.</span>
       por_cb = bfm.cb.d_out;
       crudo  = bfm.d_out;
 
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;en el mismo instante, sobre el mismo cable:&quot;</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  bfm.cb.d_out (lo que muestreo el clocking block) : %0d&quot;</span>, por_cb);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  bfm.d_out    (el cable, en vivo)                 : %0d&quot;</span>, crudo);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;at the same instant, on the same wire:&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  bfm.cb.d_out (what the clocking block sampled) : %0d&quot;</span>, por_cb);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  bfm.d_out    (the live wire)                   : %0d&quot;</span>, crudo);
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;&quot;</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Difieren en un ciclo, y ningun warning lo dice. Un monitor que&quot;</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;lea por el clocking block y un scoreboard que lea el cable&quot;</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;crudo no fallan siempre: fallan cuando el dato cambia.&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;They differ by one cycle, and no warning says so. A monitor that&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;reads through the clocking block and a scoreboard that reads the&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;raw wire do not fail every time: they fail when the data changes.&quot;</span>);
 
       <span class="hljs-keyword">if</span> (por_cb == crudo)
-        <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;se esperaba que difirieran: el ejemplo dejo de mostrar la trampa&quot;</span>);
+        <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;they were expected to differ: the example stopped showing the trap&quot;</span>);
       <span class="hljs-built_in">$finish</span>;
    <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">endmodule</span> : top_mezcla</code></pre></details></figure>
@@ -3829,7 +3829,7 @@ un driver de dispositivo es al sistema operativo.</p>
 enseñale también al TB que lo tiene que verificar</li>
 <li>Se toca en <strong>tres</strong> lugares: el RTL, el estímulo con su chequeo, y <strong>la
 medida</strong> — el bin que hoy no existe</li>
-<li>El <code>run.sh</code> falla hasta que imprime <code>EJERCICIO OK</code>; la solución está al lado</li>
+<li>El <code>run.sh</code> falla hasta que imprime <code>EXERCISE OK</code>; la solución está al lado</li>
 </ul>
 <div class="nota">
 <p>Media hora, y conviene dejarlos solos: el enunciado y el README alcanzan.

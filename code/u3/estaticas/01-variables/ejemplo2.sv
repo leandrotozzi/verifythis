@@ -21,9 +21,9 @@ module top;
       $display("PEPE1 VAL = %0d", pepe1_h.val);
       $display("PEPE2 VAL = %0d", pepe2_h.val);
 
-      // Solo tenemos una copia en memoria de una variable static
-      // sin importar cuantas intancias de la clase tengamos
-      $display("CANTIDAD DE PEPES = %0d", pepe::cant);
+      // There is only one copy of a static variable in memory,
+      // no matter how many instances of the class exist
+      $display("NUMBER OF PEPES = %0d", pepe::cant);
 
    end
 endmodule : top

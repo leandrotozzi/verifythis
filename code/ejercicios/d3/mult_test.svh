@@ -1,10 +1,10 @@
-// TODO(ejercicio 3): escribi aca la clase mult_test.
+// TODO(exercise 3): write the mult_test class here.
 //
-// Tiene que:
-//   1. extender uvm_test y registrarse en la factory
-//   2. en build_phase, decirle a la factory que cuando alguien pida un
-//      base_tester devuelva un mult_tester: eso es el factory override
-//   3. crear el env
+// It has to:
+//   1. extend uvm_test and register itself in the factory
+//   2. in build_phase, tell the factory that when somebody asks for a
+//      base_tester it should hand back a mult_tester: that is the factory override
+//   3. create the env
 //
-// Lo que NO tiene que hacer: tocar env.svh. Esa es toda la gracia — la
-// estructura del TB no se entera de que cambio el estimulo.
+// What it must NOT do: touch env.svh. That is the whole point — the structure
+// of the TB never finds out that the stimulus changed.

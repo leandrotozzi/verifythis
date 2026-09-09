@@ -1,5 +1,5 @@
-// Un subscriber mas colgado del mismo analysis port. El command_monitor no se
-// entera de que existe: eso es el observer pattern.
+// One more subscriber hanging off the same analysis port. The command_monitor
+// never finds out it exists: that is the observer pattern.
 class op_counter extends uvm_subscriber #(command_s);
    `uvm_component_utils(op_counter)
 
@@ -16,7 +16,7 @@ class op_counter extends uvm_subscriber #(command_s);
    endfunction : write
 
    function void report_phase(uvm_phase phase);
-      `uvm_info("OP_COUNTER", $sformatf("comandos=%0d multiplicaciones=%0d", total, muls),
+      `uvm_info("OP_COUNTER", $sformatf("commands=%0d multiplications=%0d", total, muls),
                 UVM_NONE)
    endfunction : report_phase
 

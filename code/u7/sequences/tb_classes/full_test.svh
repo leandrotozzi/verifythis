@@ -1,4 +1,4 @@
-// Mismo estimulo que el dual_test de la unidad 22, ahora en tres sequences.
+// Same stimulus as the dual_test of unit 22, now in three sequences.
 class full_test extends base_test;
    `uvm_component_utils(full_test)
 
@@ -10,8 +10,8 @@ class full_test extends base_test;
       full_sequence full_seq;
       full_seq = full_sequence::type_id::create("full_seq");
 
-      // El objection lo levanta EL TEST, no la sequence: la sequence no sabe
-      // nada de fases, y tiene que poder correr adentro de otra sequence.
+      // THE TEST raises the objection, not the sequence: the sequence knows
+      // nothing about phases, and has to be able to run inside another sequence.
       phase.raise_objection(this);
       full_seq.start(sequencer_h);   // no vuelve hasta que body() termino
       phase.drop_objection(this);

@@ -139,9 +139,12 @@ diez minutos y es la diferencia entre creer y saber.
 
 Note:
 El número de la corrida es el argumento entero de la sección: 400 intentos al
-azar llenan `mul_max` unas 17 veces **porque el `dist` sesga a los bordes**. Con
-el `dist` mal escrito de la slide anterior, la probabilidad de que las dos patas
-caigan en `FF` es 1/65536 por operación: no lo tocás nunca.
+azar llenan `mul_max` un puñado de veces —6 con la semilla por defecto, entre 2 y
+8 según cuál uses— **porque el `dist` sesga a los bordes**. La cuenta conviene
+hacerla en voz alta: `op` sale uniforme entre cuatro y cada pata cae en `FF` una
+de cada cuatro, o sea 1/4 × 1/4 × 1/4 = **1 de cada 64**, que en 400 intentos son
+seis y pico. Con el `dist` mal escrito de la slide anterior, la probabilidad de
+que las dos patas caigan en `FF` es 1/65536 por operación: no lo tocás nunca.
 La secuencia mental es siempre la misma: corro random, miro qué bin quedó vacío,
 escribo un `with {}` de tres líneas, vuelvo a correr. Nunca "escribo 73 tests".
 La limitación de Verilator que aparece en la salida está puesta a propósito, y

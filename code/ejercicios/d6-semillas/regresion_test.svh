@@ -1,8 +1,8 @@
-// El enunciado, ya escrito. No hace falta tocarlo.
+// The exercise, already written. There is no need to touch it.
 //
-// Reset y COUNT operaciones al azar, nada mas. COUNT es chico a proposito: con
-// 1000 el random satura lo que puede alcanzar y todas las semillas dan el mismo
-// numero. Con 25 no llega, y ahi se ve lo que el ejercicio quiere mostrar.
+// Reset and COUNT random operations, nothing else. COUNT is small on purpose: with
+// 1000 the random saturates what it can reach and every seed gives the same
+// number. With 25 it does not, and that is where the point of the exercise shows.
 class regresion_test extends base_test;
    `uvm_component_utils(regresion_test)
 

@@ -1,18 +1,18 @@
 #!/bin/bash
-# Sequences virtuales -- la unidad 23, con los DOS agents manejando.
+# Virtual sequences -- unit 23, with BOTH agents driving.
 #
-# El testbench es el de la seccion Sequences entero: los +incdir de abajo lo traen por
-# referencia y este directorio solo pone lo que cambia. Ver docs/verilator.md.
+# The testbench is the whole one from the Sequences section: the +incdir below bring it in by
+# reference and this directory only puts in what changes. See docs/verilator.md.
 #
-#   virtual_test   reset de las dos ALU en paralelo, trafico coordinado, y el
-#                  resultado de una como operando de la otra
+#   virtual_test   reset of both ALUs in parallel, coordinated traffic, and the
+#                  result of one as the operand of the other
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../../verilator/common.sh"
 
-# El orden de los incdir es el que decide: primero los de aca, y por eso el
-# env.svh de este directorio le gana al de la seccion. Y ".." NO va en la lista:
-# Verilator busca en los incdir tambien los archivos de la linea de comandos, y
-# se traeria el vtalu_pkg.sv de la seccion en vez de este.
+# The order of the incdir is what decides: the ones from here first, and that is why the
+# env.svh of this directory beats the section's. And ".." does NOT go in the list:
+# Verilator also looks in the incdir for the files on the command line, and
+# would bring in the section's vtalu_pkg.sv instead of this one.
 vlt_uvm top --coverage-user -Wno-fatal \
   +incdir+./tb_classes +incdir+../tb_classes \
   ../../../vtalu_dut/vtalu_1c.sv \

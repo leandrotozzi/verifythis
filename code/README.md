@@ -26,22 +26,31 @@ testbench, los toma del capstone (`ejercicios/d7-final/`) por `+incdir`. Es la
 forma de decir en el código lo que la unidad dice en las slides — RAL es una capa
 sobre un testbench que ya funciona, no un testbench distinto.
 
-## El idioma de los comentarios
+## El idioma de `code/`
 
-Los **comentarios del código están en inglés**, y es a propósito. Son lo que las
-slides muestran en los bloques `{{code:}}`, así que tienen que leerse igual en la
-versión en castellano y en la que viene en inglés: escribirlos una sola vez es lo
-que evita mantener dos copias de `code/` — y además es el idioma en el que el
-alumno va a escribir comentarios en el trabajo.
+**Todo lo que hay acá adentro está en inglés**, y es a propósito: comentarios,
+`TODO(exercise N)`, los mensajes que imprimen los correctores, los `$display` que
+narran un ejemplo, y las cabeceras de los `run.sh`.
 
-Lo que **sigue en el idioma del curso** es el texto dirigido al alumno: los
-`TODO(ejercicio N)` de `ejercicios/`, los mensajes que imprimen sus correctores,
-y los `README.md`. Eso es material del curso, no documentación del código, y se
-traduce junto con las slides.
+La razón es una sola y vale la pena decirla entera. El curso se dicta en dos
+idiomas, y las slides no pegan el código: lo **incluyen** con `{{code:}}`. Si los
+comentarios estuvieran en el idioma del curso habría que mantener dos copias de
+`code/` —dos veces los ejemplos, dos veces los ejercicios, dos veces las
+soluciones— y el día que una se arregla la otra queda rota sin que nada avise.
+Escribirlo una sola vez, en inglés, es lo que hace que las dos versiones del
+curso muestren y corran exactamente el mismo código. Y de paso es el idioma en el
+que el alumno va a escribir comentarios en el trabajo.
 
-La migración va por capas: hoy están en inglés `vtalu_dut/` y `verilator/` —la
-base que comparten todos los ejemplos— y `u9/`, que nació después de la decisión.
-Los ejemplos de `u2/` a `u8/` siguen en castellano; ver `ROADMAP.md`, fase 9.2.
+**La única excepción son los `README.md`**, que son el enunciado del ejercicio y
+no documentación del código: ahí sí hay dos, `README.md` en castellano y
+`README.en.md` al lado. `npm run check` verifica que el par no se haya
+desincronizado — ver `tools/lint-i18n.mjs`.
+
+Los identificadores son otra cosa y no se traducen: la nomenclatura de UVM ya es
+inglesa (`driver`, `scoreboard`, `env`), y las pocas excepciones en castellano
+—la bandeja de fernet de `u6/jerarquias`, el `chequeo` de los correctores,
+`clase_`/`modulo_` de `u7/agents`, que además no pueden llamarse `class_`/`module_`
+porque son keywords— son metáforas del curso y se explican en la slide.
 
 ## Requisitos
 

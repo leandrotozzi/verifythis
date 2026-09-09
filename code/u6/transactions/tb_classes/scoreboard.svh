@@ -24,8 +24,8 @@ class scoreboard extends uvm_subscriber #(result_transaction);
          mul_op: predicted.result = cmd.A * cmd.B;
       endcase  // case (op_set)
 
-      // El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de
-      // salida, ni la suma ni la multiplicacion se pasan.
+      // ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit
+      // output, neither the addition nor the multiplication can overflow.
       predicted.ovf = (cmd.op == sub_op) && (cmd.A < cmd.B);
 
       return predicted;

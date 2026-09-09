@@ -1,6 +1,6 @@
-// La sequence dirigida: escribe y lee los cuatro registros, pasa por las tres
-// trampas de la spec y termina con un CLR. Trece transferencias, ninguna al
-// azar -- si algo falla aca, falla siempre.
+// The directed sequence: it writes and reads the four registers, goes through the three
+// traps of the spec and ends with a CLR. Thirteen transfers, none of them
+// random -- if something fails here, it fails every time.
 class smoke_sequence extends uvm_sequence #(apb_transaction);
    `uvm_object_utils(smoke_sequence)
 

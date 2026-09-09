@@ -1,11 +1,11 @@
 #!/bin/bash
-# Corre el ejemplo con Verilator. Ver docs/verilator.md.
+# Runs the example with Verilator. See docs/verilator.md.
 #
-# Dos VTALU: una la maneja el agent activo, la otra vtalu_tester_module y la
-# mira un agent pasivo. Un solo test.
+# Two VTALUs: one is driven by the active agent, the other by vtalu_tester_module and
+# watched by a passive agent. A single test.
 #
-# +TOPOLOGY imprime el arbol de componentes de UVM. Es la forma de VER que el
-# agent pasivo no construyo ni sequencer ni driver:
+# +TOPOLOGY prints the UVM component tree. It is how to SEE that the
+# passive agent built neither a sequencer nor a driver:
 #
 #   bash run.sh +TOPOLOGY
 set -e

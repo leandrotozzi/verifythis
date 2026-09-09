@@ -1,11 +1,11 @@
 #!/bin/bash
-# Ejercicio del dia 1. Falla hasta que lo resuelvas.
+# Day 1 exercise. It fails until you solve it.
 #
-#   bash run.sh              con tus archivos
-#   SOLUCION=1 bash run.sh   con los de solucion/, para comparar
+#   bash run.sh              with your files
+#   SOLUCION=1 bash run.sh   with the ones in solucion/, to compare
 #
-# El top del VTALU y el multiplicador salen del DUT del curso, sin tocar: los
-# dos archivos de este directorio son los unicos que hay que editar.
+# The VTALU top and the multiplier come from the course DUT, untouched: the two
+# files in this directory are the only ones to edit.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
 SRC=${SOLUCION:+solucion/}
@@ -14,5 +14,5 @@ vlt top --coverage-user -Wno-fatal \
     ../../vtalu_dut/vtalu.sv ../../vtalu_dut/vtalu_mult.sv
 run_sim
 cov_report
-grep -q "EJERCICIO OK" "$VLT_LOG" ||
-  { echo "todavia no: mira las lineas de arriba y el README" >&2; exit 1; }
+grep -q "EXERCISE OK" "$VLT_LOG" ||
+  { echo "not yet: look at the lines above and at the README" >&2; exit 1; }

@@ -1,11 +1,14 @@
 <!doctype html>
-<html lang="es">
+<html lang="{{ui:html}}">
 <head>
   <meta charset="utf-8">
-  <title>Verify This! — Introducción a UVM</title>
-  <meta name="description" content="Curso introductorio a UVM en español, que corre entero con Verilator. Sin licencias de EDA.">
+  <title>{{ui:titulo}}</title>
+  <meta name="description" content="{{ui:descripcion}}">
   <meta name="author" content="LeaT — LEFT">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="alternate" hreflang="es" href="https://leandrotozzi.github.io/verifythis/curso.html">
+  <link rel="alternate" hreflang="en" href="https://leandrotozzi.github.io/verifythis/en/curso.html">
+  <link rel="alternate" hreflang="x-default" href="https://leandrotozzi.github.io/verifythis/curso.html">
 
   <!-- GENERADO POR tools/build.mjs — NO EDITAR A MANO.
        Las slides viven en slides/*.md; el shell, en tools/template.html. -->
@@ -43,26 +46,50 @@
        cerrar y el foco de vuelta en el boton al salir. Los links son <a
        href="#/N"> porque con hash:true reveal ya navega por hash: no hace
        falta un handler de click para ir a la slide, solo para cerrar. -->
-  <button id="indice-btn" type="button" aria-label="Índice del curso"
-          aria-expanded="false" aria-controls="indice" title="Índice (tecla I)">
+  <button id="indice-btn" type="button" aria-label="{{ui:indiceAria}}"
+          aria-expanded="false" aria-controls="indice" title="{{ui:indiceTitulo}}">
     <span></span><span></span><span></span>
   </button>
-  <dialog id="indice" aria-label="Índice del curso">
+  <dialog id="indice" aria-label="{{ui:indiceAria}}">
     <header class="ind-head">
-      <h2>Índice</h2>
-      <button id="indice-cerrar" type="button" aria-label="Cerrar el índice">&times;</button>
+      <h2>{{ui:indiceH}}</h2>
+      <button id="indice-cerrar" type="button" aria-label="{{ui:cerrarIndice}}">&times;</button>
     </header>
     <nav class="ind-lista">
 <!--INDICE-->
     </nav>
   </dialog>
 
+  <!-- Selector de idioma. Al lado del boton de indice: son los dos unicos
+       controles fijos del deck y se leen como un par.
+
+       Tres decisiones de UX, porque las tres se hacen mal seguido:
+       - El idioma actual NO es un link. Es un <span aria-current="true">: un
+         link a la pagina en la que ya estas es ruido para un lector de
+         pantalla y una promesa falsa para el que lo clickea.
+       - Cada idioma se nombra en SU idioma. El title dice "Español" y
+         "English", nunca "Spanish" -- el que busca la version en castellano
+         no tiene por que leer ingles.
+       - Sin banderas: una bandera es un pais, no un idioma.
+       El href estatico sirve para abrir el deck con doble clic desde el repo;
+       el script de abajo lo reescribe para conservar la slide y para el sitio
+       publicado, donde el deck se llama curso.html. -->
+  <nav id="idioma" aria-label="{{ui:idiomaAria}}">
+    <span class="idioma-actual" lang="{{ui:html}}" aria-current="true"
+          title="{{ui:idiomaNombre}}">{{ui:idiomaCorto}}</span>
+    <a id="idioma-otro" href="{{ui:otroHref}}" lang="{{ui:otroLang}}"
+       hreflang="{{ui:otroLang}}" title="{{ui:otroTitulo}}">{{ui:otroCorto}}</a>
+  </nav>
+  <!-- El aviso de cuando la seccion todavia no esta traducida. role="status"
+       y no un alert: es informacion, no una interrupcion. -->
+  <p id="idioma-aviso" role="status" hidden>{{ui:idiomaFalta}}</p>
+
   <!-- "Machete": chuleta con los diagramas de referencia del dia -->
   <div class="forkit-curtain">
     <div class="close-button"></div>
     <div id="machete"></div>
   </div>
-  <a class="forkit" data-text="Machete UVM" data-text-detached="Ya lo vi >">
+  <a class="forkit" data-text="{{ui:macheteTag}}" data-text-detached="{{ui:macheteVisto}}">
     <img src="res/ribbon-machete.png" alt="" style="position:absolute; top:0; right:0; border:0;">
   </a>
 
@@ -97,7 +124,7 @@
       const days = ['portada', 'day1', 'day2', 'day3', 'day4', 'day5', 'day6', 'day7', 'day8'];
       Reveal.addKeyBinding({ keyCode: 48, key: '0', description: 'Ir a la portada' }, () => go(0));
       days.slice(1).forEach((_, i) =>
-        Reveal.addKeyBinding({ keyCode: 49 + i, key: String(i + 1), description: `Ir al Día ${i + 1}` }, () => go(i + 1)));
+        Reveal.addKeyBinding({ keyCode: 49 + i, key: String(i + 1), description: `{{ui:irAlDia}} ${i + 1}` }, () => go(i + 1)));
       function go(i) {
         const el = document.getElementById(days[i]);
         if (!el) return;
@@ -160,8 +187,72 @@
       indice.addEventListener('keydown', e => e.stopPropagation());
       Reveal.on('slidechanged', marcarCapitulo);
       Reveal.addKeyBinding(
-        { keyCode: 73, key: 'I', description: 'Abrir el índice' },
+        { keyCode: 73, key: 'I', description: '{{ui:abrirIndice}}' },
         () => indice.open ? indice.close() : abrirIndice());
+
+      // --- Selector de idioma ---------------------------------------------
+      // El arbol en ingles es un SUBCONJUNTO del castellano, asi que el numero
+      // de slide no sirve como coordenada: la slide 200 del ES y la 200 del EN
+      // no son la misma. Lo que si sirve es "archivo + numero de slide adentro
+      // del archivo", porque tools/lint-i18n.mjs garantiza que los dos idiomas
+      // tienen la MISMA cantidad de slides por archivo. El deck de salida
+      // escribe esa coordenada en la URL y el de llegada la resuelve con SU
+      // propio mapa: si todavia no tradujo esa seccion, avisa y arranca de
+      // cero en vez de aterrizar en cualquier lado.
+      const SECCIONES = <!--SECCIONES-->;
+      const coordDe = h => {
+        let base = 0;
+        for (const [f, n] of SECCIONES) {
+          if (h < base + n) return f + ':' + (h - base);
+          base += n;
+        }
+        return null;
+      };
+      const hDe = coord => {
+        const [f, i] = coord.split(':');
+        let base = 0;
+        for (const [g, n] of SECCIONES) {
+          if (g === f) return base + Math.min(+i || 0, n - 1);
+          base += n;
+        }
+        return null;
+      };
+      // El deck se llama index.html en el repo y curso.html en el sitio
+      // publicado (.github/workflows/build.yml). En vez de hardcodear uno y
+      // que el otro entorno quede roto, el destino es el MISMO archivo con
+      // en/ de mas o de menos.
+      const rutaOtroIdioma = () => {
+        const i = location.pathname.lastIndexOf('/');
+        const dir = location.pathname.slice(0, i);
+        const file = location.pathname.slice(i + 1) || 'index.html';
+        return ('{{ui:html}}' === 'es' ? dir + '/en' : dir.replace(/\/en$/, '')) + '/' + file;
+      };
+      const otro = document.getElementById('idioma-otro');
+      // Se reescribe en cada slide y no al hacer click: asi el "abrir en otra
+      // pestaña" del boton derecho tambien conserva la slide.
+      const marcarIdioma = () => {
+        const c = coordDe(Reveal.getIndices().h);
+        otro.href = rutaOtroIdioma() + (c ? '?s=' + encodeURIComponent(c) : '');
+      };
+      Reveal.on('slidechanged', marcarIdioma);
+      marcarIdioma();
+      Reveal.addKeyBinding(
+        { keyCode: 76, key: 'L', description: '{{ui:idiomaTecla}}' },
+        () => otro.click());
+
+      // La llegada: ?s=archivo:n. Se limpia la URL antes de saltar para que el
+      // hash de reveal quede como unico estado y recargar no repita el salto.
+      const pedido = new URLSearchParams(location.search).get('s');
+      if (pedido) {
+        const h = hDe(pedido);
+        history.replaceState(null, '', location.pathname + location.hash);
+        if (h !== null) Reveal.slide(h);
+        else {
+          const aviso = document.getElementById('idioma-aviso');
+          aviso.hidden = false;
+          setTimeout(() => { aviso.hidden = true; }, 6000);
+        }
+      }
 
       // El machete va por regiones: data-machete se anota donde CAMBIA -- en la
       // portada y en la agenda de cada dia -- y vale hasta la proxima marca. Si
@@ -179,8 +270,12 @@
         for (let i = slides.indexOf(Reveal.getCurrentSlide()); i >= 0; i--) {
           if (slides[i].dataset.machete) { dm = slides[i].dataset.machete; break; }
         }
+        // El {{base}} es el ../ del deck en ingles, que vive en en/. Va aca y
+        // no en el reescribido de rutas de build.mjs porque data-machete es una
+        // LISTA separada por comas: el regex de src="/href=" solo alcanzaria la
+        // primera. Aca la lista ya viene partida.
         box.innerHTML = dm.split(',').filter(Boolean)
-          .map(src => `<img class="imagen" src="${src.trim()}" alt="">`).join('');
+          .map(src => `<img class="imagen" src="{{base}}${src.trim()}" alt="">`).join('');
       };
       Reveal.on('slidechanged', paint);
       paint();

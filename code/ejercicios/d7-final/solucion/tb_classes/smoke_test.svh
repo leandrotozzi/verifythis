@@ -1,4 +1,4 @@
-// Etapa 2: el driver maneja el bus, con estimulo dirigido.
+// Stage 2: the driver drives the bus, with directed stimulus.
 class smoke_test extends base_test;
    `uvm_component_utils(smoke_test)
 

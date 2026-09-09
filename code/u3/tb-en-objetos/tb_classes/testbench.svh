@@ -1,8 +1,8 @@
 class testbench;
 
-   // virtual: el equivalente en objetos de la port list de un modulo. Le dice
-   // al compilador que esta variable va a recibir un handle a una interface
-   // en algun momento futuro. Ver la slide de la unidad 10.
+   // virtual: the object-world equivalent of a module's port list. It tells
+   // the compiler that this variable is going to receive a handle to an
+   // interface at some point in the future. See the slide in unit 10.
    virtual vtalu_bfm bfm;
 
    tester    tester_h;
@@ -18,7 +18,7 @@ class testbench;
       coverage_h = new(bfm);
       scoreboard_h = new(bfm);
 
-      // Un thread por objeto. join_none: execute() vuelve y los tres siguen.
+      // One thread per object. join_none: execute() returns and the three go on.
       fork
          tester_h.execute();
          coverage_h.execute();

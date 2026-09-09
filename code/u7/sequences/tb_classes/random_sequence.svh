@@ -1,8 +1,8 @@
 class random_sequence extends uvm_sequence #(command_transaction);
    `uvm_object_utils(random_sequence)
 
-   // El largo es un campo, no una clase nueva. Como la sequence es un objeto y
-   // no un componente, el que la arranca puede cambiarlo antes de start().
+   // The length is a field, not a new class. Since the sequence is an object and
+   // not a component, whoever starts it can change it before start().
    int unsigned count = 1000;
 
    function new(string name = "random_sequence");
@@ -13,16 +13,16 @@ class random_sequence extends uvm_sequence #(command_transaction);
       command_transaction command;
 
       repeat (count) begin : random_loop
-         // Por la factory, igual que en la seccion Transactions: es lo que hace que el
-         // add_test pueda cambiar el TIPO sin tocar una linea de esta sequence.
+         // Through the factory, same as in the Transactions section: that is what lets
+         // add_test change the TYPE without touching a line of this sequence.
          command = command_transaction::type_id::create("command");
 
          start_item(command);
 
-         // Randomizacion tardia: los valores se eligen DESPUES de tener el
-         // turno del sequencer, no cuando se creo el objeto.
+         // Late randomization: the values are picked AFTER getting the
+         // sequencer's turn, not when the object was created.
          if (!command.randomize())
-            `uvm_fatal("RANDOM SEQUENCE", "randomize() fallo")
+            `uvm_fatal("RANDOM SEQUENCE", "randomize() failed")
 
          finish_item(command);
       end : random_loop

@@ -1,6 +1,6 @@
-// El package de la seccion Sequences, con cuatro archivos mas al final. Los `include
-// que no estan en este directorio salen de ../tb_classes por el +incdir; el
-// env.svh es el unico que se pisa, y es el que prende el segundo agent.
+// The package of the Sequences section, with four more files at the end. The `include
+// that are not in this directory come from ../tb_classes through the +incdir; the
+// env.svh is the only one overridden, and it is the one that turns on the second agent.
 package vtalu_pkg;
    import uvm_pkg::*;
    `include "uvm_macros.svh"
@@ -39,8 +39,8 @@ package vtalu_pkg;
 
    `include "vtalu_agent.svh"
 
-   // El sequencer virtual va ANTES del env --el env lo instancia-- y antes de
-   // la sequence virtual, que lo nombra en el `uvm_declare_p_sequencer.
+   // The virtual sequencer goes BEFORE the env --the env instantiates it-- and
+   // before the virtual sequence, which names it in `uvm_declare_p_sequencer.
    `include "virtual_sequencer.svh"
    `include "coordinada_sequence.svh"
    `include "env.svh"

@@ -1,5 +1,5 @@
-// Igual que random_test y add_test: lo unico que cambia es que tester sale de
-// la factory. env.svh no se toca.
+// Same as random_test and add_test: the only thing that changes is that tester
+// comes out of the factory. env.svh is untouched.
 class mult_test extends uvm_test;
    `uvm_component_utils(mult_test);
 

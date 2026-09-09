@@ -1,17 +1,17 @@
 #!/bin/bash
-# Corre el ejemplo con Verilator. Ver docs/verilator.md.
+# Runs the example with Verilator. See docs/verilator.md.
 #
-# --coverage-user: mide los covergroups y deja afuera line/toggle/branch, que no
-# son el tema. El numero sale al final, con cov_report.
+# --coverage-user: measures the covergroups and leaves out line/toggle/branch,
+# which are not the topic. The number comes out at the end, with cov_report.
 #
-# -Wno-fatal: los ejemplos tienen anchos flojos a proposito (WIDTHEXPAND/WIDTHTRUNC) y
-# por defecto cualquier warning corta el build. Se siguen imprimiendo.
+# -Wno-fatal: the examples have sloppy widths on purpose (WIDTHEXPAND/WIDTHTRUNC)
+# and by default any warning stops the build. They still get printed.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
 
-# El scoreboard de esta seccion suma de mas A PROPOSITO: es el ejemplo con el
-# que se ensena reporting. Sin este opt-out, run_sim fallaria por los uvm_error
-# que la seccion quiere mostrar.
+# The scoreboard of this section adds wrong ON PURPOSE: it is the example
+# reporting is taught with. Without this opt-out, run_sim would fail on the uvm_error
+# the section wants to show.
 export UVM_ERRORS_OK=1
 vlt_uvm top --coverage-user -Wno-fatal -f dut.f -f tb.f
 run_sim +UVM_TESTNAME=random_test

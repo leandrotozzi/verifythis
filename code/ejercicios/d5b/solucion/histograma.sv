@@ -1,13 +1,13 @@
-// Solucion del ejercicio del dia 5 -- Medi tu dist.
+// Solution to the day 5 exercise -- Measure your dist.
 //
-// Un solo caracter de diferencia con el archivo de arriba: ":=" pasa a ":/".
+// A single character apart from the file above: ":=" becomes ":/".
 //
-//   :=  el peso va a CADA valor del rango. El medio son 254 valores de peso 80,
-//       o sea 20320 contra 10 y 10 de los bordes: 00 sale el 0,05% de las veces.
-//   :/  el peso es del RANGO ENTERO. 10 - 80 - 10 sobre 100: 10%, 80%, 10%.
+//   :=  the weight goes to EVERY value of the range. The middle is 254 values of weight 80,
+//       that is 20320 against 10 and 10 at the edges: 00 comes up 0,05% of the time.
+//   :/  the weight belongs to the WHOLE RANGE. 10 - 80 - 10 out of 100: 10%, 80%, 10%.
 //
-// Los dos compilan, los dos corren, y uno de los dos no llena los bins de borde
-// nunca. Esa es toda la leccion.
+// Both compile, both run, and one of the two never fills the corner bins.
+// That is the whole lesson.
 module top_histograma;
 
    class operando;
@@ -31,7 +31,7 @@ module top_histograma;
       o = new();
 
       repeat (N) begin
-         if (!o.randomize()) $fatal(1, "randomize() fallo: las constraints no cierran");
+         if (!o.randomize()) $fatal(1, "randomize() failed: the constraints do not close");
          case (o.A)
             8'h00:   ceros = ceros + 1;
             8'hFF:   unos  = unos + 1;
@@ -40,7 +40,7 @@ module top_histograma;
       end
 
       $display("%0d randomizaciones", N);
-      $display("HISTOGRAMA 00=%0.1f medio=%0.1f FF=%0.1f",
+      $display("HISTOGRAM 00=%0.1f mid=%0.1f FF=%0.1f",
                100.0 * ceros / N, 100.0 * medio / N, 100.0 * unos / N);
       $finish;
    end

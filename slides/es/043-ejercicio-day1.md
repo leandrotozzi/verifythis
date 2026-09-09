@@ -9,7 +9,7 @@
   enseñale también al TB que lo tiene que verificar
 - Se toca en **tres** lugares: el RTL, el estímulo con su chequeo, y **la
   medida** — el bin que hoy no existe
-- El `run.sh` falla hasta que imprime `EJERCICIO OK`; la solución está al lado
+- El `run.sh` falla hasta que imprime `EXERCISE OK`; la solución está al lado
 
 Note:
 Media hora, y conviene dejarlos solos: el enunciado y el README alcanzan.

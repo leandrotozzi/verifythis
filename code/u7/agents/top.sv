@@ -4,7 +4,7 @@ module top;
    `include "vtalu_macros.svh"
    `include "uvm_macros.svh"
 
-   // La VTALU que maneja el testbench de clases
+   // The VTALU driven by the class testbench
    vtalu_bfm clase_bfm ();
    vtalu clase_dut (
        .A(clase_bfm.A), .B(clase_bfm.B), .op(clase_bfm.op_set),
@@ -13,7 +13,7 @@ module top;
        .ovf(clase_bfm.ovf), .result(clase_bfm.result)
    );
 
-   // La VTALU que maneja el modulo heredado
+   // The VTALU driven by the legacy module
    vtalu_bfm modulo_bfm ();
    vtalu modulo_dut (
        .A(modulo_bfm.A), .B(modulo_bfm.B), .op(modulo_bfm.op_set),
@@ -25,8 +25,8 @@ module top;
    vtalu_tester_module stim_module (modulo_bfm);
 
    initial begin
-      // El top no sabe nada de agents: deja las dos interfaces con nombre y
-      // se va. Quien las reparte es el test.
+      // The top knows nothing about agents: it leaves the two interfaces with a
+      // name and walks away. Handing them out is the test's job.
       uvm_config_db#(virtual vtalu_bfm)::set(null, "*", "clase_bfm", clase_bfm);
       uvm_config_db#(virtual vtalu_bfm)::set(null, "*", "modulo_bfm", modulo_bfm);
       run_test();

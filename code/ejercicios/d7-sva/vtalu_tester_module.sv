@@ -1,18 +1,18 @@
-// El "tester del jefe" de la seccion Agents, con una diferencia: alguien lo
-// "optimizo".
+// The "boss's tester" from the Agents section, with one difference: somebody
+// "optimized" it.
 //
-// Para todas las operaciones sigue llamando a bfm.send_op(), como siempre. Para
-// la multiplicacion no: la maneja a mano, "porque asi no hay que esperar a que
-// la BFM haga las cosas bien". Y aprovecha los ciclos que el DUT tarda en
-// contestar para ir dejando listo el operando de la proxima -- total, done
-// todavia no subio, asi que el DUT no leyo nada.
+// For every operation it still calls bfm.send_op(), as always. For
+// the multiplication it does not: it drives it by hand, "because that way you do not have to wait
+// for the BFM to do things properly". And it uses the cycles the DUT takes to
+// answer to get the next operand ready -- after all, done
+// has not gone up yet, so the DUT read nothing.
 //
-// Ese razonamiento es falso, viola el protocolo, y el scoreboard NO LO VE:
-// el multiplicador latchea A y B en el primer flanco y el resultado sale bien
-// igual. Este modulo esta en produccion hace tres anos.
+// That reasoning is false, it violates the protocol, and the scoreboard DOES NOT SEE IT:
+// the multiplier latches A and B on the first edge and the result comes out right
+// anyway. This module has been in production for three years.
 //
-// Vos no tenes que tocar este archivo. Tenes que escribir la property que lo
-// caza, en vtalu_bfm.sv.
+// You do not have to touch this file. You have to write the property that
+// catches it, in vtalu_bfm.sv.
 module vtalu_tester_module (vtalu_bfm bfm);
    import vtalu_pkg::*;
 
@@ -39,7 +39,7 @@ module vtalu_tester_module (vtalu_bfm bfm);
       else return $random;
    endfunction : get_data
 
-   // La "optimizacion". Es el mismo handshake que send_op, mas la linea de mas.
+   // The "optimization". It is the same handshake as send_op, plus the extra line.
    task mult_a_mano(input byte iA, input byte iB);
       @(negedge bfm.clk);
       bfm.op_set = mul_op;

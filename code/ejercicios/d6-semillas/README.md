@@ -19,7 +19,7 @@ cobertura de cada una en `$VLT_OBJ/seed.<N>.dat`, y mergee las cinco en
 El archivo tiene arriba todo lo que hay disponible (`run_sim`, `SEED`,
 `$VLT_OBJ`) y el comando del merge. Son seis líneas de shell.
 
-Listo cuando `bash run.sh` imprime `EJERCICIO OK` — o sea, cuando el merge de las
+Listo cuando `bash run.sh` imprime `EXERCISE OK` — o sea, cuando el merge de las
 cinco cubre **más** que la mejor de las cinco sola.
 
 ## Cómo se corre

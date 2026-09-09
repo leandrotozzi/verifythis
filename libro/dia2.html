@@ -226,11 +226,11 @@ se leyó del config_db queda en null.</p>
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(.l(side), .w(side));
    <span class="hljs-keyword">endfunction</span>
 
-<span class="hljs-keyword">endclass</span></code></pre><details><summary>el archivo entero, 48 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Memory Management: Crear un objeto y pasarlos por el TB, es reservar memoria</span>
-<span class="hljs-comment">//                    y compartirla entre threads</span>
-<span class="hljs-comment">//                    El Simulador trata distinto una clase respecto de una struct</span>
-<span class="hljs-comment">//                    El simulador reserva la memoria de la struct apenas la ve</span>
-<span class="hljs-comment">//                    mientras que en las clases, se debe hacer mediante new()</span>
+<span class="hljs-keyword">endclass</span></code></pre><details><summary>el archivo entero, 48 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Memory Management: creating an object and passing it around the TB means</span>
+<span class="hljs-comment">//                    allocating memory and sharing it between threads</span>
+<span class="hljs-comment">//                    The simulator treats a class differently from a struct</span>
+<span class="hljs-comment">//                    It allocates the memory of a struct as soon as it sees it,</span>
+<span class="hljs-comment">//                    while for classes that has to be done with new()</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">rectangle</span>;
    <span class="hljs-comment">// Data members</span>
    <span class="hljs-type">int</span> length;
@@ -257,7 +257,7 @@ se leyó del config_db queda en null.</p>
 <span class="hljs-keyword">endclass</span>
 
 <span class="hljs-keyword">module</span> <span class="hljs-title">top_class</span>;
-   <span class="hljs-comment">//Handle: similar a un puntero, pero no permite operaciones aritmeticas</span>
+   <span class="hljs-comment">//Handle: like a pointer, but arithmetic on it is not allowed</span>
    rectangle rectangle_h;
    square    square_h;
 
@@ -269,8 +269,8 @@ se leyó del config_db queda en null.</p>
       square_h = <span class="hljs-keyword">new</span>(.side(<span class="hljs-number">50</span>));
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;square area: %0d&quot;</span>, square_h.area());
 
-      <span class="hljs-comment">// Ya que un cuadrado es un caso particular de un rectangulo:</span>
-      <span class="hljs-comment">// rectangle_h puede apuntar a un square? Si, polimorfismo</span>
+      <span class="hljs-comment">// Since a square is a particular case of a rectangle:</span>
+      <span class="hljs-comment">// can rectangle_h point to a square? Yes, polymorphism</span>
 
    <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">endmodule</span></code></pre></details></figure>
@@ -413,7 +413,7 @@ distintas. Acá es la primera.</p>
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Un trago generico no se sirve: pedi uno.&quot;</span>);
+      <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;A generic trago cannot be served: order a real one.&quot;</span>);
    <span class="hljs-keyword">endfunction</span> : servir
 
 <span class="hljs-keyword">endclass</span> : trago
@@ -425,10 +425,10 @@ distintas. Acá es la primera.</p>
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernet: 70/30, y la coca al final&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernet: 70/30, and the coke last&quot;</span>);
    <span class="hljs-keyword">endfunction</span> : servir
 
-<span class="hljs-keyword">endclass</span> : fernet</code></pre><details><summary>el archivo entero, 66 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Polimorfismo basico, SIN virtual: el caso que falla. Ver la unidad 6.</span>
+<span class="hljs-keyword">endclass</span> : fernet</code></pre><details><summary>el archivo entero, 66 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Basic polymorphism, WITHOUT virtual: the case that fails. See unit 6.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
    <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
 
@@ -437,7 +437,7 @@ distintas. Acá es la primera.</p>
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Un trago generico no se sirve: pedi uno.&quot;</span>);
+      <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;A generic trago cannot be served: order a real one.&quot;</span>);
    <span class="hljs-keyword">endfunction</span> : servir
 
 <span class="hljs-keyword">endclass</span> : trago
@@ -449,47 +449,47 @@ distintas. Acá es la primera.</p>
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernet: 70/30, y la coca al final&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernet: 70/30, and the coke last&quot;</span>);
    <span class="hljs-keyword">endfunction</span> : servir
 
 <span class="hljs-keyword">endclass</span> : fernet
 
-<span class="hljs-keyword">class</span> <span class="hljs-title">gancia</span> <span class="hljs-keyword">extends</span> trago;
+<span class="hljs-keyword">class</span> <span class="hljs-title">mojito</span> <span class="hljs-keyword">extends</span> trago;
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Gancia: con Sprite y una rodaja de limon&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Mojito: mint, lime and crushed ice&quot;</span>);
    <span class="hljs-keyword">endfunction</span> : servir
 
-<span class="hljs-keyword">endclass</span> : gancia
+<span class="hljs-keyword">endclass</span> : mojito
 
 <span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
 
-      fernet    fernet_h;
-      gancia gancia_h;
+      fernet fernet_h;
+      mojito mojito_h;
       trago  trago_h;
 
       fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>);
       fernet_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El fernet lleva %0d hielos&quot;</span>, fernet_h.hielos);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The fernet has %0d ice cubes&quot;</span>, fernet_h.hielos);
 
-      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>);
-      gancia_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El gancia lleva %0d hielos&quot;</span>, gancia_h.hielos);
+      mojito_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>);
+      mojito_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The mojito has %0d ice cubes&quot;</span>, mojito_h.hielos);
 
-      <span class="hljs-comment">// La variable es trago, el objeto es fernet.</span>
+      <span class="hljs-comment">// The variable is trago, the object is fernet.</span>
       trago_h = fernet_h;
-      trago_h.servir();  <span class="hljs-comment">// ** Fatal: Un trago generico no se sirve</span>
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+      trago_h.servir();  <span class="hljs-comment">// ** Fatal: A generic trago cannot be served</span>
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The trago has %0d ice cubes&quot;</span>, trago_h.hielos);
 
-      trago_h = gancia_h;
+      trago_h = mojito_h;
       trago_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The trago has %0d ice cubes&quot;</span>, trago_h.hielos);
 
    <span class="hljs-keyword">end</span>  <span class="hljs-comment">// initial begin</span>
 
@@ -498,9 +498,9 @@ distintas. Acá es la primera.</p>
 <ul>
 <li><code>trago</code> define <code>servir()</code> con un <code>$fatal</code>: la clase base no sabe con qué
 se sirve, y lo dice fuerte</li>
-<li><code>fernet</code> y <code>gancia</code> extienden <code>trago</code> y <strong>redefinen</strong> <code>servir()</code>, cada uno
+<li><code>fernet</code> y <code>mojito</code> extienden <code>trago</code> y <strong>redefinen</strong> <code>servir()</code>, cada uno
 con el suyo</li>
-<li><code>gancia</code> —que no entra en pantalla— es igual que <code>fernet</code>, con otro <code>$display</code></li>
+<li><code>mojito</code> —que no entra en pantalla— es igual que <code>fernet</code>, con otro <code>$display</code></li>
 </ul>
 <div class="nota">
 <p>El <code>$fatal</code> en la clase base es un patrón que se ve mucho y que en dos slides
@@ -519,20 +519,20 @@ El archivo entero está en <code>code/u3/polimorfismo/01-sin-virtual/not_virtual
 <h4 id="sin-virtual-manda-la-variable-y-eso-rompe"><em>Sin <code>virtual</code> manda la variable, y eso rompe</em></h4>
 <figure class="codigo"><figcaption><code>code/u3/polimorfismo/01-sin-virtual/not_virtual.sv</code> · líneas 47-62 de 66</figcaption><pre><code class="hljs">      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>);
       fernet_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El fernet lleva %0d hielos&quot;</span>, fernet_h.hielos);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The fernet has %0d ice cubes&quot;</span>, fernet_h.hielos);
 
-      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>);
-      gancia_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El gancia lleva %0d hielos&quot;</span>, gancia_h.hielos);
+      mojito_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>);
+      mojito_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The mojito has %0d ice cubes&quot;</span>, mojito_h.hielos);
 
-      <span class="hljs-comment">// La variable es trago, el objeto es fernet.</span>
+      <span class="hljs-comment">// The variable is trago, the object is fernet.</span>
       trago_h = fernet_h;
-      trago_h.servir();  <span class="hljs-comment">// ** Fatal: Un trago generico no se sirve</span>
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+      trago_h.servir();  <span class="hljs-comment">// ** Fatal: A generic trago cannot be served</span>
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The trago has %0d ice cubes&quot;</span>, trago_h.hielos);
 
-      trago_h = gancia_h;
+      trago_h = mojito_h;
       trago_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);</code></pre><details><summary>el archivo entero, 66 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Polimorfismo basico, SIN virtual: el caso que falla. Ver la unidad 6.</span>
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The trago has %0d ice cubes&quot;</span>, trago_h.hielos);</code></pre><details><summary>el archivo entero, 66 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Basic polymorphism, WITHOUT virtual: the case that fails. See unit 6.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
    <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
 
@@ -541,7 +541,7 @@ El archivo entero está en <code>code/u3/polimorfismo/01-sin-virtual/not_virtual
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Un trago generico no se sirve: pedi uno.&quot;</span>);
+      <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;A generic trago cannot be served: order a real one.&quot;</span>);
    <span class="hljs-keyword">endfunction</span> : servir
 
 <span class="hljs-keyword">endclass</span> : trago
@@ -553,47 +553,47 @@ El archivo entero está en <code>code/u3/polimorfismo/01-sin-virtual/not_virtual
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernet: 70/30, y la coca al final&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernet: 70/30, and the coke last&quot;</span>);
    <span class="hljs-keyword">endfunction</span> : servir
 
 <span class="hljs-keyword">endclass</span> : fernet
 
-<span class="hljs-keyword">class</span> <span class="hljs-title">gancia</span> <span class="hljs-keyword">extends</span> trago;
+<span class="hljs-keyword">class</span> <span class="hljs-title">mojito</span> <span class="hljs-keyword">extends</span> trago;
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Gancia: con Sprite y una rodaja de limon&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Mojito: mint, lime and crushed ice&quot;</span>);
    <span class="hljs-keyword">endfunction</span> : servir
 
-<span class="hljs-keyword">endclass</span> : gancia
+<span class="hljs-keyword">endclass</span> : mojito
 
 <span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
 
-      fernet    fernet_h;
-      gancia gancia_h;
+      fernet fernet_h;
+      mojito mojito_h;
       trago  trago_h;
 
       fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>);
       fernet_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El fernet lleva %0d hielos&quot;</span>, fernet_h.hielos);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The fernet has %0d ice cubes&quot;</span>, fernet_h.hielos);
 
-      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>);
-      gancia_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El gancia lleva %0d hielos&quot;</span>, gancia_h.hielos);
+      mojito_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>);
+      mojito_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The mojito has %0d ice cubes&quot;</span>, mojito_h.hielos);
 
-      <span class="hljs-comment">// La variable es trago, el objeto es fernet.</span>
+      <span class="hljs-comment">// The variable is trago, the object is fernet.</span>
       trago_h = fernet_h;
-      trago_h.servir();  <span class="hljs-comment">// ** Fatal: Un trago generico no se sirve</span>
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+      trago_h.servir();  <span class="hljs-comment">// ** Fatal: A generic trago cannot be served</span>
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The trago has %0d ice cubes&quot;</span>, trago_h.hielos);
 
-      trago_h = gancia_h;
+      trago_h = mojito_h;
       trago_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The trago has %0d ice cubes&quot;</span>, trago_h.hielos);
 
    <span class="hljs-keyword">end</span>  <span class="hljs-comment">// initial begin</span>
 
@@ -624,9 +624,9 @@ objeto, y sólo si se lo pedís.</p>
 <h2 id="polimorfismo">Polimorfismo</h2>
 <h4 id="métodos-virtuales-una-palabra-y-ahora-manda-el-objeto"><em>Métodos virtuales: una palabra, y ahora manda el objeto</em></h4>
 <figure class="codigo"><figcaption><code>code/u3/polimorfismo/02-virtual/virtual.sv</code> · líneas 11-13 de 67</figcaption><pre><code class="hljs">   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Un trago generico no se sirve: pedi uno.&quot;</span>);
-   <span class="hljs-keyword">endfunction</span> : servir</code></pre><details><summary>el archivo entero, 67 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Identico a 01-sin-virtual salvo por UNA palabra: el servir() de trago</span>
-<span class="hljs-comment">// ahora es virtual. Ver la unidad 6.</span>
+      <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;A generic trago cannot be served: order a real one.&quot;</span>);
+   <span class="hljs-keyword">endfunction</span> : servir</code></pre><details><summary>el archivo entero, 67 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Identical to 01-sin-virtual except for ONE word: trago&#x27;s servir() is</span>
+<span class="hljs-comment">// now virtual. See unit 6.</span>
 
 <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
    <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
@@ -636,7 +636,7 @@ objeto, y sólo si se lo pedís.</p>
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Un trago generico no se sirve: pedi uno.&quot;</span>);
+      <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;A generic trago cannot be served: order a real one.&quot;</span>);
    <span class="hljs-keyword">endfunction</span> : servir
 
 <span class="hljs-keyword">endclass</span> : trago
@@ -648,46 +648,46 @@ objeto, y sólo si se lo pedís.</p>
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernet: 70/30, y la coca al final&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernet: 70/30, and the coke last&quot;</span>);
    <span class="hljs-keyword">endfunction</span> : servir
 
 <span class="hljs-keyword">endclass</span> : fernet
 
-<span class="hljs-keyword">class</span> <span class="hljs-title">gancia</span> <span class="hljs-keyword">extends</span> trago;
+<span class="hljs-keyword">class</span> <span class="hljs-title">mojito</span> <span class="hljs-keyword">extends</span> trago;
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Gancia: con Sprite y una rodaja de limon&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Mojito: mint, lime and crushed ice&quot;</span>);
    <span class="hljs-keyword">endfunction</span> : servir
 
-<span class="hljs-keyword">endclass</span> : gancia
+<span class="hljs-keyword">endclass</span> : mojito
 
 <span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
 
       fernet fernet_h;
-      gancia gancia_h;
+      mojito mojito_h;
       trago trago_h;
 
       fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>);
       fernet_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El fernet lleva %0d hielos&quot;</span>, fernet_h.hielos);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The fernet has %0d ice cubes&quot;</span>, fernet_h.hielos);
 
-      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>);
-      gancia_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El gancia lleva %0d hielos&quot;</span>, gancia_h.hielos);
+      mojito_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>);
+      mojito_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The mojito has %0d ice cubes&quot;</span>, mojito_h.hielos);
 
       trago_h = fernet_h;
       trago_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The trago has %0d ice cubes&quot;</span>, trago_h.hielos);
 
-      trago_h = gancia_h;
+      trago_h = mojito_h;
       trago_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The trago has %0d ice cubes&quot;</span>, trago_h.hielos);
 
    <span class="hljs-keyword">end</span>  <span class="hljs-comment">// initial begin</span>
 
@@ -698,13 +698,13 @@ objeto, y sólo si se lo pedís.</p>
 <code>virtual</code> en el método de la clase base</li>
 <li>Con eso la llamada se resuelve en <strong>simulación</strong>, mirando el objeto que hay
 adentro de la variable — <em>dynamic binding</em></li>
-<li><code>trago_h.servir()</code> ahora sirve un fernet o un gancia, sin que el que escribe
+<li><code>trago_h.servir()</code> ahora sirve un fernet o un mojito, sin que el que escribe
 esa línea sepa cuál le va a tocar</li>
 <li>Ésa es toda la idea: <strong>el que usa el objeto deja de ser el que elige el tipo</strong></li>
 </ul>
 <div class="nota">
 <p>Vale correr los dos ejemplos seguidos y mostrar el diff: una palabra.
-Un detalle que se pregunta siempre: <code>fernet</code> y <code>gancia</code> <strong>no</strong> escriben <code>virtual</code>
+Un detalle que se pregunta siempre: <code>fernet</code> y <code>mojito</code> <strong>no</strong> escriben <code>virtual</code>
 en su <code>servir()</code>, y sin embargo lo son. Una vez que el método es virtual en
 la base, lo es para toda la descendencia. Escribirlo igual no molesta y mucha
 gente lo hace por prolijidad.
@@ -748,7 +748,7 @@ parecidas. Y en el ejercicio del día 2, la clase base del testbench.</p>
 <section id="s76" class="slide">
 <h2 id="polimorfismo">Polimorfismo</h2>
 <h4 id="pure-virtual-el-mismo-ejemplo-sin-fatal-posible"><em><code>pure virtual</code>: el mismo ejemplo, sin <code>$fatal</code> posible</em></h4>
-<figure class="codigo"><figcaption><code>code/u3/polimorfismo/03-virtual-pura/pure_virtual.sv</code> · líneas 1-12 de 67</figcaption><pre><code class="hljs"><span class="hljs-comment">// Clase abstracta: solo sirve como base, no se puede instanciar.</span>
+<figure class="codigo"><figcaption><code>code/u3/polimorfismo/03-virtual-pura/pure_virtual.sv</code> · líneas 1-12 de 67</figcaption><pre><code class="hljs"><span class="hljs-comment">// Abstract class: it only works as a base, it cannot be instantiated.</span>
 <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
    <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
 
@@ -756,10 +756,10 @@ parecidas. Y en el ejercicio del día 2, la clase base del testbench.</p>
       hielos = a;
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-comment">// pure virtual: sin body. Extenderla obliga a redefinirlo.</span>
+   <span class="hljs-comment">// pure virtual: no body. Extending it forces you to redefine it.</span>
    <span class="hljs-keyword">pure</span> <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
 
-<span class="hljs-keyword">endclass</span> : trago</code></pre><details><summary>el archivo entero, 67 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Clase abstracta: solo sirve como base, no se puede instanciar.</span>
+<span class="hljs-keyword">endclass</span> : trago</code></pre><details><summary>el archivo entero, 67 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Abstract class: it only works as a base, it cannot be instantiated.</span>
 <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
    <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
 
@@ -767,7 +767,7 @@ parecidas. Y en el ejercicio del día 2, la clase base del testbench.</p>
       hielos = a;
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-comment">// pure virtual: sin body. Extenderla obliga a redefinirlo.</span>
+   <span class="hljs-comment">// pure virtual: no body. Extending it forces you to redefine it.</span>
    <span class="hljs-keyword">pure</span> <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
 
 <span class="hljs-keyword">endclass</span> : trago
@@ -779,49 +779,49 @@ parecidas. Y en el ejercicio del día 2, la clase base del testbench.</p>
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernet: 70/30, y la coca al final&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernet: 70/30, and the coke last&quot;</span>);
    <span class="hljs-keyword">endfunction</span> : servir
 
 <span class="hljs-keyword">endclass</span> : fernet
 
-<span class="hljs-keyword">class</span> <span class="hljs-title">gancia</span> <span class="hljs-keyword">extends</span> trago;
+<span class="hljs-keyword">class</span> <span class="hljs-title">mojito</span> <span class="hljs-keyword">extends</span> trago;
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-comment">// Borrar este override NO compila -- que es justo la gracia.</span>
+   <span class="hljs-comment">// Deleting this override does NOT compile -- which is exactly the point.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Gancia: con Sprite y una rodaja de limon&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Mojito: mint, lime and crushed ice&quot;</span>);
    <span class="hljs-keyword">endfunction</span> : servir
 
-<span class="hljs-keyword">endclass</span> : gancia
+<span class="hljs-keyword">endclass</span> : mojito
 
 <span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
 
       fernet fernet_h;
-      gancia gancia_h;
+      mojito mojito_h;
       trago trago_h;
 
-      <span class="hljs-comment">// trago_h = new(3);  &lt;- no compila: trago es abstracta</span>
+      <span class="hljs-comment">// trago_h = new(3);  &lt;- does not compile: trago is abstract</span>
 
       fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>);
       fernet_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El fernet lleva %0d hielos&quot;</span>, fernet_h.hielos);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The fernet has %0d ice cubes&quot;</span>, fernet_h.hielos);
 
-      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>);
-      gancia_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El gancia lleva %0d hielos&quot;</span>, gancia_h.hielos);
+      mojito_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>);
+      mojito_h.servir();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The mojito has %0d ice cubes&quot;</span>, mojito_h.hielos);
 
       trago_h = fernet_h;
       trago_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The trago has %0d ice cubes&quot;</span>, trago_h.hielos);
 
-      trago_h = gancia_h;
+      trago_h = mojito_h;
       trago_h.servir();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El trago lleva %0d hielos&quot;</span>, trago_h.hielos);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The trago has %0d ice cubes&quot;</span>, trago_h.hielos);
 
    <span class="hljs-keyword">end</span>  <span class="hljs-comment">// initial begin</span>
 
@@ -832,16 +832,16 @@ parecidas. Y en el ejercicio del día 2, la clase base del testbench.</p>
 cuerpo</strong>, y por eso no hay nada que pueda correr mal</li>
 <li>La línea comentada del <code>top</code> —<code>trago_h = new(3)</code>— no compila: una clase
 abstracta no se instancia</li>
-<li>Si a <code>gancia</code> le borrás el override, el compilador dice
+<li>Si a <code>mojito</code> le borrás el override, el compilador dice
 <em>&quot;does not override virtual method servir&quot;</em> y ahí termina el asunto</li>
 </ul>
 <div class="nota">
 <p>El punto no es el <code>$fatal</code>, es <strong>cuándo te enterás</strong>: sin clase abstracta
 explota en el medio de la simulación, con pure virtual no compila.
-Vale hacerlo en vivo: comentar el <code>servir()</code> de <code>gancia</code> y compilar. El
+Vale hacerlo en vivo: comentar el <code>servir()</code> de <code>mojito</code> y compilar. El
 mensaje del compilador es el que enseña.
 Y el enganche hacia adelante: la factory usa esto para crear, y el <code>env</code> para
-los overrides. Lo que hoy es un fernet y un gancia, en dos días va a ser un
+los overrides. Lo que hoy es un fernet y un mojito, en dos días va a ser un
 <code>base_tester</code> y los testers que lo extienden — misma mecánica, otro vocabulario.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/76">ver esta slide en el deck &rsaquo;</a></p>
@@ -922,40 +922,40 @@ declarada. Un <code>vasos</code> suelto, no</li>
 <span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       fernet fernet_h;
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">2</span>, <span class="hljs-string">&quot;Kimba&quot;</span>);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">2</span>, <span class="hljs-string">&quot;the one at table 7&quot;</span>);
       <span class="hljs-comment">// :: operator</span>
       <span class="hljs-comment">//----------------</span>
-      <span class="hljs-comment">//   Accedemos a la variable en la clase bandeja_de_fernet</span>
-      <span class="hljs-comment">//   mencionando la clase y poniendo el operador :: antes de su nombre</span>
-      <span class="hljs-comment">//   Esto le dice al compilador que queremos acceder a una variable static dentro</span>
-      <span class="hljs-comment">//   del namespace de la clase</span>
+      <span class="hljs-comment">//   The variable in the bandeja_de_fernet class is reached by</span>
+      <span class="hljs-comment">//   naming the class and putting the :: operator before the name</span>
+      <span class="hljs-comment">//   That tells the compiler we want a static variable inside</span>
+      <span class="hljs-comment">//   the namespace of the class</span>
       bandeja_de_fernet::vasos.push_back(fernet_h);
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">3</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">3</span>, <span class="hljs-string">&quot;the one at table 4&quot;</span>);
       bandeja_de_fernet::vasos.push_back(fernet_h);
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at the bar&quot;</span>);
 
-      <span class="hljs-comment">// clase::variable_static. Inmediatamente sabemos donde esta declarada</span>
+      <span class="hljs-comment">// class::static_variable. You know right away where it is declared</span>
       bandeja_de_fernet::vasos.push_back(fernet_h);
 
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernets en la bandeja:&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernets on the tray:&quot;</span>);
       <span class="hljs-keyword">foreach</span> (bandeja_de_fernet::vasos[i]) <span class="hljs-built_in">$display</span>(bandeja_de_fernet::vasos[i].get_name());
    <span class="hljs-keyword">end</span>
-<span class="hljs-keyword">endmodule</span> : top</code></pre><details><summary>el archivo entero, 72 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Variables Static</span>
+<span class="hljs-keyword">endmodule</span> : top</code></pre><details><summary>el archivo entero, 72 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Static variables</span>
 <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
    <span class="hljs-keyword">protected</span> <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
-      set_age(hielos);
+      set_hielos(hielos);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">set_age</span>(<span class="hljs-type">int</span> a);
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">set_hielos</span>(<span class="hljs-type">int</span> a);
       hielos = a;
-   <span class="hljs-keyword">endfunction</span> : set_age
+   <span class="hljs-keyword">endfunction</span> : set_hielos
 
-   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">get_age</span>();
+   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">get_hielos</span>();
       <span class="hljs-keyword">if</span> (hielos == -<span class="hljs-number">1</span>) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;You didn&#x27;t set the hielos.&quot;</span>);
       <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> hielos;
-   <span class="hljs-keyword">endfunction</span> : get_age
+   <span class="hljs-keyword">endfunction</span> : get_hielos
 
    <span class="hljs-keyword">pure</span> <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
 
@@ -970,7 +970,7 @@ declarada. Un <code>vasos</code> suelto, no</li>
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;%s: 70/30, y la coca al final&quot;</span>, get_name());
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;%s: 70/30, and the coke last&quot;</span>, get_name());
    <span class="hljs-keyword">endfunction</span> : servir
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">get_name</span>();
@@ -980,9 +980,9 @@ declarada. Un <code>vasos</code> suelto, no</li>
 <span class="hljs-keyword">endclass</span> : fernet
 
 <span class="hljs-comment">// Static Variable to handle global var</span>
-<span class="hljs-comment">// Solo tenemos una copia en memoria de una variable static</span>
-<span class="hljs-comment">// sin importar cuantas intancias de la clase tengamos</span>
-<span class="hljs-comment">// Son como variables globales creadas de una forma controlada</span>
+<span class="hljs-comment">// There is only one copy of a static variable in memory,</span>
+<span class="hljs-comment">// no matter how many instances of the class exist</span>
+<span class="hljs-comment">// They are global variables created in a controlled way</span>
 
 <span class="hljs-keyword">class</span> <span class="hljs-title">bandeja_de_fernet</span>;
    <span class="hljs-comment">//Queue static</span>
@@ -993,22 +993,22 @@ declarada. Un <code>vasos</code> suelto, no</li>
 <span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       fernet fernet_h;
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">2</span>, <span class="hljs-string">&quot;Kimba&quot;</span>);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">2</span>, <span class="hljs-string">&quot;the one at table 7&quot;</span>);
       <span class="hljs-comment">// :: operator</span>
       <span class="hljs-comment">//----------------</span>
-      <span class="hljs-comment">//   Accedemos a la variable en la clase bandeja_de_fernet</span>
-      <span class="hljs-comment">//   mencionando la clase y poniendo el operador :: antes de su nombre</span>
-      <span class="hljs-comment">//   Esto le dice al compilador que queremos acceder a una variable static dentro</span>
-      <span class="hljs-comment">//   del namespace de la clase</span>
+      <span class="hljs-comment">//   The variable in the bandeja_de_fernet class is reached by</span>
+      <span class="hljs-comment">//   naming the class and putting the :: operator before the name</span>
+      <span class="hljs-comment">//   That tells the compiler we want a static variable inside</span>
+      <span class="hljs-comment">//   the namespace of the class</span>
       bandeja_de_fernet::vasos.push_back(fernet_h);
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">3</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">3</span>, <span class="hljs-string">&quot;the one at table 4&quot;</span>);
       bandeja_de_fernet::vasos.push_back(fernet_h);
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at the bar&quot;</span>);
 
-      <span class="hljs-comment">// clase::variable_static. Inmediatamente sabemos donde esta declarada</span>
+      <span class="hljs-comment">// class::static_variable. You know right away where it is declared</span>
       bandeja_de_fernet::vasos.push_back(fernet_h);
 
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernets en la bandeja:&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernets on the tray:&quot;</span>);
       <span class="hljs-keyword">foreach</span> (bandeja_de_fernet::vasos[i]) <span class="hljs-built_in">$display</span>(bandeja_de_fernet::vasos[i].get_name());
    <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure><div class="nota">
@@ -1050,9 +1050,9 @@ tocar todo el testbench.</p>
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;PEPE1 VAL = %0d&quot;</span>, pepe1_h.val);
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;PEPE2 VAL = %0d&quot;</span>, pepe2_h.val);
 
-      <span class="hljs-comment">// Solo tenemos una copia en memoria de una variable static</span>
-      <span class="hljs-comment">// sin importar cuantas intancias de la clase tengamos</span>
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;CANTIDAD DE PEPES = %0d&quot;</span>, pepe::cant);
+      <span class="hljs-comment">// There is only one copy of a static variable in memory,</span>
+      <span class="hljs-comment">// no matter how many instances of the class exist</span>
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;NUMBER OF PEPES = %0d&quot;</span>, pepe::cant);
 
    <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">endmodule</span> : top</code></pre></figure>
@@ -1094,7 +1094,7 @@ le pide con <code>type_id::create()</code></li>
    <span class="hljs-keyword">endfunction</span> : bandeja_fernet
 
    <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">lista_fernets</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernets en la bandeja:&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernets on the tray:&quot;</span>);
       <span class="hljs-keyword">foreach</span> (vasos[i]) <span class="hljs-built_in">$display</span>(vasos[i].get_name());
    <span class="hljs-keyword">endfunction</span> : lista_fernets
 
@@ -1104,31 +1104,31 @@ le pide con <code>type_id::create()</code></li>
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       fernet fernet_h;
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">2</span>, <span class="hljs-string">&quot;Kimba&quot;</span>);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">2</span>, <span class="hljs-string">&quot;the one at table 7&quot;</span>);
       bandeja_de_fernet::bandeja_fernet(fernet_h);
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">3</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">3</span>, <span class="hljs-string">&quot;the one at table 4&quot;</span>);
       bandeja_de_fernet::bandeja_fernet(fernet_h);
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at the bar&quot;</span>);
       bandeja_de_fernet::bandeja_fernet(fernet_h);
       bandeja_de_fernet::lista_fernets();
    <span class="hljs-keyword">end</span>
 
-<span class="hljs-keyword">endmodule</span> : top</code></pre><details><summary>el archivo entero, 69 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Metodos Statics</span>
+<span class="hljs-keyword">endmodule</span> : top</code></pre><details><summary>el archivo entero, 69 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Static methods</span>
 <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
    <span class="hljs-keyword">protected</span> <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos);
-      set_age(hielos);
+      set_hielos(hielos);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">set_age</span>(<span class="hljs-type">int</span> a);
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">set_hielos</span>(<span class="hljs-type">int</span> a);
       hielos = a;
-   <span class="hljs-keyword">endfunction</span> : set_age
+   <span class="hljs-keyword">endfunction</span> : set_hielos
 
-   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">get_age</span>();
+   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">get_hielos</span>();
       <span class="hljs-keyword">if</span> (hielos == -<span class="hljs-number">1</span>) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;You didn&#x27;t set the hielos.&quot;</span>);
       <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> hielos;
-   <span class="hljs-keyword">endfunction</span> : get_age
+   <span class="hljs-keyword">endfunction</span> : get_hielos
 
    <span class="hljs-keyword">pure</span> <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
 
@@ -1144,7 +1144,7 @@ le pide con <code>type_id::create()</code></li>
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;%s: 70/30, y la coca al final&quot;</span>, get_name());
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;%s: 70/30, and the coke last&quot;</span>, get_name());
    <span class="hljs-keyword">endfunction</span> : servir
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">get_name</span>();
@@ -1162,7 +1162,7 @@ le pide con <code>type_id::create()</code></li>
    <span class="hljs-keyword">endfunction</span> : bandeja_fernet
 
    <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">lista_fernets</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernets en la bandeja:&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Fernets on the tray:&quot;</span>);
       <span class="hljs-keyword">foreach</span> (vasos[i]) <span class="hljs-built_in">$display</span>(vasos[i].get_name());
    <span class="hljs-keyword">endfunction</span> : lista_fernets
 
@@ -1172,11 +1172,11 @@ le pide con <code>type_id::create()</code></li>
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       fernet fernet_h;
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">2</span>, <span class="hljs-string">&quot;Kimba&quot;</span>);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">2</span>, <span class="hljs-string">&quot;the one at table 7&quot;</span>);
       bandeja_de_fernet::bandeja_fernet(fernet_h);
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">3</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">3</span>, <span class="hljs-string">&quot;the one at table 4&quot;</span>);
       bandeja_de_fernet::bandeja_fernet(fernet_h);
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at the bar&quot;</span>);
       bandeja_de_fernet::bandeja_fernet(fernet_h);
       bandeja_de_fernet::lista_fernets();
    <span class="hljs-keyword">end</span>
@@ -1231,12 +1231,12 @@ Todo eso es <code>static</code>, y no por casualidad.</p>
 <h2 id="clases-paramétricas">Clases paramétricas</h2>
 <h4 id="no-es-una-clase-es-un-molde"><em>No es una clase: es un molde</em></h4>
 <ul>
-<li>La <code>bandeja_de_fernet</code> de la sección anterior sirve para fernets. Para gancias hay que
+<li>La <code>bandeja_de_fernet</code> de la sección anterior sirve para fernets. Para mojitos hay que
 escribir otra igual, con una palabra cambiada</li>
 <li>Eso ya lo resolviste en RTL y no le decís OOP: una FIFO no se copia por cada
 ancho de dato, se parametriza. <code>#(.awidth(8), .dwidth(16))</code></li>
 <li>Una clase paramétrica es lo mismo, con <strong>tipos</strong> en vez de números:
-<code>bandeja #(fernet)</code> y <code>bandeja #(gancia)</code></li>
+<code>bandeja #(fernet)</code> y <code>bandeja #(mojito)</code></li>
 <li>Y hay una consecuencia que sorprende: cada <code>#(...)</code> distinto es una <strong>clase
 distinta</strong>, generada en compilación. No comparten nada, ni siquiera lo <code>static</code></li>
 <li>Por qué importa: cada <code>#(...)</code> que veas en el resto del curso es esto.
@@ -1248,7 +1248,7 @@ parametrizar, sólo que con anchos. Acá el parámetro es un tipo, y el resto es
 igual.
 Lo que hay que dejar clarísimo antes de seguir es lo del tercer bullet, porque
 es la pregunta 6 del repaso y porque es la base de todo UVM:
-<code>bandeja#(fernet)</code> y <code>bandeja#(gancia)</code> <strong>no son la misma clase con un
+<code>bandeja#(fernet)</code> y <code>bandeja#(mojito)</code> <strong>no son la misma clase con un
 campo distinto</strong>. SystemVerilog genera una clase entera por cada combinación de
 parámetros, en tiempo de compilación. Por eso cada una tiene su propia queue
 <code>static</code>.
@@ -1313,7 +1313,7 @@ que aparezca en el resto del curso es esto.</p>
 <ul>
 <li>Versión con métodos estáticos: la bandeja no se instancia, se le pide con <code>::</code></li>
 <li>La cola es <code>static</code> y aun así hay <strong>dos</strong>: <code>bandeja#(fernet)</code> y
-<code>bandeja#(gancia)</code> son dos clases distintas, cada una con la suya</li>
+<code>bandeja#(mojito)</code> son dos clases distintas, cada una con la suya</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u3/parametricas/02-estatica/bandejas.sv</code> · líneas 53-91 de 91</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
     type T
@@ -1326,7 +1326,7 @@ que aparezca en el resto del curso es esto.</p>
    <span class="hljs-keyword">endfunction</span> : bandeja_trago
 
    <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">lista_tragos</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Tragos en la bandeja:&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Drinks on the tray:&quot;</span>);
       <span class="hljs-keyword">foreach</span> (vasos[i]) <span class="hljs-built_in">$display</span>(vasos[i].get_name());
    <span class="hljs-keyword">endfunction</span> : lista_tragos
 
@@ -1336,21 +1336,21 @@ que aparezca en el resto del curso es esto.</p>
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       fernet fernet_h;
-      gancia gancia_h;
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+      mojito mojito_h;
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at the bar&quot;</span>);
       bandeja#(<span class="hljs-type">fernet</span>)::bandeja_trago(fernet_h);
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at table 4&quot;</span>);
       bandeja#(<span class="hljs-type">fernet</span>)::bandeja_trago(fernet_h);
 
-      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Clucker&quot;</span>);
-      bandeja#(<span class="hljs-type">gancia</span>)::bandeja_trago(gancia_h);
-      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Scratchy&quot;</span>);
-      bandeja#(<span class="hljs-type">gancia</span>)::bandeja_trago(gancia_h);
+      mojito_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;the one at table 7&quot;</span>);
+      bandeja#(<span class="hljs-type">mojito</span>)::bandeja_trago(mojito_h);
+      mojito_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;the one at the counter&quot;</span>);
+      bandeja#(<span class="hljs-type">mojito</span>)::bandeja_trago(mojito_h);
 
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Fernets --&quot;</span>);
       bandeja#(<span class="hljs-type">fernet</span>)::lista_tragos();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Gancias --&quot;</span>);
-      bandeja#(<span class="hljs-type">gancia</span>)::lista_tragos();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Mojitos --&quot;</span>);
+      bandeja#(<span class="hljs-type">mojito</span>)::lista_tragos();
    <span class="hljs-keyword">end</span>
 
 <span class="hljs-keyword">endmodule</span> : top</code></pre><details><summary>el archivo entero, 91 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Static Class version</span>
@@ -1364,9 +1364,9 @@ que aparezca en el resto del curso es esto.</p>
       name = n;
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">get_age</span>();
+   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">get_hielos</span>();
       <span class="hljs-keyword">return</span> hielos;
-   <span class="hljs-keyword">endfunction</span> : get_age
+   <span class="hljs-keyword">endfunction</span> : get_hielos
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">get_name</span>();
       <span class="hljs-keyword">return</span> name;
@@ -1385,26 +1385,26 @@ que aparezca en el resto del curso es esto.</p>
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El fernet %s: 70/30, y la coca al final&quot;</span>, get_name());
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The fernet %s: 70/30, and the coke last&quot;</span>, get_name());
    <span class="hljs-keyword">endfunction</span> : servir
 
 <span class="hljs-keyword">endclass</span> : fernet
 
-<span class="hljs-keyword">class</span> <span class="hljs-title">gancia</span> <span class="hljs-keyword">extends</span> trago;
+<span class="hljs-keyword">class</span> <span class="hljs-title">mojito</span> <span class="hljs-keyword">extends</span> trago;
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> n);
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, n);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El gancia %s: con Sprite y una rodaja de limon&quot;</span>, get_name());
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The mojito %s: mint, lime and crushed ice&quot;</span>, get_name());
    <span class="hljs-keyword">endfunction</span> : servir
 
-<span class="hljs-keyword">endclass</span> : gancia
+<span class="hljs-keyword">endclass</span> : mojito
 
 <span class="hljs-comment">// Parameterized class</span>
-<span class="hljs-comment">// mediante el parametro T (type) especificamos que</span>
-<span class="hljs-comment">// tipo de queue es.</span>
+<span class="hljs-comment">// the T (type) parameter is what says which</span>
+<span class="hljs-comment">// kind of queue this is.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
     type T
 );
@@ -1416,7 +1416,7 @@ que aparezca en el resto del curso es esto.</p>
    <span class="hljs-keyword">endfunction</span> : bandeja_trago
 
    <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">lista_tragos</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Tragos en la bandeja:&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Drinks on the tray:&quot;</span>);
       <span class="hljs-keyword">foreach</span> (vasos[i]) <span class="hljs-built_in">$display</span>(vasos[i].get_name());
    <span class="hljs-keyword">endfunction</span> : lista_tragos
 
@@ -1426,26 +1426,26 @@ que aparezca en el resto del curso es esto.</p>
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       fernet fernet_h;
-      gancia gancia_h;
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+      mojito mojito_h;
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at the bar&quot;</span>);
       bandeja#(<span class="hljs-type">fernet</span>)::bandeja_trago(fernet_h);
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at table 4&quot;</span>);
       bandeja#(<span class="hljs-type">fernet</span>)::bandeja_trago(fernet_h);
 
-      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Clucker&quot;</span>);
-      bandeja#(<span class="hljs-type">gancia</span>)::bandeja_trago(gancia_h);
-      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Scratchy&quot;</span>);
-      bandeja#(<span class="hljs-type">gancia</span>)::bandeja_trago(gancia_h);
+      mojito_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;the one at table 7&quot;</span>);
+      bandeja#(<span class="hljs-type">mojito</span>)::bandeja_trago(mojito_h);
+      mojito_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;the one at the counter&quot;</span>);
+      bandeja#(<span class="hljs-type">mojito</span>)::bandeja_trago(mojito_h);
 
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Fernets --&quot;</span>);
       bandeja#(<span class="hljs-type">fernet</span>)::lista_tragos();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Gancias --&quot;</span>);
-      bandeja#(<span class="hljs-type">gancia</span>)::lista_tragos();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Mojitos --&quot;</span>);
+      bandeja#(<span class="hljs-type">mojito</span>)::lista_tragos();
    <span class="hljs-keyword">end</span>
 
 <span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure><div class="nota">
 <p>Esta es la slide donde se demuestra lo del molde, y conviene hacerlo corriendo
-el ejemplo: dos fernets y dos gancias entran, y cada <code>lista_tragos()</code> imprime
+el ejemplo: dos fernets y dos mojitos entran, y cada <code>lista_tragos()</code> imprime
 sólo los suyos. La queue es <code>static</code> y aun así hay dos.
 La pregunta para el pizarrón: ¿cuántas queues hay en memoria? Dos. ¿Y cuántas
 habría con tres tragos? Tres. Cada <code>bandeja#(X)</code> que el compilador ve en
@@ -1469,7 +1469,7 @@ usarla — deja de verse desde todo el testbench</li>
 y ésa es la decisión: <strong><code>static</code> cuando de verdad hay uno solo, instanciado
 cuando puede haber más de uno</strong></li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u3/parametricas/03-instanciada/bandejas.sv</code> · líneas 48-76 de 98</figcaption><pre><code class="hljs"><span class="hljs-comment">// bandeja no es estatica ahora</span>
+<figure class="codigo"><figcaption><code>code/u3/parametricas/03-instanciada/bandejas.sv</code> · líneas 48-76 de 98</figcaption><pre><code class="hljs"><span class="hljs-comment">// bandeja is not static any more</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
     type T
 );
@@ -1481,7 +1481,7 @@ cuando puede haber más de uno</strong></li>
    <span class="hljs-keyword">endfunction</span> : bandeja_trago
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">lista_tragos</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Tragos en la bandeja:&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Drinks on the tray:&quot;</span>);
       <span class="hljs-keyword">foreach</span> (vasos[i]) <span class="hljs-built_in">$display</span>(vasos[i].get_name());
    <span class="hljs-keyword">endfunction</span> : lista_tragos
 
@@ -1489,15 +1489,15 @@ cuando puede haber más de uno</strong></li>
 
 <span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
 
-   <span class="hljs-comment">// Como bandeja no es estatica, debemos instanciarla</span>
-   <span class="hljs-comment">// el parametro es un tipo de variable</span>
-   <span class="hljs-comment">// Si usamos como parametro un tipo que no tiene el</span>
-   <span class="hljs-comment">// metodo get_name() hay error de sintaxis</span>
+   <span class="hljs-comment">// Since bandeja is not static, it has to be instantiated</span>
+   <span class="hljs-comment">// the parameter is a variable type</span>
+   <span class="hljs-comment">// Using a type that does not have the get_name()</span>
+   <span class="hljs-comment">// method is a syntax error</span>
    fernet fernet_h;
-   gancia gancia_h;
+   mojito mojito_h;
 
    bandeja #(<span class="hljs-type">fernet</span>) bandeja_de_fernet;
-   bandeja #(<span class="hljs-type">gancia</span>) bandeja_de_gancia;</code></pre><details><summary>el archivo entero, 98 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
+   bandeja #(<span class="hljs-type">mojito</span>) bandeja_de_mojito;</code></pre><details><summary>el archivo entero, 98 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
    <span class="hljs-keyword">protected</span> <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
    <span class="hljs-keyword">protected</span> <span class="hljs-type">string</span> name;
 
@@ -1506,9 +1506,9 @@ cuando puede haber más de uno</strong></li>
       name = n;
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">get_age</span>();
+   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">get_hielos</span>();
       <span class="hljs-keyword">return</span> hielos;
-   <span class="hljs-keyword">endfunction</span> : get_age
+   <span class="hljs-keyword">endfunction</span> : get_hielos
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">get_name</span>();
       <span class="hljs-keyword">return</span> name;
@@ -1527,24 +1527,24 @@ cuando puede haber más de uno</strong></li>
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El fernet %s: 70/30, y la coca al final&quot;</span>, get_name());
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The fernet %s: 70/30, and the coke last&quot;</span>, get_name());
    <span class="hljs-keyword">endfunction</span> : servir
 
 <span class="hljs-keyword">endclass</span> : fernet
 
-<span class="hljs-keyword">class</span> <span class="hljs-title">gancia</span> <span class="hljs-keyword">extends</span> trago;
+<span class="hljs-keyword">class</span> <span class="hljs-title">mojito</span> <span class="hljs-keyword">extends</span> trago;
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> n);
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, n);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El gancia %s: con Sprite y una rodaja de limon&quot;</span>, get_name());
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The mojito %s: mint, lime and crushed ice&quot;</span>, get_name());
    <span class="hljs-keyword">endfunction</span> : servir
 
-<span class="hljs-keyword">endclass</span> : gancia
+<span class="hljs-keyword">endclass</span> : mojito
 
-<span class="hljs-comment">// bandeja no es estatica ahora</span>
+<span class="hljs-comment">// bandeja is not static any more</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
     type T
 );
@@ -1556,7 +1556,7 @@ cuando puede haber más de uno</strong></li>
    <span class="hljs-keyword">endfunction</span> : bandeja_trago
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">lista_tragos</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Tragos en la bandeja:&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Drinks on the tray:&quot;</span>);
       <span class="hljs-keyword">foreach</span> (vasos[i]) <span class="hljs-built_in">$display</span>(vasos[i].get_name());
    <span class="hljs-keyword">endfunction</span> : lista_tragos
 
@@ -1564,34 +1564,34 @@ cuando puede haber más de uno</strong></li>
 
 <span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
 
-   <span class="hljs-comment">// Como bandeja no es estatica, debemos instanciarla</span>
-   <span class="hljs-comment">// el parametro es un tipo de variable</span>
-   <span class="hljs-comment">// Si usamos como parametro un tipo que no tiene el</span>
-   <span class="hljs-comment">// metodo get_name() hay error de sintaxis</span>
+   <span class="hljs-comment">// Since bandeja is not static, it has to be instantiated</span>
+   <span class="hljs-comment">// the parameter is a variable type</span>
+   <span class="hljs-comment">// Using a type that does not have the get_name()</span>
+   <span class="hljs-comment">// method is a syntax error</span>
    fernet fernet_h;
-   gancia gancia_h;
+   mojito mojito_h;
 
    bandeja #(<span class="hljs-type">fernet</span>) bandeja_de_fernet;
-   bandeja #(<span class="hljs-type">gancia</span>) bandeja_de_gancia;
+   bandeja #(<span class="hljs-type">mojito</span>) bandeja_de_mojito;
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       bandeja_de_fernet = <span class="hljs-keyword">new</span>();
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at the bar&quot;</span>);
       bandeja_de_fernet.bandeja_trago(fernet_h);
-      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>);
+      fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at table 4&quot;</span>);
       bandeja_de_fernet.bandeja_trago(fernet_h);
 
-      bandeja_de_gancia = <span class="hljs-keyword">new</span>();
-      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;el de la mesa 7&quot;</span>);
-      bandeja_de_gancia.bandeja_trago(gancia_h);
+      bandeja_de_mojito = <span class="hljs-keyword">new</span>();
+      mojito_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;the one at table 7&quot;</span>);
+      bandeja_de_mojito.bandeja_trago(mojito_h);
 
-      gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;el de la vereda&quot;</span>);
-      bandeja_de_gancia.bandeja_trago(gancia_h);
+      mojito_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;the one on the sidewalk&quot;</span>);
+      bandeja_de_mojito.bandeja_trago(mojito_h);
 
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Fernets --&quot;</span>);
       bandeja_de_fernet.lista_tragos();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Gancias --&quot;</span>);
-      bandeja_de_gancia.lista_tragos();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Mojitos --&quot;</span>);
+      bandeja_de_mojito.lista_tragos();
    <span class="hljs-keyword">end</span>
 
 <span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure><div class="nota">
@@ -1629,7 +1629,7 @@ ahí. Elegir en runtime es la unidad que sigue</li>
 <div class="nota">
 <p>El bullet de las clases distintas es el que hay que dejar clavado, porque es la
 pregunta del repaso y porque es la base de todo UVM. <code>bandeja#(fernet)</code> y
-<code>bandeja#(gancia)</code> no son la misma clase con un campo distinto: son dos
+<code>bandeja#(mojito)</code> no son la misma clase con un campo distinto: son dos
 clases enteras, cada una con su <code>static</code> propio.
 Y el último bullet ubica la sección: el <code>uvm_config_db</code> es estático porque hay
 uno solo; un <code>uvm_analysis_port#(command_transaction)</code> es instanciado porque
@@ -1677,25 +1677,25 @@ devuelve ya construido, del subtipo que corresponda</li>
 <li>Antes de la solución, el problema. Mirá qué pasa cuando el <code>new()</code> está
 escrito en el lugar donde se usa el objeto:</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u3/factory/without-factory.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// En el ejemplo anterior, llamamos a new() cada vez que queremos crear un objeto</span>
-<span class="hljs-comment">// Si queremos crear un conjunto nuevo de tragos, debemos cambiar el codigo fuente</span>
+<figure class="codigo"><figcaption><code>code/u3/factory/without-factory.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// In the previous example, new() gets called every time an object is needed.</span>
+<span class="hljs-comment">// Building a new set of drinks means changing the source code</span>
 bandeja_de_fernet = <span class="hljs-keyword">new</span>();
-fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at the bar&quot;</span>);
 bandeja_de_fernet.bandeja_trago(fernet_h);
-fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>);
+fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at table 4&quot;</span>);
 bandeja_de_fernet.bandeja_trago(fernet_h);
 
-bandeja_de_gancia = <span class="hljs-keyword">new</span>();
-gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;el de la mesa 7&quot;</span>);
-bandeja_de_gancia.bandeja_trago(gancia_h);
+bandeja_de_mojito = <span class="hljs-keyword">new</span>();
+mojito_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;the one at table 7&quot;</span>);
+bandeja_de_mojito.bandeja_trago(mojito_h);
 
-gancia_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;el de la vereda&quot;</span>);
-bandeja_de_gancia.bandeja_trago(gancia_h);
+mojito_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;the one on the sidewalk&quot;</span>);
+bandeja_de_mojito.bandeja_trago(mojito_h);
 
-<span class="hljs-comment">// Consideremos el caso en el que queremos leer un conjunto de tragos aleatorios</span>
-<span class="hljs-comment">// desde un archivo de forma dinamica.</span>
-<span class="hljs-comment">//    --&gt; Es imposible hacer esto con codigo NO hardcodeado</span>
-<span class="hljs-comment">//        Tenemos que hacer un script que genere el source, recompilarlo....</span></code></pre></figure>
+<span class="hljs-comment">// Consider the case where a set of random drinks has to be read from a file</span>
+<span class="hljs-comment">// dynamically.</span>
+<span class="hljs-comment">//    --&gt; Doing that with NON hardcoded code is impossible</span>
+<span class="hljs-comment">//        You would need a script that generates the source, recompile it....</span></code></pre></figure>
 
 <blockquote>
 <p><em>La idea es crear datos de tipos aleatorios sin cambiar el código.</em></p>
@@ -1718,7 +1718,7 @@ muestra que no inventamos nada.</p>
 <ul>
 <li><strong>La factory</strong> es el método de arriba: recibe un argumento y devuelve un objeto
 del tipo que ese argumento pide</li>
-<li><strong>El polimorfismo</strong> es lo que la hace posible: <code>fernet</code> y <code>gancia</code> extienden
+<li><strong>El polimorfismo</strong> es lo que la hace posible: <code>fernet</code> y <code>mojito</code> extienden
 <code>trago</code>, así que los dos entran en una variable <code>trago</code></li>
 <li>Sin lo segundo no hay dónde poner lo que devuelve lo primero. Son las dos
 mitades de la misma herramienta</li>
@@ -1750,28 +1750,28 @@ adentro de un <code>if</code> con su <code>$fatal</code></li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u3/factory/factory.sv</code> · líneas 50-73 de 133</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">cantina</span>;
 
-   <span class="hljs-comment">// Metodo estatico para crear los tragos</span>
+   <span class="hljs-comment">// Static method that builds the drinks</span>
    <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">trago </span><span class="hljs-title">hacer_trago</span>(<span class="hljs-type">string</span> pedido, <span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> name);
-      gancia nuevo_gancia;
-      fernet    nuevo_fernet;
+      mojito nuevo_mojito;
+      fernet nuevo_fernet;
       <span class="hljs-keyword">case</span> (pedido)
          <span class="hljs-string">&quot;fernet&quot;</span>: <span class="hljs-keyword">begin</span>
             nuevo_fernet = <span class="hljs-keyword">new</span>(hielos, name);
             <span class="hljs-keyword">return</span> nuevo_fernet;
          <span class="hljs-keyword">end</span>
 
-         <span class="hljs-string">&quot;gancia&quot;</span>: <span class="hljs-keyword">begin</span>
-            nuevo_gancia = <span class="hljs-keyword">new</span>(hielos, name);
-            <span class="hljs-keyword">return</span> nuevo_gancia;
+         <span class="hljs-string">&quot;mojito&quot;</span>: <span class="hljs-keyword">begin</span>
+            nuevo_mojito = <span class="hljs-keyword">new</span>(hielos, name);
+            <span class="hljs-keyword">return</span> nuevo_mojito;
          <span class="hljs-keyword">end</span>
 
-         <span class="hljs-keyword">default</span>: <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, {<span class="hljs-string">&quot;No hay ese trago: &quot;</span>, pedido});
+         <span class="hljs-keyword">default</span>: <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, {<span class="hljs-string">&quot;No such drink: &quot;</span>, pedido});
 
       <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (pedido)</span>
 
    <span class="hljs-keyword">endfunction</span> : hacer_trago
 
-<span class="hljs-keyword">endclass</span> : cantina</code></pre><details><summary>el archivo entero, 133 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Ejemplo: Factory</span>
+<span class="hljs-keyword">endclass</span> : cantina</code></pre><details><summary>el archivo entero, 133 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Example: the factory pattern</span>
 <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
    <span class="hljs-keyword">protected</span> <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
    <span class="hljs-keyword">protected</span> <span class="hljs-type">string</span> name;
@@ -1781,9 +1781,9 @@ adentro de un <code>if</code> con su <code>$fatal</code></li>
       name = n;
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">get_age</span>();
+   <span class="hljs-keyword">function</span> <span class="hljs-type">int </span><span class="hljs-title">get_hielos</span>();
       <span class="hljs-keyword">return</span> hielos;
-   <span class="hljs-keyword">endfunction</span> : get_age
+   <span class="hljs-keyword">endfunction</span> : get_hielos
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">get_name</span>();
       <span class="hljs-keyword">return</span> name;
@@ -1794,7 +1794,7 @@ adentro de un <code>if</code> con su <code>$fatal</code></li>
 
 <span class="hljs-keyword">class</span> <span class="hljs-title">fernet</span> <span class="hljs-keyword">extends</span> trago;
 
-   <span class="hljs-comment">// Esta variable pertenece a fernet, pero no existe en trago</span>
+   <span class="hljs-comment">// This variable belongs to fernet, but does not exist in trago</span>
    <span class="hljs-type">bit</span> sin_hielo = <span class="hljs-number">0</span>;
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> n);
@@ -1802,42 +1802,42 @@ adentro de un <code>if</code> con su <code>$fatal</code></li>
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El fernet %s: 70/30, y la coca al final&quot;</span>, get_name());
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The fernet %s: 70/30, and the coke last&quot;</span>, get_name());
    <span class="hljs-keyword">endfunction</span> : servir
 
 <span class="hljs-keyword">endclass</span> : fernet
 
-<span class="hljs-keyword">class</span> <span class="hljs-title">gancia</span> <span class="hljs-keyword">extends</span> trago;
+<span class="hljs-keyword">class</span> <span class="hljs-title">mojito</span> <span class="hljs-keyword">extends</span> trago;
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> n);
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, n);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">servir</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;El gancia %s: con Sprite y una rodaja de limon&quot;</span>, get_name());
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;The mojito %s: mint, lime and crushed ice&quot;</span>, get_name());
    <span class="hljs-keyword">endfunction</span> : servir
-<span class="hljs-keyword">endclass</span> : gancia
+<span class="hljs-keyword">endclass</span> : mojito
 
 <span class="hljs-comment">//*********************************************************************</span>
-<span class="hljs-comment">// Parte de la factory Class!</span>
+<span class="hljs-comment">// Part of the factory Class!</span>
 <span class="hljs-comment">//*********************************************************************</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">cantina</span>;
 
-   <span class="hljs-comment">// Metodo estatico para crear los tragos</span>
+   <span class="hljs-comment">// Static method that builds the drinks</span>
    <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">trago </span><span class="hljs-title">hacer_trago</span>(<span class="hljs-type">string</span> pedido, <span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> name);
-      gancia nuevo_gancia;
-      fernet    nuevo_fernet;
+      mojito nuevo_mojito;
+      fernet nuevo_fernet;
       <span class="hljs-keyword">case</span> (pedido)
          <span class="hljs-string">&quot;fernet&quot;</span>: <span class="hljs-keyword">begin</span>
             nuevo_fernet = <span class="hljs-keyword">new</span>(hielos, name);
             <span class="hljs-keyword">return</span> nuevo_fernet;
          <span class="hljs-keyword">end</span>
 
-         <span class="hljs-string">&quot;gancia&quot;</span>: <span class="hljs-keyword">begin</span>
-            nuevo_gancia = <span class="hljs-keyword">new</span>(hielos, name);
-            <span class="hljs-keyword">return</span> nuevo_gancia;
+         <span class="hljs-string">&quot;mojito&quot;</span>: <span class="hljs-keyword">begin</span>
+            nuevo_mojito = <span class="hljs-keyword">new</span>(hielos, name);
+            <span class="hljs-keyword">return</span> nuevo_mojito;
          <span class="hljs-keyword">end</span>
 
-         <span class="hljs-keyword">default</span>: <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, {<span class="hljs-string">&quot;No hay ese trago: &quot;</span>, pedido});
+         <span class="hljs-keyword">default</span>: <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, {<span class="hljs-string">&quot;No such drink: &quot;</span>, pedido});
 
       <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (pedido)</span>
 
@@ -1856,7 +1856,7 @@ adentro de un <code>if</code> con su <code>$fatal</code></li>
    <span class="hljs-keyword">endfunction</span> : bandeja_trago
 
    <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">lista_tragos</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Tragos en la bandeja:&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Drinks on the tray:&quot;</span>);
       <span class="hljs-keyword">foreach</span> (vasos[i]) <span class="hljs-built_in">$display</span>(vasos[i].get_name());
    <span class="hljs-keyword">endfunction</span> : lista_tragos
 
@@ -1867,40 +1867,40 @@ adentro de un <code>if</code> con su <code>$fatal</code></li>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       trago trago_h;
       fernet fernet_h;
-      gancia gancia_h;
+      mojito mojito_h;
       <span class="hljs-type">bit</span> cast_ok;
 
-      <span class="hljs-comment">// Usamos la factory!</span>
-      trago_h = cantina::hacer_trago(<span class="hljs-string">&quot;fernet&quot;</span>, <span class="hljs-number">15</span>, <span class="hljs-string">&quot;el de la barra&quot;</span>);
+      <span class="hljs-comment">// Using the factory!</span>
+      trago_h = cantina::hacer_trago(<span class="hljs-string">&quot;fernet&quot;</span>, <span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at the bar&quot;</span>);
       trago_h.servir();
 
-      <span class="hljs-comment">// Para acceder a un miembro de fernet (derivado de trago) mediante una variable trago</span>
-      <span class="hljs-comment">// es necesario castearlo a fernet.</span>
+      <span class="hljs-comment">// Reaching a member of fernet (derived from trago) through a trago variable</span>
+      <span class="hljs-comment">// requires casting it to fernet.</span>
       cast_ok = <span class="hljs-built_in">$cast</span>(fernet_h, trago_h);
-      <span class="hljs-keyword">if</span> (!cast_ok) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;No se pudo castear trago_h a fernet_h&quot;</span>);
+      <span class="hljs-keyword">if</span> (!cast_ok) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Could not cast trago_h to fernet_h&quot;</span>);
 
-      <span class="hljs-keyword">if</span> (fernet_h.sin_hielo) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Y encima viene tibio!&quot;</span>);
+      <span class="hljs-keyword">if</span> (fernet_h.sin_hielo) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;And on top of that it comes warm!&quot;</span>);
       bandeja#(<span class="hljs-type">fernet</span>)::bandeja_trago(fernet_h);
 
-      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(fernet_h, cantina::hacer_trago(<span class="hljs-string">&quot;fernet&quot;</span>, <span class="hljs-number">2</span>, <span class="hljs-string">&quot;el de la mesa 4&quot;</span>)))
-         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;No se pudo castear el trago de la cantina a fernet_h&quot;</span>);
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(fernet_h, cantina::hacer_trago(<span class="hljs-string">&quot;fernet&quot;</span>, <span class="hljs-number">2</span>, <span class="hljs-string">&quot;the one at table 4&quot;</span>)))
+         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Could not cast the cantina drink to fernet_h&quot;</span>);
 
       bandeja#(<span class="hljs-type">fernet</span>)::bandeja_trago(fernet_h);
 
-      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(gancia_h, cantina::hacer_trago(<span class="hljs-string">&quot;gancia&quot;</span>, <span class="hljs-number">1</span>, <span class="hljs-string">&quot;Clucker&quot;</span>)))
-         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;No se pudo castear el resultado de la cantina a gancia_h&quot;</span>);
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(mojito_h, cantina::hacer_trago(<span class="hljs-string">&quot;mojito&quot;</span>, <span class="hljs-number">1</span>, <span class="hljs-string">&quot;the one at table 7&quot;</span>)))
+         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Could not cast the cantina result to mojito_h&quot;</span>);
 
-      bandeja#(<span class="hljs-type">gancia</span>)::bandeja_trago(gancia_h);
+      bandeja#(<span class="hljs-type">mojito</span>)::bandeja_trago(mojito_h);
 
-      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(gancia_h, cantina::hacer_trago(<span class="hljs-string">&quot;gancia&quot;</span>, <span class="hljs-number">1</span>, <span class="hljs-string">&quot;Boomer&quot;</span>)))
-         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;No se pudo castear el resultado de la cantina a gancia_h&quot;</span>);
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(mojito_h, cantina::hacer_trago(<span class="hljs-string">&quot;mojito&quot;</span>, <span class="hljs-number">1</span>, <span class="hljs-string">&quot;the one on the sidewalk&quot;</span>)))
+         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Could not cast the cantina result to mojito_h&quot;</span>);
 
-      bandeja#(<span class="hljs-type">gancia</span>)::bandeja_trago(gancia_h);
+      bandeja#(<span class="hljs-type">mojito</span>)::bandeja_trago(mojito_h);
 
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Fernets --&quot;</span>);
       bandeja#(<span class="hljs-type">fernet</span>)::lista_tragos();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Gancias --&quot;</span>);
-      bandeja#(<span class="hljs-type">gancia</span>)::lista_tragos();
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;-- Mojitos --&quot;</span>);
+      bandeja#(<span class="hljs-type">mojito</span>)::lista_tragos();
    <span class="hljs-keyword">end</span>
 
 <span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure><div class="nota">
@@ -1925,7 +1925,7 @@ Las dos molestias de esta slide desaparecen en el env.</p>
 <h2 id="el-patrón-factory">El patrón factory</h2>
 <h4 id="python-style"><em>Python Style</em></h4>
 <figure class="codigo"><figcaption><code>code/u3/factory/factory.py</code> · líneas 6-20 de 86</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Trago</span>(<span class="hljs-title class_ inherited__">object</span>):
-    <span class="hljs-string">&quot;&quot;&quot;Clase Factory que arma Trago.&quot;&quot;&quot;</span>
+    <span class="hljs-string">&quot;&quot;&quot;Factory class that builds a Trago.&quot;&quot;&quot;</span>
 
     <span class="hljs-keyword">def</span> <span class="hljs-title function_">factory</span>(<span class="hljs-params"><span class="hljs-built_in">type</span></span>):
         <span class="hljs-string">&quot;&quot;&quot;Factory Method.&quot;&quot;&quot;</span>
@@ -1933,18 +1933,18 @@ Las dos molestias de esta slide desaparecen en el env.</p>
             <span class="hljs-keyword">return</span> CubaLibre()
         <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Fernet&quot;</span>:
             <span class="hljs-keyword">return</span> Fernet()
-        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Gancia&quot;</span>:
-            <span class="hljs-keyword">return</span> Gancia()
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Mojito&quot;</span>:
+            <span class="hljs-keyword">return</span> Mojito()
         <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Whiscola&quot;</span>:
             <span class="hljs-keyword">return</span> Whiscola()
-        <span class="hljs-keyword">assert</span> <span class="hljs-number">0</span>, <span class="hljs-string">&quot;Creaste mal el trago: &quot;</span> + <span class="hljs-built_in">type</span>
-    factory = <span class="hljs-built_in">staticmethod</span>(factory)</code></pre><details><summary>el archivo entero, 86 líneas</summary><pre><code class="hljs"><span class="hljs-string">&quot;&quot;&quot;Ejemplo de Factory en Python.&quot;&quot;&quot;</span>
+        <span class="hljs-keyword">assert</span> <span class="hljs-number">0</span>, <span class="hljs-string">&quot;No such trago: &quot;</span> + <span class="hljs-built_in">type</span>
+    factory = <span class="hljs-built_in">staticmethod</span>(factory)</code></pre><details><summary>el archivo entero, 86 líneas</summary><pre><code class="hljs"><span class="hljs-string">&quot;&quot;&quot;Factory pattern example, in Python.&quot;&quot;&quot;</span>
 <span class="hljs-keyword">from</span> __future__ <span class="hljs-keyword">import</span> generators
 <span class="hljs-keyword">import</span> random
 
 
 <span class="hljs-keyword">class</span> <span class="hljs-title class_">Trago</span>(<span class="hljs-title class_ inherited__">object</span>):
-    <span class="hljs-string">&quot;&quot;&quot;Clase Factory que arma Trago.&quot;&quot;&quot;</span>
+    <span class="hljs-string">&quot;&quot;&quot;Factory class that builds a Trago.&quot;&quot;&quot;</span>
 
     <span class="hljs-keyword">def</span> <span class="hljs-title function_">factory</span>(<span class="hljs-params"><span class="hljs-built_in">type</span></span>):
         <span class="hljs-string">&quot;&quot;&quot;Factory Method.&quot;&quot;&quot;</span>
@@ -1952,75 +1952,75 @@ Las dos molestias de esta slide desaparecen en el env.</p>
             <span class="hljs-keyword">return</span> CubaLibre()
         <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Fernet&quot;</span>:
             <span class="hljs-keyword">return</span> Fernet()
-        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Gancia&quot;</span>:
-            <span class="hljs-keyword">return</span> Gancia()
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Mojito&quot;</span>:
+            <span class="hljs-keyword">return</span> Mojito()
         <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Whiscola&quot;</span>:
             <span class="hljs-keyword">return</span> Whiscola()
-        <span class="hljs-keyword">assert</span> <span class="hljs-number">0</span>, <span class="hljs-string">&quot;Creaste mal el trago: &quot;</span> + <span class="hljs-built_in">type</span>
+        <span class="hljs-keyword">assert</span> <span class="hljs-number">0</span>, <span class="hljs-string">&quot;No such trago: &quot;</span> + <span class="hljs-built_in">type</span>
     factory = <span class="hljs-built_in">staticmethod</span>(factory)
 
 
 <span class="hljs-keyword">class</span> <span class="hljs-title class_">CubaLibre</span>(<span class="hljs-title class_ inherited__">Trago</span>):
-    <span class="hljs-string">&quot;&quot;&quot;Ron con coca.&quot;&quot;&quot;</span>
+    <span class="hljs-string">&quot;&quot;&quot;Rum and coke.&quot;&quot;&quot;</span>
 
     <span class="hljs-keyword">def</span> <span class="hljs-title function_">hielo</span>(<span class="hljs-params">self</span>):
-        <span class="hljs-string">&quot;&quot;&quot;Hielito.&quot;&quot;&quot;</span>
+        <span class="hljs-string">&quot;&quot;&quot;Ice cubes.&quot;&quot;&quot;</span>
         <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;CubaLibre.hielo: 2&quot;</span>)
 
     <span class="hljs-keyword">def</span> <span class="hljs-title function_">graduacion</span>(<span class="hljs-params">self</span>):
-        <span class="hljs-string">&quot;&quot;&quot;Alcohol.&quot;&quot;&quot;</span>
-        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;CubaLibre.graduacion: pecho&quot;</span>)
+        <span class="hljs-string">&quot;&quot;&quot;Strength.&quot;&quot;&quot;</span>
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;CubaLibre.graduacion: medium&quot;</span>)
 
 
 <span class="hljs-keyword">class</span> <span class="hljs-title class_">Whiscola</span>(<span class="hljs-title class_ inherited__">Trago</span>):
-    <span class="hljs-string">&quot;&quot;&quot;Whisky con coca.&quot;&quot;&quot;</span>
+    <span class="hljs-string">&quot;&quot;&quot;Whisky and coke.&quot;&quot;&quot;</span>
 
     <span class="hljs-keyword">def</span> <span class="hljs-title function_">hielo</span>(<span class="hljs-params">self</span>):
-        <span class="hljs-string">&quot;&quot;&quot;Hielito.&quot;&quot;&quot;</span>
+        <span class="hljs-string">&quot;&quot;&quot;Ice cubes.&quot;&quot;&quot;</span>
         <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Whiscola.hielo: 2&quot;</span>)
 
     <span class="hljs-keyword">def</span> <span class="hljs-title function_">graduacion</span>(<span class="hljs-params">self</span>):
-        <span class="hljs-string">&quot;&quot;&quot;Alcohol.&quot;&quot;&quot;</span>
-        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Whiscola.graduacion: bien&quot;</span>)
+        <span class="hljs-string">&quot;&quot;&quot;Strength.&quot;&quot;&quot;</span>
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Whiscola.graduacion: strong&quot;</span>)
 
 
 <span class="hljs-keyword">class</span> <span class="hljs-title class_">Fernet</span>(<span class="hljs-title class_ inherited__">Trago</span>):
-    <span class="hljs-string">&quot;&quot;&quot;Cuadrados.&quot;&quot;&quot;</span>
+    <span class="hljs-string">&quot;&quot;&quot;Fernet and coke.&quot;&quot;&quot;</span>
 
     <span class="hljs-keyword">def</span> <span class="hljs-title function_">hielo</span>(<span class="hljs-params">self</span>):
-        <span class="hljs-string">&quot;&quot;&quot;Hielito.&quot;&quot;&quot;</span>
+        <span class="hljs-string">&quot;&quot;&quot;Ice cubes.&quot;&quot;&quot;</span>
         <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Fernet.hielo: 3&quot;</span>)
 
     <span class="hljs-keyword">def</span> <span class="hljs-title function_">graduacion</span>(<span class="hljs-params">self</span>):
-        <span class="hljs-string">&quot;&quot;&quot;Alcohol.&quot;&quot;&quot;</span>
-        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Fernet.graduacion: tibio&quot;</span>)
+        <span class="hljs-string">&quot;&quot;&quot;Strength.&quot;&quot;&quot;</span>
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Fernet.graduacion: strong&quot;</span>)
 
 
-<span class="hljs-keyword">class</span> <span class="hljs-title class_">Gancia</span>(<span class="hljs-title class_ inherited__">Trago</span>):
-    <span class="hljs-string">&quot;&quot;&quot;Gancia con Sprite.&quot;&quot;&quot;</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Mojito</span>(<span class="hljs-title class_ inherited__">Trago</span>):
+    <span class="hljs-string">&quot;&quot;&quot;Mint, lime and soda.&quot;&quot;&quot;</span>
 
     <span class="hljs-keyword">def</span> <span class="hljs-title function_">hielo</span>(<span class="hljs-params">self</span>):
-        <span class="hljs-string">&quot;&quot;&quot;Hielito.&quot;&quot;&quot;</span>
-        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Gancia.hielo: 5&quot;</span>)
+        <span class="hljs-string">&quot;&quot;&quot;Ice cubes.&quot;&quot;&quot;</span>
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Mojito.hielo: 5&quot;</span>)
 
     <span class="hljs-keyword">def</span> <span class="hljs-title function_">graduacion</span>(<span class="hljs-params">self</span>):
-        <span class="hljs-string">&quot;&quot;&quot;Alcohol.&quot;&quot;&quot;</span>
-        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Gancia.graduacion: ultra-pecho&quot;</span>)
+        <span class="hljs-string">&quot;&quot;&quot;Strength.&quot;&quot;&quot;</span>
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Mojito.graduacion: light&quot;</span>)
 
 
-<span class="hljs-comment"># Generate Tragos: de una manera random</span>
+<span class="hljs-comment"># Generate Tragos: at random</span>
 <span class="hljs-keyword">def</span> <span class="hljs-title function_">trago_generator</span>(<span class="hljs-params">n</span>):
     <span class="hljs-string">&quot;&quot;&quot;Factory Method.&quot;&quot;&quot;</span>
-    <span class="hljs-comment"># Pedimos que nos entreguen todas las subclases heredadas</span>
+    <span class="hljs-comment"># Ask the language for every subclass that inherits from Trago</span>
     types = Trago.__subclasses__()
-    <span class="hljs-comment"># Armamos un generador</span>
+    <span class="hljs-comment"># Build a generator</span>
     <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n):
         <span class="hljs-keyword">yield</span> random.choice(types).__name__
 
 Tragos = [Trago.factory(i) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> trago_generator(<span class="hljs-number">20</span>)]
 
 
-<span class="hljs-comment"># No importa que tipo de trago estoy generando, sale igual</span>
+<span class="hljs-comment"># It does not matter which trago comes out: they all get served the same</span>
 <span class="hljs-keyword">for</span> Trago <span class="hljs-keyword">in</span> Tragos:
     Trago.hielo()
     Trago.graduacion()</code></pre></details></figure>
@@ -2155,12 +2155,12 @@ handle al <code>testbench</code></li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u3/tb-en-objetos/top.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
 
-   <span class="hljs-comment">// Guardamos las definiciones de clase y recursos compartidos en un package</span>
+   <span class="hljs-comment">// Class definitions and shared resources are kept in a package</span>
    <span class="hljs-keyword">import</span> vtalu_pkg::*;
-   <span class="hljs-comment">// Los macros que utilizamos tambien los definimos en comun. Esto tmb lo hace UVM</span>
+   <span class="hljs-comment">// The macros are defined in common too. UVM does this as well</span>
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;vtalu_macros.svh&quot;</span>
 
-   <span class="hljs-comment">// Instanciamos la DUT y el BFM</span>
+   <span class="hljs-comment">// The DUT and the BFM get instantiated</span>
    vtalu DUT (
        .A(bfm.A),
        .B(bfm.B),
@@ -2175,11 +2175,11 @@ handle al <code>testbench</code></li>
 
    vtalu_bfm bfm ();
 
-   <span class="hljs-comment">// Declaramos una variable que contenga nuestro TB</span>
+   <span class="hljs-comment">// A variable to hold our TB</span>
    testbench testbench_h;
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
-      <span class="hljs-comment">// Instanciamos y lanzamos el objeto testbench</span>
+      <span class="hljs-comment">// The testbench object gets built and launched</span>
       testbench_h = <span class="hljs-keyword">new</span>(bfm);
       testbench_h.execute();
    <span class="hljs-keyword">end</span>
@@ -2211,9 +2211,9 @@ necesitan y lanza sus threads. Todo testbench OOP tiene uno</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u3/tb-en-objetos/tb_classes/testbench.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">testbench</span>;
 
-   <span class="hljs-comment">// virtual: el equivalente en objetos de la port list de un modulo. Le dice</span>
-   <span class="hljs-comment">// al compilador que esta variable va a recibir un handle a una interface</span>
-   <span class="hljs-comment">// en algun momento futuro. Ver la slide de la unidad 10.</span>
+   <span class="hljs-comment">// virtual: the object-world equivalent of a module&#x27;s port list. It tells</span>
+   <span class="hljs-comment">// the compiler that this variable is going to receive a handle to an</span>
+   <span class="hljs-comment">// interface at some point in the future. See the slide in unit 10.</span>
    <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
 
    tester    tester_h;
@@ -2229,7 +2229,7 @@ necesitan y lanza sus threads. Todo testbench OOP tiene uno</li>
       coverage_h = <span class="hljs-keyword">new</span>(bfm);
       scoreboard_h = <span class="hljs-keyword">new</span>(bfm);
 
-      <span class="hljs-comment">// Un thread por objeto. join_none: execute() vuelve y los tres siguen.</span>
+      <span class="hljs-comment">// One thread per object. join_none: execute() returns and the three go on.</span>
       <span class="hljs-keyword">fork</span>
          tester_h.execute();
          coverage_h.execute();
@@ -2270,7 +2270,7 @@ port list</li>
 </ul>
 </li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u3/tb-en-objetos/tb_classes/tester.svh</code> · líneas 32-56 de 58</figcaption><pre><code class="hljs">   <span class="hljs-comment">// Reemplazamos el initial block por una task execute()</span>
+<figure class="codigo"><figcaption><code>code/u3/tb-en-objetos/tb_classes/tester.svh</code> · líneas 32-56 de 58</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The initial block is replaced by an execute() task</span>
    <span class="hljs-keyword">task</span> <span class="hljs-title">execute</span>();
       <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>     iA;
       <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>     iB;
@@ -2325,7 +2325,7 @@ port list</li>
       <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> <span class="hljs-built_in">$random</span>;
    <span class="hljs-keyword">endfunction</span> : get_data
 
-   <span class="hljs-comment">// Reemplazamos el initial block por una task execute()</span>
+   <span class="hljs-comment">// The initial block is replaced by an execute() task</span>
    <span class="hljs-keyword">task</span> <span class="hljs-title">execute</span>();
       <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>     iA;
       <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>     iB;
@@ -2380,8 +2380,8 @@ de verificación del testbench convencional que al random no le conviene esperar
 <code>forever</code> con la espera adentro — misma semántica, escrita como código
 secuencial</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u3/tb-en-objetos/tb_classes/scoreboard.svh</code> · líneas 8-39 de 41</figcaption><pre><code class="hljs">   <span class="hljs-comment">// El always @(posedge done) de la version modular, como forever loop: un</span>
-   <span class="hljs-comment">// objeto no tiene lista de sensibilidad, tiene una task que se bloquea.</span>
+<figure class="codigo"><figcaption><code>code/u3/tb-en-objetos/tb_classes/scoreboard.svh</code> · líneas 8-39 de 41</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The always @(posedge done) of the modular version, as a forever loop: an</span>
+   <span class="hljs-comment">// object has no sensitivity list, it has a task that blocks.</span>
    <span class="hljs-keyword">task</span> <span class="hljs-title">execute</span>();
       <span class="hljs-type">shortint</span> predicted_result;
       <span class="hljs-type">bit</span>      predicted_ovf;
@@ -2395,8 +2395,8 @@ secuencial</li>
             mul_op: predicted_result = bfm.A * bfm.B;
          <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (op_set)</span>
 
-         <span class="hljs-comment">// El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de</span>
-         <span class="hljs-comment">// salida, ni la suma ni la multiplicacion se pasan.</span>
+         <span class="hljs-comment">// ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit</span>
+         <span class="hljs-comment">// output, neither the addition nor the multiplication can overflow.</span>
          predicted_ovf = (bfm.op_set == sub_op) &amp;&amp; (bfm.A &lt; bfm.B);
 
          <span class="hljs-keyword">if</span> ((bfm.op_set != no_op) &amp;&amp; (bfm.op_set != rst_op))
@@ -2418,8 +2418,8 @@ secuencial</li>
       bfm = b;
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-comment">// El always @(posedge done) de la version modular, como forever loop: un</span>
-   <span class="hljs-comment">// objeto no tiene lista de sensibilidad, tiene una task que se bloquea.</span>
+   <span class="hljs-comment">// The always @(posedge done) of the modular version, as a forever loop: an</span>
+   <span class="hljs-comment">// object has no sensitivity list, it has a task that blocks.</span>
    <span class="hljs-keyword">task</span> <span class="hljs-title">execute</span>();
       <span class="hljs-type">shortint</span> predicted_result;
       <span class="hljs-type">bit</span>      predicted_ovf;
@@ -2433,8 +2433,8 @@ secuencial</li>
             mul_op: predicted_result = bfm.A * bfm.B;
          <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (op_set)</span>
 
-         <span class="hljs-comment">// El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de</span>
-         <span class="hljs-comment">// salida, ni la suma ni la multiplicacion se pasan.</span>
+         <span class="hljs-comment">// ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit</span>
+         <span class="hljs-comment">// output, neither the addition nor the multiplication can overflow.</span>
          predicted_ovf = (bfm.op_set == sub_op) &amp;&amp; (bfm.A &lt; bfm.B);
 
          <span class="hljs-keyword">if</span> ((bfm.op_set != no_op) &amp;&amp; (bfm.op_set != rst_op))
@@ -2504,10 +2504,10 @@ escala.</p>
          <span class="hljs-keyword">bins</span> single_cycle[] = {[add_op : xor_op], rst_op,no_op};
          <span class="hljs-keyword">bins</span> multi_cycle = {mul_op};
 
-         <span class="hljs-comment">// Bins de transicion. Verilator 5.052 todavia NO los implementa: cualquier</span>
-         <span class="hljs-comment">// forma con &quot;=&gt;&quot; o &quot;[* n]&quot; aborta con un Internal Error. Repro minimo en</span>
-         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. Quedan aca porque son parte del tema;</span>
-         <span class="hljs-comment">// cuando Verilator los soporte, se borra el ifndef y nada mas.</span>
+         <span class="hljs-comment">// Transition bins. Verilator 5.052 does NOT implement them yet: any form</span>
+         <span class="hljs-comment">// with &quot;=&gt;&quot; or &quot;[* n]&quot; aborts with an Internal Error. Minimal repro in</span>
+         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. They stay because they are part</span>
+         <span class="hljs-comment">// of the topic; when Verilator supports them, drop the ifndef, nothing else.</span>
 <span class="hljs-meta">`ifndef</span> VERILATOR
          <span class="hljs-keyword">bins</span> opn_rst[] = ([add_op:mul_op] =&gt; rst_op);
          <span class="hljs-keyword">bins</span> rst_opn[] = (rst_op =&gt; [add_op:mul_op]);
@@ -2539,9 +2539,9 @@ escala.</p>
          <span class="hljs-keyword">bins</span> others= {[<span class="hljs-number">8&#x27;h01</span>:<span class="hljs-number">8&#x27;hFE</span>]};
          <span class="hljs-keyword">bins</span> ones  = {<span class="hljs-number">8&#x27;hFF</span>};
       }
-      <span class="hljs-comment">// rev2 del VTALU: el borrow de la resta, que es la fila del plan que el</span>
-      <span class="hljs-comment">// scoreboard solo puede cerrar mirando DOS salidas. Sin este bin, una</span>
-      <span class="hljs-comment">// resta que nunca dio negativa es indistinguible de una que si.</span>
+      <span class="hljs-comment">// VTALU rev2: the borrow of the subtraction, the row of the plan that the</span>
+      <span class="hljs-comment">// scoreboard can only close by looking at TWO outputs. Without this bin, a</span>
+      <span class="hljs-comment">// subtraction that never went negative looks exactly like one that did.</span>
       borrow: <span class="hljs-keyword">coverpoint</span> ((op_set == sub_op) &amp;&amp; (A &lt; B)) {
          <span class="hljs-keyword">bins</span> hubo_borrow = {<span class="hljs-number">1</span>};
          <span class="hljs-keyword">ignore_bins</span> resto = {<span class="hljs-number">0</span>};
@@ -2743,7 +2743,7 @@ versiones conviven. Eso es el ejercicio que acaban de hacer.</p>
 <li><input disabled="" type="checkbox"> Los dos, primero el de la clase base</li>
 </ul>
 <blockquote>
-<p><strong>El de <code>trago</code></strong> — sin <code>virtual</code>, SystemVerilog mira el <strong>tipo de la variable</strong>, no el del objeto. Es literal lo que imprime <code>code/u3/polimorfismo/01-sin-virtual</code>: <em>&quot;Generic tragos don&#39;t have a sound&quot;</em>.</p>
+<p><strong>El de <code>trago</code></strong> — sin <code>virtual</code>, SystemVerilog mira el <strong>tipo de la variable</strong>, no el del objeto. Es literal lo que imprime <code>code/u3/polimorfismo/01-sin-virtual</code>: <em>&quot;A generic trago cannot be served&quot;</em>.</p>
 </blockquote>
 <p class="al-deck"><a href="../index.html#/104">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -2799,7 +2799,7 @@ versiones conviven. Eso es el ejercicio que acaban de hacer.</p>
 <section id="s108" class="slide quiz">
 <h2 id="repaso-·-día-2">Repaso · Día 2</h2>
 <h4 id="6-de-8-·-clases-paramétricas"><em>6 de 8 · Clases paramétricas</em></h4>
-<p><strong><code>bandeja#(fernet)</code> y <code>bandeja#(gancia)</code> tienen adentro una queue <code>static</code>. ¿Comparten la queue?</strong></p>
+<p><strong><code>bandeja#(fernet)</code> y <code>bandeja#(mojito)</code> tienen adentro una queue <code>static</code>. ¿Comparten la queue?</strong></p>
 <ul>
 <li><input disabled="" type="checkbox"> Sí, <code>static</code> es una sola para todos</li>
 <li><input disabled="" type="checkbox"> Sí, salvo que se declare <code>protected</code></li>

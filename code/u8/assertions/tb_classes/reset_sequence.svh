@@ -1,18 +1,18 @@
-// La sequence mas chica que existe: un solo item.
+// The smallest sequence there is: a single item.
 //
-// Es un uvm_object, no un uvm_component: no esta en el arbol, no tiene padre,
-// no tiene fases. Se crea, corre y se tira.
+// It is a uvm_object, not a uvm_component: it is not in the tree, it has no
+// parent, it has no phases. It gets created, it runs, and it gets thrown away.
 class reset_sequence extends uvm_sequence #(command_transaction);
-   // `uvm_object_utils, NO `uvm_component_utils: el constructor tiene un solo
-   // argumento y no hay parent que pasar.
+   // `uvm_object_utils, NOT `uvm_component_utils: the constructor takes a single
+   // argument and there is no parent to pass.
    `uvm_object_utils(reset_sequence)
 
    function new(string name = "reset_sequence");
       super.new(name);
    endfunction : new
 
-   // body() es una TASK, no una function: adentro se bloquea. Nadie la llama a
-   // mano; la llama UVM cuando alguien arranca la sequence.
+   // body() is a TASK, not a function: it blocks inside. Nobody calls it by
+   // hand; UVM calls it when somebody starts the sequence.
    task body();
       command_transaction command;
       command = command_transaction::type_id::create("command");

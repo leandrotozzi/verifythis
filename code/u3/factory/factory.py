@@ -1,10 +1,10 @@
-"""Ejemplo de Factory en Python."""
+"""Factory pattern example, in Python."""
 from __future__ import generators
 import random
 
 
 class Trago(object):
-    """Clase Factory que arma Trago."""
+    """Factory class that builds a Trago."""
 
     def factory(type):
         """Factory Method."""
@@ -12,75 +12,75 @@ class Trago(object):
             return CubaLibre()
         if type == "Fernet":
             return Fernet()
-        if type == "Gancia":
-            return Gancia()
+        if type == "Mojito":
+            return Mojito()
         if type == "Whiscola":
             return Whiscola()
-        assert 0, "Creaste mal el trago: " + type
+        assert 0, "No such trago: " + type
     factory = staticmethod(factory)
 
 
 class CubaLibre(Trago):
-    """Ron con coca."""
+    """Rum and coke."""
 
     def hielo(self):
-        """Hielito."""
+        """Ice cubes."""
         print("CubaLibre.hielo: 2")
 
     def graduacion(self):
-        """Alcohol."""
-        print("CubaLibre.graduacion: pecho")
+        """Strength."""
+        print("CubaLibre.graduacion: medium")
 
 
 class Whiscola(Trago):
-    """Whisky con coca."""
+    """Whisky and coke."""
 
     def hielo(self):
-        """Hielito."""
+        """Ice cubes."""
         print("Whiscola.hielo: 2")
 
     def graduacion(self):
-        """Alcohol."""
-        print("Whiscola.graduacion: bien")
+        """Strength."""
+        print("Whiscola.graduacion: strong")
 
 
 class Fernet(Trago):
-    """Cuadrados."""
+    """Fernet and coke."""
 
     def hielo(self):
-        """Hielito."""
+        """Ice cubes."""
         print("Fernet.hielo: 3")
 
     def graduacion(self):
-        """Alcohol."""
-        print("Fernet.graduacion: tibio")
+        """Strength."""
+        print("Fernet.graduacion: strong")
 
 
-class Gancia(Trago):
-    """Gancia con Sprite."""
+class Mojito(Trago):
+    """Mint, lime and soda."""
 
     def hielo(self):
-        """Hielito."""
-        print("Gancia.hielo: 5")
+        """Ice cubes."""
+        print("Mojito.hielo: 5")
 
     def graduacion(self):
-        """Alcohol."""
-        print("Gancia.graduacion: ultra-pecho")
+        """Strength."""
+        print("Mojito.graduacion: light")
 
 
-# Generate Tragos: de una manera random
+# Generate Tragos: at random
 def trago_generator(n):
     """Factory Method."""
-    # Pedimos que nos entreguen todas las subclases heredadas
+    # Ask the language for every subclass that inherits from Trago
     types = Trago.__subclasses__()
-    # Armamos un generador
+    # Build a generator
     for i in range(n):
         yield random.choice(types).__name__
 
 Tragos = [Trago.factory(i) for i in trago_generator(20)]
 
 
-# No importa que tipo de trago estoy generando, sale igual
+# It does not matter which trago comes out: they all get served the same
 for Trago in Tragos:
     Trago.hielo()
     Trago.graduacion()

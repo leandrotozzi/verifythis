@@ -1,6 +1,6 @@
-// El mismo add_test de la seccion Transactions, palabra por palabra. Ninguna sequence se
-// entera: random_sequence sigue pidiendole un command_transaction a la factory,
-// y la factory le devuelve un add_transaction.
+// The same add_test as the Transactions section, word for word. No sequence finds
+// out: random_sequence still asks the factory for a command_transaction,
+// and the factory hands it back an add_transaction.
 class add_test extends full_test;
    `uvm_component_utils(add_test)
 

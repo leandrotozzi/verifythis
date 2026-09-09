@@ -1,10 +1,10 @@
 module top;
    vtalu_bfm bfm ();
-   // Tester: Genera el estimulo
+   // Tester: generates the stimulus
    tester tester_i (bfm);
-   // Coverage: Provee Functional Coverage
+   // Coverage: provides functional coverage
    coverage coverage_i (bfm);
-   // ScoreBoard: Chequea los resultados
+   // ScoreBoard: checks the results
    scoreboard scoreboard_i (bfm);
 
    vtalu DUT (

@@ -166,7 +166,7 @@ uno recibiera su propio tipo, la llamada a `super.do_copy(rhs)` no compilaría �
 los tipos no coincidirían.
 El precio es que adentro de cada método hay que hacer `$cast` para poder leer los
 campos propios. Y como vimos en la factory, ese `$cast` chequea en runtime: si
-alguien intenta copiar un `gancia` sobre un `fernet`, devuelve 0 y hay que
+alguien intenta copiar un `mojito` sobre un `fernet`, devuelve 0 y hay que
 atajarlo.
 Es la primera vez que se ve una convención de firma que existe sólo para que el
 polimorfismo funcione. En UVM va a ser lo mismo y con más reglas: el argumento se

@@ -1,5 +1,5 @@
-// Abstracta: nadie corre +UVM_TESTNAME=base_test. Arma la estructura y nada
-// mas -- el estimulo lo pone cada test.
+// Abstract: nobody runs +UVM_TESTNAME=base_test. It builds the structure and nothing
+// else -- the stimulus is each test's job.
 virtual class base_test extends uvm_test;
    `uvm_component_abstract_utils(base_test)
 

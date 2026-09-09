@@ -16,27 +16,27 @@ class tester extends uvm_component;
 
       phase.raise_objection(this);
 
-      // TODAS las transactions salen de la factory, tambien las dirigidas.
-      // Un new() aca compilaria y andaria igual, pero se saltearia el
-      // set_type_override de add_test: la factory no se entera de lo que
-      // construis a mano. Ver la slide "el new() que se come el override".
+      // ALL transactions come out of the factory, the directed ones too.
+      // A new() here would compile and work just the same, but it would skip
+      // add_test's set_type_override: the factory never hears about what you
+      // build by hand. See the slide "the new() that eats the override".
       command = command_transaction::type_id::create("command");
       command.op = rst_op;
       command_port.put(command);
 
       repeat (1000) begin : random_loop
          command = command_transaction::type_id::create("command");
-         // randomize() devuelve 0 si las constraints no tienen solucion, y no
-         // aborta nada. Un assert() pelado deja pasar en silencio una
-         // transaction sin randomizar: el TB sigue, mandando basura.
-         if (!command.randomize()) `uvm_fatal("TESTER", "randomize() fallo")
+         // randomize() returns 0 if the constraints have no solution, and aborts
+         // nothing. A bare assert() lets an unrandomized transaction through in
+         // silence: the TB carries on, sending garbage.
+         if (!command.randomize()) `uvm_fatal("TESTER", "randomize() failed")
          command_port.put(command);
       end : random_loop
 
-      // Dirigida: el caso de desborde del multiplicador, que 1000 operaciones
-      // al azar podrian no tocar nunca. Sale de la factory igual que las otras,
-      // pero como no se randomiza, la constraint de add_transaction no corre:
-      // la factory elige el TIPO, las constraints solo actuan en randomize().
+      // Directed: the multiplier overflow case, which 1000 random operations
+      // might never touch. It comes out of the factory like the others, but
+      // since it is not randomized, add_transaction's constraint does not run:
+      // the factory picks the TYPE, constraints only act inside randomize().
       command = command_transaction::type_id::create("command");
       command.op = mul_op;
       command.A = 8'hFF;

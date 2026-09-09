@@ -1,6 +1,6 @@
-// La sequence del random: N ciclos al azar, con el dist de la transaction
-// sesgado a escribir mas de lo que lee. Sin ese sesgo la FIFO no se llena
-// nunca y las dos filas caras del plan quedan en cero.
+// The random sequence: N random cycles, with the transaction dist
+// biased to write more than it reads. Without that bias the FIFO never fills
+// and the two expensive rows of the plan stay at zero.
 class random_sequence extends uvm_sequence #(fifo_transaction);
    `uvm_object_utils(random_sequence)
 
@@ -16,11 +16,11 @@ class random_sequence extends uvm_sequence #(fifo_transaction);
       repeat (ciclos) begin
          t = fifo_transaction::type_id::create("t");
          start_item(t);
-         if (!t.randomize()) `uvm_fatal("SEQ", "randomize() fallo: falta z3?")
+         if (!t.randomize()) `uvm_fatal("SEQ", "randomize() failed: is z3 missing?")
          finish_item(t);
       end
-      // Y al final, vaciarla: asi el chequeo del check_phase tiene sentido y
-      // se toca el borde de abajo aunque el azar no haya querido.
+      // And at the end, drain it: that way the check_phase check makes sense and
+      // the bottom edge gets touched even if chance did not want to.
       repeat (12) begin
          t = fifo_transaction::type_id::create("t");
          start_item(t);

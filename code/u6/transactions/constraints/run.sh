@@ -1,6 +1,6 @@
 #!/bin/bash
-# Los cuatro experimentos de Constrained Random. Sin UVM: compilan en segundos.
-# Ver docs/verilator.md.
+# The four Constrained Random experiments. No UVM: they compile in seconds.
+# See docs/verilator.md.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../../verilator/common.sh"
 

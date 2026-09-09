@@ -17,7 +17,7 @@ por un `uvm_analysis_port`, y del otro lado escuchan el `coverage` y el
 2. **`env.svh`** — instancialo y conectalo al analysis port del
    `command_monitor`, sin tocar las conexiones que ya están.
 
-Listo cuando `bash run.sh` imprime `EJERCICIO OK`.
+Listo cuando `bash run.sh` imprime `EXERCISE OK`.
 
 La corrección es cruzada: tu `comandos=` tiene que dar igual que la cantidad de
 líneas `[COMMAND MONITOR]` que imprime el monitor, que no las escribiste vos. Si

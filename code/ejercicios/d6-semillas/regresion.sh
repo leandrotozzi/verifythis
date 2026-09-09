@@ -1,26 +1,26 @@
-# Ejercicio del dia 6 -- la misma sequence, otra semilla.
+# Day 6 exercise -- the same sequence, another seed.
 #
-# Este archivo lo corre run.sh DESPUES de compilar, con todo esto ya en scope:
+# run.sh runs this file AFTER compiling, with all of this already in scope:
 #
-#   run_sim <args>   corre la simulacion. SEED=N elige la semilla, y la imprime.
-#                    Deja la cobertura de esa corrida en $VLT_OBJ/cov.$VLT_RUN.dat
-#   $VLT_OBJ         el directorio del build
+#   run_sim <args>   runs the simulation. SEED=N picks the seed, and prints it.
+#                    It leaves that run's coverage in $VLT_OBJ/cov.$VLT_RUN.dat
+#   $VLT_OBJ         the build directory
 #
-# Se pide:
-#   1. correr el mismo test con las semillas 1, 2, 3, 4 y 5;
-#   2. guardar la cobertura de cada una en $VLT_OBJ/seed.<N>.dat;
-#   3. mergear las cinco en $VLT_OBJ/regresion.dat.
+# What is asked:
+#   1. run the same test with seeds 1, 2, 3, 4 and 5;
+#   2. save each one's coverage in $VLT_OBJ/seed.<N>.dat;
+#   3. merge the five into $VLT_OBJ/regresion.dat.
 #
-# El comando del merge es el mismo que usa cov_report en common.sh, y es lo que
-# en Questa seria el merge de ucdb:
+# The merge command is the same one cov_report uses in common.sh, and it is what
+# in Questa would be the ucdb merge:
 #
-#   verilator_coverage --write <salida.dat> <entrada1.dat> <entrada2.dat> ...
+#   verilator_coverage --write <output.dat> <input1.dat> <input2.dat> ...
 #
-# Del resto se encarga run.sh: lee los cinco .dat y el merge, y te dice si la
-# regresion sumo cobertura o no.
+# run.sh takes care of the rest: it reads the five .dat and the merge, and tells
+# you whether the regression added coverage or not.
 
-# <<< ACA >>>  las cinco corridas
+# <<< HERE >>>  the five runs
 SEED=1 run_sim +UVM_TESTNAME=regresion_test > /dev/null
 cp "$VLT_OBJ/cov.$VLT_RUN.dat" "$VLT_OBJ/seed.1.dat"
 
-# <<< ACA >>>  y el merge en $VLT_OBJ/regresion.dat
+# <<< HERE >>>  and the merge into $VLT_OBJ/regresion.dat

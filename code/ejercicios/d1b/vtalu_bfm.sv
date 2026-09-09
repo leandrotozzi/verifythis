@@ -15,11 +15,11 @@ interface vtalu_bfm;
 
    assign op = op_set;
 
-   // BFM nos da un primer paso en la modularizacion
-   // Se encarga de manejar todas las signals de bajo nivel
-   // encapsulando el protocolo en un mismo y unico lugar
+   // The BFM is a first step towards modularity
+   // It takes care of driving every low-level signal
+   // and keeps the protocol in one single place
 
-   // Clock del DUT
+   // DUT clock
    initial begin
       clk = 0;
       forever begin
@@ -28,7 +28,7 @@ interface vtalu_bfm;
       end
    end
 
-   // Reset del DUT
+   // DUT reset
    task reset_alu();
       reset_n = 1'b0;
       @(negedge clk);
@@ -37,8 +37,8 @@ interface vtalu_bfm;
       start = 1'b0;
    endtask : reset_alu
 
-   // Podemos modificar el manejo del protocolo en un unico lugar.
-   // Si arreglamos el Fix Aca, se propaga en el resto del codigo
+   // The protocol handling can now be changed in one single place.
+   // Fix it here once, and the fix propagates through the rest of the code
    task send_op(input byte iA, input byte iB, input operation_t iop,
                 output shortint alu_result);
 
@@ -61,11 +61,11 @@ interface vtalu_bfm;
             #1;
             start = 1'b0;
          end else begin
-            // TODO(ejercicio 1b): esta linea cuenta ciclos en vez de esperar el
-            // handshake. Para las operaciones de un ciclo da lo mismo; para una
-            // que tarda mas, send_op vuelve antes de tiempo y el estimulo
-            // siguiente pisa A y B mientras el DUT todavia esta calculando.
-            // Se arregla con una linea. Mira las ondas antes de tocarla.
+            // TODO(exercise 1b): this line counts cycles instead of waiting for
+            // the handshake. For one-cycle operations it makes no difference; for one
+            // that takes longer, send_op returns too early and the next
+            // stimulus overwrites A and B while the DUT is still computing.
+            // One line fixes it. Look at the waves before touching it.
             repeat (2) @(negedge clk);
             start = 1'b0;
          end

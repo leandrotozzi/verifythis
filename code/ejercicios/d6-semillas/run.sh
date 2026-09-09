@@ -1,17 +1,17 @@
 #!/bin/bash
-# Ejercicio del dia 6 (seccion Sequences) -- otra semilla. Falla hasta que lo resuelvas.
+# Day 6 exercise (Sequences section) -- another seed. It fails until you solve it.
 #
-#   bash run.sh              con tu regresion.sh
-#   SOLUCION=1 bash run.sh   con el de solucion/, para comparar
+#   bash run.sh              with your regresion.sh
+#   SOLUCION=1 bash run.sh   with the one in solucion/, to compare
 #
-# El test es reset + 25 operaciones al azar. 25 y no 1000 a proposito: con 1000
-# el random ya llega hasta donde puede y todas las semillas dan el mismo numero
-# -- medilo, esta en la slide "otra semilla, y de nuevo" de la seccion Constrained random.
+# The test is reset + 25 random operations. 25 and not 1000 on purpose: with 1000
+# the random already goes as far as it can and every seed gives the same number
+# -- measure it, it is on the "another seed, and again" slide of the Constrained random section.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
 vlt_uvm top --coverage-user -Wno-fatal -f dut.f -f tb.f
 
-falta() { echo "todavia no: $1" >&2; exit 1; }
+falta() { echo "not yet: $1" >&2; exit 1; }
 bins() { verilator_coverage "$1" 2>/dev/null | sed -nE 's/.*covergroup *: *[0-9.]+% *\( *([0-9]+)\/.*/\1/p'; }
 
 rm -f "$VLT_OBJ"/seed.*.dat "$VLT_OBJ/regresion.dat"
@@ -20,9 +20,9 @@ rm -f "$VLT_OBJ"/seed.*.dat "$VLT_OBJ/regresion.dat"
 dats=$(ls "$VLT_OBJ"/seed.*.dat 2>/dev/null | sort)
 n=$(printf '%s\n' $dats | grep -c . || true)
 [ "$n" -ge 5 ] ||
-  falta "encontre $n archivo(s) seed.<N>.dat y hacen falta 5, uno por semilla"
+  falta "I found $n seed.<N>.dat file(s) and 5 are needed, one per seed"
 
-echo "=== cobertura de cada semilla ==="
+echo "=== coverage of each seed ==="
 mejor=0
 for d in $dats; do
   b=$(bins "$d")
@@ -31,15 +31,15 @@ for d in $dats; do
 done
 
 [ -f "$VLT_OBJ/regresion.dat" ] ||
-  falta "falta el merge: verilator_coverage --write \$VLT_OBJ/regresion.dat \$VLT_OBJ/seed.*.dat"
+  falta "the merge is missing: verilator_coverage --write \$VLT_OBJ/regresion.dat \$VLT_OBJ/seed.*.dat"
 merge=$(bins "$VLT_OBJ/regresion.dat")
-echo "=== las cinco, mergeadas ==="
+echo "=== the five, merged ==="
 printf '    regresion.dat  %s bins\n' "$merge"
 
 [ "$merge" -gt "$mejor" ] ||
-  falta "el merge da $merge bins y la mejor semilla sola ya daba $mejor.
-    Si son iguales, lo mas probable es que hayas mergeado un solo .dat, o que
-    los cinco sean copias de la misma corrida: fijate que run_sim reciba una
-    SEED distinta en cada vuelta -- la imprime al arrancar."
+  falta "the merge gives $merge bins and the best seed alone already gave $mejor.
+    If they are equal, the most likely thing is that you merged a single .dat, or that
+    the five are copies of the same run: check that run_sim gets a
+    different SEED on each pass -- it prints it on start."
 
-echo "EJERCICIO OK: la mejor semilla sola llega a $mejor bins; las cinco mergeadas, a $merge"
+echo "EXERCISE OK: the best seed alone reaches $mejor bins; the five merged, $merge"

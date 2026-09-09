@@ -39,8 +39,11 @@ o cloná el repo y abrí `index.html` con doble clic
 > 15 self-checking exercises.
 > It **runs entirely on Verilator** — no EDA licenses, no account, no signup: clone
 > the repo, or open the deck with a double click.
-> The material is in Spanish and stays that way; the code, the commands and the
-> [Verilator support matrix](docs/verilator.md) read fine in any language.
+> **The English version is live**, published one day at a time as each one lands:
+> [leandrotozzi.github.io/verifythis/en/](https://leandrotozzi.github.io/verifythis/en/)
+> — **day 1 is complete**. The code, the exercises and the diagrams are already
+> English and shared by both versions, so every example runs as it is; only the
+> slides get rewritten. Order and progress: [`ROADMAP.md`](ROADMAP.md).
 
 Casi todo el material de UVM que hay dando vueltas asume Questa, VCS o Xcelium
 —licencias que un estudiante no tiene—, y está en inglés. Este curso:
@@ -207,14 +210,15 @@ sólo citá la fuente.
 
 ## Editar
 
-Las slides son Markdown, un archivo por sección, en `slides/`. El prefijo
+Las slides son Markdown, un archivo por sección, en `slides/es/` (y en
+`slides/en/`, la versión en inglés). El prefijo
 numérico define el orden; dentro de cada archivo, `---` entre líneas en blanco
 separa una slide de la siguiente.
 
 ```
-slides/000-verify-this.md
-slides/010-tendencias.md
-slides/030-3-sv-interfaces-bfm.md
+slides/es/000-verify-this.md
+slides/es/010-tendencias.md
+slides/es/030-interfaces-bfm.md
 ```
 
 ### Incluir código
@@ -440,7 +444,7 @@ semillas.
 El decimotercero, `d7-final`, es el **capstone**: un esclavo APB de cuatro registros,
 su especificación, y **nada más**. El testbench se escribe entero, desde una
 hoja en blanco, y el corrector va por etapas — monitor, driver, scoreboard y
-cobertura, un `ETAPA N OK` cada uno. Se entrega con su **plan de verificación**
+cobertura, un `STAGE N OK` cada uno. Se entrega con su **plan de verificación**
 lleno: las cinco columnas, la plantilla y el plan del VTALU como ejemplo están en
 **[`docs/plan-de-verificacion.md`](docs/plan-de-verificacion.md)**.
 
@@ -553,6 +557,8 @@ lado y correrlo tal cual. Ver [`code/README.md`](code/README.md).
 
 ```
 slides/           fuente de verdad de las slides (Markdown)
+  es/             el curso en castellano: una seccion por archivo
+  en/             el mismo curso en ingles, un dia por vez
 code/             ejemplos SystemVerilog, un directorio por sección
   ejercicios/     uno por día: el run.sh falla hasta que lo resolvés
 docs/             verilator.md (qué anda y qué no), docker.md, el plan de
@@ -565,10 +571,13 @@ tools/
   doctor.sh       ¿esta máquina corre el curso? qué falta y cómo se instala
   inventario.mjs  el único lugar que sabe cuántos ejemplos, slides, secciones,
                   ejercicios, preguntas, días, figuras y trampas hay
-  build.mjs       slides/ + code/  →  index.html + dist/slides.md
+  build.mjs       slides/<idioma>/ + code/  →  index.html + dist/slides.md
+  i18n.mjs        los textos que no salen de slides/: titulos, dias, la UI
+  lint-i18n.mjs   que slides/en/ no diverja de slides/es/, ni en estructura
+                  ni en sentido (cada traduccion lleva el sha de su original)
                   + docs/banco-de-examen.md y docs/trampas-mudas.md
   template.html   shell de reveal.js (config, atajos, machete)
-  libro.mjs       slides/ + code/  ->  libro/diaN.html (las notas, inline)
+  libro.mjs       slides/<idioma>/ + code/  ->  libro/diaN.html (las notas, inline)
   overflow.mjs    verifica que ninguna slide se recorte
   lint-slides.mjs slides mudas, includes largos sin lines=, y el estilo de los
                   titulos (### y subtitulos sin italica)

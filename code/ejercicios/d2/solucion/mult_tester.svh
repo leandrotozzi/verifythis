@@ -1,5 +1,5 @@
-// La clase entera son ocho lineas: eso es lo que compra la herencia. El resto
-// del tester —el protocolo, el loop, los displays— no se toca.
+// The whole class is eight lines: that is what inheritance buys. The rest of
+// the tester —the protocol, the loop, the displays— is untouched.
 class mult_tester extends tester;
 
    function new(virtual vtalu_bfm b);

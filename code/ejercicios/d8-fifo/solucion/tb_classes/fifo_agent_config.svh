@@ -1,4 +1,4 @@
-// Un config por agent: que interface maneja, y si maneja o solo mira.
+// One config per agent: which interface it drives, and whether it drives or only watches.
 class fifo_agent_config;
 
    virtual fifo_if bfm;

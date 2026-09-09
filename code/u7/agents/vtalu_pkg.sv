@@ -12,7 +12,7 @@ package vtalu_pkg;
       rst_op = 3'b111
    } operation_t;
 
-   // Los configs primero: el driver y los monitores los usan.
+   // Configs first: the driver and the monitors use them.
    `include "env_config.svh"
    `include "vtalu_agent_config.svh"
 
@@ -20,8 +20,8 @@ package vtalu_pkg;
    `include "add_transaction.svh"
    `include "result_transaction.svh"
 
-   // El sequencer no se extiende: se parametriza y se le pone nombre.
-   // Va DESPUES de command_transaction y ANTES del driver y del agent.
+   // The sequencer is not extended: it is parameterized and given a name.
+   // It goes AFTER command_transaction and BEFORE the driver and the agent.
    typedef uvm_sequencer #(command_transaction) sequencer;
 
    `include "command_sequence.svh"

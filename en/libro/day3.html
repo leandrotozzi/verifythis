@@ -1,0 +1,2334 @@
+<!DOCTYPE html>
+<html lang="en" class="libro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 3 · UVM walks in — Verify This! · A UVM course</title>
+<meta name="description" content="Day 3 of the UVM course, to read straight through: the slides with the instructor notes inside the text and the complete code.">
+<link rel="stylesheet" href="../../css/fonts.css">
+<link rel="stylesheet" href="../../css/course.css">
+<link rel="stylesheet" href="../../css/code.css">
+<link rel="stylesheet" href="../../css/libro.css">
+</head>
+<body class="reveal">
+<header class="cabecera">
+  <div class="wrap">
+    <p class="marca"><a href="../../web/index.html">Verify This!</a> · the course to read</p>
+    <nav class="nav-dias">
+      <a href="day1.html">Day 1</a>
+      <a href="day2.html">Day 2</a>
+      <b>Day 3</b>
+      <a href="day4.html">Day 4</a>
+      <a href="day5.html">Day 5</a>
+      <a href="day6.html">Day 6</a>
+      <a href="day7.html">Day 7</a>
+      <a href="day8.html">Day 8</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <h1 class="titulo-dia"><span>Day 3</span>UVM walks in</h1>
+  <p class="bajada">The same slides as the deck, with <strong>the instructor notes
+  inside the text</strong> and the complete code. If you are taking the course on
+  your own, start here and keep the deck alongside for the reviews.</p>
+
+<section id="s112" class="slide">
+<!-- es-sha: 95edf94ae33d -->
+
+
+
+
+<h2 id="agenda">Agenda</h2>
+<h4 id="day-3-·-≈-4-h-30-·-unit-4-·-uvm-walks-in"><em>Day 3 · ≈ 4 h 30 · unit 4 · UVM walks in</em></h4>
+<ul>
+<li>Tests</li>
+<li>Components and phases</li>
+<li>The env: structure and stimulus</li>
+<li>Reporting: verbosity and <em>actions</em></li>
+</ul>
+<p class="al-deck"><a href="../index.html#/112">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s113" class="slide">
+<!-- es-sha: 99cf2a5b8aef -->
+<h2 id="tests">Tests</h2>
+<h4 id="compile-once-pick-the-test-from-the-command-line"><em>Compile once, pick the test from the command line</em></h4>
+<ul>
+<li>The object-based testbench has the stimulus <strong>inside</strong>: changing test means
+changing code and compiling again</li>
+<li>A thousand tests at five minutes of compilation each are <strong>5000 minutes</strong>: three
+and a half days of machine time to run nothing new</li>
+<li>UVM turns the order around: the testbench gets compiled <strong>once</strong>, and the test that
+runs is picked when the simulation starts</li>
+</ul>
+<pre><code class="language-bash">$ ./obj_dir/top/sim +UVM_TESTNAME=random_test
+$ ./obj_dir/top/sim +UVM_TESTNAME=add_test     # the same binary
+</code></pre>
+<ul>
+<li>That is what this unit buys, and what gets paid with the ceremony that
+comes: registration in the factory, a constructor with a fixed signature and phases</li>
+</ul>
+<div class="nota">
+<p>The arithmetic is UVM&#39;s commercial argument, and it is worth saying it with the numbers
+in hand: it is not that the modular testbench is wrong, it is that it does not scale.
+If possible, live: compile once and run the two lines above. Let them
+see that the second one compiles nothing.
+What gets collected from the object-based testbench: the testbench is already split into tester,
+coverage and scoreboard, and that is why only the tester can be changed. What gets
+paid up front: in the components those three classes stop being loose objects that
+the test <code>new()</code>s and become components of the tree.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/113">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s114" class="slide">
+<h2 id="tests">Tests</h2>
+<h4 id="the-top-instantiate-publish-the-interface-start"><em>The top: instantiate, publish the interface, start</em></h4>
+<figure class="codigo"><figcaption><code>code/u4/tests/top.sv</code> · líneas 21-28 de 31</figcaption><pre><code class="hljs">
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      <span class="hljs-comment">// null and &quot;*&quot;: from the root and visible to the whole tree. See the</span>
+      <span class="hljs-comment">// uvm_config_db slide.</span>
+      <span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::set(<span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;*&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm);
+
+      <span class="hljs-comment">// UVM reads +UVM_TESTNAME, and builds THAT test with the factory.</span>
+      run_test();</code></pre><details><summary>el archivo entero, 31 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+   <span class="hljs-keyword">import</span> <span class="hljs-uvm-type">uvm_pkg</span>::*;
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;uvm_macros.svh&quot;</span>
+
+   <span class="hljs-comment">// Our classes and macros, same as in the modular version.</span>
+   <span class="hljs-keyword">import</span> vtalu_pkg::*;
+   <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;vtalu_macros.svh&quot;</span>
+
+   vtalu_bfm bfm ();
+   vtalu DUT (
+       .A(bfm.A),
+       .B(bfm.B),
+       .op(bfm.op_set),
+       .clk(bfm.clk),
+       .reset_n(bfm.reset_n),
+       .start(bfm.start),
+       .done(bfm.done),
+       .ovf(bfm.ovf),
+       .result(bfm.result)
+   );
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      <span class="hljs-comment">// null and &quot;*&quot;: from the root and visible to the whole tree. See the</span>
+      <span class="hljs-comment">// uvm_config_db slide.</span>
+      <span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::set(<span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;*&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm);
+
+      <span class="hljs-comment">// UVM reads +UVM_TESTNAME, and builds THAT test with the factory.</span>
+      run_test();
+   <span class="hljs-keyword">end</span>
+
+<span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure>
+
+<ul>
+<li>The <code>top</code> is still a <strong>module</strong>: it instantiates the BFM and the DUT the same as
+before. The only new thing is these two lines</li>
+<li><code>run_test()</code> with no argument means <em>&quot;whichever <code>+UVM_TESTNAME</code> says&quot;</em>. With an
+argument —<code>run_test(&quot;random_test&quot;)</code>— you go back to hardcoding the test</li>
+<li>Before <code>run_test()</code> there is not a single UVM object alive: that is why the <code>set</code> goes here</li>
+</ul>
+<div class="nota">
+<p>The virtual interface gets passed through the config_db because classes do not see the
+signals of the module: <code>bfm</code> lives in <code>top</code>, and <code>random_test</code> is an object that gets
+created at simulation time. There is no way to hand it over through the constructor —
+<code>uvm_component</code>&#39;s only accepts <code>name</code> and <code>parent</code>.
+It is worth pointing at the order: first the <code>set</code>, then <code>run_test()</code>. The other way round
+the test gets built before the data is in the database and the <code>get</code> fails with
+the fatal. It is a mistake you rarely see because almost nobody writes the top the wrong way
+round, but it explains why the <code>set</code> cannot go in a separate <code>initial</code>.
+The slide that follows is the one to explain well: it is mistake number one of
+whoever starts with UVM.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/114">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s115" class="slide">
+<h2 id="tests">Tests</h2>
+<h4 id="uvm_config_db-the-testbenchs-mailbox"><em>uvm_config_db: the testbench&#39;s mailbox</em></h4>
+<ul>
+<li>A global and <strong>typed</strong> database: the <code>#(...)</code> is part of the key</li>
+<li>Four arguments: <em>scope</em> (<code>cntxt</code>, <code>inst_name</code>), <em>name</em> and <em>data</em></li>
+<li>The <strong>scope</strong> is a hierarchical path, and that is where all the point is</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u4/tests/config_db.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// -- IN THE TOP -- top is a module, not a uvm_component ---------------------</span>
+<span class="hljs-comment">//   cntxt = null : the scope starts at the UVM root</span>
+<span class="hljs-comment">//   inst  = &quot;*&quot;  : visible to the whole component tree</span>
+<span class="hljs-uvm-type">uvm_config_db</span> #(<span class="hljs-keyword">virtual</span> vtalu_bfm)::set(<span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;*&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm);
+
+<span class="hljs-comment">// -- IN A COMPONENT -- always inside build_phase ----------------------------</span>
+<span class="hljs-comment">//   cntxt = this : the scope is the hierarchical path of THIS component</span>
+<span class="hljs-comment">//   inst  = &quot;&quot;   : with no suffix, the path is exactly the component&#x27;s</span>
+<span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span> #(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
+  <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;DRIVER&quot;</span>, <span class="hljs-string">&quot;Failed to get BFM&quot;</span>)
+
+<span class="hljs-comment">// The 3rd argument (&quot;bfm&quot;) is the NAME of the datum inside the database.</span>
+<span class="hljs-comment">// If the string in the set and the one in the get are not identical, this still</span>
+<span class="hljs-comment">// compiles and blows up at run time with a null pointer.</span></code></pre></figure><div class="nota">
+<p>The first two arguments are <em>where</em>, the third is <em>what</em>. In the <code>set</code> of the
+top it is <code>null, &quot;*&quot;</code> because <code>top</code> is a module, it is not in the UVM tree: the
+translation is &quot;from the root, visible to everybody&quot;.
+In the <code>get</code> it is <code>this, &quot;&quot;</code>, that is, &quot;me&quot;. It is worth writing on the board the
+path that comes out: <code>uvm_test_top.env_h.driver_h</code>.
+And the shortcut to warn against from the start: <code>get(null, &quot;*&quot;, ...)</code> also
+compiles and also works — it searches the whole tree and keeps the first thing it
+finds. With a single interface you never notice. The day the testbench
+has two, the driver of bus A can end up driving bus B, and it does not fail:
+it lies. It is one of those mistakes that get paid for three months later.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/115">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s116" class="slide">
+<h2 id="tests">Tests</h2>
+<h4 id="a-test-in-three-parts-1-·-register-it"><em>A test in three parts: 1 · register it</em></h4>
+<figure class="codigo"><figcaption><code>code/u4/tests/tb_classes/random_test.svh</code> · líneas 4-7 de 41</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">random_test</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_test</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(random_test);
+
+   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;</code></pre><details><summary>el archivo entero, 41 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The first UVM test of the course. The five steps this class puts together</span>
+<span class="hljs-comment">// --registration, constructor, build_phase, run_phase and objections-- are</span>
+<span class="hljs-comment">// explained one by one in the slides of unit 11.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">random_test</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_test</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(random_test);
+
+   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// The get goes in build_phase and not in the constructor: when the</span>
+   <span class="hljs-comment">// constructor runs, the tree does not exist yet.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TEST&quot;</span>, <span class="hljs-string">&quot;Failed to get BFM&quot;</span>)
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      random_tester random_tester_h;
+      coverage      coverage_h;
+      scoreboard    scoreboard_h;
+
+      phase.raise_objection(<span class="hljs-keyword">this</span>);
+
+      random_tester_h = <span class="hljs-keyword">new</span>(bfm);
+      coverage_h = <span class="hljs-keyword">new</span>(bfm);
+      scoreboard_h = <span class="hljs-keyword">new</span>(bfm);
+
+      <span class="hljs-keyword">fork</span>
+         coverage_h.execute();
+         scoreboard_h.execute();
+      <span class="hljs-keyword">join_none</span>
+
+      random_tester_h.execute();
+
+      phase.drop_objection(<span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endtask</span> : run_phase
+
+<span class="hljs-keyword">endclass</span></code></pre></details></figure>
+
+<ul>
+<li><code>random_test</code> extends <code>uvm_test</code>, which extends <code>uvm_component</code>: it is a node
+of the tree, not a loose object</li>
+<li>The <code>`uvm_component_utils</code> macro **enrols it in the factory**. Without that
+line, <code>+UVM_TESTNAME=random_test</code> finds nothing and UVM aborts</li>
+<li>The handle to the virtual interface gets <strong>declared</strong> here and <strong>filled in</strong> in the
+<code>build_phase</code>: they are two different moments</li>
+</ul>
+<div class="nota">
+<p>It is the first time the factory shows up for real, and you still cannot see what it is
+for: here it only acts as a directory of names. The second half —creating by type
+and being able to substitute it from outside— arrives in the env with the overrides.
+The semicolon after the macro is redundant and UVM tolerates it. It is in the code of the
+book and we left it the same so that whoever compares does not get dizzy, but if somebody
+asks: it is not needed.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/116">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s117" class="slide">
+<h2 id="tests">Tests</h2>
+<h4 id="2-·-the-constructor-and-the-build_phase"><em>2 · the constructor and the <code>build_phase</code></em></h4>
+<figure class="codigo"><figcaption><code>code/u4/tests/tb_classes/random_test.svh</code> · líneas 9-18 de 41</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// The get goes in build_phase and not in the constructor: when the</span>
+   <span class="hljs-comment">// constructor runs, the tree does not exist yet.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TEST&quot;</span>, <span class="hljs-string">&quot;Failed to get BFM&quot;</span>)
+   <span class="hljs-keyword">endfunction</span> : build_phase</code></pre><details><summary>el archivo entero, 41 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The first UVM test of the course. The five steps this class puts together</span>
+<span class="hljs-comment">// --registration, constructor, build_phase, run_phase and objections-- are</span>
+<span class="hljs-comment">// explained one by one in the slides of unit 11.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">random_test</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_test</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(random_test);
+
+   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// The get goes in build_phase and not in the constructor: when the</span>
+   <span class="hljs-comment">// constructor runs, the tree does not exist yet.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TEST&quot;</span>, <span class="hljs-string">&quot;Failed to get BFM&quot;</span>)
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      random_tester random_tester_h;
+      coverage      coverage_h;
+      scoreboard    scoreboard_h;
+
+      phase.raise_objection(<span class="hljs-keyword">this</span>);
+
+      random_tester_h = <span class="hljs-keyword">new</span>(bfm);
+      coverage_h = <span class="hljs-keyword">new</span>(bfm);
+      scoreboard_h = <span class="hljs-keyword">new</span>(bfm);
+
+      <span class="hljs-keyword">fork</span>
+         coverage_h.execute();
+         scoreboard_h.execute();
+      <span class="hljs-keyword">join_none</span>
+
+      random_tester_h.execute();
+
+      phase.drop_objection(<span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endtask</span> : run_phase
+
+<span class="hljs-keyword">endclass</span></code></pre></details></figure>
+
+<ul>
+<li>The constructor of a <code>uvm_component</code> has a <strong>fixed signature</strong>: <code>name</code> and <code>parent</code>,
+in that order, and <code>super.new(name, parent)</code> as the first line</li>
+<li>The <code>get</code> of the config_db goes in <code>build_phase</code>, <strong>not</strong> in the constructor: when
+the constructor runs the tree is still being assembled</li>
+<li><code>if (!get(...)) uvm_fatal</code>: the <code>get</code> returns a bit. Ignoring it leaves the handle
+at <code>null</code> and the failure shows up a hundred lines later, in another file</li>
+</ul>
+<div class="nota">
+<p>The fixed signature is the first thing everybody breaks: a constructor with one
+argument too many and the factory cannot create it, because it always calls with
+<code>(name, parent)</code>.
+<code>build_phase</code> is a phase, not a function you call yourself: UVM walks it
+top-down over the already assembled tree. In this test you cannot tell yet, because the
+tree is a single node; in the components, when the env builds its children, the
+top-down order is what makes the parent exist before the child.
+The fatal is not paranoia: without it, a typo in the name of the data —&quot;bfm&quot; against
+&quot;BFM&quot;— gives a simulation that runs, sends not one stimulus and finishes with 0
+errors.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/117">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s118" class="slide">
+<h2 id="tests">Tests</h2>
+<h4 id="3-·-the-run_phase-this-is-where-the-simulation-happens"><em>3 · the <code>run_phase</code>: this is where the simulation happens</em></h4>
+<figure class="codigo"><figcaption><code>code/u4/tests/tb_classes/random_test.svh</code> · líneas 20-39 de 41</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      random_tester random_tester_h;
+      coverage      coverage_h;
+      scoreboard    scoreboard_h;
+
+      phase.raise_objection(<span class="hljs-keyword">this</span>);
+
+      random_tester_h = <span class="hljs-keyword">new</span>(bfm);
+      coverage_h = <span class="hljs-keyword">new</span>(bfm);
+      scoreboard_h = <span class="hljs-keyword">new</span>(bfm);
+
+      <span class="hljs-keyword">fork</span>
+         coverage_h.execute();
+         scoreboard_h.execute();
+      <span class="hljs-keyword">join_none</span>
+
+      random_tester_h.execute();
+
+      phase.drop_objection(<span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 41 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The first UVM test of the course. The five steps this class puts together</span>
+<span class="hljs-comment">// --registration, constructor, build_phase, run_phase and objections-- are</span>
+<span class="hljs-comment">// explained one by one in the slides of unit 11.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">random_test</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_test</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(random_test);
+
+   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// The get goes in build_phase and not in the constructor: when the</span>
+   <span class="hljs-comment">// constructor runs, the tree does not exist yet.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TEST&quot;</span>, <span class="hljs-string">&quot;Failed to get BFM&quot;</span>)
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      random_tester random_tester_h;
+      coverage      coverage_h;
+      scoreboard    scoreboard_h;
+
+      phase.raise_objection(<span class="hljs-keyword">this</span>);
+
+      random_tester_h = <span class="hljs-keyword">new</span>(bfm);
+      coverage_h = <span class="hljs-keyword">new</span>(bfm);
+      scoreboard_h = <span class="hljs-keyword">new</span>(bfm);
+
+      <span class="hljs-keyword">fork</span>
+         coverage_h.execute();
+         scoreboard_h.execute();
+      <span class="hljs-keyword">join_none</span>
+
+      random_tester_h.execute();
+
+      phase.drop_objection(<span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endtask</span> : run_phase
+
+<span class="hljs-keyword">endclass</span></code></pre></details></figure>
+
+<ul>
+<li>It is the same body as the <code>execute()</code> of the object-based testbench: tester, coverage and
+scoreboard, with the two observers in <code>fork ... join_none</code></li>
+<li>What changes is <strong>who calls it</strong>: before it was called by the <code>top</code> module, now
+it is called by UVM when the run phase&#39;s turn comes</li>
+<li>The two new lines are the <code>raise</code> and the <code>drop</code> of the objection, which are the ones
+that decide when everything ends</li>
+</ul>
+<div class="nota">
+<p>It is worth showing it next to the <code>tb.execute()</code> of the object-based testbench: the stimulus did not
+change by one line. The only thing we did was move it inside a class that
+UVM knows how to create and call. That is the whole job of this unit.
+<code>join_none</code> and not <code>join</code>: coverage and scoreboard are infinite loops that watch
+the signals. If we waited for them to finish, it never finishes.
+And the one people miss: the simulation does not last as long as the <code>run_phase</code> lasts, it lasts as
+long as the objections last. That is what comes now.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/118">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s119" class="slide">
+<h2 id="tests">Tests</h2>
+<h4 id="objections-who-decides-when-it-ends"><em>Objections: who decides when it ends</em></h4>
+<pre><code class="language-systemverilog">task run_phase(uvm_phase phase);
+   phase.raise_objection(this);    // &quot;I still have work&quot;
+   ...                             // the stimulus
+   phase.drop_objection(this);     // &quot;done, as far as I am concerned it can end&quot;
+endtask
+</code></pre>
+<ul>
+<li>Every <code>run_phase</code> runs <strong>in parallel</strong>: none of them can decide on its own
+when to finish. UVM counts, and the phase ends when the <strong>last</strong>
+objection drops</li>
+<li>Without <code>raise_objection</code> the simulation ends at <strong>time 0</strong>, and the test
+passes with 0 errors without having sent a single stimulus</li>
+<li>Without <code>drop_objection</code> it never ends: there is no error, time simply stops advancing</li>
+<li>Both symptoms are <strong>silent</strong>, and that is why two plusargs exist:
+<code>+UVM_OBJECTION_TRACE</code> says who raised it and who dropped it, and <code>+UVM_TIMEOUT</code>
+puts a ceiling on the run</li>
+</ul>
+<div class="nota">
+<p>It is the mechanism that decides how long the simulation lasts, and it is the one that produces the
+two classic hangs of the first week. Worth writing the two failures on the
+board, because the student is going to see them before any DUT bug.
+The rule of thumb: the objection gets raised by <strong>whoever has work</strong>, and dropped
+by <strong>the same one</strong>. In this course it is always the test. Never raise it in a
+component and drop it in another one — that is how a real testbench hangs.
+And a third participant is missing, which is the next slide: the objection knows
+when the test finished <strong>sending</strong>, not when the scoreboard finished
+<strong>comparing</strong>. That is the difference the <code>drain_time</code> pays for.
+And the day 6 hook: <code>set_automatic_phase_objection(1)</code> is this same thing, done
+by the sequencer instead of by the test.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/119">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s120" class="slide">
+<h2 id="tests">Tests</h2>
+<h4 id="the-end-that-is-not-the-end-drain_time"><em>The end that is not the end: <code>drain_time</code></em></h4>
+<ul>
+<li>The objection says <em>&quot;I finished <strong>sending</strong>&quot;</em>. It does not say <em>&quot;I finished
+<strong>comparing</strong>&quot;</em>: between the two there is a scoreboard with a FIFO inside and
+results the DUT has not answered yet</li>
+<li>When the last objection drops the phase cuts <strong>at that instant</strong>: what
+was left in flight does not arrive, nobody compares it, and the summary says <code>UVM_ERROR : 0</code></li>
+</ul>
+<pre><code class="language-systemverilog">task run_phase(uvm_phase phase);
+   phase.get_objection().set_drain_time(this, 200ns);  // a cushion after the last drop
+   phase.raise_objection(this);
+   ...                                                 // the stimulus
+   phase.drop_objection(this);
+endtask
+</code></pre>
+<ul>
+<li>The <code>drain_time</code> is a number picked by eye. The version with a criterion is
+<strong><code>phase_ready_to_end()</code></strong>: UVM calls it when the last objection dropped, and the
+component that still has work raises one more and the phase carries on</li>
+<li>It is <strong>the</strong> bug of the second week, and it is silent: no error, no hang, and
+the last transactions were never compared</li>
+</ul>
+<div class="nota">
+<p>It is the flip side of the previous slide and it is worth saying it in those words: the
+objection measures <strong>the stimulus</strong>, not the analysis. The test knows when it finished
+sending; the scoreboard is the one that knows when it finished comparing, and nobody
+asked it.
+The <code>drain_time</code> is the cheap answer and it is enough for 90 % of the cases: a
+fixed cushion after the last <code>drop_objection</code>, in the order of what the
+DUT takes to answer. In this course it would be a couple of cycles; on a bus with latency,
+whatever the spec says.
+<code>phase_ready_to_end()</code> is the expensive answer and the one used in a serious
+testbench, because it is not a number: the scoreboard looks at its own FIFO, and if it has
+items left it raises one more objection. The shape is always the same —check
+<code>phase.get_name() == &quot;run&quot;</code>, and raise only if something really is missing—, and the
+trap has to be said: if whoever implements it never drops it, they hung the phase.
+The third piece, for whoever wants to hook in at exactly that instant, is
+<code>all_dropped</code>: a callback of the objection object that fires when the count
+reaches zero.
+And the hook forward: the scoreboard with a FIFO of the analysis ports is
+exactly the case of this slide, and the capstone steps on it again.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/120">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s121" class="slide">
+<h2 id="tests">Tests</h2>
+<h4 id="the-second-test-the-same-thing-with-another-tester"><em>The second test: the same thing, with another tester</em></h4>
+<figure class="codigo"><figcaption><code>code/u4/tests/tb_classes/add_test.svh</code> · líneas 17-35 de 37</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      add_tester add_tester_h;
+      coverage   coverage_h;
+      scoreboard scoreboard_h;
+
+      phase.raise_objection(<span class="hljs-keyword">this</span>);
+
+      add_tester_h = <span class="hljs-keyword">new</span>(bfm);
+      coverage_h = <span class="hljs-keyword">new</span>(bfm);
+      scoreboard_h = <span class="hljs-keyword">new</span>(bfm);
+
+      <span class="hljs-keyword">fork</span>
+         coverage_h.execute();
+         scoreboard_h.execute();
+      <span class="hljs-keyword">join_none</span>
+
+      add_tester_h.execute();
+      phase.drop_objection(<span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 37 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">add_test</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_test</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(add_test);
+
+   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// Same build_phase as random_test: the virtual interface is read from the</span>
+   <span class="hljs-comment">// config_db, with this and &quot;&quot; as the scope. See random_test.svh.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;ADD TEST&quot;</span>, <span class="hljs-string">&quot;Failed to get BFM&quot;</span>)
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      add_tester add_tester_h;
+      coverage   coverage_h;
+      scoreboard scoreboard_h;
+
+      phase.raise_objection(<span class="hljs-keyword">this</span>);
+
+      add_tester_h = <span class="hljs-keyword">new</span>(bfm);
+      coverage_h = <span class="hljs-keyword">new</span>(bfm);
+      scoreboard_h = <span class="hljs-keyword">new</span>(bfm);
+
+      <span class="hljs-keyword">fork</span>
+         coverage_h.execute();
+         scoreboard_h.execute();
+      <span class="hljs-keyword">join_none</span>
+
+      add_tester_h.execute();
+      phase.drop_objection(<span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endtask</span> : run_phase
+
+<span class="hljs-keyword">endclass</span></code></pre></details></figure>
+
+<ul>
+<li><code>add_test</code> is <code>random_test</code> with <strong>one different line</strong>: <code>add_tester</code> instead
+of <code>random_tester</code>. Everything else repeats exactly as it is</li>
+<li>That repetition is real and it is ugly, and it is the debt the components pay: when
+the testbench is a tree of components, the test is going to build an <code>env</code> and it is not
+going to touch the stimulus</li>
+<li>For now it is worth seeing it copied: it is the problem that motivates what
+follows</li>
+</ul>
+<div class="nota">
+<p>The duplication should not be apologized for, it should be pointed at. The student has to
+finish this slide with the feeling of &quot;this cannot be right&quot;, because that
+feeling is exactly the reason for the components and the env.
+If somebody jumps ahead and proposes a base class with the common <code>run_phase</code> and a
+virtual method to pick the tester: that is fine, and it is more or less what
+<code>base_test</code> does in the sequences. Tell them so and move on.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/121">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s122" class="slide">
+<h2 id="tests">Tests</h2>
+<h4 id="how-it-gets-run-and-what-it-prints"><em>How it gets run, and what it prints</em></h4>
+<figure class="codigo"><figcaption><code>code/u4/tests/run.sh</code> · líneas 9-14 de 14</figcaption><pre><code class="hljs">set -e
+. &quot;$(dirname &quot;${BASH_SOURCE[0]}&quot;)/../../verilator/common.sh&quot;
+vlt_uvm top --coverage-user -Wno-fatal -f dut.f -f tb.f
+run_sim +UVM_TESTNAME=random_test
+run_sim +UVM_TESTNAME=add_test
+cov_report</code></pre><details><summary>el archivo entero, 14 líneas</summary><pre><code class="hljs">#!/bin/bash
+# Runs the example with Verilator. See docs/verilator.md.
+#
+# --coverage-user: measures the covergroups and leaves out line/toggle/branch,
+# which are not the topic. The number comes out at the end, with cov_report.
+#
+# -Wno-fatal: the examples have sloppy widths on purpose (WIDTHEXPAND/WIDTHTRUNC)
+# and by default any warning stops the build. They still get printed.
+set -e
+. &quot;$(dirname &quot;${BASH_SOURCE[0]}&quot;)/../../verilator/common.sh&quot;
+vlt_uvm top --coverage-user -Wno-fatal -f dut.f -f tb.f
+run_sim +UVM_TESTNAME=random_test
+run_sim +UVM_TESTNAME=add_test
+cov_report</code></pre></details></figure>
+
+<figure class="codigo"><figcaption><code>code/u4/tests/output.txt</code> · líneas 1-13 de 27</figcaption><pre><code class="hljs">UVM_INFO @ 0: reporter [RNTST] Running test random_test...
+UVM_INFO $UVM_HOME/src/base/uvm_report_server.svh(1009) @ 46340: reporter [UVM/REPORT/SERVER] 
+--- UVM Report Summary ---
+** Report counts by severity
+UVM_INFO :    1
+UVM_WARNING :    0
+UVM_ERROR :    0
+UVM_FATAL :    0
+** Report counts by id
+[RNTST]     1
+- $UVM_HOME/src/base/uvm_root.svh:633: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.052 2026-09-05
+- Verilator: $finish at 46ns</code></pre><details><summary>el archivo entero, 27 líneas</summary><pre><code class="hljs">UVM_INFO @ 0: reporter [RNTST] Running test random_test...
+UVM_INFO $UVM_HOME/src/base/uvm_report_server.svh(1009) @ 46340: reporter [UVM/REPORT/SERVER] 
+--- UVM Report Summary ---
+** Report counts by severity
+UVM_INFO :    1
+UVM_WARNING :    0
+UVM_ERROR :    0
+UVM_FATAL :    0
+** Report counts by id
+[RNTST]     1
+- $UVM_HOME/src/base/uvm_root.svh:633: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.052 2026-09-05
+- Verilator: $finish at 46ns
+    seed: la de Verilator por defecto, que tambien es fija
+UVM_INFO @ 0: reporter [RNTST] Running test add_test...
+UVM_INFO $UVM_HOME/src/base/uvm_report_server.svh(1009) @ 40540: reporter [UVM/REPORT/SERVER] 
+--- UVM Report Summary ---
+** Report counts by severity
+UVM_INFO :    1
+UVM_WARNING :    0
+UVM_ERROR :    0
+UVM_FATAL :    0
+** Report counts by id
+[RNTST]     1
+- $UVM_HOME/src/base/uvm_root.svh:633: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.052 2026-09-05
+- Verilator: $finish at 41ns</code></pre></details></figure>
+
+<ul>
+<li>A single <code>vlt_uvm</code>, two <code>run_sim</code>: <strong>one compilation, two tests</strong>. That is all
+the unit promises, and here it is done</li>
+<li><code>[RNTST] Running test random_test...</code> is UVM saying what it found in the
+factory under the name you passed it</li>
+<li>The <em>Report Summary</em> with <code>UVM_ERROR : 0</code> is the verdict: reporting takes it
+apart and explains where each row comes from</li>
+</ul>
+<div class="nota">
+<p>Worth running it live and timing it: the compilation takes minutes, the two
+<code>run_sim</code> take seconds. That is the number that justifies all the ceremony of
+the unit.
+The <code>$finish at 42ns</code> at the bottom is from the second test and does not match the first one:
+both tests send the same number of operations but the multiplier
+takes more cycles, so the time depends on what came out of the random.
+And a useful warning: <code>UVM_ERROR : 0</code> means &quot;nobody called
+<code>uvm_error</code>&quot;, not &quot;the DUT is fine&quot;. Here the scoreboard does report with
+<code>`uvm_error</code>, so the count is worth something — but a scoreboard that never receives
+anything gives exactly the same zero. Reporting shows how to tell them apart.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/122">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s123" class="slide">
+<h2 id="tests">Tests</h2>
+<h4 id="summary-of-the-unit"><em>Summary of the unit</em></h4>
+<ul>
+<li>The testbench gets compiled <strong>once</strong> and the test gets picked from the command line:
+<code>+UVM_TESTNAME=random_test</code>. That is the whole business of the section</li>
+<li>The arithmetic that justifies it: a thousand tests at five minutes of compilation each are
+<strong>three and a half days</strong> of waiting for it to compile</li>
+<li>The <code>top</code> is still a module. It publishes the BFM in the <code>uvm_config_db</code> <strong>before</strong>
+<code>run_test()</code>, because before that line there is not a single UVM object alive</li>
+<li>The <strong><code>uvm_config_db</code></strong> is a global and <strong>typed</strong> database: the <code>#(...)</code>
+is part of the key, and the scope is a <strong>hierarchical path</strong></li>
+<li>A test gets registered with <code>`uvm_component_utils</code>. Without that line, the factory
+does not find it and UVM aborts</li>
+<li>The virtual interface gets <strong>declared</strong> in the class and <strong>filled in</strong> in the
+<code>build_phase</code>: they are two different moments, and confusing them leaves a <code>null</code></li>
+<li>The objection says when the test finished <strong>sending</strong>, not when the scoreboard
+finished <strong>comparing</strong>. That difference is paid for with <code>drain_time</code>, or else with
+<code>phase_ready_to_end()</code></li>
+</ul>
+<div class="nota">
+<p>Closing of the first real UVM unit. It is worth acknowledging the discomfort out
+loud: today they put in a lot of ceremony to do the same thing they were already doing. What
+they bought is the first bullet, and it does not pay out until there are two tests — which is the env.
+The mistake they are going to walk into and it is worth anticipating: the <code>get()</code> that forgets to
+check the return value. It does not fail, it <strong>lies</strong>: it leaves the virtual interface at
+<code>null</code> and the testbench falls over three layers further down. That is why every <code>get</code> of the
+course goes inside an <code>if</code> with its <code>uvm_fatal</code>.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/123">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s124" class="slide">
+<!-- es-sha: e2133b823a46 -->
+<h2 id="components-and-phases">Components and phases</h2>
+<h4 id="a-component-is-what-is-in-the-tree-and-the-tree-is-walked-by-uvm"><em>A component is what is in the tree, and the tree is walked by UVM</em></h4>
+<ul>
+<li><p>A testbench has three different things: the <strong>structure</strong> —what parts there are and
+how they connect—, the <strong>sequences</strong> —which commands, in what order— and the
+<strong>data</strong>. This unit is the first one; the other two are day 6</p>
+</li>
+<li><p>In the tests the test did <code>new()</code> on three loose objects and called them
+itself. That is not a structure: it is a long function</p>
+</li>
+<li><p>A <code>uvm_component</code> is a <strong>node with a name and a parent</strong>. UVM assembles the whole
+tree and then walks all of it calling <strong>phases</strong>, in an order it
+guarantees</p>
+</li>
+<li><p>Turning a class into a component is four steps, always the same ones:</p>
+<ol>
+<li>extend <code>uvm_component</code> or one of its daughters</li>
+<li>register it with <code>`uvm_component_utils()</code></li>
+<li>the minimum constructor: <code>(string name, uvm_component parent)</code></li>
+<li>override the phases it needs</li>
+</ol>
+</li>
+</ul>
+<div class="nota">
+<p>The sentence on the slide is the one that orders the unit: <em>a component is what is in
+the tree</em>. Everything else —the name, the parent, the phases, the <code>print_topology</code> of
+the agents— comes out of there.
+The practical consequence that has to be said out loud: if something is not a
+component, UVM does not see it. It does not build it, it does not call phases on it and it does not show up in the
+topology. Later on we are going to have objects that on purpose are <strong>not</strong>
+components —the transactions— and there the distinction gets charged for.
+The three axes —structure, sequences, data— work as a map of the rest of the
+course: components and <code>env</code> are structure, transactions are data, sequences are
+sequences.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/124">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s125" class="slide">
+<h2 id="components-and-phases">Components and phases</h2>
+<h4 id="intro-uvm-phases"><em>Intro UVM phases</em></h4>
+<ul>
+<li><p>Every uvm component has these phase methods by inheritance</p>
+</li>
+<li><p>UVM creates the TB and goes calling these methods in order</p>
+</li>
+<li><p>The phases are <em>methods</em>: they get overridden like any other virtual method.
+Whether it is also worth calling <code>super</code> is the topic of the next slide</p>
+</li>
+<li><p><em>function void build_phase(uvm_phase phase):</em> UVM creates the TB (top-down). UVM components get instantiated in this method. If you try to instantiate them anywhere else it is an error</p>
+</li>
+<li><p><em>function void connect_phase(uvm_phase phase):</em> Connecting components</p>
+</li>
+<li><p><em>function void end_of_elaboration_phase(uvm_phase phase):</em> UVM calls it once it has created and connected every component</p>
+</li>
+<li><p><em>task run_phase(uvm_phase phase):</em> UVM runs this task in its own thread. Every run_phase runs simultaneously</p>
+</li>
+<li><p><em>function void report_phase(uvm_phase phase):</em> It runs when the last objection of the test drops. It shows Results</p>
+</li>
+</ul>
+<div class="nota">
+<p>Three things that have to be said no matter what: build_phase is top-down, connect_phase is
+bottom-up, and every run_phase runs in parallel, each one in its thread.
+And the classic mistake: instantiating components outside build_phase. UVM does not warn you
+kindly.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/125">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s126" class="slide">
+<h2 id="components-and-phases">Components and phases</h2>
+<h4 id="and-what-about-superbuild_phase"><em>And what about <code>super.build_phase()</code>?</em></h4>
+<pre><code class="language-systemverilog">// uvm_component.svh -- uvm-core 2020.3.1, exactly as it is
+function void uvm_component::build_phase(uvm_phase phase);
+   build();            // -&gt; apply_config_settings(): the automatic config
+endfunction
+
+function void uvm_component::connect_phase(uvm_phase phase);
+   connect();          // -&gt; return;  it is empty, like all the others
+endfunction
+</code></pre>
+<ul>
+<li><code>build_phase</code> is the <strong>only</strong> phase that does anything in <code>uvm_component</code>: it walks the
+<code>uvm_config_db</code> and assigns on its own the fields you registered with <code>`uvm_field_*</code></li>
+<li>The course <strong>does not use those macros</strong> —the fields get read by hand with
+<code>uvm_config_db::get()</code>—, so there is nothing to apply. That is why no
+<code>build_phase</code> in <code>code/</code> calls <code>super</code>: <strong>it is not an oversight</strong></li>
+<li>The moment a <code>`uvm_field_int</code> shows up in your project, it becomes
+mandatory: without it the automatic config does not happen, the field stays at its
+default and <strong>nobody warns you</strong></li>
+<li>And the order matters: whatever has to be decided <em>before</em> the children get
+built goes before the <code>super</code>. The <code>set_type_override</code> of
+<code>add_test</code> (the transactions) is exactly that</li>
+</ul>
+<div class="nota">
+<p>This slide exists because the student is going to see <code>super.build_phase(phase)</code> in every
+piece of material on the internet and in the code of the course it is not there. The honest answer is not
+&quot;they forgot&quot;: it is that without the field macros the call does nothing.
+And take the chance to name the underlying difference: there are two ways of configuring a
+component. The automatic one (<code>`uvm_field_*</code> + config_db, magic by macros) and the
+manual one (<code>uvm_config_db::get()</code> in the build_phase, which is the one the course uses).
+The manual one is more code and vastly easier to debug — the field macros
+generate hundreds of lines you are never going to read.
+If somebody asks why the other phases usually get called anyway: habit and
+cheap insurance. In <code>uvm_component</code> they are <code>return;</code>, but if tomorrow you inherit from
+an intermediate class that does implement them, the call is already there.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/126">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s127" class="slide">
+<h2 id="components-and-phases">Components and phases</h2>
+<h4 id="the-full-picture-there-are-nine-not-five"><em>The full picture: there are nine, not five</em></h4>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>What for</th>
+<th>Order</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>build_phase</code></td>
+<td>instantiate the components</td>
+<td><strong>top-down</strong></td>
+</tr>
+<tr>
+<td><code>connect_phase</code></td>
+<td>connect the ports</td>
+<td>bottom-up</td>
+</tr>
+<tr>
+<td><code>end_of_elaboration_phase</code></td>
+<td>hierarchy ready, before simulating</td>
+<td>bottom-up</td>
+</tr>
+<tr>
+<td><code>start_of_simulation_phase</code></td>
+<td>last warning before time 0</td>
+<td>bottom-up</td>
+</tr>
+<tr>
+<td><code>run_phase</code></td>
+<td><strong>task</strong>: this is where the simulation happens</td>
+<td>one thread each</td>
+</tr>
+<tr>
+<td><code>extract_phase</code></td>
+<td>gather the data of the run</td>
+<td>bottom-up</td>
+</tr>
+<tr>
+<td><code>check_phase</code></td>
+<td>decide whether it passed or not</td>
+<td>bottom-up</td>
+</tr>
+<tr>
+<td><code>report_phase</code></td>
+<td>print the verdict</td>
+<td>bottom-up</td>
+</tr>
+<tr>
+<td><code>final_phase</code></td>
+<td>close files and exit</td>
+<td>bottom-up</td>
+</tr>
+</tbody></table>
+<ul>
+<li>The course uses five. The other four exist, they are empty, and you are going to see them</li>
+</ul>
+<div class="nota">
+<p>The table is there so that nobody leaves believing UVM has five phases: it has
+nine common ones and twelve runtime ones. The course uses five because with a single agent
+that is enough, and that has to be said — it is not that the others do not matter.
+The three you are most likely to run into outside: <code>start_of_simulation_phase</code> is where
+people print the configuration banner of the test; <code>check_phase</code> is where a
+tidy scoreboard decides the verdict, instead of counting errors along the
+way; and <code>report_phase</code> is the one they have already seen.
+That <code>extract</code> / <code>check</code> / <code>report</code> are separate has a concrete reason: they are
+bottom-up, so a child scoreboard finishes extracting before the parent env
+decides. If you do the three things in <code>report_phase</code>, you lose that guarantee.
+The question that orders the table: why is <code>build_phase</code> the only top-down one?
+Because a parent has to exist in order to create its children. All the others
+need the opposite — that the children are already there.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/127">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s128" class="slide">
+<h2 id="components-and-phases">Components and phases</h2>
+<h4 id="and-inside-the-run_phase-a-schedule"><em>And inside the <code>run_phase</code>, a schedule</em></h4>
+<pre><code>   reset          configure          main          shutdown
+  pre  post      pre     post      pre   post     pre    post
+</code></pre>
+<ul>
+<li><strong>In parallel</strong> with <code>run_phase</code>, UVM walks twelve <em>runtime</em> phases, all of them
+<code>task</code>, in that order</li>
+<li>They are there to coordinate components from different teams without hand-made flags:
+nobody sends traffic in <code>main</code> until <strong>everybody</strong> finished <code>reset</code></li>
+<li>Each one has its own objection, with the rule from the tests: a runtime
+phase without an objection <strong>ends the moment it starts</strong></li>
+<li>The course uses <code>run_phase</code> and nothing else — with a single agent there is nothing to
+coordinate. But the <code>default_sequence</code> of day 6 hooks into <strong><code>main_phase</code></strong></li>
+</ul>
+<div class="nota">
+<p>This slide exists so that <code>main_phase</code> does not show up for the first time on day 6.
+The exact distinction, which confuses everybody: <code>run_phase</code> and the schedule
+<code>reset → configure → main → shutdown</code> run <strong>at the same time</strong>, not one inside the
+other. A component can implement either of the two paths; what is not
+advisable is mixing them in the same testbench, because then nobody knows what
+runs when.
+The honest question is &quot;so which one do I use?&quot;. For a testbench of a single
+block, <code>run_phase</code>, which is what the course does. The schedule earns its
+keep in integration: the agent of the configuration bus finishes its <code>configure</code>
+and only then does the data one start its <code>main</code>, without either of the two teams
+having had to write a <code>uvm_event</code> or a shared flag.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/128">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s129" class="slide">
+<h2 id="components-and-phases">Components and phases</h2>
+<h4 id="the-scoreboard-now-as-a-component"><em>The scoreboard, now as a component</em></h4>
+<figure class="codigo"><figcaption><code>code/u4/components/tb_classes/scoreboard.svh</code> · líneas 1-18 de 51</figcaption><pre><code class="hljs"><span class="hljs-comment">// The scoreboard of unit 10, now as a uvm_component. The four steps</span>
+<span class="hljs-comment">// --extend, register, constructor, phases-- are in the slides of unit 12.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">scoreboard</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(scoreboard);
+
+   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// Self-sufficient: the component asks the config_db for the BFM. Before, the</span>
+   <span class="hljs-comment">// test passed it in through the constructor, and the test had to receive it</span>
+   <span class="hljs-comment">// only to hand it out.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;SCOREBOARD&quot;</span>, <span class="hljs-string">&quot;Failed to get BFM&quot;</span>)
+   <span class="hljs-keyword">endfunction</span> : build_phase</code></pre><details><summary>el archivo entero, 51 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The scoreboard of unit 10, now as a uvm_component. The four steps</span>
+<span class="hljs-comment">// --extend, register, constructor, phases-- are in the slides of unit 12.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">scoreboard</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(scoreboard);
+
+   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// Self-sufficient: the component asks the config_db for the BFM. Before, the</span>
+   <span class="hljs-comment">// test passed it in through the constructor, and the test had to receive it</span>
+   <span class="hljs-comment">// only to hand it out.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;SCOREBOARD&quot;</span>, <span class="hljs-string">&quot;Failed to get BFM&quot;</span>)
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-comment">// run_phase is the only phase that is a task: the only one that consumes</span>
+   <span class="hljs-comment">// time. UVM launches it in its own thread.</span>
+   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-type">shortint</span> predicted_result;
+      <span class="hljs-type">bit</span>      predicted_ovf;
+      <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span> : self_checker
+         @(<span class="hljs-keyword">posedge</span> bfm.done) #<span class="hljs-number">1</span>;
+         <span class="hljs-keyword">case</span> (bfm.op_set)
+            add_op: predicted_result = bfm.A + bfm.B;
+            sub_op: predicted_result = bfm.A - bfm.B;
+            and_op: predicted_result = bfm.A &amp; bfm.B;
+            xor_op: predicted_result = bfm.A ^ bfm.B;
+            mul_op: predicted_result = bfm.A * bfm.B;
+         <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (op_set)</span>
+
+         <span class="hljs-comment">// ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit</span>
+         <span class="hljs-comment">// output, neither the addition nor the multiplication can overflow.</span>
+         predicted_ovf = (bfm.op_set == sub_op) &amp;&amp; (bfm.A &lt; bfm.B);
+
+         <span class="hljs-keyword">if</span> ((bfm.op_set != no_op) &amp;&amp; (bfm.op_set != rst_op))
+            <span class="hljs-keyword">if</span> (predicted_result != bfm.result || predicted_ovf != bfm.ovf)
+               <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SCOREBOARD&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
+                          <span class="hljs-string">&quot;FAILED: A: %0h  B: %0h  op: %s result: %0h ovf: %0b&quot;</span>,
+                          bfm.A,
+                          bfm.B,
+                          bfm.op_set.name(),
+                          bfm.result,
+                          bfm.ovf
+                          ))
+      <span class="hljs-keyword">end</span> : self_checker
+   <span class="hljs-keyword">endtask</span> : run_phase
+<span class="hljs-keyword">endclass</span> : scoreboard</code></pre></details></figure>
+
+<ul>
+<li>The four steps, in order: it extends <code>uvm_component</code>, it registers itself, constructor
+<code>(name, parent)</code>, and an override of <code>build_phase</code></li>
+<li>The underlying change does not show in the diff: before, the <strong>test</strong> received the BFM and
+handed it to the scoreboard through the constructor. Now the scoreboard <strong>asks for it
+itself</strong> from the config_db</li>
+<li>The <code>run_phase</code> is the <code>execute()</code> of the object-based testbench without touching a comma: the
+check did not change, what changed is who starts it</li>
+</ul>
+<div class="nota">
+<p>The point of the slide is self-sufficiency. A component that needs somebody
+to hand it its dependencies forces that somebody to know them, and the test
+ends up being a delivery service for handles it does not use. With the config_db, the test does not
+know that the scoreboard needs a BFM.
+That is exactly what makes the <code>env</code> able to exist: if
+every component configures itself, the parent only has to build it.
+The price has to be said too: the dependency stopped being in the
+constructor, where it could be seen, and moved into a string. A misspelt <code>&quot;bfm&quot;</code> compiles. That
+is why the <code>if (!get(...)) uvm_fatal</code> is not optional.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/129">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s130" class="slide">
+<h2 id="components-and-phases">Components and phases</h2>
+<h4 id="the-test-builds-the-tree-and-steps-aside"><em>The test builds the tree and steps aside</em></h4>
+<figure class="codigo"><figcaption><code>code/u4/components/tb_classes/random_test.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">random_test</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_test</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(random_test);
+
+   random_tester tester_h;
+   coverage      coverage_h;
+   scoreboard    scoreboard_h;
+
+   <span class="hljs-comment">// Components get instantiated in build_phase, never in the constructor.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      tester_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;tester_h&quot;</span>, <span class="hljs-keyword">this</span>);
+      coverage_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;coverage_h&quot;</span>, <span class="hljs-keyword">this</span>);
+      scoreboard_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;scoreboard_h&quot;</span>, <span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// No run_phase: the test&#x27;s job ends once the tree is built.</span>
+
+<span class="hljs-keyword">endclass</span></code></pre></figure>
+
+<ul>
+<li>The three <code>new(&quot;name&quot;, this)</code> are what creates the tree: <code>this</code> is the parent, and
+the string is the name that is going to come out in <code>print_topology</code> and in every message</li>
+<li>They go in <code>build_phase</code> <strong>and nowhere else</strong>. In the constructor there is no
+hierarchy yet; after <code>build_phase</code>, UVM has already moved on</li>
+<li><code>random_test</code> <strong>has no <code>run_phase</code></strong>: its job finished when the tree
+was assembled. The three children have theirs, and they run in parallel</li>
+</ul>
+<div class="nota">
+<p>It is the change of mindset of the unit, and it is worth saying it in these words:
+the test stopped <em>doing</em> the test. Now it assembles it and steps aside.
+The objection also moved: it is no longer raised by the test, it is raised by the
+components that have work — or, in this example, by the tester. Worth showing
+<code>random_tester.svh</code> for a second so that it can be seen.
+And the trap that is going to show up on its own: <code>new()</code> works here because the type is
+written in the declaration. In the env that gets replaced by
+<code>type_id::create()</code>, and that is the change that enables the overrides. Not yet,
+but it is worth planting.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/130">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s131" class="slide">
+<h2 id="components-and-phases">Components and phases</h2>
+<h4 id="the-second-test-it-inherits-and-it-copies-anyway"><em>The second test: it inherits, and it copies anyway</em></h4>
+<figure class="codigo"><figcaption><code>code/u4/components/tb_classes/add_test.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// add_test extends random_test, redeclares tester_h with another type and</span>
+<span class="hljs-comment">// REWRITES the whole build_phase. That duplication is the problem unit 13 solves</span>
+<span class="hljs-comment">// with the factory override.</span>
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">add_test</span> <span class="hljs-keyword">extends</span> random_test;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(add_test);
+
+   add_tester tester_h;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      tester_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;tester_h&quot;</span>, <span class="hljs-keyword">this</span>);
+      coverage_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;coverage_h&quot;</span>, <span class="hljs-keyword">this</span>);
+      scoreboard_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;scoreboard_h&quot;</span>, <span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endfunction</span>
+
+<span class="hljs-keyword">endclass</span></code></pre></figure>
+
+<ul>
+<li><code>add_test</code> extends <code>random_test</code>, so it inherits <code>coverage_h</code> and
+<code>scoreboard_h</code>. It only redeclares <code>tester_h</code>, with another type</li>
+<li>But the <code>build_phase</code> is <strong>written out again in full</strong>, and the three lines are
+identical except for one. Inheriting the class was not enough to inherit the structure</li>
+<li>And there is something worse hidden: <code>add_tester tester_h;</code> <strong>shadows</strong> the <code>tester_h</code> of
+the base class. They are two different variables with the same name</li>
+<li>It is the same problem as the tests, in disguise. The env solves it for
+real: <strong>one</strong> structure, and the factory substitutes the piece that changes</li>
+</ul>
+<div class="nota">
+<p>This is the slide that has to be left uncomfortable. If the student walks out thinking &quot;this
+is still wrong&quot;, the env explains itself.
+The shadowing of the handle deserves a minute: in the base class there is a
+<code>random_tester tester_h</code> and here an <code>add_tester tester_h</code>. Any method
+inherited from <code>random_test</code> that uses <code>tester_h</code> is going to see the base one, which stayed at
+<code>null</code>. Here it does no harm because there is none, but it is a time bomb and it is
+exactly the kind of silent mistake the course goes after.
+The hook: in the <code>env</code> there are not two tests, there is one; and <code>add_test</code> becomes a
+line of <code>set_type_override_by_type</code>.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/131">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s132" class="slide">
+<h2 id="components-and-phases">Components and phases</h2>
+<h4 id="summary-of-the-unit"><em>Summary of the unit</em></h4>
+<ul>
+<li>A <code>uvm_component</code> is a <strong>node with a name and a parent</strong>. UVM assembles the tree
+with those two pieces of data and then walks it on its own</li>
+<li>Turning a class into a component is <strong>four steps, always the same ones</strong>:
+extend, register with the macro, the two-argument constructor, and the
+phases</li>
+<li>The <strong>phases</strong> are virtual methods that UVM calls <strong>in order</strong>: <code>build_phase</code>
+(top-down), <code>connect_phase</code>, <code>end_of_elaboration_phase</code>, <code>run_phase</code>,
+<code>report_phase</code></li>
+<li>Components get instantiated <strong>in the <code>build_phase</code> and nowhere else</strong></li>
+<li>Every <code>run_phase</code> runs <strong>in parallel</strong>, each one in its thread. None of them
+decides on its own when the simulation ends: that is the <strong>objections</strong></li>
+<li><code>build_phase</code> is the only phase that does anything in <code>uvm_component</code>, and that is why it is
+the only one where <code>super.build_phase()</code> changes the behaviour</li>
+</ul>
+<div class="nota">
+<p>The unit that turns the testbench into something UVM can walk, and with that
+the tools that did not exist before show up: <code>print_topology()</code> shows the
+tree, and the <code>uvm_config_db</code> can use paths because now there are paths.
+The <code>super.build_phase()</code> deserves the pass we gave it because it is the most
+repeated question in the forums: not calling it switches off the automatic assignment of the
+fields registered with <code>`uvm_field_*</code>. This course does not use them, so it does not call it —
+but what is not valid is doing half of each.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/132">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s133" class="slide">
+<!-- es-sha: deed5d27b67f -->
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="two-things-that-change-for-different-reasons"><em>Two things that change for different reasons</em></h4>
+<ul>
+<li>A testbench has <strong>structure</strong> —which components there are and how they connect— and
+<strong>stimulus</strong> —what gets sent to the DUT—</li>
+<li>They change for different reasons and at different rates: the structure changes
+when the design changes; the stimulus, every time you write a test</li>
+<li>Up to the components they are glued together: <code>add_test</code> is a copy of <code>random_test</code> with
+one line changed. Ten tests are ten copies, and one change in the structure
+is ten edits</li>
+<li>This section splits them into two classes: the <strong><code>uvm_env</code></strong> keeps the
+structure, the <strong><code>uvm_test</code></strong> keeps the stimulus</li>
+<li>And the piece that makes it possible is the <strong>factory</strong>: the <code>env</code> asks for a
+generic <code>base_tester</code>, and each test tells the factory which one to hand over</li>
+</ul>
+<div class="nota">
+<p>Hinge section of the course, and the sentence to leave behind is this one: <strong>what changes
+together goes together, what changes separately goes separately.</strong> Everything that comes
+afterwards —agents, sequences— is this same operation applied to
+something else.
+If the group is going slowly, this is the unit where it is worth spending whatever time is
+left over, even if it has to be taken from somewhere else. A student who does not understand why the
+env and the test are two classes is not going to be able to read any production testbench,
+because they are all built like this.
+The question to start with, before showing one line of code: if tomorrow the
+design adds a second interface, how many of your ten tests have to be touched?
+None, if the structure lives in a single place. All ten, if each test assembles it.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/133">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s134" class="slide">
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="intractable-vs-adaptable"><em>Intractable vs. adaptable</em></h4>
+<blockquote>
+<p>&quot;Playing football is very simple, but playing simple football
+is the hardest thing there is.&quot; — <strong>Johan Cruyff</strong></p>
+</blockquote>
+<p><img src="../../res/print/funs/simple-es-dificil.svg" alt="The same move, tangled and simple"></p>
+<ul>
+<li><em>Intractable</em> is the code that comes out fast and afterwards will not let itself be touched. The
+criterion is not aesthetic: <strong>somebody else is going to modify it</strong>, and that somebody is going
+to be you a year from now, remembering nothing</li>
+<li>Three rules to turn the VTALU TB around: <strong>one class, one thing</strong>; <strong>nothing
+hardcoded</strong>; <strong>program against the interface</strong>, not against the implementation</li>
+</ul>
+<div class="nota">
+<p>Swap <em>football</em> for <em>testbench</em> and Cruyff&#39;s line is the whole unit.
+The three rules sound like an office poster until you measure them, so it is
+worth landing them on the testbench in front of them:
+One class, one thing — the <code>random_test</code> of the components does two: it assembles
+the structure and it picks the stimulus. That is why it has to be copied to make <code>add_test</code>.
+Nothing hardcoded — <code>tester_h = new(...)</code> nails the type into that line. The
+<code>type_id::create()</code> does not.
+Against the interface — the <code>env</code> is going to ask for a <code>base_tester</code>, which is an abstract
+class: it neither knows nor cares which one arrives.
+And an honest warning, because at work this gets abused: adaptable
+code does <strong>not</strong> mean code prepared for everything. Every point of
+flexibility is paid for in indirection, and the indirection is paid for at three in the
+morning. What gets separated is what has already been shown to change — and here it has been shown: there are two
+tests and there is already copy and paste.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/134">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s135" class="slide">
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="the-problem-two-testers-the-same-run_phase-twice"><em>The problem: two testers, the same <code>run_phase()</code> twice</em></h4>
+<p><img src="../../res/print/diagrams/env_intract_sol_1.svg" alt="Two sibling testers repeating the same run_phase"></p>
+<ul>
+<li>Today there are two testers: <code>random_tester</code> sends a thousand random operations,
+<code>add_tester</code> sends a thousand additions. Both randomize A and B the same way</li>
+<li>Both extend <code>uvm_component</code> <strong>separately</strong>, and each one has its
+<code>get_op()</code>, its <code>get_data()</code> and its <code>run_phase()</code></li>
+<li>The <code>get_op()</code> is the only thing that changes. The <code>run_phase()</code> —the <code>repeat(1000)</code>, the
+handshake with the BFM, the <code>#500</code> at the end— is <strong>written twice</strong></li>
+<li>Duplicating the loop is not ugly, it is expensive: the day the BFM protocol changes,
+you have to remember both</li>
+</ul>
+<div class="nota">
+<p>This is the problem slide, and it is worth not jumping ahead to the solution: let the
+duplication be seen first.
+The question that orders it: which part of a tester is <em>the test</em>, and which part is
+<em>infrastructure</em>? The <code>get_op()</code> is the test —four lines—; all the rest is
+infrastructure that has nothing to do with what you want to prove.
+And the general criterion, which holds for any language: when two sibling
+classes share an identical method, the method is in the wrong place.
+It goes to the parent.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/135">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s136" class="slide">
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="the-way-out-an-abstract-class-and-the-stimulus-in-the-daughters"><em>The way out: an abstract class, and the stimulus in the daughters</em></h4>
+<p><img src="../../res/print/diagrams/env_using_virtual_class.svg" alt="base_tester abstract with get_op and get_data pure virtual"></p>
+<ul>
+<li><code>base_tester</code> is an <strong>abstract</strong> class: it writes the <code>run_phase()</code> a single time
+—a thousand operations— and assembles it by calling <code>get_op()</code> and <code>get_data()</code></li>
+<li>Those two methods are <code>pure virtual</code>, so the class cannot be instantiated and
+every daughter is <strong>forced</strong> to define them. The one that forgets does not compile</li>
+<li>But there is still repeated code: both testers randomize the operands the
+same way, and that is a sign that a step is missing in the hierarchy</li>
+</ul>
+<div class="nota">
+<p>This is where polymorphism gets collected: <code>base_tester</code> is an <strong>abstract class with
+<code>pure virtual</code> methods</strong>, that is, the <code>run_phase()</code> is written a single time and the
+daughters are <em>forced</em> to define <code>get_op()</code> and <code>get_data()</code>. If one forgets, it does not
+compile — which is the whole argument of that unit.
+And along the way the trap of the day 2 exercise gets fixed: here <code>get_op()</code> <strong>is</strong>
+virtual, because it is pure virtual. Worth going back two days and showing it.
+The bullet that matters is the last one, and it is the one that pushes into the next slide: the
+two testers still randomize the operands the same way. Two sisters sharing
+code is a sign that a step is missing in the hierarchy — and the step is that
+<code>add_tester</code> should not inherit from <code>base_tester</code> but from <code>random_tester</code>.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/136">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s137" class="slide">
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="the-result-the-three-storey-hierarchy"><em>The result: the three-storey hierarchy</em></h4>
+<p><img src="../../res/print/diagrams/env_adaptable_sol.svg" alt="The three-storey hierarchy: base_tester, random_tester and add_tester"></p>
+<ul>
+<li><code>base_tester</code> puts in the <code>run_phase()</code> and declares <code>get_op()</code> and <code>get_data()</code> as
+<code>pure virtual</code>. Nobody instantiates it</li>
+<li><code>random_tester</code> goes down one step and defines both: random operation, random
+operands</li>
+<li><code>add_tester</code> <strong>inherits from <code>random_tester</code></strong>, not from <code>base_tester</code>: it keeps
+the random operands and only redefines <code>get_op()</code></li>
+<li>And the same step works for all the ones that come: <code>xor_tester</code>,
+<code>mult_tester</code>, <code>maxmult_tester</code>. Each one, one useful line</li>
+</ul>
+<div class="nota">
+<p>The jump to point out is the third arrow: <code>add_tester</code> does not inherit
+from the abstract one, it inherits from the concrete one. It is counter-intuitive the first time and it is the
+decision that makes a new test cost four lines.
+The rule, said in a way that sticks: <strong>you inherit from whoever has what you do not
+want to write again.</strong> Not from the one that &quot;conceptually corresponds&quot;.
+And the hook backwards: this is polymorphism used for real. <code>pure virtual</code> in
+the parent is what guarantees that no tester forgets to define <code>get_op()</code> —
+and if it forgets, it does not compile.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/137">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s138" class="slide codigo-grande">
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="add_tester"><em>add_tester</em></h4>
+<ul>
+<li>The result is that <em>add_tester</em> is very simple: it inherits from <em>random_tester</em> and only redefines <em>get_op()</em></li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u4/env/tb_classes/add_tester.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">add_tester</span> <span class="hljs-keyword">extends</span> random_tester;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(add_tester)
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">operation_t </span><span class="hljs-title">get_op</span>();
+      <span class="hljs-type">bit</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] op_choice;
+      <span class="hljs-keyword">return</span> add_op;
+   <span class="hljs-keyword">endfunction</span> : get_op
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+<span class="hljs-keyword">endclass</span> : add_tester</code></pre></figure><div class="nota">
+<p>This is the slide of the section worth leaving on screen for a while: a whole test
+of the VTALU is <strong>four useful lines</strong>. Everything else —sending a thousand
+operations, randomizing operands, talking to the BFM— is already written and does not get
+touched.
+The rule you take away: if adding a test costs four lines, you are going to write
+many. If it costs copying a class of sixty, you are going to write three and then
+invent excuses. The coverage of the project is decided here, not in the covergroup.
+And the question that orders the hierarchy: why does <code>add_tester</code> inherit from
+<code>random_tester</code> and not from <code>base_tester</code>? Because it wants the random operands and only
+changes the operation. Inheritance is not chosen by conceptual likeness, it is chosen
+by <strong>what you do not want to write again</strong>.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/138">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s139" class="slide">
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="the-other-half-who-instantiates-whom"><em>The other half: who instantiates whom</em></h4>
+<ul>
+<li>The testers are already well distributed. The other half is missing: <strong>who
+instantiates them</strong></li>
+<li>The obvious way out is a family of <code>uvm_test</code>, one per tester. And it is the bad one:
+look at the <code>random_test</code> below</li>
+<li>It instantiates the three components <strong>and</strong> it picks the tester. Every new test copies that
+whole structure to change one line</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u4/components/tb_classes/random_test.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">random_test</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_test</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(random_test);
+
+   random_tester tester_h;
+   coverage      coverage_h;
+   scoreboard    scoreboard_h;
+
+   <span class="hljs-comment">// Components get instantiated in build_phase, never in the constructor.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      tester_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;tester_h&quot;</span>, <span class="hljs-keyword">this</span>);
+      coverage_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;coverage_h&quot;</span>, <span class="hljs-keyword">this</span>);
+      scoreboard_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;scoreboard_h&quot;</span>, <span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// No run_phase: the test&#x27;s job ends once the tree is built.</span>
+
+<span class="hljs-keyword">endclass</span></code></pre></figure>
+
+<ul>
+<li>The <code>random_test</code> does <strong>two</strong> things: it assembles the structure of the testbench <em>and</em> it picks
+which stimulus to send. They are two reasons to change in a single class</li>
+<li>UVM splits that in two: the structure moves to a <code>uvm_env</code>, and the test is left
+only with picking the stimulus</li>
+<li>A typical <code>env</code> defines <strong>two</strong> methods and nothing else: <code>build_phase</code> to
+instantiate and <code>connect_phase</code> to connect</li>
+</ul>
+<div class="nota">
+<p>It is worth doing the arithmetic out loud, because the problem is easier to see with numbers than
+with the design argument: if every test instantiates its three components, with ten
+tests there are ten <code>build_phase</code> saying the same thing. The day a fourth
+component is added to the testbench, that is ten edits — and the one you forget does not fail at
+compile time, it simply runs without that component.
+<code>uvm_env</code> is not magic and it does not bring new behaviour: it is a <code>uvm_component</code> with
+another name. What it contributes is <strong>convention</strong>: when somebody opens a testbench
+that is not theirs, they know the structure is in the env. That is half the value of
+UVM and it is worth saying it that bluntly — it is not the library, it is that everybody puts the
+things in the same place.
+Good question: why does the env almost never have a <code>run_phase</code>? Because it neither sends nor
+watches anything; it only builds and connects. If your env has a <code>run_phase</code>, it is a sign
+that test logic got inside the structure.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/139">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s140" class="slide">
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="the-map-after-splitting"><em>The map after splitting</em></h4>
+<p><img src="../../res/print/diagrams/env_struct_level.svg" alt="Two parallel hierarchies: the tests on the left and the env on the right"></p>
+<ul>
+<li>Two parallel hierarchies, and that is the whole section: on the left the tests
+—the stimulus—, on the right the <code>env</code> and its components —the structure—</li>
+<li>The <code>env</code> is <strong>a single one</strong> and it does not get touched. The tests are many and they change all the time</li>
+<li>The only thing that binds them is the factory: the test says <em>&quot;when they ask for a
+<code>base_tester</code>, give them this one&quot;</em></li>
+</ul>
+<div class="nota">
+<p>Worth leaving the diagram on screen and asking them to place where each class of
+the components ended up. The exercise makes it obvious what disappeared: there is no longer a
+<code>build_phase</code> per test instantiating three components.
+The control question: if tomorrow the testbench adds a fourth component,
+how many files get touched? One, the <code>env</code>. With the structure of the components it was
+as many as there were tests.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/140">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s141" class="slide codigo-grande">
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="the-env-class-instantiate-and-connect-nothing-else"><em>The <code>env</code> class: instantiate and connect, nothing else</em></h4>
+<ul>
+<li>The <code>env</code> defines the structure of the testbench: it instantiates the components and
+then connects them. It is <strong>a single one</strong>, and it does not change from one test to another</li>
+<li>The tests, on the other hand, are many and they change all the time. That is the whole division</li>
+<li>The <code>build_phase()</code> does not use <code>new()</code>: each component gets asked for with
+<code>type_id::create()</code>, which is the factory formula of the next slide</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u4/env/tb_classes/env.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// The structure of the TB, and nothing else: it instantiates the components and</span>
+<span class="hljs-comment">// connects them. Which tester arrives is the test&#x27;s call, with a factory override. Unit 13.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">env</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_env</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(env);
+
+   base_tester tester_h;
+   coverage    coverage_h;
+   scoreboard  scoreboard_h;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-comment">// base_tester is abstract and this works anyway: create() does not build</span>
+      <span class="hljs-comment">// it, it asks the factory what to hand out when somebody asks for a base_tester.</span>
+      tester_h = base_tester::type_id::create(<span class="hljs-string">&quot;tester_h&quot;</span>, <span class="hljs-keyword">this</span>);
+      coverage_h = coverage::type_id::create(<span class="hljs-string">&quot;coverage_h&quot;</span>, <span class="hljs-keyword">this</span>);
+      scoreboard_h = scoreboard::type_id::create(<span class="hljs-string">&quot;scoreboard_h&quot;</span>, <span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+<span class="hljs-keyword">endclass</span></code></pre></figure><div class="nota">
+<p>Hinge section of the course: separating WHAT structure the testbench has (env) from
+WHAT stimulus gets sent (test). Everything that comes afterwards —agents, sequences— is
+this same idea taken further.
+If the group is going slowly, this is the slide where it is worth spending whatever time is
+left over.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/141">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s142" class="slide">
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="uvms-factory-the-class-signs-itself-up"><em>UVM&#39;s factory: the class signs itself up</em></h4>
+<ul>
+<li>The factory had two annoyances: the result had to be cast, and
+the <code>case</code> of the factory had to be edited to add a type</li>
+<li>UVM&#39;s has neither of the two. A class registers <strong>itself</strong>, with a
+macro on its first line:<ul>
+<li><code>`uvm_component_utils()</code> for what goes in the tree</li>
+<li><code>`uvm_object_utils()</code> for what does not —the transactions—</li>
+</ul>
+</li>
+<li>And it returns an object <strong>of the right type</strong>, without casting: <code>type_id</code> is a
+different class for every registered class, so the type is put in by the compiler</li>
+</ul>
+<div class="nota">
+<p>The macro is what replaces the <code>case</code> of the hand-written factory of the factory: each class signs itself up in the dictionary, and adding a type does not force you to
+edit the factory.
+The difference between the two macros is the one that gets collected in the transactions, and it is worth
+planting now: <code>uvm_component_utils</code> is for what lives in the tree and receives
+phases; <code>uvm_object_utils</code> is for what travels —a piece of data— and receives none.
+Picking the wrong one compiles and gives strange errors later.
+Not having to cast is not cosmetic: the <code>$cast</code> of the factory could be
+forgotten, and forgetting it was a null pointer in simulation.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/142">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s143" class="slide">
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="the-formula-read-from-left-to-right"><em>The formula, read from left to right</em></h4>
+<p><img src="../../res/print/diagrams/env_uvm_incantation.svg" alt="The formula class::type_id::create(name, this), piece by piece"></p>
+<ul>
+<li>It is the <em>static member/method</em> pattern of the static variables, exactly as it is: <code>type_id</code> is a
+static member of the class, and <code>create()</code> a static method of that member</li>
+<li>The three arguments are the usual ones: the <strong>name</strong> that is going to come out in the
+topology, and the <strong>parent</strong> that hangs it from the tree</li>
+<li>Everything that can go wrong shows at <strong>compile time</strong>: the misspelt class, the one that
+does not exist, and the one that forgot the <code>`uvm_component_utils</code> — because without the
+macro there is no <code>type_id</code></li>
+</ul>
+<div class="nota">
+<p>Worth reading the formula out loud once, slowly, because it is going to be written
+fifty times in what is left of the course:
+<em>&quot;class, colon colon, type_id, colon colon, create, name,
+this&quot;</em>.
+The last bullet is the reassuring one: the mistake of forgetting the macro is not
+silent. <code>base_tester::type_id</code> does not exist if <code>base_tester</code> was not registered, and that does not
+compile. It is one of the few UVM mistakes the compiler catches.
+The name of the first argument is not decorative: it is the path of the component, the
+one the config_db uses and the one <code>print_topology</code> prints. Giving it a name other than
+the handle&#39;s is a cheap way of losing half an hour in the agents.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/143">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s144" class="slide">
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="the-objection-that-comes-on-its-own-base_tester-is-abstract"><em>The objection that comes on its own: <code>base_tester</code> is abstract</em></h4>
+<ul>
+<li>Now the objection that comes on its own: <code>tester_h</code> is of type <code>base_tester</code>, which is
+an <strong>abstract</strong> class. And this compiles, runs and works. Why?</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u4/env/tb_classes/base_class.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+   <span class="hljs-comment">// base_tester is abstract: it cannot be instantiated with new(). The factory</span>
+   <span class="hljs-comment">// is asked for it anyway, because what will arrive is the type the test set</span>
+   <span class="hljs-comment">// with set_type_override -- add_tester or random_tester, never this one.</span>
+   tester_h = base_tester::type_id::create(<span class="hljs-string">&quot;tester_h&quot;</span>, <span class="hljs-keyword">this</span>);
+   coverage_h = coverage::type_id::create(<span class="hljs-string">&quot;coverage_h&quot;</span>, <span class="hljs-keyword">this</span>);
+   scoreboard_h = scoreboard::type_id::create(<span class="hljs-string">&quot;scoreboard_h&quot;</span>, <span class="hljs-keyword">this</span>);
+<span class="hljs-keyword">endfunction</span> : build_phase</code></pre></figure>
+
+<ul>
+<li>Because <code>base_tester</code> here is not a mould: it is an <strong>order form</strong>. The
+<code>env</code> does not build a <code>base_tester</code>, it asks the factory for one</li>
+<li>The factory returns an object of some <strong>derived</strong> class, and which one is decided by
+a <code>set_type_override</code> done <strong>before</strong> the <code>build_phase</code> runs</li>
+<li>That override is done by the <strong>test</strong>, which is the one that instantiates the <code>env</code>. The
+structure never finds out which tester it got</li>
+</ul>
+<div class="nota">
+<p>The objection on the slide is correct and it has to be taken seriously, because otherwise it
+looks like a dirty trick: <code>base_tester</code> <strong>is</strong> abstract and that code <strong>does</strong>
+compile and run. The explanation in one line: <code>type_id::create()</code> does not build a
+<code>base_tester</code>; it asks the factory what to build when somebody asks for a
+<code>base_tester</code>, and returns that.
+The analogy that works: <code>base_tester</code> here is not a mould, it is an <strong>order
+form</strong>. Nobody instantiates the form.
+The corollary, which is the one paid for later: if no test did the override, the
+factory really does try to build the abstract class and there it really does explode — and the message
+does not say &quot;you were missing the override&quot;, it says something about an abstract class. Worth
+showing it once by commenting out the <code>set_type_override</code> of <code>random_test</code>.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/144">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s145" class="slide">
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="the-override-changing-the-part-without-touching-the-plan"><em>The override: changing the part without touching the plan</em></h4>
+<ul>
+<li>In the components, <code>add_test</code> was <code>random_test</code> copied with one line changed.
+The copy was the problem, not the solution</li>
+<li>An <code>add_tester</code> <strong>is</strong> a <code>base_tester</code>, so it works anywhere the
+code asks for a <code>base_tester</code> — that is polymorphism</li>
+<li>So there is no need to touch the <code>env</code>: it is enough to tell the factory <em>&quot;when
+they ask you for a <code>base_tester</code>, hand over an <code>add_tester</code>&quot;</em></li>
+<li>That is the <strong>factory override</strong>, and it is the only thing a test has to do</li>
+</ul>
+<div class="nota">
+<p>The sentence that orders the slide: the override does not change the code, it changes what the
+factory returns. The <code>env</code> still says exactly the same thing.
+It is worth naming the two forms that exist, because both show up in code
+that is not yours: <code>set_type_override</code> changes <strong>every</strong> request for that type in the whole
+testbench; <code>set_inst_override</code> changes only the ones on one path —
+<code>&quot;env_h.tester_h&quot;</code>—. The course uses the first because there is a single tester; with two
+agents, the second is the one that helps.
+And the hook forward: it is exactly the mechanism that in the transactions is going
+to replace a <code>command_transaction</code> with a <code>maxmult_transaction</code>. Same
+call, another type.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/145">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s146" class="slide">
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="the-factory-override"><em>The factory override</em></h4>
+<p><img src="../../res/print/diagrams/env_uvm_incantation_2.svg" alt="set_type_override_by_type: the factory returns add_tester where base_tester is asked for"></p>
+<ul>
+<li>The static method <em>set_type_override()</em> tells the factory that when it sees a request for a <em>base_class_name</em> it should return an object of type <em>new_class_name</em></li>
+<li>This feature is the one that lets us separate the structure of the TB (<em>uvm_env</em>) from the type of stimulus generated (<em>uvm_test</em>)</li>
+</ul>
+<div class="nota">
+<p>The override is what makes the env never change: the test asks for a
+base_tester and the factory returns whichever one that test wants.
+When somebody asks whether this is not black magic: it is a dictionary of types, and
+that is why everything has to be registered with <code>`uvm_component_utils</code>. If you forget it,
+the factory does not find the class and the error message does not help at all.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/146">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s147" class="slide">
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="the-factory-override-in-the-test"><em>The factory override, in the test</em></h4>
+<figure class="codigo"><figcaption><code>code/u4/env/tb_classes/random_test.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">random_test</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_test</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(random_test);
+
+   env env_h;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      base_tester::type_id::set_type_override(random_tester::get_type());
+      env_h = env::type_id::create(<span class="hljs-string">&quot;env_h&quot;</span>, <span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+<span class="hljs-keyword">endclass</span></code></pre></figure>
+
+<ul>
+<li>We can see that this version is more adaptable</li>
+<li>Every Test does an override of base_tester depending on the tester it needs for its stimulus</li>
+<li>The env class creates the object and sets it running</li>
+<li>Now the test class does one thing well (generating stimulus) and the env class does another thing very well (creating the structure)</li>
+</ul>
+<div class="nota">
+<p>The whole test is <strong>two lines</strong>: the override and the <code>create()</code> of the env. Worth
+showing it next to the <code>random_test</code> of the components, which instantiated three
+components by hand. That is the result of the section, measured.
+And there is a detail of order that is paid for dearly and that is worth saying now, because it
+comes back as question 5 of the review: the <code>set_type_override()</code> goes <strong>before</strong> the
+<code>create()</code> of the env. The factory decides what to build at the moment of the <code>create()</code>,
+not before and not after. If the override arrives late, there is no error — the env has already
+built the base class and the test runs with the wrong stimulus. The same thing
+again: it does not break, it lies.
+With that the arc is said: the env never changes, the test always changes, and the
+only thing that binds them is a type string in the factory.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/147">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s148" class="slide">
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="summary-of-the-unit"><em>Summary of the unit</em></h4>
+<ul>
+<li>A testbench has <strong>structure</strong> —which components there are and how they connect— and
+<strong>stimulus</strong> —what gets sent—. They change for different reasons and at different rates</li>
+<li>Up to the components they were glued together: <code>add_test</code> was a copy of <code>random_test</code>
+with one line changed. Duplicating the loop is not ugly, it is <strong>expensive</strong></li>
+<li>The <strong><code>uvm_env</code></strong> keeps the structure; the <strong>test</strong> only says which
+stimulus it wants. A new test stops touching the env</li>
+<li>The piece that makes it possible is the <strong>factory</strong>: the env asks for a <code>base_tester</code> and
+the test decides which one arrives, with <code>set_type_override</code></li>
+<li>The abstract class <code>base_tester</code> has the <code>run_phase</code> <strong>written a single time</strong>;
+the only thing each tester redefines is <code>get_op()</code> and <code>get_data()</code></li>
+<li>The three rules for writing adaptable code: <strong>one class, one thing</strong>; no
+copying and pasting structure; and programming against the <strong>base class</strong></li>
+</ul>
+<div class="nota">
+<p>It is the unit where all of day 2 gets collected. It is worth making it explicit by pointing at
+the <code>add_test</code>: it is <strong>two lines</strong> —the override and nothing else—, and it changes the whole
+stimulus without touching the env. That could not be done in the object-based testbench.
+The <em>intractable</em> / <em>adaptable</em> distinction is the one to leave as
+vocabulary, because it comes back with the agent and with the sequences.
+Intractable code is the one that comes out fast and afterwards will not let itself be touched: almost
+always it is duplicated structure.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/148">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s149" class="slide">
+<!-- es-sha: 8ab29c86516d -->
+<h2 id="reporting">Reporting</h2>
+<h4 id="47--of-the-time-goes-here"><em>47 % of the time goes here</em></h4>
+<ul>
+<li>The first chart of the course said that almost half of a verifier&#39;s time
+goes into <strong>debug</strong>. This section is about that half</li>
+<li>A scoreboard that only says <code>FAIL</code> leaves you right there: you know something is wrong and
+you do not know which component, at what moment, or with what data</li>
+<li>The natural reaction is to fill the code with <code>$display</code>, and then delete them.
+And put them back next week</li>
+<li>UVM solves it the other way round: the messages <strong>stay in</strong> and get filtered. Each
+one brings along the time, the hierarchical path of the component and the file</li>
+<li>And there are two different knobs, which get confused all the time: <strong>verbosity</strong>
+filters <code>`uvm_info</code>; the <strong>actions</strong> control warnings, errors and fatals</li>
+</ul>
+<div class="nota">
+<p>It is worth going back to the day 1 chart before starting, because this section looks
+like plumbing and it is the one that returns the most hours. The argument is not &quot;nice
+messages&quot;: it is that a message that brings along the hierarchical path saves you the question
+&quot;who said it?&quot;, which is half of any debug.
+The second idea, which is the one that costs: debug messages <strong>do not get deleted</strong>. A
+<code>`uvm_info</code> at UVM_HIGH costs nothing when the ceiling is at UVM_MEDIUM, and
+the day you need it, it is there. That the day 5 exercise gets solved by raising
+the verbosity is no coincidence — it is set up so that they live it.
+And the distinction on the last line is worth writing on the board from the start,
+because it is question 1 of the review: verbosity and info on one side, actions and
+error/warning/fatal on the other. They never cross.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/149">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s150" class="slide">
+<h2 id="reporting">Reporting</h2>
+<h4 id="what-display-cannot-do"><em>What <code>$display</code> cannot do</em></h4>
+<ul>
+<li>A thousand operations per test, dozens of tests per regression: one <code>$display</code> per
+transaction and the log stops being readable before the first coffee</li>
+<li>And with <code>$display</code> the only way of lowering the noise is <strong>deleting lines</strong>, that is,
+losing exactly what you are going to need next time</li>
+<li>UVM replaces the <code>$display</code> with four macros that bring two things for free:
+context —time, component, file— and a <strong>filter</strong> that is driven from
+outside</li>
+</ul>
+<div class="nota">
+<p>The question that orders the slide, and it is worth throwing it at the group before the
+answer: <em>what is wrong with <code>$display</code>?</em> The answer that always comes is &quot;it is
+ugly&quot;, and it is not that one. <code>$display</code> prints <strong>or does not exist</strong>: the decision of whether a
+message comes out is taken at the moment of writing it, by editing the code.
+What UVM adds is not format, it is that the decision moves to the moment of
+<strong>running</strong>, and it is taken from outside with a plusarg. That change of moment is the whole
+section: that is why the messages can be left in place, and that is why the log of a
+regression and the log of a debug can come out of the same binary.
+The piece of context, for whoever comes from VHDL or plain Verilog: none of this
+is simulator magic. <code>`uvm_info</code> is a macro that assembles a string and hands it
+to an object —the <em>report server</em>— that decides what to do. Everything that follows in
+the section is configuring that object.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/150">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s151" class="slide">
+<h2 id="reporting">Reporting</h2>
+<h4 id="the-reporting-macros"><em>The reporting macros</em></h4>
+<ul>
+<li>There are four and they differ by <strong>severity</strong>: <code>`uvm_info</code>,
+<code>`uvm_warning</code>, <code>`uvm_error</code> and <code>`uvm_fatal</code>. The last three count
+in the <em>Report Summary</em>; the last one also kills the simulation</li>
+<li>The <strong>ID</strong> is the first argument: a string that says who is talking. It is what you filter
+with afterwards, so it is worth making it the name of the component and always the
+same one</li>
+<li>The <strong>message</strong> is the second, and it gets assembled with <code>$sformatf</code> when it carries data</li>
+<li>The <strong>verbosity</strong> is the fourth, and <strong>only</strong> <code>`uvm_info</code> has it: it is the one
+that decides whether the message comes out or not</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u4/reporting/reporting.sv</code></figcaption><pre><code class="hljs"><span class="hljs-uvm-macro">`uvm_info</span>   (Message ID String, Message String, Verbosity)
+<span class="hljs-uvm-macro">`uvm_warning</span>(Message ID String, Message String)
+<span class="hljs-uvm-macro">`uvm_error</span>  (Message ID String, Message String)
+<span class="hljs-uvm-macro">`uvm_fatal</span>  (Message ID String, Message String)</code></pre></figure><div class="nota">
+<p>The usual confusion: verbosity filters <code>`uvm_info</code>, and nothing else. The
+warnings, errors and fatals have no verbosity — they are controlled with actions, which
+is the last part of the section.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/151">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s152" class="slide">
+<h2 id="reporting">Reporting</h2>
+<h4 id="the-reporting-macros-what-each-one-does"><em>The reporting macros: what each one does</em></h4>
+<ul>
+<li>This is how it looks in the scoreboard: a <code>`uvm_error</code> when the comparison fails, with
+the message assembled with <code>$sformatf</code></li>
+<li>And this is how it comes out in the log. Look at what the line brings <strong>without anybody asking
+for it</strong>: the time, the file and the line, and the hierarchical path of the component that spoke</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u4/reporting/tb_classes/score_ppt.svh</code></figcaption><pre><code class="hljs">      data_str = <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot; %2h %0s %2h = %4h (%4h predicted)&quot;</span>,
+                           cmd.A, cmd.op.name() ,cmd.B, t,  predicted_result);
+
+      <span class="hljs-keyword">if</span> (predicted_result != t)
+        <span class="hljs-uvm-macro">`uvm_error</span> (<span class="hljs-string">&quot;SCOREBOARD&quot;</span>, {<span class="hljs-string">&quot;FAIL: &quot;</span>,data_str})
+      <span class="hljs-keyword">else</span>
+        <span class="hljs-uvm-macro">`uvm_info</span> ( <span class="hljs-string">&quot;SCOREBOARD&quot;</span>, {<span class="hljs-string">&quot;PASS: &quot;</span>,data_str}, <span class="hljs-uvm-const">UVM_HIGH</span>)</code></pre></figure>
+
+<figure class="codigo"><figcaption><code>code/u4/reporting/tb_classes/scoreboard_error.txt</code></figcaption><pre><code class="hljs">UVM_ERROR tb_classes/scoreboard.svh(39) @ 290: uvm_test_top.env_h.scoreboard_h [SCOREBOARD] FAIL:  5b add_op ff = 015a (015b predicted)</code></pre></figure><div class="nota">
+<p>Worth stopping on the log line and reading it out loud from left to right,
+field by field, because it is the one the student is going to look at a thousand times and nobody ever
+explains it: severity, time, file and line of the <code>`uvm_error</code>, and then
+<code>uvm_test_top.env_h.scoreboard_h</code> — the instance path. Only then comes the ID
+and the message.
+The pedagogical point is what is **not** in the code: the scoreboard did not print
+the time or its own name. The macro put them in. That is the whole argument in
+favour of never writing a <code>$display</code> in a testbench again.
+And the honest comparison with the <code>$error</code> of day 2: that scoreboard also
+made the test fail, but the context had to be written by hand — and there nobody
+writes the hierarchical path, because they do not know it.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/152">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s153" class="slide">
+<h2 id="reporting">Reporting</h2>
+<h4 id="the-five-levels-and-why-the-message-stays"><em>The five levels, and why the message stays</em></h4>
+<ul>
+<li>The usual cycle: you fill the code with <code>$display</code>, you find the bug, you delete
+everything — and next week you write it again</li>
+<li>With verbosity the messages <strong>stay in place</strong> and do not get in the way. It is two steps,
+and the second one does not touch the code:<ul>
+<li>put a verbosity on each <code>`uvm_info</code>, according to how much noise it is</li>
+<li>set the <strong>ceiling</strong> of the run: global, or per branch of the tree</li>
+</ul>
+</li>
+<li>A message comes out if its verbosity is <strong>less than or equal to</strong> the ceiling. That is why
+<code>UVM_NONE</code> always comes out</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u4/reporting/tb_classes/verbosidad.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">enum</span>
+{
+	<span class="hljs-uvm-const">UVM_NONE</span>	= <span class="hljs-number">0</span>,
+	<span class="hljs-uvm-const">UVM_LOW</span>		= <span class="hljs-number">100</span>,
+	<span class="hljs-uvm-const">UVM_MEDIUM</span>	= <span class="hljs-number">200</span>, <span class="hljs-comment">// Por Default Es Medium (si no ponemos nada usa Medium)</span>
+	<span class="hljs-uvm-const">UVM_HIGH</span>	= <span class="hljs-number">300</span>,
+	<span class="hljs-uvm-const">UVM_FULL</span>	= <span class="hljs-number">400</span>,
+	<span class="hljs-uvm-const">UVM_DEBUG</span>	= <span class="hljs-number">500</span>
+} <span class="hljs-uvm-type">uvm_verbosity</span>
+
+<span class="hljs-comment">// Any message above the verbosity that was set does not get printed</span></code></pre></figure><div class="nota">
+<p>The five levels, from least to most noisy: <code>UVM_NONE</code>, <code>UVM_LOW</code>, <code>UVM_MEDIUM</code>
+—the default one—, <code>UVM_HIGH</code> and <code>UVM_DEBUG</code>. A message gets printed if its
+verbosity is <strong>less than or equal to</strong> the ceiling, so <code>UVM_NONE</code> always comes out.
+The rule of thumb worth handing down, because otherwise everybody invents their own:
+<code>UVM_LOW</code> for what you want to see in a regression —which test ran, how many
+transactions—; <code>UVM_MEDIUM</code> for the summary of a component; <code>UVM_HIGH</code> for
+every transaction that goes past. The monitors of the course are <code>UVM_HIGH</code> precisely for
+that: in a normal run they are not seen, and when something fails they get switched on with a
+plusarg.
+The formal detail that gets copied wrong: the verbosity is the <strong>fourth</strong> argument of the
+<code>`uvm_info</code>, and if you forget it, it does not compile. The ID —the first one— is a free
+string, but do not pick it at random: it is the key you are going to filter with afterwards.
+Make it the name of the component, in capitals, and always the same one.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/153">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s154" class="slide">
+<h2 id="reporting">Reporting</h2>
+<h4 id="the-global-ceiling-a-plusarg-without-recompiling"><em>The global ceiling: a plusarg, without recompiling</em></h4>
+<ul>
+<li>It gets set in two ways, and the first one is the one used every day: a
+<strong>plusarg</strong> on the command line</li>
+<li>No code to touch and no recompiling. The same binary gives the log of the
+regression and the log of the debug</li>
+<li>The problem shows up with the team: if there are ten people with their own debug
+messages, raising the global ceiling brings you everybody&#39;s</li>
+<li>That is why it has to be possible to ask for it <strong>per component</strong>, which is the next slide</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u4/reporting/tb_classes/verbosity_ceiling.txt</code></figcaption><pre><code class="hljs">./obj_dir/top/sim +UVM_TESTNAME=random_test +UVM_VERBOSITY=UVM_HIGH</code></pre></figure><div class="nota">
+<p>Worth running it live, because it is the cheapest demonstration of the section:
+the same <code>make u4/reporting</code> with and without <code>+UVM_VERBOSITY=UVM_HIGH</code>, and the log goes
+from twenty lines to a thousand. Without recompiling anything — it is the same binary.
+The detail that has to be said so that it does not surprise anybody later: the plusarg sets the
+ceiling of the <strong>whole tree</strong>, from <code>uvm_top</code> down. There is no way of asking for
+&quot;high, but only the monitor&quot; from the command line with this flag; for that
+there is <code>+uvm_set_verbosity</code>, which is longer to type and almost nobody remembers.
+The honest way out, and the one the next slide teaches, is setting it from the
+code in the component you care about.
+And the underlying argument, in case the group underrates it: this is the mechanism that
+makes a regression log of a thousand tests readable. It is not classroom cosmetics.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/154">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s155" class="slide">
+<h2 id="reporting">Reporting</h2>
+<h4 id="uvm_cmdline_processor-the-command-line-whole"><em><code>uvm_cmdline_processor</code>: the command line, whole</em></h4>
+<ul>
+<li><code>+UVM_VERBOSITY</code> and <code>+UVM_TESTNAME</code> are not read by magic: they are read by <strong>a class</strong>, and
+it is available for your own plusargs</li>
+</ul>
+<pre><code class="language-systemverilog">uvm_cmdline_processor clp = uvm_cmdline_processor::get_inst();
+string valor;
+
+if (clp.get_arg_value(&quot;+COUNT=&quot;, valor)) count = valor.atoi();
+</code></pre>
+<ul>
+<li>It is a <strong>singleton</strong>: <code>get_inst()</code> from any class, without building anything and
+without passing it through the <code>config_db</code></li>
+<li><code>get_arg_value</code> returns <strong>how many times the argument appeared</strong>, not the value:
+the value comes out through the <code>ref</code>. If it appeared twice, it says so — <code>$value$plusargs</code>
+keeps quiet with the first one</li>
+<li>And there are <code>get_args()</code>, <code>get_plusargs()</code> and <code>get_uvm_args()</code>, which return the
+whole command line in a queue: it is how you print under what conditions
+a regression from three months ago ran</li>
+</ul>
+<div class="nota">
+<p>The course uses <code>$value$plusargs</code> and <code>$test$plusargs</code> in the <code>base_test</code> because they are
+one line and they read themselves. Worth saying why in a production testbench
+this class always shows up: <code>$value$plusargs</code> is a system task, so it cannot
+be inherited, it cannot be substituted by the factory and it cannot be tested. The
+<code>uvm_cmdline_processor</code> is an object, and that is enough for the three things.
+The argument that pays off most is the last bullet and it is not the one you would expect:
+<code>get_args()</code> printing the whole line in the <code>start_of_simulation_phase</code> is what
+turns an old log into something reproducible. Without that, the log says what happened
+but not what it was run with, and a regression from three months ago cannot be repeated.
+The difference in the second bullet is worth an anecdote: two <code>+COUNT=</code> on the same
+line —because the script adds them and the user does too— is a real case, and
+<code>$value$plusargs</code> takes one without saying which. The <code>uvm_cmdline_processor</code> returns 2
+and emits a warning. It is the kind of thing you pay for once and remember.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/155">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s156" class="slide">
+<h2 id="reporting">Reporting</h2>
+<h4 id="the-ceiling-per-branch-two-methods-and-a-tree"><em>The ceiling per branch: two methods and a tree</em></h4>
+<ul>
+<li>Every <code>uvm_component</code> comes with methods to set its own ceiling, in two flavours:
+only itself, or itself <strong>and everything hanging below</strong> (<code>_hier</code>)</li>
+<li>Careful about which hierarchy it is: it is <strong>not</strong> the DUT&#39;s module one. It is the tree that UVM
+assembles by calling <code>build_phase()</code> from the top down</li>
+<li>It is the same tree the prefix of each message comes out of, and the same one the
+<code>uvm_config_db</code> uses as a scope</li>
+</ul>
+<p><img src="../../res/print/diagrams/UVM-hierarchy.svg" alt="Instance hierarchy and where the prefix of the messages comes from"></p>
+<div class="nota">
+<p>This diagram is worth more than it looks, because it explains where that
+very long prefix each message brings comes from: <code>uvm_test_top.env_h.scoreboard_h</code>. It is not
+decoration — it is the <strong>instance path</strong> of the component that spoke.
+And it is the same path the <code>uvm_config_db</code> uses for the scope. Worth saying it
+explicitly: when in the tests we said &quot;the scope is a hierarchical path&quot;, it was
+literally this path. A single tree serves both purposes.
+The clarification in the bullet is not a detail: this hierarchy <strong>is not the DUT&#39;s</strong>. A
+scoreboard is not inside any module. It is the tree UVM assembles by calling
+<code>build_phase</code> from the top down, and it exists only in the testbench.
+Classroom trick: <code>+UVM_CONFIG_DB_TRACE</code> or <code>print_topology()</code> print this
+tree for real, written by the library. It is the best way of showing that it is not
+a drawing.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/156">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s157" class="slide">
+<h2 id="reporting">Reporting</h2>
+<h4 id="the-ceiling-per-branch-where-the-call-goes"><em>The ceiling per branch: where the call goes</em></h4>
+<ul>
+<li>The call goes <strong>after</strong> the hierarchy exists —otherwise the component
+is not there yet— and <strong>before</strong> the simulation starts</li>
+<li>That window has a name and it is one of the nine phases: <code>end_of_elaboration_phase</code></li>
+<li><code>set_report_verbosity_level_hier()</code> reaches the component <strong>and its children</strong>;
+<code>set_report_verbosity_level()</code>, only it</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u4/reporting/tb_classes/ceil_hierar.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// Env class</span>
+<span class="hljs-comment">// sets the verbosity of the scoreboard component and of everything below it</span>
+<span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">end_of_elaboration_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+   scoreboard_h.set_report_verbosity_level_hier(<span class="hljs-uvm-const">UVM_HIGH</span>);
+<span class="hljs-keyword">endfunction</span> : end_of_elaboration_phase</code></pre></figure><div class="nota">
+<p>The window is what has to be left burned in, because the mistake gets made in both
+directions. If the call goes in the <code>build_phase</code>, the component whose ceiling you want
+to raise <strong>does not exist yet</strong> —its parent builds it further down— and the
+call finds nobody. If it goes in the <code>run_phase</code>, the simulation has already started and
+you missed the messages of the earlier phases.
+<code>end_of_elaboration_phase</code> is exactly the gap between the two things: the whole
+tree, and the time still at zero. It is the first time in the course that one of
+the four phases &quot;that exist and are empty&quot; is good for something, and it is worth saying it
+that way — they were not decoration in the day 3 table.
+The <code>_hier</code> suffix is the one that gets forgotten, and it fails silently: you set the ceiling of the
+<code>env</code> without <code>_hier</code>, the <code>env</code> prints nothing anyway, and the monitor you
+wanted to hear stays quiet. Rule of thumb: if you are aiming at a branch, <code>_hier</code>;
+if you are aiming at a class, without.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/157">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s158" class="slide">
+<h2 id="reporting">Reporting</h2>
+<h4 id="switching-off-warnings-errors-and-fatal-messages"><em>Switching off warnings, errors and fatal messages</em></h4>
+<ul>
+<li>A real situation: the DUT is fine, the scoreboard predicts the addition wrong, and the class
+is being fixed by somebody else. You need to carry on working in the meantime</li>
+<li>Lowering the verbosity ceiling <strong>does not help</strong>: it only affects <code>`uvm_info</code>, and what
+has to be silenced is a <code>`uvm_error</code></li>
+<li>Another knob is needed</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u4/reporting/scoreboard1.txt</code></figcaption><pre><code class="hljs">UVM_INFO @ 0: reporter [RNTST] Running test random_test...
+UVM_INFO tb_classes/scoreboard.svh(40) @ 150: uvm_test_top.env_h.scoreboard_h [SCOREBOARD] PASS:  43 and_op ff = 0043 (0043 predicted)
+UVM_ERROR tb_classes/scoreboard.svh(39) @ 290: uvm_test_top.env_h.scoreboard_h [SCOREBOARD] FAIL:  5b add_op ff = 015a (015b predicted)
+...
+--- UVM Report Summary ---
+** Report counts by severity
+UVM_INFO :    4
+UVM_WARNING :    0
+UVM_ERROR :    2
+UVM_FATAL :    0
+** Report counts by id
+[RNTST]     1
+[SCOREBOARD]     5
+- $UVM_HOME/src/base/uvm_root.svh:633: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.052 2026-09-05
+- Verilator: $finish at 820ps</code></pre></figure><div class="nota">
+<p>The log on the slide is that of a scoreboard that adds wrong on purpose, and it is worth
+looking at the <em>Report Summary</em> at the end before the error: it is a thousand errors, one per
+transaction. That is the real problem the section comes to solve — not &quot;the
+message is annoying&quot;, but that <strong>the log stops being any use for looking for something else</strong>.
+The question to throw at the group, because the wrong answer is the intuitive one:
+<em>&quot;I lower the verbosity ceiling and that is it?&quot;</em>. No. A <code>`uvm_error</code> has no
+verbosity; the ceiling does not touch it. It is the same distinction as the first slide, and
+here it gets collected for the first time.
+And the honest clarification before teaching how to switch off errors, because otherwise it
+sounds odd: this is not so that the regression comes out green. It is to be able to work
+half an afternoon while somebody else fixes their class, and it comes out the same day.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/158">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s159" class="slide">
+<h2 id="reporting">Reporting</h2>
+<h4 id="switching-off-messages-where-it-gets-done"><em>Switching off messages: where it gets done</em></h4>
+<ul>
+<li>Warnings, errors and fatals are <strong>immune</strong> to the verbosity ceiling, and it is right
+that they should be: nobody wants to switch off an error by accident</li>
+<li>The knob that does reach them is called <strong>actions</strong>, and it answers another question:
+not <em>&quot;does it get printed?&quot;</em> but <em>&quot;what gets done with this message?&quot;</em></li>
+<li>Printing is only one of the six possible things</li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u4/reporting/tb_classes/UVM_report_actions.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">enum</span>
+{
+	<span class="hljs-uvm-const">UVM_NO_ACTION</span> = <span class="hljs-number">6&#x27;b000000</span>,
+	<span class="hljs-uvm-const">UVM_DISPLAY</span>   = <span class="hljs-number">6&#x27;b000001</span>,
+	<span class="hljs-uvm-const">UVM_LOG</span>       = <span class="hljs-number">6&#x27;b000010</span>,
+	<span class="hljs-uvm-const">UVM_COUNT</span>     = <span class="hljs-number">6&#x27;b000100</span>,
+	<span class="hljs-uvm-const">UVM_EXIT</span>      = <span class="hljs-number">6&#x27;b001000</span>,
+	<span class="hljs-uvm-const">UVM_CALL_HOOK</span> = <span class="hljs-number">6&#x27;b010000</span>,
+	<span class="hljs-uvm-const">UVM_STOP</span>      = <span class="hljs-number">6&#x27;b100000</span>
+} <span class="hljs-uvm-type">uvm_action_type</span></code></pre></figure><div class="nota">
+<p>The six actions are a bitwise OR, not a list of mutually exclusive options: the
+same message can be printed <strong>and</strong> written to a file <strong>and</strong> counted towards the
+summary. That is why they combine with <code>|</code>.
+The one almost nobody knows and that helps enormously is <code>UVM_COUNT</code>: it counts the appearances
+of that ID and kills the simulation when it reaches the maximum. It is the answer to the
+four-gigabyte log when a scoreboard fails on every transaction — you find out anyway, and
+in thirty seconds instead of in twenty minutes.
+<code>UVM_NO_ACTION</code> is the one the next slide uses to switch off the errors, and it has to be
+said out loud what it is <strong>not</strong> for: it is not so that the regression comes out green.
+It is to carry on working while somebody else fixes their class, and it comes out the same day.
+A <code>UVM_NO_ACTION</code> that survives a commit is a bug waiting to happen.
+And the pair worth naming: <code>set_report_severity_action</code> is by severity,
+<code>set_report_id_action</code> is by that ID string you picked when writing the
+message. That is where the discipline of having always used the same one gets paid back.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/159">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s160" class="slide">
+<h2 id="reporting">Reporting</h2>
+<h4 id="switching-off-messages-the-complete-example-and-the-log-you-are-left-with"><em>Switching off messages: the complete example, and the log you are left with</em></h4>
+<ul>
+<li><code>set_report_severity_action_hier(UVM_ERROR, UVM_NO_ACTION)</code> on the scoreboard:
+when an error shows up in there, do nothing</li>
+<li>It goes in the <code>end_of_elaboration_phase</code> of the <code>env</code>, for the same reason as the
+hierarchical verbosity</li>
+<li>And the log below is the result: same DUT, same broken scoreboard, zero
+errors in the <em>Report Summary</em></li>
+</ul>
+<figure class="codigo"><figcaption><code>code/u4/reporting/tb_classes/env_disable_error.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">end_of_elaboration_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+
+   scoreboard_h.set_report_severity_action_hier(<span class="hljs-uvm-const">UVM_ERROR</span>, <span class="hljs-uvm-const">UVM_NO_ACTION</span>);
+
+<span class="hljs-keyword">endfunction</span> : end_of_elaboration_phase</code></pre></figure>
+
+<figure class="codigo"><figcaption><code>code/u4/reporting/scoreboard2.txt</code></figcaption><pre><code class="hljs">UVM_INFO @ 0: reporter [RNTST] Running test random_test...
+--- UVM Report Summary ---
+** Report counts by severity
+UVM_INFO :    1
+UVM_WARNING :    0
+UVM_ERROR :    0
+UVM_FATAL :    0
+** Report counts by id
+[RNTST]     1
+- $UVM_HOME/src/base/uvm_root.svh:633: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.052 2026-09-05
+- Verilator: $finish at 820ps</code></pre></figure><div class="nota">
+<p>Say it out loud: switching off errors is for carrying on working while somebody else
+fixes their class, not so that the regression comes out green.
+And showing the <em>Report Summary</em> of the second log next to the first one is the best
+warning the section gives: the testbench says <strong>0 UVM_ERROR</strong> and the DUT is still
+exactly as broken as it was two slides ago. That is the reason a
+<code>UVM_NO_ACTION</code> cannot survive a commit — it is a silent trap, and it is in
+the appendix.
+The scoreboard of this section adds too much ON PURPOSE, it is the bug we are
+showing. That is why <code>code/u4/reporting/run.sh</code> is the only example in the repo that exports
+UVM_ERRORS_OK=1: in all the others, a uvm_error makes the run fail.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/160">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s161" class="slide">
+<h2 id="reporting">Reporting</h2>
+<h4 id="uvm_report_catcher-demoting-the-error-you-were-expecting"><em><code>uvm_report_catcher</code>: demoting the error you were expecting</em></h4>
+<ul>
+<li><code>UVM_NO_ACTION</code> switches off <strong>every</strong> error of a branch. When the test
+verifies the error path on purpose —a <code>PSLVERR</code> that has to arrive— what
+has to be silenced is <strong>one single one</strong>, and the rest has to carry on shouting</li>
+</ul>
+<pre><code class="language-systemverilog">class demotar_pslverr extends uvm_report_catcher;
+   virtual function action_e catch();
+      if (get_severity() == UVM_ERROR &amp;&amp; get_id() == &quot;PSLVERR&quot;)
+         set_severity(UVM_INFO);      // stops counting as an error
+      return THROW;                   // and carries on, already downgraded
+   endfunction
+endclass
+
+demotar_pslverr c = new();
+uvm_report_cb::add(null, c);          // null = the whole testbench; or a component
+</code></pre>
+<ul>
+<li>The catcher gets in <strong>before</strong> the report: it sees every message and can change its
+severity, its ID, its text or its action</li>
+<li><code>THROW</code> lets it carry on already modified; <code>CAUGHT</code> makes it disappear</li>
+<li>And the difference that matters: the summary prints <em>Number of demoted UVM_ERROR
+reports : 1</em>. <strong>The blackout leaves a trace</strong>, which is what <code>UVM_NO_ACTION</code> does not do</li>
+</ul>
+<div class="nota">
+<p>It is the right answer to the previous slide, and the difference is one of honesty,
+not of syntax. <code>UVM_NO_ACTION</code> on the scoreboard switches off the error and the log ends up
+identical to that of a healthy testbench: nobody reading that log finds out. The catcher
+downgrades <strong>that</strong> message, lets all the others through, and on top of that counts it on a
+line of its own in the <em>Report Summary</em>. A reviewer who opens the log sees that there was an
+error and that somebody decided it was fine.
+When it really gets used: in the negative tests, which are half of a serious verification
+plan. Writing to a read-only register has to give
+<code>PSLVERR</code>; the test that proves it <strong>expects</strong> the error, and without a catcher that test
+can never come out green. It is exactly the case of the capstone.
+The implementation detail that surprises: a catcher is a <code>uvm_callback</code>, that
+is, the same piece as the callbacks of day 6. That is why it gets registered with
+<code>uvm_report_cb::add</code> and not with a <code>set_</code> of the component.
+And the trap: if the catcher is too wide —by severity and nothing else— you have switched off
+every error of the testbench with more ceremony than <code>UVM_NO_ACTION</code>. The
+<code>get_id()</code> of the <code>if</code> is not optional.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/161">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s162" class="slide">
+<h2 id="reporting">Reporting</h2>
+<h4 id="summary-of-the-unit"><em>Summary of the unit</em></h4>
+<ul>
+<li>Two knobs, and they do not cross: <strong>verbosity</strong> filters <code>`uvm_info</code>; <strong>actions</strong>
+decides what gets done with warnings, errors and fatals</li>
+<li>Both can be set per component or per branch, in <code>end_of_elaboration_phase</code></li>
+<li>And there is a third one for the <strong>expected</strong> error: the <code>uvm_report_catcher</code> demotes it
+and leaves it counted in the summary, instead of switching it off without a trace</li>
+<li>With that, debug messages get written once and stay in place for
+ever — which is the only thing that makes debug cheap</li>
+<li>And it arrives here, at the end of day 3, on purpose: it is the tool the
+exercises of days 4 and 5 get debugged with — the day 5 one is solved by
+<strong>raising the verbosity</strong>, and there is no other way of finding it</li>
+</ul>
+<div class="nota">
+<p>Close the day by going back to the 47 %: of everything seen today —tests, components,
+phases, env— this is the section used <strong>every day</strong>, and the only one you
+notice when it is missing. A testbench without reporting works just the same; debugging it costs
+double.
+The control question, which is also number 1 of the review: *&quot;I lowered the verbosity
+ceiling and the <code>`uvm_error</code> still shows up, why?&quot;*. If the group
+answers it without hesitating, the section closed.
+And the warning for the day 5 exercise, worth giving now and not when they are
+stuck: the bug is not visible in the default log. It is printed, at <code>UVM_HIGH</code>. Whoever
+does not remember this section is going to read the code for half an hour before raising
+the verbosity.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/162">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s163" class="slide quiz">
+<!-- es-sha: 38003c62dcd2 -->
+
+
+<h2 id="review-·-day-3">Review · Day 3</h2>
+<h4 id="1-of-7-·-uvm_test"><em>1 of 7 · <code>uvm_test</code></em></h4>
+<p><strong>What does <code>+UVM_TESTNAME=add_test</code> let you do that you could not do before?</strong></p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Pick the test on an already compiled testbench, without recompiling</li>
+<li><input disabled="" type="checkbox"> Run the simulation faster</li>
+<li><input disabled="" type="checkbox"> Change the DUT without recompiling</li>
+<li><input disabled="" type="checkbox"> Lower the verbosity of the messages</li>
+</ul>
+<blockquote>
+<p><strong>Pick the test without recompiling</strong> — UVM reads that plusarg and asks the <strong>factory</strong> for the test by name. It is the difference between 1000 tests × 5 minutes of compilation and a single compilation.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/163">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s164" class="slide quiz">
+<h2 id="review-·-day-3">Review · Day 3</h2>
+<h4 id="2-of-7-·-uvm-phases"><em>2 of 7 · UVM Phases</em></h4>
+<p><strong>In what order does UVM walk the hierarchy in <code>build_phase</code> and in <code>connect_phase</code>?</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> Both from the top down</li>
+<li><input disabled="" type="checkbox"> Both from the bottom up</li>
+<li><input checked="" disabled="" type="checkbox"> <code>build_phase</code> top-down, <code>connect_phase</code> bottom-up</li>
+<li><input disabled="" type="checkbox"> In the order the components were declared</li>
+</ul>
+<blockquote>
+<p><strong>Build top-down, connect bottom-up</strong> — and it makes sense: you cannot connect a component that does not exist yet, so first the whole hierarchy gets built and only then does it get connected.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/164">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s165" class="slide quiz">
+<h2 id="review-·-day-3">Review · Day 3</h2>
+<h4 id="3-of-7-·-objections"><em>3 of 7 · Objections</em></h4>
+<p><strong>What are <code>raise_objection()</code> / <code>drop_objection()</code> for in the <code>run_phase</code>?</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> For reporting scoreboard errors</li>
+<li><input checked="" disabled="" type="checkbox"> For keeping the simulation alive while the component has work</li>
+<li><input disabled="" type="checkbox"> For synchronizing two threads</li>
+<li><input disabled="" type="checkbox"> For registering the class in the factory</li>
+</ul>
+<blockquote>
+<p><strong>So that the phase does not end early</strong> — every <code>run_phase</code> runs in parallel, each one in its thread, and the phase ends when <strong>the last objection drops</strong>. Without raising it, the simulation ends on you at time 0.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/165">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s166" class="slide quiz">
+<h2 id="review-·-day-3">Review · Day 3</h2>
+<h4 id="4-of-7-·-the-env"><em>4 of 7 · The env</em></h4>
+<p><strong>What does each one get: <code>uvm_env</code> and <code>uvm_test</code>?</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> <code>env</code> generates the stimulus; <code>test</code> assembles the structure</li>
+<li><input disabled="" type="checkbox"> Both do the same thing, <code>env</code> is optional</li>
+<li><input disabled="" type="checkbox"> <code>env</code> runs the DUT; <code>test</code> runs the scoreboard</li>
+<li><input checked="" disabled="" type="checkbox"> <code>env</code> assembles the structure of the TB; <code>test</code> defines which stimulus gets applied</li>
+</ul>
+<blockquote>
+<p><strong>Structure vs. stimulus</strong> — each class does <strong>one single thing well</strong>. That is why the <code>env</code> almost always has only <code>build_phase</code> and <code>connect_phase</code>, and the test almost always has only a factory override.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/166">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s167" class="slide quiz">
+<h2 id="review-·-day-3">Review · Day 3</h2>
+<h4 id="5-of-7-·-factory-override"><em>5 of 7 · Factory override</em></h4>
+<p><strong><code>set_type_override()</code> replaces <code>base_tester</code> with <code>add_tester</code>. When does it have to be called?</strong></p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> Before the <code>build_phase</code> that creates the object runs</li>
+<li><input disabled="" type="checkbox"> At any moment: the factory applies it retroactively</li>
+<li><input disabled="" type="checkbox"> After the <code>connect_phase</code></li>
+<li><input disabled="" type="checkbox"> Inside the <code>run_phase</code> of the tester</li>
+</ul>
+<blockquote>
+<p><strong>Before the <code>build_phase</code></strong> — the factory decides what to build <strong>at the moment of the <code>create()</code></strong>. If the override arrives late, the <code>env</code> has already instantiated the base class and it does nothing.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/167">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s168" class="slide quiz">
+<h2 id="review-·-day-3">Review · Day 3</h2>
+<h4 id="6-of-7-·-verbosity"><em>6 of 7 · Verbosity</em></h4>
+<p><strong>The verbosity ceiling (<code>+UVM_VERBOSITY=UVM_HIGH</code>), which macros does it act on?</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> On all four: info, warning, error and fatal</li>
+<li><input checked="" disabled="" type="checkbox"> Only on <code>`uvm_info</code></li>
+<li><input disabled="" type="checkbox"> On error and fatal only</li>
+<li><input disabled="" type="checkbox"> On none: it only changes the format of the message</li>
+</ul>
+<blockquote>
+<p><strong>Only on <code>`uvm_info</code></strong> — warnings, errors and fatals are <strong>immune</strong> to the verbosity ceiling, and it is right that they should be: nobody wants to switch off an error by accident. For those you need the <em>actions</em> mechanism.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/168">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s169" class="slide quiz">
+<h2 id="review-·-day-3">Review · Day 3</h2>
+<h4 id="7-of-7-·-report-actions"><em>7 of 7 · Report actions</em></h4>
+<p><strong>You want to silence the <code>`uvm_error</code> of a scoreboard somebody else is fixing. Where does the <code>set_report_severity_action_hier()</code> go?</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> In the <code>build_phase</code> of the <code>env</code></li>
+<li><input disabled="" type="checkbox"> In the <code>run_phase</code> of the test</li>
+<li><input disabled="" type="checkbox"> In the constructor of the scoreboard</li>
+<li><input checked="" disabled="" type="checkbox"> In the <code>end_of_elaboration_phase</code> of the <code>env</code></li>
+</ul>
+<blockquote>
+<p><strong>In <code>end_of_elaboration_phase</code></strong> — it has to be <strong>after</strong> the hierarchy is built (otherwise the component does not exist yet) and <strong>before</strong> the simulation starts. That phase is exactly that window.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/169">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s170" class="slide">
+<!-- es-sha: 5e56ebbad51e -->
+<h2 id="exercise-·-day-3">Exercise · Day 3</h2>
+<h4 id="a-new-test-without-touching-the-structure"><em>A new test without touching the structure</em></h4>
+<p><code>cd code/ejercicios/d3 &amp;&amp; bash run.sh</code></p>
+<ul>
+<li>Write <code>mult_tester</code> and <code>mult_test</code>, with <code>set_type_override</code></li>
+<li><strong>Without touching <code>env.svh</code></strong>: the structure never finds out that the stimulus changed</li>
+<li>The <code>env</code> brings a <code>chequeo</code> component that marks the exercise on its own</li>
+</ul>
+<div class="nota">
+<p>Before turning them loose on the exercise, go back to the slide <em>&quot;The map of day 3: what
+replaces what&quot;</em> of the object-based testbench and read the right-hand column straight through: the
+<code>build_phase</code> of the env, the config_db, the <code>run_phase</code>, the objections and the
+<code>set_type_override</code>. The five rows are crossed out, and the day closes there.
+It is the day 2 exercise again, but with the factory. Worth having them
+compare the two: on day 2 the type was picked in the code of the testbench, here
+the factory picks it and the testbench does not change one line.
+And have them look at the coverage at the end: with nothing but multiplications it drops to 26 %. A
+focused test covers less, and that is the reason many are needed — and
+the reason adding one has to be cheap.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/170">see this slide in the deck &rsaquo;</a></p>
+</section>
+</main>
+
+<footer class="pie">
+  <div class="wrap">
+    <nav class="nav-dias">
+      <a href="day1.html">Day 1</a>
+      <a href="day2.html">Day 2</a>
+      <a href="day3.html">Day 3</a>
+      <a href="day4.html">Day 4</a>
+      <a href="day5.html">Day 5</a>
+      <a href="day6.html">Day 6</a>
+      <a href="day7.html">Day 7</a>
+      <a href="day8.html">Day 8</a>
+    </nav>
+    <p><a href="../../web/index.html">Course site</a> ·
+       <a href="https://github.com/leandrotozzi/verifythis">Code on GitHub</a> ·
+       CC BY 4.0</p>
+  </div>
+</footer>
+
+<script>
+    const LETRAS = 'abcdefgh';
+    document.querySelectorAll('section.quiz').forEach(sec => {
+      const lista = sec.querySelector('ul');
+      if (!lista) return;
+      lista.classList.add('opciones');
+      sec.querySelector('blockquote')?.classList.add('respuesta');
+      sec.querySelector(':is(h1, h2, h3, h4) ~ p')?.classList.add('pregunta');
+      [...lista.children].forEach((li, i) => {
+        const box = li.querySelector('input[type=checkbox]');
+        li.classList.add('opcion');
+        li.classList.toggle('es-correcta', !!box?.checked);
+        box?.remove();
+        li.tabIndex = 0;
+        li.setAttribute('role', 'button');
+        const texto = document.createElement('span');
+        while (li.firstChild) texto.append(li.firstChild);
+        li.append(texto);
+        li.insertAdjacentHTML('afterbegin', `<b class="letra">${LETRAS[i]}</b>`);
+        const responder = () => {
+          if (sec.classList.contains('respondida')) return;
+          li.classList.add('elegida');
+          sec.classList.add('respondida');
+        };
+        li.addEventListener('click', responder);
+        li.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); responder(); }
+        });
+      });
+      lista.insertAdjacentHTML('afterend',
+        '<p class="ayuda">Pick an option to see the answer</p>');
+    });
+</script>
+</body>
+</html>

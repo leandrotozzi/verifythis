@@ -11,7 +11,7 @@ class dual_test extends uvm_test;
       virtual vtalu_bfm clase_bfm, modulo_bfm;
       env_config env_config_h;
 
-      // El top dejo las dos interfaces sueltas; el test las empaqueta.
+      // The top left the two interfaces loose; the test packs them up.
       if (!uvm_config_db#(virtual vtalu_bfm)::get(this, "", "clase_bfm", clase_bfm))
          `uvm_fatal("DUAL TEST", "Failed to get clase_bfm")
       if (!uvm_config_db#(virtual vtalu_bfm)::get(this, "", "modulo_bfm", modulo_bfm))
@@ -23,8 +23,8 @@ class dual_test extends uvm_test;
       env_h = env::type_id::create("env_h", this);
    endfunction : build_phase
 
-   // +TOPOLOGY imprime el arbol de componentes. Es la forma de VER que el
-   // agent pasivo no construyo ni sequencer ni driver.
+   // +TOPOLOGY prints the component tree. It is how to SEE that the passive
+   // agent built neither a sequencer nor a driver.
    function void end_of_elaboration_phase(uvm_phase phase);
       if ($test$plusargs("TOPOLOGY")) uvm_root::get().print_topology();
    endfunction : end_of_elaboration_phase
@@ -34,8 +34,8 @@ class dual_test extends uvm_test;
 
       phase.raise_objection(this);
 
-      // Lo unico que quedo cableado: el test atraviesa la jerarquia para
-      // llegar al sequencer. La unidad 23 lo saca de aca.
+      // The only thing left wired by hand: the test reaches across the
+      // hierarchy to get to the sequencer. Unit 23 takes it out of here.
       seq = command_sequence::type_id::create("seq");
       seq.start(env_h.clase_agent_h.sequencer_h);
 

@@ -33,9 +33,9 @@ distintas. Acá es la primera.
 
 - `trago` define `servir()` con un `$fatal`: la clase base no sabe con qué
   se sirve, y lo dice fuerte
-- `fernet` y `gancia` extienden `trago` y **redefinen** `servir()`, cada uno
+- `fernet` y `mojito` extienden `trago` y **redefinen** `servir()`, cada uno
   con el suyo
-- `gancia` —que no entra en pantalla— es igual que `fernet`, con otro `$display`
+- `mojito` —que no entra en pantalla— es igual que `fernet`, con otro `$display`
 
 Note:
 El `$fatal` en la clase base es un patrón que se ve mucho y que en dos slides
@@ -83,13 +83,13 @@ objeto, y sólo si se lo pedís.
   `virtual` en el método de la clase base
 - Con eso la llamada se resuelve en **simulación**, mirando el objeto que hay
   adentro de la variable — *dynamic binding*
-- `trago_h.servir()` ahora sirve un fernet o un gancia, sin que el que escribe
+- `trago_h.servir()` ahora sirve un fernet o un mojito, sin que el que escribe
   esa línea sepa cuál le va a tocar
 - Ésa es toda la idea: **el que usa el objeto deja de ser el que elige el tipo**
 
 Note:
 Vale correr los dos ejemplos seguidos y mostrar el diff: una palabra.
-Un detalle que se pregunta siempre: `fernet` y `gancia` **no** escriben `virtual`
+Un detalle que se pregunta siempre: `fernet` y `mojito` **no** escriben `virtual`
 en su `servir()`, y sin embargo lo son. Una vez que el método es virtual en
 la base, lo es para toda la descendencia. Escribirlo igual no molesta y mucha
 gente lo hace por prolijidad.
@@ -138,16 +138,16 @@ parecidas. Y en el ejercicio del día 2, la clase base del testbench.
   cuerpo**, y por eso no hay nada que pueda correr mal
 - La línea comentada del `top` —`trago_h = new(3)`— no compila: una clase
   abstracta no se instancia
-- Si a `gancia` le borrás el override, el compilador dice
+- Si a `mojito` le borrás el override, el compilador dice
   *"does not override virtual method servir"* y ahí termina el asunto
 
 Note:
 El punto no es el `$fatal`, es **cuándo te enterás**: sin clase abstracta
 explota en el medio de la simulación, con pure virtual no compila.
-Vale hacerlo en vivo: comentar el `servir()` de `gancia` y compilar. El
+Vale hacerlo en vivo: comentar el `servir()` de `mojito` y compilar. El
 mensaje del compilador es el que enseña.
 Y el enganche hacia adelante: la factory usa esto para crear, y el `env` para
-los overrides. Lo que hoy es un fernet y un gancia, en dos días va a ser un
+los overrides. Lo que hoy es un fernet y un mojito, en dos días va a ser un
 `base_tester` y los testers que lo extienden — misma mecánica, otro vocabulario.
 
 ---

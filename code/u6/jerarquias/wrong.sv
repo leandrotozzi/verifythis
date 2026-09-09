@@ -101,9 +101,9 @@ module top;
       fernet_hielo1_h = new(2, 1, "Agnus", 2);
       $display("\n--- Fernet 1 ---\n", fernet_hielo1_h.convert2string());
       fernet_hielo2_h = new();
-      $display("\n--- Fernet 2 antes de la copia ---\n", fernet_hielo2_h.convert2string());
+      $display("\n--- Fernet 2 before the copy ---\n", fernet_hielo2_h.convert2string());
       fernet_hielo2_h.bad_copy(fernet_hielo1_h);
-      $display("\n--- Fernet 2 despues de la copia ---\n", fernet_hielo2_h.convert2string());
+      $display("\n--- Fernet 2 after the copy ---\n", fernet_hielo2_h.convert2string());
    end
 endmodule : top
 

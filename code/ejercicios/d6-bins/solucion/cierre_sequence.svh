@@ -1,17 +1,17 @@
-// Solucion del ejercicio del dia 6 -- cerrar un bin.
+// Solution to the day 6 exercise -- close a bin.
 //
-// Las dos lineas que importan:
+// The two lines that matter:
 //
 //   command.data.constraint_mode(0)
-//       apaga la constraint del `dist` SOLO para este objeto. Para un caso
-//       dirigido no tiene sentido igual -- no queremos un reparto, queremos un
-//       valor-- y ademas es el rodeo del agujero de Verilator: con el dist
-//       activo, `with {A == 8'hFF}` resuelve una de cada cuatro veces, y el
-//       resto devuelve 0. Un caso dirigido intermitente.
+//       turns the `dist` constraint off ONLY for this object. For a directed
+//       case it makes no sense anyway -- we do not want a split, we want a
+//       value-- and it is also the workaround for the Verilator hole: with the dist
+//       on, `with {A == 8'hFF}` solves one time in four, and the
+//       rest return 0. An intermittent directed case.
 //
 //   if (!command.randomize() with {...}) `uvm_fatal
-//       con if, no con assert(): assert es una directiva de simulacion y un
-//       simulador con las asserts apagadas no ejecuta el argumento.
+//       with if, not with assert(): assert is a simulation directive and a
+//       simulator with asserts turned off does not execute the argument.
 class cierre_sequence extends uvm_sequence #(command_transaction);
    `uvm_object_utils(cierre_sequence)
 
@@ -27,7 +27,7 @@ class cierre_sequence extends uvm_sequence #(command_transaction);
 
       command.data.constraint_mode(0);
       if (!command.randomize() with {A == 8'hFF; B == 8'hFF; op == mul_op;})
-         `uvm_fatal("CIERRE", "randomize() with fallo")
+         `uvm_fatal("CIERRE", "randomize() with failed")
 
       finish_item(command);
 

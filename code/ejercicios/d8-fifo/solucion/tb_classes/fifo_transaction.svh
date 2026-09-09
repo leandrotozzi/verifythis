@@ -1,8 +1,8 @@
-// Un ciclo de la FIFO: lo que se pidio, y en que estado estaba.
+// One FIFO cycle: what was asked for, and in what state it was.
 //
-// La misma clase sirve de estimulo y de observacion, como en cualquier agent:
-// las tres primeras las randomiza la sequence, las cinco de abajo las llena el
-// monitor con lo que vio.
+// The same class works as stimulus and as observation, like in any agent:
+// the first three are randomized by the sequence, the five below are filled by the
+// monitor with what it saw.
 class fifo_transaction extends uvm_sequence_item;
    `uvm_object_utils(fifo_transaction)
 
@@ -10,13 +10,13 @@ class fifo_transaction extends uvm_sequence_item;
    rand bit [7:0] wr_data;
    rand bit       rd_en;
 
-   // Observado por el monitor: el estado ANTES del flanco.
+   // Observed by the monitor: the state BEFORE the edge.
    bit       full, almost_full, empty, almost_empty;
    bit [3:0] count;
 
-   // Sin esto, la mitad de los ciclos no piden nada y la FIFO no se llena
-   // nunca. Es la misma leccion del dist del dia 5: el random puro no visita
-   // los bordes.
+   // Without this, half the cycles ask for nothing and the FIFO never fills
+   // up. It is the same lesson as the dist of day 5: pure random does not visit
+   // the edges.
    constraint c_actividad {
       wr_en dist {1 := 7, 0 := 3};
       rd_en dist {1 := 5, 0 := 5};

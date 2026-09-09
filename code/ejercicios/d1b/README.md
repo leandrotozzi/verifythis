@@ -59,7 +59,7 @@ el multiplicador todavía está calculando.
 
 Se arregla con **una línea**. El TODO está en el archivo.
 
-Listo cuando `bash run.sh` imprime `EJERCICIO OK`.
+Listo cuando `bash run.sh` imprime `EXERCISE OK`.
 
 ## Cómo se corre
 
@@ -68,7 +68,7 @@ bash run.sh              # con tus archivos
 SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
 ```
 
-El corrector va por etapas y cada una imprime su `ETAPA N OK`, como el capstone.
+El corrector va por etapas y cada una imprime su `STAGE N OK`, como el capstone.
 Los dos tiempos que pide son los mismos antes y después de arreglar el bug
 —ocurren antes de que nada se desincronice—, así que la respuesta no se te
 vence cuando toques la BFM.

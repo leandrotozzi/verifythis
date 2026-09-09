@@ -1,16 +1,16 @@
-// Repro minimo: Verilator 5.052 acepta "solve ... before" y no lo respeta.
+// Minimal repro: Verilator 5.052 accepts "solve ... before" and does not honour it.
 //
 //   $ verilator --binary --timing --top-module top -o sim repro-solve-before.sv
 //   ./obj_dir/sim
 //
-// Esperado (LRM 1800-2017, 18.5.10): con "solve es_reset before A" el solver
-// elige es_reset primero y uniforme, o sea ~50 %.
-// Observado en 5.052: es_reset queda clavado en 0 -- 0 de 2000. Sin la
-// directiva da ~0,4 % (1 de cada 257 soluciones), que SI es lo que dice la LRM.
-// O sea que la directiva no se ignora: empeora el sesgo que venia a arreglar.
+// Expected (LRM 1800-2017, 18.5.10): with "solve es_reset before A" the solver
+// picks es_reset first and uniformly, that is ~50 %.
+// Observed on 5.052: es_reset stays stuck at 0 -- 0 out of 2000. Without the
+// directive it gives ~0,4 % (1 in every 257 solutions), which IS what the LRM says.
+// So the directive is not ignored: it makes the bias it came to fix worse.
 //
-// Rodeo portable mientras tanto: pedir el reparto del campo de control con un
-// dist, que Verilator si respeta. Ver code/u6/transactions/constraints/03_solve.sv.
+// Portable workaround meanwhile: ask for the split of the control field with a
+// dist, which Verilator does honour. See code/u6/transactions/constraints/03_solve.sv.
 module top;
 
    class sin_directiva;
@@ -34,15 +34,15 @@ module top;
       c = new();
 
       repeat (N) begin
-         if (s.randomize() == 0) $fatal(1, "randomize() fallo");
+         if (s.randomize() == 0) $fatal(1, "randomize() failed");
          if (s.es_reset) ns = ns + 1;
-         if (c.randomize() == 0) $fatal(1, "randomize() fallo");
+         if (c.randomize() == 0) $fatal(1, "randomize() failed");
          if (c.es_reset) nc = nc + 1;
       end
 
-      $display("sin solve...before : es_reset=1 %0d/%0d (%0.1f%%)  esperado ~0,4%%",
+      $display("no solve...before  : es_reset=1 %0d/%0d (%0.1f%%)  expected ~0,4%%",
                ns, N, 100.0 * ns / N);
-      $display("con solve...before : es_reset=1 %0d/%0d (%0.1f%%)  esperado ~50%%",
+      $display("with solve...before : es_reset=1 %0d/%0d (%0.1f%%)  expected ~50%%",
                nc, N, 100.0 * nc / N);
       $finish;
    end

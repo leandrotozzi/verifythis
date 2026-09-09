@@ -9,7 +9,7 @@ class producer extends uvm_component;
       put_port_h = new("put_port_h", this);
    endfunction : build_phase
 
-   // El Producer produce un dato cada 17ns
+   // The producer produces one datum every 17ns
    task run_phase(uvm_phase phase);
       phase.raise_objection(this);
       repeat (3) begin

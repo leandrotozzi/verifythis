@@ -2,15 +2,15 @@ package vtalu_pkg;
    import uvm_pkg::*;
    `include "uvm_macros.svh"
 
-   // El modelo de referencia vive en vtalu_golden.c y se llama desde aca. Es
-   // todo lo que hace falta del lado de SystemVerilog: una declaracion por
-   // funcion, con los tipos del LRM que cruzan la frontera.
+   // The reference model lives in vtalu_golden.c and is called from here. This
+   // is all that is needed on the SystemVerilog side: one declaration per
+   // function, with the LRM types that cross the boundary.
    //
    //   input int  -> int          output int -> int *
-   //   function   -> devuelve     task       -> puede consumir tiempo (no aca)
+   //   function   -> returns      task       -> may consume time (not here)
    //
-   // El nombre despues de "DPI-C" es el simbolo que el linker busca, asi que
-   // tiene que coincidir con el del .c letra por letra.
+   // The name after "DPI-C" is the symbol the linker looks for, so it has to
+   // match the one in the .c letter by letter.
    import "DPI-C" function int  vtalu_golden(input int op, input int a,
                                              input int b, output int ovf);
    import "DPI-C" function void vtalu_golden_bug(input int on);
@@ -25,7 +25,7 @@ package vtalu_pkg;
       rst_op = 3'b111
    } operation_t;
 
-   // Los configs primero: el driver y los monitores los usan.
+   // Configs first: the driver and the monitors use them.
    `include "env_config.svh"
    `include "vtalu_agent_config.svh"
 
@@ -33,11 +33,11 @@ package vtalu_pkg;
    `include "add_transaction.svh"
    `include "result_transaction.svh"
 
-   // El sequencer no se extiende: se parametriza y se le pone nombre.
-   // Va DESPUES de command_transaction y ANTES del driver y del agent.
+   // The sequencer is not extended: it is parameterized and given a name.
+   // It goes AFTER command_transaction and BEFORE the driver and the agent.
    typedef uvm_sequencer #(command_transaction) sequencer;
 
-   // Las sequences son uvm_object: van antes de los tests que las arrancan.
+   // Sequences are uvm_object: they go before the tests that start them.
    `include "reset_sequence.svh"
    `include "random_sequence.svh"
    `include "maxmult_sequence.svh"

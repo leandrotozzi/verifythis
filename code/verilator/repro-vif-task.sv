@@ -1,15 +1,15 @@
-// Repro minimo del bug que obligo a mover el protocolo de la interface a la
-// clase. No es parte del curso: es evidencia para docs/verilator.md.
+// Minimal repro of the bug that forced moving the protocol out of the interface
+// and into the class. It is not part of the course: it is evidence for docs/verilator.md.
 //
 //   $ verilator --binary --timing --top-module top repro-vif-task.sv && ./obj_dir/Vtop
 //
-// Esperado : op_set=101 op=101 y=1
-// Con 5.048 : op_set=101 op=000 y=0    <- el assign de la interface no se re-evalua
-//            5.048 compila esto sin un solo warning.
+// Expected  : op_set=101 op=101 y=1
+// With 5.048 : op_set=101 op=000 y=0    <- the interface assign is not re-evaluated
+//            5.048 compiles this without a single warning.
 //
-// La unica diferencia con el caso que SI anda es quien escribe la senal:
-// si la clase hace vif.op_set = v directamente, funciona; si llama a una task
-// de la interface que hace op_set = v, no.
+// The only difference with the case that DOES work is who writes the signal:
+// if the class does vif.op_set = v directly, it works; if it calls a task
+// of the interface that does op_set = v, it does not.
 interface tb_if;
    bit        clk;
    bit  [2:0] op_set;

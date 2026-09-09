@@ -2,11 +2,15 @@
 //   - pantalla: canvas de 1100x700, una slide a la vez
 //   - impresion (?print-pdf): reveal asigna N paginas por slide y .pdf-page
 //     tiene overflow:hidden, asi que lo que sobra se PIERDE en el PDF
+// Corre sobre los DOS decks: una traduccion mas larga que el original recorta
+// una slide que en castellano entraba, y eso no se ve hasta el proyector.
+//
 // Uso: node tools/overflow.mjs
 import { spawn } from 'node:child_process';
 import { writeFile, unlink, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { chrome } from './chrome.mjs';
+import { IDIOMAS, SALIDAS } from './i18n.mjs';
 
 const PROBE = `
 <pre id="overflow-report" style="display:none">PENDING</pre>
@@ -65,9 +69,11 @@ const PROBE = `
 })();
 </script>`;
 
-async function run(mode) {
-  const tmp = `_overflow_${mode}.html`;
-  const html = (await readFile('index.html', 'utf8')).replace('</body>', PROBE + '\n</body>');
+async function run(mode, deck) {
+  // La copia con la sonda va AL LADO del deck, no en la raiz: el deck en ingles
+  // esta en en/ y sus rutas a css/, res/ y vendor/ llevan un ../ adelante.
+  const tmp = path.join(path.dirname(deck), `_overflow_${mode}.html`);
+  const html = (await readFile(deck, 'utf8')).replace('</body>', PROBE + '\n</body>');
   await writeFile(tmp, html);
   const url = `file://${path.resolve(tmp)}` + (mode === 'print' ? '?print-pdf' : '');
   const out = await new Promise(res => {
@@ -84,10 +90,17 @@ async function run(mode) {
   return JSON.parse(m[1]);
 }
 
+const decks = [];
+for (const l of IDIOMAS) {
+  const f = SALIDAS[l].html;
+  if (await readFile(f, 'utf8').then(() => true).catch(() => false)) decks.push([l, f]);
+}
+
 let failed = false;
+for (const [lang, deck] of decks)
 for (const mode of ['screen', 'print']) {
-  const { total, bad } = await run(mode);
-  const label = mode === 'screen' ? 'pantalla ' : 'impresion';
+  const { total, bad } = await run(mode, deck);
+  const label = `${lang} ${mode === 'screen' ? 'pantalla ' : 'impresion'}`;
   // 0 paginas no es "todo bien": es que no se midio nada.
   if (!total) { console.error(`✗ ${label}  no encontre slides que medir`); failed = true; continue; }
   if (!bad.length) {

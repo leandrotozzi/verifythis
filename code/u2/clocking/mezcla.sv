@@ -34,20 +34,20 @@ module top_mezcla;
    initial begin
       repeat (4) @(bfm.cb);
 
-      // Las dos lecturas, en el MISMO instante, sobre el MISMO cable.
+      // The two reads, at the SAME instant, on the SAME wire.
       por_cb = bfm.cb.d_out;
       crudo  = bfm.d_out;
 
-      $display("en el mismo instante, sobre el mismo cable:");
-      $display("  bfm.cb.d_out (lo que muestreo el clocking block) : %0d", por_cb);
-      $display("  bfm.d_out    (el cable, en vivo)                 : %0d", crudo);
+      $display("at the same instant, on the same wire:");
+      $display("  bfm.cb.d_out (what the clocking block sampled) : %0d", por_cb);
+      $display("  bfm.d_out    (the live wire)                   : %0d", crudo);
       $display("");
-      $display("Difieren en un ciclo, y ningun warning lo dice. Un monitor que");
-      $display("lea por el clocking block y un scoreboard que lea el cable");
-      $display("crudo no fallan siempre: fallan cuando el dato cambia.");
+      $display("They differ by one cycle, and no warning says so. A monitor that");
+      $display("reads through the clocking block and a scoreboard that reads the");
+      $display("raw wire do not fail every time: they fail when the data changes.");
 
       if (por_cb == crudo)
-        $fatal(1, "se esperaba que difirieran: el ejemplo dejo de mostrar la trampa");
+        $fatal(1, "they were expected to differ: the example stopped showing the trap");
       $finish;
    end
 endmodule : top_mezcla

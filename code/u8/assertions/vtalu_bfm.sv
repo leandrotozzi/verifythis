@@ -29,11 +29,11 @@ interface vtalu_bfm;
 
    always @(posedge clk) begin : op_monitor
       static bit in_command = 0;
-      // La guarda de null que ya tenia rst_monitor, ahora tambien aca. Con dos
-      // BFM en el top, una puede quedar sin monitor mientras el testbench se
-      // construye -- o para siempre, si alguien se olvida de instanciar el
-      // agent pasivo. Sin la guarda eso es un crash del simulador en vez de un
-      // testbench que no ve nada.
+      // The null guard rst_monitor already had, now here too. With two BFMs in
+      // the top, one can be left without a monitor while the testbench is being
+      // built -- or forever, if someone forgets to instantiate the passive
+      // agent. Without the guard that is a simulator crash instead of a
+      // testbench that sees nothing.
       if (command_monitor_h != null) begin : con_monitor
          if (start) begin : start_high
             if (!in_command) begin : new_command
@@ -56,10 +56,10 @@ interface vtalu_bfm;
    initial begin : result_monitor_thread
       forever begin : result_monitor
          @(posedge clk);
-         // Misma guarda que op_monitor y rst_monitor: con dos BFM en el top,
-         // una puede quedar sin monitor. Sin esto, olvidarse del agent pasivo
-         // es un "Null pointer dereferenced" del simulador en vez del mensaje
-         // del corrector -- que es justo el estado inicial del ejercicio d6.
+         // Same guard as op_monitor and rst_monitor: with two BFMs in the top,
+         // one can be left without a monitor. Without this, forgetting the
+         // passive agent is a simulator "Null pointer dereferenced" instead of
+         // the checker's message -- which is exactly where exercise d6 starts.
          if (done && result_monitor_h != null) result_monitor_h.write_to_monitor(result, ovf);
       end : result_monitor
    end : result_monitor_thread
@@ -73,10 +73,10 @@ interface vtalu_bfm;
    end
 
 
-   // --- el protocolo, en el BFM ---
-   // Todo lo que sabe COMO se habla con el DUT vive aca, en un solo lugar: el
-   // resto del testbench pide una operacion y no toca un cable. Es la idea de
-   // la unidad 3, y se sostiene hasta el final del curso.
+   // --- the protocol, in the BFM ---
+   // Everything that knows HOW the DUT is talked to lives here, in one place:
+   // the rest of the testbench asks for an operation and never touches a wire.
+   // That is the idea of unit 3, and it holds to the end of the course.
 
    task reset_alu();
       reset_n = 1'b0;
@@ -86,8 +86,8 @@ interface vtalu_bfm;
       start   = 1'b0;
    endtask : reset_alu
 
-   // NUEVO en la unidad 23: el cuarto argumento. El protocolo no cambio; lo
-   // unico que se agrego es leer result en el flanco en que done ya subio.
+   // NEW in unit 23: the fourth argument. The protocol did not change; the only
+   // thing added is reading result on the edge where done is already up.
    bit bug_operandos;
    initial bug_operandos = $test$plusargs("BUG");
 
@@ -112,10 +112,10 @@ interface vtalu_bfm;
             #1;
             start = 1'b0;
          end else begin
-            // +BUG=1: cambia B a mitad de la multiplicacion. El multiplicador
-            // ya latcheo A y B en el primer flanco, asi que el RESULTADO NO
-            // CAMBIA: el scoreboard sigue en verde. Lo unico que lo ve es la
-            // assertion. Eso es toda la seccion.
+            // +BUG=1: changes B halfway through the multiplication. The
+            // multiplier already latched A and B on the first edge, so the
+            // RESULT DOES NOT CHANGE: the scoreboard stays green. The only
+            // thing that sees it is the assertion. That is the whole section.
             if (bug_operandos && iop == mul_op) begin
                @(negedge clk);
                @(negedge clk);
@@ -130,31 +130,31 @@ interface vtalu_bfm;
 
 
    // ==========================================================================
-   //  Unidad 24 - el protocolo, chequeado donde ocurre
+   //  Unit 24 - the protocol, checked where it happens
    // ==========================================================================
    //
-   // Las properties viven ACA, con las senales, y no en el testbench: se
-   // enchufan solas, nadie las conecta, y el agent pasivo de la seccion Agents se
-   // las lleva de regalo. Lo unico que hace falta para que corran es --assert.
+   // The properties live HERE, with the signals, and not in the testbench: they
+   // plug themselves in, nobody connects them, and the passive agent of the Agents
+   // section gets them for free. All they need in order to run is --assert.
    //
-   // DOS RELOJES, y no es un detalle de implementacion: la BFM maneja en
-   // negedge y el DUT registra en posedge. Una assertion muestrea en la region
-   // preponed del flanco que se le da, asi que una senal escrita EN el negedge
-   // no se ve en ese negedge: se ve en el siguiente. Con todo en posedge, dos
-   // no_op consecutivas -- start baja en t=111 y vuelve a subir en t=120, entre
-   // dos posedge -- se leen como UNA transaccion con los operandos cambiando:
-   // 185 falsos positivos cada 1000 operaciones. Con todo en negedge, los
-   // falsos positivos se mudan a las properties de done.
+   // TWO CLOCKS, and it is not an implementation detail: the BFM drives on
+   // negedge and the DUT registers on posedge. An assertion samples in the
+   // preponed region of the edge it is given, so a signal written ON the negedge
+   // is not seen on that negedge: it is seen on the next one. With everything on
+   // posedge, two consecutive no_op -- start goes down at t=111 and back up at
+   // t=120, between two posedges -- read as ONE transaction with the operands
+   // changing: 185 false positives every 1000 operations. With everything on
+   // negedge, the false positives move to the done properties.
    //
-   //   estimulo  (start, A, B, op_set)  -> negedge, donde la BFM escribe
-   //   respuesta (done, result)         -> posedge, donde el DUT registra
+   //   stimulus (start, A, B, op_set)  -> negedge, where the BFM writes
+   //   response (done, result)         -> posedge, where the DUT registers
 
    default disable iff (!reset_n);
 
    // --- El estimulo ---
 
-   // La regla de la slide 1 del dia 1, por fin ejecutable: mientras start este
-   // arriba, los operandos y la operacion no se tocan.
+   // The rule from slide 1 of day 1, executable at last: while start is up, the
+   // operands and the operation are not touched.
    property p_operandos_estables;
       @(negedge clk) start |=> $stable(A) && $stable(B) && $stable(op_set);
    endproperty : p_operandos_estables
@@ -163,12 +163,12 @@ interface vtalu_bfm;
    assert property (p_operandos_estables)
    else
       `uvm_error("SVA", $sformatf(
-                 "%m: operando cambiado con start arriba: A=%0d B=%0d op=%s", A, B, op2enum().name()))
+                 "%m: operand changed with start up: A=%0d B=%0d op=%s", A, B, op2enum().name()))
 
-   // --- La respuesta del DUT ---
+   // --- The DUT's answer ---
 
-   // La latencia variable de la seccion La spec del VTALU en una linea: un ciclo las de un
-   // ciclo, cuatro flancos la multiplicacion.
+   // The variable latency of the The VTALU spec section in one line: one cycle for the
+   // one-cycle ops, four edges for the multiplication.
    property p_done_llega;
       @(posedge clk) start && (op_set != no_op) |-> ##[1:5] done;
    endproperty : p_done_llega
@@ -177,7 +177,7 @@ interface vtalu_bfm;
    assert property (p_done_llega)
    else `uvm_error("SVA", $sformatf("%m: start con op=%s y done no llego en 5 ciclos", op2enum().name()))
 
-   // La letra chica: no_op es la unica operacion que no responde.
+   // The fine print: no_op is the only operation that does not answer.
    property p_no_op_sin_done;
       @(posedge clk) start && (op_set == no_op) |=> !done;
    endproperty : p_no_op_sin_done
@@ -186,17 +186,17 @@ interface vtalu_bfm;
    assert property (p_no_op_sin_done)
    else `uvm_error("SVA", $sformatf("%m: done subio para una no_op"))
 
-   // --- Toda assertion va con su cover property ---
+   // --- Every assertion comes with its cover property ---
    //
-   // Una assertion cuyo antecedente no ocurre nunca PASA, y no chequea nada.
-   // El cover es el antidoto. Y de paso desmiente modelos mentales: la
-   // multiplicacion "de tres ciclos" tarda CUATRO flancos (done3 -> done2 ->
-   // done1 -> done_mult), asi que c_mult_3ciclos se queda en 0 para siempre.
-   // --- rev2 del VTALU: la salida que el scoreboard solo mira de reojo ---
+   // An assertion whose antecedent never happens PASSES, and checks nothing.
+   // The cover is the antidote. And it also debunks mental models: the
+   // "three-cycle" multiplication takes FOUR edges (done3 -> done2 ->
+   // done1 -> done_mult), so c_mult_3ciclos stays at 0 forever.
+   // --- VTALU rev2: the output the scoreboard only glances at ---
 
-   // El ovf es del sub y de nadie mas. Una assertion, porque es una regla de la
-   // spec y no una cuenta: el scoreboard chequea QUE calcula, esto chequea que
-   // no invente una bandera donde no corresponde.
+   // ovf belongs to sub and to nobody else. An assertion, because it is a rule of
+   // the spec and not arithmetic: the scoreboard checks WHAT it computes, this
+   // checks that it does not invent a flag where none belongs.
    property p_ovf_solo_en_sub;
       @(posedge clk) done && (op_set != sub_op) |-> !ovf;
    endproperty : p_ovf_solo_en_sub
@@ -205,8 +205,8 @@ interface vtalu_bfm;
    assert property (p_ovf_solo_en_sub)
    else `uvm_error("SVA", $sformatf("%m: ovf arriba con op=%s, que no puede desbordar", op2enum().name()))
 
-   // Y el cover que lo acompaña: sin esto, una regresion donde el random nunca
-   // haya restado de menos deja la assertion en verde sin haber chequeado nada.
+   // And the cover that goes with it: without this, a regression where the random
+   // never subtracted too much leaves the assertion green having checked nothing.
    c_ovf : cover property (@(posedge clk) done && ovf);
    c_sub_sin_borrow : cover property (@(posedge clk) done && (op_set == sub_op) && !ovf);
 

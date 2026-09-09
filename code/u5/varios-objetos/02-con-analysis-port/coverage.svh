@@ -1,9 +1,9 @@
 // uvm_subscriber:
-//    extiende la clase uvm_component y permite conectarte a un analysis port
-//    Es una clase parametrizable!
-//    La clase te da algo y requiere algo a cambio
-//       * La clase te da un objeto llamado analysis_export
-//       * Requiere que crees un metodo write, que maneje el dato
+//    extends the uvm_component class and lets you hook onto an analysis port
+//    It is a parameterizable class!
+//    The class gives you something and asks for something in return
+//       * It gives you an object called analysis_export
+//       * It asks you to write a write() method that handles the data
 
 class coverage extends uvm_subscriber #(int);
    `uvm_component_utils(coverage);

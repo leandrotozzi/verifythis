@@ -126,7 +126,7 @@ Instancio 10 objetos de una clase que tiene una variable `static`. ¿Cuántas co
 
 **12. Clases paramétricas**
 
-`bandeja#(fernet)` y `bandeja#(gancia)` tienen adentro una queue `static`. ¿Comparten la queue?
+`bandeja#(fernet)` y `bandeja#(mojito)` tienen adentro una queue `static`. ¿Comparten la queue?
 
 - **a)** Sí, `static` es una sola para todos
 - **b)** Sí, salvo que se declare `protected`
@@ -463,7 +463,7 @@ El DUT devuelve el `result` correcto pero baja `done` un ciclo antes de lo que d
 | 5 | 1 | Interfaces y BFM | **a** | **Deja de hablar en señales** — el BFM traduce *una operación* a *un handshake de señales*. El tester, el scoreboard y el coverage no vuelven a tocar un cable: es el primer paso hacia UVM. |
 | 6 | 1 | clocking block | **c** | **No hacen falta, y conviene usarlos igual** — son de **SystemVerilog**, no de UVM. Lo que evita la race es entender el scheduler: un driver que maneja con `<=` contra un DUT que registra con `<=` ya es determinista. El clocking block no reemplaza ese entendimiento, lo **encapsula** — y ahí es donde paga: agents reutilizables, VIP, gate-level y protocolos con setup/hold en la spec. |
 | 7 | 2 | Handle y objeto | **a** | **Ninguno** — declarar un handle no reserva nada. Ahí está la diferencia con una `struct`, que el simulador reserva apenas la ve. Y usar el handle antes del `new()` no falla al compilar: revienta en medio de la simulación. |
-| 8 | 2 | Polimorfismo | **c** | **El de `trago`** — sin `virtual`, SystemVerilog mira el **tipo de la variable**, no el del objeto. Es literal lo que imprime `code/u3/polimorfismo/01-sin-virtual`: *"Generic tragos don't have a sound"*. |
+| 8 | 2 | Polimorfismo | **c** | **El de `trago`** — sin `virtual`, SystemVerilog mira el **tipo de la variable**, no el del objeto. Es literal lo que imprime `code/u3/polimorfismo/01-sin-virtual`: *"A generic trago cannot be served"*. |
 | 9 | 2 | Clases abstractas | **b** | **El error pasa al compilador** — con `$fatal` te enterás a mitad de la simulación de que faltaba un override. Con `pure virtual` no compila. Atajar antes siempre es más barato. |
 | 10 | 2 | Variables estáticas | **c** | **Una sola** — y existe aunque no instancies ningún objeto. Eso es lo que la hace útil para datos globales del TB, y lo que la hace peligrosa si la dejás pública. |
 | 11 | 2 | Métodos estáticos | **a** | **Para poder cambiarla después** — si la cola está a la vista, el día que la cambiás por otra estructura tenés que salir a corregir todos los lugares que la tocaban. Encapsular es poder cambiar de opinión. |

@@ -1,12 +1,12 @@
-// Tipycal TB:
-// -----------
+// Typical TB:
+// ----------
 //  * Functional Coverage
 //  * Self Checking
 //  * Constrained Random Stimulus
 
-// Porque es malo?
-//  * Falta de modularidad (todo en un mismo archivo)
-//  * Escasa posibilidad de reusarlo
+// Why is this bad?
+//  * No modularity (everything in a single file)
+//  * Almost nothing here can be reused
 module top;
 
    typedef enum bit[2:0] {no_op  = 3'b000,
@@ -32,26 +32,26 @@ module top;
    vtalu DUT (.A, .B, .clk, .op, .reset_n, .start, .done, .ovf, .result);
 
 `ifdef VLT_TRACE
-   // Ondas para GTKWave:  VLT_TRACE=1 bash run.sh  &&  gtkwave vtalu.vcd
-   // Va detras de un `ifdef porque $dumpvars no compila sin --trace, y el
-   // define lo pone el mismo VLT_TRACE que agrega el flag (common.sh).
+   // Waves for GTKWave:  VLT_TRACE=1 bash run.sh  &&  gtkwave vtalu.vcd
+   // Behind an `ifdef because $dumpvars does not compile without --trace, and
+   // the define comes from the same VLT_TRACE that adds the flag (common.sh).
    initial begin
       $dumpfile("vtalu.vcd");
       $dumpvars;
    end
 `endif
 
-   //op_cov: Nos aseguramos cubrir todas las operaciones y su interaccion
+   //op_cov: make sure every operation, and every interaction between them, is covered
    covergroup op_cov;
       coverpoint op_set {
          bins single_cycle[] = {[add_op : xor_op], rst_op,no_op};
          bins multi_cycle = {mul_op};
 
          // => are transitional coverage. From => To
-         // Bins de transicion. Verilator 5.052 todavia NO los implementa: cualquier
-         // forma con "=>" o "[* n]" aborta con un Internal Error. Repro minimo en
-         // code/verilator/repro-cg-transition.sv. Quedan aca porque son parte del tema;
-         // cuando Verilator los soporte, se borra el ifndef y nada mas.
+         // Transition bins. Verilator 5.052 does NOT implement them yet: any form
+         // with "=>" or "[* n]" aborts with an Internal Error. Minimal repro in
+         // code/verilator/repro-cg-transition.sv. They stay because they are part
+         // of the topic; when Verilator supports them, drop the ifndef, nothing else.
 `ifndef VERILATOR
          bins opn_rst[] = ([add_op:mul_op] => rst_op);
          bins rst_opn[] = (rst_op => [add_op:mul_op]);
@@ -65,7 +65,7 @@ module top;
       }
    endgroup
 
-   // Chequeamos los casos en que la entrada son todas 0 o 1
+   // Check the corners where the inputs are all 0s or all 1s
    covergroup zeros_or_ones_on_ops;
 
       all_ops : coverpoint op_set {
@@ -82,9 +82,9 @@ module top;
          bins others= {[8'h01:8'hFE]};
          bins ones  = {8'hFF};
       }
-      // rev2 del VTALU: el borrow de la resta, que es la fila del plan que el
-      // scoreboard solo puede cerrar mirando DOS salidas. Sin este bin, una
-      // resta que nunca dio negativa es indistinguible de una que si.
+      // VTALU rev2: the borrow of the subtraction, the row of the plan that the
+      // scoreboard can only close by looking at TWO outputs. Without this bin, a
+      // subtraction that never went negative looks exactly like one that did.
       borrow: coverpoint ((op_set == sub_op) && (A < B)) {
          bins hubo_borrow = {1};
          ignore_bins resto = {0};
@@ -167,7 +167,7 @@ module top;
    endfunction : get_op
 
    function byte get_data();
-      // Mediante esta tecnica, sesgamos el random
+      // This is how the random gets biased
       bit [1:0] zero_ones;
       zero_ones = $random;
       if (zero_ones == 2'b00)
@@ -178,7 +178,7 @@ module top;
         return $random;
    endfunction : get_data
 
-   // Scoreboard loop chequea si dio todo OK
+   // Scoreboard loop: checks that everything came out right
    always @(posedge done) begin : scoreboard
       shortint predicted_result;
       bit      predicted_ovf;
@@ -191,8 +191,8 @@ module top;
         mul_op: predicted_result = A * B;
       endcase // case (op_set)
 
-      // El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de
-      // salida, ni la suma ni la multiplicacion se pasan.
+      // ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit
+      // output, neither the addition nor the multiplication can overflow.
       predicted_ovf = (op_set == sub_op) && (A < B);
 
       if ((op_set != no_op) && (op_set != rst_op))
@@ -202,9 +202,9 @@ module top;
 
    end : scoreboard
 
-   // Randomizamos los estimulos
-   // get_op y get_data son Constrained Random Data
-   // La idea de CRD es crear valores random pero legales
+   // Randomize the stimulus
+   // get_op and get_data are Constrained Random Data
+   // The point of CRD is to build values that are random but legal
    initial begin : tester
       reset_n = 1'b0;
       @(negedge clk);

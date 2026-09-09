@@ -1,10 +1,10 @@
-// Las operaciones de un ciclo: add, sub, and, xor. Registra A op B en el flanco.
+// The one-cycle operations: add, sub, and, xor. Registers A op B on the edge.
 //
-// La resta es la unica que puede desbordar: con operandos de 8 bits y resultado
-// de 16, ni la suma ni la multiplicacion se pasan. A - B con A < B si, y por eso
-// existe ovf_1c. El resultado en ese caso es el complemento a dos truncado a 16
-// bits -- envuelve a 0xFFxx --, que es lo que hace el hardware y lo que el
-// scoreboard tiene que predecir bien.
+// The subtraction is the only one that can overflow: with 8-bit operands and a
+// 16-bit result, neither the addition nor the multiplication go over. A - B with
+// A < B does, and that is why ovf_1c exists. The result in that case is the two's
+// complement truncated to 16 bits -- it wraps to 0xFFxx --, which is what the
+// hardware does and what the scoreboard has to predict correctly.
 module vtalu_1c (
     input  logic [ 7:0] A,
     input  logic [ 7:0] B,
@@ -17,8 +17,8 @@ module vtalu_1c (
     output logic [15:0] result_1c
 );
 
-   // Los dos resets son distintos a proposito: el del resultado es SINCRONO y
-   // el del done es ASINCRONO. No es un descuido, es la spec.
+   // The two resets are different on purpose: the one on the result is SYNCHRONOUS
+   // and the one on done is ASYNCHRONOUS. It is not an oversight, it is the spec.
    always_ff @(posedge clk) begin
       if (!reset_n) begin
          result_1c <= 16'h0000;
@@ -36,7 +36,7 @@ module vtalu_1c (
       end
    end
 
-   // done sube en el flanco si start esta arriba y la op no es no_op
+   // done goes up on the edge if start is up and the op is not no_op
    always_ff @(posedge clk or negedge reset_n) begin
       if (!reset_n) done_1c <= 1'b0;
       else done_1c <= start && (op != 3'b000);

@@ -7,9 +7,9 @@ virtual class trago;
       name = n;
    endfunction : new
 
-   function int get_age();
+   function int get_hielos();
       return hielos;
-   endfunction : get_age
+   endfunction : get_hielos
 
    function string get_name();
       return name;
@@ -28,24 +28,24 @@ class fernet extends trago;
    endfunction : new
 
    function void servir();
-      $display("El fernet %s: 70/30, y la coca al final", get_name());
+      $display("The fernet %s: 70/30, and the coke last", get_name());
    endfunction : servir
 
 endclass : fernet
 
-class gancia extends trago;
+class mojito extends trago;
 
    function new(int hielos, string n);
       super.new(hielos, n);
    endfunction : new
 
    function void servir();
-      $display("El gancia %s: con Sprite y una rodaja de limon", get_name());
+      $display("The mojito %s: mint, lime and crushed ice", get_name());
    endfunction : servir
 
-endclass : gancia
+endclass : mojito
 
-// bandeja no es estatica ahora
+// bandeja is not static any more
 class bandeja #(
     type T
 );
@@ -57,7 +57,7 @@ class bandeja #(
    endfunction : bandeja_trago
 
    function void lista_tragos();
-      $display("Tragos en la bandeja:");
+      $display("Drinks on the tray:");
       foreach (vasos[i]) $display(vasos[i].get_name());
    endfunction : lista_tragos
 
@@ -65,34 +65,34 @@ endclass : bandeja
 
 module top;
 
-   // Como bandeja no es estatica, debemos instanciarla
-   // el parametro es un tipo de variable
-   // Si usamos como parametro un tipo que no tiene el
-   // metodo get_name() hay error de sintaxis
+   // Since bandeja is not static, it has to be instantiated
+   // the parameter is a variable type
+   // Using a type that does not have the get_name()
+   // method is a syntax error
    fernet fernet_h;
-   gancia gancia_h;
+   mojito mojito_h;
 
    bandeja #(fernet) bandeja_de_fernet;
-   bandeja #(gancia) bandeja_de_gancia;
+   bandeja #(mojito) bandeja_de_mojito;
 
    initial begin
       bandeja_de_fernet = new();
-      fernet_h = new(15, "el de la barra");
+      fernet_h = new(15, "the one at the bar");
       bandeja_de_fernet.bandeja_trago(fernet_h);
-      fernet_h = new(15, "el de la mesa 4");
+      fernet_h = new(15, "the one at table 4");
       bandeja_de_fernet.bandeja_trago(fernet_h);
 
-      bandeja_de_gancia = new();
-      gancia_h = new(1, "el de la mesa 7");
-      bandeja_de_gancia.bandeja_trago(gancia_h);
+      bandeja_de_mojito = new();
+      mojito_h = new(1, "the one at table 7");
+      bandeja_de_mojito.bandeja_trago(mojito_h);
 
-      gancia_h = new(1, "el de la vereda");
-      bandeja_de_gancia.bandeja_trago(gancia_h);
+      mojito_h = new(1, "the one on the sidewalk");
+      bandeja_de_mojito.bandeja_trago(mojito_h);
 
       $display("-- Fernets --");
       bandeja_de_fernet.lista_tragos();
-      $display("-- Gancias --");
-      bandeja_de_gancia.lista_tragos();
+      $display("-- Mojitos --");
+      bandeja_de_mojito.lista_tragos();
    end
 
 endmodule : top

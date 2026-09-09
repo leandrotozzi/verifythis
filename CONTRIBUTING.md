@@ -20,8 +20,14 @@ material, no tuyo.
 
 ## Un pull request
 
-Todo el material vive en dos lugares: `slides/*.md` para el curso y `code/` para
-los ejemplos. Nada más se edita a mano.
+Todo el material vive en dos lugares: `slides/<idioma>/*.md` para el curso y
+`code/` para los ejemplos. Nada más se edita a mano.
+
+El curso está en **dos idiomas** y sólo las slides existen por duplicado:
+`slides/es/` es el original y `slides/en/` la versión en inglés, que se publica
+de a un día por vez. `code/`, `res/` y los diagramas **no se duplican** —están en
+inglés y los comparten las dos versiones—, y por eso una corrección a un ejemplo
+arregla el curso entero de una.
 
 ```sh
 git clone https://github.com/leandrotozzi/verifythis
@@ -41,8 +47,29 @@ npm run check      # falla si index.html o libro/ quedaron viejos
 npm run overflow   # falla si alguna slide se recorta, en pantalla o impresa
 ```
 
-Los tres en verde, y `index.html` + `libro/` en el mismo commit que el cambio en
-`slides/`. El CI corre exactamente eso.
+Los tres en verde, y `index.html` + `libro/` —y sus gemelos de `en/`— en el
+mismo commit que el cambio en `slides/`. El CI corre exactamente eso.
+
+### Si tocaste una slide que ya está traducida
+
+`npm run check` corre `tools/lint-i18n.mjs`, que compara los dos árboles y falla
+si divergieron. Chequea dos cosas distintas:
+
+- **La estructura**: misma cantidad de slides, los mismos `{{code:}}` en el mismo
+  orden, los mismos `id="dayN"`, los mismos quizzes con la respuesta en el mismo
+  lugar, y `Note:` en las mismas slides.
+- **El sentido**: cada archivo de `slides/en/` lleva el sha del archivo en
+  castellano del que salió. Si editás el castellano, el check falla diciendo qué
+  traducción quedó vieja — que es la divergencia que ninguna regla estructural ve.
+
+Después de actualizar la traducción, se re-sella:
+
+```sh
+node tools/lint-i18n.mjs --bless slides/en/060-factory.md
+```
+
+Si todavía no la vas a traducir, dejalo fallar y avisá en el PR: es mejor un
+check en rojo que una versión que dice otra cosa.
 
 ### Si tocaste `code/`
 
@@ -82,7 +109,9 @@ Mensajes en castellano, con el prefijo del área: `feat(curso)`, `fix(code)`,
 
 ## Lo que no va
 
-- **Traducciones del curso a otro idioma.** Que esté en castellano es el punto.
+- **Traducciones a un idioma que no sea inglés.** El curso mantiene dos y no
+  más: castellano —el original— e inglés. Un tercero nadie lo va a poder
+  revisar, y una traducción que nadie revisa envejece peor que no tenerla.
 - **Cambiar de simulador.** Verilator es el único, y es una decisión, no una
   limitación: es lo que hace que cualquiera pueda correr todo sin licencias.
 - **Temas nuevos grandes** (RAL, un DUT nuevo, videos) sin abrir antes una

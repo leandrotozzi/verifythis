@@ -1,12 +1,12 @@
 #!/bin/bash
-# Corre el ejemplo con Verilator. Ver docs/verilator.md.
+# Runs the example with Verilator. See docs/verilator.md.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../../verilator/common.sh"
-# --timescale: sin esto Verilator toma su default de 1ps y los #17 / #7 del
-# ejemplo pasan a ser picosegundos, asi que la salida y el diagrama de la
-# slide ("cada 17 ns") decian cosas distintas. Va como flag y no como
-# `timescale en el fuente porque declararlo en un modulo obliga a declararlo
-# en TODOS -- y uvm_pkg no lo declara: %Warning-TIMESCALEMOD, fatal. El flag,
-# en cambio, es el default para los que no dicen nada, uvm_pkg incluido.
+# --timescale: without this Verilator takes its 1ps default and the #17 / #7 of the
+# example become picoseconds, so the output and the diagram on the
+# slide ("every 17 ns") said different things. It goes as a flag and not as a
+# `timescale in the source because declaring it in one module forces declaring it
+# in ALL of them -- and uvm_pkg does not declare it: %Warning-TIMESCALEMOD, fatal. The flag,
+# on the other hand, is the default for whoever says nothing, uvm_pkg included.
 vlt_uvm top --timescale 1ns/1ns example_pkg.sv top.sv
 run_sim

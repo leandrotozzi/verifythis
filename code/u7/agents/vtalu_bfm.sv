@@ -27,11 +27,11 @@ interface vtalu_bfm;
 
    always @(posedge clk) begin : op_monitor
       static bit in_command = 0;
-      // La guarda de null que ya tenia rst_monitor, ahora tambien aca. Con dos
-      // BFM en el top, una puede quedar sin monitor mientras el testbench se
-      // construye -- o para siempre, si alguien se olvida de instanciar el
-      // agent pasivo. Sin la guarda eso es un crash del simulador en vez de un
-      // testbench que no ve nada.
+      // The null guard rst_monitor already had, now here too. With two BFMs in
+      // the top, one can be left without a monitor while the testbench is being
+      // built -- or forever, if someone forgets to instantiate the passive
+      // agent. Without the guard that is a simulator crash instead of a
+      // testbench that sees nothing.
       if (command_monitor_h != null) begin : con_monitor
          if (start) begin : start_high
             if (!in_command) begin : new_command
@@ -54,10 +54,10 @@ interface vtalu_bfm;
    initial begin : result_monitor_thread
       forever begin : result_monitor
          @(posedge clk);
-         // Misma guarda que op_monitor y rst_monitor: con dos BFM en el top,
-         // una puede quedar sin monitor. Sin esto, olvidarse del agent pasivo
-         // es un "Null pointer dereferenced" del simulador en vez del mensaje
-         // del corrector -- que es justo el estado inicial del ejercicio d6.
+         // Same guard as op_monitor and rst_monitor: with two BFMs in the top,
+         // one can be left without a monitor. Without this, forgetting the
+         // passive agent is a simulator "Null pointer dereferenced" instead of
+         // the checker's message -- which is exactly where exercise d6 starts.
          if (done && result_monitor_h != null) result_monitor_h.write_to_monitor(result, ovf);
       end : result_monitor
    end : result_monitor_thread
@@ -71,10 +71,10 @@ interface vtalu_bfm;
    end
 
 
-   // --- el protocolo, en el BFM ---
-   // Todo lo que sabe COMO se habla con el DUT vive aca, en un solo lugar: el
-   // resto del testbench pide una operacion y no toca un cable. Es la idea de
-   // la unidad 3, y se sostiene hasta el final del curso.
+   // --- the protocol, in the BFM ---
+   // Everything that knows HOW the DUT is talked to lives here, in one place:
+   // the rest of the testbench asks for an operation and never touches a wire.
+   // That is the idea of unit 3, and it holds to the end of the course.
 
    task reset_alu();
       reset_n = 1'b0;

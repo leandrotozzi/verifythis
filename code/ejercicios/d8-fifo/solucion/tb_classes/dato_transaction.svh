@@ -1,4 +1,4 @@
-// Lo que sale por rd_data, un ciclo despues de la lectura que lo pidio.
+// What comes out of rd_data, one cycle after the read that asked for it.
 class dato_transaction extends uvm_sequence_item;
    `uvm_object_utils(dato_transaction)
 

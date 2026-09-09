@@ -1,12 +1,12 @@
-// El env de la seccion Sequences con DOS cambios, y ninguno mas:
+// The env of the Sequences section with TWO changes, and no more:
 //
-//   1. el segundo agent es UVM_ACTIVE en vez de UVM_PASSIVE;
-//   2. hay un virtual_sequencer, y el connect_phase le pasa los handles de los
-//      dos sequencers de verdad.
+//   1. the second agent is UVM_ACTIVE instead of UVM_PASSIVE;
+//   2. there is a virtual_sequencer, and connect_phase hands it the handles of
+//      the two real sequencers.
 //
-// El resto --agents, scoreboards, cobertura, el ambito del config_db-- es
-// identico. Ese es el punto: una sequence virtual no cambia la estructura del
-// testbench, solo agrega quien la coordina.
+// The rest --agents, scoreboards, coverage, the config_db scope-- is
+// identical. That is the point: a virtual sequence does not change the structure
+// of the testbench, it only adds who coordinates it.
 class env extends uvm_env;
    `uvm_component_utils(env);
 
@@ -28,7 +28,7 @@ class env extends uvm_env;
       if (!uvm_config_db#(env_config)::get(this, "", "config", env_config_h))
          `uvm_fatal("ENV", "Failed to get env config")
 
-      // Los dos activos: cada uno con su sequencer y su driver.
+      // Both active: each with its own sequencer and driver.
       clase_cfg_h  = new(.bfm(env_config_h.clase_bfm),  .is_active(UVM_ACTIVE));
       modulo_cfg_h = new(.bfm(env_config_h.modulo_bfm), .is_active(UVM_ACTIVE));
 
@@ -47,9 +47,9 @@ class env extends uvm_env;
    endfunction : build_phase
 
    function void connect_phase(uvm_phase phase);
-      // Los handles se pasan ACA y no se buscan por string: en el connect_phase
-      // los dos agents ya existen, y si alguien renombra un componente esto no
-      // compila en vez de devolver null en tiempo de simulacion.
+      // The handles are passed HERE and not looked up by string: in connect_phase
+      // both agents already exist, and if somebody renames a component this does
+      // not compile instead of returning null at simulation time.
       virtual_sequencer_h.clase_sequencer_h  = clase_agent_h.sequencer_h;
       virtual_sequencer_h.modulo_sequencer_h = modulo_agent_h.sequencer_h;
 

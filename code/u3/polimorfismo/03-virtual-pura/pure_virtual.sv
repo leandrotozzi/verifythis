@@ -1,4 +1,4 @@
-// Clase abstracta: solo sirve como base, no se puede instanciar.
+// Abstract class: it only works as a base, it cannot be instantiated.
 virtual class trago;
    int hielos = -1;
 
@@ -6,7 +6,7 @@ virtual class trago;
       hielos = a;
    endfunction : new
 
-   // pure virtual: sin body. Extenderla obliga a redefinirlo.
+   // pure virtual: no body. Extending it forces you to redefine it.
    pure virtual function void servir();
 
 endclass : trago
@@ -18,49 +18,49 @@ class fernet extends trago;
    endfunction : new
 
    function void servir();
-      $display("Fernet: 70/30, y la coca al final");
+      $display("Fernet: 70/30, and the coke last");
    endfunction : servir
 
 endclass : fernet
 
-class gancia extends trago;
+class mojito extends trago;
 
    function new(int hielos);
       super.new(hielos);
    endfunction : new
 
-   // Borrar este override NO compila -- que es justo la gracia.
+   // Deleting this override does NOT compile -- which is exactly the point.
    function void servir();
-      $display("Gancia: con Sprite y una rodaja de limon");
+      $display("Mojito: mint, lime and crushed ice");
    endfunction : servir
 
-endclass : gancia
+endclass : mojito
 
 module top;
 
    initial begin
 
       fernet fernet_h;
-      gancia gancia_h;
+      mojito mojito_h;
       trago trago_h;
 
-      // trago_h = new(3);  <- no compila: trago es abstracta
+      // trago_h = new(3);  <- does not compile: trago is abstract
 
       fernet_h = new(15);
       fernet_h.servir();
-      $display("El fernet lleva %0d hielos", fernet_h.hielos);
+      $display("The fernet has %0d ice cubes", fernet_h.hielos);
 
-      gancia_h = new(1);
-      gancia_h.servir();
-      $display("El gancia lleva %0d hielos", gancia_h.hielos);
+      mojito_h = new(1);
+      mojito_h.servir();
+      $display("The mojito has %0d ice cubes", mojito_h.hielos);
 
       trago_h = fernet_h;
       trago_h.servir();
-      $display("El trago lleva %0d hielos", trago_h.hielos);
+      $display("The trago has %0d ice cubes", trago_h.hielos);
 
-      trago_h = gancia_h;
+      trago_h = mojito_h;
       trago_h.servir();
-      $display("El trago lleva %0d hielos", trago_h.hielos);
+      $display("The trago has %0d ice cubes", trago_h.hielos);
 
    end  // initial begin
 

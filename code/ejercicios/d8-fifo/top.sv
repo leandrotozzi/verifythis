@@ -1,9 +1,9 @@
-// El top del segundo capstone. Se da hecho, y no se toca.
+// The top of the second capstone. It comes done, and it is not touched.
 //
-// Hay DOS FIFOs, cada una con su interface -- el mismo arreglo del capstone del
-// APB y de la seccion Agents: una la maneja tu testbench, la otra la maneja un
-// modulo de siempre. La segunda existe para que puedas escribir el MONITOR
-// antes que el driver.
+// There are TWO FIFOs, each with its own interface -- the same arrangement as the APB
+// capstone and the Agents section: one is driven by your testbench, the other by a
+// module of always. The second one exists so that you can write the MONITOR
+// before the driver.
 module top;
    import uvm_pkg::*;
    import fifo_pkg::*;
@@ -11,7 +11,7 @@ module top;
 
    bit bug_en;
 
-   // La que maneja tu testbench
+   // The one your testbench drives
    fifo_if bfm ();
    sync_fifo dut (
        .clk(bfm.clk), .rst_n(bfm.rst_n),
@@ -22,8 +22,8 @@ module top;
        .count(bfm.count), .bug_en(bug_en)
    );
 
-   // La que maneja el modulo de siempre. Su DUT nunca tiene el bug: lo unico
-   // que se mira ahi es si tu monitor ve la FIFO.
+   // The one the usual module drives. Its DUT never has the bug: the only thing
+   // looked at there is whether your monitor sees the FIFO.
    fifo_if stim_bfm ();
    sync_fifo stim_dut (
        .clk(stim_bfm.clk), .rst_n(stim_bfm.rst_n),

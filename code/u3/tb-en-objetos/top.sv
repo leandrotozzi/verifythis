@@ -1,11 +1,11 @@
 module top;
 
-   // Guardamos las definiciones de clase y recursos compartidos en un package
+   // Class definitions and shared resources are kept in a package
    import vtalu_pkg::*;
-   // Los macros que utilizamos tambien los definimos en comun. Esto tmb lo hace UVM
+   // The macros are defined in common too. UVM does this as well
    `include "vtalu_macros.svh"
 
-   // Instanciamos la DUT y el BFM
+   // The DUT and the BFM get instantiated
    vtalu DUT (
        .A(bfm.A),
        .B(bfm.B),
@@ -20,11 +20,11 @@ module top;
 
    vtalu_bfm bfm ();
 
-   // Declaramos una variable que contenga nuestro TB
+   // A variable to hold our TB
    testbench testbench_h;
 
    initial begin
-      // Instanciamos y lanzamos el objeto testbench
+      // The testbench object gets built and launched
       testbench_h = new(bfm);
       testbench_h.execute();
    end

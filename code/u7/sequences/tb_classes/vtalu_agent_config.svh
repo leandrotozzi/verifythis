@@ -1,12 +1,12 @@
-// El config del agent NO es un uvm_object: es una clase pelada. Por eso el
-// constructor puede EXIGIR los dos datos, y quien se olvide de uno no compila.
-// Un uvm_object se crea con type_id::create(), que solo toma un nombre, y esa
-// garantia se pierde.
+// The agent config is NOT a uvm_object: it is a plain class. That is why the
+// constructor can DEMAND both values, and whoever forgets one does not compile.
+// A uvm_object is built with type_id::create(), which only takes a name, and
+// that guarantee is lost.
 class vtalu_agent_config;
 
    virtual vtalu_bfm bfm;
 
-   // protected + getter: nadie lo cambia despues de que el agent se construyo.
+   // protected + getter: nobody changes it after the agent was built.
    protected uvm_active_passive_enum is_active;
 
    function new(virtual vtalu_bfm bfm, uvm_active_passive_enum is_active);

@@ -1,10 +1,10 @@
-// El muestreo a mano: sin clocking block hay que elegir el flanco Y el delta,
-// en cada task, una y otra vez. Este top corre las tres variantes que se
-// escriben la primera semana y muestra que dan TRES numeros distintos.
+// Sampling by hand: without a clocking block you have to pick the edge AND the
+// delta, in every task, over and over. This top runs the three variants people
+// write in their first week and shows they give THREE different numbers.
 //
 //   bash run.sh
 module dut_reg (input bit clk, input byte unsigned d_in, output byte unsigned d_out);
-   // El DUT cuenta: en cada flanco, la salida pasa a ser la entrada + 1.
+   // The DUT counts: on every edge, the output becomes the input + 1.
    always_ff @(posedge clk) d_out <= d_in + 8'd1;
 endmodule
 
@@ -20,31 +20,31 @@ module top_sin;
    initial begin
       d_in = 8'd10;
 
-      // 1. Muestrear EN el flanco. El always_ff del DUT actualiza d_out con una
-      //    asignacion no bloqueante, que se aplica despues de que este initial
-      //    ya corrio: se lee el valor VIEJO.
+      // 1. Sample AT the edge. The DUT always_ff updates d_out with a
+      //    nonblocking assignment, which lands after this initial already ran:
+      //    you read the OLD value.
       @(posedge clk);
       en_el_flanco = d_out;
 
-      // 2. El mismo flanco, un delta mas tarde. Ahora la no bloqueante ya se
-      //    aplico y se lee el valor NUEVO. El "#1" no se ve en ningun lado y
-      //    cambia el resultado.
+      // 2. The same edge, one delta later. The nonblocking assignment landed
+      //    already and you read the NEW value. That "#1" is visible nowhere and
+      //    changes the result.
       @(posedge clk);
       #1;
       un_delta_despues = d_out;
 
-      // 3. El flanco opuesto: el truco que usa toda la BFM del curso. Anda,
-      //    pero le pide al que lo lee que sepa por que.
+      // 3. The opposite edge: the trick the whole course BFM uses. It works,
+      //    but it asks whoever reads it to know why.
       @(negedge clk);
       en_el_flanco_opuesto = d_out;
 
-      $display("d_in = %0d, y el DUT calcula d_in + 1 = %0d", 8'd10, 8'd11);
-      $display("  muestreado EN el posedge      : %0d", en_el_flanco);
-      $display("  muestreado un delta despues   : %0d", un_delta_despues);
-      $display("  muestreado en el negedge      : %0d", en_el_flanco_opuesto);
+      $display("d_in = %0d, and the DUT computes d_in + 1 = %0d", 8'd10, 8'd11);
+      $display("  sampled AT the posedge        : %0d", en_el_flanco);
+      $display("  sampled one delta later       : %0d", un_delta_despues);
+      $display("  sampled at the negedge        : %0d", en_el_flanco_opuesto);
       $display("");
-      $display("Tres lineas que parecen lo mismo y no lo son. Y la decision");
-      $display("esta repetida en cada task de la interface.");
+      $display("Three lines that look the same and are not. And that decision");
+      $display("is repeated in every task of the interface.");
       $finish;
    end
 endmodule : top_sin

@@ -80,7 +80,7 @@ vlt() {
 vlt_uvm() {
   _vlt_setup "$1"; shift
   if [ ! -f "$UVM_HOME/src/uvm_pkg.sv" ]; then
-    echo "falta UVM en $UVM_HOME — corre: sh tools/get-uvm.sh" >&2
+    echo "UVM is missing in $UVM_HOME — run: sh tools/get-uvm.sh" >&2
     return 1
   fi
   # --vpi: UVM reads the command line with vpi_get_vlog_info().
@@ -116,7 +116,7 @@ vlt_uvm() {
 run_sim() {
   VLT_RUN=$((VLT_RUN + 1))
   VLT_LOG=$VLT_OBJ/run.$VLT_RUN.log
-  echo "    seed: ${SEED:-la de Verilator por defecto, que tambien es fija}"
+  echo "    seed: ${SEED:-the Verilator default, which is fixed too}"
   "./$VLT_OBJ/sim" +UVM_NO_RELNOTES ${SEED:++verilator+seed+$SEED} \
     +verilator+coverage+file+"$VLT_OBJ/cov.$VLT_RUN.dat" "$@" 2>&1 | tee "$VLT_LOG"
   local rc=${PIPESTATUS[0]}
@@ -128,7 +128,7 @@ run_sim() {
 # "@" or the file name in the second field, so the ":" tells them apart.
 uvm_summary_ok() {
   awk '$1 ~ /^UVM_(ERROR|FATAL)$/ && $2 == ":" && $3 + 0 > 0 {
-         print "FALLA: el Report Summary cuenta " $3 " " $1 > "/dev/stderr"; bad = 1 }
+         print "FAIL: the Report Summary counts " $3 " " $1 > "/dev/stderr"; bad = 1 }
        END { exit bad + 0 }' "$1"
 }
 
@@ -144,7 +144,7 @@ uvm_summary_ok() {
 cov_report() {
   local dats
   dats=$(ls "$VLT_OBJ"/cov.*.dat 2>/dev/null)
-  [ -n "$dats" ] || { echo "no se genero cobertura en $VLT_OBJ" >&2; return 1; }
+  [ -n "$dats" ] || { echo "no coverage was generated in $VLT_OBJ" >&2; return 1; }
   verilator_coverage --write "$VLT_OBJ/coverage.dat" $dats > /dev/null
   verilator_coverage "$VLT_OBJ/coverage.dat"
 }
@@ -155,6 +155,6 @@ expect_output() {
   out=$("./$VLT_OBJ/sim" "$@" 2>&1) || true; echo "$out"
   case "$out" in
     *"$pattern"*) ;;
-    *) echo "ESPERABA en la salida: $pattern" >&2; return 1 ;;
+    *) echo "EXPECTED in the output: $pattern" >&2; return 1 ;;
   esac
 }

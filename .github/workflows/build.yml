@@ -42,11 +42,24 @@ jobs:
       - name: PDF
         env:
           CHROME: ${{ steps.chrome.outputs.chrome-path }}
-        run: npm run pdf
+        run: node tools/pdf.mjs
 
       - uses: pandoc/actions/setup@v1
       - name: PPTX
-        run: npm run pptx
+        run: node tools/pptx.mjs
+
+      # El deck en ingles se arma solo cuando slides/en/ tiene algo: el arbol se
+      # llena de a un dia por vez y arranca vacio.
+      - name: PDF y PPTX en ingles
+        env:
+          CHROME: ${{ steps.chrome.outputs.chrome-path }}
+        run: |
+          if [ -n "$(ls slides/en/*.md 2>/dev/null)" ]; then
+            node tools/pdf.mjs --lang=en
+            node tools/pptx.mjs --lang=en
+          else
+            echo "slides/en/ vacio: nada que exportar"
+          fi
 
       - uses: actions/upload-artifact@v4
         with:
@@ -54,6 +67,9 @@ jobs:
           path: |
             dist/curso-uvm.pdf
             dist/curso-uvm.pptx
+            dist/uvm-course.pdf
+            dist/uvm-course.pptx
+          if-no-files-found: warn
 
       # El sitio es index.html + sus assets. NO se sube el repo entero:
       # node_modules/ pesa mas que todo el curso junto.
@@ -70,7 +86,7 @@ jobs:
           cp index.html _site/curso.html
           cp docs/portada.png _site/portada.png
           cp -r css js res vendor _site/
-          # El libro: los seis dias para leer de corrido. css/ y res/ quedan en
+          # El libro: los dias para leer de corrido. css/ y res/ quedan en
           # ../ igual que en el repo; las dos rutas que cambian se reescriben
           # aca -- el deck se llama curso.html en el sitio, y la landing es la
           # raiz en vez de web/index.html.
@@ -79,6 +95,21 @@ jobs:
                  -e 's|"\.\./web/index\.html"|"../index.html"|g' _site/libro/*.html
           grep -q '\.\./curso\.html#' _site/libro/dia1.html  # que la reescritura no se rompa en silencio
           cp dist/curso-uvm.pdf dist/curso-uvm.pptx _site/
+
+          # La version en ingles, en /en/. css/, js/, res/ y vendor/ NO se
+          # duplican: el deck y el libro en ingles ya salen del build con el ../
+          # y el ../../ que hacen falta para alcanzarlos en la raiz del sitio.
+          mkdir -p _site/en
+          cp web/en/index.html _site/en/
+          if [ -f en/index.html ]; then
+            cp en/index.html _site/en/curso.html
+            cp -r en/libro _site/en/
+            # Un nivel mas abajo que el libro en castellano, asi que ../../
+            sed -i -e 's|"\.\./index\.html#|"../curso.html#|g' \
+                   -e 's|"\.\./\.\./web/index\.html"|"../index.html"|g' _site/en/libro/*.html
+            grep -q '\.\./curso\.html#' _site/en/libro/day1.html
+            cp dist/uvm-course.pdf dist/uvm-course.pptx _site/ 2>/dev/null || true
+          fi
 
       - uses: actions/upload-pages-artifact@v3
         if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'

@@ -1,14 +1,14 @@
-// -- EN EL TOP -- top es un modulo, no un uvm_component ---------------------
-//   cntxt = null : el ambito arranca en la raiz de UVM
-//   inst  = "*"  : visible para todo el arbol de componentes
+// -- IN THE TOP -- top is a module, not a uvm_component ---------------------
+//   cntxt = null : the scope starts at the UVM root
+//   inst  = "*"  : visible to the whole component tree
 uvm_config_db #(virtual vtalu_bfm)::set(null, "*", "bfm", bfm);
 
-// -- EN UN COMPONENTE -- siempre dentro de build_phase ----------------------
-//   cntxt = this : el ambito es la ruta jerarquica de ESTE componente
-//   inst  = ""   : sin sufijo, la ruta es exactamente la del componente
+// -- IN A COMPONENT -- always inside build_phase ----------------------------
+//   cntxt = this : the scope is the hierarchical path of THIS component
+//   inst  = ""   : with no suffix, the path is exactly the component's
 if (!uvm_config_db #(virtual vtalu_bfm)::get(this, "", "bfm", bfm))
   `uvm_fatal("DRIVER", "Failed to get BFM")
 
-// El 3er argumento ("bfm") es el NOMBRE del dato adentro de la base.
-// Si el string del set y el del get no son identicos, esto compila igual
-// y explota en run time con un null pointer.
+// The 3rd argument ("bfm") is the NAME of the datum inside the database.
+// If the string in the set and the one in the get are not identical, this still
+// compiles and blows up at run time with a null pointer.

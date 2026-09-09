@@ -19,9 +19,9 @@ class fifo_driver extends uvm_driver #(fifo_transaction);
       bfm.reset();
       forever begin : loop
          seq_item_port.get_next_item(t);
-         // El driver NO mira las banderas: manda lo que la sequence pidio,
-         // aunque la FIFO este llena. Un driver que se autocensura tapa
-         // justo el caso que hay que verificar.
+         // The driver does NOT look at the flags: it sends what the sequence asked for,
+         // even when the FIFO is full. A driver that censors itself covers up
+         // exactly the case that has to be verified.
          bfm.ciclo(t.wr_en, t.wr_data, t.rd_en);
          seq_item_port.item_done();
       end : loop

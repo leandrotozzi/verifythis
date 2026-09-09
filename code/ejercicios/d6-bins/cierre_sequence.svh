@@ -1,20 +1,20 @@
-// Ejercicio del dia 6 -- cerrar un bin.
+// Day 6 exercise -- close a bin.
 //
-// El bin que falta es el del plan de cobertura de la seccion Cobertura funcional: "las dos patas
-// en FF, multiplicando". Con 60 operaciones al azar no se llena, y el reporte
-// que imprime run.sh te lo muestra.
+// The missing bin is the one in the coverage plan of the Functional coverage section: "both legs
+// at FF, multiplying". With 60 random operations it does not fill, and the report
+// run.sh prints shows you that.
 //
-// Se pide: mandar UNA transaction con A = 8'hFF, B = 8'hFF y op = mul_op,
-// pedida con randomize() with {} -- no asignando los campos a mano. El caso
-// dirigido se pide en el punto de uso; esa es la herramienta de la seccion Transactions.
+// What is asked: send ONE transaction with A = 8'hFF, B = 8'hFF and op = mul_op,
+// asked for with randomize() with {} -- not by assigning the fields by hand. The directed
+// case is asked for at the point of use; that is the tool from the Transactions section.
 //
-// Dos advertencias que estan en las slides y te van a hacer falta:
+// Two warnings that are in the slides and that you are going to need:
 //
-//   1. command_transaction tiene un `dist` sobre A y sobre B. Verilator resuelve
-//      el dist ELIGIENDO UN VALOR primero y despues chequea el resto: si el
-//      sorteado no cumple tu with, randomize() devuelve 0 en vez de reintentar.
-//      El rodeo esta en la seccion Constrained random y es una linea.
-//   2. randomize() se chequea con if, nunca con assert().
+//   1. command_transaction has a `dist` on A and on B. Verilator solves
+//      the dist by PICKING A VALUE first and then checking the rest: if the
+//      draw does not satisfy your with, randomize() returns 0 instead of retrying.
+//      The workaround is in the Constrained random section and it is one line.
+//   2. randomize() gets checked with if, never with assert().
 class cierre_sequence extends uvm_sequence #(command_transaction);
    `uvm_object_utils(cierre_sequence)
 
@@ -28,7 +28,7 @@ class cierre_sequence extends uvm_sequence #(command_transaction);
 
       start_item(command);
 
-      // <<< ACA >>>  randomize() with { ... }, y lo que haga falta antes.
+      // <<< HERE >>>  randomize() with { ... }, and whatever is needed before it.
 
       finish_item(command);
 

@@ -1,8 +1,8 @@
 // InterThread Communication
-// 	Los initials de cada modulo, son 2 threads distintos
+// 	The initials of each module are 2 different threads
 
-// Manda el dato via la variable shared y avisa togleando la signal get_it
-// Luego el productor se bloquea mediante la signal put_it
+// Sends the data through the shared variable and signals it by toggling get_it
+// Then the producer blocks on the put_it signal
 module producer (
     output byte shared,
     input  bit  put_it,
@@ -16,9 +16,9 @@ module producer (
       end
 endmodule : producer
 
-// El Consumidor se bloquea en la signal get_it, esperando un dato del productor
-// cuando el productor toglea esta signal, la procesa y al terminar toglea put_it
-// para desbloquear al productor
+// The consumer blocks on the get_it signal, waiting for data from the producer
+// when the producer toggles that signal, it processes the data and toggles put_it
+// when done, to unblock the producer
 module consumer (
     input  byte shared,
     output bit  put_it,

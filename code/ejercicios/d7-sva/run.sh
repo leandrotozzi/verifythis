@@ -1,46 +1,46 @@
 #!/bin/bash
-# Ejercicio del dia 7 (seccion Assertions). Falla hasta que lo resuelvas.
+# Day 7 exercise (Assertions section). It fails until you solve it.
 #
-#   bash run.sh              con tus archivos
-#   SOLUCION=1 bash run.sh   con los de solucion/, para comparar
+#   bash run.sh              with your files
+#   SOLUCION=1 bash run.sh   with the ones in solucion/, to compare
 #
-# El TB es el de la seccion Assertions entero. De aca salen dos archivos: el modulo
-# heredado que viola el protocolo --que NO hay que tocar-- y la BFM, que es
-# donde va la property.
+# The TB is the whole one from the Assertions section. Two files come from here: the legacy
+# module that violates the protocol --which must NOT be touched-- and the BFM, which is
+# where the property goes.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
 
-# --assert es lo que prende las properties concurrentes. Sin el flag compilan,
-# no corren, y todo "pasa".
+# --assert is what turns the concurrent properties on. Without the flag they compile,
+# they do not run, and everything "passes".
 vlt_uvm top --assert --coverage-user -Wno-fatal \
   -f dut.f -f tb.f "${SOLUCION:+solucion/}vtalu_bfm.sv"
 
-# Los uvm_error que se buscan son justamente el resultado del ejercicio.
+# The uvm_error being looked for are precisely the result of the exercise.
 export UVM_ERRORS_OK=1
 run_sim +UVM_TESTNAME=full_test
 
-falta() { echo "todavia no: $1" >&2; exit 1; }
+falta() { echo "not yet: $1" >&2; exit 1; }
 
-# Los dos numeros salen del %m del mensaje: cada BFM dice quien es.
+# The two numbers come from the %m of the message: each BFM says who it is.
 modulo=$(grep -c 'UVM_ERROR.*\[SVA\].*modulo_bfm' "$VLT_LOG" || true)
 clase=$(grep -c  'UVM_ERROR.*\[SVA\].*clase_bfm'  "$VLT_LOG" || true)
 
 if [ "$modulo" -eq 0 ]; then
-  falta "ninguna assertion disparo sobre modulo_bfm, que es la que maneja el
-    modulo heredado. O todavia no escribiste la property, o su antecedente no
+  falta "no assertion fired on modulo_bfm, which is the one driven by the
+    legacy module. Either you have not written the property yet, or its antecedent does not
     ocurre nunca: agregale un cover property y fijate si se cubre."
 fi
 if [ "$clase" -gt 0 ]; then
-  falta "tu property disparo $clase veces sobre clase_bfm, que es la que maneja
-    el driver del agent y respeta el protocolo. Son falsos positivos, y el
-    culpable es el FLANCO con el que muestreas: la BFM escribe en negedge."
+  falta "your property fired $clase times on clase_bfm, which is the one driven by
+    the agent driver and respects the protocol. Those are false positives, and the
+    culprit is the EDGE you sample on: the BFM writes on negedge."
 fi
-# Y el scoreboard tiene que haber seguido en verde: si el bug tambien corrompe
-# el resultado, deja de ser un bug ciego y el ejercicio pierde el sentido.
+# And the scoreboard has to have stayed green: if the bug also corrupts
+# the result, it stops being a blind bug and the exercise loses its point.
 if grep -q 'UVM_ERROR.*\[SELF CHECKER\]' "$VLT_LOG"; then
-  falta "el scoreboard esta reportando errores. No deberia: revisa que no hayas
+  falta "the scoreboard is reporting errors. It should not: check that you did not
     tocado vtalu_tester_module.sv."
 fi
 
-echo "EJERCICIO OK: la assertion caza $modulo violaciones del modulo heredado,"
-echo "              0 falsos positivos sobre el agent, y el scoreboard sigue en verde"
+echo "EXERCISE OK: the assertion catches $modulo violations of the legacy module,"
+echo "              0 false positives on the agent, and the scoreboard stays green"

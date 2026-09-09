@@ -1,5 +1,5 @@
-// La configuracion del env: las dos interfaces del testbench. Como en el
-// seccion Sequences, es una clase pelada y el constructor las exige.
+// The env configuration: the two interfaces of the testbench. As in the
+// Sequences section, it is a plain class and the constructor demands them.
 class apb_env_config;
 
    virtual apb_if bfm;       // la que maneja el testbench

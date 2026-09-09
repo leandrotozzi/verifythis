@@ -12,7 +12,7 @@ Ya existen `random_test` y `add_test`. Falta el que multiplica.
 3. **No toques `env.svh`.** Esa es toda la gracia: la estructura del testbench
    no se entera de que cambió el estímulo.
 
-Listo cuando `bash run.sh` imprime `EJERCICIO OK`.
+Listo cuando `bash run.sh` imprime `EXERCISE OK`.
 
 ## Cómo se corre
 

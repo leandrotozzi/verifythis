@@ -9,7 +9,7 @@ class driver extends uvm_driver #(command_transaction);
 
    function void build_phase(uvm_phase phase);
       vtalu_agent_config cfg;
-      // La BFM no se pide suelta: se pide el config del agent, y de ahi sale.
+      // The BFM is not asked for on its own: ask for the agent config, and it comes from there.
       if (!uvm_config_db#(vtalu_agent_config)::get(this, "", "config", cfg))
          `uvm_fatal("DRIVER", "Failed to get agent config")
       bfm = cfg.bfm;

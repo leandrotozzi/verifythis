@@ -2,7 +2,7 @@ package apb_pkg;
    import uvm_pkg::*;
    `include "uvm_macros.svh"
 
-   // El mapa de registros, escrito una sola vez.
+   // The register map, written once.
    localparam bit [7:0] CTRL_ADDR = 8'h00;
    localparam bit [7:0] SCRATCH_ADDR = 8'h04;
    localparam bit [7:0] ACC_ADDR = 8'h08;

@@ -12,7 +12,7 @@ y pegar la clase entera**.
 3. Y va a seguir mandando operaciones al azar. **Ahí está el ejercicio**:
    mirá `tester.svh`, y acordate de polimorfismo.
 
-Listo cuando `bash run.sh` imprime `EJERCICIO OK`.
+Listo cuando `bash run.sh` imprime `EXERCISE OK`.
 
 ## Cómo se corre
 

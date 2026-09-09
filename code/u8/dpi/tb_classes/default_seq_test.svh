@@ -1,5 +1,5 @@
-// El mismo estimulo que full_test, SIN run_phase: la sequence la arranca el
-// propio sequencer al empezar la fase.
+// The same stimulus as full_test, WITHOUT run_phase: the sequencer itself starts
+// the sequence when the phase begins.
 class default_seq_test extends base_test;
    `uvm_component_utils(default_seq_test)
 
@@ -10,20 +10,20 @@ class default_seq_test extends base_test;
    function void build_phase(uvm_phase phase);
       full_sequence full_seq;
 
-      // super.build_phase() de base_test, que es una clase NUESTRA: arma el
-      // env. Lo que el curso nunca llama es el build_phase de uvm_component.
+      // super.build_phase() of base_test, which is a class of OURS: it builds the
+      // env. What the course never calls is uvm_component's build_phase.
       super.build_phase(phase);
 
       full_seq = full_sequence::type_id::create("full_seq");
       full_seq.count = 200;
 
-      // SIN esta linea la main_phase termina en t=0: nadie levanta el objection,
-      // y una fase sin objection dura cero. El test PASA sin mandar estimulo.
+      // WITHOUT this line main_phase ends at t=0: nobody raises the objection,
+      // and a phase without an objection lasts zero. The test PASSES with no stimulus.
       full_seq.set_automatic_phase_objection(1);
 
-      // El nombre de instancia lleva el sufijo "_phase": es la fase en la que el
-      // sequencer va a arrancarla. Fijate que el test ya no nombra al sequencer
-      // como handle: lo nombra como RUTA, y eso es una config, no codigo.
+      // The instance name carries the "_phase" suffix: that is the phase the
+      // sequencer will start it in. Notice the test no longer names the sequencer
+      // as a handle: it names it as a PATH, and that is a config, not code.
       uvm_config_db#(uvm_sequence_base)::set(
           this, "env_h.clase_agent_h.sequencer_h.main_phase", "default_sequence",
           full_seq);

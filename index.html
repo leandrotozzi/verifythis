@@ -6,6 +6,9 @@
   <meta name="description" content="Curso introductorio a UVM en español, que corre entero con Verilator. Sin licencias de EDA.">
   <meta name="author" content="LeaT — LEFT">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="alternate" hreflang="es" href="https://leandrotozzi.github.io/verifythis/curso.html">
+  <link rel="alternate" hreflang="en" href="https://leandrotozzi.github.io/verifythis/en/curso.html">
+  <link rel="alternate" hreflang="x-default" href="https://leandrotozzi.github.io/verifythis/curso.html">
 
   <!-- GENERADO POR tools/build.mjs — NO EDITAR A MANO.
        Las slides viven en slides/*.md; el shell, en tools/template.html. -->
@@ -760,8 +763,8 @@ y nada más pasa en verde con el `ovf` clavado en cero.
         mul_op: predicted_result = A * B;
       endcase // case (op_set)
 
-      // El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de
-      // salida, ni la suma ni la multiplicacion se pasan.
+      // ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit
+      // output, neither the addition nor the multiplication can overflow.
       predicted_ovf = (op_set == sub_op) && (A < B);
 
       if ((op_set != no_op) && (op_set != rst_op))
@@ -771,9 +774,9 @@ y nada más pasa en verde con el `ovf` clavado en cero.
 
    end : scoreboard
 
-   // Randomizamos los estimulos
-   // get_op y get_data son Constrained Random Data
-   // La idea de CRD es crear valores random pero legales
+   // Randomize the stimulus
+   // get_op and get_data are Constrained Random Data
+   // The point of CRD is to build values that are random but legal
    initial begin : tester
       reset_n = 1'b0;
       @(negedge clk);
@@ -817,7 +820,7 @@ y `:/`. Conviene nombrarlo ahora para que después se vea el ahorro.
    endfunction : get_op
 
    function byte get_data();
-      // Mediante esta tecnica, sesgamos el random
+      // This is how the random gets biased
       bit [1:0] zero_ones;
       zero_ones = $random;
       if (zero_ones == 2'b00)
@@ -828,7 +831,7 @@ y `:/`. Conviene nombrarlo ahora para que después se vea el ahorro.
         return $random;
    endfunction : get_data
 
-   // Scoreboard loop chequea si dio todo OK
+   // Scoreboard loop: checks that everything came out right
 ```
 
 - Un `always @(posedge done)`: cada vez que el DUT dice que terminó, el
@@ -1004,17 +1007,17 @@ dos slides.
 ```sv
 `endif
 
-   //op_cov: Nos aseguramos cubrir todas las operaciones y su interaccion
+   //op_cov: make sure every operation, and every interaction between them, is covered
    covergroup op_cov;
       coverpoint op_set {
          bins single_cycle[] = {[add_op : xor_op], rst_op,no_op};
          bins multi_cycle = {mul_op};
 
          // => are transitional coverage. From => To
-         // Bins de transicion. Verilator 5.052 todavia NO los implementa: cualquier
-         // forma con "=>" o "[* n]" aborta con un Internal Error. Repro minimo en
-         // code/verilator/repro-cg-transition.sv. Quedan aca porque son parte del tema;
-         // cuando Verilator los soporte, se borra el ifndef y nada mas.
+         // Transition bins. Verilator 5.052 does NOT implement them yet: any form
+         // with "=>" or "[* n]" aborts with an Internal Error. Minimal repro in
+         // code/verilator/repro-cg-transition.sv. They stay because they are part
+         // of the topic; when Verilator supports them, drop the ifndef, nothing else.
 `ifndef VERILATOR
          bins opn_rst[] = ([add_op:mul_op] => rst_op);
          bins rst_opn[] = (rst_op => [add_op:mul_op]);
@@ -1055,7 +1058,7 @@ herramienta no hace es un curso que miente.
 ```sv
    endgroup
 
-   // Chequeamos los casos en que la entrada son todas 0 o 1
+   // Check the corners where the inputs are all 0s or all 1s
    covergroup zeros_or_ones_on_ops;
 
       all_ops : coverpoint op_set {
@@ -1125,9 +1128,9 @@ el problema es un cross sin filtrar, no un test que falta.
 
 ```sv
       }
-      // rev2 del VTALU: el borrow de la resta, que es la fila del plan que el
-      // scoreboard solo puede cerrar mirando DOS salidas. Sin este bin, una
-      // resta que nunca dio negativa es indistinguible de una que si.
+      // VTALU rev2: the borrow of the subtraction, the row of the plan that the
+      // scoreboard can only close by looking at TWO outputs. Without this bin, a
+      // subtraction that never went negative looks exactly like one that did.
       borrow: coverpoint ((op_set == sub_op) && (A < B)) {
          bins hubo_borrow = {1};
          ignore_bins resto = {0};
@@ -1364,7 +1367,7 @@ falta. Compila, corre, y el reporte da cero.
 
 ```sv
 interface vtalu_bfm;
-   // guardamos operation_t. Ej: (no_op  = 3'b000)
+   // brings in operation_t. e.g. (no_op  = 3'b000)
    import vtalu_pkg::*;
 
    byte unsigned        A;
@@ -1380,11 +1383,11 @@ interface vtalu_bfm;
 
    assign op = op_set;
 
-   // BFM nos da un primer paso en la modularizacion
-   // Se encarga de manejar todas las signals de bajo nivel
-   // encapsulando el protocolo en un mismo y unico lugar
+   // The BFM is a first step towards modularity
+   // It takes care of driving every low-level signal
+   // and keeps the protocol in one single place
 
-   // Clock del DUT
+   // DUT clock
    initial begin
       clk = 0;
       forever begin
@@ -1416,7 +1419,7 @@ dos mundos.
 #### *Después: el protocolo se esconde en una task*
 
 ```sv
-   // Si arreglamos el Fix Aca, se propaga en el resto del codigo
+   // Fix it here once, and the fix propagates through the rest of the code
    task send_op(input byte iA, input byte iB, input operation_t iop,
                 output shortint alu_result);
 
@@ -1474,11 +1477,11 @@ cable— es la misma; lo que cambia es de dónde vienen los datos.
 ```sv
 module top;
    vtalu_bfm bfm ();
-   // Tester: Genera el estimulo
+   // Tester: generates the stimulus
    tester tester_i (bfm);
-   // Coverage: Provee Functional Coverage
+   // Coverage: provides functional coverage
    coverage coverage_i (bfm);
-   // ScoreBoard: Chequea los resultados
+   // ScoreBoard: checks the results
    scoreboard scoreboard_i (bfm);
 
    vtalu DUT (
@@ -1532,8 +1535,8 @@ module scoreboard (
          mul_op: predicted_result = bfm.A * bfm.B;
       endcase  // case (op_set)
 
-      // El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de
-      // salida, ni la suma ni la multiplicacion se pasan.
+      // ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit
+      // output, neither the addition nor the multiplication can overflow.
       predicted_ovf = (bfm.op_set == sub_op) && (bfm.A < bfm.B);
 
       if ((bfm.op_set != no_op) && (bfm.op_set != rst_op))
@@ -1678,21 +1681,21 @@ detalle.
 
 ```sv
 
-      // 1. Muestrear EN el flanco. El always_ff del DUT actualiza d_out con una
-      //    asignacion no bloqueante, que se aplica despues de que este initial
-      //    ya corrio: se lee el valor VIEJO.
+      // 1. Sample AT the edge. The DUT always_ff updates d_out with a
+      //    nonblocking assignment, which lands after this initial already ran:
+      //    you read the OLD value.
       @(posedge clk);
       en_el_flanco = d_out;
 
-      // 2. El mismo flanco, un delta mas tarde. Ahora la no bloqueante ya se
-      //    aplico y se lee el valor NUEVO. El "#1" no se ve en ningun lado y
-      //    cambia el resultado.
+      // 2. The same edge, one delta later. The nonblocking assignment landed
+      //    already and you read the NEW value. That "#1" is visible nowhere and
+      //    changes the result.
       @(posedge clk);
       #1;
       un_delta_despues = d_out;
 
-      // 3. El flanco opuesto: el truco que usa toda la BFM del curso. Anda,
-      //    pero le pide al que lo lee que sepa por que.
+      // 3. The opposite edge: the trick the whole course BFM uses. It works,
+      //    but it asks whoever reads it to know why.
       @(negedge clk);
       en_el_flanco_opuesto = d_out;
 ```
@@ -1730,12 +1733,12 @@ visto clocking blocks, no porque sea lo que se escribe en un proyecto.
 interface reg_bfm (input bit clk);
    byte unsigned d_in, d_out;
 
-   // Las dos unicas lineas de temporizado del testbench:
-   //   input  #1step  muestrea el valor ESTABLE justo antes del flanco, que es
-   //                  lo que ve el hardware. Nunca lo que la no bloqueante
-   //                  acaba de escribir en ese mismo flanco.
-   //   output #0      maneja EN el flanco, en la region de las no bloqueantes,
-   //                  asi que el DUT no lo ve hasta el flanco siguiente.
+   // The only two timing lines in the testbench:
+   //   input  #1step  samples the STABLE value right before the edge, which is
+   //                  what the hardware sees. Never what the nonblocking
+   //                  assignment just wrote on that same edge.
+   //   output #0      drives ON the edge, in the nonblocking region, so the DUT
+   //                  does not see it until the next edge.
    clocking cb @(posedge clk);
       default input #1step output #0;
       output d_in;
@@ -1816,16 +1819,16 @@ El material largo, con las fuentes, está en `docs/clocking-blocks.md`.
 
 ```sv
 
-      // Las dos lecturas, en el MISMO instante, sobre el MISMO cable.
+      // The two reads, at the SAME instant, on the SAME wire.
       por_cb = bfm.cb.d_out;
       crudo  = bfm.d_out;
 
-      $display("en el mismo instante, sobre el mismo cable:");
-      $display("  bfm.cb.d_out (lo que muestreo el clocking block) : %0d", por_cb);
-      $display("  bfm.d_out    (el cable, en vivo)                 : %0d", crudo);
+      $display("at the same instant, on the same wire:");
+      $display("  bfm.cb.d_out (what the clocking block sampled) : %0d", por_cb);
+      $display("  bfm.d_out    (the live wire)                   : %0d", crudo);
       $display("");
-      $display("Difieren en un ciclo, y ningun warning lo dice. Un monitor que");
-      $display("lea por el clocking block y un scoreboard que lea el cable");
+      $display("They differ by one cycle, and no warning says so. A monitor that");
+      $display("reads through the clocking block and a scoreboard that reads the");
 ```
 
 - Con la señal adentro de un clocking block hay **dos** formas de leerla:
@@ -2008,7 +2011,7 @@ un driver de dispositivo es al sistema operativo.
   enseñale también al TB que lo tiene que verificar
 - Se toca en **tres** lugares: el RTL, el estímulo con su chequeo, y **la
   medida** — el bin que hoy no existe
-- El `run.sh` falla hasta que imprime `EJERCICIO OK`; la solución está al lado
+- El `run.sh` falla hasta que imprime `EXERCISE OK`; la solución está al lado
 
 Note:
 Media hora, y conviene dejarlos solos: el enunciado y el README alcanzan.
@@ -2393,7 +2396,7 @@ class trago;
    endfunction : new
 
    function void servir();
-      $fatal(1, "Un trago generico no se sirve: pedi uno.");
+      $fatal(1, "A generic trago cannot be served: order a real one.");
    endfunction : servir
 
 endclass : trago
@@ -2405,7 +2408,7 @@ class fernet extends trago;
    endfunction : new
 
    function void servir();
-      $display("Fernet: 70/30, y la coca al final");
+      $display("Fernet: 70/30, and the coke last");
    endfunction : servir
 
 endclass : fernet
@@ -2413,9 +2416,9 @@ endclass : fernet
 
 - `trago` define `servir()` con un `$fatal`: la clase base no sabe con qué
   se sirve, y lo dice fuerte
-- `fernet` y `gancia` extienden `trago` y **redefinen** `servir()`, cada uno
+- `fernet` y `mojito` extienden `trago` y **redefinen** `servir()`, cada uno
   con el suyo
-- `gancia` —que no entra en pantalla— es igual que `fernet`, con otro `$display`
+- `mojito` —que no entra en pantalla— es igual que `fernet`, con otro `$display`
 
 Note:
 El `$fatal` en la clase base es un patrón que se ve mucho y que en dos slides
@@ -2435,20 +2438,20 @@ El archivo entero está en `code/u3/polimorfismo/01-sin-virtual/not_virtual.sv`.
 ```sv
       fernet_h = new(15);
       fernet_h.servir();
-      $display("El fernet lleva %0d hielos", fernet_h.hielos);
+      $display("The fernet has %0d ice cubes", fernet_h.hielos);
 
-      gancia_h = new(1);
-      gancia_h.servir();
-      $display("El gancia lleva %0d hielos", gancia_h.hielos);
+      mojito_h = new(1);
+      mojito_h.servir();
+      $display("The mojito has %0d ice cubes", mojito_h.hielos);
 
-      // La variable es trago, el objeto es fernet.
+      // The variable is trago, the object is fernet.
       trago_h = fernet_h;
-      trago_h.servir();  // ** Fatal: Un trago generico no se sirve
-      $display("El trago lleva %0d hielos", trago_h.hielos);
+      trago_h.servir();  // ** Fatal: A generic trago cannot be served
+      $display("The trago has %0d ice cubes", trago_h.hielos);
 
-      trago_h = gancia_h;
+      trago_h = mojito_h;
       trago_h.servir();
-      $display("El trago lleva %0d hielos", trago_h.hielos);
+      $display("The trago has %0d ice cubes", trago_h.hielos);
 ```
 
 - Las dos primeras llamadas andan: la variable `fernet_h` es de tipo `fernet` y el
@@ -2476,7 +2479,7 @@ objeto, y sólo si se lo pedís.
 
 ```sv
    virtual function void servir();
-      $fatal(1, "Un trago generico no se sirve: pedi uno.");
+      $fatal(1, "A generic trago cannot be served: order a real one.");
    endfunction : servir
 ```
 
@@ -2484,13 +2487,13 @@ objeto, y sólo si se lo pedís.
   `virtual` en el método de la clase base
 - Con eso la llamada se resuelve en **simulación**, mirando el objeto que hay
   adentro de la variable — *dynamic binding*
-- `trago_h.servir()` ahora sirve un fernet o un gancia, sin que el que escribe
+- `trago_h.servir()` ahora sirve un fernet o un mojito, sin que el que escribe
   esa línea sepa cuál le va a tocar
 - Ésa es toda la idea: **el que usa el objeto deja de ser el que elige el tipo**
 
 Note:
 Vale correr los dos ejemplos seguidos y mostrar el diff: una palabra.
-Un detalle que se pregunta siempre: `fernet` y `gancia` **no** escriben `virtual`
+Un detalle que se pregunta siempre: `fernet` y `mojito` **no** escriben `virtual`
 en su `servir()`, y sin embargo lo son. Una vez que el método es virtual en
 la base, lo es para toda la descendencia. Escribirlo igual no molesta y mucha
 gente lo hace por prolijidad.
@@ -2534,7 +2537,7 @@ parecidas. Y en el ejercicio del día 2, la clase base del testbench.
 #### *`pure virtual`: el mismo ejemplo, sin `$fatal` posible*
 
 ```sv
-// Clase abstracta: solo sirve como base, no se puede instanciar.
+// Abstract class: it only works as a base, it cannot be instantiated.
 virtual class trago;
    int hielos = -1;
 
@@ -2542,7 +2545,7 @@ virtual class trago;
       hielos = a;
    endfunction : new
 
-   // pure virtual: sin body. Extenderla obliga a redefinirlo.
+   // pure virtual: no body. Extending it forces you to redefine it.
    pure virtual function void servir();
 
 endclass : trago
@@ -2552,16 +2555,16 @@ endclass : trago
   cuerpo**, y por eso no hay nada que pueda correr mal
 - La línea comentada del `top` —`trago_h = new(3)`— no compila: una clase
   abstracta no se instancia
-- Si a `gancia` le borrás el override, el compilador dice
+- Si a `mojito` le borrás el override, el compilador dice
   *"does not override virtual method servir"* y ahí termina el asunto
 
 Note:
 El punto no es el `$fatal`, es **cuándo te enterás**: sin clase abstracta
 explota en el medio de la simulación, con pure virtual no compila.
-Vale hacerlo en vivo: comentar el `servir()` de `gancia` y compilar. El
+Vale hacerlo en vivo: comentar el `servir()` de `mojito` y compilar. El
 mensaje del compilador es el que enseña.
 Y el enganche hacia adelante: la factory usa esto para crear, y el `env` para
-los overrides. Lo que hoy es un fernet y un gancia, en dos días va a ser un
+los overrides. Lo que hoy es un fernet y un mojito, en dos días va a ser un
 `base_tester` y los testers que lo extienden — misma mecánica, otro vocabulario.
 
 ---
@@ -2642,22 +2645,22 @@ endclass : bandeja_de_fernet
 module top;
    initial begin
       fernet fernet_h;
-      fernet_h = new(2, "Kimba");
+      fernet_h = new(2, "the one at table 7");
       // :: operator
       //----------------
-      //   Accedemos a la variable en la clase bandeja_de_fernet
-      //   mencionando la clase y poniendo el operador :: antes de su nombre
-      //   Esto le dice al compilador que queremos acceder a una variable static dentro
-      //   del namespace de la clase
+      //   The variable in the bandeja_de_fernet class is reached by
+      //   naming the class and putting the :: operator before the name
+      //   That tells the compiler we want a static variable inside
+      //   the namespace of the class
       bandeja_de_fernet::vasos.push_back(fernet_h);
-      fernet_h = new(3, "el de la mesa 4");
+      fernet_h = new(3, "the one at table 4");
       bandeja_de_fernet::vasos.push_back(fernet_h);
-      fernet_h = new(15, "el de la barra");
+      fernet_h = new(15, "the one at the bar");
 
-      // clase::variable_static. Inmediatamente sabemos donde esta declarada
+      // class::static_variable. You know right away where it is declared
       bandeja_de_fernet::vasos.push_back(fernet_h);
 
-      $display("Fernets en la bandeja:");
+      $display("Fernets on the tray:");
       foreach (bandeja_de_fernet::vasos[i]) $display(bandeja_de_fernet::vasos[i].get_name());
    end
 endmodule : top
@@ -2701,9 +2704,9 @@ module top;
       $display("PEPE1 VAL = %0d", pepe1_h.val);
       $display("PEPE2 VAL = %0d", pepe2_h.val);
 
-      // Solo tenemos una copia en memoria de una variable static
-      // sin importar cuantas intancias de la clase tengamos
-      $display("CANTIDAD DE PEPES = %0d", pepe::cant);
+      // There is only one copy of a static variable in memory,
+      // no matter how many instances of the class exist
+      $display("NUMBER OF PEPES = %0d", pepe::cant);
 
    end
 endmodule : top
@@ -2748,7 +2751,7 @@ class bandeja_de_fernet;
    endfunction : bandeja_fernet
 
    static function void lista_fernets();
-      $display("Fernets en la bandeja:");
+      $display("Fernets on the tray:");
       foreach (vasos[i]) $display(vasos[i].get_name());
    endfunction : lista_fernets
 
@@ -2758,11 +2761,11 @@ module top;
 
    initial begin
       fernet fernet_h;
-      fernet_h = new(2, "Kimba");
+      fernet_h = new(2, "the one at table 7");
       bandeja_de_fernet::bandeja_fernet(fernet_h);
-      fernet_h = new(3, "el de la mesa 4");
+      fernet_h = new(3, "the one at table 4");
       bandeja_de_fernet::bandeja_fernet(fernet_h);
-      fernet_h = new(15, "el de la barra");
+      fernet_h = new(15, "the one at the bar");
       bandeja_de_fernet::bandeja_fernet(fernet_h);
       bandeja_de_fernet::lista_fernets();
    end
@@ -2821,12 +2824,12 @@ Todo eso es `static`, y no por casualidad.
 
 #### *No es una clase: es un molde*
 
-- La `bandeja_de_fernet` de la sección anterior sirve para fernets. Para gancias hay que
+- La `bandeja_de_fernet` de la sección anterior sirve para fernets. Para mojitos hay que
   escribir otra igual, con una palabra cambiada
 - Eso ya lo resolviste en RTL y no le decís OOP: una FIFO no se copia por cada
   ancho de dato, se parametriza. `#(.awidth(8), .dwidth(16))`
 - Una clase paramétrica es lo mismo, con **tipos** en vez de números:
-  `bandeja #(fernet)` y `bandeja #(gancia)`
+  `bandeja #(fernet)` y `bandeja #(mojito)`
 - Y hay una consecuencia que sorprende: cada `#(...)` distinto es una **clase
   distinta**, generada en compilación. No comparten nada, ni siquiera lo `static`
 - Por qué importa: cada `#(...)` que veas en el resto del curso es esto.
@@ -2838,7 +2841,7 @@ parametrizar, sólo que con anchos. Acá el parámetro es un tipo, y el resto es
 igual.
 Lo que hay que dejar clarísimo antes de seguir es lo del tercer bullet, porque
 es la pregunta 6 del repaso y porque es la base de todo UVM:
-`bandeja#(fernet)` y `bandeja#(gancia)` **no son la misma clase con un
+`bandeja#(fernet)` y `bandeja#(mojito)` **no son la misma clase con un
 campo distinto**. SystemVerilog genera una clase entera por cada combinación de
 parámetros, en tiempo de compilación. Por eso cada una tiene su propia queue
 `static`.
@@ -2903,7 +2906,7 @@ que aparezca en el resto del curso es esto.
 
 - Versión con métodos estáticos: la bandeja no se instancia, se le pide con `::`
 - La cola es `static` y aun así hay **dos**: `bandeja#(fernet)` y
-  `bandeja#(gancia)` son dos clases distintas, cada una con la suya
+  `bandeja#(mojito)` son dos clases distintas, cada una con la suya
 
 ```sv
 class bandeja #(
@@ -2917,7 +2920,7 @@ class bandeja #(
    endfunction : bandeja_trago
 
    static function void lista_tragos();
-      $display("Tragos en la bandeja:");
+      $display("Drinks on the tray:");
       foreach (vasos[i]) $display(vasos[i].get_name());
    endfunction : lista_tragos
 
@@ -2927,21 +2930,21 @@ module top;
 
    initial begin
       fernet fernet_h;
-      gancia gancia_h;
-      fernet_h = new(15, "el de la barra");
+      mojito mojito_h;
+      fernet_h = new(15, "the one at the bar");
       bandeja#(fernet)::bandeja_trago(fernet_h);
-      fernet_h = new(15, "el de la mesa 4");
+      fernet_h = new(15, "the one at table 4");
       bandeja#(fernet)::bandeja_trago(fernet_h);
 
-      gancia_h = new(1, "Clucker");
-      bandeja#(gancia)::bandeja_trago(gancia_h);
-      gancia_h = new(1, "Scratchy");
-      bandeja#(gancia)::bandeja_trago(gancia_h);
+      mojito_h = new(1, "the one at table 7");
+      bandeja#(mojito)::bandeja_trago(mojito_h);
+      mojito_h = new(1, "the one at the counter");
+      bandeja#(mojito)::bandeja_trago(mojito_h);
 
       $display("-- Fernets --");
       bandeja#(fernet)::lista_tragos();
-      $display("-- Gancias --");
-      bandeja#(gancia)::lista_tragos();
+      $display("-- Mojitos --");
+      bandeja#(mojito)::lista_tragos();
    end
 
 endmodule : top
@@ -2949,7 +2952,7 @@ endmodule : top
 
 Note:
 Esta es la slide donde se demuestra lo del molde, y conviene hacerlo corriendo
-el ejemplo: dos fernets y dos gancias entran, y cada `lista_tragos()` imprime
+el ejemplo: dos fernets y dos mojitos entran, y cada `lista_tragos()` imprime
 sólo los suyos. La queue es `static` y aun así hay dos.
 La pregunta para el pizarrón: ¿cuántas queues hay en memoria? Dos. ¿Y cuántas
 habría con tres tragos? Tres. Cada `bandeja#(X)` que el compilador ve en
@@ -2973,7 +2976,7 @@ adentro de `bandeja`. Es confuso la primera vez.
   cuando puede haber más de uno**
 
 ```sv
-// bandeja no es estatica ahora
+// bandeja is not static any more
 class bandeja #(
     type T
 );
@@ -2985,7 +2988,7 @@ class bandeja #(
    endfunction : bandeja_trago
 
    function void lista_tragos();
-      $display("Tragos en la bandeja:");
+      $display("Drinks on the tray:");
       foreach (vasos[i]) $display(vasos[i].get_name());
    endfunction : lista_tragos
 
@@ -2993,15 +2996,15 @@ endclass : bandeja
 
 module top;
 
-   // Como bandeja no es estatica, debemos instanciarla
-   // el parametro es un tipo de variable
-   // Si usamos como parametro un tipo que no tiene el
-   // metodo get_name() hay error de sintaxis
+   // Since bandeja is not static, it has to be instantiated
+   // the parameter is a variable type
+   // Using a type that does not have the get_name()
+   // method is a syntax error
    fernet fernet_h;
-   gancia gancia_h;
+   mojito mojito_h;
 
    bandeja #(fernet) bandeja_de_fernet;
-   bandeja #(gancia) bandeja_de_gancia;
+   bandeja #(mojito) bandeja_de_mojito;
 ```
 
 Note:
@@ -3038,7 +3041,7 @@ monitor tiene el suyo. El alumno ya tiene el criterio para leer los dos.
 Note:
 El bullet de las clases distintas es el que hay que dejar clavado, porque es la
 pregunta del repaso y porque es la base de todo UVM. `bandeja#(fernet)` y
-`bandeja#(gancia)` no son la misma clase con un campo distinto: son dos
+`bandeja#(mojito)` no son la misma clase con un campo distinto: son dos
 clases enteras, cada una con su `static` propio.
 Y el último bullet ubica la sección: el `uvm_config_db` es estático porque hay
 uno solo; un `uvm_analysis_port#(command_transaction)` es instanciado porque
@@ -3087,25 +3090,25 @@ eso.
   escrito en el lugar donde se usa el objeto:
 
 ```sv
-// En el ejemplo anterior, llamamos a new() cada vez que queremos crear un objeto
-// Si queremos crear un conjunto nuevo de tragos, debemos cambiar el codigo fuente
+// In the previous example, new() gets called every time an object is needed.
+// Building a new set of drinks means changing the source code
 bandeja_de_fernet = new();
-fernet_h = new(15, "el de la barra");
+fernet_h = new(15, "the one at the bar");
 bandeja_de_fernet.bandeja_trago(fernet_h);
-fernet_h = new(15, "el de la mesa 4");
+fernet_h = new(15, "the one at table 4");
 bandeja_de_fernet.bandeja_trago(fernet_h);
 
-bandeja_de_gancia = new();
-gancia_h = new(1, "el de la mesa 7");
-bandeja_de_gancia.bandeja_trago(gancia_h);
+bandeja_de_mojito = new();
+mojito_h = new(1, "the one at table 7");
+bandeja_de_mojito.bandeja_trago(mojito_h);
 
-gancia_h = new(1, "el de la vereda");
-bandeja_de_gancia.bandeja_trago(gancia_h);
+mojito_h = new(1, "the one on the sidewalk");
+bandeja_de_mojito.bandeja_trago(mojito_h);
 
-// Consideremos el caso en el que queremos leer un conjunto de tragos aleatorios
-// desde un archivo de forma dinamica.
-//    --> Es imposible hacer esto con codigo NO hardcodeado
-//        Tenemos que hacer un script que genere el source, recompilarlo....
+// Consider the case where a set of random drinks has to be read from a file
+// dynamically.
+//    --> Doing that with NON hardcoded code is impossible
+//        You would need a script that generates the source, recompile it....
 ```
 
 > *La idea es crear datos de tipos aleatorios sin cambiar el código.*
@@ -3128,7 +3131,7 @@ muestra que no inventamos nada.
 
 - **La factory** es el método de arriba: recibe un argumento y devuelve un objeto
   del tipo que ese argumento pide
-- **El polimorfismo** es lo que la hace posible: `fernet` y `gancia` extienden
+- **El polimorfismo** es lo que la hace posible: `fernet` y `mojito` extienden
   `trago`, así que los dos entran en una variable `trago`
 - Sin lo segundo no hay dónde poner lo que devuelve lo primero. Son las dos
   mitades de la misma herramienta
@@ -3159,22 +3162,22 @@ Eso es la slide que sigue, y es la razón de que la factory de UVM sea mejor que
 ```sv
 class cantina;
 
-   // Metodo estatico para crear los tragos
+   // Static method that builds the drinks
    static function trago hacer_trago(string pedido, int hielos, string name);
-      gancia nuevo_gancia;
-      fernet    nuevo_fernet;
+      mojito nuevo_mojito;
+      fernet nuevo_fernet;
       case (pedido)
          "fernet": begin
             nuevo_fernet = new(hielos, name);
             return nuevo_fernet;
          end
 
-         "gancia": begin
-            nuevo_gancia = new(hielos, name);
-            return nuevo_gancia;
+         "mojito": begin
+            nuevo_mojito = new(hielos, name);
+            return nuevo_mojito;
          end
 
-         default: $fatal(1, {"No hay ese trago: ", pedido});
+         default: $fatal(1, {"No such drink: ", pedido});
 
       endcase  // case (pedido)
 
@@ -3206,7 +3209,7 @@ Las dos molestias de esta slide desaparecen en el env.
 
 ```python
 class Trago(object):
-    """Clase Factory que arma Trago."""
+    """Factory class that builds a Trago."""
 
     def factory(type):
         """Factory Method."""
@@ -3214,11 +3217,11 @@ class Trago(object):
             return CubaLibre()
         if type == "Fernet":
             return Fernet()
-        if type == "Gancia":
-            return Gancia()
+        if type == "Mojito":
+            return Mojito()
         if type == "Whiscola":
             return Whiscola()
-        assert 0, "Creaste mal el trago: " + type
+        assert 0, "No such trago: " + type
     factory = staticmethod(factory)
 ```
 
@@ -3352,12 +3355,12 @@ alumno tiene que poder decir qué parte reemplaza a qué.
 ```sv
 module top;
 
-   // Guardamos las definiciones de clase y recursos compartidos en un package
+   // Class definitions and shared resources are kept in a package
    import vtalu_pkg::*;
-   // Los macros que utilizamos tambien los definimos en comun. Esto tmb lo hace UVM
+   // The macros are defined in common too. UVM does this as well
    `include "vtalu_macros.svh"
 
-   // Instanciamos la DUT y el BFM
+   // The DUT and the BFM get instantiated
    vtalu DUT (
        .A(bfm.A),
        .B(bfm.B),
@@ -3372,11 +3375,11 @@ module top;
 
    vtalu_bfm bfm ();
 
-   // Declaramos una variable que contenga nuestro TB
+   // A variable to hold our TB
    testbench testbench_h;
 
    initial begin
-      // Instanciamos y lanzamos el objeto testbench
+      // The testbench object gets built and launched
       testbench_h = new(bfm);
       testbench_h.execute();
    end
@@ -3411,9 +3414,9 @@ primera vez que el orden de compilación importa, y no va a ser la última.
 ```sv
 class testbench;
 
-   // virtual: el equivalente en objetos de la port list de un modulo. Le dice
-   // al compilador que esta variable va a recibir un handle a una interface
-   // en algun momento futuro. Ver la slide de la unidad 10.
+   // virtual: the object-world equivalent of a module's port list. It tells
+   // the compiler that this variable is going to receive a handle to an
+   // interface at some point in the future. See the slide in unit 10.
    virtual vtalu_bfm bfm;
 
    tester    tester_h;
@@ -3429,7 +3432,7 @@ class testbench;
       coverage_h = new(bfm);
       scoreboard_h = new(bfm);
 
-      // Un thread por objeto. join_none: execute() vuelve y los tres siguen.
+      // One thread per object. join_none: execute() returns and the three go on.
       fork
          tester_h.execute();
          coverage_h.execute();
@@ -3471,7 +3474,7 @@ los tests eso pasa a ser un objection, que es la forma prolija de lo mismo.
   - el `initial` es ahora un método, `execute()`, que alguien tiene que llamar
 
 ```sv
-   // Reemplazamos el initial block por una task execute()
+   // The initial block is replaced by an execute() task
    task execute();
       byte unsigned     iA;
       byte unsigned     iB;
@@ -3528,8 +3531,8 @@ de verificación del testbench convencional que al random no le conviene esperar
   secuencial
 
 ```sv
-   // El always @(posedge done) de la version modular, como forever loop: un
-   // objeto no tiene lista de sensibilidad, tiene una task que se bloquea.
+   // The always @(posedge done) of the modular version, as a forever loop: an
+   // object has no sensitivity list, it has a task that blocks.
    task execute();
       shortint predicted_result;
       bit      predicted_ovf;
@@ -3543,8 +3546,8 @@ de verificación del testbench convencional que al random no le conviene esperar
             mul_op: predicted_result = bfm.A * bfm.B;
          endcase  // case (op_set)
 
-         // El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de
-         // salida, ni la suma ni la multiplicacion se pasan.
+         // ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit
+         // output, neither the addition nor the multiplication can overflow.
          predicted_ovf = (bfm.op_set == sub_op) && (bfm.A < bfm.B);
 
          if ((bfm.op_set != no_op) && (bfm.op_set != rst_op))
@@ -3717,7 +3720,7 @@ versiones conviven. Eso es el ejercicio que acaban de hacer.
 - [x] El `servir()` de `trago`
 - [ ] Los dos, primero el de la clase base
 
-> **El de `trago`** — sin `virtual`, SystemVerilog mira el **tipo de la variable**, no el del objeto. Es literal lo que imprime `code/u3/polimorfismo/01-sin-virtual`: *"Generic tragos don't have a sound"*.
+> **El de `trago`** — sin `virtual`, SystemVerilog mira el **tipo de la variable**, no el del objeto. Es literal lo que imprime `code/u3/polimorfismo/01-sin-virtual`: *"A generic trago cannot be served"*.
 
 ---
 
@@ -3778,7 +3781,7 @@ versiones conviven. Eso es el ejercicio que acaban de hacer.
 
 #### *6 de 8 · Clases paramétricas*
 
-**`bandeja#(fernet)` y `bandeja#(gancia)` tienen adentro una queue `static`. ¿Comparten la queue?**
+**`bandeja#(fernet)` y `bandeja#(mojito)` tienen adentro una queue `static`. ¿Comparten la queue?**
 
 - [ ] Sí, `static` es una sola para todos
 - [ ] Sí, salvo que se declare `protected`
@@ -3906,11 +3909,11 @@ el test hace `new()` y pasan a ser components del árbol.
 ```sv
 
    initial begin
-      // null y "*": desde la raiz y visible para todo el arbol. Ver la slide
-      // de uvm_config_db.
+      // null and "*": from the root and visible to the whole tree. See the
+      // uvm_config_db slide.
       uvm_config_db#(virtual vtalu_bfm)::set(null, "*", "bfm", bfm);
 
-      // UVM lee +UVM_TESTNAME, y crea ESE test con la factory.
+      // UVM reads +UVM_TESTNAME, and builds THAT test with the factory.
       run_test();
 ```
 
@@ -3943,20 +3946,20 @@ que arranca con UVM.
 - El **ámbito** es una ruta jerárquica, y ahí está toda la gracia
 
 ```sv
-// -- EN EL TOP -- top es un modulo, no un uvm_component ---------------------
-//   cntxt = null : el ambito arranca en la raiz de UVM
-//   inst  = "*"  : visible para todo el arbol de componentes
+// -- IN THE TOP -- top is a module, not a uvm_component ---------------------
+//   cntxt = null : the scope starts at the UVM root
+//   inst  = "*"  : visible to the whole component tree
 uvm_config_db #(virtual vtalu_bfm)::set(null, "*", "bfm", bfm);
 
-// -- EN UN COMPONENTE -- siempre dentro de build_phase ----------------------
-//   cntxt = this : el ambito es la ruta jerarquica de ESTE componente
-//   inst  = ""   : sin sufijo, la ruta es exactamente la del componente
+// -- IN A COMPONENT -- always inside build_phase ----------------------------
+//   cntxt = this : the scope is the hierarchical path of THIS component
+//   inst  = ""   : with no suffix, the path is exactly the component's
 if (!uvm_config_db #(virtual vtalu_bfm)::get(this, "", "bfm", bfm))
   `uvm_fatal("DRIVER", "Failed to get BFM")
 
-// El 3er argumento ("bfm") es el NOMBRE del dato adentro de la base.
-// Si el string del set y el del get no son identicos, esto compila igual
-// y explota en run time con un null pointer.
+// The 3rd argument ("bfm") is the NAME of the datum inside the database.
+// If the string in the set and the one in the get are not identical, this still
+// compiles and blows up at run time with a null pointer.
 ```
 
 Note:
@@ -4010,8 +4013,8 @@ pregunta: no hace falta.
       super.new(name, parent);
    endfunction : new
 
-   // El get va en build_phase y no en el constructor: cuando corre el
-   // constructor el arbol todavia no existe.
+   // The get goes in build_phase and not in the constructor: when the
+   // constructor runs, the tree does not exist yet.
    function void build_phase(uvm_phase phase);
       if (!uvm_config_db#(virtual vtalu_bfm)::get(this, "", "bfm", bfm))
          `uvm_fatal("RANDOM TEST", "Failed to get BFM")
@@ -4467,8 +4470,8 @@ haya tenido que escribir un `uvm_event` ni una bandera compartida.
 #### *El scoreboard, ahora como component*
 
 ```sv
-// El scoreboard de la unidad 10, ahora como uvm_component. Los cuatro pasos
-// --extender, registrar, constructor, fases-- estan en las slides de la 12.
+// The scoreboard of unit 10, now as a uvm_component. The four steps
+// --extend, register, constructor, phases-- are in the slides of unit 12.
 class scoreboard extends uvm_component;
    `uvm_component_utils(scoreboard);
 
@@ -4478,9 +4481,9 @@ class scoreboard extends uvm_component;
       super.new(name, parent);
    endfunction : new
 
-   // Autosuficiente: la BFM se la pide el componente al config_db. Antes se la
-   // pasaba el test por el constructor, y el test tenia que recibirla solo para
-   // repartirla.
+   // Self-sufficient: the component asks the config_db for the BFM. Before, the
+   // test passed it in through the constructor, and the test had to receive it
+   // only to hand it out.
    function void build_phase(uvm_phase phase);
       if (!uvm_config_db#(virtual vtalu_bfm)::get(this, "", "bfm", bfm))
          `uvm_fatal("SCOREBOARD", "Failed to get BFM")
@@ -4520,7 +4523,7 @@ class random_test extends uvm_test;
    coverage      coverage_h;
    scoreboard    scoreboard_h;
 
-   // Los componentes se instancian en build_phase, nunca en el constructor.
+   // Components get instantiated in build_phase, never in the constructor.
    function void build_phase(uvm_phase phase);
       tester_h = new("tester_h", this);
       coverage_h = new("coverage_h", this);
@@ -4531,7 +4534,7 @@ class random_test extends uvm_test;
       super.new(name, parent);
    endfunction : new
 
-   // Sin run_phase: el trabajo del test termina cuando el arbol esta armado.
+   // No run_phase: the test's job ends once the tree is built.
 
 endclass
 ```
@@ -4561,9 +4564,9 @@ pero conviene sembrarlo.
 #### *El segundo test: hereda, y aun así copia*
 
 ```sv
-// add_test extiende random_test, redeclara tester_h con otro tipo y REESCRIBE
-// build_phase entero. Esa duplicacion es el problema que la unidad 13 resuelve
-// con el override de la factory.
+// add_test extends random_test, redeclares tester_h with another type and
+// REWRITES the whole build_phase. That duplication is the problem unit 13 solves
+// with the factory override.
 
 class add_test extends random_test;
    `uvm_component_utils(add_test);
@@ -4844,7 +4847,7 @@ class random_test extends uvm_test;
    coverage      coverage_h;
    scoreboard    scoreboard_h;
 
-   // Los componentes se instancian en build_phase, nunca en el constructor.
+   // Components get instantiated in build_phase, never in the constructor.
    function void build_phase(uvm_phase phase);
       tester_h = new("tester_h", this);
       coverage_h = new("coverage_h", this);
@@ -4855,7 +4858,7 @@ class random_test extends uvm_test;
       super.new(name, parent);
    endfunction : new
 
-   // Sin run_phase: el trabajo del test termina cuando el arbol esta armado.
+   // No run_phase: the test's job ends once the tree is built.
 
 endclass
 ```
@@ -4920,8 +4923,8 @@ tantos como tests hubiera.
   `type_id::create()`, que es la fórmula de la factory de la slide que sigue
 
 ```sv
-// La estructura del TB, y nada mas: instancia los componentes y los conecta.
-// Que tester llega lo decide el test con un override de la factory. Unidad 13.
+// The structure of the TB, and nothing else: it instantiates the components and
+// connects them. Which tester arrives is the test's call, with a factory override. Unit 13.
 class env extends uvm_env;
    `uvm_component_utils(env);
 
@@ -4930,8 +4933,8 @@ class env extends uvm_env;
    scoreboard  scoreboard_h;
 
    function void build_phase(uvm_phase phase);
-      // base_tester es abstracta y esto igual anda: create() no la construye,
-      // le pregunta a la factory que dar cuando alguien pide un base_tester.
+      // base_tester is abstract and this works anyway: create() does not build
+      // it, it asks the factory what to hand out when somebody asks for a base_tester.
       tester_h = base_tester::type_id::create("tester_h", this);
       coverage_h = coverage::type_id::create("coverage_h", this);
       scoreboard_h = scoreboard::type_id::create("scoreboard_h", this);
@@ -5016,9 +5019,9 @@ el del handle es una forma barata de perder media hora en los agents.
 
 ```sv
 function void build_phase(uvm_phase phase);
-   // base_tester es abstracta: no se puede instanciar con new(). A la factory
-   // se le pide igual, porque el que va a llegar es el tipo con el que el test
-   // hizo el set_type_override -- add_tester o random_tester, nunca esta.
+   // base_tester is abstract: it cannot be instantiated with new(). The factory
+   // is asked for it anyway, because what will arrive is the type the test set
+   // with set_type_override -- add_tester or random_tester, never this one.
    tester_h = base_tester::type_id::create("tester_h", this);
    coverage_h = coverage::type_id::create("coverage_h", this);
    scoreboard_h = scoreboard::type_id::create("scoreboard_h", this);
@@ -5313,7 +5316,7 @@ typedef enum
 	UVM_DEBUG	= 500
 } uvm_verbosity
 
-// Todos los mensajes que esten por encima de la verbosidad seteada, no se imprimen
+// Any message above the verbosity that was set does not get printed
 ```
 
 Note:
@@ -5445,8 +5448,8 @@ un dibujo.
   `set_report_verbosity_level()`, sólo a él
 
 ```sv
-// clase Env
-// seteamos la verbosidad del componente scoreboard y todo lo que contenga en su jerarquia
+// Env class
+// sets the verbosity of the scoreboard component and of everything below it
 function void end_of_elaboration_phase(uvm_phase phase);
    scoreboard_h.set_report_verbosity_level_hier(UVM_HIGH);
 endfunction : end_of_elaboration_phase
@@ -6074,12 +6077,12 @@ tiene? La slide que sigue.
    task run_phase(uvm_phase phase);
       int the_roll;
       phase.raise_objection(this);
-      // Esta parte necesita atencion.
-      // Aca debemos utilizar:
-      //	Observer design pattern
-      //	UVM analysis port
-      // Sino no estamos haciendo uso de la magia de OOP
-      // son simples funciones que se van pasando datos
+      // This part needs attention.
+      // What belongs here is:
+      //	the Observer design pattern
+      //	a UVM analysis port
+      // Otherwise none of the OOP magic is being used:
+      // these are plain functions passing data along
       repeat (20) begin
          the_roll = dice_roller_h.two_dice();
          coverage_h.write(the_roll);
@@ -6195,11 +6198,11 @@ con new().
 
 ```sv
 // uvm_subscriber:
-//    extiende la clase uvm_component y permite conectarte a un analysis port
-//    Es una clase parametrizable!
-//    La clase te da algo y requiere algo a cambio
-//       * La clase te da un objeto llamado analysis_export
-//       * Requiere que crees un metodo write, que maneje el dato
+//    extends the uvm_component class and lets you hook onto an analysis port
+//    It is a parameterizable class!
+//    The class gives you something and asks for something in return
+//       * It gives you an object called analysis_export
+//       * It asks you to write a write() method that handles the data
 
 class coverage extends uvm_subscriber #(int);
    `uvm_component_utils(coverage);
@@ -6250,10 +6253,10 @@ Y un detalle que aparece en la salida: acá la cobertura se lee con
 #### *El productor, ahora publicando*
 
 ```sv
-   // 1) declarar el port, con el tipo de dato que va a transportar
+   // 1) declare the port, with the data type it will carry
    uvm_analysis_port #(int) roll_ap;
 
-   // 2) instanciarlo en build_phase, con new(): los ports no van por la factory
+   // 2) instantiate it in build_phase, with new(): ports do not go through the factory
    function void build_phase(uvm_phase phase);
       roll_ap = new("roll_ap", this);
    endfunction : build_phase
@@ -6265,7 +6268,7 @@ Y un detalle que aparece en la salida: acá la cobertura se lee con
       repeat (40) begin
          void'(randomize());
          the_roll = die1 + die2;
-         // 3) escribir: el port llama al write() de todos los subscribers
+         // 3) write: the port calls write() on every subscriber
          roll_ap.write(the_roll);
       end
       phase.drop_objection(this);
@@ -6326,7 +6329,7 @@ hay nada que instanciar.
   port: `ap.connect(sub_h.analysis_export)`
 
 ```sv
-   // build_phase: UVM lo llama TOP-DOWN, primero el padre.
+   // build_phase: UVM calls it TOP-DOWN, the parent first.
    function void build_phase(uvm_phase phase);
       dice_roller_h = new("dice_roller_h", this);
       coverage_h = new("coverage_h", this);
@@ -6334,7 +6337,7 @@ hay nada que instanciar.
       average_h = new("average_h", this);
    endfunction : build_phase
 
-   // connect_phase: BOTTOM-UP, y siempre port.connect(export).
+   // connect_phase: BOTTOM-UP, and always port.connect(export).
    function void connect_phase(uvm_phase phase);
       dice_roller_h.roll_ap.connect(coverage_h.analysis_export);
       dice_roller_h.roll_ap.connect(histogram_h.analysis_export);
@@ -6492,7 +6495,7 @@ la otra.
 interface vtalu_bfm;
    import vtalu_pkg::*;
 
-   // Estos handles los asignamos en las build_phases de las clases
+   // These handles get assigned in the build_phases of the classes
    command_monitor        command_monitor_h;
    result_monitor         result_monitor_h;
 
@@ -6551,9 +6554,9 @@ afecta a las tasks — acá el que declara la task es la clase, no la interface.
 
 ```sv
 
-   // Aca implementamos el primer monitor (comandos)
-   // Es una FSM muy simple. Si start esta arriba, chequeamos si es un nuevo comando
-   // Si lo es, lo enviamos al TB mediante commands_monitor.write_to_monitor()
+   // Here is the first monitor (commands)
+   // A very simple FSM. If start is up, check whether this is a new command
+   // If it is, send it to the TB with commands_monitor.write_to_monitor()
    always @(posedge clk) begin : cmd_monitor
       bit new_command;
       if (!start) new_command = 1;
@@ -6682,18 +6685,18 @@ pares.
       cmd_f = new("cmd_f", this);
    endfunction : build_phase
 
-   // Cada vez que la DUT entregue un resultado al analysis port se va a
-   // activar este metodo
+   // Every time the DUT hands a result to the analysis port, this method
+   // gets triggered
    function void write(shortint t);
       shortint  predicted_result;
       command_s cmd;
       cmd.op = no_op;
 
-      // Aca realizamos la prediccion, buscamos en nuestra FIFO que comando
-      // se mando, para eso obviamos los resets y los no_ops mediante el
+      // Here is where the prediction happens: look in our FIFO for the command
+      // that was sent, skipping the resets and the no_ops with the
       // do....while
-      // ya que siempre que tengamos un resultado, debemos tener una operacion
-      // por eso si no existe la operacion y tenemos un resultado... es error
+      // since whenever there is a result there must be an operation,
+      // a result with no operation behind it is an error
       do
       if (!cmd_f.try_get(cmd)) `uvm_fatal("SCOREBOARD", "No command in self checker")
       while ((cmd.op == no_op) || (cmd.op == rst_op));
@@ -6964,9 +6967,9 @@ module producer (
       end
 endmodule : producer
 
-// El Consumidor se bloquea en la signal get_it, esperando un dato del productor
-// cuando el productor toglea esta signal, la procesa y al terminar toglea put_it
-// para desbloquear al productor
+// The consumer blocks on the get_it signal, waiting for data from the producer
+// when the producer toggles that signal, it processes the data and toggles put_it
+// when done, to unblock the producer
 module consumer (
     input  byte shared,
     output bit  put_it,
@@ -7034,18 +7037,18 @@ mano. Es el mismo handshake del `start`/`done` del BFM, pero entre objetos.
 
 ```sv
 // UVM solution to interthread communication
-//	Consta de 2 partes:
-//		*	Ports-Objects: los instanciamos en nuestros uvm_components para habilitar
-//				que run_phase se comunique con otros threads
-//		*	TLM Fifos (solo almacenan 1 elemento)
+//	It has 2 parts:
+//		*	Ports-Objects: instantiated in our uvm_components so that
+//				run_phase can talk to other threads
+//		*	TLM Fifos (they hold only 1 element)
 
 class producer extends uvm_component;
    `uvm_component_utils(producer);
 
    int shared;
-   // uvm_put_port es una clase parametrizada
-   // esta clase se encarga de lidear con toda la bola de sincronizacion de
-   // get_it y put_it
+   // uvm_put_port is a parameterized class
+   // this class takes care of the whole synchronization mess around
+   // get_it and put_it
    uvm_put_port #(int) put_port_h;
 
    function void build_phase(uvm_phase phase);
@@ -7095,7 +7098,7 @@ tres de la mañana—.
 class consumer extends uvm_component;
    `uvm_component_utils(consumer);
 
-   // uvm_get_port maneja toda la coordinacion interthread
+   // uvm_get_port handles all the interthread coordination
    uvm_get_port #(int) get_port_h;
    int shared;
 
@@ -7266,10 +7269,10 @@ class consumer extends uvm_component;
       clk_bfm_i = example_pkg::clk_bfm_i;
    endfunction : build_phase
 
-   // Consumer y producer trabajan a Clocks distintos
-   // Consumer tiene el primer flanco positivo a los 7ns
-   //    y luego revisa el dato cada 14ns debido a que usa bfm.clk (= 14ns)
-   // Producer produce un dato cada 17ns
+   // Consumer and producer run on different clocks
+   // The consumer has its first positive edge at 7ns
+   //    and then checks the data every 14ns, because it uses bfm.clk (= 14ns)
+   // The producer produces one datum every 17ns
    task run_phase(uvm_phase phase);
       forever begin
          @(posedge clk_bfm_i.clk);
@@ -7565,7 +7568,7 @@ virtual class base_tester extends uvm_component;
    `uvm_component_utils(base_tester)
    virtual vtalu_bfm bfm;
 
-   // el handle a la BFM lo reemplazamos con uvm_put_port
+   // the handle to the BFM is replaced by a uvm_put_port
    uvm_put_port #(command_s) command_port;
 
    function void build_phase(uvm_phase phase);
@@ -7640,7 +7643,7 @@ class driver extends uvm_component;
       command_s command;
 
       forever begin : command_loop
-         // Bloqueante, si no hay comandos para enviar, espera
+         // Blocking: if there are no commands to send, it waits
          command_port.get(command);
          bfm.send_op(command.A, command.B, command.op);
       end : command_loop
@@ -7986,13 +7989,13 @@ initial begin
        new(.hielos(2), .con_coca(1), .graduacion(2), .mesa("mesa 4"), .medidas(2));
    $display("\n--- Fernet 1 ---\n", fernet_hielo1_h.convert2string());
    fernet_hielo2_h = new();
-   $display("\n--- Fernet 2 antes de la copia ---\n", fernet_hielo2_h.convert2string());
-   // do_copy es un metodo que se encarga de copiar miembro a miembro
-   // sufre del mismo problema que ya vimos con convert2string()
-   // Cada clase puede copiar las variables definidas en esa clase
-   // Debemos usar super.do_copy() para copiar variables heredadas
+   $display("\n--- Fernet 2 before the copy ---\n", fernet_hielo2_h.convert2string());
+   // do_copy is a method that copies member by member
+   // it suffers from the same problem already seen with convert2string()
+   // Each class can copy the variables defined in that class
+   // super.do_copy() has to be used to copy the inherited ones
    fernet_hielo2_h.do_copy(fernet_hielo1_h);
-   $display("\n--- Fernet 2 despues de la copia ---\n", fernet_hielo2_h.convert2string());
+   $display("\n--- Fernet 2 after the copy ---\n", fernet_hielo2_h.convert2string());
 end
 ```
 
@@ -8037,11 +8040,11 @@ class fernet_con_hielo extends fernet_doble;
       return {super.convert2string(), "\n", $sformatf("medidas: %0d", medidas)};
    endfunction : convert2string
 
-   //do_copy pasa el argumento a su clase superior
+   //do_copy passes the argument up to its parent class
    function void do_copy(trago copia);
       fernet_con_hielo copia_fernet_con_hielo;
       super.do_copy(copia);
-      // Luego casteamos copia a una variable de su tipo de clase
+      // Then the copy gets cast to a variable of its own class type
       $cast(copia_fernet_con_hielo, copia);
       this.medidas = copia_fernet_con_hielo.medidas;
    endfunction : do_copy
@@ -8054,7 +8057,7 @@ uno recibiera su propio tipo, la llamada a `super.do_copy(rhs)` no compilaría �
 los tipos no coincidirían.
 El precio es que adentro de cada método hay que hacer `$cast` para poder leer los
 campos propios. Y como vimos en la factory, ese `$cast` chequea en runtime: si
-alguien intenta copiar un `gancia` sobre un `fernet`, devuelve 0 y hay que
+alguien intenta copiar un `mojito` sobre un `fernet`, devuelve 0 y hay que
 atajarlo.
 Es la primera vez que se ve una convención de firma que existe sólo para que el
 polimorfismo funcione. En UVM va a ser lo mismo y con más reglas: el argumento se
@@ -8277,9 +8280,9 @@ O sea que la clase base que elegimos hoy es la que nos deja seguir mañana.
 - SystemVerilog ya trae esto hecho, y no hace falta escribir ni un `$urandom`
 
 ```sv
-// Mediante este funcion manejamos el hecho de que
-// el bus de operacion tiene 8 posibles valores,
-// pero solamente 6 son operaciones validas
+// This function handles the fact that
+// the operation bus has 8 possible values,
+// but only 6 of them are valid operations
 virtual function operation_t get_op();
   bit [2:0] op_choice;
   op_choice = $random;
@@ -8295,10 +8298,10 @@ virtual function operation_t get_op();
   endcase // case (op_choice)
 endfunction : get_op
 
-// Con esta funcion buscabamos distribuir mejor
-// la probabilidad de obtener todos zeros (prob = 1/3),
-// sesgando un poco la aleatoriedad, para que la prob no sea 1/256
-// ya que esto dificultaria alcanzar nuestro objetivo de cobertura
+// This function was meant to spread out
+// the probability of getting all zeros (prob = 1/3),
+// biasing the randomness a little so the prob is not 1/256,
+// since that would make our coverage goal hard to reach
 virtual    function byte get_data();
   bit [1:0]   zero_ones;
   zero_ones = $random;
@@ -8341,12 +8344,12 @@ class command_transaction extends uvm_sequence_item;
    rand byte unsigned B;
    rand operation_t   op;
 
-   // :/ y NO :=  ---  esta es la linea que reproduce el sesgo a los casos borde
-   // que el get_data() de la seccion Cobertura funcional hacia a mano (1/4 en 00, 1/4 en FF, 1/2 en
-   // el medio). Con ":=" el peso se aplica a CADA valor del rango, asi que el
-   // medio se lleva 254 de 256 y 00 sale 1 vez cada 256: la distribucion queda
-   // practicamente uniforme y los bins de borde no se llenan nunca.
-   // La unidad de Constrained Random tiene el experimento con los numeros.
+   // :/ and NOT :=  ---  this is the line that reproduces the bias towards the
+   // corner cases that get_data() of the Functional coverage section did by hand (1/4 at 00, 1/4 at FF,
+   // 1/2 in the middle). With ":=" the weight applies to EVERY value of the range, so the
+   // middle takes 254 out of 256 and 00 comes up once every 256: the distribution
+   // ends up almost uniform and the corner bins never fill.
+   // The Constrained Random unit has the experiment with the numbers.
    constraint data {
       A dist {
          8'h00 :/ 1,
@@ -8390,7 +8393,7 @@ verificación pide operaciones después de un reset.
 - Igual conviene darles nombre: es el que aparece en los mensajes de UVM
 
 ```sv
-   // Constructor para uvm_object. Ultra Sencillo
+   // Constructor for a uvm_object. Dead simple
    function new (string name = "");
       super.new(name);
    endfunction : new
@@ -8422,7 +8425,7 @@ testbench, es un component. Si viaja por una flecha del diagrama, es un object.
 function void do_copy(uvm_object rhs);
    command_transaction copied_transaction_h;
 
-   // Chequeos que facilitan el DEBUG
+   // Checks that make DEBUG easier
    if (rhs == null) `uvm_fatal("COMMAND TRANSACTION", "Tried to copy from a null pointer")
 
    if (!$cast(copied_transaction_h, rhs))
@@ -8540,7 +8543,7 @@ function bit do_compare(uvm_object rhs, uvm_comparer comparer);
    if (rhs == null)
       `uvm_fatal("RANDOM TRANSACTION", "Tried to do comparison to a null pointer");
 
-   // Primero vemos si estamos comparando el mismo tipo
+   // First check whether we are comparing the same type
    if (!$cast(compared_transaction_h, rhs)) same = 0;
    else
       // Deep Comparation
@@ -8687,20 +8690,20 @@ experimento de Constrained Random.
 
       phase.raise_objection(this);
 
-      // TODAS las transactions salen de la factory, tambien las dirigidas.
-      // Un new() aca compilaria y andaria igual, pero se saltearia el
-      // set_type_override de add_test: la factory no se entera de lo que
-      // construis a mano. Ver la slide "el new() que se come el override".
+      // ALL transactions come out of the factory, the directed ones too.
+      // A new() here would compile and work just the same, but it would skip
+      // add_test's set_type_override: the factory never hears about what you
+      // build by hand. See the slide "the new() that eats the override".
       command = command_transaction::type_id::create("command");
       command.op = rst_op;
       command_port.put(command);
 
       repeat (1000) begin : random_loop
          command = command_transaction::type_id::create("command");
-         // randomize() devuelve 0 si las constraints no tienen solucion, y no
-         // aborta nada. Un assert() pelado deja pasar en silencio una
-         // transaction sin randomizar: el TB sigue, mandando basura.
-         if (!command.randomize()) `uvm_fatal("TESTER", "randomize() fallo")
+         // randomize() returns 0 if the constraints have no solution, and aborts
+         // nothing. A bare assert() lets an unrandomized transaction through in
+         // silence: the TB carries on, sending garbage.
+         if (!command.randomize()) `uvm_fatal("TESTER", "randomize() failed")
          command_port.put(command);
       end : random_loop
 ```
@@ -9012,14 +9015,14 @@ un `dist`, corré un histograma antes de creerle.
 #### *No lo supongas: medilo*
 
 ```sv
-   // El peso va a CADA valor del rango: el medio se lleva 254 de 256.
+   // The weight goes to EVERY value of the range: the middle takes 254 of 256.
    class por_valor;
       rand byte unsigned A;
       constraint data {A dist {8'h00 := 1, [8'h01 : 8'hFE] := 1, 8'hFF := 1};}
    endclass
 
-   // El peso se REPARTE dentro del rango: 1/4 en 00, 1/2 en el medio, 1/4 en FF.
-   // Es el mismo sesgo que el get_data() de la seccion Cobertura funcional hacia a mano.
+   // The weight is SPLIT inside the range: 1/4 at 00, 1/2 in the middle, 1/4 at FF.
+   // It is the same bias get_data() of the Functional coverage section did by hand.
    class por_rango;
       rand byte unsigned A;
       constraint data {A dist {8'h00 :/ 1, [8'h01 : 8'hFE] :/ 2, 8'hFF :/ 1};}
@@ -9063,13 +9066,13 @@ diez minutos y es la diferencia entre creer y saber.
          B dist {8'h00 :/ 1, [8'h01 : 8'hFE] :/ 2, 8'hFF :/ 1};
       }
 
-      // inside es un conjunto de valores legales. Sin esto el random tambien
-      // pide no_op y rst_op, que no calculan nada.
+      // inside is a set of legal values. Without it the random also asks for
+      // no_op and rst_op, which compute nothing.
       constraint utiles {op inside {add_op, and_op, xor_op, mul_op};}
 ```
 
 ```sv
-      // code/verilator/repro-dist-with.sv; el detalle en docs/verilator.md.
+      // code/verilator/repro-dist-with.sv; the detail in docs/verilator.md.
       if (!c.randomize() with {
             op == mul_op;
             A  == 8'hFF;
@@ -9085,9 +9088,12 @@ diez minutos y es la diferencia entre creer y saber.
 
 Note:
 El número de la corrida es el argumento entero de la sección: 400 intentos al
-azar llenan `mul_max` unas 17 veces **porque el `dist` sesga a los bordes**. Con
-el `dist` mal escrito de la slide anterior, la probabilidad de que las dos patas
-caigan en `FF` es 1/65536 por operación: no lo tocás nunca.
+azar llenan `mul_max` un puñado de veces —6 con la semilla por defecto, entre 2 y
+8 según cuál uses— **porque el `dist` sesga a los bordes**. La cuenta conviene
+hacerla en voz alta: `op` sale uniforme entre cuatro y cada pata cae en `FF` una
+de cada cuatro, o sea 1/4 × 1/4 × 1/4 = **1 de cada 64**, que en 400 intentos son
+seis y pico. Con el `dist` mal escrito de la slide anterior, la probabilidad de
+que las dos patas caigan en `FF` es 1/65536 por operación: no lo tocás nunca.
 La secuencia mental es siempre la misma: corro random, miro qué bin quedó vacío,
 escribo un `with {}` de tres líneas, vuelvo a correr. Nunca "escribo 73 tests".
 La limitación de Verilator que aparece en la salida está puesta a propósito, y
@@ -9154,13 +9160,13 @@ va donde hace falta y no por costumbre.
       constraint c {es_reset -> A == 8'h00;}
    endclass
 
-   // La respuesta del lenguaje es "solve es_reset before A": elegi el campo de
-   // control PRIMERO y despues resolve el resto. Verilator 5.052 acepta la
-   // sintaxis y NO la respeta -- deja es_reset clavado en 0, que es peor que
-   // ignorarla. Repro en code/verilator/repro-solve-before.sv.
+   // The language's answer is "solve es_reset before A": pick the control field
+   // FIRST and then solve the rest. Verilator 5.052 accepts the syntax and does
+   // NOT honour it -- it leaves es_reset stuck at 0, which is worse than
+   // ignoring it. Repro in code/verilator/repro-solve-before.sv.
    //
-   // El rodeo que si es portable: pedir explicitamente el reparto del campo de
-   // control. Dice lo mismo y no depende de que el solver ordene bien.
+   // The workaround that IS portable: ask explicitly for the split of the
+   // control field. It says the same and does not rely on the solver ordering well.
    class pareja extends sesgada;
       constraint reparto {es_reset dist {1'b0 :/ 1, 1'b1 :/ 1};}
    endclass
@@ -9206,19 +9212,19 @@ confíes en que salga parejo. Medilo.
       comando c;
       c = new();
 
-      // 1. Las dos constraints activas: no hay ningun A que cumpla las dos.
-      if (!c.randomize()) $display("1. randomize() devolvio 0: las constraints no cierran");
-      else $display("1. randomize() dio %2h  (no deberia llegar aca)", c.A);
+      // 1. Both constraints active: there is no A that satisfies the two.
+      if (!c.randomize()) $display("1. randomize() returned 0: the constraints do not close");
+      else $display("1. randomize() gave %2h  (should not get here)", c.A);
 
-      // 2. constraint_mode(0) apaga una constraint en tiempo de ejecucion.
+      // 2. constraint_mode(0) turns a constraint off at run time.
       c.grande.constraint_mode(0);
-      if (!c.randomize()) $display("2. randomize() devolvio 0  (no deberia llegar aca)");
-      else $display("2. con 'grande' apagada: A=%2h, y respeta 'chico'", c.A);
+      if (!c.randomize()) $display("2. randomize() returned 0  (should not get here)");
+      else $display("2. with 'grande' turned off: A=%2h, and it honours 'chico'", c.A);
 
-      // 3. rand_mode(0) saca al campo del sorteo: conserva su valor actual.
+      // 3. rand_mode(0) takes the field out of the draw: it keeps its current value.
       c.A.rand_mode(0);
-      if (!c.randomize()) $display("3. randomize() devolvio 0  (no deberia llegar aca)");
-      else $display("3. con A fuera del sorteo: A=%2h, el mismo de antes", c.A);
+      if (!c.randomize()) $display("3. randomize() returned 0  (should not get here)");
+      else $display("3. with A out of the draw: A=%2h, the same as before", c.A);
 
       $finish;
 ```
@@ -9659,7 +9665,7 @@ class driver extends uvm_driver #(command_transaction);
 
    function void build_phase(uvm_phase phase);
       vtalu_agent_config cfg;
-      // La BFM no se pide suelta: se pide el config del agent, y de ahi sale.
+      // The BFM is not asked for on its own: ask for the agent config, and it comes from there.
       if (!uvm_config_db#(vtalu_agent_config)::get(this, "", "config", cfg))
          `uvm_fatal("DRIVER", "Failed to get agent config")
       bfm = cfg.bfm;
@@ -9748,8 +9754,8 @@ class command_sequence extends uvm_sequence #(command_transaction);
    task body();
       command_transaction command;
 
-      // Todas las transactions salen de la factory, tambien las dirigidas:
-      // un new() se saltearia el set_type_override de add_test.
+      // All transactions come out of the factory, the directed ones too:
+      // a new() would skip add_test's set_type_override.
       command = command_transaction::type_id::create("command");
       start_item(command);
       command.op = rst_op;
@@ -9758,17 +9764,17 @@ class command_sequence extends uvm_sequence #(command_transaction);
       repeat (1000) begin : random_loop
          command = command_transaction::type_id::create("command");
          start_item(command);
-         // El randomize() va ENTRE start_item y finish_item: asi las
-         // constraints se resuelven cuando el item se va a entregar, y no
-         // antes. Hoy da igual; el dia que una constraint dependa del estado
-         // del DUT, no.
-         if (!command.randomize()) `uvm_fatal("COMMAND SEQ", "randomize() fallo")
+         // The randomize() goes BETWEEN start_item and finish_item: that way the
+         // constraints are solved when the item is about to be handed over, and
+         // not before. Today it makes no difference; the day a constraint
+         // depends on the DUT state, it will.
+         if (!command.randomize()) `uvm_fatal("COMMAND SEQ", "randomize() failed")
          finish_item(command);
       end : random_loop
 
-      // Dirigida: el desborde del multiplicador, que 1000 operaciones al azar
-      // podrian no tocar nunca. Sale de la factory igual que las otras, pero
-      // como no se randomiza, la constraint de add_transaction no corre.
+      // Directed: the multiplier overflow, which 1000 random operations might
+      // never touch. It comes out of the factory like the others, but since it
+      // is not randomized, add_transaction's constraint does not run.
       command = command_transaction::type_id::create("command");
       start_item(command);
       command.op = mul_op;
@@ -9885,15 +9891,15 @@ señalando la pantalla.
   que el agent se construyó
 
 ```sv
-// El config del agent NO es un uvm_object: es una clase pelada. Por eso el
-// constructor puede EXIGIR los dos datos, y quien se olvide de uno no compila.
-// Un uvm_object se crea con type_id::create(), que solo toma un nombre, y esa
-// garantia se pierde.
+// The agent config is NOT a uvm_object: it is a plain class. That is why the
+// constructor can DEMAND both values, and whoever forgets one does not compile.
+// A uvm_object is built with type_id::create(), which only takes a name, and
+// that guarantee is lost.
 class vtalu_agent_config;
 
    virtual vtalu_bfm bfm;
 
-   // protected + getter: nadie lo cambia despues de que el agent se construyo.
+   // protected + getter: nobody changes it after the agent was built.
    protected uvm_active_passive_enum is_active;
 
    function new(virtual vtalu_bfm bfm, uvm_active_passive_enum is_active);
@@ -10160,7 +10166,7 @@ module top;
    `include "vtalu_macros.svh"
    `include "uvm_macros.svh"
 
-   // La VTALU que maneja el testbench de clases
+   // The VTALU driven by the class testbench
    vtalu_bfm clase_bfm ();
    vtalu clase_dut (
        .A(clase_bfm.A), .B(clase_bfm.B), .op(clase_bfm.op_set),
@@ -10169,7 +10175,7 @@ module top;
        .ovf(clase_bfm.ovf), .result(clase_bfm.result)
    );
 
-   // La VTALU que maneja el modulo heredado
+   // The VTALU driven by the legacy module
    vtalu_bfm modulo_bfm ();
    vtalu modulo_dut (
        .A(modulo_bfm.A), .B(modulo_bfm.B), .op(modulo_bfm.op_set),
@@ -10181,8 +10187,8 @@ module top;
    vtalu_tester_module stim_module (modulo_bfm);
 
    initial begin
-      // El top no sabe nada de agents: deja las dos interfaces con nombre y
-      // se va. Quien las reparte es el test.
+      // The top knows nothing about agents: it leaves the two interfaces with a
+      // name and walks away. Handing them out is the test's job.
       uvm_config_db#(virtual vtalu_bfm)::set(null, "*", "clase_bfm", clase_bfm);
       uvm_config_db#(virtual vtalu_bfm)::set(null, "*", "modulo_bfm", modulo_bfm);
       run_test();
@@ -10237,7 +10243,7 @@ seq.start(env_h.clase_agent_h.sequencer_h);
       virtual vtalu_bfm clase_bfm, modulo_bfm;
       env_config env_config_h;
 
-      // El top dejo las dos interfaces sueltas; el test las empaqueta.
+      // The top left the two interfaces loose; the test packs them up.
       if (!uvm_config_db#(virtual vtalu_bfm)::get(this, "", "clase_bfm", clase_bfm))
          `uvm_fatal("DUAL TEST", "Failed to get clase_bfm")
       if (!uvm_config_db#(virtual vtalu_bfm)::get(this, "", "modulo_bfm", modulo_bfm))
@@ -10249,8 +10255,8 @@ seq.start(env_h.clase_agent_h.sequencer_h);
       env_h = env::type_id::create("env_h", this);
    endfunction : build_phase
 
-   // +TOPOLOGY imprime el arbol de componentes. Es la forma de VER que el
-   // agent pasivo no construyo ni sequencer ni driver.
+   // +TOPOLOGY prints the component tree. It is how to SEE that the passive
+   // agent built neither a sequencer nor a driver.
    function void end_of_elaboration_phase(uvm_phase phase);
       if ($test$plusargs("TOPOLOGY")) uvm_root::get().print_topology();
    endfunction : end_of_elaboration_phase
@@ -10260,8 +10266,8 @@ seq.start(env_h.clase_agent_h.sequencer_h);
 
       phase.raise_objection(this);
 
-      // Lo unico que quedo cableado: el test atraviesa la jerarquia para
-      // llegar al sequencer. La unidad 23 lo saca de aca.
+      // The only thing left wired by hand: the test reaches across the
+      // hierarchy to get to the sequencer. Unit 23 takes it out of here.
       seq = command_sequence::type_id::create("seq");
       seq.start(env_h.clase_agent_h.sequencer_h);
 
@@ -10623,21 +10629,21 @@ adelante, y con un componente no se podría: para cuando querés cambiarlo, el
 #### *La sequence más chica que existe*
 
 ```sv
-// La sequence mas chica que existe: un solo item.
+// The smallest sequence there is: a single item.
 //
-// Es un uvm_object, no un uvm_component: no esta en el arbol, no tiene padre,
-// no tiene fases. Se crea, corre y se tira.
+// It is a uvm_object, not a uvm_component: it is not in the tree, it has no
+// parent, it has no phases. It gets created, it runs, and it gets thrown away.
 class reset_sequence extends uvm_sequence #(command_transaction);
-   // `uvm_object_utils, NO `uvm_component_utils: el constructor tiene un solo
-   // argumento y no hay parent que pasar.
+   // `uvm_object_utils, NOT `uvm_component_utils: the constructor takes a single
+   // argument and there is no parent to pass.
    `uvm_object_utils(reset_sequence)
 
    function new(string name = "reset_sequence");
       super.new(name);
    endfunction : new
 
-   // body() es una TASK, no una function: adentro se bloquea. Nadie la llama a
-   // mano; la llama UVM cuando alguien arranca la sequence.
+   // body() is a TASK, not a function: it blocks inside. Nobody calls it by
+   // hand; UVM calls it when somebody starts the sequence.
    task body();
       command_transaction command;
       command = command_transaction::type_id::create("command");
@@ -10718,16 +10724,16 @@ necesita: entre operación y operación las señales se pueden quedar quietas.
       command_transaction command;
 
       repeat (count) begin : random_loop
-         // Por la factory, igual que en la seccion Transactions: es lo que hace que el
-         // add_test pueda cambiar el TIPO sin tocar una linea de esta sequence.
+         // Through the factory, same as in the Transactions section: that is what lets
+         // add_test change the TYPE without touching a line of this sequence.
          command = command_transaction::type_id::create("command");
 
          start_item(command);
 
-         // Randomizacion tardia: los valores se eligen DESPUES de tener el
-         // turno del sequencer, no cuando se creo el objeto.
+         // Late randomization: the values are picked AFTER getting the
+         // sequencer's turn, not when the object was created.
          if (!command.randomize())
-            `uvm_fatal("RANDOM SEQUENCE", "randomize() fallo")
+            `uvm_fatal("RANDOM SEQUENCE", "randomize() failed")
 
          finish_item(command);
       end : random_loop
@@ -10862,8 +10868,8 @@ operación siguiente.
       `uvm_info("FIBONACCI", "Fib(01) = 000", UVM_MEDIUM)
       `uvm_info("FIBONACCI", "Fib(02) = 001", UVM_MEDIUM)
 
-      // Hasta 14 y no mas: Fib(14) = 233 y Fib(15) = 377, que no entra en los
-      // 8 bits de A y de B.
+      // Up to 14 and no further: Fib(14) = 233 and Fib(15) = 377, which does not
+      // fit in the 8 bits of A and B.
       for (int ff = 3; ff <= 14; ff++) begin : fib_loop
          command = command_transaction::type_id::create("command");
          start_item(command);
@@ -10949,9 +10955,9 @@ sobre un solo sequencer, el orden es el que dice el `body()`.
 
       random_seq.count = count;
 
-      // get_sequencer() devuelve el sequencer que nos paso start(): las hijas
-      // corren sobre el mismo. El segundo argumento las declara HIJAS -- sin el
-      // compiten con nosotros en la arbitracion en vez de heredar nuestro turno.
+      // get_sequencer() returns the sequencer start() handed us: the children run
+      // on the same one. The second argument declares them CHILDREN -- without it
+      // they compete with us in the arbitration instead of inheriting our turn.
       reset_seq.start(get_sequencer(), this);
       random_seq.start(get_sequencer(), this);
       maxmult_seq.start(get_sequencer(), this);
@@ -10996,8 +11002,8 @@ sequencer, y hay seis modos, incluido uno con pesos.
       full_sequence full_seq;
       full_seq = full_sequence::type_id::create("full_seq");
 
-      // El objection lo levanta EL TEST, no la sequence: la sequence no sabe
-      // nada de fases, y tiene que poder correr adentro de otra sequence.
+      // THE TEST raises the objection, not the sequence: the sequence knows
+      // nothing about phases, and has to be able to run inside another sequence.
       phase.raise_objection(this);
       full_seq.start(sequencer_h);   // no vuelve hasta que body() termino
       phase.drop_objection(this);
@@ -11036,20 +11042,20 @@ sequencer. Es la misma razón por la que las conexiones van en `connect_phase`.
    function void build_phase(uvm_phase phase);
       full_sequence full_seq;
 
-      // super.build_phase() de base_test, que es una clase NUESTRA: arma el
-      // env. Lo que el curso nunca llama es el build_phase de uvm_component.
+      // super.build_phase() of base_test, which is a class of OURS: it builds the
+      // env. What the course never calls is uvm_component's build_phase.
       super.build_phase(phase);
 
       full_seq = full_sequence::type_id::create("full_seq");
       full_seq.count = 200;
 
-      // SIN esta linea la main_phase termina en t=0: nadie levanta el objection,
-      // y una fase sin objection dura cero. El test PASA sin mandar estimulo.
+      // WITHOUT this line main_phase ends at t=0: nobody raises the objection,
+      // and a phase without an objection lasts zero. The test PASSES with no stimulus.
       full_seq.set_automatic_phase_objection(1);
 
-      // El nombre de instancia lleva el sufijo "_phase": es la fase en la que el
-      // sequencer va a arrancarla. Fijate que el test ya no nombra al sequencer
-      // como handle: lo nombra como RUTA, y eso es una config, no codigo.
+      // The instance name carries the "_phase" suffix: that is the phase the
+      // sequencer will start it in. Notice the test no longer names the sequencer
+      // as a handle: it names it as a PATH, and that is a config, not code.
       uvm_config_db#(uvm_sequence_base)::set(
           this, "env_h.clase_agent_h.sequencer_h.main_phase", "default_sequence",
           full_seq);
@@ -11154,9 +11160,9 @@ Regla práctica para el trabajo: leer todas, escribir las explícitas.
 #### *El override sigue funcionando, y ninguna sequence se enteró*
 
 ```sv
-// El mismo add_test de la seccion Transactions, palabra por palabra. Ninguna sequence se
-// entera: random_sequence sigue pidiendole un command_transaction a la factory,
-// y la factory le devuelve un add_transaction.
+// The same add_test as the Transactions section, word for word. No sequence finds
+// out: random_sequence still asks the factory for a command_transaction,
+// and the factory hands it back an add_transaction.
 class add_test extends full_test;
    `uvm_component_utils(add_test)
 
@@ -11239,7 +11245,7 @@ endclass : virtual_sequencer
 ```
 
 ```sv
-      // compila en vez de devolver null en tiempo de simulacion.
+      // not compile instead of returning null at simulation time.
       virtual_sequencer_h.clase_sequencer_h  = clase_agent_h.sequencer_h;
       virtual_sequencer_h.modulo_sequencer_h = modulo_agent_h.sequencer_h;
 ```
@@ -11280,8 +11286,8 @@ class coordinada_sequence extends uvm_sequence;
          reset_b.start(p_sequencer.modulo_sequencer_h);
       join
 
-      // --- 2. Trafico en paralelo, distinto en cada interface -----------------
-      // La A hace el caso dirigido del desborde mientras la B manda al azar.
+      // --- 2. Parallel traffic, different on each interface -------------------
+      // A does the directed overflow case while B sends at random.
       fork
          maxmult.start(p_sequencer.clase_sequencer_h);
          random_b.start(p_sequencer.modulo_sequencer_h);
@@ -11321,7 +11327,7 @@ sequence normal con más ceremonia. La clase se justifica cuando hay dos.
       primera.start(p_sequencer.clase_sequencer_h);
 
       `uvm_info("COORDINADA", $sformatf(
-                "la A devolvio %0d: va de operando a la B", primera.result), UVM_LOW)
+                "A returned %0d: it goes as an operand into B", primera.result), UVM_LOW)
 
       segunda.A  = primera.result[7:0];
       segunda.B  = 8'h01;
@@ -12005,8 +12011,8 @@ necesitan un reloj para saber qué quiere decir "anterior".
 
    // --- El estimulo ---
 
-   // La regla de la slide 1 del dia 1, por fin ejecutable: mientras start este
-   // arriba, los operandos y la operacion no se tocan.
+   // The rule from slide 1 of day 1, executable at last: while start is up, the
+   // operands and the operation are not touched.
    property p_operandos_estables;
       @(negedge clk) start |=> $stable(A) && $stable(B) && $stable(op_set);
    endproperty : p_operandos_estables
@@ -12042,19 +12048,19 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.
 #### *⚠ Dos relojes: una assertion vale lo que vale su muestreo*
 
 ```sv
-   // las lleva de regalo. Lo unico que hace falta para que corran es --assert.
+   // section gets them for free. All they need in order to run is --assert.
    //
-   // DOS RELOJES, y no es un detalle de implementacion: la BFM maneja en
-   // negedge y el DUT registra en posedge. Una assertion muestrea en la region
-   // preponed del flanco que se le da, asi que una senal escrita EN el negedge
-   // no se ve en ese negedge: se ve en el siguiente. Con todo en posedge, dos
-   // no_op consecutivas -- start baja en t=111 y vuelve a subir en t=120, entre
-   // dos posedge -- se leen como UNA transaccion con los operandos cambiando:
-   // 185 falsos positivos cada 1000 operaciones. Con todo en negedge, los
-   // falsos positivos se mudan a las properties de done.
+   // TWO CLOCKS, and it is not an implementation detail: the BFM drives on
+   // negedge and the DUT registers on posedge. An assertion samples in the
+   // preponed region of the edge it is given, so a signal written ON the negedge
+   // is not seen on that negedge: it is seen on the next one. With everything on
+   // posedge, two consecutive no_op -- start goes down at t=111 and back up at
+   // t=120, between two posedges -- read as ONE transaction with the operands
+   // changing: 185 false positives every 1000 operations. With everything on
+   // negedge, the false positives move to the done properties.
    //
-   //   estimulo  (start, A, B, op_set)  -> negedge, donde la BFM escribe
-   //   respuesta (done, result)         -> posedge, donde el DUT registra
+   //   stimulus (start, A, B, op_set)  -> negedge, where the BFM writes
+   //   response (done, result)         -> posedge, where the DUT registers
 ```
 
 | Con un solo reloj | Sobre 1000 operaciones |
@@ -12092,10 +12098,10 @@ que es lo difícil.
 #### *La latencia variable, en una línea*
 
 ```sv
-   // --- La respuesta del DUT ---
+   // --- The DUT's answer ---
 
-   // La latencia variable de la seccion La spec del VTALU en una linea: un ciclo las de un
-   // ciclo, cuatro flancos la multiplicacion.
+   // The variable latency of the The VTALU spec section in one line: one cycle for the
+   // one-cycle ops, four edges for the multiplication.
    property p_done_llega;
       @(posedge clk) start && (op_set != no_op) |-> ##[1:5] done;
    endproperty : p_done_llega
@@ -12104,7 +12110,7 @@ que es lo difícil.
    assert property (p_done_llega)
    else `uvm_error("SVA", $sformatf("%m: start con op=%s y done no llego en 5 ciclos", op2enum().name()))
 
-   // La letra chica: no_op es la unica operacion que no responde.
+   // The fine print: no_op is the only operation that does not answer.
    property p_no_op_sin_done;
       @(posedge clk) start && (op_set == no_op) |=> !done;
    endproperty : p_no_op_sin_done
@@ -12248,13 +12254,13 @@ en vez de la de la librería.
 ```sv
    else `uvm_error("SVA", $sformatf("%m: done subio para una no_op"))
 
-   // --- Toda assertion va con su cover property ---
+   // --- Every assertion comes with its cover property ---
    //
-   // Una assertion cuyo antecedente no ocurre nunca PASA, y no chequea nada.
-   // El cover es el antidoto. Y de paso desmiente modelos mentales: la
-   // multiplicacion "de tres ciclos" tarda CUATRO flancos (done3 -> done2 ->
-   // done1 -> done_mult), asi que c_mult_3ciclos se queda en 0 para siempre.
-   // --- rev2 del VTALU: la salida que el scoreboard solo mira de reojo ---
+   // An assertion whose antecedent never happens PASSES, and checks nothing.
+   // The cover is the antidote. And it also debunks mental models: the
+   // "three-cycle" multiplication takes FOUR edges (done3 -> done2 ->
+   // done1 -> done_mult), so c_mult_3ciclos stays at 0 forever.
+   // --- VTALU rev2: the output the scoreboard only glances at ---
 ```
 
 ```text
@@ -12327,10 +12333,10 @@ cuenta como anécdota.
             #1;
             start = 1'b0;
          end else begin
-            // +BUG=1: cambia B a mitad de la multiplicacion. El multiplicador
-            // ya latcheo A y B en el primer flanco, asi que el RESULTADO NO
-            // CAMBIA: el scoreboard sigue en verde. Lo unico que lo ve es la
-            // assertion. Eso es toda la seccion.
+            // +BUG=1: changes B halfway through the multiplication. The
+            // multiplier already latched A and B on the first edge, so the
+            // RESULT DOES NOT CHANGE: the scoreboard stays green. The only
+            // thing that sees it is the assertion. That is the whole section.
             if (bug_operandos && iop == mul_op) begin
                @(negedge clk);
                @(negedge clk);
@@ -12595,7 +12601,7 @@ existiera este testbench.
   direcciones, dos fases por transferencia, un *wait state* y respuesta de error
 - Se escribe todo: la interface con el protocolo, la transaction, el driver, el
   monitor, el agent, el scoreboard, el covergroup, las sequences y los tests
-- El corrector va **por etapas**, y cada una imprime su `ETAPA N OK`. Se puede
+- El corrector va **por etapas**, y cada una imprime su `STAGE N OK`. Se puede
   terminar de a una — y conviene
 
 Note:
@@ -12625,9 +12631,9 @@ de cobertura, es exactamente el ejemplo que piden.
 | `0x0C` | `STATUS` | RO | bit 0 = `EN` · bit 1 = `OVF`, pegajoso |
 
 ```sv
-   // El handshake: la escritura no espera, la lectura mete UN wait state.
-   // rd_wait se rearma en cuanto baja PENABLE, o sea entre transferencia y
-   // transferencia, sin necesidad de contar ciclos.
+   // The handshake: the write does not wait, the read inserts ONE wait state.
+   // rd_wait re-arms as soon as PENABLE drops, that is between one transfer and
+   // the next, with no need to count cycles.
    logic rd_wait;
    always_ff @(posedge PCLK or negedge PRESETn) begin
       if (!PRESETn) rd_wait <= 1'b1;
@@ -13981,15 +13987,15 @@ puente es un archivo más en la línea de comandos.
 #### *`import "DPI-C"`: una declaración de cada lado*
 
 ```sv
-   // El modelo de referencia vive en vtalu_golden.c y se llama desde aca. Es
-   // todo lo que hace falta del lado de SystemVerilog: una declaracion por
-   // funcion, con los tipos del LRM que cruzan la frontera.
+   // The reference model lives in vtalu_golden.c and is called from here. This
+   // is all that is needed on the SystemVerilog side: one declaration per
+   // function, with the LRM types that cross the boundary.
    //
    //   input int  -> int          output int -> int *
-   //   function   -> devuelve     task       -> puede consumir tiempo (no aca)
+   //   function   -> returns      task       -> may consume time (not here)
    //
-   // El nombre despues de "DPI-C" es el simbolo que el linker busca, asi que
-   // tiene que coincidir con el del .c letra por letra.
+   // The name after "DPI-C" is the symbol the linker looks for, so it has to
+   // match the one in the .c letter by letter.
    import "DPI-C" function int  vtalu_golden(input int op, input int a,
                                              input int b, output int ovf);
    import "DPI-C" function void vtalu_golden_bug(input int on);
@@ -14048,13 +14054,13 @@ dato entra en un `int`, la firma se escribe sola; si no, se busca el anexo H del
 #### *El scoreboard: la predicción se pide, no se escribe*
 
 ```sv
-   // La UNICA diferencia con el scoreboard de las sequences, y es la seccion
-   // entera: aca no hay un case con la aritmetica de la spec. La prediccion se
-   // le pide al modelo de referencia en C, que es el que la firmo.
+   // The ONLY difference with the sequences scoreboard, and it is the whole
+   // section: there is no case with the arithmetic of the spec here. The
+   // prediction is asked of the C reference model, the one that signed it.
    //
-   // Lo que no cambia: el monitor, el analysis port, la FIFO, el do_compare y
-   // el uvm_error. El golden model reemplaza SEIS LINEAS -- las de predecir --
-   // y ninguna otra pieza del testbench se entera.
+   // What does not change: the monitor, the analysis port, the FIFO, the
+   // do_compare and the uvm_error. The golden model replaces SIX LINES -- the
+   // ones that predict -- and no other piece of the testbench finds out.
    function result_transaction predict_result(command_transaction cmd);
       result_transaction predicted;
       int                ovf;
@@ -14299,6 +14305,30 @@ apareciendo donde nadie lo esperaba.
     </nav>
   </dialog>
 
+  <!-- Selector de idioma. Al lado del boton de indice: son los dos unicos
+       controles fijos del deck y se leen como un par.
+
+       Tres decisiones de UX, porque las tres se hacen mal seguido:
+       - El idioma actual NO es un link. Es un <span aria-current="true">: un
+         link a la pagina en la que ya estas es ruido para un lector de
+         pantalla y una promesa falsa para el que lo clickea.
+       - Cada idioma se nombra en SU idioma. El title dice "Español" y
+         "English", nunca "Spanish" -- el que busca la version en castellano
+         no tiene por que leer ingles.
+       - Sin banderas: una bandera es un pais, no un idioma.
+       El href estatico sirve para abrir el deck con doble clic desde el repo;
+       el script de abajo lo reescribe para conservar la slide y para el sitio
+       publicado, donde el deck se llama curso.html. -->
+  <nav id="idioma" aria-label="Idioma del curso">
+    <span class="idioma-actual" lang="es" aria-current="true"
+          title="Español">ES</span>
+    <a id="idioma-otro" href="en/index.html" lang="en"
+       hreflang="en" title="See this deck in English (key L)">EN</a>
+  </nav>
+  <!-- El aviso de cuando la seccion todavia no esta traducida. role="status"
+       y no un alert: es informacion, no una interrupcion. -->
+  <p id="idioma-aviso" role="status" hidden>Esa sección todavía no está en inglés. Te dejamos al principio del deck.</p>
+
   <!-- "Machete": chuleta con los diagramas de referencia del dia -->
   <div class="forkit-curtain">
     <div class="close-button"></div>
@@ -14405,6 +14435,70 @@ apareciendo donde nadie lo esperaba.
         { keyCode: 73, key: 'I', description: 'Abrir el índice' },
         () => indice.open ? indice.close() : abrirIndice());
 
+      // --- Selector de idioma ---------------------------------------------
+      // El arbol en ingles es un SUBCONJUNTO del castellano, asi que el numero
+      // de slide no sirve como coordenada: la slide 200 del ES y la 200 del EN
+      // no son la misma. Lo que si sirve es "archivo + numero de slide adentro
+      // del archivo", porque tools/lint-i18n.mjs garantiza que los dos idiomas
+      // tienen la MISMA cantidad de slides por archivo. El deck de salida
+      // escribe esa coordenada en la URL y el de llegada la resuelve con SU
+      // propio mapa: si todavia no tradujo esa seccion, avisa y arranca de
+      // cero en vez de aterrizar en cualquier lado.
+      const SECCIONES = [["000-verify-this",1],["002-como-usar",1],["005-agenda-day1",1],["010-tendencias",5],["015-introduccion",6],["020-spec-vtalu",8],["021-plan-de-verificacion",3],["025-testbench-convencional",5],["026-cobertura-funcional",13],["030-interfaces-bfm",12],["042-quiz-day1",6],["043-ejercicio-day1",1],["044-ejercicio-day1b",1],["045-agenda-day2",1],["046-clases-y-extensiones",7],["047-polimorfismo",7],["050-variables-estaticas",5],["055-clases-parametricas",5],["060-factory",6],["065-tb-en-objetos",9],["067-quiz-day2",8],["068-ejercicio-day2",1],["070-agenda-day3",1],["075-tests",11],["080-components",9],["085-env",16],["088-reporting",14],["092-quiz-day3",7],["093-ejercicio-day3",1],["095-agenda-day4",1],["100-varios-objetos",16],["105-analysis-ports",13],["110-threads",10],["115-put-get",7],["117-quiz-day4",5],["118-ejercicio-day4",1],["120-agenda-day5",1],["130-jerarquias",10],["135-transactions",19],["136-constrained-random",11],["137-quiz-day5",4],["138-ejercicio-day5",1],["139-ejercicio-day5b",1],["140-agenda-day6",1],["145-agents",19],["146-callbacks",5],["150-sequences",23],["151-quiz-day6",10],["152-ejercicio-day6-agents",1],["153-ejercicio-day6-sequences",1],["153b-ejercicio-day6-bins",1],["153c-ejercicio-day6-semillas",1],["159-agenda-day7",1],["160-assertions",17],["161-ejercicio-day7-sva",1],["162-quiz-day7",5],["163-ejercicio-day7-capstone",3],["170-de-la-vtalu-a-un-bus",3],["171-apendice-debug",2],["172-apendice-trampas",5],["173-glosario",3],["174-referencias",3],["175-cierre",2],["175b-autoevaluacion",3],["179-agenda-day8",1],["180-ral",11],["181-ejercicio-day8-ral",1],["182-dpi",4],["183-ejercicio-day8-fifo",1],["190-the-end",1]];
+      const coordDe = h => {
+        let base = 0;
+        for (const [f, n] of SECCIONES) {
+          if (h < base + n) return f + ':' + (h - base);
+          base += n;
+        }
+        return null;
+      };
+      const hDe = coord => {
+        const [f, i] = coord.split(':');
+        let base = 0;
+        for (const [g, n] of SECCIONES) {
+          if (g === f) return base + Math.min(+i || 0, n - 1);
+          base += n;
+        }
+        return null;
+      };
+      // El deck se llama index.html en el repo y curso.html en el sitio
+      // publicado (.github/workflows/build.yml). En vez de hardcodear uno y
+      // que el otro entorno quede roto, el destino es el MISMO archivo con
+      // en/ de mas o de menos.
+      const rutaOtroIdioma = () => {
+        const i = location.pathname.lastIndexOf('/');
+        const dir = location.pathname.slice(0, i);
+        const file = location.pathname.slice(i + 1) || 'index.html';
+        return ('es' === 'es' ? dir + '/en' : dir.replace(/\/en$/, '')) + '/' + file;
+      };
+      const otro = document.getElementById('idioma-otro');
+      // Se reescribe en cada slide y no al hacer click: asi el "abrir en otra
+      // pestaña" del boton derecho tambien conserva la slide.
+      const marcarIdioma = () => {
+        const c = coordDe(Reveal.getIndices().h);
+        otro.href = rutaOtroIdioma() + (c ? '?s=' + encodeURIComponent(c) : '');
+      };
+      Reveal.on('slidechanged', marcarIdioma);
+      marcarIdioma();
+      Reveal.addKeyBinding(
+        { keyCode: 76, key: 'L', description: 'Ver el deck en el otro idioma' },
+        () => otro.click());
+
+      // La llegada: ?s=archivo:n. Se limpia la URL antes de saltar para que el
+      // hash de reveal quede como unico estado y recargar no repita el salto.
+      const pedido = new URLSearchParams(location.search).get('s');
+      if (pedido) {
+        const h = hDe(pedido);
+        history.replaceState(null, '', location.pathname + location.hash);
+        if (h !== null) Reveal.slide(h);
+        else {
+          const aviso = document.getElementById('idioma-aviso');
+          aviso.hidden = false;
+          setTimeout(() => { aviso.hidden = true; }, 6000);
+        }
+      }
+
       // El machete va por regiones: data-machete se anota donde CAMBIA -- en la
       // portada y en la agenda de cada dia -- y vale hasta la proxima marca. Si
       // un dia no lo declara hereda el del dia anterior, que es como los dias 5
@@ -14421,6 +14515,10 @@ apareciendo donde nadie lo esperaba.
         for (let i = slides.indexOf(Reveal.getCurrentSlide()); i >= 0; i--) {
           if (slides[i].dataset.machete) { dm = slides[i].dataset.machete; break; }
         }
+        // El  es el ../ del deck en ingles, que vive en en/. Va aca y
+        // no en el reescribido de rutas de build.mjs porque data-machete es una
+        // LISTA separada por comas: el regex de src="/href=" solo alcanzaria la
+        // primera. Aca la lista ya viene partida.
         box.innerHTML = dm.split(',').filter(Boolean)
           .map(src => `<img class="imagen" src="${src.trim()}" alt="">`).join('');
       };

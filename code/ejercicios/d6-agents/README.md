@@ -16,7 +16,7 @@ está mirando.
    - el agent, un `scoreboard` y un `coverage` propios
    - las dos conexiones, contra los analysis ports **del agent**
 
-Listo cuando `bash run.sh` imprime `EJERCICIO OK`.
+Listo cuando `bash run.sh` imprime `EXERCISE OK`.
 
 ## Cómo se corre
 

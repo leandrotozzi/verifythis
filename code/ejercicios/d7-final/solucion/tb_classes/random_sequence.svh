@@ -12,7 +12,7 @@ class random_sequence extends uvm_sequence #(apb_transaction);
       repeat (count) begin : loop
          t = apb_transaction::type_id::create("t");
          start_item(t);
-         if (!t.randomize()) `uvm_fatal("RANDOM SEQUENCE", "randomize() fallo")
+         if (!t.randomize()) `uvm_fatal("RANDOM SEQUENCE", "randomize() failed")
          finish_item(t);
       end : loop
    endtask : body

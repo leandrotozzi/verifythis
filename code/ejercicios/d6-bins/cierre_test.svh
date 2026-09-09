@@ -1,13 +1,13 @@
-// El enunciado, ya escrito. No hace falta tocarlo.
+// The exercise, already written. There is no need to touch it.
 //
-// Arranca el estimulo en tres tramos, que es la forma de la unidad 23:
+// It starts the stimulus in three stretches, which is the shape of unit 23:
 //
-//   1. reset_sequence           el DUT arranca con reset_n en 0
-//   2. random_sequence          el "grueso barato": COUNT operaciones al azar
-//   3. cierre_sequence          la tuya: el caso dirigido que llena el bin
+//   1. reset_sequence           the DUT starts with reset_n at 0
+//   2. random_sequence          the "cheap bulk": COUNT random operations
+//   3. cierre_sequence          yours: the directed case that fills the bin
 //
-// +SIN_CIERRE saltea el tramo 3. Es como run.sh mide la cobertura ANTES de tu
-// caso dirigido, para poder compararla con la de despues.
+// +SIN_CIERRE skips stretch 3. It is how run.sh measures the coverage BEFORE your
+// directed case, so it can compare it with the one after.
 class cierre_test extends base_test;
    `uvm_component_utils(cierre_test)
 

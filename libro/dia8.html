@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Día 8 · undefined — Verify This! · Curso de UVM en español</title>
+<title>Día 8 · RAL, el golden model y el segundo capstone — Verify This! · Curso de UVM en español</title>
 <meta name="description" content="Día 8 del curso de UVM en español, para leer de corrido: las slides con las notas del instructor adentro del texto y el código completo.">
 <link rel="stylesheet" href="../css/fonts.css">
 <link rel="stylesheet" href="../css/course.css">
@@ -28,7 +28,7 @@
 </header>
 
 <main class="wrap">
-  <h1 class="titulo-dia"><span>Día 8</span>undefined</h1>
+  <h1 class="titulo-dia"><span>Día 8</span>RAL, el golden model y el segundo capstone</h1>
   <p class="bajada">Las mismas slides del deck, con <strong>las notas del
   instructor adentro del texto</strong> y el código completo. Si estás haciendo
   el curso solo, empezá por acá y tené el deck al lado para los repasos.</p>
@@ -1124,30 +1124,30 @@ puente es un archivo más en la línea de comandos.</p>
 <section id="s395" class="slide">
 <h2 id="el-modelo-de-referencia-en-c">El modelo de referencia en C</h2>
 <h4 id="import-dpi-c-una-declaración-de-cada-lado"><em><code>import &quot;DPI-C&quot;</code>: una declaración de cada lado</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/dpi/vtalu_pkg.sv</code> · líneas 5-16 de 63</figcaption><pre><code class="hljs">   <span class="hljs-comment">// El modelo de referencia vive en vtalu_golden.c y se llama desde aca. Es</span>
-   <span class="hljs-comment">// todo lo que hace falta del lado de SystemVerilog: una declaracion por</span>
-   <span class="hljs-comment">// funcion, con los tipos del LRM que cruzan la frontera.</span>
+<figure class="codigo"><figcaption><code>code/u8/dpi/vtalu_pkg.sv</code> · líneas 5-16 de 63</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The reference model lives in vtalu_golden.c and is called from here. This</span>
+   <span class="hljs-comment">// is all that is needed on the SystemVerilog side: one declaration per</span>
+   <span class="hljs-comment">// function, with the LRM types that cross the boundary.</span>
    <span class="hljs-comment">//</span>
    <span class="hljs-comment">//   input int  -&gt; int          output int -&gt; int *</span>
-   <span class="hljs-comment">//   function   -&gt; devuelve     task       -&gt; puede consumir tiempo (no aca)</span>
+   <span class="hljs-comment">//   function   -&gt; returns      task       -&gt; may consume time (not here)</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// El nombre despues de &quot;DPI-C&quot; es el simbolo que el linker busca, asi que</span>
-   <span class="hljs-comment">// tiene que coincidir con el del .c letra por letra.</span>
+   <span class="hljs-comment">// The name after &quot;DPI-C&quot; is the symbol the linker looks for, so it has to</span>
+   <span class="hljs-comment">// match the one in the .c letter by letter.</span>
    <span class="hljs-keyword">import</span> <span class="hljs-string">&quot;DPI-C&quot;</span> <span class="hljs-keyword">function</span> <span class="hljs-type">int  </span><span class="hljs-title">vtalu_golden</span>(<span class="hljs-keyword">input</span> <span class="hljs-type">int</span> op, <span class="hljs-keyword">input</span> <span class="hljs-type">int</span> a,
                                              <span class="hljs-keyword">input</span> <span class="hljs-type">int</span> b, <span class="hljs-keyword">output</span> <span class="hljs-type">int</span> ovf);
    <span class="hljs-keyword">import</span> <span class="hljs-string">&quot;DPI-C&quot;</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">vtalu_golden_bug</span>(<span class="hljs-keyword">input</span> <span class="hljs-type">int</span> on);</code></pre><details><summary>el archivo entero, 63 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">package</span> <span class="hljs-title">vtalu_pkg</span>;
    <span class="hljs-keyword">import</span> <span class="hljs-uvm-type">uvm_pkg</span>::*;
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;uvm_macros.svh&quot;</span>
 
-   <span class="hljs-comment">// El modelo de referencia vive en vtalu_golden.c y se llama desde aca. Es</span>
-   <span class="hljs-comment">// todo lo que hace falta del lado de SystemVerilog: una declaracion por</span>
-   <span class="hljs-comment">// funcion, con los tipos del LRM que cruzan la frontera.</span>
+   <span class="hljs-comment">// The reference model lives in vtalu_golden.c and is called from here. This</span>
+   <span class="hljs-comment">// is all that is needed on the SystemVerilog side: one declaration per</span>
+   <span class="hljs-comment">// function, with the LRM types that cross the boundary.</span>
    <span class="hljs-comment">//</span>
    <span class="hljs-comment">//   input int  -&gt; int          output int -&gt; int *</span>
-   <span class="hljs-comment">//   function   -&gt; devuelve     task       -&gt; puede consumir tiempo (no aca)</span>
+   <span class="hljs-comment">//   function   -&gt; returns      task       -&gt; may consume time (not here)</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// El nombre despues de &quot;DPI-C&quot; es el simbolo que el linker busca, asi que</span>
-   <span class="hljs-comment">// tiene que coincidir con el del .c letra por letra.</span>
+   <span class="hljs-comment">// The name after &quot;DPI-C&quot; is the symbol the linker looks for, so it has to</span>
+   <span class="hljs-comment">// match the one in the .c letter by letter.</span>
    <span class="hljs-keyword">import</span> <span class="hljs-string">&quot;DPI-C&quot;</span> <span class="hljs-keyword">function</span> <span class="hljs-type">int  </span><span class="hljs-title">vtalu_golden</span>(<span class="hljs-keyword">input</span> <span class="hljs-type">int</span> op, <span class="hljs-keyword">input</span> <span class="hljs-type">int</span> a,
                                              <span class="hljs-keyword">input</span> <span class="hljs-type">int</span> b, <span class="hljs-keyword">output</span> <span class="hljs-type">int</span> ovf);
    <span class="hljs-keyword">import</span> <span class="hljs-string">&quot;DPI-C&quot;</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">vtalu_golden_bug</span>(<span class="hljs-keyword">input</span> <span class="hljs-type">int</span> on);
@@ -1162,7 +1162,7 @@ puente es un archivo más en la línea de comandos.</p>
       rst_op = <span class="hljs-number">3&#x27;b111</span>
    } operation_t;
 
-   <span class="hljs-comment">// Los configs primero: el driver y los monitores los usan.</span>
+   <span class="hljs-comment">// Configs first: the driver and the monitors use them.</span>
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;env_config.svh&quot;</span>
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;vtalu_agent_config.svh&quot;</span>
 
@@ -1170,11 +1170,11 @@ puente es un archivo más en la línea de comandos.</p>
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;add_transaction.svh&quot;</span>
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;result_transaction.svh&quot;</span>
 
-   <span class="hljs-comment">// El sequencer no se extiende: se parametriza y se le pone nombre.</span>
-   <span class="hljs-comment">// Va DESPUES de command_transaction y ANTES del driver y del agent.</span>
+   <span class="hljs-comment">// The sequencer is not extended: it is parameterized and given a name.</span>
+   <span class="hljs-comment">// It goes AFTER command_transaction and BEFORE the driver and the agent.</span>
    <span class="hljs-keyword">typedef</span> <span class="hljs-uvm-type">uvm_sequencer</span> #(<span class="hljs-type">command_transaction</span>) sequencer;
 
-   <span class="hljs-comment">// Las sequences son uvm_object: van antes de los tests que las arrancan.</span>
+   <span class="hljs-comment">// Sequences are uvm_object: they go before the tests that start them.</span>
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;reset_sequence.svh&quot;</span>
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;random_sequence.svh&quot;</span>
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;maxmult_sequence.svh&quot;</span>
@@ -1311,13 +1311,13 @@ dato entra en un <code>int</code>, la firma se escribe sola; si no, se busca el 
 <section id="s396" class="slide">
 <h2 id="el-modelo-de-referencia-en-c">El modelo de referencia en C</h2>
 <h4 id="el-scoreboard-la-predicción-se-pide-no-se-escribe"><em>El scoreboard: la predicción se pide, no se escribe</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/dpi/tb_classes/scoreboard.svh</code> · líneas 14-32 de 58</figcaption><pre><code class="hljs">   <span class="hljs-comment">// La UNICA diferencia con el scoreboard de las sequences, y es la seccion</span>
-   <span class="hljs-comment">// entera: aca no hay un case con la aritmetica de la spec. La prediccion se</span>
-   <span class="hljs-comment">// le pide al modelo de referencia en C, que es el que la firmo.</span>
+<figure class="codigo"><figcaption><code>code/u8/dpi/tb_classes/scoreboard.svh</code> · líneas 14-32 de 58</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The ONLY difference with the sequences scoreboard, and it is the whole</span>
+   <span class="hljs-comment">// section: there is no case with the arithmetic of the spec here. The</span>
+   <span class="hljs-comment">// prediction is asked of the C reference model, the one that signed it.</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// Lo que no cambia: el monitor, el analysis port, la FIFO, el do_compare y</span>
-   <span class="hljs-comment">// el uvm_error. El golden model reemplaza SEIS LINEAS -- las de predecir --</span>
-   <span class="hljs-comment">// y ninguna otra pieza del testbench se entera.</span>
+   <span class="hljs-comment">// What does not change: the monitor, the analysis port, the FIFO, the</span>
+   <span class="hljs-comment">// do_compare and the uvm_error. The golden model replaces SIX LINES -- the</span>
+   <span class="hljs-comment">// ones that predict -- and no other piece of the testbench finds out.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">result_transaction </span><span class="hljs-title">predict_result</span>(command_transaction cmd);
       result_transaction predicted;
       <span class="hljs-type">int</span>                ovf;
@@ -1342,13 +1342,13 @@ dato entra en un <code>int</code>, la firma se escribe sola; si no, se busca el 
       cmd_f = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;cmd_f&quot;</span>, <span class="hljs-keyword">this</span>);
    <span class="hljs-keyword">endfunction</span> : build_phase
 
-   <span class="hljs-comment">// La UNICA diferencia con el scoreboard de las sequences, y es la seccion</span>
-   <span class="hljs-comment">// entera: aca no hay un case con la aritmetica de la spec. La prediccion se</span>
-   <span class="hljs-comment">// le pide al modelo de referencia en C, que es el que la firmo.</span>
+   <span class="hljs-comment">// The ONLY difference with the sequences scoreboard, and it is the whole</span>
+   <span class="hljs-comment">// section: there is no case with the arithmetic of the spec here. The</span>
+   <span class="hljs-comment">// prediction is asked of the C reference model, the one that signed it.</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// Lo que no cambia: el monitor, el analysis port, la FIFO, el do_compare y</span>
-   <span class="hljs-comment">// el uvm_error. El golden model reemplaza SEIS LINEAS -- las de predecir --</span>
-   <span class="hljs-comment">// y ninguna otra pieza del testbench se entera.</span>
+   <span class="hljs-comment">// What does not change: the monitor, the analysis port, the FIFO, the</span>
+   <span class="hljs-comment">// do_compare and the uvm_error. The golden model replaces SIX LINES -- the</span>
+   <span class="hljs-comment">// ones that predict -- and no other piece of the testbench finds out.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">result_transaction </span><span class="hljs-title">predict_result</span>(command_transaction cmd);
       result_transaction predicted;
       <span class="hljs-type">int</span>                ovf;

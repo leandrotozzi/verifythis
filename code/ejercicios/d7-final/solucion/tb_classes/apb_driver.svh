@@ -16,9 +16,9 @@ class apb_driver extends uvm_driver #(apb_transaction);
 
    task run_phase(uvm_phase phase);
       apb_transaction t;
-      // El reset va aca y no en una sequence: en este DUT se hace una sola vez,
-      // antes de todo. El dia que haga falta resetear en el medio de un test,
-      // pasa a ser un item mas -- como el rst_op de la VTALU.
+      // The reset goes here and not in a sequence: in this DUT it happens once,
+      // before everything. The day a reset is needed in the middle of a test,
+      // it becomes one more item -- like the VTALU's rst_op.
       bfm.reset();
       forever begin : loop
          seq_item_port.get_next_item(t);

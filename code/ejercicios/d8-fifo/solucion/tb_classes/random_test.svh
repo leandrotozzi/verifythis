@@ -10,7 +10,7 @@ class random_test extends base_test;
       random_sequence seq;
       seq = random_sequence::type_id::create("seq");
       phase.raise_objection(this);
-      if (!seq.randomize()) `uvm_fatal("TEST", "randomize() de la sequence fallo")
+      if (!seq.randomize()) `uvm_fatal("TEST", "the sequence randomize() failed")
       seq.start(sequencer_h);
       #100;
       phase.drop_objection(this);

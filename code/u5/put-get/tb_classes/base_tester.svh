@@ -1,13 +1,13 @@
-// En esta version no contiene un handle a la BFM
-// Como add_tester y random_tester son clases heredadas a esta
-// y no afectamos la conexion, esas clases tendran nuevas funcionalidades
-// gracias a modificar esta base class
+// This version does not hold a handle to the BFM
+// Since add_tester and random_tester inherit from this one
+// and the connection is untouched, those classes get new behaviour
+// just by changing this base class
 virtual class base_tester extends uvm_component;
 
    `uvm_component_utils(base_tester)
    virtual vtalu_bfm bfm;
 
-   // el handle a la BFM lo reemplazamos con uvm_put_port
+   // the handle to the BFM is replaced by a uvm_put_port
    uvm_put_port #(command_s) command_port;
 
    function void build_phase(uvm_phase phase);

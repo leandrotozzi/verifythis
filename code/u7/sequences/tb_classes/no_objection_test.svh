@@ -1,6 +1,6 @@
-// SOLO para la slide de la trampa: identico a default_seq_test menos la linea
-// set_automatic_phase_objection(1). Corre, no reporta un solo error, sale con
-// codigo 0 -- y termina en t=0 sin haber mandado un estimulo.
+// ONLY for the trap slide: identical to default_seq_test minus the line
+// set_automatic_phase_objection(1). It runs, does not report a single error, exits
+// with code 0 -- and ends at t=0 without having sent one stimulus.
 class no_objection_test extends base_test;
    `uvm_component_utils(no_objection_test)
 
@@ -14,7 +14,7 @@ class no_objection_test extends base_test;
 
       full_seq = full_sequence::type_id::create("full_seq");
       full_seq.count = 200;
-      // Falta a proposito: full_seq.set_automatic_phase_objection(1);
+      // Missing on purpose: full_seq.set_automatic_phase_objection(1);
       uvm_config_db#(uvm_sequence_base)::set(
           this, "env_h.clase_agent_h.sequencer_h.main_phase", "default_sequence",
           full_seq);

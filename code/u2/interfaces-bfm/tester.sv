@@ -1,5 +1,5 @@
-// El modulo Tester ahora es mas sencillo ya que no
-// tiene que ocuparse de signals de bajo nivel
+// The Tester module is simpler now, because it no
+// longer has to deal with low-level signals
 module tester (
     vtalu_bfm bfm
 );

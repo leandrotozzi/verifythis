@@ -11,8 +11,8 @@ class fernet_doble extends fernet;
       return {super.convert2string(), "\nMesa: ", mesa};
    endfunction : convert2string
 
-   // Polimorfismo: do_copy toma como argumento una clase derivada de trago
-   // por lo tanto, usamos la clase trago como argumento
+   // Polymorphism: do_copy takes a class derived from trago as its argument
+   // so the trago class is what gets used as the argument type
    function void do_copy(trago copia);
       fernet_doble copia_fernet_doble;
       super.do_copy(copia);
@@ -34,11 +34,11 @@ class fernet_con_hielo extends fernet_doble;
       return {super.convert2string(), "\n", $sformatf("medidas: %0d", medidas)};
    endfunction : convert2string
 
-   //do_copy pasa el argumento a su clase superior
+   //do_copy passes the argument up to its parent class
    function void do_copy(trago copia);
       fernet_con_hielo copia_fernet_con_hielo;
       super.do_copy(copia);
-      // Luego casteamos copia a una variable de su tipo de clase
+      // Then the copy gets cast to a variable of its own class type
       $cast(copia_fernet_con_hielo, copia);
       this.medidas = copia_fernet_con_hielo.medidas;
    endfunction : do_copy

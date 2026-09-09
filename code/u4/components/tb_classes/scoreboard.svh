@@ -1,5 +1,5 @@
-// El scoreboard de la unidad 10, ahora como uvm_component. Los cuatro pasos
-// --extender, registrar, constructor, fases-- estan en las slides de la 12.
+// The scoreboard of unit 10, now as a uvm_component. The four steps
+// --extend, register, constructor, phases-- are in the slides of unit 12.
 class scoreboard extends uvm_component;
    `uvm_component_utils(scoreboard);
 
@@ -9,16 +9,16 @@ class scoreboard extends uvm_component;
       super.new(name, parent);
    endfunction : new
 
-   // Autosuficiente: la BFM se la pide el componente al config_db. Antes se la
-   // pasaba el test por el constructor, y el test tenia que recibirla solo para
-   // repartirla.
+   // Self-sufficient: the component asks the config_db for the BFM. Before, the
+   // test passed it in through the constructor, and the test had to receive it
+   // only to hand it out.
    function void build_phase(uvm_phase phase);
       if (!uvm_config_db#(virtual vtalu_bfm)::get(this, "", "bfm", bfm))
          `uvm_fatal("SCOREBOARD", "Failed to get BFM")
    endfunction : build_phase
 
-   // run_phase es la unica fase que es task: la unica que consume tiempo. UVM
-   // la lanza en su propio thread.
+   // run_phase is the only phase that is a task: the only one that consumes
+   // time. UVM launches it in its own thread.
    task run_phase(uvm_phase phase);
       shortint predicted_result;
       bit      predicted_ovf;
@@ -32,8 +32,8 @@ class scoreboard extends uvm_component;
             mul_op: predicted_result = bfm.A * bfm.B;
          endcase  // case (op_set)
 
-         // El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de
-         // salida, ni la suma ni la multiplicacion se pasan.
+         // ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit
+         // output, neither the addition nor the multiplication can overflow.
          predicted_ovf = (bfm.op_set == sub_op) && (bfm.A < bfm.B);
 
          if ((bfm.op_set != no_op) && (bfm.op_set != rst_op))

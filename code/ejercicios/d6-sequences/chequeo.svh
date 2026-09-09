@@ -1,6 +1,6 @@
-// Este componente no es parte del curso: es el que corrige el ejercicio. Mira el
-// bus de clase_bfm y lleva su propia cuenta, para poder cruzarla contra la que
-// imprime tu sequence. No lo toques.
+// This component is not part of the course: it is the one that grades the
+// exercise. It watches the clase_bfm bus and keeps its own count, so it can cross it
+// against the one your sequence prints. Do not touch it.
 class chequeo extends uvm_component;
    `uvm_component_utils(chequeo)
 
@@ -18,9 +18,9 @@ class chequeo extends uvm_component;
          `uvm_fatal("CHEQUEO", "Failed to get clase_bfm")
    endfunction : build_phase
 
-   // Muestrea en el MISMO flanco en que el driver lee bfm.result: el de bajada
-   // en que done ya subio. Con el de subida se pierde la ultima operacion,
-   // porque el objection se baja apenas vuelve start().
+   // It samples on the SAME edge the driver reads bfm.result: the falling one
+   // where done already went up. With the rising one the last operation is lost,
+   // because the objection drops as soon as start() returns.
    task run_phase(uvm_phase phase);
       forever begin
          @(negedge bfm.clk);
@@ -32,7 +32,7 @@ class chequeo extends uvm_component;
                otras++;
                if (otras == 1)
                   `uvm_error("CHEQUEO", $sformatf(
-                             "paso un %s por el bus: la sequence tiene que mandar solo multiplicaciones",
+                             "a %s went through the bus: the sequence has to send multiplications only",
                              bfm.op_set.name()))
             end
          end

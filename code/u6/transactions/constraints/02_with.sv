@@ -1,7 +1,7 @@
-// Constrained Random 2 -- inside, y randomize() with {}.
+// Constrained Random 2 -- inside, and randomize() with {}.
 //
-// La constraint de la clase da el grueso del estimulo. El caso dirigido se pide
-// en el punto de uso, sin tocar la clase y sin escribir un tester nuevo.
+// The class constraint gives the bulk of the stimulus. The directed case is asked
+// for at the point of use, without touching the class and without a new tester.
 module top_with;
 
    typedef enum bit [2:0] {
@@ -24,8 +24,8 @@ module top_with;
          B dist {8'h00 :/ 1, [8'h01 : 8'hFE] :/ 2, 8'hFF :/ 1};
       }
 
-      // inside es un conjunto de valores legales. Sin esto el random tambien
-      // pide no_op y rst_op, que no calculan nada.
+      // inside is a set of legal values. Without it the random also asks for
+      // no_op and rst_op, which compute nothing.
       constraint utiles {op inside {add_op, and_op, xor_op, mul_op};}
    endclass
 
@@ -37,37 +37,37 @@ module top_with;
 
       c = new();
 
-      // El bin mul_max de la cobertura de la seccion Cobertura funcional: una multiplicacion con
-      // las dos patas en 0xFF. Es el desborde del multiplicador.
+      // The mul_max bin of the coverage in the Functional coverage section: a multiplication with
+      // both legs at 0xFF. It is the multiplier overflow.
       repeat (N) begin
-         if (!c.randomize()) $fatal(1, "randomize() fallo");
+         if (!c.randomize()) $fatal(1, "randomize() failed");
          if (c.op == mul_op && c.A == 8'hFF && c.B == 8'hFF) maximos = maximos + 1;
       end
-      $display("al azar:  %0d intentos, mul_max se lleno %0d vez/veces", N, maximos);
+      $display("random:   %0d tries, mul_max filled %0d time(s)", N, maximos);
 
-      // Lo mismo, pedido: with {} agrega constraints SOLO para esta llamada.
-      // El pedido es satisfacible, pero en 5.052 el dist se resuelve eligiendo
-      // un valor ANTES de chequear el with: si el sorteado no cumple, devuelve
-      // 0 en vez de reintentar. Con A y B en dist, que las dos caigan en 0xFF
-      // es 1/4 x 1/4. Las tasas medidas estan en
-      // code/verilator/repro-dist-with.sv; el detalle en docs/verilator.md.
+      // The same thing, asked for: with {} adds constraints ONLY for this call.
+      // The request is satisfiable, but in 5.052 the dist is solved by picking a
+      // value BEFORE checking the with: if the draw does not comply, it returns
+      // 0 instead of retrying. With A and B on dist, both landing on 0xFF is
+      // 1/4 x 1/4. The measured rates are in
+      // code/verilator/repro-dist-with.sv; the detail in docs/verilator.md.
       if (!c.randomize() with {
             op == mul_op;
             A  == 8'hFF;
             B  == 8'hFF;
           })
-         $display("con with: randomize() dio 0  <- limitacion de Verilator, no tuya");
+         $display("with with: randomize() gave 0  <- a Verilator limitation, not yours");
 
-      // El rodeo portable mientras tanto: apagar el reparto, que para un caso
-      // dirigido no tiene sentido de todos modos.
+      // The portable workaround meanwhile: turn off the split, which for a
+      // directed case makes no sense anyway.
       c.data.constraint_mode(0);
       if (!c.randomize() with {
             op == mul_op;
             A  == 8'hFF;
             B  == 8'hFF;
           })
-         $fatal(1, "randomize() with fallo hasta con la constraint apagada");
-      $display("con with: 1 intento,   A=%2h %s B=%2h", c.A, c.op.name(), c.B);
+         $fatal(1, "randomize() with failed even with the constraint turned off");
+      $display("with with: 1 try,      A=%2h %s B=%2h", c.A, c.op.name(), c.B);
       $finish;
    end
 

@@ -1,8 +1,8 @@
-// Memory Management: Crear un objeto y pasarlos por el TB, es reservar memoria
-//                    y compartirla entre threads
-//                    El Simulador trata distinto una clase respecto de una struct
-//                    El simulador reserva la memoria de la struct apenas la ve
-//                    mientras que en las clases, se debe hacer mediante new()
+// Memory Management: creating an object and passing it around the TB means
+//                    allocating memory and sharing it between threads
+//                    The simulator treats a class differently from a struct
+//                    It allocates the memory of a struct as soon as it sees it,
+//                    while for classes that has to be done with new()
 class rectangle;
    // Data members
    int length;
@@ -29,7 +29,7 @@ class square extends rectangle;
 endclass
 
 module top_class;
-   //Handle: similar a un puntero, pero no permite operaciones aritmeticas
+   //Handle: like a pointer, but arithmetic on it is not allowed
    rectangle rectangle_h;
    square    square_h;
 
@@ -41,8 +41,8 @@ module top_class;
       square_h = new(.side(50));
       $display("square area: %0d", square_h.area());
 
-      // Ya que un cuadrado es un caso particular de un rectangulo:
-      // rectangle_h puede apuntar a un square? Si, polimorfismo
+      // Since a square is a particular case of a rectangle:
+      // can rectangle_h point to a square? Yes, polymorphism
 
    end
 endmodule

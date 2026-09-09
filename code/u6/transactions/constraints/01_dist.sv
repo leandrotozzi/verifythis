@@ -1,18 +1,18 @@
-// Constrained Random 1 -- dist: ":=" y ":/" NO reparten igual.
+// Constrained Random 1 -- dist: ":=" and ":/" do NOT hand out the same way.
 //
-// El curso pide en su plan de verificacion "entradas todas en 0 y todas en 1".
-// Si el sesgo no existe, esos bins no se llenan y la cobertura se clava. Este
-// ejemplo mide el sesgo de las dos escrituras en vez de creerle a la intuicion.
+// The verification plan of the course asks for "inputs all 0s and all 1s".
+// Without the bias those bins never fill and the coverage stalls. This example
+// measures the bias of both spellings instead of trusting intuition.
 module top_dist;
 
-   // El peso va a CADA valor del rango: el medio se lleva 254 de 256.
+   // The weight goes to EVERY value of the range: the middle takes 254 of 256.
    class por_valor;
       rand byte unsigned A;
       constraint data {A dist {8'h00 := 1, [8'h01 : 8'hFE] := 1, 8'hFF := 1};}
    endclass
 
-   // El peso se REPARTE dentro del rango: 1/4 en 00, 1/2 en el medio, 1/4 en FF.
-   // Es el mismo sesgo que el get_data() de la seccion Cobertura funcional hacia a mano.
+   // The weight is SPLIT inside the range: 1/4 at 00, 1/2 in the middle, 1/4 at FF.
+   // It is the same bias get_data() of the Functional coverage section did by hand.
    class por_rango;
       rand byte unsigned A;
       constraint data {A dist {8'h00 :/ 1, [8'h01 : 8'hFE] :/ 2, 8'hFF :/ 1};}
@@ -29,19 +29,19 @@ module top_dist;
       r = new();
 
       repeat (N) begin
-         if (!v.randomize()) $fatal(1, "randomize() de por_valor fallo");
+         if (!v.randomize()) $fatal(1, "por_valor randomize() failed");
          if (v.A == 8'h00) v00 = v00 + 1;
          if (v.A == 8'hFF) vff = vff + 1;
 
-         if (!r.randomize()) $fatal(1, "randomize() de por_rango fallo");
+         if (!r.randomize()) $fatal(1, "por_rango randomize() failed");
          if (r.A == 8'h00) r00 = r00 + 1;
          if (r.A == 8'hFF) rff = rff + 1;
       end
 
-      $display("%0d randomizaciones de cada version", N);
-      $display("  :=   A=00 %5.1f%%   A=FF %5.1f%%   el peso va a cada valor",
+      $display("%0d randomizations of each version", N);
+      $display("  :=   A=00 %5.1f%%   A=FF %5.1f%%   the weight goes to each value",
                100.0 * v00 / N, 100.0 * vff / N);
-      $display("  :/   A=00 %5.1f%%   A=FF %5.1f%%   el peso se reparte",
+      $display("  :/   A=00 %5.1f%%   A=FF %5.1f%%   the weight gets split",
                100.0 * r00 / N, 100.0 * rff / N);
       $finish;
    end

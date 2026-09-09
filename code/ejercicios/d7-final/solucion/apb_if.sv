@@ -1,11 +1,11 @@
-// La interface del APB: los pines, el reloj, el protocolo y el enganche del
-// monitor. Es la unidad 3 aplicada a un bus de verdad -- todo lo que sabe COMO
-// se habla con el DUT vive aca, en un solo lugar.
+// The APB interface: the pins, the clock, the protocol and the monitor hook.
+// It is unit 3 applied to a real bus -- everything that knows HOW the DUT is
+// talked to lives here, in one place.
 interface apb_if;
    import apb_pkg::*;
 
-   // Lo que maneja el maestro es bit, no logic: arranca en 0 y no hay que
-   // inicializarlo desde ningun lado. Lo que maneja el esclavo es wire.
+   // What the master drives is bit, not logic: it starts at 0 and does not have
+   // to be initialized from anywhere. What the slave drives is wire.
    bit          PCLK;
    bit          PRESETn;
    bit          PSEL;
@@ -37,9 +37,9 @@ interface apb_if;
       PRESETn = 1'b1;
    endtask : reset
 
-   // Una transferencia entera: SETUP, ACCESS, y la espera por PREADY. El wait
-   // state de la lectura NO se cuenta en ciclos -- se espera al handshake, que
-   // es lo unico que la spec promete.
+   // A whole transfer: SETUP, ACCESS, and the wait for PREADY. The read's wait
+   // state is NOT counted in cycles -- it waits for the handshake, which is
+   // the only thing the spec promises.
    task automatic transfer(input bit wr, input bit [7:0] addr, input bit [31:0] wdata,
                            output bit [31:0] rdata, output bit slverr);
       @(negedge PCLK);          // SETUP
@@ -58,9 +58,9 @@ interface apb_if;
       PENABLE = 1'b0;
    endtask : transfer
 
-   // --- el monitor -----------------------------------------------------------
-   // Mira el bus y no lo maneja: por eso ve tambien las transferencias del
-   // modulo de siempre, que no llama a ninguna de las tasks de arriba.
+   // --- the monitor ----------------------------------------------------------
+   // It watches the bus and does not drive it: that is why it also sees the transfers of the
+   // usual module, which calls none of the tasks above.
    always @(posedge PCLK) begin : bus_monitor
       if (monitor_h != null && PSEL && PENABLE && PREADY)
          monitor_h.write_to_monitor(PWRITE, PADDR, PWDATA, PRDATA, PSLVERR);

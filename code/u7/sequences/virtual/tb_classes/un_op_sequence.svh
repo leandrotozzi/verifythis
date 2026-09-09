@@ -1,7 +1,7 @@
-// Una operacion dirigida, con los tres campos afuera y el resultado de vuelta.
-// Es el maxmult_sequence de la seccion, parametrizado: hace falta para el tercer
-// paso de la sequence virtual, donde el operando de una VTALU sale del
-// resultado de la otra.
+// One directed operation, with the three fields outside and the result coming
+// back. It is the section's maxmult_sequence, parameterized: it is needed for the
+// third step of the virtual sequence, where the operand of one VTALU comes from
+// the result of the other.
 class un_op_sequence extends uvm_sequence #(command_transaction);
    `uvm_object_utils(un_op_sequence)
 
@@ -21,8 +21,8 @@ class un_op_sequence extends uvm_sequence #(command_transaction);
       command.B  = B;
       command.op = op;
       finish_item(command);
-      // finish_item() vuelve despues del item_done() del driver, asi que el
-      // result ya esta escrito. Es el camino de vuelta de la unidad 23.
+      // finish_item() returns after the driver's item_done(), so result is
+      // already written. It is the way back of unit 23.
       result = command.result;
    endtask : body
 

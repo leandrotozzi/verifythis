@@ -32,7 +32,7 @@ evidente qué test hay que escribir — este.
 Pero no lo pidas asignando los campos: **pedilo con `randomize() with {}`**. El
 caso dirigido se pide en el punto de uso, y esa es la herramienta de las transactions. `run.sh` chequea que tu archivo llame a `randomize()`.
 
-Listo cuando `bash run.sh` imprime `EJERCICIO OK` — o sea, cuando la cobertura
+Listo cuando `bash run.sh` imprime `EXERCISE OK` — o sea, cuando la cobertura
 de la segunda corrida es **mayor** que la de la primera.
 
 ## Cómo se corre

@@ -1,5 +1,5 @@
-// Etapa 1: el agent pasivo mirando la FIFO del modulo de siempre. No hay
-// sequence: solo hay que VER.
+// Stage 1: the passive agent watching the usual module's FIFO. There is no
+// sequence: all there is to do is WATCH.
 class monitor_test extends base_test;
    `uvm_component_utils(monitor_test)
 
@@ -9,8 +9,8 @@ class monitor_test extends base_test;
 
    task run_phase(uvm_phase phase);
       phase.raise_objection(this);
-      // El estimulo no es nuestro y no avisa cuando termina: son doce ciclos
-      // de dos flancos cada uno, y esto son cincuenta.
+      // The stimulus is not ours and does not say when it ends: it is twelve cycles
+      // of two edges each, and this is fifty.
       #1200;
       phase.drop_objection(this);
    endtask : run_phase

@@ -20,9 +20,9 @@ class env extends uvm_env;
 
    endfunction : build_phase
 
-   // Para usar la jerarquia de UVM para controlar la verbosidad, debemos llamar a los
-   // metodos de reporte luego de que la jerarquia UVM ha sido construida, pero ANTES
-   // de que arranque la simulacion. Para eso usamos end_of_elaboration_phase
+   // To use the UVM hierarchy to control verbosity, the reporting methods have to
+   // be called after the UVM hierarchy has been built, but BEFORE the simulation
+   // starts. That is what end_of_elaboration_phase is for
    function void end_of_elaboration_phase(uvm_phase phase);
       //scoreboard_h.set_report_severity_action_hier(UVM_ERROR, UVM_NO_ACTION);
       scoreboard_h.set_report_verbosity_level_hier(UVM_HIGH);

@@ -1,12 +1,12 @@
-// El sequencer virtual: no tiene cola, no arbitra items, no habla con ningun
-// driver. Es un componente que existe para dos cosas:
+// The virtual sequencer: it has no queue, it arbitrates no items, it talks to no
+// driver. It is a component that exists for two things:
 //
-//   1. tener los HANDLES a los sequencers de verdad, en un lugar que la
-//      sequence pueda alcanzar sin buscar por string;
-//   2. ser un uvm_component, o sea vivir en el arbol y tener un nombre.
+//   1. to hold the HANDLES to the real sequencers, somewhere the sequence can
+//      reach without looking up by string;
+//   2. to be a uvm_component, that is, to live in the tree and have a name.
 //
-// Por eso extiende uvm_sequencer SIN parametrizar: el item por defecto es
-// uvm_sequence_item, y nunca se manda ninguno.
+// That is why it extends uvm_sequencer WITHOUT parameters: the default item is
+// uvm_sequence_item, and none is ever sent.
 class virtual_sequencer extends uvm_sequencer;
    `uvm_component_utils(virtual_sequencer)
 

@@ -1,7 +1,7 @@
 interface vtalu_bfm;
    import vtalu_pkg::*;
 
-   // Estos handles los asignamos en las build_phases de las clases
+   // These handles get assigned in the build_phases of the classes
    command_monitor        command_monitor_h;
    result_monitor         result_monitor_h;
 
@@ -15,9 +15,9 @@ interface vtalu_bfm;
    wire                   ovf;
    operation_t            op_set;
 
-   // Aca implementamos el primer monitor (comandos)
-   // Es una FSM muy simple. Si start esta arriba, chequeamos si es un nuevo comando
-   // Si lo es, lo enviamos al TB mediante commands_monitor.write_to_monitor()
+   // Here is the first monitor (commands)
+   // A very simple FSM. If start is up, check whether this is a new command
+   // If it is, send it to the TB with commands_monitor.write_to_monitor()
    always @(posedge clk) begin : cmd_monitor
       bit new_command;
       if (!start) new_command = 1;
@@ -45,10 +45,10 @@ interface vtalu_bfm;
    end
 
 
-   // --- el protocolo, en el BFM ---
-   // Todo lo que sabe COMO se habla con el DUT vive aca, en un solo lugar: el
-   // resto del testbench pide una operacion y no toca un cable. Es la idea de
-   // la unidad 3, y se sostiene hasta el final del curso.
+   // --- the protocol, in the BFM ---
+   // Everything that knows HOW the DUT is talked to lives here, in one place:
+   // the rest of the testbench asks for an operation and never touches a wire.
+   // That is the idea of unit 3, and it holds to the end of the course.
 
    task reset_alu();
       reset_n = 1'b0;

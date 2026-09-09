@@ -6,9 +6,9 @@ class tester;
       bfm = b;
    endfunction : new
 
-   // TODO(ejercicio 2): aca falta una palabra. Sin ella, execute() llama
-   // siempre a ESTA get_op(), aunque el objeto sea de una clase heredada.
-   // Seccion Polimorfismo.
+   // TODO(exercise 2): one word is missing here. Without it, execute() always
+   // calls THIS get_op(), even when the object is of a derived class.
+   // Polymorphism section.
    protected function operation_t get_op();
       bit [2:0] op_choice;
       op_choice = $random;
@@ -32,7 +32,7 @@ class tester;
       else return $random;
    endfunction : get_data
 
-   // Reemplazamos el initial block por una task execute()
+   // The initial block is replaced by an execute() task
    task execute();
       byte unsigned     iA;
       byte unsigned     iB;

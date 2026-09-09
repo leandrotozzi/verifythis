@@ -1,4 +1,4 @@
-// Repro minimo: Verilator 5.052 no implementa los bins de transicion.
+// Minimal repro: Verilator 5.052 does not implement transition bins.
 //
 //   $ verilator --binary --timing --coverage -DT1 repro-cg-transition.sv
 //
@@ -7,16 +7,16 @@
 // T3  ([3'b001:3'b100] => 3'b111) %Error: Internal Error: Null item passed to setOp1p
 // T4  ([add_op:mul_op] [* 2])     %Error: Transition set without items
 //
-// Sin ningun -D compila y corre: los bins de valor se miden y verilator_coverage
-// reporta la linea "covergroup".
+// With no -D at all it compiles and runs: the value bins get measured and
+// verilator_coverage reports the "covergroup" line.
 //
-// Lo que 5.052 todavia no hace:
-//   - bins de transicion (arriba)
-//   - binsof / intersect / bins explicitos en un cross: %Warning-COVERIGN, los
-//     ignora y sigue
-//   - get_coverage() type-wide: devuelve siempre 0, hay que usar
-//     get_inst_coverage()
-//   - $stop se come el coverage.dat: hay que terminar con $finish
+// What 5.052 still does not do:
+//   - transition bins (above)
+//   - binsof / intersect / explicit bins in a cross: %Warning-COVERIGN, it
+//     ignores them and carries on
+//   - type-wide get_coverage(): always returns 0, get_inst_coverage() has to
+//     be used instead
+//   - $stop eats coverage.dat: the run has to end with $finish
 module top;
   typedef enum bit [2:0] {
     no_op = 3'b000, add_op = 3'b001, sub_op = 3'b010, and_op = 3'b011,
@@ -51,7 +51,7 @@ module top;
       c.sample();
       #1;
     end
-    // type-wide da 0.00, la de instancia da el numero real
+    // type-wide gives 0.00, the instance one gives the real number
     $display("type=%0.2f inst=%0.2f", cg::get_coverage(), c.get_inst_coverage());
     $finish;
   end

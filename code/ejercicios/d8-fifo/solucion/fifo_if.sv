@@ -1,9 +1,9 @@
-// La interface de la FIFO: los pines, el reloj, el protocolo y el enganche del
-// monitor. Todo lo que sabe COMO se habla con el DUT vive aca.
+// The FIFO interface: the pins, the clock, the protocol and the monitor
+// hook. Everything that knows HOW the DUT is talked to lives here.
 interface fifo_if;
    import fifo_pkg::*;
 
-   // Lo que maneja el testbench es bit; lo que maneja el DUT es wire.
+   // What the testbench drives is bit; what the DUT drives is wire.
    bit         clk;
    bit         rst_n;
    bit         wr_en;
@@ -34,9 +34,9 @@ interface fifo_if;
       rst_n = 1'b1;
    endtask : reset
 
-   // Un ciclo: se levantan las senales en el flanco de bajada y el DUT las toma
-   // en el de subida. No hay handshake que esperar -- la FIFO atiende siempre,
-   // y si no puede, descarta. Esa es la mitad de la spec.
+   // One cycle: the signals go up on the falling edge and the DUT takes them
+   // on the rising one. There is no handshake to wait for -- the FIFO always serves,
+   // and when it cannot, it discards. That is half the spec.
    task automatic ciclo(input bit wr, input bit [7:0] dato, input bit rd);
       @(negedge clk);
       wr_en   = wr;
@@ -47,15 +47,15 @@ interface fifo_if;
       rd_en = 1'b0;
    endtask : ciclo
 
-   // --- el monitor -----------------------------------------------------------
-   // Mira y no maneja, asi que ve tambien los ciclos del modulo de siempre.
+   // --- the monitor ----------------------------------------------------------
+   // It watches and does not drive, so it also sees the cycles of the usual module.
    //
-   // Las dos publicaciones salen del mismo flanco y no son lo mismo:
-   //   - el CICLO: que se pidio, y con que banderas. Las banderas se leen aca,
-   //     antes de que el flanco las cambie -- describen el estado en el que la
-   //     FIFO atiende este ciclo.
-   //   - el DATO: rd_data esta REGISTRADO, asi que lo que se lee ahora es la
-   //     respuesta a la lectura del ciclo ANTERIOR. Por eso hace falta saco_prev.
+   // The two publications come from the same edge and are not the same thing:
+   //   - the CYCLE: what was asked for, and with which flags. The flags are read here,
+   //     before the edge changes them -- they describe the state in which the
+   //     FIFO serves this cycle.
+   //   - the DATUM: rd_data is REGISTERED, so what is read now is the
+   //     answer to the read of the PREVIOUS cycle. That is why saco_prev is needed.
    bit saco_prev;
    always @(posedge clk) begin : fifo_bus_monitor
       if (monitor_h != null && rst_n) begin

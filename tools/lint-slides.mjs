@@ -1,4 +1,4 @@
-// Lint de slides/*.md: que ninguna slide de concepto quede muda.
+// Lint de slides/<idioma>/*.md: que ninguna slide de concepto quede muda.
 //
 // Cuatro reglas. Las dos primeras son sobre la misma idea -- una slide con
 // codigo y sin una linea de texto es una slide que solo se entiende si el
@@ -9,18 +9,19 @@
 //
 //   1. ERROR  slide con {{code:}} y sin ningun bullet ni Note:
 //   2. AVISO  {{code:}} sin lines= de mas de MAX_LINEAS lineas
-//   3. ERROR  un "### " en slides/ -- la convencion es "## titulo" + "#### *sub*",
+//   3. ERROR  un "### " en una slide -- la convencion es "## titulo" + "#### *sub*",
 //             y un h3 se dibuja mas grande que un h4 (unica excepcion: la portada)
 //   4. AVISO  un "#### " sin italica -- el subtitulo del curso va en italica ambar
 //
 // Los archivos de quiz, agenda y ejercicio estan exentos de la regla 1: ahi el
 // texto es la pregunta, y el codigo es el enunciado.
 //
+// Corre sobre los DOS arboles: una slide muda en ingles es igual de muda.
+//
 // Uso: node tools/lint-slides.mjs [--avisos-fallan]
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
-
-const SLIDES_DIR = 'slides';
+import { IDIOMAS, SALIDAS } from './i18n.mjs';
 const MAX_LINEAS = 35;
 const EXENTOS = /quiz|agenda|ejercicio/;
 // La portada es la unica slide con un h1: ahi el subtitulo va en h3 a proposito.
@@ -30,7 +31,13 @@ const RE_CODE = /\{\{code:([^}|]+?)(?:\|lines=(\d+)-(\d+))?\}\}/g;
 const errores = [], avisos = [];
 const sinNota = new Map();
 
-for (const f of (await readdir(SLIDES_DIR)).filter(f => f.endsWith('.md')).sort()) {
+const ARBOLES = [];
+for (const l of IDIOMAS) {
+  const dir = SALIDAS[l].slides;
+  const fs = await readdir(dir).catch(() => []);
+  for (const f of fs.filter(f => f.endsWith('.md')).sort()) ARBOLES.push([dir, f]);
+}
+for (const [SLIDES_DIR, f] of ARBOLES) {
   const md = await readFile(path.join(SLIDES_DIR, f), 'utf8');
   const exento = EXENTOS.test(f);
 

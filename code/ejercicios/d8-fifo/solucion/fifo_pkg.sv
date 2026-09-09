@@ -2,9 +2,9 @@ package fifo_pkg;
    import uvm_pkg::*;
    `include "uvm_macros.svh"
 
-   // Los tres numeros de la spec, escritos una sola vez. El scoreboard y la
-   // cobertura los leen de aca: un modelo que hardcodea el 8 se rompe callado
-   // el dia que la FIFO cambia de tamano.
+   // The three numbers of the spec, written once. The scoreboard and the
+   // coverage read them from here: a model that hardcodes the 8 breaks quietly
+   // the day the FIFO changes size.
    localparam int DEPTH = 8;
    localparam int AF    = 6;  // almost_full con 6 o mas
    localparam int AE    = 2;  // almost_empty con 2 o menos

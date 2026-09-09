@@ -1,8 +1,8 @@
-// El dual_test de la unidad 22, sin el run_phase: la estructura es identica y
-// lo unico que cambia entre un test y otro es el ESTIMULO.
+// The dual_test of unit 22, without the run_phase: the structure is identical and
+// the only thing that changes between one test and the next is the STIMULUS.
 //
-// Abstracta: nadie corre +UVM_TESTNAME=base_test. uvm_component_abstract_utils
-// la registra en la factory sin generar el create() que no se podria llamar.
+// Abstract: nobody runs +UVM_TESTNAME=base_test. uvm_component_abstract_utils
+// registers it in the factory without generating the create() that could not be called.
 virtual class base_test extends uvm_test;
    `uvm_component_abstract_utils(base_test)
 
@@ -28,15 +28,15 @@ virtual class base_test extends uvm_test;
       env_h = env::type_id::create("env_h", this);
    endfunction : build_phase
 
-   // El sequencer recien existe cuando el arbol termino de construirse. Y si,
-   // esta linea atraviesa la jerarquia: es lo que el default_sequence evita.
+   // The sequencer only exists once the tree finished building. And yes, this
+   // line reaches across the hierarchy: that is what default_sequence avoids.
    function void end_of_elaboration_phase(uvm_phase phase);
       sequencer_h = env_h.clase_agent_h.sequencer_h;
       if ($test$plusargs("TOPOLOGY")) uvm_root::get().print_topology();
-      // La otra direccion del puente: SystemVerilog le cambia el estado al
-      // modelo de C. Con +GOLDEN_BUG el modelo trunca la multiplicacion a 8
-      // bits, y el scoreboard tiene que gritar -- es la prueba de que el
-      // camino de DPI esta enchufado de verdad.
+      // The other direction of the bridge: SystemVerilog changes the state of
+      // the C model. With +GOLDEN_BUG the model truncates the multiplication to
+      // 8 bits, and the scoreboard has to scream -- that is the proof the DPI
+      // path is really plugged in.
       if ($test$plusargs("GOLDEN_BUG")) vtalu_golden_bug(1);
    endfunction : end_of_elaboration_phase
 

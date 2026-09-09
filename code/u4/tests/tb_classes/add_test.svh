@@ -7,8 +7,8 @@ class add_test extends uvm_test;
       super.new(name, parent);
    endfunction : new
 
-   // Mismo build_phase que random_test: la virtual interface se lee del
-   // config_db, con this y "" como ambito. Ver random_test.svh.
+   // Same build_phase as random_test: the virtual interface is read from the
+   // config_db, with this and "" as the scope. See random_test.svh.
    function void build_phase(uvm_phase phase);
       if (!uvm_config_db#(virtual vtalu_bfm)::get(this, "", "bfm", bfm))
          `uvm_fatal("ADD TEST", "Failed to get BFM")

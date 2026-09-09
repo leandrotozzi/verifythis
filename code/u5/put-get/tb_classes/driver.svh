@@ -15,7 +15,7 @@ class driver extends uvm_component;
       command_s command;
 
       forever begin : command_loop
-         // Bloqueante, si no hay comandos para enviar, espera
+         // Blocking: if there are no commands to send, it waits
          command_port.get(command);
          bfm.send_op(command.A, command.B, command.op);
       end : command_loop

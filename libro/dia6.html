@@ -173,7 +173,7 @@ la simulación se queda sin avanzar sin un solo mensaje de error</li>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       vtalu_agent_config cfg;
-      <span class="hljs-comment">// La BFM no se pide suelta: se pide el config del agent, y de ahi sale.</span>
+      <span class="hljs-comment">// The BFM is not asked for on its own: ask for the agent config, and it comes from there.</span>
       <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-type">vtalu_agent_config</span>)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;config&quot;</span>, cfg))
          <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;DRIVER&quot;</span>, <span class="hljs-string">&quot;Failed to get agent config&quot;</span>)
       bfm = cfg.bfm;
@@ -228,7 +228,7 @@ toca</li>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       vtalu_agent_config cfg;
-      <span class="hljs-comment">// La BFM no se pide suelta: se pide el config del agent, y de ahi sale.</span>
+      <span class="hljs-comment">// The BFM is not asked for on its own: ask for the agent config, and it comes from there.</span>
       <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-type">vtalu_agent_config</span>)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;config&quot;</span>, cfg))
          <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;DRIVER&quot;</span>, <span class="hljs-string">&quot;Failed to get agent config&quot;</span>)
       bfm = cfg.bfm;
@@ -314,8 +314,8 @@ eso — las sequences son sobre lo que se puede hacer acá adentro</li>
    <span class="hljs-keyword">task</span> <span class="hljs-title">body</span>();
       command_transaction command;
 
-      <span class="hljs-comment">// Todas las transactions salen de la factory, tambien las dirigidas:</span>
-      <span class="hljs-comment">// un new() se saltearia el set_type_override de add_test.</span>
+      <span class="hljs-comment">// All transactions come out of the factory, the directed ones too:</span>
+      <span class="hljs-comment">// a new() would skip add_test&#x27;s set_type_override.</span>
       command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
       start_item(command);
       command.op = rst_op;
@@ -324,28 +324,28 @@ eso — las sequences son sobre lo que se puede hacer acá adentro</li>
       <span class="hljs-keyword">repeat</span> (<span class="hljs-number">1000</span>) <span class="hljs-keyword">begin</span> : random_loop
          command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
          start_item(command);
-         <span class="hljs-comment">// El randomize() va ENTRE start_item y finish_item: asi las</span>
-         <span class="hljs-comment">// constraints se resuelven cuando el item se va a entregar, y no</span>
-         <span class="hljs-comment">// antes. Hoy da igual; el dia que una constraint dependa del estado</span>
-         <span class="hljs-comment">// del DUT, no.</span>
-         <span class="hljs-keyword">if</span> (!command.<span class="hljs-keyword">randomize</span>()) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND SEQ&quot;</span>, <span class="hljs-string">&quot;randomize() fallo&quot;</span>)
+         <span class="hljs-comment">// The randomize() goes BETWEEN start_item and finish_item: that way the</span>
+         <span class="hljs-comment">// constraints are solved when the item is about to be handed over, and</span>
+         <span class="hljs-comment">// not before. Today it makes no difference; the day a constraint</span>
+         <span class="hljs-comment">// depends on the DUT state, it will.</span>
+         <span class="hljs-keyword">if</span> (!command.<span class="hljs-keyword">randomize</span>()) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND SEQ&quot;</span>, <span class="hljs-string">&quot;randomize() failed&quot;</span>)
          finish_item(command);
       <span class="hljs-keyword">end</span> : random_loop
 
-      <span class="hljs-comment">// Dirigida: el desborde del multiplicador, que 1000 operaciones al azar</span>
-      <span class="hljs-comment">// podrian no tocar nunca. Sale de la factory igual que las otras, pero</span>
-      <span class="hljs-comment">// como no se randomiza, la constraint de add_transaction no corre.</span>
+      <span class="hljs-comment">// Directed: the multiplier overflow, which 1000 random operations might</span>
+      <span class="hljs-comment">// never touch. It comes out of the factory like the others, but since it</span>
+      <span class="hljs-comment">// is not randomized, add_transaction&#x27;s constraint does not run.</span>
       command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
       start_item(command);
       command.op = mul_op;
       command.A  = <span class="hljs-number">8&#x27;hFF</span>;
       command.B  = <span class="hljs-number">8&#x27;hFF</span>;
       finish_item(command);
-   <span class="hljs-keyword">endtask</span> : body</code></pre><details><summary>el archivo entero, 45 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// El run_phase del tester de u6/transactions, convertido en el body() de una sequence.</span>
-<span class="hljs-comment">// Mismo estimulo, misma cantidad, mismos casos dirigidos.</span>
+   <span class="hljs-keyword">endtask</span> : body</code></pre><details><summary>el archivo entero, 45 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The run_phase of the u6/transactions tester, turned into the body() of a sequence.</span>
+<span class="hljs-comment">// Same stimulus, same count, same directed cases.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// Lo que cambio: ya no es un uvm_component, no esta en el arbol, no se conecta</span>
-<span class="hljs-comment">// a nada y no levanta el objection -- eso lo hace el test que la arranca.</span>
+<span class="hljs-comment">// What changed: it is no longer a uvm_component, it is not in the tree, it</span>
+<span class="hljs-comment">// connects to nothing and it does not raise the objection -- the test that starts it does.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">command_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span> #(<span class="hljs-type">command_transaction</span>);
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(command_sequence)
 
@@ -356,8 +356,8 @@ eso — las sequences son sobre lo que se puede hacer acá adentro</li>
    <span class="hljs-keyword">task</span> <span class="hljs-title">body</span>();
       command_transaction command;
 
-      <span class="hljs-comment">// Todas las transactions salen de la factory, tambien las dirigidas:</span>
-      <span class="hljs-comment">// un new() se saltearia el set_type_override de add_test.</span>
+      <span class="hljs-comment">// All transactions come out of the factory, the directed ones too:</span>
+      <span class="hljs-comment">// a new() would skip add_test&#x27;s set_type_override.</span>
       command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
       start_item(command);
       command.op = rst_op;
@@ -366,17 +366,17 @@ eso — las sequences son sobre lo que se puede hacer acá adentro</li>
       <span class="hljs-keyword">repeat</span> (<span class="hljs-number">1000</span>) <span class="hljs-keyword">begin</span> : random_loop
          command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
          start_item(command);
-         <span class="hljs-comment">// El randomize() va ENTRE start_item y finish_item: asi las</span>
-         <span class="hljs-comment">// constraints se resuelven cuando el item se va a entregar, y no</span>
-         <span class="hljs-comment">// antes. Hoy da igual; el dia que una constraint dependa del estado</span>
-         <span class="hljs-comment">// del DUT, no.</span>
-         <span class="hljs-keyword">if</span> (!command.<span class="hljs-keyword">randomize</span>()) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND SEQ&quot;</span>, <span class="hljs-string">&quot;randomize() fallo&quot;</span>)
+         <span class="hljs-comment">// The randomize() goes BETWEEN start_item and finish_item: that way the</span>
+         <span class="hljs-comment">// constraints are solved when the item is about to be handed over, and</span>
+         <span class="hljs-comment">// not before. Today it makes no difference; the day a constraint</span>
+         <span class="hljs-comment">// depends on the DUT state, it will.</span>
+         <span class="hljs-keyword">if</span> (!command.<span class="hljs-keyword">randomize</span>()) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND SEQ&quot;</span>, <span class="hljs-string">&quot;randomize() failed&quot;</span>)
          finish_item(command);
       <span class="hljs-keyword">end</span> : random_loop
 
-      <span class="hljs-comment">// Dirigida: el desborde del multiplicador, que 1000 operaciones al azar</span>
-      <span class="hljs-comment">// podrian no tocar nunca. Sale de la factory igual que las otras, pero</span>
-      <span class="hljs-comment">// como no se randomiza, la constraint de add_transaction no corre.</span>
+      <span class="hljs-comment">// Directed: the multiplier overflow, which 1000 random operations might</span>
+      <span class="hljs-comment">// never touch. It comes out of the factory like the others, but since it</span>
+      <span class="hljs-comment">// is not randomized, add_transaction&#x27;s constraint does not run.</span>
       command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
       start_item(command);
       command.op = mul_op;
@@ -491,15 +491,15 @@ garantía del constructor se pierde</li>
 <li>El campo <code>is_active</code> va <code>protected</code> con un getter: nadie lo cambia después de
 que el agent se construyó</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u7/agents/tb_classes/vtalu_agent_config.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// El config del agent NO es un uvm_object: es una clase pelada. Por eso el</span>
-<span class="hljs-comment">// constructor puede EXIGIR los dos datos, y quien se olvide de uno no compila.</span>
-<span class="hljs-comment">// Un uvm_object se crea con type_id::create(), que solo toma un nombre, y esa</span>
-<span class="hljs-comment">// garantia se pierde.</span>
+<figure class="codigo"><figcaption><code>code/u7/agents/tb_classes/vtalu_agent_config.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// The agent config is NOT a uvm_object: it is a plain class. That is why the</span>
+<span class="hljs-comment">// constructor can DEMAND both values, and whoever forgets one does not compile.</span>
+<span class="hljs-comment">// A uvm_object is built with type_id::create(), which only takes a name, and</span>
+<span class="hljs-comment">// that guarantee is lost.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">vtalu_agent_config</span>;
 
    <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
 
-   <span class="hljs-comment">// protected + getter: nadie lo cambia despues de que el agent se construyo.</span>
+   <span class="hljs-comment">// protected + getter: nobody changes it after the agent was built.</span>
    <span class="hljs-keyword">protected</span> <span class="hljs-uvm-type">uvm_active_passive_enum</span> is_active;
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-keyword">virtual</span> vtalu_bfm bfm, <span class="hljs-uvm-type">uvm_active_passive_enum</span> is_active);
@@ -699,8 +699,8 @@ subscribers, y no se enteran de nada</li>
       agent_h.command_ap.connect(scoreboard_h.cmd_f.analysis_export);
       agent_h.command_ap.connect(coverage_h.analysis_export);
       agent_h.result_ap.connect(scoreboard_h.analysis_export);
-   <span class="hljs-keyword">endfunction</span> : connect_phase</code></pre><details><summary>el archivo entero, 36 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// ILUSTRACION -- no se compila. El env de UNA sola VTALU, para comparar contra</span>
-<span class="hljs-comment">// el env.svh de la seccion Transactions.</span>
+   <span class="hljs-keyword">endfunction</span> : connect_phase</code></pre><details><summary>el archivo entero, 36 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// ILLUSTRATION -- not compiled. The env of a SINGLE VTALU, to compare against</span>
+<span class="hljs-comment">// the env.svh of the Transactions section.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">env</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_env</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(env)
 
@@ -836,7 +836,7 @@ estímulos cubre más</li>
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;vtalu_macros.svh&quot;</span>
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;uvm_macros.svh&quot;</span>
 
-   <span class="hljs-comment">// La VTALU que maneja el testbench de clases</span>
+   <span class="hljs-comment">// The VTALU driven by the class testbench</span>
    vtalu_bfm clase_bfm ();
    vtalu clase_dut (
        .A(clase_bfm.A), .B(clase_bfm.B), .op(clase_bfm.op_set),
@@ -845,7 +845,7 @@ estímulos cubre más</li>
        .ovf(clase_bfm.ovf), .result(clase_bfm.result)
    );
 
-   <span class="hljs-comment">// La VTALU que maneja el modulo heredado</span>
+   <span class="hljs-comment">// The VTALU driven by the legacy module</span>
    vtalu_bfm modulo_bfm ();
    vtalu modulo_dut (
        .A(modulo_bfm.A), .B(modulo_bfm.B), .op(modulo_bfm.op_set),
@@ -857,8 +857,8 @@ estímulos cubre más</li>
    vtalu_tester_module stim_module (modulo_bfm);
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
-      <span class="hljs-comment">// El top no sabe nada de agents: deja las dos interfaces con nombre y</span>
-      <span class="hljs-comment">// se va. Quien las reparte es el test.</span>
+      <span class="hljs-comment">// The top knows nothing about agents: it leaves the two interfaces with a</span>
+      <span class="hljs-comment">// name and walks away. Handing them out is the test&#x27;s job.</span>
       <span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::set(<span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;*&quot;</span>, <span class="hljs-string">&quot;clase_bfm&quot;</span>, clase_bfm);
       <span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::set(<span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;*&quot;</span>, <span class="hljs-string">&quot;modulo_bfm&quot;</span>, modulo_bfm);
       run_test();
@@ -870,7 +870,7 @@ estímulos cubre más</li>
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;vtalu_macros.svh&quot;</span>
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;uvm_macros.svh&quot;</span>
 
-   <span class="hljs-comment">// La VTALU que maneja el testbench de clases</span>
+   <span class="hljs-comment">// The VTALU driven by the class testbench</span>
    vtalu_bfm clase_bfm ();
    vtalu clase_dut (
        .A(clase_bfm.A), .B(clase_bfm.B), .op(clase_bfm.op_set),
@@ -879,7 +879,7 @@ estímulos cubre más</li>
        .ovf(clase_bfm.ovf), .result(clase_bfm.result)
    );
 
-   <span class="hljs-comment">// La VTALU que maneja el modulo heredado</span>
+   <span class="hljs-comment">// The VTALU driven by the legacy module</span>
    vtalu_bfm modulo_bfm ();
    vtalu modulo_dut (
        .A(modulo_bfm.A), .B(modulo_bfm.B), .op(modulo_bfm.op_set),
@@ -891,8 +891,8 @@ estímulos cubre más</li>
    vtalu_tester_module stim_module (modulo_bfm);
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
-      <span class="hljs-comment">// El top no sabe nada de agents: deja las dos interfaces con nombre y</span>
-      <span class="hljs-comment">// se va. Quien las reparte es el test.</span>
+      <span class="hljs-comment">// The top knows nothing about agents: it leaves the two interfaces with a</span>
+      <span class="hljs-comment">// name and walks away. Handing them out is the test&#x27;s job.</span>
       <span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::set(<span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;*&quot;</span>, <span class="hljs-string">&quot;clase_bfm&quot;</span>, clase_bfm);
       <span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::set(<span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;*&quot;</span>, <span class="hljs-string">&quot;modulo_bfm&quot;</span>, modulo_bfm);
       run_test();
@@ -946,7 +946,7 @@ para llegar al sequencer, y con eso vuelve a conocer el interior del env</li>
       <span class="hljs-keyword">virtual</span> vtalu_bfm clase_bfm, modulo_bfm;
       env_config env_config_h;
 
-      <span class="hljs-comment">// El top dejo las dos interfaces sueltas; el test las empaqueta.</span>
+      <span class="hljs-comment">// The top left the two interfaces loose; the test packs them up.</span>
       <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;clase_bfm&quot;</span>, clase_bfm))
          <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;DUAL TEST&quot;</span>, <span class="hljs-string">&quot;Failed to get clase_bfm&quot;</span>)
       <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;modulo_bfm&quot;</span>, modulo_bfm))
@@ -958,8 +958,8 @@ para llegar al sequencer, y con eso vuelve a conocer el interior del env</li>
       env_h = env::type_id::create(<span class="hljs-string">&quot;env_h&quot;</span>, <span class="hljs-keyword">this</span>);
    <span class="hljs-keyword">endfunction</span> : build_phase
 
-   <span class="hljs-comment">// +TOPOLOGY imprime el arbol de componentes. Es la forma de VER que el</span>
-   <span class="hljs-comment">// agent pasivo no construyo ni sequencer ni driver.</span>
+   <span class="hljs-comment">// +TOPOLOGY prints the component tree. It is how to SEE that the passive</span>
+   <span class="hljs-comment">// agent built neither a sequencer nor a driver.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">end_of_elaboration_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-keyword">if</span> (<span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;TOPOLOGY&quot;</span>)) <span class="hljs-uvm-type">uvm_root</span>::get().print_topology();
    <span class="hljs-keyword">endfunction</span> : end_of_elaboration_phase
@@ -969,8 +969,8 @@ para llegar al sequencer, y con eso vuelve a conocer el interior del env</li>
 
       phase.raise_objection(<span class="hljs-keyword">this</span>);
 
-      <span class="hljs-comment">// Lo unico que quedo cableado: el test atraviesa la jerarquia para</span>
-      <span class="hljs-comment">// llegar al sequencer. La unidad 23 lo saca de aca.</span>
+      <span class="hljs-comment">// The only thing left wired by hand: the test reaches across the</span>
+      <span class="hljs-comment">// hierarchy to get to the sequencer. Unit 23 takes it out of here.</span>
       seq = command_sequence::type_id::create(<span class="hljs-string">&quot;seq&quot;</span>);
       seq.start(env_h.clase_agent_h.sequencer_h);
 
@@ -989,7 +989,7 @@ para llegar al sequencer, y con eso vuelve a conocer el interior del env</li>
       <span class="hljs-keyword">virtual</span> vtalu_bfm clase_bfm, modulo_bfm;
       env_config env_config_h;
 
-      <span class="hljs-comment">// El top dejo las dos interfaces sueltas; el test las empaqueta.</span>
+      <span class="hljs-comment">// The top left the two interfaces loose; the test packs them up.</span>
       <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;clase_bfm&quot;</span>, clase_bfm))
          <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;DUAL TEST&quot;</span>, <span class="hljs-string">&quot;Failed to get clase_bfm&quot;</span>)
       <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;modulo_bfm&quot;</span>, modulo_bfm))
@@ -1001,8 +1001,8 @@ para llegar al sequencer, y con eso vuelve a conocer el interior del env</li>
       env_h = env::type_id::create(<span class="hljs-string">&quot;env_h&quot;</span>, <span class="hljs-keyword">this</span>);
    <span class="hljs-keyword">endfunction</span> : build_phase
 
-   <span class="hljs-comment">// +TOPOLOGY imprime el arbol de componentes. Es la forma de VER que el</span>
-   <span class="hljs-comment">// agent pasivo no construyo ni sequencer ni driver.</span>
+   <span class="hljs-comment">// +TOPOLOGY prints the component tree. It is how to SEE that the passive</span>
+   <span class="hljs-comment">// agent built neither a sequencer nor a driver.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">end_of_elaboration_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-keyword">if</span> (<span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;TOPOLOGY&quot;</span>)) <span class="hljs-uvm-type">uvm_root</span>::get().print_topology();
    <span class="hljs-keyword">endfunction</span> : end_of_elaboration_phase
@@ -1012,8 +1012,8 @@ para llegar al sequencer, y con eso vuelve a conocer el interior del env</li>
 
       phase.raise_objection(<span class="hljs-keyword">this</span>);
 
-      <span class="hljs-comment">// Lo unico que quedo cableado: el test atraviesa la jerarquia para</span>
-      <span class="hljs-comment">// llegar al sequencer. La unidad 23 lo saca de aca.</span>
+      <span class="hljs-comment">// The only thing left wired by hand: the test reaches across the</span>
+      <span class="hljs-comment">// hierarchy to get to the sequencer. Unit 23 takes it out of here.</span>
       seq = command_sequence::type_id::create(<span class="hljs-string">&quot;seq&quot;</span>);
       seq.start(env_h.clase_agent_h.sequencer_h);
 
@@ -1549,21 +1549,21 @@ adelante, y con un componente no se podría: para cuando querés cambiarlo, el
 <section id="s298" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="la-sequence-más-chica-que-existe"><em>La sequence más chica que existe</em></h4>
-<figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/reset_sequence.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// La sequence mas chica que existe: un solo item.</span>
+<figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/reset_sequence.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// The smallest sequence there is: a single item.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// Es un uvm_object, no un uvm_component: no esta en el arbol, no tiene padre,</span>
-<span class="hljs-comment">// no tiene fases. Se crea, corre y se tira.</span>
+<span class="hljs-comment">// It is a uvm_object, not a uvm_component: it is not in the tree, it has no</span>
+<span class="hljs-comment">// parent, it has no phases. It gets created, it runs, and it gets thrown away.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">reset_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span> #(<span class="hljs-type">command_transaction</span>);
-   <span class="hljs-comment">// `uvm_object_utils, NO `uvm_component_utils: el constructor tiene un solo</span>
-   <span class="hljs-comment">// argumento y no hay parent que pasar.</span>
+   <span class="hljs-comment">// `uvm_object_utils, NOT `uvm_component_utils: the constructor takes a single</span>
+   <span class="hljs-comment">// argument and there is no parent to pass.</span>
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(reset_sequence)
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;reset_sequence&quot;</span>);
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-comment">// body() es una TASK, no una function: adentro se bloquea. Nadie la llama a</span>
-   <span class="hljs-comment">// mano; la llama UVM cuando alguien arranca la sequence.</span>
+   <span class="hljs-comment">// body() is a TASK, not a function: it blocks inside. Nobody calls it by</span>
+   <span class="hljs-comment">// hand; UVM calls it when somebody starts the sequence.</span>
    <span class="hljs-keyword">task</span> <span class="hljs-title">body</span>();
       command_transaction command;
       command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
@@ -1644,24 +1644,24 @@ necesita: entre operación y operación las señales se pueden quedar quietas.</
       command_transaction command;
 
       <span class="hljs-keyword">repeat</span> (count) <span class="hljs-keyword">begin</span> : random_loop
-         <span class="hljs-comment">// Por la factory, igual que en la seccion Transactions: es lo que hace que el</span>
-         <span class="hljs-comment">// add_test pueda cambiar el TIPO sin tocar una linea de esta sequence.</span>
+         <span class="hljs-comment">// Through the factory, same as in the Transactions section: that is what lets</span>
+         <span class="hljs-comment">// add_test change the TYPE without touching a line of this sequence.</span>
          command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
 
          start_item(command);
 
-         <span class="hljs-comment">// Randomizacion tardia: los valores se eligen DESPUES de tener el</span>
-         <span class="hljs-comment">// turno del sequencer, no cuando se creo el objeto.</span>
+         <span class="hljs-comment">// Late randomization: the values are picked AFTER getting the</span>
+         <span class="hljs-comment">// sequencer&#x27;s turn, not when the object was created.</span>
          <span class="hljs-keyword">if</span> (!command.<span class="hljs-keyword">randomize</span>())
-            <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM SEQUENCE&quot;</span>, <span class="hljs-string">&quot;randomize() fallo&quot;</span>)
+            <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM SEQUENCE&quot;</span>, <span class="hljs-string">&quot;randomize() failed&quot;</span>)
 
          finish_item(command);
       <span class="hljs-keyword">end</span> : random_loop
    <span class="hljs-keyword">endtask</span> : body</code></pre><details><summary>el archivo entero, 31 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">random_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span> #(<span class="hljs-type">command_transaction</span>);
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(random_sequence)
 
-   <span class="hljs-comment">// El largo es un campo, no una clase nueva. Como la sequence es un objeto y</span>
-   <span class="hljs-comment">// no un componente, el que la arranca puede cambiarlo antes de start().</span>
+   <span class="hljs-comment">// The length is a field, not a new class. Since the sequence is an object and</span>
+   <span class="hljs-comment">// not a component, whoever starts it can change it before start().</span>
    <span class="hljs-type">int</span> <span class="hljs-type">unsigned</span> count = <span class="hljs-number">1000</span>;
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;random_sequence&quot;</span>);
@@ -1672,16 +1672,16 @@ necesita: entre operación y operación las señales se pueden quedar quietas.</
       command_transaction command;
 
       <span class="hljs-keyword">repeat</span> (count) <span class="hljs-keyword">begin</span> : random_loop
-         <span class="hljs-comment">// Por la factory, igual que en la seccion Transactions: es lo que hace que el</span>
-         <span class="hljs-comment">// add_test pueda cambiar el TIPO sin tocar una linea de esta sequence.</span>
+         <span class="hljs-comment">// Through the factory, same as in the Transactions section: that is what lets</span>
+         <span class="hljs-comment">// add_test change the TYPE without touching a line of this sequence.</span>
          command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
 
          start_item(command);
 
-         <span class="hljs-comment">// Randomizacion tardia: los valores se eligen DESPUES de tener el</span>
-         <span class="hljs-comment">// turno del sequencer, no cuando se creo el objeto.</span>
+         <span class="hljs-comment">// Late randomization: the values are picked AFTER getting the</span>
+         <span class="hljs-comment">// sequencer&#x27;s turn, not when the object was created.</span>
          <span class="hljs-keyword">if</span> (!command.<span class="hljs-keyword">randomize</span>())
-            <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM SEQUENCE&quot;</span>, <span class="hljs-string">&quot;randomize() fallo&quot;</span>)
+            <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM SEQUENCE&quot;</span>, <span class="hljs-string">&quot;randomize() failed&quot;</span>)
 
          finish_item(command);
       <span class="hljs-keyword">end</span> : random_loop
@@ -1781,7 +1781,7 @@ de <code>finish_item()</code>: no hay que acordarse de volver a prenderla.</p>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       vtalu_agent_config cfg;
-      <span class="hljs-comment">// La BFM no se pide suelta: se pide el config del agent, y de ahi sale.</span>
+      <span class="hljs-comment">// The BFM is not asked for on its own: ask for the agent config, and it comes from there.</span>
       <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-type">vtalu_agent_config</span>)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;config&quot;</span>, cfg))
          <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;DRIVER&quot;</span>, <span class="hljs-string">&quot;Failed to get agent config&quot;</span>)
       bfm = cfg.bfm;
@@ -1842,8 +1842,8 @@ operación siguiente.</p>
       <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;FIBONACCI&quot;</span>, <span class="hljs-string">&quot;Fib(01) = 000&quot;</span>, <span class="hljs-uvm-const">UVM_MEDIUM</span>)
       <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;FIBONACCI&quot;</span>, <span class="hljs-string">&quot;Fib(02) = 001&quot;</span>, <span class="hljs-uvm-const">UVM_MEDIUM</span>)
 
-      <span class="hljs-comment">// Hasta 14 y no mas: Fib(14) = 233 y Fib(15) = 377, que no entra en los</span>
-      <span class="hljs-comment">// 8 bits de A y de B.</span>
+      <span class="hljs-comment">// Up to 14 and no further: Fib(14) = 233 and Fib(15) = 377, which does not</span>
+      <span class="hljs-comment">// fit in the 8 bits of A and B.</span>
       <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> ff = <span class="hljs-number">3</span>; ff &lt;= <span class="hljs-number">14</span>; ff++) <span class="hljs-keyword">begin</span> : fib_loop
          command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
          start_item(command);
@@ -1857,9 +1857,9 @@ operación siguiente.</p>
          <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;FIBONACCI&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;Fib(%02d) = %03d&quot;</span>, ff, n_menos_1),
                    <span class="hljs-uvm-const">UVM_MEDIUM</span>)
       <span class="hljs-keyword">end</span> : fib_loop
-   <span class="hljs-keyword">endtask</span> : body</code></pre><details><summary>el archivo entero, 41 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Fibonacci con el sumador del VTALU. Cada suma necesita el RESULTADO de la</span>
-<span class="hljs-comment">// anterior: es el caso que obliga a leer el item de vuelta, y que con el tester</span>
-<span class="hljs-comment">// de la seccion Transactions no se podia escribir sin darle un handle al monitor.</span>
+   <span class="hljs-keyword">endtask</span> : body</code></pre><details><summary>el archivo entero, 41 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Fibonacci with the VTALU adder. Every addition needs the RESULT of the previous</span>
+<span class="hljs-comment">// one: it is the case that forces reading the item back, and that with the tester</span>
+<span class="hljs-comment">// of the Transactions section could not be written without giving the monitor a handle.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">fibonacci_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span> #(<span class="hljs-type">command_transaction</span>);
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(fibonacci_sequence)
 
@@ -1880,8 +1880,8 @@ operación siguiente.</p>
       <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;FIBONACCI&quot;</span>, <span class="hljs-string">&quot;Fib(01) = 000&quot;</span>, <span class="hljs-uvm-const">UVM_MEDIUM</span>)
       <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;FIBONACCI&quot;</span>, <span class="hljs-string">&quot;Fib(02) = 001&quot;</span>, <span class="hljs-uvm-const">UVM_MEDIUM</span>)
 
-      <span class="hljs-comment">// Hasta 14 y no mas: Fib(14) = 233 y Fib(15) = 377, que no entra en los</span>
-      <span class="hljs-comment">// 8 bits de A y de B.</span>
+      <span class="hljs-comment">// Up to 14 and no further: Fib(14) = 233 and Fib(15) = 377, which does not</span>
+      <span class="hljs-comment">// fit in the 8 bits of A and B.</span>
       <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> ff = <span class="hljs-number">3</span>; ff &lt;= <span class="hljs-number">14</span>; ff++) <span class="hljs-keyword">begin</span> : fib_loop
          command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
          start_item(command);
@@ -1967,15 +1967,15 @@ sobre un solo sequencer, el orden es el que dice el <code>body()</code>.</p>
 
       random_seq.count = count;
 
-      <span class="hljs-comment">// get_sequencer() devuelve el sequencer que nos paso start(): las hijas</span>
-      <span class="hljs-comment">// corren sobre el mismo. El segundo argumento las declara HIJAS -- sin el</span>
-      <span class="hljs-comment">// compiten con nosotros en la arbitracion en vez de heredar nuestro turno.</span>
+      <span class="hljs-comment">// get_sequencer() returns the sequencer start() handed us: the children run</span>
+      <span class="hljs-comment">// on the same one. The second argument declares them CHILDREN -- without it</span>
+      <span class="hljs-comment">// they compete with us in the arbitration instead of inheriting our turn.</span>
       reset_seq.start(get_sequencer(), <span class="hljs-keyword">this</span>);
       random_seq.start(get_sequencer(), <span class="hljs-keyword">this</span>);
       maxmult_seq.start(get_sequencer(), <span class="hljs-keyword">this</span>);
-   <span class="hljs-keyword">endtask</span> : body</code></pre><details><summary>el archivo entero, 32 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// El command_sequence de la unidad 22, partido en tres piezas que ahora se</span>
-<span class="hljs-comment">// combinan como uno quiera. Esta sequence no manda ningun item propio: solo</span>
-<span class="hljs-comment">// arranca a las otras.</span>
+   <span class="hljs-keyword">endtask</span> : body</code></pre><details><summary>el archivo entero, 32 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The command_sequence of unit 22, split into three pieces that can now be</span>
+<span class="hljs-comment">// combined at will. This sequence sends no item of its own: it only</span>
+<span class="hljs-comment">// starts the other ones.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">full_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span> #(<span class="hljs-type">command_transaction</span>);
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(full_sequence)
 
@@ -1996,9 +1996,9 @@ sobre un solo sequencer, el orden es el que dice el <code>body()</code>.</p>
 
       random_seq.count = count;
 
-      <span class="hljs-comment">// get_sequencer() devuelve el sequencer que nos paso start(): las hijas</span>
-      <span class="hljs-comment">// corren sobre el mismo. El segundo argumento las declara HIJAS -- sin el</span>
-      <span class="hljs-comment">// compiten con nosotros en la arbitracion en vez de heredar nuestro turno.</span>
+      <span class="hljs-comment">// get_sequencer() returns the sequencer start() handed us: the children run</span>
+      <span class="hljs-comment">// on the same one. The second argument declares them CHILDREN -- without it</span>
+      <span class="hljs-comment">// they compete with us in the arbitration instead of inheriting our turn.</span>
       reset_seq.start(get_sequencer(), <span class="hljs-keyword">this</span>);
       random_seq.start(get_sequencer(), <span class="hljs-keyword">this</span>);
       maxmult_seq.start(get_sequencer(), <span class="hljs-keyword">this</span>);
@@ -2044,12 +2044,12 @@ sequencer, y hay seis modos, incluido uno con pesos.</p>
       full_sequence full_seq;
       full_seq = full_sequence::type_id::create(<span class="hljs-string">&quot;full_seq&quot;</span>);
 
-      <span class="hljs-comment">// El objection lo levanta EL TEST, no la sequence: la sequence no sabe</span>
-      <span class="hljs-comment">// nada de fases, y tiene que poder correr adentro de otra sequence.</span>
+      <span class="hljs-comment">// THE TEST raises the objection, not the sequence: the sequence knows</span>
+      <span class="hljs-comment">// nothing about phases, and has to be able to run inside another sequence.</span>
       phase.raise_objection(<span class="hljs-keyword">this</span>);
       full_seq.start(sequencer_h);   <span class="hljs-comment">// no vuelve hasta que body() termino</span>
       phase.drop_objection(<span class="hljs-keyword">this</span>);
-   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 20 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Mismo estimulo que el dual_test de la unidad 22, ahora en tres sequences.</span>
+   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 20 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Same stimulus as the dual_test of unit 22, now in three sequences.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">full_test</span> <span class="hljs-keyword">extends</span> base_test;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(full_test)
 
@@ -2061,8 +2061,8 @@ sequencer, y hay seis modos, incluido uno con pesos.</p>
       full_sequence full_seq;
       full_seq = full_sequence::type_id::create(<span class="hljs-string">&quot;full_seq&quot;</span>);
 
-      <span class="hljs-comment">// El objection lo levanta EL TEST, no la sequence: la sequence no sabe</span>
-      <span class="hljs-comment">// nada de fases, y tiene que poder correr adentro de otra sequence.</span>
+      <span class="hljs-comment">// THE TEST raises the objection, not the sequence: the sequence knows</span>
+      <span class="hljs-comment">// nothing about phases, and has to be able to run inside another sequence.</span>
       phase.raise_objection(<span class="hljs-keyword">this</span>);
       full_seq.start(sequencer_h);   <span class="hljs-comment">// no vuelve hasta que body() termino</span>
       phase.drop_objection(<span class="hljs-keyword">this</span>);
@@ -2102,25 +2102,25 @@ sequencer. Es la misma razón por la que las conexiones van en <code>connect_pha
 <figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/default_seq_test.svh</code> · líneas 10-30 de 32</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       full_sequence full_seq;
 
-      <span class="hljs-comment">// super.build_phase() de base_test, que es una clase NUESTRA: arma el</span>
-      <span class="hljs-comment">// env. Lo que el curso nunca llama es el build_phase de uvm_component.</span>
+      <span class="hljs-comment">// super.build_phase() of base_test, which is a class of OURS: it builds the</span>
+      <span class="hljs-comment">// env. What the course never calls is uvm_component&#x27;s build_phase.</span>
       <span class="hljs-keyword">super</span>.build_phase(phase);
 
       full_seq = full_sequence::type_id::create(<span class="hljs-string">&quot;full_seq&quot;</span>);
       full_seq.count = <span class="hljs-number">200</span>;
 
-      <span class="hljs-comment">// SIN esta linea la main_phase termina en t=0: nadie levanta el objection,</span>
-      <span class="hljs-comment">// y una fase sin objection dura cero. El test PASA sin mandar estimulo.</span>
+      <span class="hljs-comment">// WITHOUT this line main_phase ends at t=0: nobody raises the objection,</span>
+      <span class="hljs-comment">// and a phase without an objection lasts zero. The test PASSES with no stimulus.</span>
       full_seq.set_automatic_phase_objection(<span class="hljs-number">1</span>);
 
-      <span class="hljs-comment">// El nombre de instancia lleva el sufijo &quot;_phase&quot;: es la fase en la que el</span>
-      <span class="hljs-comment">// sequencer va a arrancarla. Fijate que el test ya no nombra al sequencer</span>
-      <span class="hljs-comment">// como handle: lo nombra como RUTA, y eso es una config, no codigo.</span>
+      <span class="hljs-comment">// The instance name carries the &quot;_phase&quot; suffix: that is the phase the</span>
+      <span class="hljs-comment">// sequencer will start it in. Notice the test no longer names the sequencer</span>
+      <span class="hljs-comment">// as a handle: it names it as a PATH, and that is a config, not code.</span>
       <span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-uvm-type">uvm_sequence_base</span>)::set(
           <span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;env_h.clase_agent_h.sequencer_h.main_phase&quot;</span>, <span class="hljs-string">&quot;default_sequence&quot;</span>,
           full_seq);
-   <span class="hljs-keyword">endfunction</span> : build_phase</code></pre><details><summary>el archivo entero, 32 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// El mismo estimulo que full_test, SIN run_phase: la sequence la arranca el</span>
-<span class="hljs-comment">// propio sequencer al empezar la fase.</span>
+   <span class="hljs-keyword">endfunction</span> : build_phase</code></pre><details><summary>el archivo entero, 32 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The same stimulus as full_test, WITHOUT run_phase: the sequencer itself starts</span>
+<span class="hljs-comment">// the sequence when the phase begins.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">default_seq_test</span> <span class="hljs-keyword">extends</span> base_test;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(default_seq_test)
 
@@ -2131,20 +2131,20 @@ sequencer. Es la misma razón por la que las conexiones van en <code>connect_pha
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       full_sequence full_seq;
 
-      <span class="hljs-comment">// super.build_phase() de base_test, que es una clase NUESTRA: arma el</span>
-      <span class="hljs-comment">// env. Lo que el curso nunca llama es el build_phase de uvm_component.</span>
+      <span class="hljs-comment">// super.build_phase() of base_test, which is a class of OURS: it builds the</span>
+      <span class="hljs-comment">// env. What the course never calls is uvm_component&#x27;s build_phase.</span>
       <span class="hljs-keyword">super</span>.build_phase(phase);
 
       full_seq = full_sequence::type_id::create(<span class="hljs-string">&quot;full_seq&quot;</span>);
       full_seq.count = <span class="hljs-number">200</span>;
 
-      <span class="hljs-comment">// SIN esta linea la main_phase termina en t=0: nadie levanta el objection,</span>
-      <span class="hljs-comment">// y una fase sin objection dura cero. El test PASA sin mandar estimulo.</span>
+      <span class="hljs-comment">// WITHOUT this line main_phase ends at t=0: nobody raises the objection,</span>
+      <span class="hljs-comment">// and a phase without an objection lasts zero. The test PASSES with no stimulus.</span>
       full_seq.set_automatic_phase_objection(<span class="hljs-number">1</span>);
 
-      <span class="hljs-comment">// El nombre de instancia lleva el sufijo &quot;_phase&quot;: es la fase en la que el</span>
-      <span class="hljs-comment">// sequencer va a arrancarla. Fijate que el test ya no nombra al sequencer</span>
-      <span class="hljs-comment">// como handle: lo nombra como RUTA, y eso es una config, no codigo.</span>
+      <span class="hljs-comment">// The instance name carries the &quot;_phase&quot; suffix: that is the phase the</span>
+      <span class="hljs-comment">// sequencer will start it in. Notice the test no longer names the sequencer</span>
+      <span class="hljs-comment">// as a handle: it names it as a PATH, and that is a config, not code.</span>
       <span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-uvm-type">uvm_sequence_base</span>)::set(
           <span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;env_h.clase_agent_h.sequencer_h.main_phase&quot;</span>, <span class="hljs-string">&quot;default_sequence&quot;</span>,
           full_seq);
@@ -2284,9 +2284,9 @@ Regla práctica para el trabajo: leer todas, escribir las explícitas.</p>
 <section id="s310" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="el-override-sigue-funcionando-y-ninguna-sequence-se-enteró"><em>El override sigue funcionando, y ninguna sequence se enteró</em></h4>
-<figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/add_test.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// El mismo add_test de la seccion Transactions, palabra por palabra. Ninguna sequence se</span>
-<span class="hljs-comment">// entera: random_sequence sigue pidiendole un command_transaction a la factory,</span>
-<span class="hljs-comment">// y la factory le devuelve un add_transaction.</span>
+<figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/add_test.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// The same add_test as the Transactions section, word for word. No sequence finds</span>
+<span class="hljs-comment">// out: random_sequence still asks the factory for a command_transaction,</span>
+<span class="hljs-comment">// and the factory hands it back an add_transaction.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">add_test</span> <span class="hljs-keyword">extends</span> full_test;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(add_test)
 
@@ -2365,15 +2365,15 @@ argumento: una sequence virtual no cambia la estructura del testbench.</p>
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-<span class="hljs-keyword">endclass</span> : virtual_sequencer</code></pre><details><summary>el archivo entero, 20 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// El sequencer virtual: no tiene cola, no arbitra items, no habla con ningun</span>
-<span class="hljs-comment">// driver. Es un componente que existe para dos cosas:</span>
+<span class="hljs-keyword">endclass</span> : virtual_sequencer</code></pre><details><summary>el archivo entero, 20 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The virtual sequencer: it has no queue, it arbitrates no items, it talks to no</span>
+<span class="hljs-comment">// driver. It is a component that exists for two things:</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">//   1. tener los HANDLES a los sequencers de verdad, en un lugar que la</span>
-<span class="hljs-comment">//      sequence pueda alcanzar sin buscar por string;</span>
-<span class="hljs-comment">//   2. ser un uvm_component, o sea vivir en el arbol y tener un nombre.</span>
+<span class="hljs-comment">//   1. to hold the HANDLES to the real sequencers, somewhere the sequence can</span>
+<span class="hljs-comment">//      reach without looking up by string;</span>
+<span class="hljs-comment">//   2. to be a uvm_component, that is, to live in the tree and have a name.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// Por eso extiende uvm_sequencer SIN parametrizar: el item por defecto es</span>
-<span class="hljs-comment">// uvm_sequence_item, y nunca se manda ninguno.</span>
+<span class="hljs-comment">// That is why it extends uvm_sequencer WITHOUT parameters: the default item is</span>
+<span class="hljs-comment">// uvm_sequence_item, and none is ever sent.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">virtual_sequencer</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequencer</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(virtual_sequencer)
 
@@ -2386,17 +2386,17 @@ argumento: una sequence virtual no cambia la estructura del testbench.</p>
 
 <span class="hljs-keyword">endclass</span> : virtual_sequencer</code></pre></details></figure>
 
-<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/env.svh</code> · líneas 52-54 de 65</figcaption><pre><code class="hljs">      <span class="hljs-comment">// compila en vez de devolver null en tiempo de simulacion.</span>
+<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/env.svh</code> · líneas 52-54 de 65</figcaption><pre><code class="hljs">      <span class="hljs-comment">// not compile instead of returning null at simulation time.</span>
       virtual_sequencer_h.clase_sequencer_h  = clase_agent_h.sequencer_h;
-      virtual_sequencer_h.modulo_sequencer_h = modulo_agent_h.sequencer_h;</code></pre><details><summary>el archivo entero, 65 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// El env de la seccion Sequences con DOS cambios, y ninguno mas:</span>
+      virtual_sequencer_h.modulo_sequencer_h = modulo_agent_h.sequencer_h;</code></pre><details><summary>el archivo entero, 65 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The env of the Sequences section with TWO changes, and no more:</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">//   1. el segundo agent es UVM_ACTIVE en vez de UVM_PASSIVE;</span>
-<span class="hljs-comment">//   2. hay un virtual_sequencer, y el connect_phase le pasa los handles de los</span>
-<span class="hljs-comment">//      dos sequencers de verdad.</span>
+<span class="hljs-comment">//   1. the second agent is UVM_ACTIVE instead of UVM_PASSIVE;</span>
+<span class="hljs-comment">//   2. there is a virtual_sequencer, and connect_phase hands it the handles of</span>
+<span class="hljs-comment">//      the two real sequencers.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// El resto --agents, scoreboards, cobertura, el ambito del config_db-- es</span>
-<span class="hljs-comment">// identico. Ese es el punto: una sequence virtual no cambia la estructura del</span>
-<span class="hljs-comment">// testbench, solo agrega quien la coordina.</span>
+<span class="hljs-comment">// The rest --agents, scoreboards, coverage, the config_db scope-- is</span>
+<span class="hljs-comment">// identical. That is the point: a virtual sequence does not change the structure</span>
+<span class="hljs-comment">// of the testbench, it only adds who coordinates it.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">env</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_env</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(env);
 
@@ -2418,7 +2418,7 @@ argumento: una sequence virtual no cambia la estructura del testbench.</p>
       <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-type">env_config</span>)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;config&quot;</span>, env_config_h))
          <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;ENV&quot;</span>, <span class="hljs-string">&quot;Failed to get env config&quot;</span>)
 
-      <span class="hljs-comment">// Los dos activos: cada uno con su sequencer y su driver.</span>
+      <span class="hljs-comment">// Both active: each with its own sequencer and driver.</span>
       clase_cfg_h  = <span class="hljs-keyword">new</span>(.bfm(env_config_h.clase_bfm),  .is_active(<span class="hljs-uvm-const">UVM_ACTIVE</span>));
       modulo_cfg_h = <span class="hljs-keyword">new</span>(.bfm(env_config_h.modulo_bfm), .is_active(<span class="hljs-uvm-const">UVM_ACTIVE</span>));
 
@@ -2437,9 +2437,9 @@ argumento: una sequence virtual no cambia la estructura del testbench.</p>
    <span class="hljs-keyword">endfunction</span> : build_phase
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">connect_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
-      <span class="hljs-comment">// Los handles se pasan ACA y no se buscan por string: en el connect_phase</span>
-      <span class="hljs-comment">// los dos agents ya existen, y si alguien renombra un componente esto no</span>
-      <span class="hljs-comment">// compila en vez de devolver null en tiempo de simulacion.</span>
+      <span class="hljs-comment">// The handles are passed HERE and not looked up by string: in connect_phase</span>
+      <span class="hljs-comment">// both agents already exist, and if somebody renames a component this does</span>
+      <span class="hljs-comment">// not compile instead of returning null at simulation time.</span>
       virtual_sequencer_h.clase_sequencer_h  = clase_agent_h.sequencer_h;
       virtual_sequencer_h.modulo_sequencer_h = modulo_agent_h.sequencer_h;
 
@@ -2481,19 +2481,19 @@ cambió, que es exactamente lo que uno quiere.</p>
 <h4 id="la-sequence-virtual-p_sequencer-y-dos-ramas"><em>La sequence virtual: <code>p_sequencer</code> y dos ramas</em></h4>
 <figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · líneas 14-16 de 76</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">coordinada_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span>;
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(coordinada_sequence)
-   <span class="hljs-uvm-macro">`uvm_declare_p_sequencer</span>(virtual_sequencer)</code></pre><details><summary>el archivo entero, 76 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// LA sequence virtual.</span>
+   <span class="hljs-uvm-macro">`uvm_declare_p_sequencer</span>(virtual_sequencer)</code></pre><details><summary>el archivo entero, 76 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// THE virtual sequence.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// Dos cosas la distinguen de todas las de la seccion Sequences:</span>
+<span class="hljs-comment">// Two things set it apart from every sequence in the Sequences section:</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">//   1. NO tiene items propios. Extiende uvm_sequence sin parametrizar y nunca</span>
-<span class="hljs-comment">//      llama a start_item(): lo unico que hace es arrancar OTRAS sequences.</span>
-<span class="hljs-comment">//      Por eso &quot;virtual&quot; -- no esta atada a un tipo de item ni a un sequencer.</span>
-<span class="hljs-comment">//   2. Corre sobre mas de un sequencer, y de ahi sale lo unico que ninguna</span>
-<span class="hljs-comment">//      sequence sola puede hacer: coordinar dos interfaces.</span>
+<span class="hljs-comment">//   1. It has NO items of its own. It extends uvm_sequence without parameters</span>
+<span class="hljs-comment">//      and never calls start_item(): all it does is start OTHER sequences.</span>
+<span class="hljs-comment">//      Hence &quot;virtual&quot; -- it is tied to no item type and no sequencer.</span>
+<span class="hljs-comment">//   2. It runs on more than one sequencer, and that is where the one thing no</span>
+<span class="hljs-comment">//      single sequence can do comes from: coordinating two interfaces.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// `uvm_declare_p_sequencer declara `p_sequencer` con el tipo de arriba y lo</span>
-<span class="hljs-comment">// castea solo en el m_set_p_sequencer. Sin el, get_sequencer() devuelve un</span>
-<span class="hljs-comment">// uvm_sequencer_base y habria que castear a mano en cada uso.</span>
+<span class="hljs-comment">// `uvm_declare_p_sequencer declares `p_sequencer` with the type above and casts</span>
+<span class="hljs-comment">// it on its own inside m_set_p_sequencer. Without it, get_sequencer() returns a</span>
+<span class="hljs-comment">// uvm_sequencer_base and every use would need a cast by hand.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">coordinada_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span>;
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(coordinada_sequence)
    <span class="hljs-uvm-macro">`uvm_declare_p_sequencer</span>(virtual_sequencer)
@@ -2519,33 +2519,33 @@ cambió, que es exactamente lo que uno quiere.</p>
 
       random_b.count = count;
 
-      <span class="hljs-comment">// --- 1. Las dos ALU se resetean a la vez ---------------------------------</span>
-      <span class="hljs-comment">// fork/join sobre DOS sequencers. Cada rama bloquea en su propio driver, y</span>
-      <span class="hljs-comment">// el join espera a las dos: eso no se puede escribir adentro de una</span>
-      <span class="hljs-comment">// sequence normal, que solo conoce el sequencer que la arranco.</span>
+      <span class="hljs-comment">// --- 1. Both ALUs get reset at the same time -----------------------------</span>
+      <span class="hljs-comment">// fork/join over TWO sequencers. Each branch blocks on its own driver, and</span>
+      <span class="hljs-comment">// the join waits for both: that cannot be written inside a normal</span>
+      <span class="hljs-comment">// sequence, which only knows the sequencer that started it.</span>
       <span class="hljs-keyword">fork</span>
          reset_a.start(p_sequencer.clase_sequencer_h);
          reset_b.start(p_sequencer.modulo_sequencer_h);
       <span class="hljs-keyword">join</span>
 
-      <span class="hljs-comment">// --- 2. Trafico en paralelo, distinto en cada interface -----------------</span>
-      <span class="hljs-comment">// La A hace el caso dirigido del desborde mientras la B manda al azar.</span>
+      <span class="hljs-comment">// --- 2. Parallel traffic, different on each interface -------------------</span>
+      <span class="hljs-comment">// A does the directed overflow case while B sends at random.</span>
       <span class="hljs-keyword">fork</span>
          maxmult.start(p_sequencer.clase_sequencer_h);
          random_b.start(p_sequencer.modulo_sequencer_h);
       <span class="hljs-keyword">join</span>
 
-      <span class="hljs-comment">// --- 3. Lo que ninguna sequence sola puede ------------------------------</span>
-      <span class="hljs-comment">// El resultado de la VTALU A es el operando de la B. Es una dependencia</span>
-      <span class="hljs-comment">// ENTRE interfaces: la segunda no puede ni empezar a armarse hasta que la</span>
-      <span class="hljs-comment">// primera contesto.</span>
+      <span class="hljs-comment">// --- 3. What no single sequence can do ----------------------------------</span>
+      <span class="hljs-comment">// The result of VTALU A is the operand of B. It is a dependency BETWEEN</span>
+      <span class="hljs-comment">// interfaces: the second one cannot even start being built until the</span>
+      <span class="hljs-comment">// first one answered.</span>
       primera.A  = <span class="hljs-number">8&#x27;h0F</span>;
       primera.B  = <span class="hljs-number">8&#x27;h07</span>;
       primera.op = mul_op;
       primera.start(p_sequencer.clase_sequencer_h);
 
       <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;COORDINADA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
-                <span class="hljs-string">&quot;la A devolvio %0d: va de operando a la B&quot;</span>, primera.result), <span class="hljs-uvm-const">UVM_LOW</span>)
+                <span class="hljs-string">&quot;A returned %0d: it goes as an operand into B&quot;</span>, primera.result), <span class="hljs-uvm-const">UVM_LOW</span>)
 
       segunda.A  = primera.result[<span class="hljs-number">7</span>:<span class="hljs-number">0</span>];
       segunda.B  = <span class="hljs-number">8&#x27;h01</span>;
@@ -2553,7 +2553,7 @@ cambió, que es exactamente lo que uno quiere.</p>
       segunda.start(p_sequencer.modulo_sequencer_h);
 
       <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;COORDINADA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
-                <span class="hljs-string">&quot;la B devolvio %0d&quot;</span>, segunda.result), <span class="hljs-uvm-const">UVM_LOW</span>)
+                <span class="hljs-string">&quot;B returned %0d&quot;</span>, segunda.result), <span class="hljs-uvm-const">UVM_LOW</span>)
    <span class="hljs-keyword">endtask</span> : body
 
 <span class="hljs-keyword">endclass</span> : coordinada_sequence</code></pre></details></figure>
@@ -2563,24 +2563,24 @@ cambió, que es exactamente lo que uno quiere.</p>
          reset_b.start(p_sequencer.modulo_sequencer_h);
       <span class="hljs-keyword">join</span>
 
-      <span class="hljs-comment">// --- 2. Trafico en paralelo, distinto en cada interface -----------------</span>
-      <span class="hljs-comment">// La A hace el caso dirigido del desborde mientras la B manda al azar.</span>
+      <span class="hljs-comment">// --- 2. Parallel traffic, different on each interface -------------------</span>
+      <span class="hljs-comment">// A does the directed overflow case while B sends at random.</span>
       <span class="hljs-keyword">fork</span>
          maxmult.start(p_sequencer.clase_sequencer_h);
          random_b.start(p_sequencer.modulo_sequencer_h);
-      <span class="hljs-keyword">join</span></code></pre><details><summary>el archivo entero, 76 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// LA sequence virtual.</span>
+      <span class="hljs-keyword">join</span></code></pre><details><summary>el archivo entero, 76 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// THE virtual sequence.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// Dos cosas la distinguen de todas las de la seccion Sequences:</span>
+<span class="hljs-comment">// Two things set it apart from every sequence in the Sequences section:</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">//   1. NO tiene items propios. Extiende uvm_sequence sin parametrizar y nunca</span>
-<span class="hljs-comment">//      llama a start_item(): lo unico que hace es arrancar OTRAS sequences.</span>
-<span class="hljs-comment">//      Por eso &quot;virtual&quot; -- no esta atada a un tipo de item ni a un sequencer.</span>
-<span class="hljs-comment">//   2. Corre sobre mas de un sequencer, y de ahi sale lo unico que ninguna</span>
-<span class="hljs-comment">//      sequence sola puede hacer: coordinar dos interfaces.</span>
+<span class="hljs-comment">//   1. It has NO items of its own. It extends uvm_sequence without parameters</span>
+<span class="hljs-comment">//      and never calls start_item(): all it does is start OTHER sequences.</span>
+<span class="hljs-comment">//      Hence &quot;virtual&quot; -- it is tied to no item type and no sequencer.</span>
+<span class="hljs-comment">//   2. It runs on more than one sequencer, and that is where the one thing no</span>
+<span class="hljs-comment">//      single sequence can do comes from: coordinating two interfaces.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// `uvm_declare_p_sequencer declara `p_sequencer` con el tipo de arriba y lo</span>
-<span class="hljs-comment">// castea solo en el m_set_p_sequencer. Sin el, get_sequencer() devuelve un</span>
-<span class="hljs-comment">// uvm_sequencer_base y habria que castear a mano en cada uso.</span>
+<span class="hljs-comment">// `uvm_declare_p_sequencer declares `p_sequencer` with the type above and casts</span>
+<span class="hljs-comment">// it on its own inside m_set_p_sequencer. Without it, get_sequencer() returns a</span>
+<span class="hljs-comment">// uvm_sequencer_base and every use would need a cast by hand.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">coordinada_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span>;
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(coordinada_sequence)
    <span class="hljs-uvm-macro">`uvm_declare_p_sequencer</span>(virtual_sequencer)
@@ -2606,33 +2606,33 @@ cambió, que es exactamente lo que uno quiere.</p>
 
       random_b.count = count;
 
-      <span class="hljs-comment">// --- 1. Las dos ALU se resetean a la vez ---------------------------------</span>
-      <span class="hljs-comment">// fork/join sobre DOS sequencers. Cada rama bloquea en su propio driver, y</span>
-      <span class="hljs-comment">// el join espera a las dos: eso no se puede escribir adentro de una</span>
-      <span class="hljs-comment">// sequence normal, que solo conoce el sequencer que la arranco.</span>
+      <span class="hljs-comment">// --- 1. Both ALUs get reset at the same time -----------------------------</span>
+      <span class="hljs-comment">// fork/join over TWO sequencers. Each branch blocks on its own driver, and</span>
+      <span class="hljs-comment">// the join waits for both: that cannot be written inside a normal</span>
+      <span class="hljs-comment">// sequence, which only knows the sequencer that started it.</span>
       <span class="hljs-keyword">fork</span>
          reset_a.start(p_sequencer.clase_sequencer_h);
          reset_b.start(p_sequencer.modulo_sequencer_h);
       <span class="hljs-keyword">join</span>
 
-      <span class="hljs-comment">// --- 2. Trafico en paralelo, distinto en cada interface -----------------</span>
-      <span class="hljs-comment">// La A hace el caso dirigido del desborde mientras la B manda al azar.</span>
+      <span class="hljs-comment">// --- 2. Parallel traffic, different on each interface -------------------</span>
+      <span class="hljs-comment">// A does the directed overflow case while B sends at random.</span>
       <span class="hljs-keyword">fork</span>
          maxmult.start(p_sequencer.clase_sequencer_h);
          random_b.start(p_sequencer.modulo_sequencer_h);
       <span class="hljs-keyword">join</span>
 
-      <span class="hljs-comment">// --- 3. Lo que ninguna sequence sola puede ------------------------------</span>
-      <span class="hljs-comment">// El resultado de la VTALU A es el operando de la B. Es una dependencia</span>
-      <span class="hljs-comment">// ENTRE interfaces: la segunda no puede ni empezar a armarse hasta que la</span>
-      <span class="hljs-comment">// primera contesto.</span>
+      <span class="hljs-comment">// --- 3. What no single sequence can do ----------------------------------</span>
+      <span class="hljs-comment">// The result of VTALU A is the operand of B. It is a dependency BETWEEN</span>
+      <span class="hljs-comment">// interfaces: the second one cannot even start being built until the</span>
+      <span class="hljs-comment">// first one answered.</span>
       primera.A  = <span class="hljs-number">8&#x27;h0F</span>;
       primera.B  = <span class="hljs-number">8&#x27;h07</span>;
       primera.op = mul_op;
       primera.start(p_sequencer.clase_sequencer_h);
 
       <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;COORDINADA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
-                <span class="hljs-string">&quot;la A devolvio %0d: va de operando a la B&quot;</span>, primera.result), <span class="hljs-uvm-const">UVM_LOW</span>)
+                <span class="hljs-string">&quot;A returned %0d: it goes as an operand into B&quot;</span>, primera.result), <span class="hljs-uvm-const">UVM_LOW</span>)
 
       segunda.A  = primera.result[<span class="hljs-number">7</span>:<span class="hljs-number">0</span>];
       segunda.B  = <span class="hljs-number">8&#x27;h01</span>;
@@ -2640,7 +2640,7 @@ cambió, que es exactamente lo que uno quiere.</p>
       segunda.start(p_sequencer.modulo_sequencer_h);
 
       <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;COORDINADA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
-                <span class="hljs-string">&quot;la B devolvio %0d&quot;</span>, segunda.result), <span class="hljs-uvm-const">UVM_LOW</span>)
+                <span class="hljs-string">&quot;B returned %0d&quot;</span>, segunda.result), <span class="hljs-uvm-const">UVM_LOW</span>)
    <span class="hljs-keyword">endtask</span> : body
 
 <span class="hljs-keyword">endclass</span> : coordinada_sequence</code></pre></details></figure>
@@ -2678,24 +2678,24 @@ sequence normal con más ceremonia. La clase se justifica cuando hay dos.</p>
       primera.start(p_sequencer.clase_sequencer_h);
 
       <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;COORDINADA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
-                <span class="hljs-string">&quot;la A devolvio %0d: va de operando a la B&quot;</span>, primera.result), <span class="hljs-uvm-const">UVM_LOW</span>)
+                <span class="hljs-string">&quot;A returned %0d: it goes as an operand into B&quot;</span>, primera.result), <span class="hljs-uvm-const">UVM_LOW</span>)
 
       segunda.A  = primera.result[<span class="hljs-number">7</span>:<span class="hljs-number">0</span>];
       segunda.B  = <span class="hljs-number">8&#x27;h01</span>;
       segunda.op = add_op;
-      segunda.start(p_sequencer.modulo_sequencer_h);</code></pre><details><summary>el archivo entero, 76 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// LA sequence virtual.</span>
+      segunda.start(p_sequencer.modulo_sequencer_h);</code></pre><details><summary>el archivo entero, 76 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// THE virtual sequence.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// Dos cosas la distinguen de todas las de la seccion Sequences:</span>
+<span class="hljs-comment">// Two things set it apart from every sequence in the Sequences section:</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">//   1. NO tiene items propios. Extiende uvm_sequence sin parametrizar y nunca</span>
-<span class="hljs-comment">//      llama a start_item(): lo unico que hace es arrancar OTRAS sequences.</span>
-<span class="hljs-comment">//      Por eso &quot;virtual&quot; -- no esta atada a un tipo de item ni a un sequencer.</span>
-<span class="hljs-comment">//   2. Corre sobre mas de un sequencer, y de ahi sale lo unico que ninguna</span>
-<span class="hljs-comment">//      sequence sola puede hacer: coordinar dos interfaces.</span>
+<span class="hljs-comment">//   1. It has NO items of its own. It extends uvm_sequence without parameters</span>
+<span class="hljs-comment">//      and never calls start_item(): all it does is start OTHER sequences.</span>
+<span class="hljs-comment">//      Hence &quot;virtual&quot; -- it is tied to no item type and no sequencer.</span>
+<span class="hljs-comment">//   2. It runs on more than one sequencer, and that is where the one thing no</span>
+<span class="hljs-comment">//      single sequence can do comes from: coordinating two interfaces.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// `uvm_declare_p_sequencer declara `p_sequencer` con el tipo de arriba y lo</span>
-<span class="hljs-comment">// castea solo en el m_set_p_sequencer. Sin el, get_sequencer() devuelve un</span>
-<span class="hljs-comment">// uvm_sequencer_base y habria que castear a mano en cada uso.</span>
+<span class="hljs-comment">// `uvm_declare_p_sequencer declares `p_sequencer` with the type above and casts</span>
+<span class="hljs-comment">// it on its own inside m_set_p_sequencer. Without it, get_sequencer() returns a</span>
+<span class="hljs-comment">// uvm_sequencer_base and every use would need a cast by hand.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">coordinada_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span>;
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(coordinada_sequence)
    <span class="hljs-uvm-macro">`uvm_declare_p_sequencer</span>(virtual_sequencer)
@@ -2721,33 +2721,33 @@ sequence normal con más ceremonia. La clase se justifica cuando hay dos.</p>
 
       random_b.count = count;
 
-      <span class="hljs-comment">// --- 1. Las dos ALU se resetean a la vez ---------------------------------</span>
-      <span class="hljs-comment">// fork/join sobre DOS sequencers. Cada rama bloquea en su propio driver, y</span>
-      <span class="hljs-comment">// el join espera a las dos: eso no se puede escribir adentro de una</span>
-      <span class="hljs-comment">// sequence normal, que solo conoce el sequencer que la arranco.</span>
+      <span class="hljs-comment">// --- 1. Both ALUs get reset at the same time -----------------------------</span>
+      <span class="hljs-comment">// fork/join over TWO sequencers. Each branch blocks on its own driver, and</span>
+      <span class="hljs-comment">// the join waits for both: that cannot be written inside a normal</span>
+      <span class="hljs-comment">// sequence, which only knows the sequencer that started it.</span>
       <span class="hljs-keyword">fork</span>
          reset_a.start(p_sequencer.clase_sequencer_h);
          reset_b.start(p_sequencer.modulo_sequencer_h);
       <span class="hljs-keyword">join</span>
 
-      <span class="hljs-comment">// --- 2. Trafico en paralelo, distinto en cada interface -----------------</span>
-      <span class="hljs-comment">// La A hace el caso dirigido del desborde mientras la B manda al azar.</span>
+      <span class="hljs-comment">// --- 2. Parallel traffic, different on each interface -------------------</span>
+      <span class="hljs-comment">// A does the directed overflow case while B sends at random.</span>
       <span class="hljs-keyword">fork</span>
          maxmult.start(p_sequencer.clase_sequencer_h);
          random_b.start(p_sequencer.modulo_sequencer_h);
       <span class="hljs-keyword">join</span>
 
-      <span class="hljs-comment">// --- 3. Lo que ninguna sequence sola puede ------------------------------</span>
-      <span class="hljs-comment">// El resultado de la VTALU A es el operando de la B. Es una dependencia</span>
-      <span class="hljs-comment">// ENTRE interfaces: la segunda no puede ni empezar a armarse hasta que la</span>
-      <span class="hljs-comment">// primera contesto.</span>
+      <span class="hljs-comment">// --- 3. What no single sequence can do ----------------------------------</span>
+      <span class="hljs-comment">// The result of VTALU A is the operand of B. It is a dependency BETWEEN</span>
+      <span class="hljs-comment">// interfaces: the second one cannot even start being built until the</span>
+      <span class="hljs-comment">// first one answered.</span>
       primera.A  = <span class="hljs-number">8&#x27;h0F</span>;
       primera.B  = <span class="hljs-number">8&#x27;h07</span>;
       primera.op = mul_op;
       primera.start(p_sequencer.clase_sequencer_h);
 
       <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;COORDINADA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
-                <span class="hljs-string">&quot;la A devolvio %0d: va de operando a la B&quot;</span>, primera.result), <span class="hljs-uvm-const">UVM_LOW</span>)
+                <span class="hljs-string">&quot;A returned %0d: it goes as an operand into B&quot;</span>, primera.result), <span class="hljs-uvm-const">UVM_LOW</span>)
 
       segunda.A  = primera.result[<span class="hljs-number">7</span>:<span class="hljs-number">0</span>];
       segunda.B  = <span class="hljs-number">8&#x27;h01</span>;
@@ -2755,7 +2755,7 @@ sequence normal con más ceremonia. La clase se justifica cuando hay dos.</p>
       segunda.start(p_sequencer.modulo_sequencer_h);
 
       <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;COORDINADA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
-                <span class="hljs-string">&quot;la B devolvio %0d&quot;</span>, segunda.result), <span class="hljs-uvm-const">UVM_LOW</span>)
+                <span class="hljs-string">&quot;B returned %0d&quot;</span>, segunda.result), <span class="hljs-uvm-const">UVM_LOW</span>)
    <span class="hljs-keyword">endtask</span> : body
 
 <span class="hljs-keyword">endclass</span> : coordinada_sequence</code></pre></details></figure>

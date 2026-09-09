@@ -19,7 +19,7 @@ class apb_monitor extends uvm_monitor;
       ap = new("ap", this);
    endfunction : build_phase
 
-   // La llama la interface en el flanco en que la transferencia termina.
+   // The interface calls it on the edge where the transfer ends.
    function void write_to_monitor(bit write, bit [7:0] addr, bit [31:0] wdata,
                                   bit [31:0] rdata, bit slverr);
       apb_transaction t;

@@ -1,16 +1,16 @@
-// DPI de UVM para Verilator.
+// UVM DPI for Verilator.
 //
-// UVM trae src/dpi/uvm_dpi.cc, pero no compila fuera de VCS/Questa/Incisive:
-// uvm_hdl.c corta con #error "hdl vendor backend is missing" porque el backdoor
-// de acceso jerarquico esta escrito contra el VPI propietario de cada vendor.
+// UVM ships src/dpi/uvm_dpi.cc, but it does not compile outside VCS/Questa/Incisive:
+// uvm_hdl.c stops with #error "hdl vendor backend is missing" because the
+// hierarchical-access backdoor is written against each vendor's proprietary VPI.
 //
-// Ese backdoor lo usa unicamente el register layer (uvm_reg), que este curso no
-// toca en ningun ejemplo. Asi que aca se compila lo que si sirve — regex y
-// linea de comandos — y las seis uvm_hdl_* quedan como stubs.
+// That backdoor is used only by the register layer (uvm_reg), which this course
+// does not touch in any example. So what gets compiled here is what is actually
+// useful — regex and command line — and the six uvm_hdl_* stay as stubs.
 //
-// Los tres fuentes de abajo son C compilado como C++, y las declaran los wrappers
-// DPI que genera Verilator, que tienen linkage C: de ahi el extern "C" que los
-// envuelve. Sin eso el linker no los encuentra.
+// The three sources below are C compiled as C++, and they are declared by the DPI
+// wrappers Verilator generates, which have C linkage: hence the extern "C" that
+// wraps them. Without it the linker does not find them.
 #include "svdpi.h"
 #include <climits>
 #include <cstdio>
@@ -22,7 +22,7 @@ extern "C" {
 #include "uvm_regex.cc"
 #include "uvm_svcmd_dpi.c"
 
-// Backdoor del register layer: sin uso en este curso.
+// Register layer backdoor: unused in this course.
 int uvm_hdl_check_path(char *path) { return 0; }
 int uvm_hdl_read(char *path, p_vpi_vecval value) { return 0; }
 int uvm_hdl_deposit(char *path, p_vpi_vecval value) { return 0; }

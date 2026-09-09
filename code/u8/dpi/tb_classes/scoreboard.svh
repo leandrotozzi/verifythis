@@ -11,13 +11,13 @@ class scoreboard extends uvm_subscriber #(result_transaction);
       cmd_f = new("cmd_f", this);
    endfunction : build_phase
 
-   // La UNICA diferencia con el scoreboard de las sequences, y es la seccion
-   // entera: aca no hay un case con la aritmetica de la spec. La prediccion se
-   // le pide al modelo de referencia en C, que es el que la firmo.
+   // The ONLY difference with the sequences scoreboard, and it is the whole
+   // section: there is no case with the arithmetic of the spec here. The
+   // prediction is asked of the C reference model, the one that signed it.
    //
-   // Lo que no cambia: el monitor, el analysis port, la FIFO, el do_compare y
-   // el uvm_error. El golden model reemplaza SEIS LINEAS -- las de predecir --
-   // y ninguna otra pieza del testbench se entera.
+   // What does not change: the monitor, the analysis port, the FIFO, the
+   // do_compare and the uvm_error. The golden model replaces SIX LINES -- the
+   // ones that predict -- and no other piece of the testbench finds out.
    function result_transaction predict_result(command_transaction cmd);
       result_transaction predicted;
       int                ovf;

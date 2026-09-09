@@ -34,7 +34,7 @@ recorte.
 ## Las 15 semanas
 
 Cada fila es una clase. La columna *Laboratorio* es el ejercicio que se corrige
-solo: el alumno lo termina cuando `bash run.sh` imprime `EJERCICIO OK`, así que
+solo: el alumno lo termina cuando `bash run.sh` imprime `EXERCISE OK`, así que
 el docente no corrige código a mano hasta el capstone.
 
 | # | Teoría (2 h) | Laboratorio (2 h) |
@@ -137,7 +137,7 @@ El capstone ([`d7-final`](../code/ejercicios/d7-final/)) es un esclavo **APB3**
 de cuatro registros, su especificación, y una hoja en blanco. No hay archivo con
 un agujero: el testbench se escribe entero.
 
-**El corrector va por etapas y cada una imprime su `ETAPA N OK`**, así que la
+**El corrector va por etapas y cada una imprime su `STAGE N OK`**, así que la
 nota sale de correr `bash run.sh` y leer hasta dónde llegó:
 
 | Etapa | Qué probó el alumno | Peso sugerido |

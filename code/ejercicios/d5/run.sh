@@ -1,12 +1,12 @@
 #!/bin/bash
-# Ejercicio del dia 5. Falla hasta que lo resuelvas.
+# Day 5 exercise. It fails until you solve it.
 #
-#   bash run.sh                        con tus archivos
-#   SOLUCION=1 bash run.sh             con los de solucion/, para comparar
-#   bash run.sh +UVM_VERBOSITY=UVM_HIGH   con los mensajes de debug a la vista
+#   bash run.sh                        with your files
+#   SOLUCION=1 bash run.sh             with the ones in solucion/, to compare
+#   bash run.sh +UVM_VERBOSITY=UVM_HIGH   with the debug messages in plain sight
 #
-# El TB es el de la seccion Transactions entero: lo unico que sale de este directorio es
-# command_monitor.svh, que se cuela primero por el orden de los +incdir.
+# The TB is the whole one from the Transactions section: the only thing coming out of this directory is
+# command_monitor.svh, which comes first thanks to the +incdir order.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
 INC=${SOLUCION:+ +incdir+solucion}

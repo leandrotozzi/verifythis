@@ -19,7 +19,7 @@ uno.
 Los pesos ya están escritos y son los correctos. **No cambies los números.** El
 que está mal es otra cosa, y la salida de esa primera corrida te dice cuál.
 
-Listo cuando `bash run.sh` imprime `EJERCICIO OK`.
+Listo cuando `bash run.sh` imprime `EXERCISE OK`.
 
 ## Cómo se corre
 

@@ -1,6 +1,6 @@
-// El covergroup es el plan de verificacion de spec.md, medido. Cada bin de aca
-// es una fila de esa tabla: si el bin no se llena, la fila no se verifico --
-// por mas que el scoreboard este en verde.
+// The covergroup is the verification plan of spec.md, measured. Every bin here
+// is a row of that table: if the bin does not fill, the row was not verified --
+// no matter how green the scoreboard is.
 class apb_coverage extends uvm_subscriber #(apb_transaction);
    `uvm_component_utils(apb_coverage)
 
@@ -30,8 +30,8 @@ class apb_coverage extends uvm_subscriber #(apb_transaction);
          bins error = {1};
       }
 
-      // Los cuatro registros, escritos y leidos: la fila 1 del plan. El cross
-      // implicito alcanza; los cross con binsof/intersect Verilator los ignora.
+      // The four registers, written and read: row 1 of the plan. The implicit
+      // cross is enough; crosses with binsof/intersect are ignored by Verilator.
       acceso: cross reg_addr, dir;
 
       overflow: coverpoint ovf_leido {
@@ -55,8 +55,8 @@ class apb_coverage extends uvm_subscriber #(apb_transaction);
       addr = t.addr;
       wr = t.write;
       slverr = t.slverr;
-      // Las dos ultimas filas del plan no son campos de la transaccion: son
-      // condiciones. Se calculan aca y se muestrean como cualquier otra cosa.
+      // The last two rows of the plan are not fields of the transaction: they are
+      // conditions. They get computed here and sampled like anything else.
       ovf_leido  = (!t.write && t.addr == STATUS_ADDR && t.rdata[1]);
       clr_pedido = (t.write && t.addr == CTRL_ADDR && t.wdata[1]);
       apb_cov.sample();

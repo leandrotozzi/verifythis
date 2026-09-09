@@ -1,6 +1,6 @@
-// add_test extiende random_test, redeclara tester_h con otro tipo y REESCRIBE
-// build_phase entero. Esa duplicacion es el problema que la unidad 13 resuelve
-// con el override de la factory.
+// add_test extends random_test, redeclares tester_h with another type and
+// REWRITES the whole build_phase. That duplication is the problem unit 13 solves
+// with the factory override.
 
 class add_test extends random_test;
    `uvm_component_utils(add_test);

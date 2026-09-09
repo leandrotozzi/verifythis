@@ -1,6 +1,6 @@
-// El primer test UVM del curso. Los cinco pasos que arma esta clase --registro,
-// constructor, build_phase, run_phase y objections-- estan explicados uno por
-// uno en las slides de la unidad 11.
+// The first UVM test of the course. The five steps this class puts together
+// --registration, constructor, build_phase, run_phase and objections-- are
+// explained one by one in the slides of unit 11.
 class random_test extends uvm_test;
    `uvm_component_utils(random_test);
 
@@ -10,8 +10,8 @@ class random_test extends uvm_test;
       super.new(name, parent);
    endfunction : new
 
-   // El get va en build_phase y no en el constructor: cuando corre el
-   // constructor el arbol todavia no existe.
+   // The get goes in build_phase and not in the constructor: when the
+   // constructor runs, the tree does not exist yet.
    function void build_phase(uvm_phase phase);
       if (!uvm_config_db#(virtual vtalu_bfm)::get(this, "", "bfm", bfm))
          `uvm_fatal("RANDOM TEST", "Failed to get BFM")

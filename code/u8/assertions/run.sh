@@ -1,33 +1,33 @@
 #!/bin/bash
-# Corre el ejemplo con Verilator. Ver docs/verilator.md.
+# Runs the example with Verilator. See docs/verilator.md.
 #
-# El testbench es el de la seccion Sequences sin tocar una clase: lo unico que cambia es
-# que la BFM ahora trae un bloque de assertions. Dos corridas:
+# The testbench is the Sequences section's without touching a class: the only thing that changes is
+# that the BFM now carries an assertions block. Two runs:
 #
-#   full_test           el DUT sano: 0 UVM_ERROR, las tres assertions callan
-#   full_test +BUG=1    la BFM cambia B a mitad de la multiplicacion. El
-#                       RESULTADO no cambia --el multiplicador ya latcheo los
-#                       operandos-- asi que el scoreboard sigue en verde y el
-#                       unico que ve el bug es a_operandos_estables.
+#   full_test           the healthy DUT: 0 UVM_ERROR, the three assertions stay quiet
+#   full_test +BUG=1    the BFM changes B halfway through the multiplication. The
+#                       RESULT does not change --the multiplier already latched the
+#                       operands-- so the scoreboard stays green and the
+#                       only one that sees the bug is a_operandos_estables.
 #
-# --assert es lo que prende las concurrentes. Sin ese flag compilan, no corren,
-# y todo "pasa": es la trampa muda de la seccion.
+# --assert is what turns the concurrent ones on. Without that flag they compile, they do not run,
+# and everything "passes": it is the silent trap of the section.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
 vlt_uvm top --assert --coverage-user -Wno-fatal -f dut.f -f tb.f
 run_sim +UVM_TESTNAME=full_test
 
-# La corrida con el bug: los uvm_error son los que la seccion quiere mostrar.
+# The run with the bug: the uvm_error are the ones the section wants to show.
 export UVM_ERRORS_OK=1
 run_sim +UVM_TESTNAME=full_test +BUG=1
 
 if ! grep -q 'UVM_ERROR.*\[SVA\]' "$VLT_LOG"; then
-   echo "ESPERABA que a_operandos_estables disparara con +BUG=1" >&2; exit 1
+   echo "EXPECTED a_operandos_estables to fire with +BUG=1" >&2; exit 1
 fi
-# Y el scoreboard tiene que haber seguido en verde: esa es la seccion entera.
+# And the scoreboard has to have stayed green: that is the whole section.
 if grep -q 'UVM_ERROR.*\[SELF CHECKER\]' "$VLT_LOG"; then
-   echo "el scoreboard tambien fallo: el bug dejo de ser ciego" >&2; exit 1
+   echo "the scoreboard failed too: the bug stopped being blind" >&2; exit 1
 fi
-echo "    el scoreboard no vio nada: al bug lo caza la assertion, y nadie mas"
+echo "    the scoreboard saw nothing: the bug is caught by the assertion, nobody else"
 
 cov_report

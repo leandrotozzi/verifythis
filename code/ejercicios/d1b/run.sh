@@ -1,43 +1,43 @@
 #!/bin/bash
-# Ejercicio del dia 1 -- las ondas. Falla hasta que lo resuelvas.
+# Day 1 exercise -- the waves. It fails until you solve it.
 #
-#   bash run.sh              con tus archivos
-#   SOLUCION=1 bash run.sh   con el de solucion/, para comparar
+#   bash run.sh              with your files
+#   SOLUCION=1 bash run.sh   with the one in solucion/, to compare
 #
-# Es el unico ejercicio del curso que NO se resuelve leyendo el log. El log te
-# da una linea; el resto esta en ondas.vcd.
+# It is the only exercise in the course that is NOT solved by reading the log.
+# The log gives you one line; the rest is in ondas.vcd.
 #
-# Va por etapas, como el capstone:
-#   ETAPA 1  leiste las ondas: los dos tiempos de respuesta.txt
-#   ETAPA 2  arreglaste la BFM: la corrida cierra sin un solo $error
+# It goes in stages, like the capstone:
+#   STAGE 1  you read the waves: the two response times in respuesta.txt
+#   STAGE 2  you fixed the BFM: the run finishes without a single $error
 #
-# El TB es el del testbench convencional (u2/interfaces-bfm): de aca salen la
-# BFM -- que es la que tiene el bug -- y el top, que trae el volcado de ondas.
+# The TB is the conventional testbench one (u2/interfaces-bfm): from here come the
+# BFM -- the one with the bug -- and the top, which brings the wave dump.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
 SRC=${SOLUCION:+solucion/}
 
-falta() { echo "todavia no: $1" >&2; exit 1; }
+falta() { echo "not yet: $1" >&2; exit 1; }
 
-# --trace siempre: las ondas son el ejercicio, no un opt-in.
+# --trace always: the waves are the exercise, not an opt-in.
 VLT_TRACE=1
 vlt top -Wno-fatal -f pkg.f "${SRC}vtalu_bfm.sv" -f tb.f top.sv -f dut.f
 
-echo "=== corriendo, y volcando ondas.vcd ==="
-# La corrida ABORTA en el primer $error mientras el bug este: es lo esperado.
+echo "=== running, and dumping ondas.vcd ==="
+# The run ABORTS on the first $error while the bug is there: that is expected.
 run_sim || true
-[ -f ondas.vcd ] || falta "no se genero ondas.vcd. Revisa que top.sv tenga el bloque \`ifdef VLT_TRACE."
+[ -f ondas.vcd ] || falta "ondas.vcd was not generated. Check that top.sv has the \`ifdef VLT_TRACE block."
 
-# La verdad sale del propio .vcd, no de un numero escrito a mano aca: asi el
-# ejercicio no se rompe si cambia el DUT o el estimulo. Los dos tiempos que se
-# piden son los mismos con la BFM rota y con la sana -- pasan ANTES de que el
-# bug desincronice nada -- asi que la respuesta no cambia al arreglarla.
+# The truth comes out of the .vcd itself, not out of a number written by hand
+# here: that way the exercise survives a change of DUT or stimulus. The two times
+# asked for are the same with the broken BFM and with the healthy one -- they
+# happen BEFORE the bug desynchronizes anything -- so fixing it changes nothing.
 #   done       top.DUT.done        start_mult  top.DUT.start_mult
-# Los ids de una letra salen de la seccion $var del encabezado del .vcd.
+# The one-letter ids come from the $var section of the .vcd header.
 ids() { awk -v s="$1" '/\$scope module DUT/ { d = 1 }
                        d && $0 ~ ("\\$var .* " s " \\$end") { print $(NF-2); exit }' ondas.vcd; }
 ID_DONE=$(ids done); ID_MUL=$(ids start_mult)
-[ -n "$ID_DONE" ] && [ -n "$ID_MUL" ] || falta "no encontre done/start_mult en ondas.vcd"
+[ -n "$ID_DONE" ] && [ -n "$ID_MUL" ] || falta "could not find done/start_mult in ondas.vcd"
 
 read -r T_PRIMERO T_MUL <<EOF
 $(awk -v d="$ID_DONE" -v m="$ID_MUL" '
@@ -48,32 +48,32 @@ $(awk -v d="$ID_DONE" -v m="$ID_MUL" '
 EOF
 
 echo ""
-echo "=== ETAPA 1: leer las ondas ==="
-[ -f "${SRC}respuesta.txt" ] || falta "falta respuesta.txt. Abri las ondas
-    (gtkwave ondas.vcd, o surfer) y escribi los dos tiempos que pide el README,
-    uno por linea, en picosegundos y sin unidad."
+echo "=== STAGE 1: read the waves ==="
+[ -f "${SRC}respuesta.txt" ] || falta "respuesta.txt is missing. Open the waves
+    (gtkwave ondas.vcd, or surfer) and write down the two times the README asks for,
+    one per line, in picoseconds and without the unit."
 
-# Dos numeros, uno por linea; se ignoran comentarios y lineas en blanco.
+# Two numbers, one per line; comments and blank lines are ignored.
 R=(); while read -r n; do R+=("$n"); done < <(grep -oE "^[0-9]+" "${SRC}respuesta.txt")
-[ "${#R[@]}" -ge 2 ] || falta "respuesta.txt tiene ${#R[@]} numero(s) y hacen falta 2:
-    el primer flanco de subida de done, y el de la PRIMERA multiplicacion."
+[ "${#R[@]}" -ge 2 ] || falta "respuesta.txt has ${#R[@]} number(s) and 2 are needed:
+    the first rising edge of done, and the one of the FIRST multiplication."
 
 [ "${R[0]}" = "$T_PRIMERO" ] ||
-  falta "el primer flanco de subida de done no es ${R[0]} ps.
-    Poné el cursor sobre el PRIMER flanco de subida de done y leé el tiempo."
+  falta "the first rising edge of done is not ${R[0]} ps.
+    Put the cursor on the FIRST rising edge of done and read the time."
 [ "${R[1]}" = "$T_MUL" ] ||
-  falta "el done de la primera multiplicacion no es ${R[1]} ps.
-    Buscá el primer tramo con op = mul_op (o start_mult en 1) y leé el tiempo
-    del flanco de subida de done que lo cierra."
-echo "ETAPA 1 OK: leiste las ondas -- primer done en $T_PRIMERO ps, el de la primera multiplicacion en $T_MUL ps"
+  falta "the done of the first multiplication is not ${R[1]} ps.
+    Look for the first stretch with op = mul_op (or start_mult at 1) and read the
+    time of the rising edge of done that closes it."
+echo "STAGE 1 OK: you read the waves -- first done at $T_PRIMERO ps, the one of the first multiplication at $T_MUL ps"
 
 echo ""
-echo "=== ETAPA 2: arreglar la BFM ==="
+echo "=== STAGE 2: fix the BFM ==="
 grep -q 'while *( *done' "${SRC}vtalu_bfm.sv" ||
-  falta "send_op sigue contando ciclos. El DUT dice cuando termino: esperá el
-    handshake (done), no un numero de flancos. Es una linea."
+  falta "send_op still counts cycles. The DUT says when it finished: wait for the
+    handshake (done), not a number of edges. It is one line."
 
-run_sim || falta "la corrida sigue reportando errores: mira las lineas de arriba"
-echo "ETAPA 2 OK: la BFM espera el handshake y no falla ninguna operacion"
+run_sim || falta "the run still reports errors: look at the lines above"
+echo "STAGE 2 OK: the BFM waits for the handshake and no operation fails"
 echo ""
-echo "EJERCICIO OK"
+echo "EXERCISE OK"

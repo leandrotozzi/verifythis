@@ -1,4 +1,4 @@
-// Mismo env, mismo agent, mismo driver, mismo BFM. Cambia solo la sequence.
+// Same env, same agent, same driver, same BFM. Only the sequence changes.
 class fibonacci_test extends base_test;
    `uvm_component_utils(fibonacci_test)
 

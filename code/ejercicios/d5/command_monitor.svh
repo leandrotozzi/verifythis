@@ -16,13 +16,13 @@ class command_monitor extends uvm_component;
       ap = new("ap", this);
    endfunction : build_phase
 
-   // Aca cambiamos a transactions
+   // Here is where we switch to transactions
    function void write_to_monitor(byte A, byte B, operation_t op);
       command_transaction cmd;
       `uvm_info("COMMAND MONITOR", $sformatf(
                 "MONITOR: A: %2h  B: %2h  op: %s", A, B, op.name()), UVM_HIGH);
-      // Por la factory, igual que el result_monitor: el monitor es la puerta por
-      // la que el comando entra al TB, asi que su tipo tiene que ser overrideable.
+      // Through the factory, same as result_monitor: the monitor is the door the
+      // command comes into the TB through, so its type has to be overrideable.
       cmd = command_transaction::type_id::create("cmd");
       cmd.A = B;
       cmd.B = B;

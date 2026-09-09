@@ -18,9 +18,16 @@ import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import vm from 'node:vm';
 import hljs from './hljs-slim.mjs';
+import { UI, idiomaDeArgv, SALIDAS } from './i18n.mjs';
 
-const SLIDES_DIR = 'slides';
-const OUT_DIR = 'libro';
+const IDIOMA = idiomaDeArgv();
+const OUT = SALIDAS[IDIOMA];
+const T = UI[IDIOMA];
+const SLIDES_DIR = OUT.slides;
+const OUT_DIR = OUT.libro;
+// Las rutas relativas del libro: libro/ esta un nivel bajo la raiz y en/libro/
+// esta dos. css/ y res/ no se duplican, asi que el prefijo cambia y nada mas.
+const UP = OUT.base ? '../..' : '..';
 const CHECK = process.argv.includes('--check');
 
 // La misma tabla que build.mjs: extension -> lenguaje de hljs.
@@ -65,7 +72,12 @@ const pintar = (texto, lang) =>
 // Mismo troceo que el deck: un archivo por seccion, "---" entre slides. El
 // indice global de slide es el que usa el enlace "ver en el deck", asi que se
 // cuenta igual que en build.mjs.
-const files = (await readdir(SLIDES_DIR)).filter(f => f.endsWith('.md')).sort();
+const files = (await readdir(SLIDES_DIR).catch(() => [])).filter(f => f.endsWith('.md')).sort();
+if (!files.length) {
+  if (IDIOMA === 'es') throw new Error(`no hay .md en ${SLIDES_DIR}/`);
+  console.log(`${SLIDES_DIR}/ vacio: no hay libro que generar todavia`);
+  process.exit(0);
+}
 const slides = [];
 let pos = 0;
 for (const f of files) {
@@ -156,7 +168,7 @@ async function renderSlide(s) {
   //      -- la genera tools/figs-print.mjs para el PDF, por la misma razon --
   //      asi que se usa esa cuando esta.
   html = html.replace(/(<img[^>]+src=")(res\/[^"]+)/g,
-    (_, pre, rel) => pre + '../' + (clara.has(rel) ? rel.replace('res/', 'res/print/') : rel));
+    (_, pre, rel) => `${pre}${UP}/` + (clara.has(rel) ? rel.replace('res/', 'res/print/') : rel));
 
   // Los quizzes conservan la lista de tareas: el JS de abajo la convierte en
   // opciones clickeables, con el mismo markup y las mismas clases del deck.
@@ -165,30 +177,25 @@ async function renderSlide(s) {
   // id por seccion: en un dia de decenas de secciones, poder enlazar una sola
   // es la diferencia entre "leelo" y "leete esto".
   return `<section id="s${s.h}" class="slide${clases.size ? ' ' + [...clases].join(' ') : ''}">
-${html}${nota ? `<div class="nota">\n${marked.parse(nota)}</div>\n` : ''}<p class="al-deck"><a href="../index.html#/${s.h}">ver esta slide en el deck &rsaquo;</a></p>
+${html}${nota ? `<div class="nota">\n${marked.parse(nota)}</div>\n` : ''}<p class="al-deck"><a href="../index.html#/${s.h}">${T.libroAlDeck}</a></p>
 </section>`;
 }
 
 // --- 4. La pagina ------------------------------------------------------------
-// Las rutas del HTML son las del REPO: ../css/, ../res/, ../index.html (el deck)
-// y ../web/index.html (la landing). Asi el libro anda abierto con doble clic y
-// con un http.server local. Al publicar, el paso "Preparar sitio" de
-// .github/workflows/build.yml reescribe las dos ultimas -- el deck alla se llama
-// curso.html y la landing es la raiz. css/ y res/ quedan en ../ en los dos.
-// Un titulo por dia. El dia 1 lleva dos unidades cortas; del 2 al 7 hay una
-// unidad por dia, y el titulo del dia es el de la unidad.
-const TITULOS = [
-  'Por qué se verifica, y el testbench sin UVM',
-  'La OOP que UVM da por sabida',
-  'Entra UVM',
-  'Cómo hablan los componentes',
-  'El dato',
-  'El testbench reutilizable',
-  'La otra mitad, y el cierre',
-];
+// Las rutas del HTML son las del REPO, con $UP adelante: ../ para libro/ y
+// ../../ para en/libro/. css/, res/ y el deck no se duplican. Asi el libro anda
+// abierto con doble clic y con un http.server local. Al publicar, el paso
+// "Preparar sitio" de .github/workflows/build.yml reescribe el deck y la landing
+// -- alla el deck se llama curso.html y la landing es la raiz.
+// Los titulos de dia salen de tools/i18n.mjs, que es el unico lugar que los sabe.
+const TITULOS = T.titulos;
 
-const NAV = n => Array.from({ length: DIAS }, (_, i) =>
-  i === n ? `<b>Día ${i + 1}</b>` : `<a href="dia${i + 1}.html">Día ${i + 1}</a>`).join('\n      ');
+// Solo los dias que existen: en el arbol en ingles todavia hay huecos, y un
+// enlace a un dia que no se genero es un 404.
+const HAY = dias.map(ss => ss.length > 0);
+const NAV = n => Array.from({ length: DIAS }, (_, i) => !HAY[i] ? ''
+  : i === n ? `<b>${T.dia(i + 1)}</b>` : `<a href="${T.archivoDia(i + 1)}">${T.dia(i + 1)}</a>`)
+  .filter(Boolean).join('\n      ');
 
 // El mismo conversor de quizzes que tools/template.html, sin la tecla V (aca no
 // hay clicker ni proyector: se lee con el mouse o con el teclado sobre la opcion).
@@ -222,27 +229,26 @@ const JS_QUIZ = `
         });
       });
       lista.insertAdjacentHTML('afterend',
-        '<p class="ayuda">Elegí una opción para ver la respuesta</p>');
+        '<p class="ayuda">${T.quizAyuda}</p>');
     });`;
 
 function pagina(n, cuerpo) {
-  const t = `Día ${n + 1} · ${TITULOS[n]}`;
   return `<!DOCTYPE html>
-<html lang="es" class="libro">
+<html lang="${T.html}" class="libro">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${t} — Verify This! · Curso de UVM en español</title>
-<meta name="description" content="Día ${n + 1} del curso de UVM en español, para leer de corrido: las slides con las notas del instructor adentro del texto y el código completo.">
-<link rel="stylesheet" href="../css/fonts.css">
-<link rel="stylesheet" href="../css/course.css">
-<link rel="stylesheet" href="../css/code.css">
-<link rel="stylesheet" href="../css/libro.css">
+<title>${T.libroTitulo(n + 1)}</title>
+<meta name="description" content="${T.libroDescripcion(n + 1)}">
+<link rel="stylesheet" href="${UP}/css/fonts.css">
+<link rel="stylesheet" href="${UP}/css/course.css">
+<link rel="stylesheet" href="${UP}/css/code.css">
+<link rel="stylesheet" href="${UP}/css/libro.css">
 </head>
 <body class="reveal">
 <header class="cabecera">
   <div class="wrap">
-    <p class="marca"><a href="../web/index.html">Verify This!</a> · el curso para leer</p>
+    <p class="marca"><a href="${UP}/web/index.html">Verify This!</a> ${T.libroMarca}</p>
     <nav class="nav-dias">
       ${NAV(n)}
     </nav>
@@ -250,10 +256,8 @@ function pagina(n, cuerpo) {
 </header>
 
 <main class="wrap">
-  <h1 class="titulo-dia"><span>Día ${n + 1}</span>${TITULOS[n]}</h1>
-  <p class="bajada">Las mismas slides del deck, con <strong>las notas del
-  instructor adentro del texto</strong> y el código completo. Si estás haciendo
-  el curso solo, empezá por acá y tené el deck al lado para los repasos.</p>
+  <h1 class="titulo-dia"><span>${T.dia(n + 1)}</span>${TITULOS[n]}</h1>
+  <p class="bajada">${T.libroBajada}</p>
 
 ${cuerpo}
 </main>
@@ -263,8 +267,8 @@ ${cuerpo}
     <nav class="nav-dias">
       ${NAV(-1)}
     </nav>
-    <p><a href="../web/index.html">Sitio del curso</a> ·
-       <a href="https://github.com/leandrotozzi/verifythis">Código en GitHub</a> ·
+    <p><a href="${UP}/web/index.html">${T.libroSitio}</a> ·
+       <a href="https://github.com/leandrotozzi/verifythis">${T.libroGithub}</a> ·
        CC BY 4.0</p>
   </div>
 </footer>
@@ -278,9 +282,12 @@ ${cuerpo}
 
 // --- 5. Escribir -------------------------------------------------------------
 const paginas = [];
+// Un dia sin secciones no se escribe: mientras el arbol en ingles se llena de a
+// un dia por vez, un dia7.html vacio es peor que no tenerlo.
 for (const [n, ss] of dias.entries()) {
+  if (!ss.length) continue;
   const cuerpo = (await Promise.all(ss.map(renderSlide))).join('\n\n');
-  paginas.push([path.join(OUT_DIR, `dia${n + 1}.html`), pagina(n, cuerpo)]);
+  paginas.push([path.join(OUT_DIR, T.archivoDia(n + 1)), pagina(n, cuerpo)]);
 }
 
 if (CHECK) {
@@ -297,4 +304,5 @@ if (CHECK) {
 await mkdir(OUT_DIR, { recursive: true });
 for (const [f, html] of paginas) await writeFile(f, html);
 console.log(`${OUT_DIR}/  ${paginas.length} dias, ${slides.length} secciones`);
-for (const [n, ss] of dias.entries()) console.log(`  dia${n + 1}.html  ${ss.length} secciones`);
+for (const [n, ss] of dias.entries())
+  if (ss.length) console.log(`  ${T.archivoDia(n + 1)}  ${ss.length} secciones`);

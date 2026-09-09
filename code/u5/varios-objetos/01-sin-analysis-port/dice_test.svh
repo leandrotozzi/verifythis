@@ -16,12 +16,12 @@ class dice_test extends uvm_test;
    task run_phase(uvm_phase phase);
       int the_roll;
       phase.raise_objection(this);
-      // Esta parte necesita atencion.
-      // Aca debemos utilizar:
-      //	Observer design pattern
-      //	UVM analysis port
-      // Sino no estamos haciendo uso de la magia de OOP
-      // son simples funciones que se van pasando datos
+      // This part needs attention.
+      // What belongs here is:
+      //	the Observer design pattern
+      //	a UVM analysis port
+      // Otherwise none of the OOP magic is being used:
+      // these are plain functions passing data along
       repeat (20) begin
          the_roll = dice_roller_h.two_dice();
          coverage_h.write(the_roll);

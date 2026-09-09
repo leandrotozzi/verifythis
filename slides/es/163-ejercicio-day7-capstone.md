@@ -11,7 +11,7 @@
   direcciones, dos fases por transferencia, un *wait state* y respuesta de error
 - Se escribe todo: la interface con el protocolo, la transaction, el driver, el
   monitor, el agent, el scoreboard, el covergroup, las sequences y los tests
-- El corrector va **por etapas**, y cada una imprime su `ETAPA N OK`. Se puede
+- El corrector va **por etapas**, y cada una imprime su `STAGE N OK`. Se puede
   terminar de a una — y conviene
 
 Note:

@@ -1,14 +1,14 @@
-// El modulo de siempre: maneja su APB a mano, sin UVM y sin las tasks de la
-// interface. Se da hecho, y no se toca.
+// The usual module: it drives its APB by hand, without UVM and without the
+// interface tasks. It comes done, and it is not touched.
 //
-// Corre solo con +STIM, que es lo que el corrector le pasa a monitor_test.
-// Son OCHO transferencias, y las ocho respetan el protocolo. Tu monitor tiene
-// que verlas todas y ninguna de mas.
+// It only runs with +STIM, which is what the checker passes to monitor_test.
+// There are EIGHT transfers, and all eight respect the protocol. Your monitor has
+// to see them all and not one more.
 module apb_stim_module (apb_if bfm);
 
-   // El protocolo escrito a mano, igual que lo hizo el que escribio esto en
-   // 2014: SETUP en un flanco de bajada, ACCESS en el siguiente, y PREADY
-   // muestreado en el de subida.
+   // The protocol written by hand, just like whoever wrote this did in
+   // 2014: SETUP on a falling edge, ACCESS on the next one, and PREADY
+   // sampled on the rising one.
    task automatic xfer(input bit wr, input bit [7:0] addr, input bit [31:0] data);
       @(negedge bfm.PCLK);
       bfm.PSEL = 1'b1;
@@ -34,8 +34,8 @@ module apb_stim_module (apb_if bfm);
       repeat (2) @(negedge bfm.PCLK);
       bfm.PRESETn = 1'b1;
 
-      // Solo con +STIM: en los tests que maneja el testbench, este bus se
-      // queda quieto.
+      // Only with +STIM: in the tests the testbench drives, this bus
+      // stays quiet.
       if ($test$plusargs("STIM")) begin
          xfer(1, 8'h00, 32'h0000_0001);  // EN = 1
          xfer(1, 8'h04, 32'h0000_0010);  // SCRATCH, ACC = 0x10

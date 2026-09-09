@@ -1,7 +1,7 @@
 class consumer extends uvm_component;
    `uvm_component_utils(consumer);
 
-   // uvm_get_port maneja toda la coordinacion interthread
+   // uvm_get_port handles all the interthread coordination
    uvm_get_port #(int) get_port_h;
    int shared;
 

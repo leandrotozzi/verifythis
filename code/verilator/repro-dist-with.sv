@@ -1,27 +1,27 @@
-// Repro minimo: en Verilator 5.052, un dist no se resuelve junto con el resto
-// de las constraints. Se elige un valor concreto del dist PRIMERO y recien
-// despues se chequea lo demas; si el valor elegido no lo cumple, randomize()
-// devuelve 0 en vez de buscar otro.
+// Minimal repro: in Verilator 5.052, a dist is not solved together with the rest
+// of the constraints. A concrete value of the dist is picked FIRST and only then
+// is everything else checked; if the picked value does not satisfy it,
+// randomize() returns 0 instead of looking for another one.
 //
 //   $ verilator --binary --timing --top-module top -o sim repro-dist-with.sv
 //   $ ./obj_dir/sim
 //
-// Con  A dist {8'h00 :/ 1, [8'h01:8'hFE] :/ 2, 8'hFF :/ 1}  la tasa de exito de
-// un randomize() with {} no es 0 ni 100: es la PROBABILIDAD de que el valor
-// sorteado cumpla la restriccion. Medido sobre 400 randomizaciones:
+// With  A dist {8'h00 :/ 1, [8'h01:8'hFE] :/ 2, 8'hFF :/ 1}  the success rate of
+// a randomize() with {} is neither 0 nor 100: it is the PROBABILITY that the
+// drawn value satisfies the restriction. Measured over 400 randomizations:
 //
-//   with {A == 8'hFF}          ~25 %   el peso del bin FF (1 de 4)
-//   with {A inside {[1:10]}}    ~2 %   10 valores de los 254 del bin del medio, x 50 %
-//   with {A != 8'h00}          ~75 %   falla solo cuando sortea el bin 00
-//   with {B == 8'hFF}          100 %   B no tiene dist: no lo afecta
+//   with {A == 8'hFF}          ~25 %   the weight of the FF bin (1 of 4)
+//   with {A inside {[1:10]}}    ~2 %   10 values of the 254 in the middle bin, x 50 %
+//   with {A != 8'h00}          ~75 %   fails only when the 00 bin is drawn
+//   with {B == 8'hFF}          100 %   B has no dist: it is unaffected
 //
-// O sea que NO es "with sobre una clase con dist". Es: el with restringe un
-// campo que tiene dist. Un campo sin dist en la misma clase resuelve siempre.
+// So it is NOT "with over a class that has a dist". It is: the with restricts a
+// field that has a dist. A field without dist in the same class always solves.
 //
-// Por eso un caso dirigido intermitente es el sintoma tipico, y por eso es
-// peligroso: pasa en la maquina de uno y falla en la regresion. Rodeo: apagar
-// el dist con constraint_mode(0) antes del with, que para un estimulo dirigido
-// no aporta nada. Lo usa code/u6/transactions/constraints/02_with.sv.
+// That is why an intermittent directed case is the typical symptom, and why it is
+// dangerous: it passes on your machine and fails in the regression. Workaround:
+// turn the dist off with constraint_mode(0) before the with, which for a directed
+// stimulus adds nothing. code/u6/transactions/constraints/02_with.sv uses it.
 module top;
 
    class comando;
@@ -46,16 +46,16 @@ module top;
       end
 
       $display("%0d randomizaciones de cada forma", N);
-      $display("  with {A == 8'hFF}          %5.1f%%   esperado ~25%%  (peso del bin FF)",
+      $display("  with {A == 8'hFF}          %5.1f%%   expected ~25%%  (weight of the FF bin)",
                100.0 * ff / N);
       $display("  with {A inside {[1:10]}}   %5.1f%%   esperado  ~2%%  (10 de 254, x 50%%)",
                100.0 * rango / N);
       $display("  with {A != 8'h00}          %5.1f%%   esperado ~75%%",
                100.0 * distinto / N);
-      $display("  with {B == 8'hFF}          %5.1f%%   B no tiene dist",
+      $display("  with {B == 8'hFF}          %5.1f%%   B has no dist",
                100.0 * sin_dist / N);
 
-      // El rodeo: sin el dist en el camino, el pedido dirigido resuelve siempre.
+      // The workaround: with no dist in the way, the directed request always solves.
       c.data.constraint_mode(0);
       repeat (N) if (c.randomize() with {A == 8'hFF;}) apagado = apagado + 1;
       $display("  + data.constraint_mode(0)  %5.1f%%   esperado 100%%",

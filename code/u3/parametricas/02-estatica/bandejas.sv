@@ -9,9 +9,9 @@ virtual class trago;
       name = n;
    endfunction : new
 
-   function int get_age();
+   function int get_hielos();
       return hielos;
-   endfunction : get_age
+   endfunction : get_hielos
 
    function string get_name();
       return name;
@@ -30,26 +30,26 @@ class fernet extends trago;
    endfunction : new
 
    function void servir();
-      $display("El fernet %s: 70/30, y la coca al final", get_name());
+      $display("The fernet %s: 70/30, and the coke last", get_name());
    endfunction : servir
 
 endclass : fernet
 
-class gancia extends trago;
+class mojito extends trago;
 
    function new(int hielos, string n);
       super.new(hielos, n);
    endfunction : new
 
    function void servir();
-      $display("El gancia %s: con Sprite y una rodaja de limon", get_name());
+      $display("The mojito %s: mint, lime and crushed ice", get_name());
    endfunction : servir
 
-endclass : gancia
+endclass : mojito
 
 // Parameterized class
-// mediante el parametro T (type) especificamos que
-// tipo de queue es.
+// the T (type) parameter is what says which
+// kind of queue this is.
 class bandeja #(
     type T
 );
@@ -61,7 +61,7 @@ class bandeja #(
    endfunction : bandeja_trago
 
    static function void lista_tragos();
-      $display("Tragos en la bandeja:");
+      $display("Drinks on the tray:");
       foreach (vasos[i]) $display(vasos[i].get_name());
    endfunction : lista_tragos
 
@@ -71,21 +71,21 @@ module top;
 
    initial begin
       fernet fernet_h;
-      gancia gancia_h;
-      fernet_h = new(15, "el de la barra");
+      mojito mojito_h;
+      fernet_h = new(15, "the one at the bar");
       bandeja#(fernet)::bandeja_trago(fernet_h);
-      fernet_h = new(15, "el de la mesa 4");
+      fernet_h = new(15, "the one at table 4");
       bandeja#(fernet)::bandeja_trago(fernet_h);
 
-      gancia_h = new(1, "Clucker");
-      bandeja#(gancia)::bandeja_trago(gancia_h);
-      gancia_h = new(1, "Scratchy");
-      bandeja#(gancia)::bandeja_trago(gancia_h);
+      mojito_h = new(1, "the one at table 7");
+      bandeja#(mojito)::bandeja_trago(mojito_h);
+      mojito_h = new(1, "the one at the counter");
+      bandeja#(mojito)::bandeja_trago(mojito_h);
 
       $display("-- Fernets --");
       bandeja#(fernet)::lista_tragos();
-      $display("-- Gancias --");
-      bandeja#(gancia)::lista_tragos();
+      $display("-- Mojitos --");
+      bandeja#(mojito)::lista_tragos();
    end
 
 endmodule : top

@@ -22,11 +22,11 @@ virtual class base_tester extends uvm_component;
       phase.raise_objection(this);
       command.op = rst_op;
       command_port.put(command);
-      // 10 y no 1000 como el resto de las secciones, A PROPOSITO: el scoreboard
-      // de esta unidad falla adrede y la slide muestra su salida entera. Con
-      // 1000 operaciones el transcript no entra en la pantalla y el ejemplo
-      // deja de enseñar lo que vino a enseñar. Por eso u4/reporting mide 28,8 % de
-      // cobertura y no 72,6 %: es el precio de que el log se pueda leer.
+      // 10 and not 1000 like the rest of the sections, ON PURPOSE: the scoreboard
+      // in this unit fails deliberately and the slide shows its whole output. With
+      // 1000 operations the transcript does not fit on the screen and the example
+      // stops teaching what it came to teach. That is why u4/reporting measures 28,8 % of
+      // coverage and not 72,6 %: it is the price of a readable log.
       repeat (10) begin : random_loop
          command.op = get_op();
          command.A = get_data();

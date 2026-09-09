@@ -23,7 +23,7 @@ class apb_agent extends uvm_agent;
          driver_h    = apb_driver::type_id::create("driver_h", this);
       end : estimulo
 
-      // El monitor existe siempre: es lo unico que un agent pasivo hace.
+      // The monitor always exists: it is the only thing a passive agent does.
       monitor_h = apb_monitor::type_id::create("monitor_h", this);
       ap = new("ap", this);
    endfunction : build_phase

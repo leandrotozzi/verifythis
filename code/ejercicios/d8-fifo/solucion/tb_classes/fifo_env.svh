@@ -26,7 +26,7 @@ class fifo_env extends uvm_env;
       agent_h      = fifo_agent::type_id::create("agent_h", this);
       stim_agent_h = fifo_agent::type_id::create("stim_agent_h", this);
 
-      // Un scoreboard por FIFO: son dos DUT con dos estados distintos.
+      // One scoreboard per FIFO: they are two DUTs with two different states.
       scoreboard_h      = fifo_scoreboard::type_id::create("scoreboard_h", this);
       stim_scoreboard_h = fifo_scoreboard::type_id::create("stim_scoreboard_h", this);
       coverage_h        = fifo_coverage::type_id::create("coverage_h", this);

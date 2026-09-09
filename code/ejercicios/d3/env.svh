@@ -1,5 +1,5 @@
-// Esta clase define la estructura del TB
-// Instancia los objetos en el TB
+// This class defines the structure of the TB
+// It instantiates the objects in the TB
 class env extends uvm_env;
    `uvm_component_utils(env);
 
@@ -9,11 +9,11 @@ class env extends uvm_env;
    chequeo     chequeo_h;  // lo agrega el ejercicio; no hace falta que la toques
 
    function void build_phase(uvm_phase phase);
-      // tester_h crea un objeto de la clase base_tester
-      // Sabemos que base_tester es una virtual class, por lo tanto
-      // no podemos crear un un objeto base_tester, debemos crear un clase heredada
-      // de base_tester. Entonces porque funciona este codigo?
-      // env class esta usando la variable base_tester como un placeholder
+      // tester_h creates an object of the base_tester class
+      // We know base_tester is a virtual class, so
+      // a base_tester object cannot be created: what has to be created is a
+      // class derived from base_tester. So why does this code work?
+      // The env class is using the base_tester variable as a placeholder
       tester_h = base_tester::type_id::create("tester_h", this);
       coverage_h = coverage::type_id::create("coverage_h", this);
       scoreboard_h = scoreboard::type_id::create("scoreboard_h", this);

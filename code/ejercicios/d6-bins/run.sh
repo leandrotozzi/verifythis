@@ -1,63 +1,63 @@
 #!/bin/bash
-# Ejercicio del dia 6 (seccion Sequences) -- cerrar un bin. Falla hasta que lo resuelvas.
+# Day 6 exercise (Sequences section) -- close a bin. It fails until you solve it.
 #
-#   bash run.sh              con tu archivo
-#   SOLUCION=1 bash run.sh   con el de solucion/, para comparar
+#   bash run.sh              with your file
+#   SOLUCION=1 bash run.sh   with the one in solucion/, to compare
 #
-# Corre DOS veces el mismo test:
-#   1. con +SIN_CIERRE  -> solo reset + 60 al azar. Es la cobertura de partida.
-#   2. sin el           -> lo mismo, mas tu caso dirigido.
+# It runs the same test TWICE:
+#   1. with +SIN_CIERRE  -> only reset + 60 random ones. That is the baseline coverage.
+#   2. without it        -> the same, plus your directed case.
 #
-# La semilla esta fijada a proposito: con la 7, las 60 operaciones al azar NO
-# tocan el bin FF x FF en mul_op, asi que el ejercicio es el mismo siempre. Sin
-# fijarla, algunas corridas te lo llenarian solas y no habria nada que cerrar.
-# (Si cambia el DUT o el estimulo, hay que volver a elegirla: probar seeds hasta
-# que la corrida con +SIN_CIERRE deje el bin abierto.)
+# The seed is pinned on purpose: with 7, the 60 random operations do NOT
+# touch the FF x FF bin in mul_op, so the exercise is always the same. Without
+# pinning it, some runs would fill it on their own and there would be nothing to close.
+# (If the DUT or the stimulus changes, it has to be picked again: try seeds until
+# the run with +SIN_CIERRE leaves the bin open.)
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
 INC=${SOLUCION:+ +incdir+solucion}
 vlt_uvm top --coverage-user -Wno-fatal $INC -f dut.f -f tb.f
 
 export SEED=7
-falta() { echo "todavia no: $1" >&2; exit 1; }
+falta() { echo "not yet: $1" >&2; exit 1; }
 
-# El enunciado pide el caso dirigido PEDIDO, no asignado. Asignando los tres
-# campos a mano tambien se cierra el bin -- lo hace maxmult_sequence del u7/sequences --
-# pero entonces no se practica ni el with{} ni el agujero del dist, que son el
-# tema. Es lo unico que este corrector mira en tu archivo.
+# The exercise asks for the directed case to be ASKED FOR, not assigned. Assigning
+# the three fields by hand also closes the bin -- u7/sequences' maxmult_sequence does that --
+# but then neither the with{} nor the dist hole get practised, and those are the
+# topic. It is the only thing this checker looks at in your file.
 grep -q 'randomize()' "${SOLUCION:+solucion/}cierre_sequence.svh" ||
-  falta "tu cierre_sequence no llama a randomize(): el enunciado pide el caso
+  falta "your cierre_sequence does not call randomize(): the exercise asks for the
     dirigido con randomize() with {}, no asignando A, B y op a mano."
 
 cg() { verilator_coverage "$1" 2>/dev/null | sed -nE 's/.*covergroup *: *([0-9.]+)% *\( *([0-9]+)\/.*/\2 \1/p'; }
 
-echo "=== 1) sin tu caso dirigido: 60 operaciones al azar ==="
+echo "=== 1) without your directed case: 60 random operations ==="
 run_sim +UVM_TESTNAME=cierre_test +UVM_TIMEOUT=500000,YES +SIN_CIERRE > /dev/null
 ANTES=$VLT_OBJ/cov.$VLT_RUN.dat
 read -r bins_antes pct_antes <<< "$(cg "$ANTES")"
-echo "    cobertura: $pct_antes%  ($bins_antes bins)"
+echo "    coverage: $pct_antes%  ($bins_antes bins)"
 
-echo "=== 2) con tu cierre_sequence ==="
+echo "=== 2) with your cierre_sequence ==="
 run_sim +UVM_TESTNAME=cierre_test +UVM_TIMEOUT=500000,YES || true
 DESPUES=$VLT_OBJ/cov.$VLT_RUN.dat
 read -r bins_despues pct_despues <<< "$(cg "$DESPUES")"
-echo "    cobertura: $pct_despues%  ($bins_despues bins)"
+echo "    coverage: $pct_despues%  ($bins_despues bins)"
 
 grep -q "\[PH_TIMEOUT\]" "$VLT_LOG" &&
-  falta "la simulacion dejo de avanzar: te falto el finish_item()"
+  falta "the simulation stopped advancing: you are missing the finish_item()"
 
 maxmul=$(sed -nE 's/.*\[CHEQUEO\].*maxmul=([0-9]+).*/\1/p' "$VLT_LOG" | tail -1)
-[ -n "$maxmul" ] || falta "el corrector no llego a reportar: mira el log de arriba"
+[ -n "$maxmul" ] || falta "the checker never got to report: look at the log above"
 
 if [ "$maxmul" -lt 1 ]; then
-  falta "por el bus no paso ni una FF x FF en mul_op.
-    Si randomize() te devolvio 0, es el agujero del dist: con la constraint de
+  falta "not a single FF x FF in mul_op went through the bus.
+    If randomize() returned 0, it is the dist hole: with the data constraint
     reparto activa, Verilator elige el valor ANTES de mirar tu with. Apagala
-    para este objeto -- una linea, y esta en la seccion Constrained random."
+    turned off for this object -- one line, and it is in the Constrained random section."
 fi
 [ "$bins_despues" -gt "$bins_antes" ] ||
-  falta "la cobertura no subio: $bins_antes bins antes, $bins_despues despues"
+  falta "coverage did not go up: $bins_antes bins before, $bins_despues after"
 
-uvm_summary_ok "$VLT_LOG" || falta "el Report Summary cuenta errores"
+uvm_summary_ok "$VLT_LOG" || falta "the Report Summary counts errors"
 
-echo "EJERCICIO OK: el bin se cerro -- $pct_antes% ($bins_antes bins) -> $pct_despues% ($bins_despues bins), con una transaction"
+echo "EXERCISE OK: the bin closed -- $pct_antes% ($bins_antes bins) -> $pct_despues% ($bins_despues bins), with one transaction"

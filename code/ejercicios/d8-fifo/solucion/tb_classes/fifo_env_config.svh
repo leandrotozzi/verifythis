@@ -1,4 +1,4 @@
-// La configuracion del env: las dos interfaces del testbench.
+// The env configuration: the two interfaces of the testbench.
 class fifo_env_config;
 
    virtual fifo_if bfm;       // la que maneja el testbench

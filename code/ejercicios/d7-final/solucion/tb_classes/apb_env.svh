@@ -17,7 +17,7 @@ class apb_env extends uvm_env;
       if (!uvm_config_db#(apb_env_config)::get(this, "", "config", cfg))
          `uvm_fatal("ENV", "Failed to get env config")
 
-      // El del testbench maneja; el del modulo de siempre solo mira.
+      // The testbench's one drives; the usual module's one only watches.
       agent_cfg_h = new(.bfm(cfg.bfm), .is_active(UVM_ACTIVE));
       stim_cfg_h  = new(.bfm(cfg.stim_bfm), .is_active(UVM_PASSIVE));
 
@@ -27,8 +27,8 @@ class apb_env extends uvm_env;
       agent_h      = apb_agent::type_id::create("agent_h", this);
       stim_agent_h = apb_agent::type_id::create("stim_agent_h", this);
 
-      // Un scoreboard y una cobertura por bus: son dos DUT distintos, con dos
-      // estados distintos. Un solo scoreboard mezclando los dos no cerraria.
+      // One scoreboard and one coverage per bus: they are two different DUTs, with two
+      // different states. A single scoreboard mixing both would not close.
       scoreboard_h      = apb_scoreboard::type_id::create("scoreboard_h", this);
       stim_scoreboard_h = apb_scoreboard::type_id::create("stim_scoreboard_h", this);
       coverage_h        = apb_coverage::type_id::create("coverage_h", this);

@@ -29,7 +29,7 @@ class tester;
       else return $random;
    endfunction : get_data
 
-   // Reemplazamos el initial block por una task execute()
+   // The initial block is replaced by an execute() task
    task execute();
       byte unsigned     iA;
       byte unsigned     iB;

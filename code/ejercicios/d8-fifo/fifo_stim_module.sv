@@ -1,13 +1,13 @@
-// El modulo de siempre: maneja la FIFO a mano, sin UVM. Se da hecho, y no se
-// toca.
+// The usual module: it drives the FIFO by hand, without UVM. It comes done, and it is
+// not touched.
 //
-// Corre solo con +STIM, que es lo que el corrector le pasa a monitor_test.
-// Hace DOCE ciclos con actividad -- escrituras, lecturas y una simultanea --
-// y tu monitor tiene que verlos todos y ninguno de mas.
+// It only runs with +STIM, which is what the checker passes to monitor_test.
+// It does TWELVE cycles with activity -- writes, reads and a simultaneous one --
+// and your monitor has to see them all and not one more.
 module fifo_stim_module (fifo_if bfm);
 
-   // El protocolo es de un ciclo: se levantan las senales en el flanco de
-   // bajada y el DUT las toma en el de subida. Igual que la BFM del VTALU.
+   // The protocol is one cycle long: the signals go up on the falling edge
+   // and the DUT takes them on the rising one. Same as the VTALU BFM.
    task automatic ciclo(input bit wr, input bit [7:0] dato, input bit rd);
       @(negedge bfm.clk);
       bfm.wr_en   = wr;
@@ -26,8 +26,8 @@ module fifo_stim_module (fifo_if bfm);
       repeat (2) @(negedge bfm.clk);
       bfm.rst_n = 1'b1;
 
-      // Solo con +STIM: en los tests que maneja el testbench, esta FIFO se
-      // queda quieta.
+      // Only with +STIM: in the tests the testbench drives, this FIFO
+      // stays quiet.
       if ($test$plusargs("STIM")) begin
          ciclo(1, 8'hA0, 0);  // 1  escribe
          ciclo(1, 8'hA1, 0);  // 2

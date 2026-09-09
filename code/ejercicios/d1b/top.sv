@@ -1,5 +1,5 @@
-// El top del testbench convencional, con el volcado de ondas prendido: es el
-// unico ejercicio del curso que se resuelve mirando el .vcd.
+// The top of the conventional testbench, with the wave dump turned on: it is the
+// only exercise in the course that gets solved by looking at the .vcd.
 module top;
    vtalu_bfm bfm ();
    tester tester_i (bfm);
@@ -13,9 +13,9 @@ module top;
    );
 
 `ifdef VLT_TRACE
-   // Ondas para GTKWave:  VLT_TRACE=1 bash run.sh  &&  gtkwave ondas.vcd
-   // Va detras de un `ifdef porque $dumpvars no compila sin --trace, y el
-   // define lo pone el mismo VLT_TRACE que agrega el flag (common.sh).
+   // Waves for GTKWave:  VLT_TRACE=1 bash run.sh  &&  gtkwave ondas.vcd
+   // Behind an `ifdef because $dumpvars does not compile without --trace, and
+   // the define comes from the same VLT_TRACE that adds the flag (common.sh).
    initial begin
       $dumpfile("ondas.vcd");
       $dumpvars;

@@ -1,4 +1,4 @@
-# Día 7 · RAL — modelar el mapa de registros
+# Día 8 · RAL — modelar el mapa de registros
 
 Es lo primero que te piden en un proyecto con registros, y es literalmente esto:
 te dan la tabla de la spec y devolvés el modelo.
@@ -27,7 +27,7 @@ escrita como modelo de UVM. Cuatro registros, seis campos, cuatro direcciones.
 | `0x08` | `ACC` | RO | 32 bits, y **cambia solo** |
 | `0x0C` | `STATUS` | RO | `EN` bit 0 · `OVF` bit 1, y **cambian solos** |
 
-El corrector va por etapas y cada una imprime su `ETAPA N OK`:
+El corrector va por etapas y cada una imprime su `STAGE N OK`:
 
 1. **El mapa.** Sin simular nada: el modelo se imprime y se compara con la
    tabla. Un offset o un ancho mal se ven acá.

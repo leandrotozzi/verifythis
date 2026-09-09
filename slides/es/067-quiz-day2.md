@@ -28,7 +28,7 @@
 - [x] El `servir()` de `trago`
 - [ ] Los dos, primero el de la clase base
 
-> **El de `trago`** — sin `virtual`, SystemVerilog mira el **tipo de la variable**, no el del objeto. Es literal lo que imprime `code/u3/polimorfismo/01-sin-virtual`: *"Generic tragos don't have a sound"*.
+> **El de `trago`** — sin `virtual`, SystemVerilog mira el **tipo de la variable**, no el del objeto. Es literal lo que imprime `code/u3/polimorfismo/01-sin-virtual`: *"A generic trago cannot be served"*.
 
 ---
 
@@ -89,7 +89,7 @@
 
 #### *6 de 8 · Clases paramétricas*
 
-**`bandeja#(fernet)` y `bandeja#(gancia)` tienen adentro una queue `static`. ¿Comparten la queue?**
+**`bandeja#(fernet)` y `bandeja#(mojito)` tienen adentro una queue `static`. ¿Comparten la queue?**
 
 - [ ] Sí, `static` es una sola para todos
 - [ ] Sí, salvo que se declare `protected`

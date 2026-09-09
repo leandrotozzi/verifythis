@@ -1,6 +1,6 @@
-// Fibonacci con el sumador del VTALU. Cada suma necesita el RESULTADO de la
-// anterior: es el caso que obliga a leer el item de vuelta, y que con el tester
-// de la seccion Transactions no se podia escribir sin darle un handle al monitor.
+// Fibonacci with the VTALU adder. Every addition needs the RESULT of the previous
+// one: it is the case that forces reading the item back, and that with the tester
+// of the Transactions section could not be written without giving the monitor a handle.
 class fibonacci_sequence extends uvm_sequence #(command_transaction);
    `uvm_object_utils(fibonacci_sequence)
 
@@ -21,8 +21,8 @@ class fibonacci_sequence extends uvm_sequence #(command_transaction);
       `uvm_info("FIBONACCI", "Fib(01) = 000", UVM_MEDIUM)
       `uvm_info("FIBONACCI", "Fib(02) = 001", UVM_MEDIUM)
 
-      // Hasta 14 y no mas: Fib(14) = 233 y Fib(15) = 377, que no entra en los
-      // 8 bits de A y de B.
+      // Up to 14 and no further: Fib(14) = 233 and Fib(15) = 377, which does not
+      // fit in the 8 bits of A and B.
       for (int ff = 3; ff <= 14; ff++) begin : fib_loop
          command = command_transaction::type_id::create("command");
          start_item(command);

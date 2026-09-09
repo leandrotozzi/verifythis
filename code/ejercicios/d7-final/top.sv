@@ -1,10 +1,10 @@
-// El top del capstone. Se da hecho, y no se toca.
+// The capstone top. It comes done, and it is not touched.
 //
-// Hay DOS esclavos, cada uno con su interface -- es el mismo arreglo del
-// seccion Agents: uno lo maneja tu testbench, el otro lo maneja un modulo de
-// siempre, sin una linea de UVM. El segundo existe para que puedas escribir el
-// MONITOR antes que el driver, que es el orden que recomienda el apendice del
-// bus: si no podes ver el bus, no podes verificar nada.
+// There are TWO slaves, each with its own interface -- it is the same arrangement as the
+// Agents section: one is driven by your testbench, the other by a module of
+// always, without a line of UVM. The second one exists so that you can write the
+// MONITOR before the driver, which is the order the bus appendix recommends:
+// if you cannot see the bus, you cannot verify anything.
 module top;
    import uvm_pkg::*;
    import apb_pkg::*;
@@ -12,7 +12,7 @@ module top;
 
    bit bug_en;
 
-   // La que maneja tu testbench
+   // The one your testbench drives
    apb_if bfm ();
    apb_regs dut (
        .PCLK(bfm.PCLK), .PRESETn(bfm.PRESETn), .PSEL(bfm.PSEL), .PENABLE(bfm.PENABLE),
@@ -20,8 +20,8 @@ module top;
        .PRDATA(bfm.PRDATA), .PREADY(bfm.PREADY), .PSLVERR(bfm.PSLVERR)
    );
 
-   // La que maneja el modulo de siempre. Su DUT nunca tiene el bug: lo unico
-   // que se mira ahi es si tu monitor ve el bus.
+   // The one the usual module drives. Its DUT never has the bug: the only thing
+   // looked at there is whether your monitor sees the bus.
    apb_if stim_bfm ();
    apb_regs stim_dut (
        .PCLK(stim_bfm.PCLK), .PRESETn(stim_bfm.PRESETn), .PSEL(stim_bfm.PSEL),
@@ -34,8 +34,8 @@ module top;
 
    initial begin
       bug_en = $test$plusargs("BUG");
-      // Como en la seccion Sequences: el top deja las dos interfaces con nombre y se
-      // va. Quien las reparte es el test.
+      // As in the Sequences section: the top leaves the two interfaces with a name and walks
+      // away. Handing them out is the test's job.
       uvm_config_db#(virtual apb_if)::set(null, "*", "bfm", bfm);
       uvm_config_db#(virtual apb_if)::set(null, "*", "stim_bfm", stim_bfm);
       run_test();

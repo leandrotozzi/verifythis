@@ -19,7 +19,7 @@ el estímulo.
 2. **`mult_test.svh`** — un test que extienda `base_test`, cree la sequence por
    la factory y la arranque sobre `sequencer_h`, con el objection alrededor.
 
-Listo cuando `bash run.sh` imprime `EJERCICIO OK`.
+Listo cuando `bash run.sh` imprime `EXERCISE OK`.
 
 ## Cómo se corre
 

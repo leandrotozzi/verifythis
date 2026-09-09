@@ -20,13 +20,13 @@ class vtalu_agent extends uvm_agent;
          `uvm_fatal("AGENT", "Failed to get agent config")
       is_active = cfg.get_is_active();
 
-      // TODO(ejercicio 6): estas dos lineas tienen que correr SOLO si el agent
-      // es activo. Hoy corren siempre, asi que is_active no sirve para nada.
-      // Mira get_is_active().
+      // TODO(exercise 6): these two lines have to run ONLY if the agent is
+      // active. Today they always run, so is_active is good for nothing.
+      // Look at get_is_active().
       sequencer_h = sequencer::type_id::create("sequencer_h", this);
       driver_h    = driver::type_id::create("driver_h", this);
 
-      // Los monitores y los dos analysis ports, en cambio, van SIEMPRE.
+      // The monitors and the two analysis ports, on the other hand, go ALWAYS.
       command_monitor_h = command_monitor::type_id::create("command_monitor_h", this);
       result_monitor_h  = result_monitor::type_id::create("result_monitor_h", this);
 
@@ -35,9 +35,9 @@ class vtalu_agent extends uvm_agent;
    endfunction : build_phase
 
    function void connect_phase(uvm_phase phase);
-      // TODO(ejercicio 6): esta conexion tambien es solo del agent activo. Un
-      // agent pasivo no tiene driver ni sequencer, asi que esta linea le busca
-      // un puerto a un null.
+      // TODO(exercise 6): this connection is the active agent's only too. A
+      // passive agent has no driver and no sequencer, so this line goes looking
+      // for a port on a null.
       driver_h.seq_item_port.connect(sequencer_h.seq_item_export);
 
       command_monitor_h.ap.connect(command_ap);

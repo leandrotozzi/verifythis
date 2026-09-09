@@ -752,9 +752,94 @@ html:is(.print-pdf, .imprimiendo, .libro) .reveal kbd {
 }
 .ind-lista a:hover .ind-n { color: #8d8d8d; }
 
+/* ---- Selector de idioma ---------------------------------------------------
+   Pegado al boton de indice, misma altura y misma caja: son los dos unicos
+   controles fijos del deck y tienen que leerse como un par, no como dos
+   widgets que se encontraron ahi.
+
+   Es un segmented control y no un <select>: son dos opciones, siempre las
+   mismas, y el estado actual tiene que estar a la vista sin desplegar nada.
+   Un menu para dos items es un click de mas.
+
+   El actual va relleno en ambar y el otro en gris: el contraste dice cual es
+   cual sin leer. Ambos pasan 4.5:1 -- ambar sobre #111 para el link, y #111
+   sobre ambar para el actual. */
+#idioma {
+  position: fixed;
+  top: 14px;
+  left: 68px;              /* 14 del boton + 44 de ancho + 10 de aire */
+  z-index: 40;
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 8px;
+  background: rgba(17, 17, 17, 0.5);
+  font-family: var(--r-heading-font);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+#idioma > * {
+  display: grid;
+  place-items: center;
+  /* 36x36 de caja visible dentro de los 44 de alto del control: el area
+     clickeable la da el padding del contenedor, y el bloque entero sigue
+     midiendo lo mismo que el boton de al lado. */
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border-radius: 5px;
+  line-height: 1;
+}
+#idioma .idioma-actual {
+  color: #111;
+  background: var(--accent);
+  cursor: default;
+}
+#idioma a {
+  color: #c9c9c9;
+  text-decoration: none;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+#idioma a:hover { color: var(--accent); background: rgba(231, 173, 82, 0.16); }
+#idioma a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* El aviso de "esa seccion todavia no esta traducida". Debajo del selector,
+   alineado con el, y se va solo: es una explicacion de por que quedaste en la
+   slide 1, no algo que haya que cerrar. */
+#idioma-aviso {
+  position: fixed;
+  top: 66px;
+  left: 68px;
+  z-index: 40;
+  margin: 0;
+  max-width: min(340px, 68vw);
+  padding: 10px 14px;
+  border-left: 3px solid var(--accent);
+  border-radius: 4px 8px 8px 4px;
+  background: rgba(17, 17, 17, 0.94);
+  color: #e6e6e6;
+  font-family: var(--r-main-font);
+  font-size: 15px;
+  line-height: 1.45;
+  animation: idioma-aviso-in 0.25s ease both;
+}
+@keyframes idioma-aviso-in {
+  from { opacity: 0; translate: 0 -6px; }
+}
+
+/* En pantalla angosta el selector se corre debajo del boton: al lado se le
+   monta al titulo de la slide. */
+@media (max-width: 640px) {
+  #idioma { top: 66px; left: 14px; }
+  #idioma-aviso { top: 118px; left: 14px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   #indice { transition: none; translate: none; }
   #indice-btn, #indice-btn span { transition: none; }
+  #idioma a { transition: none; }
+  #idioma-aviso { animation: none; }
 }
 
 
@@ -859,8 +944,10 @@ html:is(.print-pdf, .imprimiendo, .libro) .reveal section img { max-height: 420p
 html:is(.print-pdf, .imprimiendo, .libro) .forkit,
 html:is(.print-pdf, .imprimiendo, .libro) .forkit-curtain,
 html:is(.print-pdf, .imprimiendo, .libro) #indice-btn,
+html:is(.print-pdf, .imprimiendo, .libro) #idioma,
+html:is(.print-pdf, .imprimiendo, .libro) #idioma-aviso,
 html:is(.print-pdf, .imprimiendo, .libro) #indice { display: none !important; }
 
 @media print {
-  .forkit, .forkit-curtain, #indice-btn, #indice { display: none !important; }
+  .forkit, .forkit-curtain, #indice-btn, #indice, #idioma, #idioma-aviso { display: none !important; }
 }

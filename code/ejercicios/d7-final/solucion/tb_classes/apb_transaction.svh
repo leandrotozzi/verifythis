@@ -1,6 +1,6 @@
-// Una transferencia de APB, entera: el pedido y la respuesta en el mismo
-// objeto. Se puede porque en APB no hay transacciones solapadas -- en AXI esto
-// serian dos clases y un ID para aparearlas.
+// One APB transfer, whole: the request and the response in the same
+// object. That works because APB has no overlapping transactions -- in AXI this
+// would be two classes and an ID to pair them.
 class apb_transaction extends uvm_sequence_item;
    `uvm_object_utils(apb_transaction)
 
@@ -8,17 +8,17 @@ class apb_transaction extends uvm_sequence_item;
    rand bit [ 7:0] addr;
    rand bit [31:0] wdata;
 
-   // La respuesta: no es rand. La escribe el driver cuando vuelve del bus, y
-   // la escribe el monitor cuando lo ve pasar.
+   // The response: it is not rand. The driver writes it when it comes back from the bus, and
+   // the monitor writes it when it sees it go by.
    bit [31:0]      rdata;
    bit             slverr;
 
-   // Las direcciones se listan una por una y todas alineadas, en vez de poner
-   // un rango y pedir addr[1:0]==0 aparte: Verilator no combina un dist con
-   // otra constraint sobre la misma variable, y avisa con UNSATCONSTR --
-   // ruidoso, pero avisa. Ver docs/verilator.md.
-   // Una de cada seis cae fuera del mapa: sin eso el bin unmapped del plan de
-   // verificacion no se llena nunca.
+   // The addresses are listed one by one and all aligned, instead of putting
+   // a range and asking for addr[1:0]==0 separately: Verilator does not combine a dist with
+   // another constraint on the same variable, and it warns with UNSATCONSTR --
+   // noisy, but it warns. See docs/verilator.md.
+   // One in six falls outside the map: without that the unmapped bin of the
+   // verification plan never fills.
    constraint c_addr {
       addr dist {
          CTRL_ADDR :/ 3, SCRATCH_ADDR :/ 3, ACC_ADDR :/ 2, STATUS_ADDR :/ 2,
@@ -26,9 +26,9 @@ class apb_transaction extends uvm_sequence_item;
       };
    }
 
-   // La mitad de las escrituras a CTRL prenden EN, y una de cada cuatro pide
-   // CLR. Sin sesgar esto, EN=1 sale en la mitad de los casos igual, pero CLR
-   // -- que es un bit suelto de 32 -- no sale nunca.
+   // Half of the writes to CTRL turn EN on, and one in four asks for
+   // CLR. Without biasing this, EN=1 comes up in half the cases anyway, but CLR
+   // -- which is one loose bit out of 32 -- never comes up.
    constraint c_ctrl {
       (addr == CTRL_ADDR && write) -> wdata inside {32'h0, 32'h1, 32'h2, 32'h3};
    }
@@ -37,7 +37,7 @@ class apb_transaction extends uvm_sequence_item;
       super.new(name);
    endfunction : new
 
-   // El formato es el contrato con el corrector. Ver el README.
+   // The format is the contract with the checker. See the README.
    function string convert2string();
       return $sformatf("%s @0x%02h = 0x%08h  slverr=%0d", write ? "WR" : "RD", addr,
                        write ? wdata : rdata, slverr);

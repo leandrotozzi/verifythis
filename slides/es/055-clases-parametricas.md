@@ -2,12 +2,12 @@
 
 #### *No es una clase: es un molde*
 
-- La `bandeja_de_fernet` de la sección anterior sirve para fernets. Para gancias hay que
+- La `bandeja_de_fernet` de la sección anterior sirve para fernets. Para mojitos hay que
   escribir otra igual, con una palabra cambiada
 - Eso ya lo resolviste en RTL y no le decís OOP: una FIFO no se copia por cada
   ancho de dato, se parametriza. `#(.awidth(8), .dwidth(16))`
 - Una clase paramétrica es lo mismo, con **tipos** en vez de números:
-  `bandeja #(fernet)` y `bandeja #(gancia)`
+  `bandeja #(fernet)` y `bandeja #(mojito)`
 - Y hay una consecuencia que sorprende: cada `#(...)` distinto es una **clase
   distinta**, generada en compilación. No comparten nada, ni siquiera lo `static`
 - Por qué importa: cada `#(...)` que veas en el resto del curso es esto.
@@ -19,7 +19,7 @@ parametrizar, sólo que con anchos. Acá el parámetro es un tipo, y el resto es
 igual.
 Lo que hay que dejar clarísimo antes de seguir es lo del tercer bullet, porque
 es la pregunta 6 del repaso y porque es la base de todo UVM:
-`bandeja#(fernet)` y `bandeja#(gancia)` **no son la misma clase con un
+`bandeja#(fernet)` y `bandeja#(mojito)` **no son la misma clase con un
 campo distinto**. SystemVerilog genera una clase entera por cada combinación de
 parámetros, en tiempo de compilación. Por eso cada una tiene su propia queue
 `static`.
@@ -54,13 +54,13 @@ que aparezca en el resto del curso es esto.
 
 - Versión con métodos estáticos: la bandeja no se instancia, se le pide con `::`
 - La cola es `static` y aun así hay **dos**: `bandeja#(fernet)` y
-  `bandeja#(gancia)` son dos clases distintas, cada una con la suya
+  `bandeja#(mojito)` son dos clases distintas, cada una con la suya
 
 {{code:code/u3/parametricas/02-estatica/bandejas.sv|lines=53-91}}
 
 Note:
 Esta es la slide donde se demuestra lo del molde, y conviene hacerlo corriendo
-el ejemplo: dos fernets y dos gancias entran, y cada `lista_tragos()` imprime
+el ejemplo: dos fernets y dos mojitos entran, y cada `lista_tragos()` imprime
 sólo los suyos. La queue es `static` y aun así hay dos.
 La pregunta para el pizarrón: ¿cuántas queues hay en memoria? Dos. ¿Y cuántas
 habría con tres tragos? Tres. Cada `bandeja#(X)` que el compilador ve en
@@ -119,7 +119,7 @@ monitor tiene el suyo. El alumno ya tiene el criterio para leer los dos.
 Note:
 El bullet de las clases distintas es el que hay que dejar clavado, porque es la
 pregunta del repaso y porque es la base de todo UVM. `bandeja#(fernet)` y
-`bandeja#(gancia)` no son la misma clase con un campo distinto: son dos
+`bandeja#(mojito)` no son la misma clase con un campo distinto: son dos
 clases enteras, cada una con su `static` propio.
 Y el último bullet ubica la sección: el `uvm_config_db` es estático porque hay
 uno solo; un `uvm_analysis_port#(command_transaction)` es instanciado porque

@@ -16,12 +16,12 @@ class result_monitor extends uvm_component;
       ap = new("ap", this);
    endfunction : build_phase
 
-   // Aca cambiamos a transactions
+   // Here is where we switch to transactions
    function void write_to_monitor(shortint r, bit o);
       result_transaction result_t;
-      // Por la factory, como el command_transaction del tester: es el punto
-      // por donde el resultado entra al TB, asi que es el que hay que poder
-      // overridear.
+      // Through the factory, like the tester's command_transaction: it is the
+      // point where the result enters the TB, so it is the one that has to be
+      // overrideable.
       result_t = result_transaction::type_id::create("result_t");
       result_t.result = r;
       result_t.ovf    = o;

@@ -2,7 +2,7 @@ module top;
    import uvm_pkg::*;
    `include "uvm_macros.svh"
 
-   // Nuestras clases y macros, igual que en la version modular.
+   // Our classes and macros, same as in the modular version.
    import vtalu_pkg::*;
    `include "vtalu_macros.svh"
 
@@ -20,11 +20,11 @@ module top;
    );
 
    initial begin
-      // null y "*": desde la raiz y visible para todo el arbol. Ver la slide
-      // de uvm_config_db.
+      // null and "*": from the root and visible to the whole tree. See the
+      // uvm_config_db slide.
       uvm_config_db#(virtual vtalu_bfm)::set(null, "*", "bfm", bfm);
 
-      // UVM lee +UVM_TESTNAME, y crea ESE test con la factory.
+      // UVM reads +UVM_TESTNAME, and builds THAT test with the factory.
       run_test();
    end
 

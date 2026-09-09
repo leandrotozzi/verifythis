@@ -1,11 +1,11 @@
-// El "tester del jefe": un modulo de siempre, sin una linea de UVM, que maneja
-// su propia VTALU. Lo unico que el testbench hace con el es MIRARLO, con un
-// agent pasivo.
+// The "boss's tester": an ordinary module, without a single line of UVM, driving
+// its own VTALU. The only thing the testbench does with it is WATCH it, with a
+// passive agent.
 //
-// Llama a la MISMA bfm.send_op() que el driver del agent: recibe la interface
-// por su puerto en vez de por una virtual interface, pero el protocolo que
-// ejecuta es el mismo codigo. Por eso la comparacion entre los dos estimulos es
-// justa -- lo unico que cambia es QUE manda cada uno.
+// It calls the SAME bfm.send_op() the agent's driver calls: it gets the interface
+// through its module port instead of through a virtual interface, but the
+// protocol it runs is the same code. That is what makes the comparison between
+// the two stimuli fair -- the only thing that changes is WHAT each one sends.
 module vtalu_tester_module (vtalu_bfm bfm);
    import vtalu_pkg::*;
 

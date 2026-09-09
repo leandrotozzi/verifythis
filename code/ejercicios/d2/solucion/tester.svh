@@ -6,7 +6,7 @@ class tester;
       bfm = b;
    endfunction : new
 
-   // virtual: que se fije en el tipo del OBJETO y no en el de la variable.
+   // virtual: makes it look at the type of the OBJECT and not of the variable.
    protected virtual function operation_t get_op();
       bit [2:0] op_choice;
       op_choice = $random;
@@ -30,7 +30,7 @@ class tester;
       else return $random;
    endfunction : get_data
 
-   // Reemplazamos el initial block por una task execute()
+   // The initial block is replaced by an execute() task
    task execute();
       byte unsigned     iA;
       byte unsigned     iB;

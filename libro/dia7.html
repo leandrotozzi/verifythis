@@ -222,8 +222,8 @@ necesitan un reloj para saber qué quiere decir &quot;anterior&quot;.</p>
 
    <span class="hljs-comment">// --- El estimulo ---</span>
 
-   <span class="hljs-comment">// La regla de la slide 1 del dia 1, por fin ejecutable: mientras start este</span>
-   <span class="hljs-comment">// arriba, los operandos y la operacion no se tocan.</span>
+   <span class="hljs-comment">// The rule from slide 1 of day 1, executable at last: while start is up, the</span>
+   <span class="hljs-comment">// operands and the operation are not touched.</span>
    <span class="hljs-keyword">property</span> p_operandos_estables;
       @(<span class="hljs-keyword">negedge</span> clk) start |=&gt; <span class="hljs-built_in">$stable</span>(A) &amp;&amp; <span class="hljs-built_in">$stable</span>(B) &amp;&amp; <span class="hljs-built_in">$stable</span>(op_set);
    <span class="hljs-keyword">endproperty</span> : p_operandos_estables
@@ -261,11 +261,11 @@ necesitan un reloj para saber qué quiere decir &quot;anterior&quot;.</p>
 
    <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span> : op_monitor
       <span class="hljs-keyword">static</span> <span class="hljs-type">bit</span> in_command = <span class="hljs-number">0</span>;
-      <span class="hljs-comment">// La guarda de null que ya tenia rst_monitor, ahora tambien aca. Con dos</span>
-      <span class="hljs-comment">// BFM en el top, una puede quedar sin monitor mientras el testbench se</span>
-      <span class="hljs-comment">// construye -- o para siempre, si alguien se olvida de instanciar el</span>
-      <span class="hljs-comment">// agent pasivo. Sin la guarda eso es un crash del simulador en vez de un</span>
-      <span class="hljs-comment">// testbench que no ve nada.</span>
+      <span class="hljs-comment">// The null guard rst_monitor already had, now here too. With two BFMs in</span>
+      <span class="hljs-comment">// the top, one can be left without a monitor while the testbench is being</span>
+      <span class="hljs-comment">// built -- or forever, if someone forgets to instantiate the passive</span>
+      <span class="hljs-comment">// agent. Without the guard that is a simulator crash instead of a</span>
+      <span class="hljs-comment">// testbench that sees nothing.</span>
       <span class="hljs-keyword">if</span> (command_monitor_h != <span class="hljs-keyword">null</span>) <span class="hljs-keyword">begin</span> : con_monitor
          <span class="hljs-keyword">if</span> (start) <span class="hljs-keyword">begin</span> : start_high
             <span class="hljs-keyword">if</span> (!in_command) <span class="hljs-keyword">begin</span> : new_command
@@ -288,10 +288,10 @@ necesitan un reloj para saber qué quiere decir &quot;anterior&quot;.</p>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span> : result_monitor_thread
       <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span> : result_monitor
          @(<span class="hljs-keyword">posedge</span> clk);
-         <span class="hljs-comment">// Misma guarda que op_monitor y rst_monitor: con dos BFM en el top,</span>
-         <span class="hljs-comment">// una puede quedar sin monitor. Sin esto, olvidarse del agent pasivo</span>
-         <span class="hljs-comment">// es un &quot;Null pointer dereferenced&quot; del simulador en vez del mensaje</span>
-         <span class="hljs-comment">// del corrector -- que es justo el estado inicial del ejercicio d6.</span>
+         <span class="hljs-comment">// Same guard as op_monitor and rst_monitor: with two BFMs in the top,</span>
+         <span class="hljs-comment">// one can be left without a monitor. Without this, forgetting the</span>
+         <span class="hljs-comment">// passive agent is a simulator &quot;Null pointer dereferenced&quot; instead of</span>
+         <span class="hljs-comment">// the checker&#x27;s message -- which is exactly where exercise d6 starts.</span>
          <span class="hljs-keyword">if</span> (done &amp;&amp; result_monitor_h != <span class="hljs-keyword">null</span>) result_monitor_h.write_to_monitor(result, ovf);
       <span class="hljs-keyword">end</span> : result_monitor
    <span class="hljs-keyword">end</span> : result_monitor_thread
@@ -305,10 +305,10 @@ necesitan un reloj para saber qué quiere decir &quot;anterior&quot;.</p>
    <span class="hljs-keyword">end</span>
 
 
-   <span class="hljs-comment">// --- el protocolo, en el BFM ---</span>
-   <span class="hljs-comment">// Todo lo que sabe COMO se habla con el DUT vive aca, en un solo lugar: el</span>
-   <span class="hljs-comment">// resto del testbench pide una operacion y no toca un cable. Es la idea de</span>
-   <span class="hljs-comment">// la unidad 3, y se sostiene hasta el final del curso.</span>
+   <span class="hljs-comment">// --- the protocol, in the BFM ---</span>
+   <span class="hljs-comment">// Everything that knows HOW the DUT is talked to lives here, in one place:</span>
+   <span class="hljs-comment">// the rest of the testbench asks for an operation and never touches a wire.</span>
+   <span class="hljs-comment">// That is the idea of unit 3, and it holds to the end of the course.</span>
 
    <span class="hljs-keyword">task</span> <span class="hljs-title">reset_alu</span>();
       reset_n = <span class="hljs-number">1&#x27;b0</span>;
@@ -318,8 +318,8 @@ necesitan un reloj para saber qué quiere decir &quot;anterior&quot;.</p>
       start   = <span class="hljs-number">1&#x27;b0</span>;
    <span class="hljs-keyword">endtask</span> : reset_alu
 
-   <span class="hljs-comment">// NUEVO en la unidad 23: el cuarto argumento. El protocolo no cambio; lo</span>
-   <span class="hljs-comment">// unico que se agrego es leer result en el flanco en que done ya subio.</span>
+   <span class="hljs-comment">// NEW in unit 23: the fourth argument. The protocol did not change; the only</span>
+   <span class="hljs-comment">// thing added is reading result on the edge where done is already up.</span>
    <span class="hljs-type">bit</span> bug_operandos;
    <span class="hljs-keyword">initial</span> bug_operandos = <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;BUG&quot;</span>);
 
@@ -344,10 +344,10 @@ necesitan un reloj para saber qué quiere decir &quot;anterior&quot;.</p>
             #<span class="hljs-number">1</span>;
             start = <span class="hljs-number">1&#x27;b0</span>;
          <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
-            <span class="hljs-comment">// +BUG=1: cambia B a mitad de la multiplicacion. El multiplicador</span>
-            <span class="hljs-comment">// ya latcheo A y B en el primer flanco, asi que el RESULTADO NO</span>
-            <span class="hljs-comment">// CAMBIA: el scoreboard sigue en verde. Lo unico que lo ve es la</span>
-            <span class="hljs-comment">// assertion. Eso es toda la seccion.</span>
+            <span class="hljs-comment">// +BUG=1: changes B halfway through the multiplication. The</span>
+            <span class="hljs-comment">// multiplier already latched A and B on the first edge, so the</span>
+            <span class="hljs-comment">// RESULT DOES NOT CHANGE: the scoreboard stays green. The only</span>
+            <span class="hljs-comment">// thing that sees it is the assertion. That is the whole section.</span>
             <span class="hljs-keyword">if</span> (bug_operandos &amp;&amp; iop == mul_op) <span class="hljs-keyword">begin</span>
                @(<span class="hljs-keyword">negedge</span> clk);
                @(<span class="hljs-keyword">negedge</span> clk);
@@ -362,31 +362,31 @@ necesitan un reloj para saber qué quiere decir &quot;anterior&quot;.</p>
 
 
    <span class="hljs-comment">// ==========================================================================</span>
-   <span class="hljs-comment">//  Unidad 24 - el protocolo, chequeado donde ocurre</span>
+   <span class="hljs-comment">//  Unit 24 - the protocol, checked where it happens</span>
    <span class="hljs-comment">// ==========================================================================</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// Las properties viven ACA, con las senales, y no en el testbench: se</span>
-   <span class="hljs-comment">// enchufan solas, nadie las conecta, y el agent pasivo de la seccion Agents se</span>
-   <span class="hljs-comment">// las lleva de regalo. Lo unico que hace falta para que corran es --assert.</span>
+   <span class="hljs-comment">// The properties live HERE, with the signals, and not in the testbench: they</span>
+   <span class="hljs-comment">// plug themselves in, nobody connects them, and the passive agent of the Agents</span>
+   <span class="hljs-comment">// section gets them for free. All they need in order to run is --assert.</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// DOS RELOJES, y no es un detalle de implementacion: la BFM maneja en</span>
-   <span class="hljs-comment">// negedge y el DUT registra en posedge. Una assertion muestrea en la region</span>
-   <span class="hljs-comment">// preponed del flanco que se le da, asi que una senal escrita EN el negedge</span>
-   <span class="hljs-comment">// no se ve en ese negedge: se ve en el siguiente. Con todo en posedge, dos</span>
-   <span class="hljs-comment">// no_op consecutivas -- start baja en t=111 y vuelve a subir en t=120, entre</span>
-   <span class="hljs-comment">// dos posedge -- se leen como UNA transaccion con los operandos cambiando:</span>
-   <span class="hljs-comment">// 185 falsos positivos cada 1000 operaciones. Con todo en negedge, los</span>
-   <span class="hljs-comment">// falsos positivos se mudan a las properties de done.</span>
+   <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
+   <span class="hljs-comment">// negedge and the DUT registers on posedge. An assertion samples in the</span>
+   <span class="hljs-comment">// preponed region of the edge it is given, so a signal written ON the negedge</span>
+   <span class="hljs-comment">// is not seen on that negedge: it is seen on the next one. With everything on</span>
+   <span class="hljs-comment">// posedge, two consecutive no_op -- start goes down at t=111 and back up at</span>
+   <span class="hljs-comment">// t=120, between two posedges -- read as ONE transaction with the operands</span>
+   <span class="hljs-comment">// changing: 185 false positives every 1000 operations. With everything on</span>
+   <span class="hljs-comment">// negedge, the false positives move to the done properties.</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">//   estimulo  (start, A, B, op_set)  -&gt; negedge, donde la BFM escribe</span>
-   <span class="hljs-comment">//   respuesta (done, result)         -&gt; posedge, donde el DUT registra</span>
+   <span class="hljs-comment">//   stimulus (start, A, B, op_set)  -&gt; negedge, where the BFM writes</span>
+   <span class="hljs-comment">//   response (done, result)         -&gt; posedge, where the DUT registers</span>
 
    <span class="hljs-keyword">default</span> <span class="hljs-keyword">disable</span> iff (!reset_n);
 
    <span class="hljs-comment">// --- El estimulo ---</span>
 
-   <span class="hljs-comment">// La regla de la slide 1 del dia 1, por fin ejecutable: mientras start este</span>
-   <span class="hljs-comment">// arriba, los operandos y la operacion no se tocan.</span>
+   <span class="hljs-comment">// The rule from slide 1 of day 1, executable at last: while start is up, the</span>
+   <span class="hljs-comment">// operands and the operation are not touched.</span>
    <span class="hljs-keyword">property</span> p_operandos_estables;
       @(<span class="hljs-keyword">negedge</span> clk) start |=&gt; <span class="hljs-built_in">$stable</span>(A) &amp;&amp; <span class="hljs-built_in">$stable</span>(B) &amp;&amp; <span class="hljs-built_in">$stable</span>(op_set);
    <span class="hljs-keyword">endproperty</span> : p_operandos_estables
@@ -395,12 +395,12 @@ necesitan un reloj para saber qué quiere decir &quot;anterior&quot;.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_operandos_estables)
    <span class="hljs-keyword">else</span>
       <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
-                 <span class="hljs-string">&quot;%m: operando cambiado con start arriba: A=%0d B=%0d op=%s&quot;</span>, A, B, op2enum().name()))
+                 <span class="hljs-string">&quot;%m: operand changed with start up: A=%0d B=%0d op=%s&quot;</span>, A, B, op2enum().name()))
 
-   <span class="hljs-comment">// --- La respuesta del DUT ---</span>
+   <span class="hljs-comment">// --- The DUT&#x27;s answer ---</span>
 
-   <span class="hljs-comment">// La latencia variable de la seccion La spec del VTALU en una linea: un ciclo las de un</span>
-   <span class="hljs-comment">// ciclo, cuatro flancos la multiplicacion.</span>
+   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
+   <span class="hljs-comment">// one-cycle ops, four edges for the multiplication.</span>
    <span class="hljs-keyword">property</span> p_done_llega;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set != no_op) |-&gt; ##[<span class="hljs-number">1</span>:<span class="hljs-number">5</span>] done;
    <span class="hljs-keyword">endproperty</span> : p_done_llega
@@ -409,7 +409,7 @@ necesitan un reloj para saber qué quiere decir &quot;anterior&quot;.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_done_llega)
    <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: start con op=%s y done no llego en 5 ciclos&quot;</span>, op2enum().name()))
 
-   <span class="hljs-comment">// La letra chica: no_op es la unica operacion que no responde.</span>
+   <span class="hljs-comment">// The fine print: no_op is the only operation that does not answer.</span>
    <span class="hljs-keyword">property</span> p_no_op_sin_done;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set == no_op) |=&gt; !done;
    <span class="hljs-keyword">endproperty</span> : p_no_op_sin_done
@@ -418,17 +418,17 @@ necesitan un reloj para saber qué quiere decir &quot;anterior&quot;.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_no_op_sin_done)
    <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: done subio para una no_op&quot;</span>))
 
-   <span class="hljs-comment">// --- Toda assertion va con su cover property ---</span>
+   <span class="hljs-comment">// --- Every assertion comes with its cover property ---</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// Una assertion cuyo antecedente no ocurre nunca PASA, y no chequea nada.</span>
-   <span class="hljs-comment">// El cover es el antidoto. Y de paso desmiente modelos mentales: la</span>
-   <span class="hljs-comment">// multiplicacion &quot;de tres ciclos&quot; tarda CUATRO flancos (done3 -&gt; done2 -&gt;</span>
-   <span class="hljs-comment">// done1 -&gt; done_mult), asi que c_mult_3ciclos se queda en 0 para siempre.</span>
-   <span class="hljs-comment">// --- rev2 del VTALU: la salida que el scoreboard solo mira de reojo ---</span>
+   <span class="hljs-comment">// An assertion whose antecedent never happens PASSES, and checks nothing.</span>
+   <span class="hljs-comment">// The cover is the antidote. And it also debunks mental models: the</span>
+   <span class="hljs-comment">// &quot;three-cycle&quot; multiplication takes FOUR edges (done3 -&gt; done2 -&gt;</span>
+   <span class="hljs-comment">// done1 -&gt; done_mult), so c_mult_3ciclos stays at 0 forever.</span>
+   <span class="hljs-comment">// --- VTALU rev2: the output the scoreboard only glances at ---</span>
 
-   <span class="hljs-comment">// El ovf es del sub y de nadie mas. Una assertion, porque es una regla de la</span>
-   <span class="hljs-comment">// spec y no una cuenta: el scoreboard chequea QUE calcula, esto chequea que</span>
-   <span class="hljs-comment">// no invente una bandera donde no corresponde.</span>
+   <span class="hljs-comment">// ovf belongs to sub and to nobody else. An assertion, because it is a rule of</span>
+   <span class="hljs-comment">// the spec and not arithmetic: the scoreboard checks WHAT it computes, this</span>
+   <span class="hljs-comment">// checks that it does not invent a flag where none belongs.</span>
    <span class="hljs-keyword">property</span> p_ovf_solo_en_sub;
       @(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; (op_set != sub_op) |-&gt; !ovf;
    <span class="hljs-keyword">endproperty</span> : p_ovf_solo_en_sub
@@ -437,8 +437,8 @@ necesitan un reloj para saber qué quiere decir &quot;anterior&quot;.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_ovf_solo_en_sub)
    <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: ovf arriba con op=%s, que no puede desbordar&quot;</span>, op2enum().name()))
 
-   <span class="hljs-comment">// Y el cover que lo acompaña: sin esto, una regresion donde el random nunca</span>
-   <span class="hljs-comment">// haya restado de menos deja la assertion en verde sin haber chequeado nada.</span>
+   <span class="hljs-comment">// And the cover that goes with it: without this, a regression where the random</span>
+   <span class="hljs-comment">// never subtracted too much leaves the assertion green having checked nothing.</span>
    c_ovf : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; ovf);
    c_sub_sin_borrow : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; (op_set == sub_op) &amp;&amp; !ovf);
 
@@ -474,19 +474,19 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.</p>
 <section id="s340" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="⚠-dos-relojes-una-assertion-vale-lo-que-vale-su-muestreo"><em>⚠ Dos relojes: una assertion vale lo que vale su muestreo</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 138-150 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// las lleva de regalo. Lo unico que hace falta para que corran es --assert.</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 138-150 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// section gets them for free. All they need in order to run is --assert.</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// DOS RELOJES, y no es un detalle de implementacion: la BFM maneja en</span>
-   <span class="hljs-comment">// negedge y el DUT registra en posedge. Una assertion muestrea en la region</span>
-   <span class="hljs-comment">// preponed del flanco que se le da, asi que una senal escrita EN el negedge</span>
-   <span class="hljs-comment">// no se ve en ese negedge: se ve en el siguiente. Con todo en posedge, dos</span>
-   <span class="hljs-comment">// no_op consecutivas -- start baja en t=111 y vuelve a subir en t=120, entre</span>
-   <span class="hljs-comment">// dos posedge -- se leen como UNA transaccion con los operandos cambiando:</span>
-   <span class="hljs-comment">// 185 falsos positivos cada 1000 operaciones. Con todo en negedge, los</span>
-   <span class="hljs-comment">// falsos positivos se mudan a las properties de done.</span>
+   <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
+   <span class="hljs-comment">// negedge and the DUT registers on posedge. An assertion samples in the</span>
+   <span class="hljs-comment">// preponed region of the edge it is given, so a signal written ON the negedge</span>
+   <span class="hljs-comment">// is not seen on that negedge: it is seen on the next one. With everything on</span>
+   <span class="hljs-comment">// posedge, two consecutive no_op -- start goes down at t=111 and back up at</span>
+   <span class="hljs-comment">// t=120, between two posedges -- read as ONE transaction with the operands</span>
+   <span class="hljs-comment">// changing: 185 false positives every 1000 operations. With everything on</span>
+   <span class="hljs-comment">// negedge, the false positives move to the done properties.</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">//   estimulo  (start, A, B, op_set)  -&gt; negedge, donde la BFM escribe</span>
-   <span class="hljs-comment">//   respuesta (done, result)         -&gt; posedge, donde el DUT registra</span></code></pre><details><summary>el archivo entero, 217 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
+   <span class="hljs-comment">//   stimulus (start, A, B, op_set)  -&gt; negedge, where the BFM writes</span>
+   <span class="hljs-comment">//   response (done, result)         -&gt; posedge, where the DUT registers</span></code></pre><details><summary>el archivo entero, 217 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
    <span class="hljs-keyword">import</span> <span class="hljs-uvm-type">uvm_pkg</span>::*;
    <span class="hljs-keyword">import</span> vtalu_pkg::*;
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;uvm_macros.svh&quot;</span>
@@ -517,11 +517,11 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.</p>
 
    <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span> : op_monitor
       <span class="hljs-keyword">static</span> <span class="hljs-type">bit</span> in_command = <span class="hljs-number">0</span>;
-      <span class="hljs-comment">// La guarda de null que ya tenia rst_monitor, ahora tambien aca. Con dos</span>
-      <span class="hljs-comment">// BFM en el top, una puede quedar sin monitor mientras el testbench se</span>
-      <span class="hljs-comment">// construye -- o para siempre, si alguien se olvida de instanciar el</span>
-      <span class="hljs-comment">// agent pasivo. Sin la guarda eso es un crash del simulador en vez de un</span>
-      <span class="hljs-comment">// testbench que no ve nada.</span>
+      <span class="hljs-comment">// The null guard rst_monitor already had, now here too. With two BFMs in</span>
+      <span class="hljs-comment">// the top, one can be left without a monitor while the testbench is being</span>
+      <span class="hljs-comment">// built -- or forever, if someone forgets to instantiate the passive</span>
+      <span class="hljs-comment">// agent. Without the guard that is a simulator crash instead of a</span>
+      <span class="hljs-comment">// testbench that sees nothing.</span>
       <span class="hljs-keyword">if</span> (command_monitor_h != <span class="hljs-keyword">null</span>) <span class="hljs-keyword">begin</span> : con_monitor
          <span class="hljs-keyword">if</span> (start) <span class="hljs-keyword">begin</span> : start_high
             <span class="hljs-keyword">if</span> (!in_command) <span class="hljs-keyword">begin</span> : new_command
@@ -544,10 +544,10 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.</p>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span> : result_monitor_thread
       <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span> : result_monitor
          @(<span class="hljs-keyword">posedge</span> clk);
-         <span class="hljs-comment">// Misma guarda que op_monitor y rst_monitor: con dos BFM en el top,</span>
-         <span class="hljs-comment">// una puede quedar sin monitor. Sin esto, olvidarse del agent pasivo</span>
-         <span class="hljs-comment">// es un &quot;Null pointer dereferenced&quot; del simulador en vez del mensaje</span>
-         <span class="hljs-comment">// del corrector -- que es justo el estado inicial del ejercicio d6.</span>
+         <span class="hljs-comment">// Same guard as op_monitor and rst_monitor: with two BFMs in the top,</span>
+         <span class="hljs-comment">// one can be left without a monitor. Without this, forgetting the</span>
+         <span class="hljs-comment">// passive agent is a simulator &quot;Null pointer dereferenced&quot; instead of</span>
+         <span class="hljs-comment">// the checker&#x27;s message -- which is exactly where exercise d6 starts.</span>
          <span class="hljs-keyword">if</span> (done &amp;&amp; result_monitor_h != <span class="hljs-keyword">null</span>) result_monitor_h.write_to_monitor(result, ovf);
       <span class="hljs-keyword">end</span> : result_monitor
    <span class="hljs-keyword">end</span> : result_monitor_thread
@@ -561,10 +561,10 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.</p>
    <span class="hljs-keyword">end</span>
 
 
-   <span class="hljs-comment">// --- el protocolo, en el BFM ---</span>
-   <span class="hljs-comment">// Todo lo que sabe COMO se habla con el DUT vive aca, en un solo lugar: el</span>
-   <span class="hljs-comment">// resto del testbench pide una operacion y no toca un cable. Es la idea de</span>
-   <span class="hljs-comment">// la unidad 3, y se sostiene hasta el final del curso.</span>
+   <span class="hljs-comment">// --- the protocol, in the BFM ---</span>
+   <span class="hljs-comment">// Everything that knows HOW the DUT is talked to lives here, in one place:</span>
+   <span class="hljs-comment">// the rest of the testbench asks for an operation and never touches a wire.</span>
+   <span class="hljs-comment">// That is the idea of unit 3, and it holds to the end of the course.</span>
 
    <span class="hljs-keyword">task</span> <span class="hljs-title">reset_alu</span>();
       reset_n = <span class="hljs-number">1&#x27;b0</span>;
@@ -574,8 +574,8 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.</p>
       start   = <span class="hljs-number">1&#x27;b0</span>;
    <span class="hljs-keyword">endtask</span> : reset_alu
 
-   <span class="hljs-comment">// NUEVO en la unidad 23: el cuarto argumento. El protocolo no cambio; lo</span>
-   <span class="hljs-comment">// unico que se agrego es leer result en el flanco en que done ya subio.</span>
+   <span class="hljs-comment">// NEW in unit 23: the fourth argument. The protocol did not change; the only</span>
+   <span class="hljs-comment">// thing added is reading result on the edge where done is already up.</span>
    <span class="hljs-type">bit</span> bug_operandos;
    <span class="hljs-keyword">initial</span> bug_operandos = <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;BUG&quot;</span>);
 
@@ -600,10 +600,10 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.</p>
             #<span class="hljs-number">1</span>;
             start = <span class="hljs-number">1&#x27;b0</span>;
          <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
-            <span class="hljs-comment">// +BUG=1: cambia B a mitad de la multiplicacion. El multiplicador</span>
-            <span class="hljs-comment">// ya latcheo A y B en el primer flanco, asi que el RESULTADO NO</span>
-            <span class="hljs-comment">// CAMBIA: el scoreboard sigue en verde. Lo unico que lo ve es la</span>
-            <span class="hljs-comment">// assertion. Eso es toda la seccion.</span>
+            <span class="hljs-comment">// +BUG=1: changes B halfway through the multiplication. The</span>
+            <span class="hljs-comment">// multiplier already latched A and B on the first edge, so the</span>
+            <span class="hljs-comment">// RESULT DOES NOT CHANGE: the scoreboard stays green. The only</span>
+            <span class="hljs-comment">// thing that sees it is the assertion. That is the whole section.</span>
             <span class="hljs-keyword">if</span> (bug_operandos &amp;&amp; iop == mul_op) <span class="hljs-keyword">begin</span>
                @(<span class="hljs-keyword">negedge</span> clk);
                @(<span class="hljs-keyword">negedge</span> clk);
@@ -618,31 +618,31 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.</p>
 
 
    <span class="hljs-comment">// ==========================================================================</span>
-   <span class="hljs-comment">//  Unidad 24 - el protocolo, chequeado donde ocurre</span>
+   <span class="hljs-comment">//  Unit 24 - the protocol, checked where it happens</span>
    <span class="hljs-comment">// ==========================================================================</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// Las properties viven ACA, con las senales, y no en el testbench: se</span>
-   <span class="hljs-comment">// enchufan solas, nadie las conecta, y el agent pasivo de la seccion Agents se</span>
-   <span class="hljs-comment">// las lleva de regalo. Lo unico que hace falta para que corran es --assert.</span>
+   <span class="hljs-comment">// The properties live HERE, with the signals, and not in the testbench: they</span>
+   <span class="hljs-comment">// plug themselves in, nobody connects them, and the passive agent of the Agents</span>
+   <span class="hljs-comment">// section gets them for free. All they need in order to run is --assert.</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// DOS RELOJES, y no es un detalle de implementacion: la BFM maneja en</span>
-   <span class="hljs-comment">// negedge y el DUT registra en posedge. Una assertion muestrea en la region</span>
-   <span class="hljs-comment">// preponed del flanco que se le da, asi que una senal escrita EN el negedge</span>
-   <span class="hljs-comment">// no se ve en ese negedge: se ve en el siguiente. Con todo en posedge, dos</span>
-   <span class="hljs-comment">// no_op consecutivas -- start baja en t=111 y vuelve a subir en t=120, entre</span>
-   <span class="hljs-comment">// dos posedge -- se leen como UNA transaccion con los operandos cambiando:</span>
-   <span class="hljs-comment">// 185 falsos positivos cada 1000 operaciones. Con todo en negedge, los</span>
-   <span class="hljs-comment">// falsos positivos se mudan a las properties de done.</span>
+   <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
+   <span class="hljs-comment">// negedge and the DUT registers on posedge. An assertion samples in the</span>
+   <span class="hljs-comment">// preponed region of the edge it is given, so a signal written ON the negedge</span>
+   <span class="hljs-comment">// is not seen on that negedge: it is seen on the next one. With everything on</span>
+   <span class="hljs-comment">// posedge, two consecutive no_op -- start goes down at t=111 and back up at</span>
+   <span class="hljs-comment">// t=120, between two posedges -- read as ONE transaction with the operands</span>
+   <span class="hljs-comment">// changing: 185 false positives every 1000 operations. With everything on</span>
+   <span class="hljs-comment">// negedge, the false positives move to the done properties.</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">//   estimulo  (start, A, B, op_set)  -&gt; negedge, donde la BFM escribe</span>
-   <span class="hljs-comment">//   respuesta (done, result)         -&gt; posedge, donde el DUT registra</span>
+   <span class="hljs-comment">//   stimulus (start, A, B, op_set)  -&gt; negedge, where the BFM writes</span>
+   <span class="hljs-comment">//   response (done, result)         -&gt; posedge, where the DUT registers</span>
 
    <span class="hljs-keyword">default</span> <span class="hljs-keyword">disable</span> iff (!reset_n);
 
    <span class="hljs-comment">// --- El estimulo ---</span>
 
-   <span class="hljs-comment">// La regla de la slide 1 del dia 1, por fin ejecutable: mientras start este</span>
-   <span class="hljs-comment">// arriba, los operandos y la operacion no se tocan.</span>
+   <span class="hljs-comment">// The rule from slide 1 of day 1, executable at last: while start is up, the</span>
+   <span class="hljs-comment">// operands and the operation are not touched.</span>
    <span class="hljs-keyword">property</span> p_operandos_estables;
       @(<span class="hljs-keyword">negedge</span> clk) start |=&gt; <span class="hljs-built_in">$stable</span>(A) &amp;&amp; <span class="hljs-built_in">$stable</span>(B) &amp;&amp; <span class="hljs-built_in">$stable</span>(op_set);
    <span class="hljs-keyword">endproperty</span> : p_operandos_estables
@@ -651,12 +651,12 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_operandos_estables)
    <span class="hljs-keyword">else</span>
       <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
-                 <span class="hljs-string">&quot;%m: operando cambiado con start arriba: A=%0d B=%0d op=%s&quot;</span>, A, B, op2enum().name()))
+                 <span class="hljs-string">&quot;%m: operand changed with start up: A=%0d B=%0d op=%s&quot;</span>, A, B, op2enum().name()))
 
-   <span class="hljs-comment">// --- La respuesta del DUT ---</span>
+   <span class="hljs-comment">// --- The DUT&#x27;s answer ---</span>
 
-   <span class="hljs-comment">// La latencia variable de la seccion La spec del VTALU en una linea: un ciclo las de un</span>
-   <span class="hljs-comment">// ciclo, cuatro flancos la multiplicacion.</span>
+   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
+   <span class="hljs-comment">// one-cycle ops, four edges for the multiplication.</span>
    <span class="hljs-keyword">property</span> p_done_llega;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set != no_op) |-&gt; ##[<span class="hljs-number">1</span>:<span class="hljs-number">5</span>] done;
    <span class="hljs-keyword">endproperty</span> : p_done_llega
@@ -665,7 +665,7 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_done_llega)
    <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: start con op=%s y done no llego en 5 ciclos&quot;</span>, op2enum().name()))
 
-   <span class="hljs-comment">// La letra chica: no_op es la unica operacion que no responde.</span>
+   <span class="hljs-comment">// The fine print: no_op is the only operation that does not answer.</span>
    <span class="hljs-keyword">property</span> p_no_op_sin_done;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set == no_op) |=&gt; !done;
    <span class="hljs-keyword">endproperty</span> : p_no_op_sin_done
@@ -674,17 +674,17 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_no_op_sin_done)
    <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: done subio para una no_op&quot;</span>))
 
-   <span class="hljs-comment">// --- Toda assertion va con su cover property ---</span>
+   <span class="hljs-comment">// --- Every assertion comes with its cover property ---</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// Una assertion cuyo antecedente no ocurre nunca PASA, y no chequea nada.</span>
-   <span class="hljs-comment">// El cover es el antidoto. Y de paso desmiente modelos mentales: la</span>
-   <span class="hljs-comment">// multiplicacion &quot;de tres ciclos&quot; tarda CUATRO flancos (done3 -&gt; done2 -&gt;</span>
-   <span class="hljs-comment">// done1 -&gt; done_mult), asi que c_mult_3ciclos se queda en 0 para siempre.</span>
-   <span class="hljs-comment">// --- rev2 del VTALU: la salida que el scoreboard solo mira de reojo ---</span>
+   <span class="hljs-comment">// An assertion whose antecedent never happens PASSES, and checks nothing.</span>
+   <span class="hljs-comment">// The cover is the antidote. And it also debunks mental models: the</span>
+   <span class="hljs-comment">// &quot;three-cycle&quot; multiplication takes FOUR edges (done3 -&gt; done2 -&gt;</span>
+   <span class="hljs-comment">// done1 -&gt; done_mult), so c_mult_3ciclos stays at 0 forever.</span>
+   <span class="hljs-comment">// --- VTALU rev2: the output the scoreboard only glances at ---</span>
 
-   <span class="hljs-comment">// El ovf es del sub y de nadie mas. Una assertion, porque es una regla de la</span>
-   <span class="hljs-comment">// spec y no una cuenta: el scoreboard chequea QUE calcula, esto chequea que</span>
-   <span class="hljs-comment">// no invente una bandera donde no corresponde.</span>
+   <span class="hljs-comment">// ovf belongs to sub and to nobody else. An assertion, because it is a rule of</span>
+   <span class="hljs-comment">// the spec and not arithmetic: the scoreboard checks WHAT it computes, this</span>
+   <span class="hljs-comment">// checks that it does not invent a flag where none belongs.</span>
    <span class="hljs-keyword">property</span> p_ovf_solo_en_sub;
       @(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; (op_set != sub_op) |-&gt; !ovf;
    <span class="hljs-keyword">endproperty</span> : p_ovf_solo_en_sub
@@ -693,8 +693,8 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_ovf_solo_en_sub)
    <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: ovf arriba con op=%s, que no puede desbordar&quot;</span>, op2enum().name()))
 
-   <span class="hljs-comment">// Y el cover que lo acompaña: sin esto, una regresion donde el random nunca</span>
-   <span class="hljs-comment">// haya restado de menos deja la assertion en verde sin haber chequeado nada.</span>
+   <span class="hljs-comment">// And the cover that goes with it: without this, a regression where the random</span>
+   <span class="hljs-comment">// never subtracted too much leaves the assertion green having checked nothing.</span>
    c_ovf : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; ovf);
    c_sub_sin_borrow : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; (op_set == sub_op) &amp;&amp; !ovf);
 
@@ -753,10 +753,10 @@ que es lo difícil.</p>
 <section id="s341" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="la-latencia-variable-en-una-línea"><em>La latencia variable, en una línea</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 168-185 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// --- La respuesta del DUT ---</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 168-185 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// --- The DUT&#x27;s answer ---</span>
 
-   <span class="hljs-comment">// La latencia variable de la seccion La spec del VTALU en una linea: un ciclo las de un</span>
-   <span class="hljs-comment">// ciclo, cuatro flancos la multiplicacion.</span>
+   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
+   <span class="hljs-comment">// one-cycle ops, four edges for the multiplication.</span>
    <span class="hljs-keyword">property</span> p_done_llega;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set != no_op) |-&gt; ##[<span class="hljs-number">1</span>:<span class="hljs-number">5</span>] done;
    <span class="hljs-keyword">endproperty</span> : p_done_llega
@@ -765,7 +765,7 @@ que es lo difícil.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_done_llega)
    <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: start con op=%s y done no llego en 5 ciclos&quot;</span>, op2enum().name()))
 
-   <span class="hljs-comment">// La letra chica: no_op es la unica operacion que no responde.</span>
+   <span class="hljs-comment">// The fine print: no_op is the only operation that does not answer.</span>
    <span class="hljs-keyword">property</span> p_no_op_sin_done;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set == no_op) |=&gt; !done;
    <span class="hljs-keyword">endproperty</span> : p_no_op_sin_done
@@ -801,11 +801,11 @@ que es lo difícil.</p>
 
    <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span> : op_monitor
       <span class="hljs-keyword">static</span> <span class="hljs-type">bit</span> in_command = <span class="hljs-number">0</span>;
-      <span class="hljs-comment">// La guarda de null que ya tenia rst_monitor, ahora tambien aca. Con dos</span>
-      <span class="hljs-comment">// BFM en el top, una puede quedar sin monitor mientras el testbench se</span>
-      <span class="hljs-comment">// construye -- o para siempre, si alguien se olvida de instanciar el</span>
-      <span class="hljs-comment">// agent pasivo. Sin la guarda eso es un crash del simulador en vez de un</span>
-      <span class="hljs-comment">// testbench que no ve nada.</span>
+      <span class="hljs-comment">// The null guard rst_monitor already had, now here too. With two BFMs in</span>
+      <span class="hljs-comment">// the top, one can be left without a monitor while the testbench is being</span>
+      <span class="hljs-comment">// built -- or forever, if someone forgets to instantiate the passive</span>
+      <span class="hljs-comment">// agent. Without the guard that is a simulator crash instead of a</span>
+      <span class="hljs-comment">// testbench that sees nothing.</span>
       <span class="hljs-keyword">if</span> (command_monitor_h != <span class="hljs-keyword">null</span>) <span class="hljs-keyword">begin</span> : con_monitor
          <span class="hljs-keyword">if</span> (start) <span class="hljs-keyword">begin</span> : start_high
             <span class="hljs-keyword">if</span> (!in_command) <span class="hljs-keyword">begin</span> : new_command
@@ -828,10 +828,10 @@ que es lo difícil.</p>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span> : result_monitor_thread
       <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span> : result_monitor
          @(<span class="hljs-keyword">posedge</span> clk);
-         <span class="hljs-comment">// Misma guarda que op_monitor y rst_monitor: con dos BFM en el top,</span>
-         <span class="hljs-comment">// una puede quedar sin monitor. Sin esto, olvidarse del agent pasivo</span>
-         <span class="hljs-comment">// es un &quot;Null pointer dereferenced&quot; del simulador en vez del mensaje</span>
-         <span class="hljs-comment">// del corrector -- que es justo el estado inicial del ejercicio d6.</span>
+         <span class="hljs-comment">// Same guard as op_monitor and rst_monitor: with two BFMs in the top,</span>
+         <span class="hljs-comment">// one can be left without a monitor. Without this, forgetting the</span>
+         <span class="hljs-comment">// passive agent is a simulator &quot;Null pointer dereferenced&quot; instead of</span>
+         <span class="hljs-comment">// the checker&#x27;s message -- which is exactly where exercise d6 starts.</span>
          <span class="hljs-keyword">if</span> (done &amp;&amp; result_monitor_h != <span class="hljs-keyword">null</span>) result_monitor_h.write_to_monitor(result, ovf);
       <span class="hljs-keyword">end</span> : result_monitor
    <span class="hljs-keyword">end</span> : result_monitor_thread
@@ -845,10 +845,10 @@ que es lo difícil.</p>
    <span class="hljs-keyword">end</span>
 
 
-   <span class="hljs-comment">// --- el protocolo, en el BFM ---</span>
-   <span class="hljs-comment">// Todo lo que sabe COMO se habla con el DUT vive aca, en un solo lugar: el</span>
-   <span class="hljs-comment">// resto del testbench pide una operacion y no toca un cable. Es la idea de</span>
-   <span class="hljs-comment">// la unidad 3, y se sostiene hasta el final del curso.</span>
+   <span class="hljs-comment">// --- the protocol, in the BFM ---</span>
+   <span class="hljs-comment">// Everything that knows HOW the DUT is talked to lives here, in one place:</span>
+   <span class="hljs-comment">// the rest of the testbench asks for an operation and never touches a wire.</span>
+   <span class="hljs-comment">// That is the idea of unit 3, and it holds to the end of the course.</span>
 
    <span class="hljs-keyword">task</span> <span class="hljs-title">reset_alu</span>();
       reset_n = <span class="hljs-number">1&#x27;b0</span>;
@@ -858,8 +858,8 @@ que es lo difícil.</p>
       start   = <span class="hljs-number">1&#x27;b0</span>;
    <span class="hljs-keyword">endtask</span> : reset_alu
 
-   <span class="hljs-comment">// NUEVO en la unidad 23: el cuarto argumento. El protocolo no cambio; lo</span>
-   <span class="hljs-comment">// unico que se agrego es leer result en el flanco en que done ya subio.</span>
+   <span class="hljs-comment">// NEW in unit 23: the fourth argument. The protocol did not change; the only</span>
+   <span class="hljs-comment">// thing added is reading result on the edge where done is already up.</span>
    <span class="hljs-type">bit</span> bug_operandos;
    <span class="hljs-keyword">initial</span> bug_operandos = <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;BUG&quot;</span>);
 
@@ -884,10 +884,10 @@ que es lo difícil.</p>
             #<span class="hljs-number">1</span>;
             start = <span class="hljs-number">1&#x27;b0</span>;
          <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
-            <span class="hljs-comment">// +BUG=1: cambia B a mitad de la multiplicacion. El multiplicador</span>
-            <span class="hljs-comment">// ya latcheo A y B en el primer flanco, asi que el RESULTADO NO</span>
-            <span class="hljs-comment">// CAMBIA: el scoreboard sigue en verde. Lo unico que lo ve es la</span>
-            <span class="hljs-comment">// assertion. Eso es toda la seccion.</span>
+            <span class="hljs-comment">// +BUG=1: changes B halfway through the multiplication. The</span>
+            <span class="hljs-comment">// multiplier already latched A and B on the first edge, so the</span>
+            <span class="hljs-comment">// RESULT DOES NOT CHANGE: the scoreboard stays green. The only</span>
+            <span class="hljs-comment">// thing that sees it is the assertion. That is the whole section.</span>
             <span class="hljs-keyword">if</span> (bug_operandos &amp;&amp; iop == mul_op) <span class="hljs-keyword">begin</span>
                @(<span class="hljs-keyword">negedge</span> clk);
                @(<span class="hljs-keyword">negedge</span> clk);
@@ -902,31 +902,31 @@ que es lo difícil.</p>
 
 
    <span class="hljs-comment">// ==========================================================================</span>
-   <span class="hljs-comment">//  Unidad 24 - el protocolo, chequeado donde ocurre</span>
+   <span class="hljs-comment">//  Unit 24 - the protocol, checked where it happens</span>
    <span class="hljs-comment">// ==========================================================================</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// Las properties viven ACA, con las senales, y no en el testbench: se</span>
-   <span class="hljs-comment">// enchufan solas, nadie las conecta, y el agent pasivo de la seccion Agents se</span>
-   <span class="hljs-comment">// las lleva de regalo. Lo unico que hace falta para que corran es --assert.</span>
+   <span class="hljs-comment">// The properties live HERE, with the signals, and not in the testbench: they</span>
+   <span class="hljs-comment">// plug themselves in, nobody connects them, and the passive agent of the Agents</span>
+   <span class="hljs-comment">// section gets them for free. All they need in order to run is --assert.</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// DOS RELOJES, y no es un detalle de implementacion: la BFM maneja en</span>
-   <span class="hljs-comment">// negedge y el DUT registra en posedge. Una assertion muestrea en la region</span>
-   <span class="hljs-comment">// preponed del flanco que se le da, asi que una senal escrita EN el negedge</span>
-   <span class="hljs-comment">// no se ve en ese negedge: se ve en el siguiente. Con todo en posedge, dos</span>
-   <span class="hljs-comment">// no_op consecutivas -- start baja en t=111 y vuelve a subir en t=120, entre</span>
-   <span class="hljs-comment">// dos posedge -- se leen como UNA transaccion con los operandos cambiando:</span>
-   <span class="hljs-comment">// 185 falsos positivos cada 1000 operaciones. Con todo en negedge, los</span>
-   <span class="hljs-comment">// falsos positivos se mudan a las properties de done.</span>
+   <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
+   <span class="hljs-comment">// negedge and the DUT registers on posedge. An assertion samples in the</span>
+   <span class="hljs-comment">// preponed region of the edge it is given, so a signal written ON the negedge</span>
+   <span class="hljs-comment">// is not seen on that negedge: it is seen on the next one. With everything on</span>
+   <span class="hljs-comment">// posedge, two consecutive no_op -- start goes down at t=111 and back up at</span>
+   <span class="hljs-comment">// t=120, between two posedges -- read as ONE transaction with the operands</span>
+   <span class="hljs-comment">// changing: 185 false positives every 1000 operations. With everything on</span>
+   <span class="hljs-comment">// negedge, the false positives move to the done properties.</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">//   estimulo  (start, A, B, op_set)  -&gt; negedge, donde la BFM escribe</span>
-   <span class="hljs-comment">//   respuesta (done, result)         -&gt; posedge, donde el DUT registra</span>
+   <span class="hljs-comment">//   stimulus (start, A, B, op_set)  -&gt; negedge, where the BFM writes</span>
+   <span class="hljs-comment">//   response (done, result)         -&gt; posedge, where the DUT registers</span>
 
    <span class="hljs-keyword">default</span> <span class="hljs-keyword">disable</span> iff (!reset_n);
 
    <span class="hljs-comment">// --- El estimulo ---</span>
 
-   <span class="hljs-comment">// La regla de la slide 1 del dia 1, por fin ejecutable: mientras start este</span>
-   <span class="hljs-comment">// arriba, los operandos y la operacion no se tocan.</span>
+   <span class="hljs-comment">// The rule from slide 1 of day 1, executable at last: while start is up, the</span>
+   <span class="hljs-comment">// operands and the operation are not touched.</span>
    <span class="hljs-keyword">property</span> p_operandos_estables;
       @(<span class="hljs-keyword">negedge</span> clk) start |=&gt; <span class="hljs-built_in">$stable</span>(A) &amp;&amp; <span class="hljs-built_in">$stable</span>(B) &amp;&amp; <span class="hljs-built_in">$stable</span>(op_set);
    <span class="hljs-keyword">endproperty</span> : p_operandos_estables
@@ -935,12 +935,12 @@ que es lo difícil.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_operandos_estables)
    <span class="hljs-keyword">else</span>
       <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
-                 <span class="hljs-string">&quot;%m: operando cambiado con start arriba: A=%0d B=%0d op=%s&quot;</span>, A, B, op2enum().name()))
+                 <span class="hljs-string">&quot;%m: operand changed with start up: A=%0d B=%0d op=%s&quot;</span>, A, B, op2enum().name()))
 
-   <span class="hljs-comment">// --- La respuesta del DUT ---</span>
+   <span class="hljs-comment">// --- The DUT&#x27;s answer ---</span>
 
-   <span class="hljs-comment">// La latencia variable de la seccion La spec del VTALU en una linea: un ciclo las de un</span>
-   <span class="hljs-comment">// ciclo, cuatro flancos la multiplicacion.</span>
+   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
+   <span class="hljs-comment">// one-cycle ops, four edges for the multiplication.</span>
    <span class="hljs-keyword">property</span> p_done_llega;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set != no_op) |-&gt; ##[<span class="hljs-number">1</span>:<span class="hljs-number">5</span>] done;
    <span class="hljs-keyword">endproperty</span> : p_done_llega
@@ -949,7 +949,7 @@ que es lo difícil.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_done_llega)
    <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: start con op=%s y done no llego en 5 ciclos&quot;</span>, op2enum().name()))
 
-   <span class="hljs-comment">// La letra chica: no_op es la unica operacion que no responde.</span>
+   <span class="hljs-comment">// The fine print: no_op is the only operation that does not answer.</span>
    <span class="hljs-keyword">property</span> p_no_op_sin_done;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set == no_op) |=&gt; !done;
    <span class="hljs-keyword">endproperty</span> : p_no_op_sin_done
@@ -958,17 +958,17 @@ que es lo difícil.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_no_op_sin_done)
    <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: done subio para una no_op&quot;</span>))
 
-   <span class="hljs-comment">// --- Toda assertion va con su cover property ---</span>
+   <span class="hljs-comment">// --- Every assertion comes with its cover property ---</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// Una assertion cuyo antecedente no ocurre nunca PASA, y no chequea nada.</span>
-   <span class="hljs-comment">// El cover es el antidoto. Y de paso desmiente modelos mentales: la</span>
-   <span class="hljs-comment">// multiplicacion &quot;de tres ciclos&quot; tarda CUATRO flancos (done3 -&gt; done2 -&gt;</span>
-   <span class="hljs-comment">// done1 -&gt; done_mult), asi que c_mult_3ciclos se queda en 0 para siempre.</span>
-   <span class="hljs-comment">// --- rev2 del VTALU: la salida que el scoreboard solo mira de reojo ---</span>
+   <span class="hljs-comment">// An assertion whose antecedent never happens PASSES, and checks nothing.</span>
+   <span class="hljs-comment">// The cover is the antidote. And it also debunks mental models: the</span>
+   <span class="hljs-comment">// &quot;three-cycle&quot; multiplication takes FOUR edges (done3 -&gt; done2 -&gt;</span>
+   <span class="hljs-comment">// done1 -&gt; done_mult), so c_mult_3ciclos stays at 0 forever.</span>
+   <span class="hljs-comment">// --- VTALU rev2: the output the scoreboard only glances at ---</span>
 
-   <span class="hljs-comment">// El ovf es del sub y de nadie mas. Una assertion, porque es una regla de la</span>
-   <span class="hljs-comment">// spec y no una cuenta: el scoreboard chequea QUE calcula, esto chequea que</span>
-   <span class="hljs-comment">// no invente una bandera donde no corresponde.</span>
+   <span class="hljs-comment">// ovf belongs to sub and to nobody else. An assertion, because it is a rule of</span>
+   <span class="hljs-comment">// the spec and not arithmetic: the scoreboard checks WHAT it computes, this</span>
+   <span class="hljs-comment">// checks that it does not invent a flag where none belongs.</span>
    <span class="hljs-keyword">property</span> p_ovf_solo_en_sub;
       @(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; (op_set != sub_op) |-&gt; !ovf;
    <span class="hljs-keyword">endproperty</span> : p_ovf_solo_en_sub
@@ -977,8 +977,8 @@ que es lo difícil.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_ovf_solo_en_sub)
    <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: ovf arriba con op=%s, que no puede desbordar&quot;</span>, op2enum().name()))
 
-   <span class="hljs-comment">// Y el cover que lo acompaña: sin esto, una regresion donde el random nunca</span>
-   <span class="hljs-comment">// haya restado de menos deja la assertion en verde sin haber chequeado nada.</span>
+   <span class="hljs-comment">// And the cover that goes with it: without this, a regression where the random</span>
+   <span class="hljs-comment">// never subtracted too much leaves the assertion green having checked nothing.</span>
    c_ovf : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; ovf);
    c_sub_sin_borrow : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; (op_set == sub_op) &amp;&amp; !ovf);
 
@@ -1123,13 +1123,13 @@ en vez de la de la librería.</p>
 <h4 id="toda-assertion-va-con-su-cover-property"><em>Toda assertion va con su <code>cover property</code></em></h4>
 <figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 187-195 de 217</figcaption><pre><code class="hljs">   <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: done subio para una no_op&quot;</span>))
 
-   <span class="hljs-comment">// --- Toda assertion va con su cover property ---</span>
+   <span class="hljs-comment">// --- Every assertion comes with its cover property ---</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// Una assertion cuyo antecedente no ocurre nunca PASA, y no chequea nada.</span>
-   <span class="hljs-comment">// El cover es el antidoto. Y de paso desmiente modelos mentales: la</span>
-   <span class="hljs-comment">// multiplicacion &quot;de tres ciclos&quot; tarda CUATRO flancos (done3 -&gt; done2 -&gt;</span>
-   <span class="hljs-comment">// done1 -&gt; done_mult), asi que c_mult_3ciclos se queda en 0 para siempre.</span>
-   <span class="hljs-comment">// --- rev2 del VTALU: la salida que el scoreboard solo mira de reojo ---</span></code></pre><details><summary>el archivo entero, 217 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
+   <span class="hljs-comment">// An assertion whose antecedent never happens PASSES, and checks nothing.</span>
+   <span class="hljs-comment">// The cover is the antidote. And it also debunks mental models: the</span>
+   <span class="hljs-comment">// &quot;three-cycle&quot; multiplication takes FOUR edges (done3 -&gt; done2 -&gt;</span>
+   <span class="hljs-comment">// done1 -&gt; done_mult), so c_mult_3ciclos stays at 0 forever.</span>
+   <span class="hljs-comment">// --- VTALU rev2: the output the scoreboard only glances at ---</span></code></pre><details><summary>el archivo entero, 217 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
    <span class="hljs-keyword">import</span> <span class="hljs-uvm-type">uvm_pkg</span>::*;
    <span class="hljs-keyword">import</span> vtalu_pkg::*;
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;uvm_macros.svh&quot;</span>
@@ -1160,11 +1160,11 @@ en vez de la de la librería.</p>
 
    <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span> : op_monitor
       <span class="hljs-keyword">static</span> <span class="hljs-type">bit</span> in_command = <span class="hljs-number">0</span>;
-      <span class="hljs-comment">// La guarda de null que ya tenia rst_monitor, ahora tambien aca. Con dos</span>
-      <span class="hljs-comment">// BFM en el top, una puede quedar sin monitor mientras el testbench se</span>
-      <span class="hljs-comment">// construye -- o para siempre, si alguien se olvida de instanciar el</span>
-      <span class="hljs-comment">// agent pasivo. Sin la guarda eso es un crash del simulador en vez de un</span>
-      <span class="hljs-comment">// testbench que no ve nada.</span>
+      <span class="hljs-comment">// The null guard rst_monitor already had, now here too. With two BFMs in</span>
+      <span class="hljs-comment">// the top, one can be left without a monitor while the testbench is being</span>
+      <span class="hljs-comment">// built -- or forever, if someone forgets to instantiate the passive</span>
+      <span class="hljs-comment">// agent. Without the guard that is a simulator crash instead of a</span>
+      <span class="hljs-comment">// testbench that sees nothing.</span>
       <span class="hljs-keyword">if</span> (command_monitor_h != <span class="hljs-keyword">null</span>) <span class="hljs-keyword">begin</span> : con_monitor
          <span class="hljs-keyword">if</span> (start) <span class="hljs-keyword">begin</span> : start_high
             <span class="hljs-keyword">if</span> (!in_command) <span class="hljs-keyword">begin</span> : new_command
@@ -1187,10 +1187,10 @@ en vez de la de la librería.</p>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span> : result_monitor_thread
       <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span> : result_monitor
          @(<span class="hljs-keyword">posedge</span> clk);
-         <span class="hljs-comment">// Misma guarda que op_monitor y rst_monitor: con dos BFM en el top,</span>
-         <span class="hljs-comment">// una puede quedar sin monitor. Sin esto, olvidarse del agent pasivo</span>
-         <span class="hljs-comment">// es un &quot;Null pointer dereferenced&quot; del simulador en vez del mensaje</span>
-         <span class="hljs-comment">// del corrector -- que es justo el estado inicial del ejercicio d6.</span>
+         <span class="hljs-comment">// Same guard as op_monitor and rst_monitor: with two BFMs in the top,</span>
+         <span class="hljs-comment">// one can be left without a monitor. Without this, forgetting the</span>
+         <span class="hljs-comment">// passive agent is a simulator &quot;Null pointer dereferenced&quot; instead of</span>
+         <span class="hljs-comment">// the checker&#x27;s message -- which is exactly where exercise d6 starts.</span>
          <span class="hljs-keyword">if</span> (done &amp;&amp; result_monitor_h != <span class="hljs-keyword">null</span>) result_monitor_h.write_to_monitor(result, ovf);
       <span class="hljs-keyword">end</span> : result_monitor
    <span class="hljs-keyword">end</span> : result_monitor_thread
@@ -1204,10 +1204,10 @@ en vez de la de la librería.</p>
    <span class="hljs-keyword">end</span>
 
 
-   <span class="hljs-comment">// --- el protocolo, en el BFM ---</span>
-   <span class="hljs-comment">// Todo lo que sabe COMO se habla con el DUT vive aca, en un solo lugar: el</span>
-   <span class="hljs-comment">// resto del testbench pide una operacion y no toca un cable. Es la idea de</span>
-   <span class="hljs-comment">// la unidad 3, y se sostiene hasta el final del curso.</span>
+   <span class="hljs-comment">// --- the protocol, in the BFM ---</span>
+   <span class="hljs-comment">// Everything that knows HOW the DUT is talked to lives here, in one place:</span>
+   <span class="hljs-comment">// the rest of the testbench asks for an operation and never touches a wire.</span>
+   <span class="hljs-comment">// That is the idea of unit 3, and it holds to the end of the course.</span>
 
    <span class="hljs-keyword">task</span> <span class="hljs-title">reset_alu</span>();
       reset_n = <span class="hljs-number">1&#x27;b0</span>;
@@ -1217,8 +1217,8 @@ en vez de la de la librería.</p>
       start   = <span class="hljs-number">1&#x27;b0</span>;
    <span class="hljs-keyword">endtask</span> : reset_alu
 
-   <span class="hljs-comment">// NUEVO en la unidad 23: el cuarto argumento. El protocolo no cambio; lo</span>
-   <span class="hljs-comment">// unico que se agrego es leer result en el flanco en que done ya subio.</span>
+   <span class="hljs-comment">// NEW in unit 23: the fourth argument. The protocol did not change; the only</span>
+   <span class="hljs-comment">// thing added is reading result on the edge where done is already up.</span>
    <span class="hljs-type">bit</span> bug_operandos;
    <span class="hljs-keyword">initial</span> bug_operandos = <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;BUG&quot;</span>);
 
@@ -1243,10 +1243,10 @@ en vez de la de la librería.</p>
             #<span class="hljs-number">1</span>;
             start = <span class="hljs-number">1&#x27;b0</span>;
          <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
-            <span class="hljs-comment">// +BUG=1: cambia B a mitad de la multiplicacion. El multiplicador</span>
-            <span class="hljs-comment">// ya latcheo A y B en el primer flanco, asi que el RESULTADO NO</span>
-            <span class="hljs-comment">// CAMBIA: el scoreboard sigue en verde. Lo unico que lo ve es la</span>
-            <span class="hljs-comment">// assertion. Eso es toda la seccion.</span>
+            <span class="hljs-comment">// +BUG=1: changes B halfway through the multiplication. The</span>
+            <span class="hljs-comment">// multiplier already latched A and B on the first edge, so the</span>
+            <span class="hljs-comment">// RESULT DOES NOT CHANGE: the scoreboard stays green. The only</span>
+            <span class="hljs-comment">// thing that sees it is the assertion. That is the whole section.</span>
             <span class="hljs-keyword">if</span> (bug_operandos &amp;&amp; iop == mul_op) <span class="hljs-keyword">begin</span>
                @(<span class="hljs-keyword">negedge</span> clk);
                @(<span class="hljs-keyword">negedge</span> clk);
@@ -1261,31 +1261,31 @@ en vez de la de la librería.</p>
 
 
    <span class="hljs-comment">// ==========================================================================</span>
-   <span class="hljs-comment">//  Unidad 24 - el protocolo, chequeado donde ocurre</span>
+   <span class="hljs-comment">//  Unit 24 - the protocol, checked where it happens</span>
    <span class="hljs-comment">// ==========================================================================</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// Las properties viven ACA, con las senales, y no en el testbench: se</span>
-   <span class="hljs-comment">// enchufan solas, nadie las conecta, y el agent pasivo de la seccion Agents se</span>
-   <span class="hljs-comment">// las lleva de regalo. Lo unico que hace falta para que corran es --assert.</span>
+   <span class="hljs-comment">// The properties live HERE, with the signals, and not in the testbench: they</span>
+   <span class="hljs-comment">// plug themselves in, nobody connects them, and the passive agent of the Agents</span>
+   <span class="hljs-comment">// section gets them for free. All they need in order to run is --assert.</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// DOS RELOJES, y no es un detalle de implementacion: la BFM maneja en</span>
-   <span class="hljs-comment">// negedge y el DUT registra en posedge. Una assertion muestrea en la region</span>
-   <span class="hljs-comment">// preponed del flanco que se le da, asi que una senal escrita EN el negedge</span>
-   <span class="hljs-comment">// no se ve en ese negedge: se ve en el siguiente. Con todo en posedge, dos</span>
-   <span class="hljs-comment">// no_op consecutivas -- start baja en t=111 y vuelve a subir en t=120, entre</span>
-   <span class="hljs-comment">// dos posedge -- se leen como UNA transaccion con los operandos cambiando:</span>
-   <span class="hljs-comment">// 185 falsos positivos cada 1000 operaciones. Con todo en negedge, los</span>
-   <span class="hljs-comment">// falsos positivos se mudan a las properties de done.</span>
+   <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
+   <span class="hljs-comment">// negedge and the DUT registers on posedge. An assertion samples in the</span>
+   <span class="hljs-comment">// preponed region of the edge it is given, so a signal written ON the negedge</span>
+   <span class="hljs-comment">// is not seen on that negedge: it is seen on the next one. With everything on</span>
+   <span class="hljs-comment">// posedge, two consecutive no_op -- start goes down at t=111 and back up at</span>
+   <span class="hljs-comment">// t=120, between two posedges -- read as ONE transaction with the operands</span>
+   <span class="hljs-comment">// changing: 185 false positives every 1000 operations. With everything on</span>
+   <span class="hljs-comment">// negedge, the false positives move to the done properties.</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">//   estimulo  (start, A, B, op_set)  -&gt; negedge, donde la BFM escribe</span>
-   <span class="hljs-comment">//   respuesta (done, result)         -&gt; posedge, donde el DUT registra</span>
+   <span class="hljs-comment">//   stimulus (start, A, B, op_set)  -&gt; negedge, where the BFM writes</span>
+   <span class="hljs-comment">//   response (done, result)         -&gt; posedge, where the DUT registers</span>
 
    <span class="hljs-keyword">default</span> <span class="hljs-keyword">disable</span> iff (!reset_n);
 
    <span class="hljs-comment">// --- El estimulo ---</span>
 
-   <span class="hljs-comment">// La regla de la slide 1 del dia 1, por fin ejecutable: mientras start este</span>
-   <span class="hljs-comment">// arriba, los operandos y la operacion no se tocan.</span>
+   <span class="hljs-comment">// The rule from slide 1 of day 1, executable at last: while start is up, the</span>
+   <span class="hljs-comment">// operands and the operation are not touched.</span>
    <span class="hljs-keyword">property</span> p_operandos_estables;
       @(<span class="hljs-keyword">negedge</span> clk) start |=&gt; <span class="hljs-built_in">$stable</span>(A) &amp;&amp; <span class="hljs-built_in">$stable</span>(B) &amp;&amp; <span class="hljs-built_in">$stable</span>(op_set);
    <span class="hljs-keyword">endproperty</span> : p_operandos_estables
@@ -1294,12 +1294,12 @@ en vez de la de la librería.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_operandos_estables)
    <span class="hljs-keyword">else</span>
       <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
-                 <span class="hljs-string">&quot;%m: operando cambiado con start arriba: A=%0d B=%0d op=%s&quot;</span>, A, B, op2enum().name()))
+                 <span class="hljs-string">&quot;%m: operand changed with start up: A=%0d B=%0d op=%s&quot;</span>, A, B, op2enum().name()))
 
-   <span class="hljs-comment">// --- La respuesta del DUT ---</span>
+   <span class="hljs-comment">// --- The DUT&#x27;s answer ---</span>
 
-   <span class="hljs-comment">// La latencia variable de la seccion La spec del VTALU en una linea: un ciclo las de un</span>
-   <span class="hljs-comment">// ciclo, cuatro flancos la multiplicacion.</span>
+   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
+   <span class="hljs-comment">// one-cycle ops, four edges for the multiplication.</span>
    <span class="hljs-keyword">property</span> p_done_llega;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set != no_op) |-&gt; ##[<span class="hljs-number">1</span>:<span class="hljs-number">5</span>] done;
    <span class="hljs-keyword">endproperty</span> : p_done_llega
@@ -1308,7 +1308,7 @@ en vez de la de la librería.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_done_llega)
    <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: start con op=%s y done no llego en 5 ciclos&quot;</span>, op2enum().name()))
 
-   <span class="hljs-comment">// La letra chica: no_op es la unica operacion que no responde.</span>
+   <span class="hljs-comment">// The fine print: no_op is the only operation that does not answer.</span>
    <span class="hljs-keyword">property</span> p_no_op_sin_done;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set == no_op) |=&gt; !done;
    <span class="hljs-keyword">endproperty</span> : p_no_op_sin_done
@@ -1317,17 +1317,17 @@ en vez de la de la librería.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_no_op_sin_done)
    <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: done subio para una no_op&quot;</span>))
 
-   <span class="hljs-comment">// --- Toda assertion va con su cover property ---</span>
+   <span class="hljs-comment">// --- Every assertion comes with its cover property ---</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// Una assertion cuyo antecedente no ocurre nunca PASA, y no chequea nada.</span>
-   <span class="hljs-comment">// El cover es el antidoto. Y de paso desmiente modelos mentales: la</span>
-   <span class="hljs-comment">// multiplicacion &quot;de tres ciclos&quot; tarda CUATRO flancos (done3 -&gt; done2 -&gt;</span>
-   <span class="hljs-comment">// done1 -&gt; done_mult), asi que c_mult_3ciclos se queda en 0 para siempre.</span>
-   <span class="hljs-comment">// --- rev2 del VTALU: la salida que el scoreboard solo mira de reojo ---</span>
+   <span class="hljs-comment">// An assertion whose antecedent never happens PASSES, and checks nothing.</span>
+   <span class="hljs-comment">// The cover is the antidote. And it also debunks mental models: the</span>
+   <span class="hljs-comment">// &quot;three-cycle&quot; multiplication takes FOUR edges (done3 -&gt; done2 -&gt;</span>
+   <span class="hljs-comment">// done1 -&gt; done_mult), so c_mult_3ciclos stays at 0 forever.</span>
+   <span class="hljs-comment">// --- VTALU rev2: the output the scoreboard only glances at ---</span>
 
-   <span class="hljs-comment">// El ovf es del sub y de nadie mas. Una assertion, porque es una regla de la</span>
-   <span class="hljs-comment">// spec y no una cuenta: el scoreboard chequea QUE calcula, esto chequea que</span>
-   <span class="hljs-comment">// no invente una bandera donde no corresponde.</span>
+   <span class="hljs-comment">// ovf belongs to sub and to nobody else. An assertion, because it is a rule of</span>
+   <span class="hljs-comment">// the spec and not arithmetic: the scoreboard checks WHAT it computes, this</span>
+   <span class="hljs-comment">// checks that it does not invent a flag where none belongs.</span>
    <span class="hljs-keyword">property</span> p_ovf_solo_en_sub;
       @(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; (op_set != sub_op) |-&gt; !ovf;
    <span class="hljs-keyword">endproperty</span> : p_ovf_solo_en_sub
@@ -1336,8 +1336,8 @@ en vez de la de la librería.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_ovf_solo_en_sub)
    <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: ovf arriba con op=%s, que no puede desbordar&quot;</span>, op2enum().name()))
 
-   <span class="hljs-comment">// Y el cover que lo acompaña: sin esto, una regresion donde el random nunca</span>
-   <span class="hljs-comment">// haya restado de menos deja la assertion en verde sin haber chequeado nada.</span>
+   <span class="hljs-comment">// And the cover that goes with it: without this, a regression where the random</span>
+   <span class="hljs-comment">// never subtracted too much leaves the assertion green having checked nothing.</span>
    c_ovf : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; ovf);
    c_sub_sin_borrow : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; (op_set == sub_op) &amp;&amp; !ovf);
 
@@ -1438,10 +1438,10 @@ cuenta como anécdota.</p>
 <figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 112-124 de 217</figcaption><pre><code class="hljs">            #<span class="hljs-number">1</span>;
             start = <span class="hljs-number">1&#x27;b0</span>;
          <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
-            <span class="hljs-comment">// +BUG=1: cambia B a mitad de la multiplicacion. El multiplicador</span>
-            <span class="hljs-comment">// ya latcheo A y B en el primer flanco, asi que el RESULTADO NO</span>
-            <span class="hljs-comment">// CAMBIA: el scoreboard sigue en verde. Lo unico que lo ve es la</span>
-            <span class="hljs-comment">// assertion. Eso es toda la seccion.</span>
+            <span class="hljs-comment">// +BUG=1: changes B halfway through the multiplication. The</span>
+            <span class="hljs-comment">// multiplier already latched A and B on the first edge, so the</span>
+            <span class="hljs-comment">// RESULT DOES NOT CHANGE: the scoreboard stays green. The only</span>
+            <span class="hljs-comment">// thing that sees it is the assertion. That is the whole section.</span>
             <span class="hljs-keyword">if</span> (bug_operandos &amp;&amp; iop == mul_op) <span class="hljs-keyword">begin</span>
                @(<span class="hljs-keyword">negedge</span> clk);
                @(<span class="hljs-keyword">negedge</span> clk);
@@ -1478,11 +1478,11 @@ cuenta como anécdota.</p>
 
    <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span> : op_monitor
       <span class="hljs-keyword">static</span> <span class="hljs-type">bit</span> in_command = <span class="hljs-number">0</span>;
-      <span class="hljs-comment">// La guarda de null que ya tenia rst_monitor, ahora tambien aca. Con dos</span>
-      <span class="hljs-comment">// BFM en el top, una puede quedar sin monitor mientras el testbench se</span>
-      <span class="hljs-comment">// construye -- o para siempre, si alguien se olvida de instanciar el</span>
-      <span class="hljs-comment">// agent pasivo. Sin la guarda eso es un crash del simulador en vez de un</span>
-      <span class="hljs-comment">// testbench que no ve nada.</span>
+      <span class="hljs-comment">// The null guard rst_monitor already had, now here too. With two BFMs in</span>
+      <span class="hljs-comment">// the top, one can be left without a monitor while the testbench is being</span>
+      <span class="hljs-comment">// built -- or forever, if someone forgets to instantiate the passive</span>
+      <span class="hljs-comment">// agent. Without the guard that is a simulator crash instead of a</span>
+      <span class="hljs-comment">// testbench that sees nothing.</span>
       <span class="hljs-keyword">if</span> (command_monitor_h != <span class="hljs-keyword">null</span>) <span class="hljs-keyword">begin</span> : con_monitor
          <span class="hljs-keyword">if</span> (start) <span class="hljs-keyword">begin</span> : start_high
             <span class="hljs-keyword">if</span> (!in_command) <span class="hljs-keyword">begin</span> : new_command
@@ -1505,10 +1505,10 @@ cuenta como anécdota.</p>
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span> : result_monitor_thread
       <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span> : result_monitor
          @(<span class="hljs-keyword">posedge</span> clk);
-         <span class="hljs-comment">// Misma guarda que op_monitor y rst_monitor: con dos BFM en el top,</span>
-         <span class="hljs-comment">// una puede quedar sin monitor. Sin esto, olvidarse del agent pasivo</span>
-         <span class="hljs-comment">// es un &quot;Null pointer dereferenced&quot; del simulador en vez del mensaje</span>
-         <span class="hljs-comment">// del corrector -- que es justo el estado inicial del ejercicio d6.</span>
+         <span class="hljs-comment">// Same guard as op_monitor and rst_monitor: with two BFMs in the top,</span>
+         <span class="hljs-comment">// one can be left without a monitor. Without this, forgetting the</span>
+         <span class="hljs-comment">// passive agent is a simulator &quot;Null pointer dereferenced&quot; instead of</span>
+         <span class="hljs-comment">// the checker&#x27;s message -- which is exactly where exercise d6 starts.</span>
          <span class="hljs-keyword">if</span> (done &amp;&amp; result_monitor_h != <span class="hljs-keyword">null</span>) result_monitor_h.write_to_monitor(result, ovf);
       <span class="hljs-keyword">end</span> : result_monitor
    <span class="hljs-keyword">end</span> : result_monitor_thread
@@ -1522,10 +1522,10 @@ cuenta como anécdota.</p>
    <span class="hljs-keyword">end</span>
 
 
-   <span class="hljs-comment">// --- el protocolo, en el BFM ---</span>
-   <span class="hljs-comment">// Todo lo que sabe COMO se habla con el DUT vive aca, en un solo lugar: el</span>
-   <span class="hljs-comment">// resto del testbench pide una operacion y no toca un cable. Es la idea de</span>
-   <span class="hljs-comment">// la unidad 3, y se sostiene hasta el final del curso.</span>
+   <span class="hljs-comment">// --- the protocol, in the BFM ---</span>
+   <span class="hljs-comment">// Everything that knows HOW the DUT is talked to lives here, in one place:</span>
+   <span class="hljs-comment">// the rest of the testbench asks for an operation and never touches a wire.</span>
+   <span class="hljs-comment">// That is the idea of unit 3, and it holds to the end of the course.</span>
 
    <span class="hljs-keyword">task</span> <span class="hljs-title">reset_alu</span>();
       reset_n = <span class="hljs-number">1&#x27;b0</span>;
@@ -1535,8 +1535,8 @@ cuenta como anécdota.</p>
       start   = <span class="hljs-number">1&#x27;b0</span>;
    <span class="hljs-keyword">endtask</span> : reset_alu
 
-   <span class="hljs-comment">// NUEVO en la unidad 23: el cuarto argumento. El protocolo no cambio; lo</span>
-   <span class="hljs-comment">// unico que se agrego es leer result en el flanco en que done ya subio.</span>
+   <span class="hljs-comment">// NEW in unit 23: the fourth argument. The protocol did not change; the only</span>
+   <span class="hljs-comment">// thing added is reading result on the edge where done is already up.</span>
    <span class="hljs-type">bit</span> bug_operandos;
    <span class="hljs-keyword">initial</span> bug_operandos = <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;BUG&quot;</span>);
 
@@ -1561,10 +1561,10 @@ cuenta como anécdota.</p>
             #<span class="hljs-number">1</span>;
             start = <span class="hljs-number">1&#x27;b0</span>;
          <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
-            <span class="hljs-comment">// +BUG=1: cambia B a mitad de la multiplicacion. El multiplicador</span>
-            <span class="hljs-comment">// ya latcheo A y B en el primer flanco, asi que el RESULTADO NO</span>
-            <span class="hljs-comment">// CAMBIA: el scoreboard sigue en verde. Lo unico que lo ve es la</span>
-            <span class="hljs-comment">// assertion. Eso es toda la seccion.</span>
+            <span class="hljs-comment">// +BUG=1: changes B halfway through the multiplication. The</span>
+            <span class="hljs-comment">// multiplier already latched A and B on the first edge, so the</span>
+            <span class="hljs-comment">// RESULT DOES NOT CHANGE: the scoreboard stays green. The only</span>
+            <span class="hljs-comment">// thing that sees it is the assertion. That is the whole section.</span>
             <span class="hljs-keyword">if</span> (bug_operandos &amp;&amp; iop == mul_op) <span class="hljs-keyword">begin</span>
                @(<span class="hljs-keyword">negedge</span> clk);
                @(<span class="hljs-keyword">negedge</span> clk);
@@ -1579,31 +1579,31 @@ cuenta como anécdota.</p>
 
 
    <span class="hljs-comment">// ==========================================================================</span>
-   <span class="hljs-comment">//  Unidad 24 - el protocolo, chequeado donde ocurre</span>
+   <span class="hljs-comment">//  Unit 24 - the protocol, checked where it happens</span>
    <span class="hljs-comment">// ==========================================================================</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// Las properties viven ACA, con las senales, y no en el testbench: se</span>
-   <span class="hljs-comment">// enchufan solas, nadie las conecta, y el agent pasivo de la seccion Agents se</span>
-   <span class="hljs-comment">// las lleva de regalo. Lo unico que hace falta para que corran es --assert.</span>
+   <span class="hljs-comment">// The properties live HERE, with the signals, and not in the testbench: they</span>
+   <span class="hljs-comment">// plug themselves in, nobody connects them, and the passive agent of the Agents</span>
+   <span class="hljs-comment">// section gets them for free. All they need in order to run is --assert.</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// DOS RELOJES, y no es un detalle de implementacion: la BFM maneja en</span>
-   <span class="hljs-comment">// negedge y el DUT registra en posedge. Una assertion muestrea en la region</span>
-   <span class="hljs-comment">// preponed del flanco que se le da, asi que una senal escrita EN el negedge</span>
-   <span class="hljs-comment">// no se ve en ese negedge: se ve en el siguiente. Con todo en posedge, dos</span>
-   <span class="hljs-comment">// no_op consecutivas -- start baja en t=111 y vuelve a subir en t=120, entre</span>
-   <span class="hljs-comment">// dos posedge -- se leen como UNA transaccion con los operandos cambiando:</span>
-   <span class="hljs-comment">// 185 falsos positivos cada 1000 operaciones. Con todo en negedge, los</span>
-   <span class="hljs-comment">// falsos positivos se mudan a las properties de done.</span>
+   <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
+   <span class="hljs-comment">// negedge and the DUT registers on posedge. An assertion samples in the</span>
+   <span class="hljs-comment">// preponed region of the edge it is given, so a signal written ON the negedge</span>
+   <span class="hljs-comment">// is not seen on that negedge: it is seen on the next one. With everything on</span>
+   <span class="hljs-comment">// posedge, two consecutive no_op -- start goes down at t=111 and back up at</span>
+   <span class="hljs-comment">// t=120, between two posedges -- read as ONE transaction with the operands</span>
+   <span class="hljs-comment">// changing: 185 false positives every 1000 operations. With everything on</span>
+   <span class="hljs-comment">// negedge, the false positives move to the done properties.</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">//   estimulo  (start, A, B, op_set)  -&gt; negedge, donde la BFM escribe</span>
-   <span class="hljs-comment">//   respuesta (done, result)         -&gt; posedge, donde el DUT registra</span>
+   <span class="hljs-comment">//   stimulus (start, A, B, op_set)  -&gt; negedge, where the BFM writes</span>
+   <span class="hljs-comment">//   response (done, result)         -&gt; posedge, where the DUT registers</span>
 
    <span class="hljs-keyword">default</span> <span class="hljs-keyword">disable</span> iff (!reset_n);
 
    <span class="hljs-comment">// --- El estimulo ---</span>
 
-   <span class="hljs-comment">// La regla de la slide 1 del dia 1, por fin ejecutable: mientras start este</span>
-   <span class="hljs-comment">// arriba, los operandos y la operacion no se tocan.</span>
+   <span class="hljs-comment">// The rule from slide 1 of day 1, executable at last: while start is up, the</span>
+   <span class="hljs-comment">// operands and the operation are not touched.</span>
    <span class="hljs-keyword">property</span> p_operandos_estables;
       @(<span class="hljs-keyword">negedge</span> clk) start |=&gt; <span class="hljs-built_in">$stable</span>(A) &amp;&amp; <span class="hljs-built_in">$stable</span>(B) &amp;&amp; <span class="hljs-built_in">$stable</span>(op_set);
    <span class="hljs-keyword">endproperty</span> : p_operandos_estables
@@ -1612,12 +1612,12 @@ cuenta como anécdota.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_operandos_estables)
    <span class="hljs-keyword">else</span>
       <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
-                 <span class="hljs-string">&quot;%m: operando cambiado con start arriba: A=%0d B=%0d op=%s&quot;</span>, A, B, op2enum().name()))
+                 <span class="hljs-string">&quot;%m: operand changed with start up: A=%0d B=%0d op=%s&quot;</span>, A, B, op2enum().name()))
 
-   <span class="hljs-comment">// --- La respuesta del DUT ---</span>
+   <span class="hljs-comment">// --- The DUT&#x27;s answer ---</span>
 
-   <span class="hljs-comment">// La latencia variable de la seccion La spec del VTALU en una linea: un ciclo las de un</span>
-   <span class="hljs-comment">// ciclo, cuatro flancos la multiplicacion.</span>
+   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
+   <span class="hljs-comment">// one-cycle ops, four edges for the multiplication.</span>
    <span class="hljs-keyword">property</span> p_done_llega;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set != no_op) |-&gt; ##[<span class="hljs-number">1</span>:<span class="hljs-number">5</span>] done;
    <span class="hljs-keyword">endproperty</span> : p_done_llega
@@ -1626,7 +1626,7 @@ cuenta como anécdota.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_done_llega)
    <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: start con op=%s y done no llego en 5 ciclos&quot;</span>, op2enum().name()))
 
-   <span class="hljs-comment">// La letra chica: no_op es la unica operacion que no responde.</span>
+   <span class="hljs-comment">// The fine print: no_op is the only operation that does not answer.</span>
    <span class="hljs-keyword">property</span> p_no_op_sin_done;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set == no_op) |=&gt; !done;
    <span class="hljs-keyword">endproperty</span> : p_no_op_sin_done
@@ -1635,17 +1635,17 @@ cuenta como anécdota.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_no_op_sin_done)
    <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: done subio para una no_op&quot;</span>))
 
-   <span class="hljs-comment">// --- Toda assertion va con su cover property ---</span>
+   <span class="hljs-comment">// --- Every assertion comes with its cover property ---</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// Una assertion cuyo antecedente no ocurre nunca PASA, y no chequea nada.</span>
-   <span class="hljs-comment">// El cover es el antidoto. Y de paso desmiente modelos mentales: la</span>
-   <span class="hljs-comment">// multiplicacion &quot;de tres ciclos&quot; tarda CUATRO flancos (done3 -&gt; done2 -&gt;</span>
-   <span class="hljs-comment">// done1 -&gt; done_mult), asi que c_mult_3ciclos se queda en 0 para siempre.</span>
-   <span class="hljs-comment">// --- rev2 del VTALU: la salida que el scoreboard solo mira de reojo ---</span>
+   <span class="hljs-comment">// An assertion whose antecedent never happens PASSES, and checks nothing.</span>
+   <span class="hljs-comment">// The cover is the antidote. And it also debunks mental models: the</span>
+   <span class="hljs-comment">// &quot;three-cycle&quot; multiplication takes FOUR edges (done3 -&gt; done2 -&gt;</span>
+   <span class="hljs-comment">// done1 -&gt; done_mult), so c_mult_3ciclos stays at 0 forever.</span>
+   <span class="hljs-comment">// --- VTALU rev2: the output the scoreboard only glances at ---</span>
 
-   <span class="hljs-comment">// El ovf es del sub y de nadie mas. Una assertion, porque es una regla de la</span>
-   <span class="hljs-comment">// spec y no una cuenta: el scoreboard chequea QUE calcula, esto chequea que</span>
-   <span class="hljs-comment">// no invente una bandera donde no corresponde.</span>
+   <span class="hljs-comment">// ovf belongs to sub and to nobody else. An assertion, because it is a rule of</span>
+   <span class="hljs-comment">// the spec and not arithmetic: the scoreboard checks WHAT it computes, this</span>
+   <span class="hljs-comment">// checks that it does not invent a flag where none belongs.</span>
    <span class="hljs-keyword">property</span> p_ovf_solo_en_sub;
       @(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; (op_set != sub_op) |-&gt; !ovf;
    <span class="hljs-keyword">endproperty</span> : p_ovf_solo_en_sub
@@ -1654,8 +1654,8 @@ cuenta como anécdota.</p>
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_ovf_solo_en_sub)
    <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: ovf arriba con op=%s, que no puede desbordar&quot;</span>, op2enum().name()))
 
-   <span class="hljs-comment">// Y el cover que lo acompaña: sin esto, una regresion donde el random nunca</span>
-   <span class="hljs-comment">// haya restado de menos deja la assertion en verde sin haber chequeado nada.</span>
+   <span class="hljs-comment">// And the cover that goes with it: without this, a regression where the random</span>
+   <span class="hljs-comment">// never subtracted too much leaves the assertion green having checked nothing.</span>
    c_ovf : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; ovf);
    c_sub_sin_borrow : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; (op_set == sub_op) &amp;&amp; !ovf);
 
@@ -1927,7 +1927,7 @@ una spec y nada más</strong></li>
 direcciones, dos fases por transferencia, un <em>wait state</em> y respuesta de error</li>
 <li>Se escribe todo: la interface con el protocolo, la transaction, el driver, el
 monitor, el agent, el scoreboard, el covergroup, las sequences y los tests</li>
-<li>El corrector va <strong>por etapas</strong>, y cada una imprime su <code>ETAPA N OK</code>. Se puede
+<li>El corrector va <strong>por etapas</strong>, y cada una imprime su <code>STAGE N OK</code>. Se puede
 terminar de a una — y conviene</li>
 </ul>
 <div class="nota">
@@ -1983,9 +1983,9 @@ de cobertura, es exactamente el ejemplo que piden.</p>
 <td>bit 0 = <code>EN</code> · bit 1 = <code>OVF</code>, pegajoso</td>
 </tr>
 </tbody></table>
-<figure class="codigo"><figcaption><code>code/ejercicios/d7-final/rtl/apb_regs.sv</code> · líneas 35-46 de 95</figcaption><pre><code class="hljs">   <span class="hljs-comment">// El handshake: la escritura no espera, la lectura mete UN wait state.</span>
-   <span class="hljs-comment">// rd_wait se rearma en cuanto baja PENABLE, o sea entre transferencia y</span>
-   <span class="hljs-comment">// transferencia, sin necesidad de contar ciclos.</span>
+<figure class="codigo"><figcaption><code>code/ejercicios/d7-final/rtl/apb_regs.sv</code> · líneas 35-46 de 95</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The handshake: the write does not wait, the read inserts ONE wait state.</span>
+   <span class="hljs-comment">// rd_wait re-arms as soon as PENABLE drops, that is between one transfer and</span>
+   <span class="hljs-comment">// the next, with no need to count cycles.</span>
    <span class="hljs-type">logic</span> rd_wait;
    <span class="hljs-keyword">always_ff</span> @(<span class="hljs-keyword">posedge</span> PCLK or <span class="hljs-keyword">negedge</span> PRESETn) <span class="hljs-keyword">begin</span>
       <span class="hljs-keyword">if</span> (!PRESETn) rd_wait &lt;= <span class="hljs-number">1&#x27;b1</span>;
@@ -1994,16 +1994,16 @@ de cobertura, es exactamente el ejemplo que piden.</p>
    <span class="hljs-keyword">end</span>
 
    <span class="hljs-keyword">assign</span> PREADY  = !PSEL ? <span class="hljs-number">1&#x27;b1</span> : (PWRITE ? <span class="hljs-number">1&#x27;b1</span> : !rd_wait);
-   <span class="hljs-keyword">assign</span> PSLVERR = access &amp;&amp; !mapped;</code></pre><details><summary>el archivo entero, 95 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// El DUT del capstone: un esclavo APB3 con cuatro registros.</span>
+   <span class="hljs-keyword">assign</span> PSLVERR = access &amp;&amp; !mapped;</code></pre><details><summary>el archivo entero, 95 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The capstone DUT: an APB3 slave with four registers.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// La spec esta en spec.md, y es lo unico que hay que leer para verificarlo.</span>
-<span class="hljs-comment">// Este archivo NO se toca: si tu testbench necesita cambiar el RTL para pasar,</span>
-<span class="hljs-comment">// el que esta mal es el testbench.</span>
+<span class="hljs-comment">// The spec is in spec.md, and it is the only thing to read in order to verify it.</span>
+<span class="hljs-comment">// This file is NOT touched: if your testbench needs to change the RTL to pass,</span>
+<span class="hljs-comment">// the one that is wrong is the testbench.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// La unica licencia que se tomo es bug_en, que no existiria en un DUT de</span>
-<span class="hljs-comment">// verdad: con +BUG=1 el acumulador deja de mirar CTRL.EN. Esta para que puedas</span>
-<span class="hljs-comment">// comprobar que tu scoreboard chequea algo -- un scoreboard que nunca vio un</span>
-<span class="hljs-comment">// error no esta probado.</span>
+<span class="hljs-comment">// The only liberty taken is bug_en, which would not exist in a real DUT:</span>
+<span class="hljs-comment">// with +BUG=1 the accumulator stops looking at CTRL.EN. It is there so you can</span>
+<span class="hljs-comment">// check that your scoreboard checks something -- a scoreboard that never saw an</span>
+<span class="hljs-comment">// error is not tested.</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">apb_regs</span> (
     <span class="hljs-keyword">input</span>  <span class="hljs-type">logic</span>        PCLK,
     <span class="hljs-keyword">input</span>  <span class="hljs-type">logic</span>        PRESETn,
@@ -2023,14 +2023,14 @@ de cobertura, es exactamente el ejemplo que piden.</p>
    <span class="hljs-type">logic</span> [<span class="hljs-number">31</span>:<span class="hljs-number">0</span>] scratch;  <span class="hljs-comment">// SCRATCH</span>
    <span class="hljs-type">logic</span> [<span class="hljs-number">31</span>:<span class="hljs-number">0</span>] acc;      <span class="hljs-comment">// ACC</span>
 
-   <span class="hljs-comment">// El mapa entra en 16 bytes: cuatro registros de 32 bits. PADDR[1:0] se</span>
-   <span class="hljs-comment">// ignora; de 0x10 para arriba no hay nadie y se contesta con PSLVERR.</span>
+   <span class="hljs-comment">// The map fits in 16 bytes: four 32-bit registers. PADDR[1:0] is</span>
+   <span class="hljs-comment">// ignored; from 0x10 up there is nobody and the answer is PSLVERR.</span>
    <span class="hljs-type">wire</span> mapped = (PADDR &lt; <span class="hljs-number">8&#x27;h10</span>);
    <span class="hljs-type">wire</span> access = PSEL &amp;&amp; PENABLE;
 
-   <span class="hljs-comment">// El handshake: la escritura no espera, la lectura mete UN wait state.</span>
-   <span class="hljs-comment">// rd_wait se rearma en cuanto baja PENABLE, o sea entre transferencia y</span>
-   <span class="hljs-comment">// transferencia, sin necesidad de contar ciclos.</span>
+   <span class="hljs-comment">// The handshake: the write does not wait, the read inserts ONE wait state.</span>
+   <span class="hljs-comment">// rd_wait re-arms as soon as PENABLE drops, that is between one transfer and</span>
+   <span class="hljs-comment">// the next, with no need to count cycles.</span>
    <span class="hljs-type">logic</span> rd_wait;
    <span class="hljs-keyword">always_ff</span> @(<span class="hljs-keyword">posedge</span> PCLK or <span class="hljs-keyword">negedge</span> PRESETn) <span class="hljs-keyword">begin</span>
       <span class="hljs-keyword">if</span> (!PRESETn) rd_wait &lt;= <span class="hljs-number">1&#x27;b1</span>;
@@ -2041,8 +2041,8 @@ de cobertura, es exactamente el ejemplo que piden.</p>
    <span class="hljs-keyword">assign</span> PREADY  = !PSEL ? <span class="hljs-number">1&#x27;b1</span> : (PWRITE ? <span class="hljs-number">1&#x27;b1</span> : !rd_wait);
    <span class="hljs-keyword">assign</span> PSLVERR = access &amp;&amp; !mapped;
 
-   <span class="hljs-comment">// El ciclo en que la transferencia realmente ocurre: es el unico flanco que</span>
-   <span class="hljs-comment">// le importa al monitor, y el unico en que el DUT cambia de estado.</span>
+   <span class="hljs-comment">// The cycle where the transfer actually happens: it is the only edge that</span>
+   <span class="hljs-comment">// matters to the monitor, and the only one where the DUT changes state.</span>
    <span class="hljs-type">wire</span> xfer = access &amp;&amp; PREADY;
 
    <span class="hljs-keyword">always_comb</span> <span class="hljs-keyword">begin</span>
@@ -2076,8 +2076,8 @@ de cobertura, es exactamente el ejemplo que piden.</p>
             <span class="hljs-keyword">end</span>
             <span class="hljs-number">2&#x27;d1</span>: <span class="hljs-keyword">begin</span>
                scratch &lt;= PWDATA;
-               <span class="hljs-comment">// El acumulador solo corre con EN=1. Es la unica linea que</span>
-               <span class="hljs-comment">// +BUG=1 rompe.</span>
+               <span class="hljs-comment">// The accumulator only runs with EN=1. It is the only line</span>
+               <span class="hljs-comment">// +BUG=1 breaks.</span>
                <span class="hljs-keyword">if</span> (en || bug_en) <span class="hljs-keyword">begin</span>
                   acc &lt;= suma[<span class="hljs-number">31</span>:<span class="hljs-number">0</span>];
                   <span class="hljs-keyword">if</span> (suma[<span class="hljs-number">32</span>]) ovf &lt;= <span class="hljs-number">1&#x27;b1</span>;  <span class="hljs-comment">// pegajoso hasta el proximo CLR</span>

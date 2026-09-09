@@ -1,8 +1,8 @@
 #!/bin/bash
-# Corre el ejemplo con Verilator. Ver docs/verilator.md.
+# Runs the example with Verilator. See docs/verilator.md.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../../verilator/common.sh"
-# -Wno-IMPLICIT: put_it/get_it son wires implicitos en top. Es Verilog valido,
-# pero Verilator lo reporta y por defecto corta. El fuente no se toca.
+# -Wno-IMPLICIT: put_it/get_it are implicit wires in top. It is valid Verilog,
+# but Verilator reports it and by default stops. The source is not touched.
 vlt top -Wno-IMPLICIT modules.sv
 run_sim

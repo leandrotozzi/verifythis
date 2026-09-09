@@ -1,5 +1,5 @@
-// La estructura del ejemplo: instancia los cuatro componentes y CABLEA el
-// productor con los tres observadores. El run_phase se fue. Unidad 15.
+// The structure of the example: it instantiates the four components and WIRES the
+// producer to the three observers. The run_phase is gone. Unit 15.
 class dice_test extends uvm_test;
    `uvm_component_utils(dice_test);
 
@@ -12,7 +12,7 @@ class dice_test extends uvm_test;
       super.new(name, parent);
    endfunction : new
 
-   // build_phase: UVM lo llama TOP-DOWN, primero el padre.
+   // build_phase: UVM calls it TOP-DOWN, the parent first.
    function void build_phase(uvm_phase phase);
       dice_roller_h = new("dice_roller_h", this);
       coverage_h = new("coverage_h", this);
@@ -20,7 +20,7 @@ class dice_test extends uvm_test;
       average_h = new("average_h", this);
    endfunction : build_phase
 
-   // connect_phase: BOTTOM-UP, y siempre port.connect(export).
+   // connect_phase: BOTTOM-UP, and always port.connect(export).
    function void connect_phase(uvm_phase phase);
       dice_roller_h.roll_ap.connect(coverage_h.analysis_export);
       dice_roller_h.roll_ap.connect(histogram_h.analysis_export);

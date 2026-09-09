@@ -1,8 +1,8 @@
-// La cobertura: las filas del plan de verificacion de spec.md, medidas.
+// The coverage: the rows of the verification plan of spec.md, measured.
 //
-// Lo que se mide no son los datos -- son los ESTADOS en los que la FIFO
-// atendio un pedido. Escribir con la FIFO llena y leer con la FIFO vacia son
-// las dos filas que nadie cubre por accidente.
+// What gets measured is not the data -- it is the STATES in which the FIFO
+// served a request. Writing with the FIFO full and reading with the FIFO empty are
+// the two rows nobody covers by accident.
 class fifo_coverage extends uvm_subscriber #(fifo_transaction);
    `uvm_component_utils(fifo_coverage)
 
@@ -11,8 +11,8 @@ class fifo_coverage extends uvm_subscriber #(fifo_transaction);
    covergroup fifo_cov;
       option.per_instance = 1;
 
-      // at_least = 2 en los bordes: un solo hit en "escribir con la FIFO
-      // llena" es una anecdota, no una verificacion. Es la perilla del dia 1.
+      // at_least = 2 on the edges: a single hit on "write with the FIFO
+      // full" is an anecdote, not a verification. It is the knob from day 1.
       pedido: coverpoint {t.wr_en, t.rd_en} {
          bins nada        = {2'b00};
          bins escribe     = {2'b10};
@@ -33,8 +33,8 @@ class fifo_coverage extends uvm_subscriber #(fifo_transaction);
       casi_lleno: coverpoint t.almost_full;
       casi_vacio: coverpoint t.almost_empty;
 
-      // Los tres cruces que valen, y estan filtrados a proposito: el producto
-      // completo son 32 casilleros y el plan pide estos.
+      // The three crosses that count, and they are filtered on purpose: the full
+      // product is 32 buckets and the plan asks for these.
       escribe_llena: cross pedido, lleno {
          option.at_least = 2;
          ignore_bins nada_ = binsof(pedido.nada);

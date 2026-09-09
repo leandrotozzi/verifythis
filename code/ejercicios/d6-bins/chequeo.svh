@@ -1,6 +1,6 @@
-// Este componente no es parte del curso: es el que corrige el ejercicio. Mira el
-// bus de clase_bfm y cuenta cuantas veces paso la operacion del bin que hay que
-// cerrar -- FF x FF en mul_op -- para poder decirte si llego o no. No lo toques.
+// This component is not part of the course: it is the one that grades the
+// exercise. It watches the clase_bfm bus and counts how many times the operation of
+// the bin to close went by -- FF x FF in mul_op -- so it can tell you whether you got there. Do not touch it.
 class chequeo extends uvm_component;
    `uvm_component_utils(chequeo)
 
@@ -17,7 +17,7 @@ class chequeo extends uvm_component;
          `uvm_fatal("CHEQUEO", "Failed to get clase_bfm")
    endfunction : build_phase
 
-   // Mismo flanco en que el driver lee bfm.result: el de bajada con done arriba.
+   // Same edge on which the driver reads bfm.result: the falling one with done up.
    task run_phase(uvm_phase phase);
       forever begin
          @(negedge bfm.clk);

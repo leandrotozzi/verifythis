@@ -1,11 +1,11 @@
-// El scoreboard es un modelo del DUT escrito en software: los mismos cuatro
-// registros, las mismas reglas, y ninguna de las senales. Cada transferencia
-// que ve, la aplica o la compara.
+// The scoreboard is a model of the DUT written in software: the same four
+// registers, the same rules, and none of the signals. Every transfer
+// it sees, it either applies or compares.
 //
-// El reset no llega hasta aca: en este testbench ocurre una sola vez, antes de
-// la primera transferencia, y los campos ya arrancan en cero. Si algun test
-// reseteara en el medio, el modelo habria que resetearlo tambien -- y la forma
-// de hacerlo es que el monitor reporte el reset, como hace la BFM de la VTALU.
+// The reset does not reach this far: in this testbench it happens once, before
+// the first transfer, and the fields already start at zero. If some test
+// reset in the middle, the model would have to be reset too -- and the way
+// to do that is for the monitor to report the reset, as the VTALU BFM does.
 class apb_scoreboard extends uvm_subscriber #(apb_transaction);
    `uvm_component_utils(apb_scoreboard)
 
@@ -55,18 +55,18 @@ class apb_scoreboard extends uvm_subscriber #(apb_transaction);
       bit [31:0] esperado;
       comparaciones++;
 
-      // Fuera del mapa: PSLVERR, PRDATA en cero, y el DUT no cambia de estado.
+      // Outside the map: PSLVERR, PRDATA at zero, and the DUT does not change state.
       if (t.addr >= MAPA_FIN) begin : sin_mapear
          if (!t.slverr)
-            `uvm_error("SCOREBOARD", {"FAIL: falta PSLVERR fuera del mapa: ", t.convert2string()})
+            `uvm_error("SCOREBOARD", {"FAIL: missing PSLVERR outside the map: ", t.convert2string()})
          else if (!t.write && t.rdata !== 32'h0)
             `uvm_error("SCOREBOARD", {"FAIL: PRDATA deberia ser 0: ", t.convert2string()})
          return;
       end : sin_mapear
 
-      // Adentro del mapa nunca hay error, ni siquiera escribiendo un RO.
+      // Inside the map there is never an error, not even writing an RO.
       if (t.slverr) begin : error_de_mas
-         `uvm_error("SCOREBOARD", {"FAIL: PSLVERR en una direccion mapeada: ", t.convert2string()})
+         `uvm_error("SCOREBOARD", {"FAIL: PSLVERR on a mapped address: ", t.convert2string()})
          return;
       end : error_de_mas
 

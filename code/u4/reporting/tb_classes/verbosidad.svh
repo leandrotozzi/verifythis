@@ -8,4 +8,4 @@ typedef enum
 	UVM_DEBUG	= 500
 } uvm_verbosity
 
-// Todos los mensajes que esten por encima de la verbosidad seteada, no se imprimen
+// Any message above the verbosity that was set does not get printed

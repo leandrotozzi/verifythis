@@ -1,4 +1,4 @@
-// Polimorfismo basico, SIN virtual: el caso que falla. Ver la unidad 6.
+// Basic polymorphism, WITHOUT virtual: the case that fails. See unit 6.
 class trago;
    int hielos = -1;
 
@@ -7,7 +7,7 @@ class trago;
    endfunction : new
 
    function void servir();
-      $fatal(1, "Un trago generico no se sirve: pedi uno.");
+      $fatal(1, "A generic trago cannot be served: order a real one.");
    endfunction : servir
 
 endclass : trago
@@ -19,47 +19,47 @@ class fernet extends trago;
    endfunction : new
 
    function void servir();
-      $display("Fernet: 70/30, y la coca al final");
+      $display("Fernet: 70/30, and the coke last");
    endfunction : servir
 
 endclass : fernet
 
-class gancia extends trago;
+class mojito extends trago;
 
    function new(int hielos);
       super.new(hielos);
    endfunction : new
 
    function void servir();
-      $display("Gancia: con Sprite y una rodaja de limon");
+      $display("Mojito: mint, lime and crushed ice");
    endfunction : servir
 
-endclass : gancia
+endclass : mojito
 
 module top;
 
    initial begin
 
-      fernet    fernet_h;
-      gancia gancia_h;
+      fernet fernet_h;
+      mojito mojito_h;
       trago  trago_h;
 
       fernet_h = new(15);
       fernet_h.servir();
-      $display("El fernet lleva %0d hielos", fernet_h.hielos);
+      $display("The fernet has %0d ice cubes", fernet_h.hielos);
 
-      gancia_h = new(1);
-      gancia_h.servir();
-      $display("El gancia lleva %0d hielos", gancia_h.hielos);
+      mojito_h = new(1);
+      mojito_h.servir();
+      $display("The mojito has %0d ice cubes", mojito_h.hielos);
 
-      // La variable es trago, el objeto es fernet.
+      // The variable is trago, the object is fernet.
       trago_h = fernet_h;
-      trago_h.servir();  // ** Fatal: Un trago generico no se sirve
-      $display("El trago lleva %0d hielos", trago_h.hielos);
+      trago_h.servir();  // ** Fatal: A generic trago cannot be served
+      $display("The trago has %0d ice cubes", trago_h.hielos);
 
-      trago_h = gancia_h;
+      trago_h = mojito_h;
       trago_h.servir();
-      $display("El trago lleva %0d hielos", trago_h.hielos);
+      $display("The trago has %0d ice cubes", trago_h.hielos);
 
    end  // initial begin
 

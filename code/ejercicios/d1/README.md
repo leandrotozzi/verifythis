@@ -20,7 +20,7 @@ que lo tiene que verificar.
    todos los bins**: se ejecuta, pasa el scoreboard, y no aparece en el reporte.
    Metelo.
 
-Listo cuando `bash run.sh` termina con `EJERCICIO OK`.
+Listo cuando `bash run.sh` termina con `EXERCISE OK`.
 
 ## Cómo se corre
 

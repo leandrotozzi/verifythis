@@ -66,10 +66,10 @@ interface vtalu_bfm;
    end
 
 
-   // --- el protocolo, en el BFM ---
-   // Todo lo que sabe COMO se habla con el DUT vive aca, en un solo lugar: el
-   // resto del testbench pide una operacion y no toca un cable. Es la idea de
-   // la unidad 3, y se sostiene hasta el final del curso.
+   // --- the protocol, in the BFM ---
+   // Everything that knows HOW the DUT is talked to lives here, in one place:
+   // the rest of the testbench asks for an operation and never touches a wire.
+   // That is the idea of unit 3, and it holds to the end of the course.
 
    task reset_alu();
       reset_n = 1'b0;

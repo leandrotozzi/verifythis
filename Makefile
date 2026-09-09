@@ -11,7 +11,7 @@
 #   make regresion  el mismo test con N semillas + merge de cobertura + reporte HTML
 #   make figs       regenera las figuras de tendencias (res/trends/*.svg)
 #   make machete    res/machete.html -> docs/machete-uvm.pdf (una carilla, A4)
-#   make deck       regenera index.html desde slides/
+#   make deck       regenera index.html y en/index.html desde slides/
 #   make check      lo obligatorio antes de commitear: build --check + overflow
 #   make clean      borra los obj_dir de Verilator
 #

@@ -81,16 +81,16 @@ el test hace <code>new()</code> y pasan a ser components del árbol.</p>
 <h4 id="el-top-instanciar-publicar-la-interface-arrancar"><em>El top: instanciar, publicar la interface, arrancar</em></h4>
 <figure class="codigo"><figcaption><code>code/u4/tests/top.sv</code> · líneas 21-28 de 31</figcaption><pre><code class="hljs">
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
-      <span class="hljs-comment">// null y &quot;*&quot;: desde la raiz y visible para todo el arbol. Ver la slide</span>
-      <span class="hljs-comment">// de uvm_config_db.</span>
+      <span class="hljs-comment">// null and &quot;*&quot;: from the root and visible to the whole tree. See the</span>
+      <span class="hljs-comment">// uvm_config_db slide.</span>
       <span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::set(<span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;*&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm);
 
-      <span class="hljs-comment">// UVM lee +UVM_TESTNAME, y crea ESE test con la factory.</span>
+      <span class="hljs-comment">// UVM reads +UVM_TESTNAME, and builds THAT test with the factory.</span>
       run_test();</code></pre><details><summary>el archivo entero, 31 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
    <span class="hljs-keyword">import</span> <span class="hljs-uvm-type">uvm_pkg</span>::*;
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;uvm_macros.svh&quot;</span>
 
-   <span class="hljs-comment">// Nuestras clases y macros, igual que en la version modular.</span>
+   <span class="hljs-comment">// Our classes and macros, same as in the modular version.</span>
    <span class="hljs-keyword">import</span> vtalu_pkg::*;
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;vtalu_macros.svh&quot;</span>
 
@@ -108,11 +108,11 @@ el test hace <code>new()</code> y pasan a ser components del árbol.</p>
    );
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
-      <span class="hljs-comment">// null y &quot;*&quot;: desde la raiz y visible para todo el arbol. Ver la slide</span>
-      <span class="hljs-comment">// de uvm_config_db.</span>
+      <span class="hljs-comment">// null and &quot;*&quot;: from the root and visible to the whole tree. See the</span>
+      <span class="hljs-comment">// uvm_config_db slide.</span>
       <span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::set(<span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;*&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm);
 
-      <span class="hljs-comment">// UVM lee +UVM_TESTNAME, y crea ESE test con la factory.</span>
+      <span class="hljs-comment">// UVM reads +UVM_TESTNAME, and builds THAT test with the factory.</span>
       run_test();
    <span class="hljs-keyword">end</span>
 
@@ -148,20 +148,20 @@ que arranca con UVM.</p>
 <li>Cuatro argumentos: <em>ámbito</em> (<code>cntxt</code>, <code>inst_name</code>), <em>nombre</em> y <em>dato</em></li>
 <li>El <strong>ámbito</strong> es una ruta jerárquica, y ahí está toda la gracia</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u4/tests/config_db.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// -- EN EL TOP -- top es un modulo, no un uvm_component ---------------------</span>
-<span class="hljs-comment">//   cntxt = null : el ambito arranca en la raiz de UVM</span>
-<span class="hljs-comment">//   inst  = &quot;*&quot;  : visible para todo el arbol de componentes</span>
+<figure class="codigo"><figcaption><code>code/u4/tests/config_db.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// -- IN THE TOP -- top is a module, not a uvm_component ---------------------</span>
+<span class="hljs-comment">//   cntxt = null : the scope starts at the UVM root</span>
+<span class="hljs-comment">//   inst  = &quot;*&quot;  : visible to the whole component tree</span>
 <span class="hljs-uvm-type">uvm_config_db</span> #(<span class="hljs-keyword">virtual</span> vtalu_bfm)::set(<span class="hljs-keyword">null</span>, <span class="hljs-string">&quot;*&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm);
 
-<span class="hljs-comment">// -- EN UN COMPONENTE -- siempre dentro de build_phase ----------------------</span>
-<span class="hljs-comment">//   cntxt = this : el ambito es la ruta jerarquica de ESTE componente</span>
-<span class="hljs-comment">//   inst  = &quot;&quot;   : sin sufijo, la ruta es exactamente la del componente</span>
+<span class="hljs-comment">// -- IN A COMPONENT -- always inside build_phase ----------------------------</span>
+<span class="hljs-comment">//   cntxt = this : the scope is the hierarchical path of THIS component</span>
+<span class="hljs-comment">//   inst  = &quot;&quot;   : with no suffix, the path is exactly the component&#x27;s</span>
 <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span> #(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
   <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;DRIVER&quot;</span>, <span class="hljs-string">&quot;Failed to get BFM&quot;</span>)
 
-<span class="hljs-comment">// El 3er argumento (&quot;bfm&quot;) es el NOMBRE del dato adentro de la base.</span>
-<span class="hljs-comment">// Si el string del set y el del get no son identicos, esto compila igual</span>
-<span class="hljs-comment">// y explota en run time con un null pointer.</span></code></pre></figure><div class="nota">
+<span class="hljs-comment">// The 3rd argument (&quot;bfm&quot;) is the NAME of the datum inside the database.</span>
+<span class="hljs-comment">// If the string in the set and the one in the get are not identical, this still</span>
+<span class="hljs-comment">// compiles and blows up at run time with a null pointer.</span></code></pre></figure><div class="nota">
 <p>Los dos primeros argumentos son <em>dónde</em>, el tercero es <em>qué</em>. En el <code>set</code> del
 top va <code>null, &quot;*&quot;</code> porque <code>top</code> es un módulo, no está en el árbol de UVM: la
 traducción es &quot;desde la raíz, visible para todos&quot;.
@@ -182,9 +182,9 @@ miente. Es de esos errores que se pagan tres meses después.</p>
 <figure class="codigo"><figcaption><code>code/u4/tests/tb_classes/random_test.svh</code> · líneas 4-7 de 41</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">random_test</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_test</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(random_test);
 
-   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;</code></pre><details><summary>el archivo entero, 41 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// El primer test UVM del curso. Los cinco pasos que arma esta clase --registro,</span>
-<span class="hljs-comment">// constructor, build_phase, run_phase y objections-- estan explicados uno por</span>
-<span class="hljs-comment">// uno en las slides de la unidad 11.</span>
+   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;</code></pre><details><summary>el archivo entero, 41 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The first UVM test of the course. The five steps this class puts together</span>
+<span class="hljs-comment">// --registration, constructor, build_phase, run_phase and objections-- are</span>
+<span class="hljs-comment">// explained one by one in the slides of unit 11.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">random_test</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_test</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(random_test);
 
@@ -194,8 +194,8 @@ miente. Es de esos errores que se pagan tres meses después.</p>
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-comment">// El get va en build_phase y no en el constructor: cuando corre el</span>
-   <span class="hljs-comment">// constructor el arbol todavia no existe.</span>
+   <span class="hljs-comment">// The get goes in build_phase and not in the constructor: when the</span>
+   <span class="hljs-comment">// constructor runs, the tree does not exist yet.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
          <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TEST&quot;</span>, <span class="hljs-string">&quot;Failed to get BFM&quot;</span>)
@@ -250,14 +250,14 @@ pregunta: no hace falta.</p>
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-comment">// El get va en build_phase y no en el constructor: cuando corre el</span>
-   <span class="hljs-comment">// constructor el arbol todavia no existe.</span>
+   <span class="hljs-comment">// The get goes in build_phase and not in the constructor: when the</span>
+   <span class="hljs-comment">// constructor runs, the tree does not exist yet.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
          <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TEST&quot;</span>, <span class="hljs-string">&quot;Failed to get BFM&quot;</span>)
-   <span class="hljs-keyword">endfunction</span> : build_phase</code></pre><details><summary>el archivo entero, 41 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// El primer test UVM del curso. Los cinco pasos que arma esta clase --registro,</span>
-<span class="hljs-comment">// constructor, build_phase, run_phase y objections-- estan explicados uno por</span>
-<span class="hljs-comment">// uno en las slides de la unidad 11.</span>
+   <span class="hljs-keyword">endfunction</span> : build_phase</code></pre><details><summary>el archivo entero, 41 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The first UVM test of the course. The five steps this class puts together</span>
+<span class="hljs-comment">// --registration, constructor, build_phase, run_phase and objections-- are</span>
+<span class="hljs-comment">// explained one by one in the slides of unit 11.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">random_test</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_test</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(random_test);
 
@@ -267,8 +267,8 @@ pregunta: no hace falta.</p>
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-comment">// El get va en build_phase y no en el constructor: cuando corre el</span>
-   <span class="hljs-comment">// constructor el arbol todavia no existe.</span>
+   <span class="hljs-comment">// The get goes in build_phase and not in the constructor: when the</span>
+   <span class="hljs-comment">// constructor runs, the tree does not exist yet.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
          <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TEST&quot;</span>, <span class="hljs-string">&quot;Failed to get BFM&quot;</span>)
@@ -342,9 +342,9 @@ errores.</p>
       random_tester_h.execute();
 
       phase.drop_objection(<span class="hljs-keyword">this</span>);
-   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 41 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// El primer test UVM del curso. Los cinco pasos que arma esta clase --registro,</span>
-<span class="hljs-comment">// constructor, build_phase, run_phase y objections-- estan explicados uno por</span>
-<span class="hljs-comment">// uno en las slides de la unidad 11.</span>
+   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 41 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The first UVM test of the course. The five steps this class puts together</span>
+<span class="hljs-comment">// --registration, constructor, build_phase, run_phase and objections-- are</span>
+<span class="hljs-comment">// explained one by one in the slides of unit 11.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">random_test</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_test</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(random_test);
 
@@ -354,8 +354,8 @@ errores.</p>
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-comment">// El get va en build_phase y no en el constructor: cuando corre el</span>
-   <span class="hljs-comment">// constructor el arbol todavia no existe.</span>
+   <span class="hljs-comment">// The get goes in build_phase and not in the constructor: when the</span>
+   <span class="hljs-comment">// constructor runs, the tree does not exist yet.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
          <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TEST&quot;</span>, <span class="hljs-string">&quot;Failed to get BFM&quot;</span>)
@@ -517,8 +517,8 @@ exactamente el caso de esta slide, y el capstone lo pisa de nuevo.</p>
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-comment">// Mismo build_phase que random_test: la virtual interface se lee del</span>
-   <span class="hljs-comment">// config_db, con this y &quot;&quot; como ambito. Ver random_test.svh.</span>
+   <span class="hljs-comment">// Same build_phase as random_test: the virtual interface is read from the</span>
+   <span class="hljs-comment">// config_db, with this and &quot;&quot; as the scope. See random_test.svh.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
          <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;ADD TEST&quot;</span>, <span class="hljs-string">&quot;Failed to get BFM&quot;</span>)
@@ -575,13 +575,13 @@ vlt_uvm top --coverage-user -Wno-fatal -f dut.f -f tb.f
 run_sim +UVM_TESTNAME=random_test
 run_sim +UVM_TESTNAME=add_test
 cov_report</code></pre><details><summary>el archivo entero, 14 líneas</summary><pre><code class="hljs">#!/bin/bash
-# Corre el ejemplo con Verilator. Ver docs/verilator.md.
+# Runs the example with Verilator. See docs/verilator.md.
 #
-# --coverage-user: mide los covergroups y deja afuera line/toggle/branch, que no
-# son el tema. El numero sale al final, con cov_report.
+# --coverage-user: measures the covergroups and leaves out line/toggle/branch,
+# which are not the topic. The number comes out at the end, with cov_report.
 #
-# -Wno-fatal: los ejemplos tienen anchos flojos a proposito (WIDTHEXPAND/WIDTHTRUNC) y
-# por defecto cualquier warning corta el build. Se siguen imprimiendo.
+# -Wno-fatal: the examples have sloppy widths on purpose (WIDTHEXPAND/WIDTHTRUNC)
+# and by default any warning stops the build. They still get printed.
 set -e
 . &quot;$(dirname &quot;${BASH_SOURCE[0]}&quot;)/../../verilator/common.sh&quot;
 vlt_uvm top --coverage-user -Wno-fatal -f dut.f -f tb.f
@@ -908,8 +908,8 @@ haya tenido que escribir un <code>uvm_event</code> ni una bandera compartida.</p
 <section id="s129" class="slide">
 <h2 id="components-y-fases">Components y fases</h2>
 <h4 id="el-scoreboard-ahora-como-component"><em>El scoreboard, ahora como component</em></h4>
-<figure class="codigo"><figcaption><code>code/u4/components/tb_classes/scoreboard.svh</code> · líneas 1-18 de 51</figcaption><pre><code class="hljs"><span class="hljs-comment">// El scoreboard de la unidad 10, ahora como uvm_component. Los cuatro pasos</span>
-<span class="hljs-comment">// --extender, registrar, constructor, fases-- estan en las slides de la 12.</span>
+<figure class="codigo"><figcaption><code>code/u4/components/tb_classes/scoreboard.svh</code> · líneas 1-18 de 51</figcaption><pre><code class="hljs"><span class="hljs-comment">// The scoreboard of unit 10, now as a uvm_component. The four steps</span>
+<span class="hljs-comment">// --extend, register, constructor, phases-- are in the slides of unit 12.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">scoreboard</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(scoreboard);
 
@@ -919,14 +919,14 @@ haya tenido que escribir un <code>uvm_event</code> ni una bandera compartida.</p
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-comment">// Autosuficiente: la BFM se la pide el componente al config_db. Antes se la</span>
-   <span class="hljs-comment">// pasaba el test por el constructor, y el test tenia que recibirla solo para</span>
-   <span class="hljs-comment">// repartirla.</span>
+   <span class="hljs-comment">// Self-sufficient: the component asks the config_db for the BFM. Before, the</span>
+   <span class="hljs-comment">// test passed it in through the constructor, and the test had to receive it</span>
+   <span class="hljs-comment">// only to hand it out.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
          <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;SCOREBOARD&quot;</span>, <span class="hljs-string">&quot;Failed to get BFM&quot;</span>)
-   <span class="hljs-keyword">endfunction</span> : build_phase</code></pre><details><summary>el archivo entero, 51 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// El scoreboard de la unidad 10, ahora como uvm_component. Los cuatro pasos</span>
-<span class="hljs-comment">// --extender, registrar, constructor, fases-- estan en las slides de la 12.</span>
+   <span class="hljs-keyword">endfunction</span> : build_phase</code></pre><details><summary>el archivo entero, 51 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The scoreboard of unit 10, now as a uvm_component. The four steps</span>
+<span class="hljs-comment">// --extend, register, constructor, phases-- are in the slides of unit 12.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">scoreboard</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(scoreboard);
 
@@ -936,16 +936,16 @@ haya tenido que escribir un <code>uvm_event</code> ni una bandera compartida.</p
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-comment">// Autosuficiente: la BFM se la pide el componente al config_db. Antes se la</span>
-   <span class="hljs-comment">// pasaba el test por el constructor, y el test tenia que recibirla solo para</span>
-   <span class="hljs-comment">// repartirla.</span>
+   <span class="hljs-comment">// Self-sufficient: the component asks the config_db for the BFM. Before, the</span>
+   <span class="hljs-comment">// test passed it in through the constructor, and the test had to receive it</span>
+   <span class="hljs-comment">// only to hand it out.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
          <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;SCOREBOARD&quot;</span>, <span class="hljs-string">&quot;Failed to get BFM&quot;</span>)
    <span class="hljs-keyword">endfunction</span> : build_phase
 
-   <span class="hljs-comment">// run_phase es la unica fase que es task: la unica que consume tiempo. UVM</span>
-   <span class="hljs-comment">// la lanza en su propio thread.</span>
+   <span class="hljs-comment">// run_phase is the only phase that is a task: the only one that consumes</span>
+   <span class="hljs-comment">// time. UVM launches it in its own thread.</span>
    <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-type">shortint</span> predicted_result;
       <span class="hljs-type">bit</span>      predicted_ovf;
@@ -959,8 +959,8 @@ haya tenido que escribir un <code>uvm_event</code> ni una bandera compartida.</p
             mul_op: predicted_result = bfm.A * bfm.B;
          <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (op_set)</span>
 
-         <span class="hljs-comment">// El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de</span>
-         <span class="hljs-comment">// salida, ni la suma ni la multiplicacion se pasan.</span>
+         <span class="hljs-comment">// ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit</span>
+         <span class="hljs-comment">// output, neither the addition nor the multiplication can overflow.</span>
          predicted_ovf = (bfm.op_set == sub_op) &amp;&amp; (bfm.A &lt; bfm.B);
 
          <span class="hljs-keyword">if</span> ((bfm.op_set != no_op) &amp;&amp; (bfm.op_set != rst_op))
@@ -1010,7 +1010,7 @@ eso el <code>if (!get(...)) uvm_fatal</code> no es opcional.</p>
    coverage      coverage_h;
    scoreboard    scoreboard_h;
 
-   <span class="hljs-comment">// Los componentes se instancian en build_phase, nunca en el constructor.</span>
+   <span class="hljs-comment">// Components get instantiated in build_phase, never in the constructor.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       tester_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;tester_h&quot;</span>, <span class="hljs-keyword">this</span>);
       coverage_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;coverage_h&quot;</span>, <span class="hljs-keyword">this</span>);
@@ -1021,7 +1021,7 @@ eso el <code>if (!get(...)) uvm_fatal</code> no es opcional.</p>
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-comment">// Sin run_phase: el trabajo del test termina cuando el arbol esta armado.</span>
+   <span class="hljs-comment">// No run_phase: the test&#x27;s job ends once the tree is built.</span>
 
 <span class="hljs-keyword">endclass</span></code></pre></figure>
 
@@ -1050,9 +1050,9 @@ pero conviene sembrarlo.</p>
 <section id="s131" class="slide">
 <h2 id="components-y-fases">Components y fases</h2>
 <h4 id="el-segundo-test-hereda-y-aun-así-copia"><em>El segundo test: hereda, y aun así copia</em></h4>
-<figure class="codigo"><figcaption><code>code/u4/components/tb_classes/add_test.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// add_test extiende random_test, redeclara tester_h con otro tipo y REESCRIBE</span>
-<span class="hljs-comment">// build_phase entero. Esa duplicacion es el problema que la unidad 13 resuelve</span>
-<span class="hljs-comment">// con el override de la factory.</span>
+<figure class="codigo"><figcaption><code>code/u4/components/tb_classes/add_test.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// add_test extends random_test, redeclares tester_h with another type and</span>
+<span class="hljs-comment">// REWRITES the whole build_phase. That duplication is the problem unit 13 solves</span>
+<span class="hljs-comment">// with the factory override.</span>
 
 <span class="hljs-keyword">class</span> <span class="hljs-title">add_test</span> <span class="hljs-keyword">extends</span> random_test;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(add_test);
@@ -1324,7 +1324,7 @@ estructura entera para cambiar una línea</li>
    coverage      coverage_h;
    scoreboard    scoreboard_h;
 
-   <span class="hljs-comment">// Los componentes se instancian en build_phase, nunca en el constructor.</span>
+   <span class="hljs-comment">// Components get instantiated in build_phase, never in the constructor.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       tester_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;tester_h&quot;</span>, <span class="hljs-keyword">this</span>);
       coverage_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;coverage_h&quot;</span>, <span class="hljs-keyword">this</span>);
@@ -1335,7 +1335,7 @@ estructura entera para cambiar una línea</li>
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
 
-   <span class="hljs-comment">// Sin run_phase: el trabajo del test termina cuando el arbol esta armado.</span>
+   <span class="hljs-comment">// No run_phase: the test&#x27;s job ends once the tree is built.</span>
 
 <span class="hljs-keyword">endclass</span></code></pre></figure>
 
@@ -1397,8 +1397,8 @@ después los conecta. Es <strong>uno solo</strong>, y no cambia de un test a otr
 <li>El <code>build_phase()</code> no usa <code>new()</code>: cada componente se pide con
 <code>type_id::create()</code>, que es la fórmula de la factory de la slide que sigue</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u4/env/tb_classes/env.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// La estructura del TB, y nada mas: instancia los componentes y los conecta.</span>
-<span class="hljs-comment">// Que tester llega lo decide el test con un override de la factory. Unidad 13.</span>
+<figure class="codigo"><figcaption><code>code/u4/env/tb_classes/env.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// The structure of the TB, and nothing else: it instantiates the components and</span>
+<span class="hljs-comment">// connects them. Which tester arrives is the test&#x27;s call, with a factory override. Unit 13.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">env</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_env</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(env);
 
@@ -1407,8 +1407,8 @@ después los conecta. Es <strong>uno solo</strong>, y no cambia de un test a otr
    scoreboard  scoreboard_h;
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
-      <span class="hljs-comment">// base_tester es abstracta y esto igual anda: create() no la construye,</span>
-      <span class="hljs-comment">// le pregunta a la factory que dar cuando alguien pide un base_tester.</span>
+      <span class="hljs-comment">// base_tester is abstract and this works anyway: create() does not build</span>
+      <span class="hljs-comment">// it, it asks the factory what to hand out when somebody asks for a base_tester.</span>
       tester_h = base_tester::type_id::create(<span class="hljs-string">&quot;tester_h&quot;</span>, <span class="hljs-keyword">this</span>);
       coverage_h = coverage::type_id::create(<span class="hljs-string">&quot;coverage_h&quot;</span>, <span class="hljs-keyword">this</span>);
       scoreboard_h = scoreboard::type_id::create(<span class="hljs-string">&quot;scoreboard_h&quot;</span>, <span class="hljs-keyword">this</span>);
@@ -1492,9 +1492,9 @@ el del handle es una forma barata de perder media hora en los agents.</p>
 una clase <strong>abstracta</strong>. Y esto compila, corre y anda. ¿Por qué?</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u4/env/tb_classes/base_class.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
-   <span class="hljs-comment">// base_tester es abstracta: no se puede instanciar con new(). A la factory</span>
-   <span class="hljs-comment">// se le pide igual, porque el que va a llegar es el tipo con el que el test</span>
-   <span class="hljs-comment">// hizo el set_type_override -- add_tester o random_tester, nunca esta.</span>
+   <span class="hljs-comment">// base_tester is abstract: it cannot be instantiated with new(). The factory</span>
+   <span class="hljs-comment">// is asked for it anyway, because what will arrive is the type the test set</span>
+   <span class="hljs-comment">// with set_type_override -- add_tester or random_tester, never this one.</span>
    tester_h = base_tester::type_id::create(<span class="hljs-string">&quot;tester_h&quot;</span>, <span class="hljs-keyword">this</span>);
    coverage_h = coverage::type_id::create(<span class="hljs-string">&quot;coverage_h&quot;</span>, <span class="hljs-keyword">this</span>);
    scoreboard_h = scoreboard::type_id::create(<span class="hljs-string">&quot;scoreboard_h&quot;</span>, <span class="hljs-keyword">this</span>);
@@ -1782,7 +1782,7 @@ y el segundo no toca el código:<ul>
 	<span class="hljs-uvm-const">UVM_DEBUG</span>	= <span class="hljs-number">500</span>
 } <span class="hljs-uvm-type">uvm_verbosity</span>
 
-<span class="hljs-comment">// Todos los mensajes que esten por encima de la verbosidad seteada, no se imprimen</span></code></pre></figure><div class="nota">
+<span class="hljs-comment">// Any message above the verbosity that was set does not get printed</span></code></pre></figure><div class="nota">
 <p>Los cinco niveles, de menos a más ruidoso: <code>UVM_NONE</code>, <code>UVM_LOW</code>, <code>UVM_MEDIUM</code>
 —el que está por defecto—, <code>UVM_HIGH</code> y <code>UVM_DEBUG</code>. Un mensaje se imprime si su
 verbosidad es <strong>menor o igual</strong> al techo, así que <code>UVM_NONE</code> sale siempre.
@@ -1907,8 +1907,8 @@ todavía no está— y <strong>antes</strong> de que arranque la simulación</li
 <li><code>set_report_verbosity_level_hier()</code> alcanza al componente <strong>y a sus hijos</strong>;
 <code>set_report_verbosity_level()</code>, sólo a él</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u4/reporting/tb_classes/ceil_hierar.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// clase Env</span>
-<span class="hljs-comment">// seteamos la verbosidad del componente scoreboard y todo lo que contenga en su jerarquia</span>
+<figure class="codigo"><figcaption><code>code/u4/reporting/tb_classes/ceil_hierar.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// Env class</span>
+<span class="hljs-comment">// sets the verbosity of the scoreboard component and of everything below it</span>
 <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">end_of_elaboration_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
    scoreboard_h.set_report_verbosity_level_hier(<span class="hljs-uvm-const">UVM_HIGH</span>);
 <span class="hljs-keyword">endfunction</span> : end_of_elaboration_phase</code></pre></figure><div class="nota">

@@ -23,7 +23,7 @@ falla tiene que ser un `` `uvm_error `` con el id `"SVA"`: si dejás que la
 assertion termine en `$stop`, la simulación se corta, el *Report Summary* no se
 imprime y el corrector no ve nada.
 
-Listo cuando `bash run.sh` imprime `EJERCICIO OK`.
+Listo cuando `bash run.sh` imprime `EXERCISE OK`.
 
 ## Cómo se corre
 

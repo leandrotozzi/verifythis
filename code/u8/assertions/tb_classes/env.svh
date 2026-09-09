@@ -17,23 +17,23 @@ class env extends uvm_env;
       if (!uvm_config_db#(env_config)::get(this, "", "config", env_config_h))
          `uvm_fatal("ENV", "Failed to get env config")
 
-      // Un config por agent: distinta BFM y distinto is_active.
+      // One config per agent: a different BFM and a different is_active.
       clase_cfg_h  = new(.bfm(env_config_h.clase_bfm),  .is_active(UVM_ACTIVE));
       modulo_cfg_h = new(.bfm(env_config_h.modulo_bfm), .is_active(UVM_PASSIVE));
 
-      // El ambito es la RUTA del componente que va a leer, no una etiqueta. El
-      // asterisco es el que hace que el driver y los monitores de adentro
-      // encuentren el mismo config. Con "*" en las dos lineas, la segunda pisa
-      // a la primera y los dos agents arrancan iguales.
+      // The scope is the PATH of the component that will read, not a label. The
+      // asterisk is what makes the driver and the monitors inside find the same
+      // config. With "*" on both lines, the second one overwrites the first and
+      // both agents start out identical.
       uvm_config_db#(vtalu_agent_config)::set(this, "clase_agent_h*", "config", clase_cfg_h);
       uvm_config_db#(vtalu_agent_config)::set(this, "modulo_agent_h*", "config", modulo_cfg_h);
 
       clase_agent_h  = vtalu_agent::type_id::create("clase_agent_h", this);
       modulo_agent_h = vtalu_agent::type_id::create("modulo_agent_h", this);
 
-      // El analisis vive aca, no adentro del agent: un agent pasivo no deberia
-      // arrastrar un scoreboard. Y dos coberturas separadas es justamente lo
-      // que responde cual de los dos estimulos cubre mas.
+      // The analysis lives here, not inside the agent: a passive agent should
+      // not drag a scoreboard along. And two separate coverages are exactly what
+      // answers which of the two stimuli covers more.
       clase_scoreboard_h  = scoreboard::type_id::create("clase_scoreboard_h", this);
       modulo_scoreboard_h = scoreboard::type_id::create("modulo_scoreboard_h", this);
       clase_coverage_h    = coverage::type_id::create("clase_coverage_h", this);
@@ -41,7 +41,7 @@ class env extends uvm_env;
    endfunction : build_phase
 
    function void connect_phase(uvm_phase phase);
-      // El env nunca nombra un monitor: habla con los analysis ports del agent.
+      // The env never names a monitor: it talks to the agent's analysis ports.
       clase_agent_h.command_ap.connect(clase_scoreboard_h.cmd_f.analysis_export);
       clase_agent_h.command_ap.connect(clase_coverage_h.analysis_export);
       clase_agent_h.result_ap.connect(clase_scoreboard_h.analysis_export);

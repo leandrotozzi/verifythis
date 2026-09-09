@@ -1,8 +1,8 @@
-// El mecanismo basico de UVM analysis port permite que un uvm_subscriber vea 1 puerto
-// Si necesitamos analizar 2 puertos, la manera mas sencilla es instanciar otro subscriber
-// en nuestra clase que escuche ese puerto
-// Para tal fin, UVM provee una clase llamada uvm_tlm_analysis_fifo
-//	esta clase nos provee un analysis_export y el metodo try_get()
+// The basic UVM analysis port mechanism lets a uvm_subscriber watch 1 port
+// To analyze 2 ports, the simplest way is to instantiate another subscriber
+// inside our class that listens to that port
+// For that, UVM provides a class called uvm_tlm_analysis_fifo
+//	that class gives us an analysis_export and the try_get() method
 
 class scoreboard extends uvm_subscriber #(shortint);
    `uvm_component_utils(scoreboard);
@@ -13,18 +13,18 @@ class scoreboard extends uvm_subscriber #(shortint);
       cmd_f = new("cmd_f", this);
    endfunction : build_phase
 
-   // Cada vez que la DUT entregue un resultado al analysis port se va a
-   // activar este metodo
+   // Every time the DUT hands a result to the analysis port, this method
+   // gets triggered
    function void write(shortint t);
       shortint  predicted_result;
       command_s cmd;
       cmd.op = no_op;
 
-      // Aca realizamos la prediccion, buscamos en nuestra FIFO que comando
-      // se mando, para eso obviamos los resets y los no_ops mediante el
+      // Here is where the prediction happens: look in our FIFO for the command
+      // that was sent, skipping the resets and the no_ops with the
       // do....while
-      // ya que siempre que tengamos un resultado, debemos tener una operacion
-      // por eso si no existe la operacion y tenemos un resultado... es error
+      // since whenever there is a result there must be an operation,
+      // a result with no operation behind it is an error
       do
       if (!cmd_f.try_get(cmd)) `uvm_fatal("SCOREBOARD", "No command in self checker")
       while ((cmd.op == no_op) || (cmd.op == rst_op));

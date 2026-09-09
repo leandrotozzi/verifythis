@@ -1,5 +1,5 @@
-// El test no cambia de forma: crea una sequence y la arranca. Lo unico distinto
-// es SOBRE QUE la arranca -- el sequencer virtual, no el del agent.
+// The test does not change shape: it creates a sequence and starts it. The only
+// difference is WHAT it starts it on -- the virtual sequencer, not the agent's.
 class virtual_test extends base_test;
    `uvm_component_utils(virtual_test)
 

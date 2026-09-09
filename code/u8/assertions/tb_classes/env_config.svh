@@ -1,5 +1,5 @@
-// La configuracion del env: las dos interfaces del testbench.
-// Como el config del agent, es una clase pelada y el constructor las exige.
+// The env configuration: the two interfaces of the testbench.
+// Like the agent config, it is a plain class and the constructor demands them.
 class env_config;
 
    virtual vtalu_bfm clase_bfm;

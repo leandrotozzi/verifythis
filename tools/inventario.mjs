@@ -43,10 +43,12 @@ export async function inventario() {
 
   // --- slides y secciones: un archivo de slides/ es una seccion, y adentro
   // cada `---` entre lineas en blanco separa una slide de la siguiente ---
-  const secciones = (await readdir('slides')).filter(f => f.endsWith('.md'));
+  // El inventario cuenta el arbol CANONICO, el castellano: sus numeros son los
+  // que la prosa cita. Que tan traducido esta el ingles lo dice lint-i18n.
+  const secciones = (await readdir('slides/es')).filter(f => f.endsWith('.md'));
   let slides = 0, preguntas = 0, trampas = 0;
   for (const f of secciones) {
-    const md = await readFile(path.join('slides', f), 'utf8');
+    const md = await readFile(path.join('slides/es', f), 'utf8');
     slides += 1 + (md.match(/^---$/gm) ?? []).length;
     if (/quiz/.test(f)) preguntas += (md.match(/^- \[x\]/gm) ?? []).length;
     // Las trampas son las filas de las tablas del apendice, sin encabezados.
@@ -64,7 +66,7 @@ export async function inventario() {
   // tambien los que build.mjs expande desde {{code:}} ---
   let bloques = 0;
   for (const f of secciones) {
-    const md = await readFile(path.join('slides', f), 'utf8');
+    const md = await readFile(path.join('slides/es', f), 'utf8');
     bloques += (md.match(/^```/gm) ?? []).length / 2 + (md.match(/\{\{code:/g) ?? []).length;
   }
 

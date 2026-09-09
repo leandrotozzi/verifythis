@@ -1,23 +1,23 @@
-// Ejercicio del dia 7 (unidad 9, RAL) -- modelar el mapa de registros.
+// Day 7 exercise (unit 9, RAL) -- model the register map.
 //
-// La tabla esta en la spec del capstone: ../d7-final/spec.md, seccion "El mapa
-// de registros". Este archivo es esa tabla escrita como modelo de UVM, y no hay
-// nada mas que escribir: el adapter, el predictor y los tests salen de
-// code/u9/ral/ y no se tocan.
+// The table is in the capstone spec: ../d7-final/spec.md, section "The register
+// map". This file is that table written as a UVM model, and there is
+// nothing else to write: the adapter, the predictor and the tests come from
+// code/u9/ral/ and are not touched.
 //
-// Cuatro registros, seis campos, cuatro direcciones. El corrector va por etapas:
+// Four registers, six fields, four addresses. The checker goes in stages:
 //
-//   ETAPA 1  el mapa: nombres, direcciones, anchos y accesos
-//   ETAPA 2  los accesos: las dos sequences de la libreria en verde
-//   ETAPA 3  lo que el modelo NO puede predecir
+//   STAGE 1  the map: names, addresses, widths and accesses
+//   STAGE 2  the accesses: the two library sequences green
+//   STAGE 3  what the model CANNOT predict
 //
-// La firma que vas a usar seis veces:
+// The signature you will use six times:
 //
 //   configure(parent, size, lsb_pos, access, volatile, reset, has_reset,
 //             is_rand, individually_accessible)
 //
-// Y la lista de accesos de UVM esta en el LRM 1800.2, tabla del uvm_reg_field.
-// Los cuatro que hacen falta aca estan entre: RW, RO, WO, WOC, W1C, RC.
+// And the UVM access list is in the LRM 1800.2, the uvm_reg_field table.
+// The four you need here are among: RW, RO, WO, WOC, W1C, RC.
 
 class ctrl_reg extends uvm_reg;
    `uvm_object_utils(ctrl_reg)
@@ -30,11 +30,11 @@ class ctrl_reg extends uvm_reg;
    endfunction : new
 
    virtual function void build();
-      // <<< ACA >>>  EN es el bit 0 y es un bit comun: se escribe, se lee, queda.
-      //              CLR es el bit 1 y NO es comun: escribir un 1 borra ACC y
-      //              OVF, y el bit se lee SIEMPRE en 0. Hay un acceso de UVM que
-      //              dice exactamente eso; si le ponés el obvio, la etapa 2 te
-      //              lo va a decir.
+      // <<< HERE >>>  EN is bit 0 and it is an ordinary bit: written, read, it stays.
+      //              CLR is bit 1 and is NOT ordinary: writing a 1 clears ACC and
+      //              OVF, and the bit ALWAYS reads back 0. There is a UVM access that
+      //              says exactly that; if you pick the obvious one, stage 2 will
+      //              tell you.
    endfunction : build
 
 endclass : ctrl_reg
@@ -49,8 +49,8 @@ class scratch_reg extends uvm_reg;
    endfunction : new
 
    virtual function void build();
-      // <<< ACA >>>  32 bits libres. Que ademas sumen a ACC no es asunto del
-      //              modelo: eso pasa en OTRA direccion.
+      // <<< HERE >>>  32 free bits. That they also add into ACC is none of the
+      //              model's business: that happens at ANOTHER address.
    endfunction : build
 
 endclass : scratch_reg
@@ -65,8 +65,8 @@ class acc_reg extends uvm_reg;
    endfunction : new
 
    virtual function void build();
-      // <<< ACA >>>  Solo lectura. Y mirá el argumento `volatile`: el DUT lo
-      //              cambia por atras, sin que pase una transferencia a 0x08.
+      // <<< HERE >>>  Read only. And look at the `volatile` argument: the DUT
+      //              changes it from behind, with no transfer to 0x08.
    endfunction : build
 
 endclass : acc_reg
@@ -82,8 +82,8 @@ class status_reg extends uvm_reg;
    endfunction : new
 
    virtual function void build();
-      // <<< ACA >>>  Dos bits de solo lectura, y los dos volatiles por la misma
-      //              razon que ACC.
+      // <<< HERE >>>  Two read-only bits, and both volatile for the same
+      //              reason as ACC.
    endfunction : build
 
 endclass : status_reg
@@ -100,9 +100,9 @@ class apb_reg_block extends uvm_reg_block;
       super.new(name, UVM_NO_COVERAGE);
    endfunction : new
 
-   // Ojo: esto NO es un build_phase. Un uvm_reg_block es un uvm_object, no un
-   // component: nadie te llama. Quien llama a este build() es el test, una linea
-   // despues del create().
+   // Careful: this is NOT a build_phase. A uvm_reg_block is a uvm_object, not a
+   // component: nobody calls you. Who calls this build() is the test, one line
+   // after the create().
    virtual function void build();
       // El mapa: direcciones de byte, 4 bytes por acceso, little endian.
       default_map = create_map("default_map", 'h0, 4, UVM_LITTLE_ENDIAN, 1);
@@ -112,22 +112,22 @@ class apb_reg_block extends uvm_reg_block;
       CTRL.build();
       default_map.add_reg(CTRL, CTRL_ADDR, "RW");
 
-      // <<< ACA >>>  Los otros tres, igual que CTRL. Las direcciones ya estan
-      //              como localparam en apb_pkg: SCRATCH_ADDR, ACC_ADDR y
+      // <<< HERE >>>  The other three, same as CTRL. The addresses are already
+      //              localparam in apb_pkg: SCRATCH_ADDR, ACC_ADDR and
       //              STATUS_ADDR.
 
-      // <<< ACA >>>  Y la ultima, que es la que separa un modelo que sirve de uno
-      //              que miente. ACC y STATUS tienen direccion pero NO son
-      //              registros: su valor lo produce una escritura a otra
-      //              direccion. Un modelo predice "lo que escribi es lo que voy a
-      //              leer", y para estos dos eso es falso.
+      // <<< HERE >>>  And the last one, which is what separates a model that works from one
+      //              that lies. ACC and STATUS have an address but are NOT
+      //              registers: their value is produced by a write to another
+      //              address. A model predicts "what I wrote is what I am going to
+      //              read", and for these two that is false.
       //
-      //              La etapa 3 corre un mirror(UVM_CHECK) sobre STATUS despues
-      //              de prender CTRL.EN. Tal cual esta, ese chequeo falla -- y la
-      //              falla es del modelo, no del DUT. Apagalo con
-      //              set_compare(UVM_NO_CHECK) sobre los campos que no se pueden
-      //              predecir. El acumulador se sigue chequeando donde ya estaba:
-      //              en el scoreboard del capstone.
+      //              Stage 3 runs a mirror(UVM_CHECK) over STATUS after
+      //              turning CTRL.EN on. As it stands, that check fails -- and the
+      //              failure is the model's, not the DUT's. Turn it off with
+      //              set_compare(UVM_NO_CHECK) on the fields that cannot be
+      //              predicted. The accumulator is still checked where it already was:
+      //              in the capstone scoreboard.
 
       lock_model();
    endfunction : build

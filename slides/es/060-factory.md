@@ -57,7 +57,7 @@ muestra que no inventamos nada.
 
 - **La factory** es el método de arriba: recibe un argumento y devuelve un objeto
   del tipo que ese argumento pide
-- **El polimorfismo** es lo que la hace posible: `fernet` y `gancia` extienden
+- **El polimorfismo** es lo que la hace posible: `fernet` y `mojito` extienden
   `trago`, así que los dos entran en una variable `trago`
 - Sin lo segundo no hay dónde poner lo que devuelve lo primero. Son las dos
   mitades de la misma herramienta

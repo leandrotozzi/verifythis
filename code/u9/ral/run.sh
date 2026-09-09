@@ -1,21 +1,21 @@
 #!/bin/bash
-# Corre el ejemplo con Verilator. Ver docs/verilator.md.
+# Runs the example with Verilator. See docs/verilator.md.
 #
-# RAL sobre el APB del capstone. El testbench del dia 7 NO se toca: la interface,
-# la transaction, el driver, el monitor y el agent salen de d7-final/solucion/
-# por +incdir, igual que en los ejercicios. Esta unidad agrega tres archivos.
+# RAL over the capstone's APB. The day 7 testbench is NOT touched: the interface,
+# the transaction, the driver, the monitor and the agent come from d7-final/solucion/
+# through +incdir, just like in the exercises. This unit adds three files.
 #
-#   ral_test            write/read/mirror por el modelo, con prediccion explicita
-#   builtin_test        uvm_reg_hw_reset_seq y uvm_reg_bit_bash_seq
-#   builtin_test +MAL   el mismo, con CTRL.CLR modelado como "RW" en vez de "WOC"
+#   ral_test            write/read/mirror through the model, with explicit prediction
+#   builtin_test        uvm_reg_hw_reset_seq and uvm_reg_bit_bash_seq
+#   builtin_test +MAL   the same, with CTRL.CLR modelled as "RW" instead of "WOC"
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
 
 CAP=../../ejercicios/d7-final
 
-# -Wno-WIDTHEXPAND: uvm_reg_data_t son 64 bits, asi que un literal de 32 --el
-# 'h1000_0000 de una write()-- se ensancha y Verilator lo avisa. Es ruido de la
-# libreria, no del ejemplo.
+# -Wno-WIDTHEXPAND: uvm_reg_data_t is 64 bits, so a 32-bit literal --the
+# 'h1000_0000 of a write()-- gets widened and Verilator warns about it. It is library
+# noise, not the example's.
 vlt_uvm top -Wno-fatal -Wno-WIDTHEXPAND \
   +incdir+tb_classes +incdir+"$CAP/solucion/tb_classes" \
   "$CAP/rtl/apb_regs.sv" "$CAP/solucion/apb_pkg.sv" "$CAP/solucion/apb_if.sv" \
@@ -23,31 +23,31 @@ vlt_uvm top -Wno-fatal -Wno-WIDTHEXPAND \
 
 run_sim +UVM_TESTNAME=ral_test
 
-# Las dos sequences de la libreria hacen 380 transferencias, y el monitor del
-# capstone reporta cada una. UVM_LOW deja los errores y saca el diario.
+# The two library sequences do 380 transfers, and the capstone monitor
+# reports every one. UVM_LOW keeps the errors and drops the diary.
 run_sim +UVM_TESTNAME=builtin_test +UVM_VERBOSITY=UVM_LOW
 
-# El remate: una sola palabra mal en el modelo, y una sequence que nadie escribio
-# la caza. Aca los UVM_ERROR son el resultado, no una falla, asi que run_sim no
-# tiene que abortar.
+# The punchline: a single word wrong in the model, and a sequence nobody wrote
+# catches it. Here the UVM_ERROR are the result, not a failure, so run_sim does
+# not have to abort.
 export UVM_ERRORS_OK=1
 run_sim +UVM_TESTNAME=builtin_test +UVM_VERBOSITY=UVM_LOW +MAL
 unset UVM_ERRORS_OK
 
-# Del Report Summary, que es donde UVM cuenta de verdad. Las corridas buenas ya
-# las chequeo run_sim: si hubieran dado un error, el script ya habria abortado.
+# From the Report Summary, which is where UVM really counts. The good runs were
+# already checked by run_sim: had they errored, the script would have aborted already.
 errores=$(awk '$1 == "UVM_ERROR" && $2 == ":" { print $3 }' "$VLT_LOG")
 if [ "${errores:-0}" -eq 0 ]; then
-  echo "FALLA: con +MAL el modelo declara CTRL.CLR como RW y bit_bash tendria que" >&2
-  echo "       cazarlo. Si no grita, la sequence no esta corriendo." >&2
+  echo "FAIL: with +MAL the model declares CTRL.CLR as RW and bit_bash should" >&2
+  echo "      catch it. If it does not scream, the sequence is not running." >&2
   exit 1
 fi
 
 echo
-echo "=== el modelo es la spec ==="
+echo "=== the model is the spec ==="
 echo "    CTRL.CLR como \"WOC\"  0 UVM_ERROR"
-echo "    CTRL.CLR como \"RW\"   $errores UVM_ERROR, de uvm_reg_bit_bash_seq"
+echo "    CTRL.CLR as \"RW\"    $errores UVM_ERROR, from uvm_reg_bit_bash_seq"
 grep -m1 'UVM_ERROR.*uvm_reg_bit_bash_seq' "$VLT_LOG" | sed 's/.*\] //; s/^/    > /'
 echo
-echo "    Nadie escribio un test para CTRL. La sequence lo genero del modelo, y el"
-echo "    unico dato que uso fue la palabra que dice como se accede el campo."
+echo "    Nobody wrote a test for CTRL. The sequence generated it from the model, and"
+echo "    the only datum it used was the word that says how the field is accessed."

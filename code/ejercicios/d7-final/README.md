@@ -36,7 +36,7 @@ tb_classes/*.svh    transaction, config, driver, monitor, agent, scoreboard,
 
 ## Los entregables, en orden
 
-El corrector va por etapas y cada una imprime su `ETAPA N OK`. Se puede
+El corrector va por etapas y cada una imprime su `STAGE N OK`. Se puede
 terminar de a una, y conviene: cada etapa se apoya en la anterior.
 
 **1 · El monitor.** `apb_if.sv` con los pines de la spec, la `apb_transaction`,

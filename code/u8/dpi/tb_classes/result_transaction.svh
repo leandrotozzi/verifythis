@@ -1,12 +1,12 @@
 class result_transaction extends uvm_sequence_item;
-   // Registrada en la factory, igual que command_transaction: sin esto
-   // no hay type_id::create() ni override posible.
+   // Registered in the factory, same as command_transaction: without this
+   // there is no type_id::create() and no override is possible.
    `uvm_object_utils(result_transaction)
 
    shortint result;
 
-   // rev2 del VTALU: el borrow de la resta. Es la mitad del resultado que el
-   // scoreboard del libro no tenia que chequear.
+   // VTALU rev2: the borrow of the subtraction. It is the half of the result the
+   // scoreboard in the book never had to check.
    bit      ovf;
 
    function new(string name = "");
@@ -41,9 +41,9 @@ class result_transaction extends uvm_sequence_item;
       if (rhs == null)
          `uvm_fatal("RESULT TRANSACTION", "Tried to do comparison to a null pointer")
 
-      // Un $cast que falla NO es un fatal: comparar contra otro tipo es una
-      // respuesta legitima -- "no son iguales". El fatal es para el null, que
-      // si es un error del testbench.
+      // A $cast that fails is NOT a fatal: comparing against another type is a
+      // legitimate answer -- "they are not equal". The fatal is for the null,
+      // which IS a testbench bug.
       if (!$cast(compared_transaction_h, rhs)) same = 0;
       else same = super.do_compare(rhs, comparer) && (compared_transaction_h.result == result)
           && (compared_transaction_h.ovf == ovf);

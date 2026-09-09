@@ -1,16 +1,16 @@
 // UVM solution to interthread communication
-//	Consta de 2 partes:
-//		*	Ports-Objects: los instanciamos en nuestros uvm_components para habilitar
-//				que run_phase se comunique con otros threads
-//		*	TLM Fifos (solo almacenan 1 elemento)
+//	It has 2 parts:
+//		*	Ports-Objects: instantiated in our uvm_components so that
+//				run_phase can talk to other threads
+//		*	TLM Fifos (they hold only 1 element)
 
 class producer extends uvm_component;
    `uvm_component_utils(producer);
 
    int shared;
-   // uvm_put_port es una clase parametrizada
-   // esta clase se encarga de lidear con toda la bola de sincronizacion de
-   // get_it y put_it
+   // uvm_put_port is a parameterized class
+   // this class takes care of the whole synchronization mess around
+   // get_it and put_it
    uvm_put_port #(int) put_port_h;
 
    function void build_phase(uvm_phase phase);

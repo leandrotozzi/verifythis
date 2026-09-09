@@ -1,6 +1,6 @@
-// El command_sequence de la unidad 22, partido en tres piezas que ahora se
-// combinan como uno quiera. Esta sequence no manda ningun item propio: solo
-// arranca a las otras.
+// The command_sequence of unit 22, split into three pieces that can now be
+// combined at will. This sequence sends no item of its own: it only
+// starts the other ones.
 class full_sequence extends uvm_sequence #(command_transaction);
    `uvm_object_utils(full_sequence)
 
@@ -21,9 +21,9 @@ class full_sequence extends uvm_sequence #(command_transaction);
 
       random_seq.count = count;
 
-      // get_sequencer() devuelve el sequencer que nos paso start(): las hijas
-      // corren sobre el mismo. El segundo argumento las declara HIJAS -- sin el
-      // compiten con nosotros en la arbitracion en vez de heredar nuestro turno.
+      // get_sequencer() returns the sequencer start() handed us: the children run
+      // on the same one. The second argument declares them CHILDREN -- without it
+      // they compete with us in the arbitration instead of inheriting our turn.
       reset_seq.start(get_sequencer(), this);
       random_seq.start(get_sequencer(), this);
       maxmult_seq.start(get_sequencer(), this);

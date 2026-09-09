@@ -4,12 +4,12 @@ class command_transaction extends uvm_sequence_item;
    rand byte unsigned B;
    rand operation_t   op;
 
-   // :/ y NO :=  ---  esta es la linea que reproduce el sesgo a los casos borde
-   // que el get_data() de la seccion Cobertura funcional hacia a mano (1/4 en 00, 1/4 en FF, 1/2 en
-   // el medio). Con ":=" el peso se aplica a CADA valor del rango, asi que el
-   // medio se lleva 254 de 256 y 00 sale 1 vez cada 256: la distribucion queda
-   // practicamente uniforme y los bins de borde no se llenan nunca.
-   // La unidad de Constrained Random tiene el experimento con los numeros.
+   // :/ and NOT :=  ---  this is the line that reproduces the bias towards the
+   // corner cases that get_data() of the Functional coverage section did by hand (1/4 at 00, 1/4 at FF,
+   // 1/2 in the middle). With ":=" the weight applies to EVERY value of the range, so the
+   // middle takes 254 out of 256 and 00 comes up once every 256: the distribution
+   // ends up almost uniform and the corner bins never fill.
+   // The Constrained Random unit has the experiment with the numbers.
    constraint data {
       A dist {
          8'h00 :/ 1,

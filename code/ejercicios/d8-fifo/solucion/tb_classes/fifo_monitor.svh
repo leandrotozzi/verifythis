@@ -22,7 +22,7 @@ class fifo_monitor extends uvm_monitor;
       ap_dato  = new("ap_dato", this);
    endfunction : build_phase
 
-   // La llama la interface en cada flanco de subida.
+   // The interface calls it on every rising edge.
    function void write_ciclo(bit wr_en, bit [7:0] wr_data, bit rd_en,
                              bit full, bit almost_full, bit empty, bit almost_empty,
                              bit [3:0] count);
@@ -36,9 +36,9 @@ class fifo_monitor extends uvm_monitor;
       t.empty = empty;
       t.almost_empty = almost_empty;
       t.count = count;
-      // Un ciclo sin wr_en ni rd_en no es una transaccion: es la FIFO quieta.
-      // Publicarlo igual llenaria el log y el scoreboard con nada -- pero SI se
-      // publica, porque las banderas hay que chequearlas aunque no se pida nada.
+      // A cycle with neither wr_en nor rd_en is not a transaction: it is the FIFO idle.
+      // Publishing it anyway would fill the log and the scoreboard with nothing -- but it IS
+      // published, because the flags have to be checked even when nothing is asked for.
       if (wr_en || rd_en) begin
          vistos++;
          `uvm_info("MONITOR", t.convert2string(), UVM_MEDIUM)

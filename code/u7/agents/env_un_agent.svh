@@ -1,5 +1,5 @@
-// ILUSTRACION -- no se compila. El env de UNA sola VTALU, para comparar contra
-// el env.svh de la seccion Transactions.
+// ILLUSTRATION -- not compiled. The env of a SINGLE VTALU, to compare against
+// the env.svh of the Transactions section.
 class env extends uvm_env;
    `uvm_component_utils(env)
 

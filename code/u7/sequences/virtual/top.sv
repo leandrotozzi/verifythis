@@ -1,8 +1,8 @@
-// El top del ejemplo de sequences virtuales.
+// The top of the virtual sequences example.
 //
-// Es el de la seccion Sequences menos una linea: NO esta el vtalu_tester_module. Las
-// dos VTALU las maneja el testbench, cada una con su agent activo, y por eso
-// hay dos sequencers que coordinar -- que es todo el tema.
+// It is the one from the Sequences section minus one line: there is NO vtalu_tester_module. Both
+// VTALUs are driven by the testbench, each with its own active agent, and that is
+// why there are two sequencers to coordinate -- which is the whole topic.
 module top;
    import uvm_pkg::*;
    import vtalu_pkg::*;
@@ -16,9 +16,9 @@ module top;
        .ovf(clase_bfm.ovf), .result(clase_bfm.result)
    );
 
-   // En la seccion Sequences esta la manejaba el modulo del jefe y el agent era
-   // pasivo. Los nombres quedan a proposito: asi se ve que lo unico que cambia
-   // es el is_active del env.
+   // In the Sequences section this one was driven by the boss's module and the agent
+   // was passive. The names are kept on purpose: that way it is visible that the
+   // only thing that changes is the env's is_active.
    vtalu_bfm modulo_bfm ();
    vtalu modulo_dut (
        .A(modulo_bfm.A), .B(modulo_bfm.B), .op(modulo_bfm.op_set),

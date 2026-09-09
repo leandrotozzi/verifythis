@@ -5,7 +5,7 @@ class random_test extends uvm_test;
    coverage      coverage_h;
    scoreboard    scoreboard_h;
 
-   // Los componentes se instancian en build_phase, nunca en el constructor.
+   // Components get instantiated in build_phase, never in the constructor.
    function void build_phase(uvm_phase phase);
       tester_h = new("tester_h", this);
       coverage_h = new("coverage_h", this);
@@ -16,6 +16,6 @@ class random_test extends uvm_test;
       super.new(name, parent);
    endfunction : new
 
-   // Sin run_phase: el trabajo del test termina cuando el arbol esta armado.
+   // No run_phase: the test's job ends once the tree is built.
 
 endclass

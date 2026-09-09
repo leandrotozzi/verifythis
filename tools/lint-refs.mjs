@@ -22,6 +22,13 @@
 import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { inventario } from './inventario.mjs';
+import { SALIDAS } from './i18n.mjs';
+
+// Las slides de cada idioma se sirven desde donde vive su index.html: las de
+// slides/es/ desde la raiz, las de slides/en/ desde en/. Una ruta relativa a
+// esa raiz es valida aunque no lo sea desde el .md que la escribe.
+const RAIZ_SERVIDA = Object.fromEntries(Object.values(SALIDAS)
+  .map(s => [path.normalize(s.slides), path.dirname(s.html)]));
 
 // Se revisa lo que lee el alumno. code/.uvm es la libreria vendorizada y
 // node_modules/vendor no son nuestros.
@@ -46,18 +53,21 @@ const RE_LINK = /\]\(([^)#?:\s]+?)(?:#[^)]*)?\)/g;
 //
 // El sustantivo puede venir separado por un salto de linea (la prosa del repo
 // va a 80 columnas), por eso \s+ y no un espacio.
+// Los sustantivos van en los dos idiomas: la landing y el README en ingles son
+// justo donde un numero viejo no lo ve nadie, porque el que lo escribio lee la
+// version en castellano.
 const NOMBRES = {
-  ejemplos:   /ejemplos/,
-  ejercicios: /ejercicios|soluciones/,
+  ejemplos:   /ejemplos|examples/,
+  ejercicios: /ejercicios|soluciones|exercises|solutions/,
   slides:     /slides|diapositivas/,
-  secciones:  /secciones/,
-  preguntas:  /preguntas/,
+  secciones:  /secciones|sections/,
+  preguntas:  /preguntas|questions/,
   // "dias" queda AFUERA por lo mismo que "unidades": no es un numero solo.
   // Son siete de curso mas un octavo OPCIONAL, y la prosa dice las dos cosas
   // segun de que este hablando -- "siete dias de clase" y "ocho dias en el
   // libro" son las dos ciertas. Se sigue contando en el inventario.
-  figuras:    /figuras/,
-  trampas:    /trampas/,
+  figuras:    /figuras|figures/,
+  trampas:    /trampas|traps/,
   // "bloques" queda AFUERA a proposito: el deck tiene 191 bloques de codigo y
   // 151 de ellos vienen de code/, y la prosa usa las dos cuentas segun de que
   // este hablando. Una palabra con dos significados no se puede chequear sin
@@ -71,16 +81,20 @@ const PALABRAS = {
   diez: 10, once: 11, doce: 12, trece: 13, catorce: 14, quince: 15,
   dieciseis: 16, dieciséis: 16, diecisiete: 17, dieciocho: 18, diecinueve: 19,
   veinte: 20, treinta: 30, cuarenta: 40, cincuenta: 50,
+  ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15,
+  sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19,
+  twenty: 20, thirty: 30, forty: 40, fifty: 50,
 };
 
 // Conteos legitimos que usan las mismas palabras y NO son el inventario.
 //   "Dia 6 - 10 preguntas"        el repaso de un dia, no el banco entero
+//   "Day 6 - 10 questions"        lo mismo en el banco en ingles
 //   "1 de cada 257 soluciones"    el solver SMT, que resuelve otra cosa
 //   "cinco slides mas adelante"   una referencia relativa
-const LOCALES = /D[ií]a\s+\d|solve|solver|constraint|randomize|z3|LRM|m[aá]s (adelante|atr[aá]s)/i;
+const LOCALES = /D(?:[ií]a|ay)\s+\d|solve|solver|constraint|randomize|z3|LRM|m[aá]s (adelante|atr[aá]s)/i;
 // Y un caso aparte, porque solo se reconoce por lo que viene ANTES del numero:
 // "los otros doce ejercicios" son los que no son el capstone, no los catorce.
-const RELATIVO = /\b(otr[oa]s?|dem[aá]s|primer[oa]s?|[uú]ltim[oa]s?|siguientes|restantes)\s+$/i;
+const RELATIVO = /\b(otr[oa]s?|dem[aá]s|primer[oa]s?|[uú]ltim[oa]s?|siguientes|restantes|other|others|first|last|remaining|previous)\s+$/i;
 
 const errores = [];
 
@@ -102,6 +116,12 @@ const REAL = await inventario();
 // Un numero seguido de un sustantivo del inventario, en digitos o en letras.
 const RE_INVENTARIO = new RegExp(
   String.raw`\b(\d+|${Object.keys(PALABRAS).join('|')})\s+([a-záéíóúñ]+)`, 'gi');
+
+// En la landing los numeros van partidos por tags -- <b>400</b><span>slides</span> --
+// y asi se le escapan a la regla 4, que es justo donde mas duele: el numero que
+// ve el que llega de Google. Los tags se reemplazan por espacios del MISMO largo,
+// para que los indices y por lo tanto los numeros de linea sigan valiendo.
+const sinTags = s => s.replace(/<[^>]+>/g, m => ' '.repeat(m.length));
 
 const lista = [...SUELTOS];
 for (const r of RAICES) if (await existe(r)) lista.push(...await archivos(r));
@@ -125,7 +145,8 @@ for (const f of lista) {
     errores.push(`${f}:${linea(m.index)} — "${m[0].trim()}": el curso tiene unidades y secciones, no capitulos numerados`);
   }
 
-  for (const m of txt.matchAll(RE_INVENTARIO)) {
+  const plano = path.extname(f) === '.html' ? sinTags(txt) : txt;
+  for (const m of plano.matchAll(RE_INVENTARIO)) {
     const n = PALABRAS[m[1].toLowerCase()] ?? Number(m[1]);
     const que = Object.keys(NOMBRES).find(k => NOMBRES[k].test(m[2].toLowerCase()));
     // De diez para abajo casi siempre es un conteo local ("cuatro fases"), y
@@ -133,8 +154,8 @@ for (const f of lista) {
     // cosa que usa la misma palabra. "1 de cada 257 soluciones" es el solver
     // SMT, no los catorce ejercicios.
     if (!que || n < 10 || n > 10 * REAL[que] || n === REAL[que]) continue;
-    if (LOCALES.test(txt.slice(Math.max(0, m.index - 45), m.index + 45))) continue;
-    if (RELATIVO.test(txt.slice(Math.max(0, m.index - 25), m.index))) continue;
+    if (LOCALES.test(plano.slice(Math.max(0, m.index - 45), m.index + 45))) continue;
+    if (RELATIVO.test(plano.slice(Math.max(0, m.index - 25), m.index))) continue;
     errores.push(`${f}:${linea(m.index)} — dice "${m[0].replace(/\s+/g, ' ').trim()}" y hoy son ${REAL[que]}`);
   }
 
@@ -146,9 +167,11 @@ for (const f of lista) {
       // relativas a la raiz; los docs las escriben relativas a si mismos. Vale
       // cualquiera de las dos. Y un `../../algo` que se escapa del repo es un
       // link relativo de GitHub (../../discussions), no un archivo.
+      const servida = RAIZ_SERVIDA[path.normalize(path.dirname(f))];
       const candidatos = [
         path.normalize(path.join(path.dirname(f), destino)),
         path.normalize(destino),
+        ...(servida ? [path.normalize(path.join(servida, destino))] : []),
       ];
       if (candidatos.some(c => c.startsWith('..'))) continue;
       if (!(await Promise.all(candidatos.map(existe))).some(Boolean)) {

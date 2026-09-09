@@ -18,8 +18,8 @@ class scoreboard;
             mul_op: predicted_result = bfm.A * bfm.B;
          endcase  // case (op_set)
 
-         // El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de
-         // salida, ni la suma ni la multiplicacion se pasan.
+         // ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit
+         // output, neither the addition nor the multiplication can overflow.
          predicted_ovf = (bfm.op_set == sub_op) && (bfm.A < bfm.B);
 
          if ((bfm.op_set != no_op) && (bfm.op_set != rst_op))

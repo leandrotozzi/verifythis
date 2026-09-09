@@ -1,13 +1,13 @@
-// El DUT del capstone: un esclavo APB3 con cuatro registros.
+// The capstone DUT: an APB3 slave with four registers.
 //
-// La spec esta en spec.md, y es lo unico que hay que leer para verificarlo.
-// Este archivo NO se toca: si tu testbench necesita cambiar el RTL para pasar,
-// el que esta mal es el testbench.
+// The spec is in spec.md, and it is the only thing to read in order to verify it.
+// This file is NOT touched: if your testbench needs to change the RTL to pass,
+// the one that is wrong is the testbench.
 //
-// La unica licencia que se tomo es bug_en, que no existiria en un DUT de
-// verdad: con +BUG=1 el acumulador deja de mirar CTRL.EN. Esta para que puedas
-// comprobar que tu scoreboard chequea algo -- un scoreboard que nunca vio un
-// error no esta probado.
+// The only liberty taken is bug_en, which would not exist in a real DUT:
+// with +BUG=1 the accumulator stops looking at CTRL.EN. It is there so you can
+// check that your scoreboard checks something -- a scoreboard that never saw an
+// error is not tested.
 module apb_regs (
     input  logic        PCLK,
     input  logic        PRESETn,
@@ -27,14 +27,14 @@ module apb_regs (
    logic [31:0] scratch;  // SCRATCH
    logic [31:0] acc;      // ACC
 
-   // El mapa entra en 16 bytes: cuatro registros de 32 bits. PADDR[1:0] se
-   // ignora; de 0x10 para arriba no hay nadie y se contesta con PSLVERR.
+   // The map fits in 16 bytes: four 32-bit registers. PADDR[1:0] is
+   // ignored; from 0x10 up there is nobody and the answer is PSLVERR.
    wire mapped = (PADDR < 8'h10);
    wire access = PSEL && PENABLE;
 
-   // El handshake: la escritura no espera, la lectura mete UN wait state.
-   // rd_wait se rearma en cuanto baja PENABLE, o sea entre transferencia y
-   // transferencia, sin necesidad de contar ciclos.
+   // The handshake: the write does not wait, the read inserts ONE wait state.
+   // rd_wait re-arms as soon as PENABLE drops, that is between one transfer and
+   // the next, with no need to count cycles.
    logic rd_wait;
    always_ff @(posedge PCLK or negedge PRESETn) begin
       if (!PRESETn) rd_wait <= 1'b1;
@@ -45,8 +45,8 @@ module apb_regs (
    assign PREADY  = !PSEL ? 1'b1 : (PWRITE ? 1'b1 : !rd_wait);
    assign PSLVERR = access && !mapped;
 
-   // El ciclo en que la transferencia realmente ocurre: es el unico flanco que
-   // le importa al monitor, y el unico en que el DUT cambia de estado.
+   // The cycle where the transfer actually happens: it is the only edge that
+   // matters to the monitor, and the only one where the DUT changes state.
    wire xfer = access && PREADY;
 
    always_comb begin
@@ -80,8 +80,8 @@ module apb_regs (
             end
             2'd1: begin
                scratch <= PWDATA;
-               // El acumulador solo corre con EN=1. Es la unica linea que
-               // +BUG=1 rompe.
+               // The accumulator only runs with EN=1. It is the only line
+               // +BUG=1 breaks.
                if (en || bug_en) begin
                   acc <= suma[31:0];
                   if (suma[32]) ovf <= 1'b1;  // pegajoso hasta el proximo CLR

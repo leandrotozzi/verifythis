@@ -30,7 +30,7 @@ El decimotercero, [`d7-final`](d7-final/), es distinto de los otros y a propósi
 **no hay archivo con un agujero**. Hay un DUT que no es la VTALU —un esclavo APB
 de cuatro registros—, su especificación, y una hoja en blanco. El corrector va
 por etapas —monitor, driver, scoreboard, cobertura— y cada una imprime su
-`ETAPA N OK`, así que se puede terminar de a una.
+`STAGE N OK`, así que se puede terminar de a una.
 
 [`d8-ral`](d8-ral/) es el de la unidad opcional y va **después** del capstone:
 reusa el mismo DUT y el mismo testbench, y agrega encima el modelo de registros.

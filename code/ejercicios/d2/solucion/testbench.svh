@@ -1,8 +1,8 @@
 class testbench;
 
-   // 'virtual' es lo que hace que una interface se pueda guardar en una clase:
-   // es el equivalente, en el mundo de los objetos, a la lista de puertos de un
-   // modulo.
+   // 'virtual' is what makes an interface storable in a class: it is the
+   // equivalent, in the world of objects, to the port list of a
+   // module.
    // SV interface is a single compiled unit that delivers all the signals
    // The tester , scoreboard , and coverage modules got a copy of the
    // BFM through their module port list.
@@ -20,25 +20,25 @@ class testbench;
       bfm = b;
    endfunction : new
 
-   // Necesitamos instanciar los objetos y lanzar sus metodos de ejecucion
+   // The objects have to be instantiated and their execute methods launched
    task execute();
-      // Instanciamos nuestros 3 objetos y les pasamos una copia de la BFM
-      // Polimorfismo: tester_h es del tipo tester y guarda un mult_tester.
-      // El fork de abajo llama tester_h.execute(), que es el de tester, y ese
-      // llama get_op(): el de mult_tester, porque el objeto manda.
+      // Our 3 objects get instantiated and each gets a copy of the BFM
+      // Polymorphism: tester_h is of type tester and holds a mult_tester.
+      // The fork below calls tester_h.execute(), which is tester's, and that
+      // one calls get_op(): mult_tester's, because the object decides.
       mult_tester_h = new(bfm);
       tester_h = mult_tester_h;
       coverage_h = new(bfm);
       scoreboard_h = new(bfm);
 
-      // Creamos 3 threads, uno por cada objeto
+      // Three threads, one per object
       fork
          tester_h.execute();
          coverage_h.execute();
          scoreboard_h.execute();
       join_none
-      // como usamos join_none, esta tarea termina pero sigue la ejecucion
-      // de los threads
+      // since join_none is used, this task finishes but the threads
+      // keep running
 
    endtask : execute
 endclass : testbench

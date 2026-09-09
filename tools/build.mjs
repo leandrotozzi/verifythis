@@ -1,25 +1,38 @@
-// slides/*.md (+ code/) -> index.html (reveal, autocontenido) y dist/slides.md (pandoc).
+// slides/<idioma>/*.md (+ code/) -> index.html (reveal, autocontenido) y
+// dist/slides.md (pandoc).
 //
 // Un solo mecanismo, {{code:ruta}}, alimenta las tres salidas: deck, PDF y PPTX.
 // index.html se genera con todo inlineado: sin fetch en runtime, por eso anda
 // abriendolo con doble clic (file://), offline y sin servidor.
+//
+//   node tools/build.mjs             el deck en castellano, en la raiz
+//   node tools/build.mjs --lang=en   el deck en ingles, en en/
 import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import path from 'node:path';
+import { UI, grupos as gruposDelIndice, idiomaDeArgv, SALIDAS } from './i18n.mjs';
 
-const SLIDES_DIR = 'slides';
+// El idioma del curso. code/ y res/ NO se duplican: estan en ingles y los
+// comparten las dos versiones. Lo unico que cambia de idioma es slides/.
+const IDIOMA = idiomaDeArgv();
+const OUT = SALIDAS[IDIOMA];
+const T = UI[IDIOMA];
+
+const SLIDES_DIR = OUT.slides;
 const TEMPLATE = 'tools/template.html';
-const OUT_HTML = 'index.html';
+const OUT_HTML = OUT.html;
 // --check: no escribe nada, solo verifica que index.html este al dia con slides/.
 // Sirve para CI y para no commitear un index.html viejo.
 const CHECK = process.argv.includes('--check');
-const OUT_MD = 'dist/slides.md';
+const OUT_MD = OUT.md;
 // El banco de examen se commitea, como index.html: un profesor lo tiene que
 // poder leer en GitHub sin clonar ni buildear nada.
-const OUT_BANCO = 'docs/banco-de-examen.md';
+const OUT_BANCO = OUT.banco;
 // Las trampas del apendice, como pagina suelta. El deck no le da a un buscador
 // una sola linea que indexar, y esta es justo la tabla que alguien googlea a las
 // tres de la manana ("randomize devuelve 0 verilator"). Sale del MISMO apendice.
-const OUT_TRAMPAS = 'docs/trampas-mudas.md';
+const OUT_TRAMPAS = OUT.trampas;
+// para-docentes.md vive en docs/; el banco del ingles esta en docs/en/.
+const DOCENTES = path.relative(path.dirname(OUT_BANCO), 'docs/para-docentes.md');
 
 const LANG = {
   '.sv': 'sv', '.svh': 'sv', '.vhd': 'vhdl', '.vhdl': 'vhdl',
@@ -70,8 +83,15 @@ async function expand(md, src) {
   return md.replace(RE_CODE, (full) => done.get(full) ?? full);
 }
 
-const files = (await readdir(SLIDES_DIR)).filter(f => f.endsWith('.md')).sort();
-if (!files.length) throw new Error(`no hay .md en ${SLIDES_DIR}/`);
+const files = (await readdir(SLIDES_DIR).catch(() => [])).filter(f => f.endsWith('.md')).sort();
+// El arbol en ingles se llena de a un dia por vez, y arranca vacio: eso no es un
+// error, es el estado normal antes de traducir el dia 1. El castellano SI tiene
+// que estar -- si no esta, algo se rompio.
+if (!files.length) {
+  if (IDIOMA === 'es') throw new Error(`no hay .md en ${SLIDES_DIR}/`);
+  console.log(`${SLIDES_DIR}/ vacio: no hay nada que generar todavia`);
+  process.exit(0);
+}
 
 const chapters = [];
 for (const f of files) {
@@ -104,12 +124,7 @@ ${c.md}
 // Los apendices, el glosario y el cierre no tienen grupo propio: viven entre el
 // id="day7" y el id="day8", y por eso caen adentro del dia 7, que es donde se
 // dictan. El dia 8 arranca DESPUES del cierre a proposito: es opcional.
-const GRUPOS = {
-  portada: 'Inicio',
-  day1: 'Día 1', day2: 'Día 2', day3: 'Día 3',
-  day4: 'Día 4', day5: 'Día 5', day6: 'Día 6', day7: 'Día 7',
-  day8: 'Día 8 · opcional',
-};
+const GRUPOS = gruposDelIndice(IDIOMA);
 const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 let pos = 0, grupo = '';
@@ -131,10 +146,31 @@ const indice = items.map((it, i) => {
 }).join('\n') + '\n        </ul>';
 
 const tpl = await readFile(TEMPLATE, 'utf8');
-for (const marca of ['<!--SLIDES-->', '<!--INDICE-->']) {
+// El mapa que usa el selector de idioma: [archivo, cuantas slides tiene]. El
+// nombre del archivo es el MISMO en los dos arboles -- es lo que chequea
+// tools/lint-i18n.mjs --, asi que alcanza como coordenada compartida.
+const seccionesJs = '[' + items.map((it, i) =>
+  `["${chapters[i].f.replace(/\.md$/, '')}",${(items[i + 1]?.h ?? pos) - it.h}]`).join(',') + ']';
+
+for (const marca of ['<!--SLIDES-->', '<!--INDICE-->', '<!--SECCIONES-->']) {
   if (!tpl.includes(marca)) throw new Error(`tools/template.html no tiene el marcador ${marca}`);
 }
-const html = tpl.replace('<!--SLIDES-->', sections).replace('<!--INDICE-->', indice);
+// Los textos de la interfaz salen de tools/i18n.mjs, no de un segundo template:
+// un {{ui:clave}} que no exista es un error, no un hueco silencioso.
+const conUI = tpl.replace(/\{\{ui:([a-zA-Z]+)\}\}/g, (_, k) => {
+  if (!(k in T)) throw new Error(`tools/template.html pide {{ui:${k}}} y no esta en i18n.mjs`);
+  return T[k];
+}).replace(/\{\{base\}\}/g, OUT.base);
+let html = conUI.replace('<!--SLIDES-->', sections).replace('<!--INDICE-->', indice)
+  .replace('<!--SECCIONES-->', seccionesJs);
+// El deck en ingles vive en en/, y css/, js/, res/ y vendor/ NO se duplican:
+// quedan en la raiz y las rutas necesitan un ../ adelante.
+// ponytail: un regex sobre el HTML ya armado en vez de reescribir cada ruta en
+// su origen (el template, y las slides que referencian res/). Si algun dia un
+// bloque de codigo del curso contiene literalmente src="res/, sale mal.
+// Y no alcanza a data-machete, que es una lista separada por comas: ese lo
+// prefija el paint() del template con el {{base}} de arriba.
+if (OUT.base) html = html.replace(/(src|href)="(css|js|res|vendor)\//g, `$1="${OUT.base}$2/`);
 // Pandoc no entiende el "Note:" de reveal: sin esto las notas del presentador
 // saldrian como texto en el cuerpo de la slide del .pptx. El fenced div
 // ::: notes es lo que pandoc manda a las notas del orador.
@@ -161,7 +197,10 @@ for (const c of chapters.filter(c => /quiz/.test(c.f))) {
       fail(c.f, `una slide de repaso tiene ${opciones.filter(o => o[1] === 'x').length} opciones marcadas con [x], y tiene que haber exactamente una`);
     preguntas.push({
       dia, correcta,
-      tema: slide.match(/^#{2,4} \*\d+ de \d+ · (.+?)\*\s*$/m)?.[1] ?? '',
+      // "1 de 8" en castellano, "1 of 8" en la traduccion: el banco en ingles
+      // salia con el tema vacio en la clave, que es la columna con la que un
+      // docente corrige sin volver a la slide.
+      tema: slide.match(/^#{2,4} \*\d+ (?:de|of) \d+ · (.+?)\*\s*$/m)?.[1] ?? '',
       enunciado: slide.match(/^\*\*(.+)\*\*\s*$/m)?.[1] ?? '',
       opciones: opciones.map(o => o[2]),
       // El "> **gist** — por que" del deck: es la justificacion que el docente
@@ -183,9 +222,13 @@ if (errors.length) {
 const apendice = chapters.find(c => /apendice-trampas/.test(c.f));
 if (!apendice) fail('slides/', 'falta 172-apendice-trampas.md, de donde sale docs/trampas-mudas.md');
 const grupos = [];
+// El encabezado de la tabla no es una fila: se saltea por su primera celda,
+// que sale de T.trampasCols para que el ingles saltee la suya y no la nuestra.
+const CABECERA = T.trampasCols.split('|')[1].trim();
+const RE_FILA = new RegExp(String.raw`^\| (?!---|${CABECERA})(.+?) \|\s*$`, 'gm');
 for (const slide of (apendice?.md ?? '').split(/^---$/m)) {
   const titulo = slide.match(/^#### \*(.+?)\*\s*$/m)?.[1];
-  const filas = [...slide.matchAll(/^\| (?!---|El síntoma)(.+?) \|\s*$/gm)].map(m => m[1]);
+  const filas = [...slide.matchAll(RE_FILA)].map(m => m[1]);
   if (titulo && filas.length) grupos.push({ titulo, filas });
 }
 const nTrampas = grupos.reduce((n, g) => n + g.filas.length, 0);
@@ -194,68 +237,31 @@ const trampas = `<!-- Generado por tools/build.mjs desde slides/172-apendice-tra
      NO editar a mano: la fila se corrige en la slide y esto se regenera con
      \`npm run build\`. \`npm run check\` falla si quedo viejo. -->
 
-# Las ${nTrampas} trampas mudas de UVM
+# ${T.trampasTitulo(nTrampas)}
 
-Todo lo que **compila, corre y miente**: los errores de un testbench UVM que no
-dan un warning, no dejan la regresión en rojo, y se descubren semanas después —
-o no se descubren.
+${T.trampasIntro}
 
-Es el apéndice del día 7 de [*Verify This!*](https://leandrotozzi.github.io/verifythis/),
-un curso de UVM en español que corre entero con **Verilator**, sin licencias de
-EDA. Está acá afuera del deck porque es la página que uno busca a las tres de la
-mañana, y una diapositiva no se puede googlear.
-
-> **En verificación el error caro no es el que rompe, es el que miente.** Un
-> error de compilación cuesta dos minutos; un testbench que pasa midiendo lo que
-> no es cuesta un tape-out.
-
-${grupos.map(g => `## ${g.titulo}\n\n| El síntoma | La causa | Cómo se ataja | Sección |\n| --- | --- | --- | :-- |\n${g.filas.map(f => `| ${f} |`).join('\n')}\n`).join('\n')}
+${grupos.map(g => `## ${g.titulo}\n\n${T.trampasCols}\n| --- | --- | --- | :-- |\n${g.filas.map(f => `| ${f} |`).join('\n')}\n`).join('\n')}
 ---
 
-## Las siete perillas de debug
-
-Cuál mirar según el síntoma está en el otro apéndice del curso, *La caja de
-herramientas de debug*: se lee en
-[\`libro/dia7.html\`](https://leandrotozzi.github.io/verifythis/libro/dia7.html#cuál-usar-según-el-síntoma).
-
-| Flag | Para qué |
-| --- | --- |
-| \`+UVM_VERBOSITY=UVM_HIGH\` | prender los mensajes de debug que ya están escritos |
-| \`+UVM_CONFIG_DB_TRACE\` | quién puso y quién leyó cada entrada del \`config_db\` |
-| \`+UVM_OBJECTION_TRACE\` | quién levantó y quién bajó cada objection |
-| \`+UVM_TIMEOUT=5ms\` | cortar una simulación colgada y ver dónde quedó |
-| \`print_topology()\` | el árbol de componentes que UVM armó **de verdad** |
-| \`--assert\` | sin este flag las properties concurrentes no se evalúan |
-| \`--trace\` + GTKWave | cuando ninguna de las seis anteriores alcanza |
+${T.trampasPerillas}
 
 ---
 
-El curso es **CC BY 4.0**. Código, ejemplos y el capstone:
-**[github.com/leandrotozzi/verifythis](https://github.com/leandrotozzi/verifythis)**
+${T.trampasCierre}
 `;
 
 const banco = `<!-- Generado por tools/build.mjs desde slides/*quiz*.md. NO editar a mano:
      la pregunta se corrige en la slide y esto se regenera con \`npm run build\`.
      \`npm run check\` falla si quedo viejo. -->
 
-# Banco de examen
+# ${T.bancoTitulo}
 
-Las **${preguntas.length} preguntas de repaso** del curso, sin la respuesta
-marcada — que es lo único que separa un repaso en clase de un parcial. Salen de
-las mismas \`slides/*quiz*.md\` que el deck, así que no hay dos versiones de una
-pregunta.
-
-La **clave está al final**, con el porqué de cada una: es lo que se necesita
-para corregir sin volver a buscar la slide.
-
-Cómo se usa, y qué evaluar en cada parcial: **[\`para-docentes.md\`](para-docentes.md)**.
-
-> El curso es **CC BY 4.0**: se puede imprimir, cortar, reordenar y tomar como
-> examen propio. Lo único que se pide es citar la fuente.
+${T.bancoIntro(preguntas.length, DOCENTES)}
 ${[1, 2, 3, 4, 5, 6, 7].map(d => {
   const delDia = preguntas.filter(p => p.dia === d);
   if (!delDia.length) return '';
-  return `\n---\n\n## Día ${d} · ${delDia.length} preguntas\n\n` + delDia.map(p => {
+  return `\n---\n\n${T.bancoDia(d, delDia.length)}\n\n` + delDia.map(p => {
     const n = preguntas.indexOf(p) + 1;
     return `**${n}. ${p.tema}**\n\n${p.enunciado}\n\n`
       + p.opciones.map((o, i) => `- **${LETRA[i]})** ${o}`).join('\n') + '\n';
@@ -263,9 +269,9 @@ ${[1, 2, 3, 4, 5, 6, 7].map(d => {
 }).join('')}
 ---
 
-## Clave
+## ${T.bancoClave}
 
-| # | Día | Tema | Correcta | Por qué |
+${T.bancoCols}
 |--:|:--:|:--|:--:|:--|
 ${preguntas.map((p, i) => {
   // Un `|=>` de SVA adentro de una celda parte la tabla en dos columnas mudas.
@@ -280,24 +286,29 @@ if (CHECK) {
     console.error(`✗ ${OUT_HTML} esta desactualizado respecto de ${SLIDES_DIR}/ — corre: npm run build`);
     process.exit(1);
   }
-  if (await readFile(OUT_BANCO, 'utf8').catch(() => null) !== banco) {
+  if (preguntas.length && await readFile(OUT_BANCO, 'utf8').catch(() => null) !== banco) {
     console.error(`✗ ${OUT_BANCO} esta desactualizado respecto de ${SLIDES_DIR}/ — corre: npm run build`);
     process.exit(1);
   }
-  if (await readFile(OUT_TRAMPAS, 'utf8').catch(() => null) !== trampas) {
+  if (nTrampas && await readFile(OUT_TRAMPAS, 'utf8').catch(() => null) !== trampas) {
     console.error(`✗ ${OUT_TRAMPAS} esta desactualizado respecto de ${SLIDES_DIR}/ — corre: npm run build`);
     process.exit(1);
   }
   console.log(`✓ ${OUT_HTML} al dia (${chapters.length} secciones)`);
-  console.log(`✓ ${OUT_BANCO} al dia (${preguntas.length} preguntas)`);
-  console.log(`✓ ${OUT_TRAMPAS} al dia (${nTrampas} trampas)`);
+  if (preguntas.length) console.log(`✓ ${OUT_BANCO} al dia (${preguntas.length} preguntas)`);
+  if (nTrampas) console.log(`✓ ${OUT_TRAMPAS} al dia (${nTrampas} trampas)`);
   process.exit(0);
 }
 
-await writeFile(OUT_BANCO, banco);
-await writeFile(OUT_TRAMPAS, trampas);
+// Los generados del ingles cuelgan de en/ y docs/en/, que pueden no existir.
+for (const f of [OUT_BANCO, OUT_TRAMPAS, OUT_HTML, OUT_MD]) {
+  await mkdir(path.dirname(f), { recursive: true });
+}
+// Un banco de examen sin preguntas o una tabla de trampas vacia no son un
+// archivo mas corto: son un archivo que miente. No se escriben.
+if (preguntas.length) await writeFile(OUT_BANCO, banco);
+if (nTrampas) await writeFile(OUT_TRAMPAS, trampas);
 await writeFile(OUT_HTML, html);
-await mkdir(path.dirname(OUT_MD), { recursive: true });
 await writeFile(OUT_MD, md);
 
 const slides = chapters.reduce((n, c) => n + 1 + (c.md.match(/^---$/gm) || []).length, 0);
@@ -305,5 +316,5 @@ const blocks = chapters.reduce((n, c) => n + (c.md.match(/^```/gm) || []).length
 console.log(`${OUT_HTML}  ${chapters.length} secciones, ${slides} slides, ${blocks} bloques de codigo`);
 console.log(`            ${stats.includes} vienen de code/ (${stats.recortados} recortados con lines=)`);
 console.log(`${OUT_MD}  para pandoc`);
-console.log(`${OUT_BANCO}  ${preguntas.length} preguntas de repaso, sin la respuesta marcada`);
-console.log(`${OUT_TRAMPAS}  ${nTrampas} trampas mudas, fuera del deck`);
+if (preguntas.length) console.log(`${OUT_BANCO}  ${preguntas.length} preguntas de repaso, sin la respuesta marcada`);
+if (nTrampas) console.log(`${OUT_TRAMPAS}  ${nTrampas} trampas mudas, fuera del deck`);

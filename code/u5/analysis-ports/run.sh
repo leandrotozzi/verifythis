@@ -1,11 +1,11 @@
 #!/bin/bash
-# Corre el ejemplo con Verilator. Ver docs/verilator.md.
+# Runs the example with Verilator. See docs/verilator.md.
 #
-# --coverage-user: mide los covergroups y deja afuera line/toggle/branch, que no
-# son el tema. El numero sale al final, con cov_report.
+# --coverage-user: measures the covergroups and leaves out line/toggle/branch,
+# which are not the topic. The number comes out at the end, with cov_report.
 #
-# -Wno-fatal: los ejemplos tienen anchos flojos a proposito (WIDTHEXPAND/WIDTHTRUNC) y
-# por defecto cualquier warning corta el build. Se siguen imprimiendo.
+# -Wno-fatal: the examples have sloppy widths on purpose (WIDTHEXPAND/WIDTHTRUNC)
+# and by default any warning stops the build. They still get printed.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
 vlt_uvm top --coverage-user -Wno-fatal -f dut.f -f tb.f

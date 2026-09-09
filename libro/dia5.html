@@ -204,13 +204,13 @@ nuevo y <strong>pasarle los datos</strong> campo por campo</p>
        <span class="hljs-keyword">new</span>(.hielos(<span class="hljs-number">2</span>), .con_coca(<span class="hljs-number">1</span>), .graduacion(<span class="hljs-number">2</span>), .mesa(<span class="hljs-string">&quot;mesa 4&quot;</span>), .medidas(<span class="hljs-number">2</span>));
    <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 1 ---\n&quot;</span>, fernet_hielo1_h.convert2string());
    fernet_hielo2_h = <span class="hljs-keyword">new</span>();
-   <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 antes de la copia ---\n&quot;</span>, fernet_hielo2_h.convert2string());
-   <span class="hljs-comment">// do_copy es un metodo que se encarga de copiar miembro a miembro</span>
-   <span class="hljs-comment">// sufre del mismo problema que ya vimos con convert2string()</span>
-   <span class="hljs-comment">// Cada clase puede copiar las variables definidas en esa clase</span>
-   <span class="hljs-comment">// Debemos usar super.do_copy() para copiar variables heredadas</span>
+   <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 before the copy ---\n&quot;</span>, fernet_hielo2_h.convert2string());
+   <span class="hljs-comment">// do_copy is a method that copies member by member</span>
+   <span class="hljs-comment">// it suffers from the same problem already seen with convert2string()</span>
+   <span class="hljs-comment">// Each class can copy the variables defined in that class</span>
+   <span class="hljs-comment">// super.do_copy() has to be used to copy the inherited ones</span>
    fernet_hielo2_h.do_copy(fernet_hielo1_h);
-   <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 despues de la copia ---\n&quot;</span>, fernet_hielo2_h.convert2string());
+   <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 after the copy ---\n&quot;</span>, fernet_hielo2_h.convert2string());
 <span class="hljs-keyword">end</span></code></pre></figure>
 
 <ul>
@@ -253,11 +253,11 @@ conviene que la pregunta quede planteada.</p>
       <span class="hljs-keyword">return</span> {<span class="hljs-keyword">super</span>.convert2string(), <span class="hljs-string">&quot;\n&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;medidas: %0d&quot;</span>, medidas)};
    <span class="hljs-keyword">endfunction</span> : convert2string
 
-   <span class="hljs-comment">//do_copy pasa el argumento a su clase superior</span>
+   <span class="hljs-comment">//do_copy passes the argument up to its parent class</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
       fernet_con_hielo copia_fernet_con_hielo;
       <span class="hljs-keyword">super</span>.do_copy(copia);
-      <span class="hljs-comment">// Luego casteamos copia a una variable de su tipo de clase</span>
+      <span class="hljs-comment">// Then the copy gets cast to a variable of its own class type</span>
       <span class="hljs-built_in">$cast</span>(copia_fernet_con_hielo, copia);
       <span class="hljs-keyword">this</span>.medidas = copia_fernet_con_hielo.medidas;
    <span class="hljs-keyword">endfunction</span> : do_copy
@@ -274,8 +274,8 @@ conviene que la pregunta quede planteada.</p>
       <span class="hljs-keyword">return</span> {<span class="hljs-keyword">super</span>.convert2string(), <span class="hljs-string">&quot;\nMesa: &quot;</span>, mesa};
    <span class="hljs-keyword">endfunction</span> : convert2string
 
-   <span class="hljs-comment">// Polimorfismo: do_copy toma como argumento una clase derivada de trago</span>
-   <span class="hljs-comment">// por lo tanto, usamos la clase trago como argumento</span>
+   <span class="hljs-comment">// Polymorphism: do_copy takes a class derived from trago as its argument</span>
+   <span class="hljs-comment">// so the trago class is what gets used as the argument type</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
       fernet_doble copia_fernet_doble;
       <span class="hljs-keyword">super</span>.do_copy(copia);
@@ -297,11 +297,11 @@ conviene que la pregunta quede planteada.</p>
       <span class="hljs-keyword">return</span> {<span class="hljs-keyword">super</span>.convert2string(), <span class="hljs-string">&quot;\n&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;medidas: %0d&quot;</span>, medidas)};
    <span class="hljs-keyword">endfunction</span> : convert2string
 
-   <span class="hljs-comment">//do_copy pasa el argumento a su clase superior</span>
+   <span class="hljs-comment">//do_copy passes the argument up to its parent class</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
       fernet_con_hielo copia_fernet_con_hielo;
       <span class="hljs-keyword">super</span>.do_copy(copia);
-      <span class="hljs-comment">// Luego casteamos copia a una variable de su tipo de clase</span>
+      <span class="hljs-comment">// Then the copy gets cast to a variable of its own class type</span>
       <span class="hljs-built_in">$cast</span>(copia_fernet_con_hielo, copia);
       <span class="hljs-keyword">this</span>.medidas = copia_fernet_con_hielo.medidas;
    <span class="hljs-keyword">endfunction</span> : do_copy
@@ -313,7 +313,7 @@ uno recibiera su propio tipo, la llamada a <code>super.do_copy(rhs)</code> no co
 los tipos no coincidirían.
 El precio es que adentro de cada método hay que hacer <code>$cast</code> para poder leer los
 campos propios. Y como vimos en la factory, ese <code>$cast</code> chequea en runtime: si
-alguien intenta copiar un <code>gancia</code> sobre un <code>fernet</code>, devuelve 0 y hay que
+alguien intenta copiar un <code>mojito</code> sobre un <code>fernet</code>, devuelve 0 y hay que
 atajarlo.
 Es la primera vez que se ve una convención de firma que existe sólo para que el
 polimorfismo funcione. En UVM va a ser lo mismo y con más reglas: el argumento se
@@ -440,9 +440,9 @@ esta slide.</p>
       fernet_hielo1_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">2</span>, <span class="hljs-number">1</span>, <span class="hljs-string">&quot;Agnus&quot;</span>, <span class="hljs-number">2</span>);
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 1 ---\n&quot;</span>, fernet_hielo1_h.convert2string());
       fernet_hielo2_h = <span class="hljs-keyword">new</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 antes de la copia ---\n&quot;</span>, fernet_hielo2_h.convert2string());
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 before the copy ---\n&quot;</span>, fernet_hielo2_h.convert2string());
       fernet_hielo2_h.bad_copy(fernet_hielo1_h);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 despues de la copia ---\n&quot;</span>, fernet_hielo2_h.convert2string());
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 after the copy ---\n&quot;</span>, fernet_hielo2_h.convert2string());
    <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure>
 
@@ -594,9 +594,9 @@ polimorfismo que valga.</p>
           (.hielos(<span class="hljs-number">2</span>), .con_coca(<span class="hljs-number">1</span>), .graduacion(<span class="hljs-number">2</span>), .mesa(<span class="hljs-string">&quot;mesa 4&quot;</span>), .medidas(<span class="hljs-number">2</span>));
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 1 ---\n&quot;</span>, fernet_hielo1_h.convert2string());
       fernet_hielo2_h = <span class="hljs-keyword">new</span>();
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 antes de la copia ---\n&quot;</span>, fernet_hielo2_h.convert2string());
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 before the copy ---\n&quot;</span>, fernet_hielo2_h.convert2string());
       fernet_hielo2_h.do_copy(fernet_hielo1_h);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 despues de la copia ---\n&quot;</span>, fernet_hielo2_h.convert2string());
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 2 after the copy ---\n&quot;</span>, fernet_hielo2_h.convert2string());
    <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure>
 
@@ -757,9 +757,9 @@ O sea que la clase base que elegimos hoy es la que nos deja seguir mañana.</p>
 dato</strong>, no del test — y sin embargo viven en el tester</li>
 <li>SystemVerilog ya trae esto hecho, y no hace falta escribir ni un <code>$urandom</code></li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u6/transactions/prev-random.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// Mediante este funcion manejamos el hecho de que</span>
-<span class="hljs-comment">// el bus de operacion tiene 8 posibles valores,</span>
-<span class="hljs-comment">// pero solamente 6 son operaciones validas</span>
+<figure class="codigo"><figcaption><code>code/u6/transactions/prev-random.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// This function handles the fact that</span>
+<span class="hljs-comment">// the operation bus has 8 possible values,</span>
+<span class="hljs-comment">// but only 6 of them are valid operations</span>
 <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">operation_t </span><span class="hljs-title">get_op</span>();
   <span class="hljs-type">bit</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] op_choice;
   op_choice = <span class="hljs-built_in">$random</span>;
@@ -775,10 +775,10 @@ dato</strong>, no del test — y sin embargo viven en el tester</li>
   <span class="hljs-keyword">endcase</span> <span class="hljs-comment">// case (op_choice)</span>
 <span class="hljs-keyword">endfunction</span> : get_op
 
-<span class="hljs-comment">// Con esta funcion buscabamos distribuir mejor</span>
-<span class="hljs-comment">// la probabilidad de obtener todos zeros (prob = 1/3),</span>
-<span class="hljs-comment">// sesgando un poco la aleatoriedad, para que la prob no sea 1/256</span>
-<span class="hljs-comment">// ya que esto dificultaria alcanzar nuestro objetivo de cobertura</span>
+<span class="hljs-comment">// This function was meant to spread out</span>
+<span class="hljs-comment">// the probability of getting all zeros (prob = 1/3),</span>
+<span class="hljs-comment">// biasing the randomness a little so the prob is not 1/256,</span>
+<span class="hljs-comment">// since that would make our coverage goal hard to reach</span>
 <span class="hljs-keyword">virtual</span>    <span class="hljs-keyword">function</span> <span class="hljs-type">byte </span><span class="hljs-title">get_data</span>();
   <span class="hljs-type">bit</span> [<span class="hljs-number">1</span>:<span class="hljs-number">0</span>]   zero_ones;
   zero_ones = <span class="hljs-built_in">$random</span>;
@@ -818,12 +818,12 @@ se declara el sesgo a los bordes</li>
    <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> B;
    <span class="hljs-keyword">rand</span> operation_t   op;
 
-   <span class="hljs-comment">// :/ y NO :=  ---  esta es la linea que reproduce el sesgo a los casos borde</span>
-   <span class="hljs-comment">// que el get_data() de la seccion Cobertura funcional hacia a mano (1/4 en 00, 1/4 en FF, 1/2 en</span>
-   <span class="hljs-comment">// el medio). Con &quot;:=&quot; el peso se aplica a CADA valor del rango, asi que el</span>
-   <span class="hljs-comment">// medio se lleva 254 de 256 y 00 sale 1 vez cada 256: la distribucion queda</span>
-   <span class="hljs-comment">// practicamente uniforme y los bins de borde no se llenan nunca.</span>
-   <span class="hljs-comment">// La unidad de Constrained Random tiene el experimento con los numeros.</span>
+   <span class="hljs-comment">// :/ and NOT :=  ---  this is the line that reproduces the bias towards the</span>
+   <span class="hljs-comment">// corner cases that get_data() of the Functional coverage section did by hand (1/4 at 00, 1/4 at FF,</span>
+   <span class="hljs-comment">// 1/2 in the middle). With &quot;:=&quot; the weight applies to EVERY value of the range, so the</span>
+   <span class="hljs-comment">// middle takes 254 out of 256 and 00 comes up once every 256: the distribution</span>
+   <span class="hljs-comment">// ends up almost uniform and the corner bins never fill.</span>
+   <span class="hljs-comment">// The Constrained Random unit has the experiment with the numbers.</span>
    <span class="hljs-keyword">constraint</span> data {
       A <span class="hljs-keyword">dist</span> {
          <span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>,
@@ -841,12 +841,12 @@ se declara el sesgo a los bordes</li>
    <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> B;
    <span class="hljs-keyword">rand</span> operation_t   op;
 
-   <span class="hljs-comment">// :/ y NO :=  ---  esta es la linea que reproduce el sesgo a los casos borde</span>
-   <span class="hljs-comment">// que el get_data() de la seccion Cobertura funcional hacia a mano (1/4 en 00, 1/4 en FF, 1/2 en</span>
-   <span class="hljs-comment">// el medio). Con &quot;:=&quot; el peso se aplica a CADA valor del rango, asi que el</span>
-   <span class="hljs-comment">// medio se lleva 254 de 256 y 00 sale 1 vez cada 256: la distribucion queda</span>
-   <span class="hljs-comment">// practicamente uniforme y los bins de borde no se llenan nunca.</span>
-   <span class="hljs-comment">// La unidad de Constrained Random tiene el experimento con los numeros.</span>
+   <span class="hljs-comment">// :/ and NOT :=  ---  this is the line that reproduces the bias towards the</span>
+   <span class="hljs-comment">// corner cases that get_data() of the Functional coverage section did by hand (1/4 at 00, 1/4 at FF,</span>
+   <span class="hljs-comment">// 1/2 in the middle). With &quot;:=&quot; the weight applies to EVERY value of the range, so the</span>
+   <span class="hljs-comment">// middle takes 254 out of 256 and 00 comes up once every 256: the distribution</span>
+   <span class="hljs-comment">// ends up almost uniform and the corner bins never fill.</span>
+   <span class="hljs-comment">// The Constrained Random unit has the experiment with the numbers.</span>
    <span class="hljs-keyword">constraint</span> data {
       A <span class="hljs-keyword">dist</span> {
          <span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>,
@@ -941,7 +941,7 @@ verificación pide operaciones después de un reset.</p>
 corre; los componentes se construyen una vez, antes de arrancar, y se quedan</li>
 <li>Igual conviene darles nombre: es el que aparece en los mensajes de UVM</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction_constructor.svh</code></figcaption><pre><code class="hljs">   <span class="hljs-comment">// Constructor para uvm_object. Ultra Sencillo</span>
+<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction_constructor.svh</code></figcaption><pre><code class="hljs">   <span class="hljs-comment">// Constructor for a uvm_object. Dead simple</span>
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span> (<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;&quot;</span>);
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span></code></pre></figure><div class="nota">
@@ -970,7 +970,7 @@ copiar, pero no sabe <strong>qué campos</strong> tiene tu transaction</li>
 <figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction_do_copy.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(<span class="hljs-uvm-type">uvm_object</span> rhs);
    command_transaction copied_transaction_h;
 
-   <span class="hljs-comment">// Chequeos que facilitan el DEBUG</span>
+   <span class="hljs-comment">// Checks that make DEBUG easier</span>
    <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy from a null pointer&quot;</span>)
 
    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(copied_transaction_h, rhs))
@@ -1081,7 +1081,7 @@ política de comparación: cuántas diferencias reportar y con qué verbosidad</
    <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
       <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to do comparison to a null pointer&quot;</span>);
 
-   <span class="hljs-comment">// Primero vemos si estamos comparando el mismo tipo</span>
+   <span class="hljs-comment">// First check whether we are comparing the same type</span>
    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(compared_transaction_h, rhs)) same = <span class="hljs-number">0</span>;
    <span class="hljs-keyword">else</span>
       <span class="hljs-comment">// Deep Comparation</span>
@@ -1247,20 +1247,20 @@ experimento de Constrained Random.</p>
 
       phase.raise_objection(<span class="hljs-keyword">this</span>);
 
-      <span class="hljs-comment">// TODAS las transactions salen de la factory, tambien las dirigidas.</span>
-      <span class="hljs-comment">// Un new() aca compilaria y andaria igual, pero se saltearia el</span>
-      <span class="hljs-comment">// set_type_override de add_test: la factory no se entera de lo que</span>
-      <span class="hljs-comment">// construis a mano. Ver la slide &quot;el new() que se come el override&quot;.</span>
+      <span class="hljs-comment">// ALL transactions come out of the factory, the directed ones too.</span>
+      <span class="hljs-comment">// A new() here would compile and work just the same, but it would skip</span>
+      <span class="hljs-comment">// add_test&#x27;s set_type_override: the factory never hears about what you</span>
+      <span class="hljs-comment">// build by hand. See the slide &quot;the new() that eats the override&quot;.</span>
       command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
       command.op = rst_op;
       command_port.put(command);
 
       <span class="hljs-keyword">repeat</span> (<span class="hljs-number">1000</span>) <span class="hljs-keyword">begin</span> : random_loop
          command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
-         <span class="hljs-comment">// randomize() devuelve 0 si las constraints no tienen solucion, y no</span>
-         <span class="hljs-comment">// aborta nada. Un assert() pelado deja pasar en silencio una</span>
-         <span class="hljs-comment">// transaction sin randomizar: el TB sigue, mandando basura.</span>
-         <span class="hljs-keyword">if</span> (!command.<span class="hljs-keyword">randomize</span>()) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;TESTER&quot;</span>, <span class="hljs-string">&quot;randomize() fallo&quot;</span>)
+         <span class="hljs-comment">// randomize() returns 0 if the constraints have no solution, and aborts</span>
+         <span class="hljs-comment">// nothing. A bare assert() lets an unrandomized transaction through in</span>
+         <span class="hljs-comment">// silence: the TB carries on, sending garbage.</span>
+         <span class="hljs-keyword">if</span> (!command.<span class="hljs-keyword">randomize</span>()) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;TESTER&quot;</span>, <span class="hljs-string">&quot;randomize() failed&quot;</span>)
          command_port.put(command);
       <span class="hljs-keyword">end</span> : random_loop</code></pre><details><summary>el archivo entero, 49 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">tester</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(tester)
@@ -1280,27 +1280,27 @@ experimento de Constrained Random.</p>
 
       phase.raise_objection(<span class="hljs-keyword">this</span>);
 
-      <span class="hljs-comment">// TODAS las transactions salen de la factory, tambien las dirigidas.</span>
-      <span class="hljs-comment">// Un new() aca compilaria y andaria igual, pero se saltearia el</span>
-      <span class="hljs-comment">// set_type_override de add_test: la factory no se entera de lo que</span>
-      <span class="hljs-comment">// construis a mano. Ver la slide &quot;el new() que se come el override&quot;.</span>
+      <span class="hljs-comment">// ALL transactions come out of the factory, the directed ones too.</span>
+      <span class="hljs-comment">// A new() here would compile and work just the same, but it would skip</span>
+      <span class="hljs-comment">// add_test&#x27;s set_type_override: the factory never hears about what you</span>
+      <span class="hljs-comment">// build by hand. See the slide &quot;the new() that eats the override&quot;.</span>
       command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
       command.op = rst_op;
       command_port.put(command);
 
       <span class="hljs-keyword">repeat</span> (<span class="hljs-number">1000</span>) <span class="hljs-keyword">begin</span> : random_loop
          command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
-         <span class="hljs-comment">// randomize() devuelve 0 si las constraints no tienen solucion, y no</span>
-         <span class="hljs-comment">// aborta nada. Un assert() pelado deja pasar en silencio una</span>
-         <span class="hljs-comment">// transaction sin randomizar: el TB sigue, mandando basura.</span>
-         <span class="hljs-keyword">if</span> (!command.<span class="hljs-keyword">randomize</span>()) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;TESTER&quot;</span>, <span class="hljs-string">&quot;randomize() fallo&quot;</span>)
+         <span class="hljs-comment">// randomize() returns 0 if the constraints have no solution, and aborts</span>
+         <span class="hljs-comment">// nothing. A bare assert() lets an unrandomized transaction through in</span>
+         <span class="hljs-comment">// silence: the TB carries on, sending garbage.</span>
+         <span class="hljs-keyword">if</span> (!command.<span class="hljs-keyword">randomize</span>()) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;TESTER&quot;</span>, <span class="hljs-string">&quot;randomize() failed&quot;</span>)
          command_port.put(command);
       <span class="hljs-keyword">end</span> : random_loop
 
-      <span class="hljs-comment">// Dirigida: el caso de desborde del multiplicador, que 1000 operaciones</span>
-      <span class="hljs-comment">// al azar podrian no tocar nunca. Sale de la factory igual que las otras,</span>
-      <span class="hljs-comment">// pero como no se randomiza, la constraint de add_transaction no corre:</span>
-      <span class="hljs-comment">// la factory elige el TIPO, las constraints solo actuan en randomize().</span>
+      <span class="hljs-comment">// Directed: the multiplier overflow case, which 1000 random operations</span>
+      <span class="hljs-comment">// might never touch. It comes out of the factory like the others, but</span>
+      <span class="hljs-comment">// since it is not randomized, add_transaction&#x27;s constraint does not run:</span>
+      <span class="hljs-comment">// the factory picks the TYPE, constraints only act inside randomize().</span>
       command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
       command.op = mul_op;
       command.A = <span class="hljs-number">8&#x27;hFF</span>;
@@ -1395,8 +1395,8 @@ error se arma solo con los <code>convert2string()</code> de las tres transaction
          mul_op: predicted.result = cmd.A * cmd.B;
       <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (op_set)</span>
 
-      <span class="hljs-comment">// El ovf es del sub y de nadie mas: con 8 bits de entrada y 16 de</span>
-      <span class="hljs-comment">// salida, ni la suma ni la multiplicacion se pasan.</span>
+      <span class="hljs-comment">// ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit</span>
+      <span class="hljs-comment">// output, neither the addition nor the multiplication can overflow.</span>
       predicted.ovf = (cmd.op == sub_op) &amp;&amp; (cmd.A &lt; cmd.B);
 
       <span class="hljs-keyword">return</span> predicted;
@@ -1667,32 +1667,32 @@ un <code>dist</code>, corré un histograma antes de creerle.</p>
 <section id="s257" class="slide">
 <h2 id="constrained-random">Constrained random</h2>
 <h4 id="no-lo-supongas-medilo"><em>No lo supongas: medilo</em></h4>
-<figure class="codigo"><figcaption><code>code/u6/transactions/constraints/01_dist.sv</code> · líneas 8-19 de 49</figcaption><pre><code class="hljs">   <span class="hljs-comment">// El peso va a CADA valor del rango: el medio se lleva 254 de 256.</span>
+<figure class="codigo"><figcaption><code>code/u6/transactions/constraints/01_dist.sv</code> · líneas 8-19 de 49</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The weight goes to EVERY value of the range: the middle takes 254 of 256.</span>
    <span class="hljs-keyword">class</span> <span class="hljs-title">por_valor</span>;
       <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
       <span class="hljs-keyword">constraint</span> data {A <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> := <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] := <span class="hljs-number">1</span>, <span class="hljs-number">8&#x27;hFF</span> := <span class="hljs-number">1</span>};}
    <span class="hljs-keyword">endclass</span>
 
-   <span class="hljs-comment">// El peso se REPARTE dentro del rango: 1/4 en 00, 1/2 en el medio, 1/4 en FF.</span>
-   <span class="hljs-comment">// Es el mismo sesgo que el get_data() de la seccion Cobertura funcional hacia a mano.</span>
+   <span class="hljs-comment">// The weight is SPLIT inside the range: 1/4 at 00, 1/2 in the middle, 1/4 at FF.</span>
+   <span class="hljs-comment">// It is the same bias get_data() of the Functional coverage section did by hand.</span>
    <span class="hljs-keyword">class</span> <span class="hljs-title">por_rango</span>;
       <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
       <span class="hljs-keyword">constraint</span> data {A <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>, <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>};}
-   <span class="hljs-keyword">endclass</span></code></pre><details><summary>el archivo entero, 49 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Constrained Random 1 -- dist: &quot;:=&quot; y &quot;:/&quot; NO reparten igual.</span>
+   <span class="hljs-keyword">endclass</span></code></pre><details><summary>el archivo entero, 49 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Constrained Random 1 -- dist: &quot;:=&quot; and &quot;:/&quot; do NOT hand out the same way.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// El curso pide en su plan de verificacion &quot;entradas todas en 0 y todas en 1&quot;.</span>
-<span class="hljs-comment">// Si el sesgo no existe, esos bins no se llenan y la cobertura se clava. Este</span>
-<span class="hljs-comment">// ejemplo mide el sesgo de las dos escrituras en vez de creerle a la intuicion.</span>
+<span class="hljs-comment">// The verification plan of the course asks for &quot;inputs all 0s and all 1s&quot;.</span>
+<span class="hljs-comment">// Without the bias those bins never fill and the coverage stalls. This example</span>
+<span class="hljs-comment">// measures the bias of both spellings instead of trusting intuition.</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">top_dist</span>;
 
-   <span class="hljs-comment">// El peso va a CADA valor del rango: el medio se lleva 254 de 256.</span>
+   <span class="hljs-comment">// The weight goes to EVERY value of the range: the middle takes 254 of 256.</span>
    <span class="hljs-keyword">class</span> <span class="hljs-title">por_valor</span>;
       <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
       <span class="hljs-keyword">constraint</span> data {A <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> := <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] := <span class="hljs-number">1</span>, <span class="hljs-number">8&#x27;hFF</span> := <span class="hljs-number">1</span>};}
    <span class="hljs-keyword">endclass</span>
 
-   <span class="hljs-comment">// El peso se REPARTE dentro del rango: 1/4 en 00, 1/2 en el medio, 1/4 en FF.</span>
-   <span class="hljs-comment">// Es el mismo sesgo que el get_data() de la seccion Cobertura funcional hacia a mano.</span>
+   <span class="hljs-comment">// The weight is SPLIT inside the range: 1/4 at 00, 1/2 in the middle, 1/4 at FF.</span>
+   <span class="hljs-comment">// It is the same bias get_data() of the Functional coverage section did by hand.</span>
    <span class="hljs-keyword">class</span> <span class="hljs-title">por_rango</span>;
       <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
       <span class="hljs-keyword">constraint</span> data {A <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>, <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>};}
@@ -1709,19 +1709,19 @@ un <code>dist</code>, corré un histograma antes de creerle.</p>
       r = <span class="hljs-keyword">new</span>();
 
       <span class="hljs-keyword">repeat</span> (N) <span class="hljs-keyword">begin</span>
-         <span class="hljs-keyword">if</span> (!v.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() de por_valor fallo&quot;</span>);
+         <span class="hljs-keyword">if</span> (!v.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;por_valor randomize() failed&quot;</span>);
          <span class="hljs-keyword">if</span> (v.A == <span class="hljs-number">8&#x27;h00</span>) v00 = v00 + <span class="hljs-number">1</span>;
          <span class="hljs-keyword">if</span> (v.A == <span class="hljs-number">8&#x27;hFF</span>) vff = vff + <span class="hljs-number">1</span>;
 
-         <span class="hljs-keyword">if</span> (!r.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() de por_rango fallo&quot;</span>);
+         <span class="hljs-keyword">if</span> (!r.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;por_rango randomize() failed&quot;</span>);
          <span class="hljs-keyword">if</span> (r.A == <span class="hljs-number">8&#x27;h00</span>) r00 = r00 + <span class="hljs-number">1</span>;
          <span class="hljs-keyword">if</span> (r.A == <span class="hljs-number">8&#x27;hFF</span>) rff = rff + <span class="hljs-number">1</span>;
       <span class="hljs-keyword">end</span>
 
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;%0d randomizaciones de cada version&quot;</span>, N);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  :=   A=00 %5.1f%%   A=FF %5.1f%%   el peso va a cada valor&quot;</span>,
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;%0d randomizations of each version&quot;</span>, N);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  :=   A=00 %5.1f%%   A=FF %5.1f%%   the weight goes to each value&quot;</span>,
                <span class="hljs-number">100.0</span> * v00 / N, <span class="hljs-number">100.0</span> * vff / N);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  :/   A=00 %5.1f%%   A=FF %5.1f%%   el peso se reparte&quot;</span>,
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  :/   A=00 %5.1f%%   A=FF %5.1f%%   the weight gets split&quot;</span>,
                <span class="hljs-number">100.0</span> * r00 / N, <span class="hljs-number">100.0</span> * rff / N);
       <span class="hljs-built_in">$finish</span>;
    <span class="hljs-keyword">end</span>
@@ -1762,12 +1762,12 @@ diez minutos y es la diferencia entre creer y saber.</p>
          B <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>, <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>};
       }
 
-      <span class="hljs-comment">// inside es un conjunto de valores legales. Sin esto el random tambien</span>
-      <span class="hljs-comment">// pide no_op y rst_op, que no calculan nada.</span>
-      <span class="hljs-keyword">constraint</span> utiles {op <span class="hljs-keyword">inside</span> {add_op, and_op, xor_op, mul_op};}</code></pre><details><summary>el archivo entero, 74 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Constrained Random 2 -- inside, y randomize() with {}.</span>
+      <span class="hljs-comment">// inside is a set of legal values. Without it the random also asks for</span>
+      <span class="hljs-comment">// no_op and rst_op, which compute nothing.</span>
+      <span class="hljs-keyword">constraint</span> utiles {op <span class="hljs-keyword">inside</span> {add_op, and_op, xor_op, mul_op};}</code></pre><details><summary>el archivo entero, 74 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Constrained Random 2 -- inside, and randomize() with {}.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// La constraint de la clase da el grueso del estimulo. El caso dirigido se pide</span>
-<span class="hljs-comment">// en el punto de uso, sin tocar la clase y sin escribir un tester nuevo.</span>
+<span class="hljs-comment">// The class constraint gives the bulk of the stimulus. The directed case is asked</span>
+<span class="hljs-comment">// for at the point of use, without touching the class and without a new tester.</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">top_with</span>;
 
    <span class="hljs-keyword">typedef</span> <span class="hljs-keyword">enum</span> <span class="hljs-type">bit</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] {
@@ -1790,8 +1790,8 @@ diez minutos y es la diferencia entre creer y saber.</p>
          B <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>, <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>};
       }
 
-      <span class="hljs-comment">// inside es un conjunto de valores legales. Sin esto el random tambien</span>
-      <span class="hljs-comment">// pide no_op y rst_op, que no calculan nada.</span>
+      <span class="hljs-comment">// inside is a set of legal values. Without it the random also asks for</span>
+      <span class="hljs-comment">// no_op and rst_op, which compute nothing.</span>
       <span class="hljs-keyword">constraint</span> utiles {op <span class="hljs-keyword">inside</span> {add_op, and_op, xor_op, mul_op};}
    <span class="hljs-keyword">endclass</span>
 
@@ -1803,51 +1803,51 @@ diez minutos y es la diferencia entre creer y saber.</p>
 
       c = <span class="hljs-keyword">new</span>();
 
-      <span class="hljs-comment">// El bin mul_max de la cobertura de la seccion Cobertura funcional: una multiplicacion con</span>
-      <span class="hljs-comment">// las dos patas en 0xFF. Es el desborde del multiplicador.</span>
+      <span class="hljs-comment">// The mul_max bin of the coverage in the Functional coverage section: a multiplication with</span>
+      <span class="hljs-comment">// both legs at 0xFF. It is the multiplier overflow.</span>
       <span class="hljs-keyword">repeat</span> (N) <span class="hljs-keyword">begin</span>
-         <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() fallo&quot;</span>);
+         <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() failed&quot;</span>);
          <span class="hljs-keyword">if</span> (c.op == mul_op &amp;&amp; c.A == <span class="hljs-number">8&#x27;hFF</span> &amp;&amp; c.B == <span class="hljs-number">8&#x27;hFF</span>) maximos = maximos + <span class="hljs-number">1</span>;
       <span class="hljs-keyword">end</span>
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;al azar:  %0d intentos, mul_max se lleno %0d vez/veces&quot;</span>, N, maximos);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;random:   %0d tries, mul_max filled %0d time(s)&quot;</span>, N, maximos);
 
-      <span class="hljs-comment">// Lo mismo, pedido: with {} agrega constraints SOLO para esta llamada.</span>
-      <span class="hljs-comment">// El pedido es satisfacible, pero en 5.052 el dist se resuelve eligiendo</span>
-      <span class="hljs-comment">// un valor ANTES de chequear el with: si el sorteado no cumple, devuelve</span>
-      <span class="hljs-comment">// 0 en vez de reintentar. Con A y B en dist, que las dos caigan en 0xFF</span>
-      <span class="hljs-comment">// es 1/4 x 1/4. Las tasas medidas estan en</span>
-      <span class="hljs-comment">// code/verilator/repro-dist-with.sv; el detalle en docs/verilator.md.</span>
+      <span class="hljs-comment">// The same thing, asked for: with {} adds constraints ONLY for this call.</span>
+      <span class="hljs-comment">// The request is satisfiable, but in 5.052 the dist is solved by picking a</span>
+      <span class="hljs-comment">// value BEFORE checking the with: if the draw does not comply, it returns</span>
+      <span class="hljs-comment">// 0 instead of retrying. With A and B on dist, both landing on 0xFF is</span>
+      <span class="hljs-comment">// 1/4 x 1/4. The measured rates are in</span>
+      <span class="hljs-comment">// code/verilator/repro-dist-with.sv; the detail in docs/verilator.md.</span>
       <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>() <span class="hljs-keyword">with</span> {
             op == mul_op;
             A  == <span class="hljs-number">8&#x27;hFF</span>;
             B  == <span class="hljs-number">8&#x27;hFF</span>;
           })
-         <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;con with: randomize() dio 0  &lt;- limitacion de Verilator, no tuya&quot;</span>);
+         <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;with with: randomize() gave 0  &lt;- a Verilator limitation, not yours&quot;</span>);
 
-      <span class="hljs-comment">// El rodeo portable mientras tanto: apagar el reparto, que para un caso</span>
-      <span class="hljs-comment">// dirigido no tiene sentido de todos modos.</span>
+      <span class="hljs-comment">// The portable workaround meanwhile: turn off the split, which for a</span>
+      <span class="hljs-comment">// directed case makes no sense anyway.</span>
       c.data.constraint_mode(<span class="hljs-number">0</span>);
       <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>() <span class="hljs-keyword">with</span> {
             op == mul_op;
             A  == <span class="hljs-number">8&#x27;hFF</span>;
             B  == <span class="hljs-number">8&#x27;hFF</span>;
           })
-         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() with fallo hasta con la constraint apagada&quot;</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;con with: 1 intento,   A=%2h %s B=%2h&quot;</span>, c.A, c.op.name(), c.B);
+         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() with failed even with the constraint turned off&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;with with: 1 try,      A=%2h %s B=%2h&quot;</span>, c.A, c.op.name(), c.B);
       <span class="hljs-built_in">$finish</span>;
    <span class="hljs-keyword">end</span>
 
 <span class="hljs-keyword">endmodule</span> : top_with</code></pre></details></figure>
 
-<figure class="codigo"><figcaption><code>code/u6/transactions/constraints/02_with.sv</code> · líneas 53-58 de 74</figcaption><pre><code class="hljs">      <span class="hljs-comment">// code/verilator/repro-dist-with.sv; el detalle en docs/verilator.md.</span>
+<figure class="codigo"><figcaption><code>code/u6/transactions/constraints/02_with.sv</code> · líneas 53-58 de 74</figcaption><pre><code class="hljs">      <span class="hljs-comment">// code/verilator/repro-dist-with.sv; the detail in docs/verilator.md.</span>
       <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>() <span class="hljs-keyword">with</span> {
             op == mul_op;
             A  == <span class="hljs-number">8&#x27;hFF</span>;
             B  == <span class="hljs-number">8&#x27;hFF</span>;
-          })</code></pre><details><summary>el archivo entero, 74 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Constrained Random 2 -- inside, y randomize() with {}.</span>
+          })</code></pre><details><summary>el archivo entero, 74 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Constrained Random 2 -- inside, and randomize() with {}.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// La constraint de la clase da el grueso del estimulo. El caso dirigido se pide</span>
-<span class="hljs-comment">// en el punto de uso, sin tocar la clase y sin escribir un tester nuevo.</span>
+<span class="hljs-comment">// The class constraint gives the bulk of the stimulus. The directed case is asked</span>
+<span class="hljs-comment">// for at the point of use, without touching the class and without a new tester.</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">top_with</span>;
 
    <span class="hljs-keyword">typedef</span> <span class="hljs-keyword">enum</span> <span class="hljs-type">bit</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] {
@@ -1870,8 +1870,8 @@ diez minutos y es la diferencia entre creer y saber.</p>
          B <span class="hljs-keyword">dist</span> {<span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>, [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>, <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>};
       }
 
-      <span class="hljs-comment">// inside es un conjunto de valores legales. Sin esto el random tambien</span>
-      <span class="hljs-comment">// pide no_op y rst_op, que no calculan nada.</span>
+      <span class="hljs-comment">// inside is a set of legal values. Without it the random also asks for</span>
+      <span class="hljs-comment">// no_op and rst_op, which compute nothing.</span>
       <span class="hljs-keyword">constraint</span> utiles {op <span class="hljs-keyword">inside</span> {add_op, and_op, xor_op, mul_op};}
    <span class="hljs-keyword">endclass</span>
 
@@ -1883,37 +1883,37 @@ diez minutos y es la diferencia entre creer y saber.</p>
 
       c = <span class="hljs-keyword">new</span>();
 
-      <span class="hljs-comment">// El bin mul_max de la cobertura de la seccion Cobertura funcional: una multiplicacion con</span>
-      <span class="hljs-comment">// las dos patas en 0xFF. Es el desborde del multiplicador.</span>
+      <span class="hljs-comment">// The mul_max bin of the coverage in the Functional coverage section: a multiplication with</span>
+      <span class="hljs-comment">// both legs at 0xFF. It is the multiplier overflow.</span>
       <span class="hljs-keyword">repeat</span> (N) <span class="hljs-keyword">begin</span>
-         <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() fallo&quot;</span>);
+         <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() failed&quot;</span>);
          <span class="hljs-keyword">if</span> (c.op == mul_op &amp;&amp; c.A == <span class="hljs-number">8&#x27;hFF</span> &amp;&amp; c.B == <span class="hljs-number">8&#x27;hFF</span>) maximos = maximos + <span class="hljs-number">1</span>;
       <span class="hljs-keyword">end</span>
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;al azar:  %0d intentos, mul_max se lleno %0d vez/veces&quot;</span>, N, maximos);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;random:   %0d tries, mul_max filled %0d time(s)&quot;</span>, N, maximos);
 
-      <span class="hljs-comment">// Lo mismo, pedido: with {} agrega constraints SOLO para esta llamada.</span>
-      <span class="hljs-comment">// El pedido es satisfacible, pero en 5.052 el dist se resuelve eligiendo</span>
-      <span class="hljs-comment">// un valor ANTES de chequear el with: si el sorteado no cumple, devuelve</span>
-      <span class="hljs-comment">// 0 en vez de reintentar. Con A y B en dist, que las dos caigan en 0xFF</span>
-      <span class="hljs-comment">// es 1/4 x 1/4. Las tasas medidas estan en</span>
-      <span class="hljs-comment">// code/verilator/repro-dist-with.sv; el detalle en docs/verilator.md.</span>
+      <span class="hljs-comment">// The same thing, asked for: with {} adds constraints ONLY for this call.</span>
+      <span class="hljs-comment">// The request is satisfiable, but in 5.052 the dist is solved by picking a</span>
+      <span class="hljs-comment">// value BEFORE checking the with: if the draw does not comply, it returns</span>
+      <span class="hljs-comment">// 0 instead of retrying. With A and B on dist, both landing on 0xFF is</span>
+      <span class="hljs-comment">// 1/4 x 1/4. The measured rates are in</span>
+      <span class="hljs-comment">// code/verilator/repro-dist-with.sv; the detail in docs/verilator.md.</span>
       <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>() <span class="hljs-keyword">with</span> {
             op == mul_op;
             A  == <span class="hljs-number">8&#x27;hFF</span>;
             B  == <span class="hljs-number">8&#x27;hFF</span>;
           })
-         <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;con with: randomize() dio 0  &lt;- limitacion de Verilator, no tuya&quot;</span>);
+         <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;with with: randomize() gave 0  &lt;- a Verilator limitation, not yours&quot;</span>);
 
-      <span class="hljs-comment">// El rodeo portable mientras tanto: apagar el reparto, que para un caso</span>
-      <span class="hljs-comment">// dirigido no tiene sentido de todos modos.</span>
+      <span class="hljs-comment">// The portable workaround meanwhile: turn off the split, which for a</span>
+      <span class="hljs-comment">// directed case makes no sense anyway.</span>
       c.data.constraint_mode(<span class="hljs-number">0</span>);
       <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>() <span class="hljs-keyword">with</span> {
             op == mul_op;
             A  == <span class="hljs-number">8&#x27;hFF</span>;
             B  == <span class="hljs-number">8&#x27;hFF</span>;
           })
-         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() with fallo hasta con la constraint apagada&quot;</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;con with: 1 intento,   A=%2h %s B=%2h&quot;</span>, c.A, c.op.name(), c.B);
+         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() with failed even with the constraint turned off&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;with with: 1 try,      A=%2h %s B=%2h&quot;</span>, c.A, c.op.name(), c.B);
       <span class="hljs-built_in">$finish</span>;
    <span class="hljs-keyword">end</span>
 
@@ -1928,9 +1928,12 @@ tester nuevo. Es la herramienta del <em>coverage closure</em></li>
 </ul>
 <div class="nota">
 <p>El número de la corrida es el argumento entero de la sección: 400 intentos al
-azar llenan <code>mul_max</code> unas 17 veces <strong>porque el <code>dist</code> sesga a los bordes</strong>. Con
-el <code>dist</code> mal escrito de la slide anterior, la probabilidad de que las dos patas
-caigan en <code>FF</code> es 1/65536 por operación: no lo tocás nunca.
+azar llenan <code>mul_max</code> un puñado de veces —6 con la semilla por defecto, entre 2 y
+8 según cuál uses— <strong>porque el <code>dist</code> sesga a los bordes</strong>. La cuenta conviene
+hacerla en voz alta: <code>op</code> sale uniforme entre cuatro y cada pata cae en <code>FF</code> una
+de cada cuatro, o sea 1/4 × 1/4 × 1/4 = <strong>1 de cada 64</strong>, que en 400 intentos son
+seis y pico. Con el <code>dist</code> mal escrito de la slide anterior, la probabilidad de
+que las dos patas caigan en <code>FF</code> es 1/65536 por operación: no lo tocás nunca.
 La secuencia mental es siempre la misma: corro random, miro qué bin quedó vacío,
 escribo un <code>with {}</code> de tres líneas, vuelvo a correr. Nunca &quot;escribo 73 tests&quot;.
 La limitación de Verilator que aparece en la salida está puesta a propósito, y
@@ -1995,22 +1998,22 @@ va donde hace falta y no por costumbre.</p>
       <span class="hljs-keyword">constraint</span> c {es_reset -&gt; A == <span class="hljs-number">8&#x27;h00</span>;}
    <span class="hljs-keyword">endclass</span>
 
-   <span class="hljs-comment">// La respuesta del lenguaje es &quot;solve es_reset before A&quot;: elegi el campo de</span>
-   <span class="hljs-comment">// control PRIMERO y despues resolve el resto. Verilator 5.052 acepta la</span>
-   <span class="hljs-comment">// sintaxis y NO la respeta -- deja es_reset clavado en 0, que es peor que</span>
-   <span class="hljs-comment">// ignorarla. Repro en code/verilator/repro-solve-before.sv.</span>
+   <span class="hljs-comment">// The language&#x27;s answer is &quot;solve es_reset before A&quot;: pick the control field</span>
+   <span class="hljs-comment">// FIRST and then solve the rest. Verilator 5.052 accepts the syntax and does</span>
+   <span class="hljs-comment">// NOT honour it -- it leaves es_reset stuck at 0, which is worse than</span>
+   <span class="hljs-comment">// ignoring it. Repro in code/verilator/repro-solve-before.sv.</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// El rodeo que si es portable: pedir explicitamente el reparto del campo de</span>
-   <span class="hljs-comment">// control. Dice lo mismo y no depende de que el solver ordene bien.</span>
+   <span class="hljs-comment">// The workaround that IS portable: ask explicitly for the split of the</span>
+   <span class="hljs-comment">// control field. It says the same and does not rely on the solver ordering well.</span>
    <span class="hljs-keyword">class</span> <span class="hljs-title">pareja</span> <span class="hljs-keyword">extends</span> sesgada;
       <span class="hljs-keyword">constraint</span> reparto {es_reset <span class="hljs-keyword">dist</span> {<span class="hljs-number">1&#x27;b0</span> :/ <span class="hljs-number">1</span>, <span class="hljs-number">1&#x27;b1</span> :/ <span class="hljs-number">1</span>};}
-   <span class="hljs-keyword">endclass</span></code></pre><details><summary>el archivo entero, 52 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Constrained Random 3 -- el orden de resolucion sesga sin avisar.</span>
+   <span class="hljs-keyword">endclass</span></code></pre><details><summary>el archivo entero, 52 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Constrained Random 3 -- the solve order biases without warning.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// La constraint de abajo parece inofensiva y es la trampa clasica: el solver</span>
-<span class="hljs-comment">// elige uniformemente entre las SOLUCIONES, no entre los valores de cada campo.</span>
-<span class="hljs-comment">// Con es_reset=1 hay una sola solucion (A=00); con es_reset=0 hay 256.</span>
-<span class="hljs-comment">// Resultado: el reset se pide 1 de cada 257 veces, y el bin &quot;cualquier</span>
-<span class="hljs-comment">// operacion despues de un reset&quot; del plan de la seccion Cobertura funcional no se llena nunca.</span>
+<span class="hljs-comment">// The constraint below looks harmless and is the classic trap: the solver picks</span>
+<span class="hljs-comment">// uniformly among the SOLUTIONS, not among the values of each field.</span>
+<span class="hljs-comment">// With es_reset=1 there is a single solution (A=00); with es_reset=0 there are 256.</span>
+<span class="hljs-comment">// Result: the reset gets asked for 1 in every 257 times, and the &quot;any</span>
+<span class="hljs-comment">// operation after a reset&quot; bin of the Functional coverage section plan never fills.</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">top_solve</span>;
 
    <span class="hljs-keyword">class</span> <span class="hljs-title">sesgada</span>;
@@ -2019,13 +2022,13 @@ va donde hace falta y no por costumbre.</p>
       <span class="hljs-keyword">constraint</span> c {es_reset -&gt; A == <span class="hljs-number">8&#x27;h00</span>;}
    <span class="hljs-keyword">endclass</span>
 
-   <span class="hljs-comment">// La respuesta del lenguaje es &quot;solve es_reset before A&quot;: elegi el campo de</span>
-   <span class="hljs-comment">// control PRIMERO y despues resolve el resto. Verilator 5.052 acepta la</span>
-   <span class="hljs-comment">// sintaxis y NO la respeta -- deja es_reset clavado en 0, que es peor que</span>
-   <span class="hljs-comment">// ignorarla. Repro en code/verilator/repro-solve-before.sv.</span>
+   <span class="hljs-comment">// The language&#x27;s answer is &quot;solve es_reset before A&quot;: pick the control field</span>
+   <span class="hljs-comment">// FIRST and then solve the rest. Verilator 5.052 accepts the syntax and does</span>
+   <span class="hljs-comment">// NOT honour it -- it leaves es_reset stuck at 0, which is worse than</span>
+   <span class="hljs-comment">// ignoring it. Repro in code/verilator/repro-solve-before.sv.</span>
    <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// El rodeo que si es portable: pedir explicitamente el reparto del campo de</span>
-   <span class="hljs-comment">// control. Dice lo mismo y no depende de que el solver ordene bien.</span>
+   <span class="hljs-comment">// The workaround that IS portable: ask explicitly for the split of the</span>
+   <span class="hljs-comment">// control field. It says the same and does not rely on the solver ordering well.</span>
    <span class="hljs-keyword">class</span> <span class="hljs-title">pareja</span> <span class="hljs-keyword">extends</span> sesgada;
       <span class="hljs-keyword">constraint</span> reparto {es_reset <span class="hljs-keyword">dist</span> {<span class="hljs-number">1&#x27;b0</span> :/ <span class="hljs-number">1</span>, <span class="hljs-number">1&#x27;b1</span> :/ <span class="hljs-number">1</span>};}
    <span class="hljs-keyword">endclass</span>
@@ -2041,17 +2044,17 @@ va donde hace falta y no por costumbre.</p>
       p = <span class="hljs-keyword">new</span>();
 
       <span class="hljs-keyword">repeat</span> (N) <span class="hljs-keyword">begin</span>
-         <span class="hljs-keyword">if</span> (!s.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() de sesgada fallo&quot;</span>);
+         <span class="hljs-keyword">if</span> (!s.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;sesgada randomize() failed&quot;</span>);
          <span class="hljs-keyword">if</span> (s.es_reset) s_reset = s_reset + <span class="hljs-number">1</span>;
 
-         <span class="hljs-keyword">if</span> (!p.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;randomize() de pareja fallo&quot;</span>);
+         <span class="hljs-keyword">if</span> (!p.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;pareja randomize() failed&quot;</span>);
          <span class="hljs-keyword">if</span> (p.es_reset) p_reset = p_reset + <span class="hljs-number">1</span>;
       <span class="hljs-keyword">end</span>
 
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;%0d randomizaciones de cada version&quot;</span>, N);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  tal cual              es_reset=1 en %5.1f%%   (1 de cada 257)&quot;</span>,
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;%0d randomizations of each version&quot;</span>, N);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  as written             es_reset=1 in %5.1f%%   (1 in 257)&quot;</span>,
                <span class="hljs-number">100.0</span> * s_reset / N);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  con dist en es_reset  es_reset=1 en %5.1f%%&quot;</span>, <span class="hljs-number">100.0</span> * p_reset / N);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  with dist on es_reset  es_reset=1 in %5.1f%%&quot;</span>, <span class="hljs-number">100.0</span> * p_reset / N);
       <span class="hljs-built_in">$finish</span>;
    <span class="hljs-keyword">end</span>
 
@@ -2095,25 +2098,25 @@ confíes en que salga parejo. Medilo.</p>
       comando c;
       c = <span class="hljs-keyword">new</span>();
 
-      <span class="hljs-comment">// 1. Las dos constraints activas: no hay ningun A que cumpla las dos.</span>
-      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;1. randomize() devolvio 0: las constraints no cierran&quot;</span>);
-      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;1. randomize() dio %2h  (no deberia llegar aca)&quot;</span>, c.A);
+      <span class="hljs-comment">// 1. Both constraints active: there is no A that satisfies the two.</span>
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;1. randomize() returned 0: the constraints do not close&quot;</span>);
+      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;1. randomize() gave %2h  (should not get here)&quot;</span>, c.A);
 
-      <span class="hljs-comment">// 2. constraint_mode(0) apaga una constraint en tiempo de ejecucion.</span>
+      <span class="hljs-comment">// 2. constraint_mode(0) turns a constraint off at run time.</span>
       c.grande.constraint_mode(<span class="hljs-number">0</span>);
-      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;2. randomize() devolvio 0  (no deberia llegar aca)&quot;</span>);
-      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;2. con &#x27;grande&#x27; apagada: A=%2h, y respeta &#x27;chico&#x27;&quot;</span>, c.A);
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;2. randomize() returned 0  (should not get here)&quot;</span>);
+      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;2. with &#x27;grande&#x27; turned off: A=%2h, and it honours &#x27;chico&#x27;&quot;</span>, c.A);
 
-      <span class="hljs-comment">// 3. rand_mode(0) saca al campo del sorteo: conserva su valor actual.</span>
+      <span class="hljs-comment">// 3. rand_mode(0) takes the field out of the draw: it keeps its current value.</span>
       c.A.rand_mode(<span class="hljs-number">0</span>);
-      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;3. randomize() devolvio 0  (no deberia llegar aca)&quot;</span>);
-      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;3. con A fuera del sorteo: A=%2h, el mismo de antes&quot;</span>, c.A);
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;3. randomize() returned 0  (should not get here)&quot;</span>);
+      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;3. with A out of the draw: A=%2h, the same as before&quot;</span>, c.A);
 
-      <span class="hljs-built_in">$finish</span>;</code></pre><details><summary>el archivo entero, 35 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Constrained Random 4 -- cuando randomize() devuelve 0, y como apagar cosas.</span>
+      <span class="hljs-built_in">$finish</span>;</code></pre><details><summary>el archivo entero, 35 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Constrained Random 4 -- when randomize() returns 0, and how to switch things off.</span>
 <span class="hljs-comment">//</span>
-<span class="hljs-comment">// randomize() no aborta ni imprime nada por su cuenta: devuelve 0 y sigue. Si</span>
-<span class="hljs-comment">// nadie mira el valor de retorno, el testbench manda una transaction sin</span>
-<span class="hljs-comment">// randomizar y el bug aparece tres componentes mas adelante.</span>
+<span class="hljs-comment">// randomize() neither aborts nor prints anything on its own: it returns 0 and</span>
+<span class="hljs-comment">// carries on. If nobody looks at the return value, the testbench sends an</span>
+<span class="hljs-comment">// unrandomized transaction and the bug shows up three components later.</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">top_falla</span>;
 
    <span class="hljs-keyword">class</span> <span class="hljs-title">comando</span>;
@@ -2126,19 +2129,19 @@ confíes en que salga parejo. Medilo.</p>
       comando c;
       c = <span class="hljs-keyword">new</span>();
 
-      <span class="hljs-comment">// 1. Las dos constraints activas: no hay ningun A que cumpla las dos.</span>
-      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;1. randomize() devolvio 0: las constraints no cierran&quot;</span>);
-      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;1. randomize() dio %2h  (no deberia llegar aca)&quot;</span>, c.A);
+      <span class="hljs-comment">// 1. Both constraints active: there is no A that satisfies the two.</span>
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;1. randomize() returned 0: the constraints do not close&quot;</span>);
+      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;1. randomize() gave %2h  (should not get here)&quot;</span>, c.A);
 
-      <span class="hljs-comment">// 2. constraint_mode(0) apaga una constraint en tiempo de ejecucion.</span>
+      <span class="hljs-comment">// 2. constraint_mode(0) turns a constraint off at run time.</span>
       c.grande.constraint_mode(<span class="hljs-number">0</span>);
-      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;2. randomize() devolvio 0  (no deberia llegar aca)&quot;</span>);
-      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;2. con &#x27;grande&#x27; apagada: A=%2h, y respeta &#x27;chico&#x27;&quot;</span>, c.A);
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;2. randomize() returned 0  (should not get here)&quot;</span>);
+      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;2. with &#x27;grande&#x27; turned off: A=%2h, and it honours &#x27;chico&#x27;&quot;</span>, c.A);
 
-      <span class="hljs-comment">// 3. rand_mode(0) saca al campo del sorteo: conserva su valor actual.</span>
+      <span class="hljs-comment">// 3. rand_mode(0) takes the field out of the draw: it keeps its current value.</span>
       c.A.rand_mode(<span class="hljs-number">0</span>);
-      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;3. randomize() devolvio 0  (no deberia llegar aca)&quot;</span>);
-      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;3. con A fuera del sorteo: A=%2h, el mismo de antes&quot;</span>, c.A);
+      <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>()) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;3. randomize() returned 0  (should not get here)&quot;</span>);
+      <span class="hljs-keyword">else</span> <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;3. with A out of the draw: A=%2h, the same as before&quot;</span>, c.A);
 
       <span class="hljs-built_in">$finish</span>;
    <span class="hljs-keyword">end</span>

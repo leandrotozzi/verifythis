@@ -13,10 +13,10 @@ class coverage extends uvm_component;
          bins single_cycle[] = {[add_op : xor_op], rst_op,no_op};
          bins multi_cycle = {mul_op};
 
-         // Bins de transicion. Verilator 5.052 todavia NO los implementa: cualquier
-         // forma con "=>" o "[* n]" aborta con un Internal Error. Repro minimo en
-         // code/verilator/repro-cg-transition.sv. Quedan aca porque son parte del tema;
-         // cuando Verilator los soporte, se borra el ifndef y nada mas.
+         // Transition bins. Verilator 5.052 does NOT implement them yet: any form
+         // with "=>" or "[* n]" aborts with an Internal Error. Minimal repro in
+         // code/verilator/repro-cg-transition.sv. They stay because they are part
+         // of the topic; when Verilator supports them, drop the ifndef, nothing else.
 `ifndef VERILATOR
          bins opn_rst[] = ([add_op:mul_op] => rst_op);
          bins rst_opn[] = (rst_op => [add_op:mul_op]);
@@ -48,9 +48,9 @@ class coverage extends uvm_component;
          bins others= {['h01:'hFE]};
          bins ones  = {'hFF};
       }
-      // rev2 del VTALU: el borrow de la resta, que es la fila del plan que el
-      // scoreboard solo puede cerrar mirando DOS salidas. Sin este bin, una
-      // resta que nunca dio negativa es indistinguible de una que si.
+      // VTALU rev2: the borrow of the subtraction, the row of the plan that the
+      // scoreboard can only close by looking at TWO outputs. Without this bin, a
+      // subtraction that never went negative looks exactly like one that did.
       borrow: coverpoint ((op_set == sub_op) && (A < B)) {
          bins hubo_borrow = {1};
          ignore_bins resto = {0};

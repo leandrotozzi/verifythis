@@ -1,36 +1,36 @@
 #!/bin/bash
-# Ejercicio del dia 5 (constrained random). Falla hasta que lo resuelvas.
+# Day 5 exercise (constrained random). It fails until you solve it.
 #
-#   bash run.sh              con tu archivo
-#   SOLUCION=1 bash run.sh   con el de solucion/, para comparar
-#   SEED=7 bash run.sh       con otra semilla: los numeros se mueven un poco
+#   bash run.sh              with your file
+#   SOLUCION=1 bash run.sh   with the one in solucion/, to compare
+#   SEED=7 bash run.sh       with another seed: the numbers move a little
 #
-# Sin UVM y sin DUT: compila y corre en segundos. Es el ejercicio para el que
-# tiene poco tiempo.
+# No UVM and no DUT: it compiles and runs in seconds. It is the exercise for
+# whoever is short on time.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
 SRC=${SOLUCION:+solucion/}
 vlt top_histograma -Wno-fatal -Wno-WIDTHTRUNC "${SRC}histograma.sv"
 run_sim
 
-falta() { echo "todavia no: $1" >&2; exit 1; }
+falta() { echo "not yet: $1" >&2; exit 1; }
 
-linea=$(grep -o 'HISTOGRAMA .*' "$VLT_LOG" | tail -1)
-[ -n "$linea" ] || falta "no salio la linea HISTOGRAMA: no toques el \$display"
+linea=$(grep -o 'HISTOGRAM .*' "$VLT_LOG" | tail -1)
+[ -n "$linea" ] || falta "the HISTOGRAM line did not come out: do not touch the \$display"
 
 leer() { echo "$linea" | sed -nE "s/.*$1=([0-9.]+).*/\1/p"; }
-ceros=$(leer 00); medio=$(leer medio); unos=$(leer FF)
+ceros=$(leer 00); medio=$(leer mid); unos=$(leer FF)
 
-# Tolerancia de +-2 puntos por casillero. bc no esta en todas las imagenes;
-# awk si, y ademas es el que ya usa common.sh.
+# Tolerance of +-2 points per bucket. bc is not in every image;
+# awk is, and it is also the one common.sh already uses.
 lejos() { awk -v v="$1" -v o="$2" 'BEGIN {exit !(v < o - 2 || v > o + 2)}'; }
 
 if lejos "$ceros" 10 || lejos "$unos" 10; then
-  falta "los bordes dan 00=$ceros% y FF=$unos%, y tienen que dar 10% cada uno.
-    Los pesos ya son 10, 80 y 10: el problema no son los numeros, es el
-    OPERADOR. Mira la slide 'dist: := no es lo mismo que :/' de la seccion Transactions."
+  falta "the edges give 00=$ceros% and FF=$unos%, and they have to give 10% each.
+    The weights already are 10, 80 and 10: the problem is not the numbers, it is the
+    OPERATOR. See the slide 'dist: := is not the same as :/' of the Transactions section."
 fi
 lejos "$medio" 80 &&
-  falta "el medio da $medio% y tiene que dar 80%"
+  falta "the middle gives $medio% and it has to give 80%"
 
-echo "EJERCICIO OK: 00=$ceros%  medio=$medio%  FF=$unos%  (objetivo 10/80/10, +-2)"
+echo "EXERCISE OK: 00=$ceros%  mid=$medio%  FF=$unos%  (target 10/80/10, +-2)"
