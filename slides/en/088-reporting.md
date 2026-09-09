@@ -1,4 +1,4 @@
-<!-- es-sha: dbecab2723da -->
+<!-- es-sha: 5c9f5d528669 -->
 ## Reporting
 
 #### *47 % of the time goes here*
@@ -160,7 +160,10 @@ Make it the name of the component, in capitals, and always the same one.
 Note:
 Worth running it live, because it is the cheapest demonstration of the section:
 the same `make u4/reporting` with and without `+UVM_VERBOSITY=UVM_HIGH`, and the log goes
-from twenty lines to a thousand. Without recompiling anything — it is the same binary.
+from 7 `uvm_info` to 22. Without recompiling anything — it is the same binary. They look
+like few because this example sends **ten** operations on purpose, so the transcript fits
+on the screen; with the thousand of the other sections the difference is three orders of
+magnitude.
 The detail that has to be said so that it does not surprise anybody later: the plusarg sets the
 ceiling of the **whole tree**, from `uvm_top` down. There is no way of asking for
 "high, but only the monitor" from the command line with this flag; for that
@@ -288,8 +291,10 @@ if you are aiming at a class, without.
 
 Note:
 The log on the slide is that of a scoreboard that adds wrong on purpose, and it is worth
-looking at the *Report Summary* at the end before the error: it is a thousand errors, one per
-transaction. That is the real problem the section comes to solve — not "the
+looking at the *Report Summary* at the end before the error: `UVM_ERROR : 2`, one for each
+`add_op` that came up in the ten operations of the example. That is the sum to do out loud:
+with the thousand operations of the other sections it is **a hundred-odd errors**, one per
+addition. That is the real problem the section comes to solve — not "the
 message is annoying", but that **the log stops being any use for looking for something else**.
 The question to throw at the group, because the wrong answer is the intuitive one:
 *"I lower the verbosity ceiling and that is it?"*. No. A `` `uvm_error `` has no

@@ -1,4 +1,4 @@
-<!-- es-sha: 1c4d1358c427 -->
+<!-- es-sha: c17f3821f756 -->
 <!-- .slide: id="apendice-trampas" -->
 
 ## Appendix · The 21 silent traps
@@ -104,7 +104,7 @@ second you understand exactly the one that is happening to you.
 | --- | --- | --- | :-- |
 | The log says **PASS** and the properties did not run | `--assert` is missing at compile time | the `cover property` at 0 is the only one that warns you | Assertions |
 | The property **always passes** | the antecedent never occurs, or the implication is the one that is wrong | one `cover property` per `assert property` | Assertions |
-| **185 false positives** and the DUT is healthy | you sample it with the edge it is written on | stimulus on `negedge`, response of the DUT on `posedge` | Assertions · d7 |
+| **145 false positives** and the DUT is healthy | you sample it with the edge it is written on | stimulus on `negedge`, response of the DUT on `posedge` | Assertions · d7 |
 | False positives **at the start** of every test | the `disable iff (!reset_n)` is missing | `default disable iff`, once, at the very top | Assertions |
 
 - The four are of the same family as the ones above, with one aggravating factor:
@@ -119,7 +119,7 @@ always the same and that is why it is worth repeating it until you are sick of i
 property` per `assert property`**.
 The first row is the cheapest to commit in this flow and it is worth showing it
 live: taking `--assert` out of the `run.sh` of `code/u8/assertions` leaves the run with `+BUG=1`
-at 0 `UVM_ERROR`. The 183 failures disappear without anything warning you.
+at 0 `UVM_ERROR`. The 154 failures disappear without anything warning you.
 The third is the lesson of the section and the only one on the list that is not in
 any tutorial. The wrong reflex, when the false positives show up, is to
 loosen the property until it shuts up: there you are left without a check and with the

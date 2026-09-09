@@ -425,7 +425,7 @@ El `done` del VTALU sale de un `always_ff`. ¿Qué implicación va en `start |??
 
 **43. El flanco de muestreo**
 
-Todas las properties del VTALU muestreadas en `@(posedge clk)` dan 185 errores sobre 1000 operaciones, y el DUT está sano. ¿Por qué?
+Todas las properties del VTALU muestreadas en `@(posedge clk)` dan 145 errores sobre 1000 operaciones, y el DUT está sano. ¿Por qué?
 
 - **a)** Falta el `disable iff (!reset_n)`
 - **b)** El `posedge` es demasiado rápido: hay que dividir el reloj

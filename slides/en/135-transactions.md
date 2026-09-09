@@ -1,4 +1,4 @@
-<!-- es-sha: 44a782ad2aef -->
+<!-- es-sha: 0bb5764edd65 -->
 ## Transactions
 
 #### *The testbench is well divided up, and the data is not*
@@ -6,10 +6,10 @@
 - The testbench is already well divided up, but **the data is still a `struct`**:
   `command_s` for the commands and a bare `shortint` for the results
 - A `struct` does nothing by itself. Printing a command is a `$sformatf` written
-  by hand, and it is written **four times**: tester, driver, coverage and
+  by hand, and it is written **three times**: the two monitors and the
   scoreboard
 - The same with randomizing and with comparing: every component builds its own,
-  and the day the `struct` gains a field you have to remember all four
+  and the day the `struct` gains a field you have to remember all three
 - And the result is not even a `struct`: it is a **bare** `shortint`, so the `ovf`
   of the VTALU —the second output— has nowhere to travel
 - A class, on the other hand, has methods: the data and what gets done with it
@@ -90,7 +90,8 @@ Which means the base class we pick today is the one that lets us go on tomorrow.
 #### *The randomized fields: the "before"*
 
 - Today the stimulus gets built with two hand-written functions, `get_op()` and
-  `get_data()`, which draw the values with `$random` and `$urandom_range`
+  `get_data()`, which draw the values with `$random` — the Verilog-95 one, with a
+  global seed
 - The legal range of `A` and `B` and the bias to the edges are properties **of the
   data**, not of the test — and yet they live in the tester
 - SystemVerilog already brings this ready-made, and there is no need to write a
@@ -103,9 +104,13 @@ It is worth reading this code as the "before" and asking the question before
 giving the answer: which part of this belongs to *the test* and which part
 belongs to *the data*? The legal range of A and B, and the bias to the edges, are
 properties of the data — they have nothing to do with what you want to test.
-The hand-written `$random` and `$urandom_range` are the symptom: every component
-that wants a valid command has to repeat them. And if the DUT changes, all of
-them have to be remembered.
+The hand-written `$random` is the symptom: every component that wants a valid
+command has to repeat it. And if the DUT changes, all of them have to be
+remembered.
+A detail that gets charged for in the seeds slide: `$random` is the Verilog-95
+one and has a **global seed**, so two threads calling it step on each other and
+the run is not reproducible. `$urandom` has a per-thread seed. The `randomize()`
+of the next slide uses the second one.
 The punchline for the next slide: SystemVerilog already brings this ready-made,
 and there is no need to write a single `$urandom`.
 

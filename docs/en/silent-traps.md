@@ -54,7 +54,7 @@ morning, and a slide cannot be googled.
 | --- | --- | --- | :-- |
 | The log says **PASS** and the properties did not run | `--assert` is missing at compile time | the `cover property` at 0 is the only one that warns you | Assertions |
 | The property **always passes** | the antecedent never occurs, or the implication is the one that is wrong | one `cover property` per `assert property` | Assertions |
-| **185 false positives** and the DUT is healthy | you sample it with the edge it is written on | stimulus on `negedge`, response of the DUT on `posedge` | Assertions · d7 |
+| **145 false positives** and the DUT is healthy | you sample it with the edge it is written on | stimulus on `negedge`, response of the DUT on `posedge` | Assertions · d7 |
 | False positives **at the start** of every test | the `disable iff (!reset_n)` is missing | `default disable iff`, once, at the very top | Assertions |
 
 ## And the one the clocking block brings

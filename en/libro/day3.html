@@ -1689,7 +1689,7 @@ always it is duplicated structure.</p>
 </section>
 
 <section id="s150" class="slide">
-<!-- es-sha: dbecab2723da -->
+<!-- es-sha: 5c9f5d528669 -->
 <h2 id="reporting">Reporting</h2>
 <h4 id="47--of-the-time-goes-here"><em>47 % of the time goes here</em></h4>
 <ul>
@@ -1868,7 +1868,10 @@ messages, raising the global ceiling brings you everybody&#39;s</li>
 <figure class="codigo"><figcaption><code>code/u4/reporting/tb_classes/verbosity_ceiling.txt</code></figcaption><pre><code class="hljs">./obj_dir/top/sim +UVM_TESTNAME=random_test +UVM_VERBOSITY=UVM_HIGH</code></pre></figure><div class="nota">
 <p>Worth running it live, because it is the cheapest demonstration of the section:
 the same <code>make u4/reporting</code> with and without <code>+UVM_VERBOSITY=UVM_HIGH</code>, and the log goes
-from twenty lines to a thousand. Without recompiling anything — it is the same binary.
+from 7 <code>uvm_info</code> to 22. Without recompiling anything — it is the same binary. They look
+like few because this example sends <strong>ten</strong> operations on purpose, so the transcript fits
+on the screen; with the thousand of the other sections the difference is three orders of
+magnitude.
 The detail that has to be said so that it does not surprise anybody later: the plusarg sets the
 ceiling of the <strong>whole tree</strong>, from <code>uvm_top</code> down. There is no way of asking for
 &quot;high, but only the monitor&quot; from the command line with this flag; for that
@@ -2012,8 +2015,10 @@ UVM_FATAL :    0
 - S i m u l a t i o n   R e p o r t: Verilator 5.052 2026-09-05
 - Verilator: $finish at 820ps</code></pre></figure><div class="nota">
 <p>The log on the slide is that of a scoreboard that adds wrong on purpose, and it is worth
-looking at the <em>Report Summary</em> at the end before the error: it is a thousand errors, one per
-transaction. That is the real problem the section comes to solve — not &quot;the
+looking at the <em>Report Summary</em> at the end before the error: <code>UVM_ERROR : 2</code>, one for each
+<code>add_op</code> that came up in the ten operations of the example. That is the sum to do out loud:
+with the thousand operations of the other sections it is <strong>a hundred-odd errors</strong>, one per
+addition. That is the real problem the section comes to solve — not &quot;the
 message is annoying&quot;, but that <strong>the log stops being any use for looking for something else</strong>.
 The question to throw at the group, because the wrong answer is the intuitive one:
 <em>&quot;I lower the verbosity ceiling and that is it?&quot;</em>. No. A <code>`uvm_error</code> has no

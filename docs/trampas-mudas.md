@@ -54,7 +54,7 @@ mañana, y una diapositiva no se puede googlear.
 | --- | --- | --- | :-- |
 | El log dice **PASS** y las properties no corrieron | falta `--assert` al compilar | el `cover property` en 0 es el único que avisa | Assertions |
 | La property **pasa siempre** | el antecedente nunca ocurre, o la implicación es la que no va | un `cover property` por cada `assert property` | Assertions |
-| **185 falsos positivos** y el DUT está sano | la muestreás con el flanco en el que se escribe | estímulo en `negedge`, respuesta del DUT en `posedge` | Assertions · d7 |
+| **145 falsos positivos** y el DUT está sano | la muestreás con el flanco en el que se escribe | estímulo en `negedge`, respuesta del DUT en `posedge` | Assertions · d7 |
 | Falsos positivos **al arrancar** cada test | falta el `disable iff (!reset_n)` | `default disable iff`, una vez, arriba de todo | Assertions |
 
 ## Y la que trae el clocking block

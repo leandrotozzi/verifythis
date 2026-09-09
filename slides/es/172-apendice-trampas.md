@@ -103,7 +103,7 @@ segunda se entiende justo la que te está pasando.
 | --- | --- | --- | :-- |
 | El log dice **PASS** y las properties no corrieron | falta `--assert` al compilar | el `cover property` en 0 es el único que avisa | Assertions |
 | La property **pasa siempre** | el antecedente nunca ocurre, o la implicación es la que no va | un `cover property` por cada `assert property` | Assertions |
-| **185 falsos positivos** y el DUT está sano | la muestreás con el flanco en el que se escribe | estímulo en `negedge`, respuesta del DUT en `posedge` | Assertions · d7 |
+| **145 falsos positivos** y el DUT está sano | la muestreás con el flanco en el que se escribe | estímulo en `negedge`, respuesta del DUT en `posedge` | Assertions · d7 |
 | Falsos positivos **al arrancar** cada test | falta el `disable iff (!reset_n)` | `default disable iff`, una vez, arriba de todo | Assertions |
 
 - Las cuatro son de la misma familia que las de arriba, con un agravante:
@@ -118,7 +118,7 @@ siempre el mismo y por eso vale repetirlo hasta el cansancio: **un `cover
 property` por cada `assert property`**.
 La primera fila es la más barata de cometer en este flujo y conviene mostrarla en
 vivo: sacar `--assert` del `run.sh` de `code/u8/assertions` deja la corrida con `+BUG=1`
-en 0 `UVM_ERROR`. Las 183 fallas desaparecen sin que nada avise.
+en 0 `UVM_ERROR`. Las 154 fallas desaparecen sin que nada avise.
 La tercera es la lección de la sección y la única de la lista que no está en
 ningún tutorial. El reflejo equivocado, cuando aparecen los falsos positivos, es
 aflojar la property hasta que calle: ahí uno se queda sin chequeo y con la

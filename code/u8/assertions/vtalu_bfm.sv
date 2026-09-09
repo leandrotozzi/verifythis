@@ -146,7 +146,7 @@ interface vtalu_bfm;
    // is not seen on that negedge: it is seen on the next one. With everything on
    // posedge, two consecutive no_op -- start goes down at t=111 and back up at
    // t=120, between two posedges -- read as ONE transaction with the operands
-   // changing: 185 false positives every 1000 operations. With everything on
+   // changing: 145 false positives every 1000 operations. With everything on
    // negedge, the false positives move to the done properties.
    //
    //   stimulus (start, A, B, op_set)  -> negedge, where the BFM writes

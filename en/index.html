@@ -5344,7 +5344,7 @@ always it is duplicated structure.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: dbecab2723da -->
+<!-- es-sha: 5c9f5d528669 -->
 ## Reporting
 
 #### *47 % of the time goes here*
@@ -5535,7 +5535,10 @@ Make it the name of the component, in capitals, and always the same one.
 Note:
 Worth running it live, because it is the cheapest demonstration of the section:
 the same `make u4/reporting` with and without `+UVM_VERBOSITY=UVM_HIGH`, and the log goes
-from twenty lines to a thousand. Without recompiling anything — it is the same binary.
+from 7 `uvm_info` to 22. Without recompiling anything — it is the same binary. They look
+like few because this example sends **ten** operations on purpose, so the transcript fits
+on the screen; with the thousand of the other sections the difference is three orders of
+magnitude.
 The detail that has to be said so that it does not surprise anybody later: the plusarg sets the
 ceiling of the **whole tree**, from `uvm_top` down. There is no way of asking for
 "high, but only the monitor" from the command line with this flag; for that
@@ -5686,8 +5689,10 @@ UVM_FATAL :    0
 
 Note:
 The log on the slide is that of a scoreboard that adds wrong on purpose, and it is worth
-looking at the *Report Summary* at the end before the error: it is a thousand errors, one per
-transaction. That is the real problem the section comes to solve — not "the
+looking at the *Report Summary* at the end before the error: `UVM_ERROR : 2`, one for each
+`add_op` that came up in the ten operations of the example. That is the sum to do out loud:
+with the thousand operations of the other sections it is **a hundred-odd errors**, one per
+addition. That is the real problem the section comes to solve — not "the
 message is annoying", but that **the log stops being any use for looking for something else**.
 The question to throw at the group, because the wrong answer is the intuitive one:
 *"I lower the verbosity ceiling and that is it?"*. No. A `` `uvm_error `` has no
@@ -8448,7 +8453,7 @@ ready-made — which is exactly the unit that follows.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 44a782ad2aef -->
+<!-- es-sha: 0bb5764edd65 -->
 ## Transactions
 
 #### *The testbench is well divided up, and the data is not*
@@ -8456,10 +8461,10 @@ ready-made — which is exactly the unit that follows.
 - The testbench is already well divided up, but **the data is still a `struct`**:
   `command_s` for the commands and a bare `shortint` for the results
 - A `struct` does nothing by itself. Printing a command is a `$sformatf` written
-  by hand, and it is written **four times**: tester, driver, coverage and
+  by hand, and it is written **three times**: the two monitors and the
   scoreboard
 - The same with randomizing and with comparing: every component builds its own,
-  and the day the `struct` gains a field you have to remember all four
+  and the day the `struct` gains a field you have to remember all three
 - And the result is not even a `struct`: it is a **bare** `shortint`, so the `ovf`
   of the VTALU —the second output— has nowhere to travel
 - A class, on the other hand, has methods: the data and what gets done with it
@@ -8546,7 +8551,8 @@ Which means the base class we pick today is the one that lets us go on tomorrow.
 #### *The randomized fields: the "before"*
 
 - Today the stimulus gets built with two hand-written functions, `get_op()` and
-  `get_data()`, which draw the values with `$random` and `$urandom_range`
+  `get_data()`, which draw the values with `$random` — the Verilog-95 one, with a
+  global seed
 - The legal range of `A` and `B` and the bias to the edges are properties **of the
   data**, not of the test — and yet they live in the tester
 - SystemVerilog already brings this ready-made, and there is no need to write a
@@ -8592,9 +8598,13 @@ It is worth reading this code as the "before" and asking the question before
 giving the answer: which part of this belongs to *the test* and which part
 belongs to *the data*? The legal range of A and B, and the bias to the edges, are
 properties of the data — they have nothing to do with what you want to test.
-The hand-written `$random` and `$urandom_range` are the symptom: every component
-that wants a valid command has to repeat them. And if the DUT changes, all of
-them have to be remembered.
+The hand-written `$random` is the symptom: every component that wants a valid
+command has to repeat it. And if the DUT changes, all of them have to be
+remembered.
+A detail that gets charged for in the seeds slide: `$random` is the Verilog-95
+one and has a **global seed**, so two threads calling it step on each other and
+the run is not reproducible. `$urandom` has a per-thread seed. The `randomize()`
+of the next slide uses the second one.
 The punchline for the next slide: SystemVerilog already brings this ready-made,
 and there is no need to write a single `$urandom`.
 
@@ -12205,7 +12215,7 @@ regression is a hundred seeds overnight and one single number in the morning.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 610a02511bdc -->
+<!-- es-sha: c34771a4bb9d -->
 ## Assertions (SVA)
 
 #### *The hole the scoreboard left*
@@ -12440,7 +12450,7 @@ curiosity that gets cleared up on the next slide. Somebody is going to ask first
    // is not seen on that negedge: it is seen on the next one. With everything on
    // posedge, two consecutive no_op -- start goes down at t=111 and back up at
    // t=120, between two posedges -- read as ONE transaction with the operands
-   // changing: 185 false positives every 1000 operations. With everything on
+   // changing: 145 false positives every 1000 operations. With everything on
    // negedge, the false positives move to the done properties.
    //
    //   stimulus (start, A, B, op_set)  -> negedge, where the BFM writes
@@ -12451,7 +12461,7 @@ curiosity that gets cleared up on the next slide. Somebody is going to ask first
 
 | With a single clock | Over 1000 operations |
 | --- | --- |
-| everything on `posedge` | **185 false positives** on the stability of operands |
+| everything on `posedge` | **145 false positives** on the stability of operands |
 | everything on `negedge` | false positives on the `done` properties |
 | **stimulus on `negedge`, response on `posedge`** | **0 errors** ✅ |
 
@@ -12465,10 +12475,10 @@ This is the most valuable lesson of the section and it is not in the tutorials, 
 it is worth telling it with the trace in hand: on two consecutive `no_op`, `start` goes down
 at `t=111` and comes back up at `t=120` — **between two `posedge`**. The sampling does not
 see it go down. The two transactions read as a single one, with the operands
-changing in the middle, and the property screams 185 times about something that never happened.
+changing in the middle, and the property screams 145 times about something that never happened.
 The short way of saying it: *an assertion does not check what happened, it checks what it
 saw*. And what it sees depends on a single character in the `@()`.
-It is another **silent trap**, and one of the worst: it compiles, it runs, and it throws 185 errors
+It is another **silent trap**, and one of the worst: it compiles, it runs, and it throws 145 errors
 at you that do not exist. The beginner's reflex is to loosen the property until it
 shuts up —and there they are left without a check. The correct reflex is to look at which edge
 the one driving the stimulus writes on.
@@ -12624,7 +12634,7 @@ that is why `uvm_summary_ok` of `common.sh` detects it without anything having h
 touched.
 The reason the default is no good is practical: a nightly regression that
 gets cut off at the first failure reports **one** failure. The same run with
-`uvm_error` reports all 183, and that is the difference between *"something is wrong"* and
+`uvm_error` reports all 154, and that is the difference between *"something is wrong"* and
 *"it is wrong on every multiplication"*.
 The `%m` looks like a detail and it is not: with two instances of the same interface,
 a message without `%m` does not say which of the two ALUs broke. It is the same problem
@@ -12648,9 +12658,9 @@ instead of the one of the library.
    c_un_ciclo : cover property (@(posedge clk) $rose(start) && (op_set inside {add_op, and_op, xor_op}) ##1 done);
 ```
 
-```text
-covergroup : 86.8% (66/76)
-user       : 66.7% ( 2/ 3)     <- c_mult_3ciclos: 0 hits
+```plaintext
+  covergroup : 86.8% (66/76)
+  user       : 80.0% ( 4/ 5)
 ```
 
 - A property whose **antecedent never occurs** passes. Without assertion
@@ -12730,16 +12740,24 @@ as an anecdote.
             start = 1'b0;
 ```
 
-```text
-** Report counts by severity        ** Report counts by id
-UVM_ERROR :  183                    [SVA]   183      <- and not one [SELF CHECKER]
+```plaintext
+** Report counts by severity
+UVM_INFO :    2
+UVM_WARNING :    0
+UVM_ERROR :  154
+UVM_FATAL :    0
+** Report counts by id
+[MAXMULT]     1
+[RNTST]     1
+[SVA]   154
 ```
 
 - `+BUG=1` changes `B` **halfway through the multiplication**. The multiplier has already
   latched the operands on the first edge: **the result comes out right all the same**
-- The scoreboard compares 1000 operations and does not find a single difference. It is
-  doing its job properly — this bug is not a data bug
-- The assertion catches it 183 times, on the exact edge. It is the same example as reporting, turned inside out: over there the scoreboard was broken to teach reporting;
+- The scoreboard compares 1000 operations and does not find a single difference: in the
+  summary there is **not one `[SELF CHECKER]`**. It is doing its job properly — this bug is
+  not a data bug
+- The assertion catches it 154 times, on the exact edge. It is the same example as reporting, turned inside out: over there the scoreboard was broken to teach reporting;
   here the protocol gets broken to show who sees it
 
 Note:
@@ -12827,7 +12845,7 @@ serious verification plan has both columns.
   SystemVerilog
 - This section exists because the question comes anyway —in the interview, and in the
   first real block one gets to verify
-- The two clocks, the table of the 185 false positives and the `cover property` that
+- The two clocks, the table of the 145 false positives and the `cover property` that
   never gets covered **did not come out of a tutorial**: they came out of writing this
   section on the VTALU of the course and looking at why it did not add up
 - Everything here runs on Verilator, without licences, with the same `run.sh` as the
@@ -12885,7 +12903,7 @@ this testbench existed.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 889705c27c04 -->
+<!-- es-sha: 83d81dad101f -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 7
@@ -12926,7 +12944,7 @@ this testbench existed.
 
 #### *3 of 5 · The sampling edge*
 
-**All the properties of the VTALU sampled on `@(posedge clk)` give 185 errors over 1000 operations, and the DUT is healthy. Why?**
+**All the properties of the VTALU sampled on `@(posedge clk)` give 145 errors over 1000 operations, and the DUT is healthy. Why?**
 
 - [ ] The `disable iff (!reset_n)` is missing
 - [ ] The `posedge` is too fast: the clock has to be divided
@@ -13280,7 +13298,7 @@ the next step is the waveforms, which is the tool that does
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 1c4d1358c427 -->
+<!-- es-sha: c17f3821f756 -->
 <!-- .slide: id="apendice-trampas" -->
 
 ## Appendix · The 21 silent traps
@@ -13386,7 +13404,7 @@ second you understand exactly the one that is happening to you.
 | --- | --- | --- | :-- |
 | The log says **PASS** and the properties did not run | `--assert` is missing at compile time | the `cover property` at 0 is the only one that warns you | Assertions |
 | The property **always passes** | the antecedent never occurs, or the implication is the one that is wrong | one `cover property` per `assert property` | Assertions |
-| **185 false positives** and the DUT is healthy | you sample it with the edge it is written on | stimulus on `negedge`, response of the DUT on `posedge` | Assertions · d7 |
+| **145 false positives** and the DUT is healthy | you sample it with the edge it is written on | stimulus on `negedge`, response of the DUT on `posedge` | Assertions · d7 |
 | False positives **at the start** of every test | the `disable iff (!reset_n)` is missing | `default disable iff`, once, at the very top | Assertions |
 
 - The four are of the same family as the ones above, with one aggravating factor:
@@ -13401,7 +13419,7 @@ always the same and that is why it is worth repeating it until you are sick of i
 property` per `assert property`**.
 The first row is the cheapest to commit in this flow and it is worth showing it
 live: taking `--assert` out of the `run.sh` of `code/u8/assertions` leaves the run with `+BUG=1`
-at 0 `UVM_ERROR`. The 183 failures disappear without anything warning you.
+at 0 `UVM_ERROR`. The 154 failures disappear without anything warning you.
 The third is the lesson of the section and the only one on the list that is not in
 any tutorial. The wrong reflex, when the false positives show up, is to
 loosen the property until it shuts up: there you are left without a check and with the

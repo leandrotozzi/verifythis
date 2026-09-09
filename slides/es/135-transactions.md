@@ -6,10 +6,10 @@
   `struct`**: `command_s` para los comandos y una `shortint` pelada para los
   resultados
 - Una `struct` no hace nada por sí sola. Imprimir un comando es un `$sformatf`
-  escrito a mano, y está escrito **cuatro veces**: tester, driver, coverage y
+  escrito a mano, y está escrito **tres veces**: los dos monitores y el
   scoreboard
 - Lo mismo con randomizar y con comparar: cada componente se arma el suyo, y el
-  día que la `struct` gana un campo hay que acordarse de los cuatro
+  día que la `struct` gana un campo hay que acordarse de los tres
 - Y el resultado ni siquiera es una `struct`: es un `shortint` **pelado**, así
   que el `ovf` del VTALU —la segunda salida— no tiene dónde viajar
 - Una clase, en cambio, tiene métodos: los datos y lo que se hace con ellos viven
@@ -88,7 +88,8 @@ O sea que la clase base que elegimos hoy es la que nos deja seguir mañana.
 #### *Los campos randomizados: el "antes"*
 
 - Hoy el estímulo se arma con dos funciones escritas a mano, `get_op()` y
-  `get_data()`, que sortean los valores con `$random` y `$urandom_range`
+  `get_data()`, que sortean los valores con `$random` — el de Verilog-95, con
+  semilla global
 - El rango legal de `A` y `B` y el sesgo a los bordes son propiedades **del
   dato**, no del test — y sin embargo viven en el tester
 - SystemVerilog ya trae esto hecho, y no hace falta escribir ni un `$urandom`
@@ -100,9 +101,12 @@ Conviene leer este código como el "antes" y hacer la pregunta antes de dar la
 respuesta: ¿qué parte de esto es *del test* y qué parte es *del dato*? El rango
 legal de A y B, y el sesgo a los bordes, son propiedades del dato — no tienen
 nada que ver con qué querés probar.
-El `$random` y el `$urandom_range` escritos a mano son el síntoma: cada
-componente que quiera un comando válido tiene que repetirlos. Y si el DUT cambia,
-hay que acordarse de todos.
+El `$random` escrito a mano es el síntoma: cada componente que quiera un comando
+válido tiene que repetirlo. Y si el DUT cambia, hay que acordarse de todos.
+Un detalle que se cobra en la slide de semillas: `$random` es el de Verilog-95 y
+tiene **una semilla global**, así que dos hilos que lo llamen se pisan y la
+corrida no es reproducible. `$urandom` tiene semilla por hilo. El `randomize()`
+de la slide siguiente usa el segundo.
 El remate para la slide siguiente: SystemVerilog ya trae esto hecho, y no hace
 falta escribir ni un `$urandom`.
 

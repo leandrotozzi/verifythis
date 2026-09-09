@@ -425,7 +425,7 @@ The `done` of the VTALU comes out of an `always_ff`. Which implication goes in `
 
 **43. The sampling edge**
 
-All the properties of the VTALU sampled on `@(posedge clk)` give 185 errors over 1000 operations, and the DUT is healthy. Why?
+All the properties of the VTALU sampled on `@(posedge clk)` give 145 errors over 1000 operations, and the DUT is healthy. Why?
 
 - **a)** The `disable iff (!reset_n)` is missing
 - **b)** The `posedge` is too fast: the clock has to be divided

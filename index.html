@@ -5510,7 +5510,10 @@ Que sea el nombre del componente, en mayúsculas, y siempre el mismo.
 Note:
 Conviene correrlo en vivo, porque es la demostración más barata de la sección:
 el mismo `make u4/reporting` con y sin `+UVM_VERBOSITY=UVM_HIGH`, y el log pasa
-de veinte líneas a mil. Sin recompilar nada — es el mismo binario.
+de 7 `uvm_info` a 22. Sin recompilar nada — es el mismo binario. Parecen pocos
+porque este ejemplo manda **diez** operaciones a propósito, para que el
+transcript entre en la pantalla; con las mil de las otras secciones la diferencia
+es de tres órdenes de magnitud.
 El detalle que hay que decir para que después no sorprenda: el plusarg fija el
 techo del **árbol entero**, desde `uvm_top` para abajo. No hay forma de pedir
 "alto, pero sólo el monitor" desde la línea de comando con este flag; para eso
@@ -5661,9 +5664,12 @@ UVM_FATAL :    0
 
 Note:
 El log de la slide es el de un scoreboard que suma mal a propósito, y conviene
-mirar el *Report Summary* del final antes que el error: son mil errores, uno por
-transacción. Ése es el problema real que la sección viene a resolver — no "el
-mensaje molesta", sino que **el log deja de servir para buscar otra cosa**.
+mirar el *Report Summary* del final antes que el error: `UVM_ERROR : 2`, uno por
+cada `add_op` que salió en las diez operaciones del ejemplo. Ahí está la cuenta
+que hay que hacer en voz alta: con las mil operaciones de las otras secciones son
+**cien y pico de errores**, uno por cada suma. Ése es el problema real que la
+sección viene a resolver — no "el mensaje molesta", sino que **el log deja de
+servir para buscar otra cosa**.
 La pregunta para tirar al grupo, porque la respuesta equivocada es la intuitiva:
 *"¿bajo el techo de verbosidad y listo?"*. No. Un `` `uvm_error `` no tiene
 verbosidad; el techo no lo toca. Es la misma distinción de la primera slide, y
@@ -8362,10 +8368,10 @@ exactamente la unidad que sigue.
   `struct`**: `command_s` para los comandos y una `shortint` pelada para los
   resultados
 - Una `struct` no hace nada por sí sola. Imprimir un comando es un `$sformatf`
-  escrito a mano, y está escrito **cuatro veces**: tester, driver, coverage y
+  escrito a mano, y está escrito **tres veces**: los dos monitores y el
   scoreboard
 - Lo mismo con randomizar y con comparar: cada componente se arma el suyo, y el
-  día que la `struct` gana un campo hay que acordarse de los cuatro
+  día que la `struct` gana un campo hay que acordarse de los tres
 - Y el resultado ni siquiera es una `struct`: es un `shortint` **pelado**, así
   que el `ovf` del VTALU —la segunda salida— no tiene dónde viajar
 - Una clase, en cambio, tiene métodos: los datos y lo que se hace con ellos viven
@@ -8450,7 +8456,8 @@ O sea que la clase base que elegimos hoy es la que nos deja seguir mañana.
 #### *Los campos randomizados: el "antes"*
 
 - Hoy el estímulo se arma con dos funciones escritas a mano, `get_op()` y
-  `get_data()`, que sortean los valores con `$random` y `$urandom_range`
+  `get_data()`, que sortean los valores con `$random` — el de Verilog-95, con
+  semilla global
 - El rango legal de `A` y `B` y el sesgo a los bordes son propiedades **del
   dato**, no del test — y sin embargo viven en el tester
 - SystemVerilog ya trae esto hecho, y no hace falta escribir ni un `$urandom`
@@ -8495,9 +8502,12 @@ Conviene leer este código como el "antes" y hacer la pregunta antes de dar la
 respuesta: ¿qué parte de esto es *del test* y qué parte es *del dato*? El rango
 legal de A y B, y el sesgo a los bordes, son propiedades del dato — no tienen
 nada que ver con qué querés probar.
-El `$random` y el `$urandom_range` escritos a mano son el síntoma: cada
-componente que quiera un comando válido tiene que repetirlos. Y si el DUT cambia,
-hay que acordarse de todos.
+El `$random` escrito a mano es el síntoma: cada componente que quiera un comando
+válido tiene que repetirlo. Y si el DUT cambia, hay que acordarse de todos.
+Un detalle que se cobra en la slide de semillas: `$random` es el de Verilog-95 y
+tiene **una semilla global**, así que dos hilos que lo llamen se pisan y la
+corrida no es reproducible. `$urandom` tiene semilla por hilo. El `randomize()`
+de la slide siguiente usa el segundo.
 El remate para la slide siguiente: SystemVerilog ya trae esto hecho, y no hace
 falta escribir ni un `$urandom`.
 
@@ -12292,7 +12302,7 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.
    // is not seen on that negedge: it is seen on the next one. With everything on
    // posedge, two consecutive no_op -- start goes down at t=111 and back up at
    // t=120, between two posedges -- read as ONE transaction with the operands
-   // changing: 185 false positives every 1000 operations. With everything on
+   // changing: 145 false positives every 1000 operations. With everything on
    // negedge, the false positives move to the done properties.
    //
    //   stimulus (start, A, B, op_set)  -> negedge, where the BFM writes
@@ -12303,7 +12313,7 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.
 
 | Con un solo reloj | Sobre 1000 operaciones |
 | --- | --- |
-| todo en `posedge` | **185 falsos positivos** en la estabilidad de operandos |
+| todo en `posedge` | **145 falsos positivos** en la estabilidad de operandos |
 | todo en `negedge` | falsos positivos en las properties de `done` |
 | **estímulo en `negedge`, respuesta en `posedge`** | **0 errores** ✅ |
 
@@ -12317,10 +12327,10 @@ Note:
 vale contarla con la traza en la mano: en dos `no_op` consecutivas, `start` baja
 en `t=111` y vuelve a subir en `t=120` — **entre dos `posedge`**. El muestreo no
 lo ve bajar. Las dos transacciones se leen como una sola, con los operandos
-cambiando en el medio, y la property grita 185 veces por algo que nunca pasó.
+cambiando en el medio, y la property grita 145 veces por algo que nunca pasó.
 La forma corta de decirlo: *una assertion no chequea lo que pasó, chequea lo que
 vio*. Y lo que ve depende de un solo carácter en el `@()`.
-Es otra **trampa muda**, y de las peores: compila, corre, y te tira 185 errores
+Es otra **trampa muda**, y de las peores: compila, corre, y te tira 145 errores
 que no existen. El reflejo del principiante es aflojar la property hasta que
 calle —y ahí se quedó sin chequeo. El reflejo correcto es mirar en qué flanco
 escribe el que estimula.
@@ -12476,7 +12486,7 @@ por eso `uvm_summary_ok` de `common.sh` lo detecta sin que hubiera que tocar
 nada.
 La razón por la que el default no sirve es práctica: una regresión nocturna que
 se corta en la primera falla informa **una** falla. La misma corrida con
-`uvm_error` informa las 183, y eso es la diferencia entre *"algo anda mal"* y
+`uvm_error` informa las 154, y eso es la diferencia entre *"algo anda mal"* y
 *"anda mal en todas las multiplicaciones"*.
 El `%m` parece un detalle y no lo es: con dos instancias de la misma interface,
 un mensaje sin `%m` no dice cuál de las dos ALU se rompió. Es el mismo problema
@@ -12500,9 +12510,9 @@ en vez de la de la librería.
    c_un_ciclo : cover property (@(posedge clk) $rose(start) && (op_set inside {add_op, and_op, xor_op}) ##1 done);
 ```
 
-```text
-covergroup : 86.8% (66/76)
-user       : 66.7% ( 2/ 3)     <- c_mult_3ciclos: 0 hits
+```plaintext
+  covergroup : 86.8% (66/76)
+  user       : 80.0% ( 4/ 5)
 ```
 
 - Una property cuyo **antecedente no ocurre nunca** pasa. Sin cobertura de
@@ -12582,16 +12592,24 @@ cuenta como anécdota.
             start = 1'b0;
 ```
 
-```text
-** Report counts by severity        ** Report counts by id
-UVM_ERROR :  183                    [SVA]   183      <- y ni un [SELF CHECKER]
+```plaintext
+** Report counts by severity
+UVM_INFO :    2
+UVM_WARNING :    0
+UVM_ERROR :  154
+UVM_FATAL :    0
+** Report counts by id
+[MAXMULT]     1
+[RNTST]     1
+[SVA]   154
 ```
 
 - `+BUG=1` cambia `B` **a mitad de la multiplicación**. El multiplicador ya
   latcheó los operandos en el primer flanco: **el resultado sale bien igual**
-- El scoreboard compara 1000 operaciones y no encuentra una sola diferencia. Está
-  haciendo bien su trabajo — este bug no es de datos
-- La assertion lo caza 183 veces, en el flanco exacto. Es el mismo ejemplo de reporting, dado vuelta: allá se rompía el scoreboard para enseñar reporting;
+- El scoreboard compara 1000 operaciones y no encuentra una sola diferencia: en
+  el resumen **no hay un solo `[SELF CHECKER]`**. Está haciendo bien su trabajo —
+  este bug no es de datos
+- La assertion lo caza 154 veces, en el flanco exacto. Es el mismo ejemplo de reporting, dado vuelta: allá se rompía el scoreboard para enseñar reporting;
   acá se rompe el protocolo para mostrar quién lo ve
 
 Note:
@@ -12679,7 +12697,7 @@ plan de verificación serio tiene las dos columnas.
   SystemVerilog
 - Esta sección existe porque la pregunta llega igual —en la entrevista, y en el
   primer bloque real que a uno le toca verificar
-- Los dos relojes, la tabla de los 185 falsos positivos y el `cover property` que
+- Los dos relojes, la tabla de los 145 falsos positivos y el `cover property` que
   nunca se cubre **no salieron de un tutorial**: salieron de escribir esta
   sección sobre el VTALU del curso y mirar por qué no daba
 - Todo lo de acá corre en Verilator, sin licencias, con el mismo `run.sh` de los
@@ -12776,7 +12794,7 @@ existiera este testbench.
 
 #### *3 de 5 · El flanco de muestreo*
 
-**Todas las properties del VTALU muestreadas en `@(posedge clk)` dan 185 errores sobre 1000 operaciones, y el DUT está sano. ¿Por qué?**
+**Todas las properties del VTALU muestreadas en `@(posedge clk)` dan 145 errores sobre 1000 operaciones, y el DUT está sano. ¿Por qué?**
 
 - [ ] Falta el `disable iff (!reset_n)`
 - [ ] El `posedge` es demasiado rápido: hay que dividir el reloj
@@ -13232,7 +13250,7 @@ segunda se entiende justo la que te está pasando.
 | --- | --- | --- | :-- |
 | El log dice **PASS** y las properties no corrieron | falta `--assert` al compilar | el `cover property` en 0 es el único que avisa | Assertions |
 | La property **pasa siempre** | el antecedente nunca ocurre, o la implicación es la que no va | un `cover property` por cada `assert property` | Assertions |
-| **185 falsos positivos** y el DUT está sano | la muestreás con el flanco en el que se escribe | estímulo en `negedge`, respuesta del DUT en `posedge` | Assertions · d7 |
+| **145 falsos positivos** y el DUT está sano | la muestreás con el flanco en el que se escribe | estímulo en `negedge`, respuesta del DUT en `posedge` | Assertions · d7 |
 | Falsos positivos **al arrancar** cada test | falta el `disable iff (!reset_n)` | `default disable iff`, una vez, arriba de todo | Assertions |
 
 - Las cuatro son de la misma familia que las de arriba, con un agravante:
@@ -13247,7 +13265,7 @@ siempre el mismo y por eso vale repetirlo hasta el cansancio: **un `cover
 property` por cada `assert property`**.
 La primera fila es la más barata de cometer en este flujo y conviene mostrarla en
 vivo: sacar `--assert` del `run.sh` de `code/u8/assertions` deja la corrida con `+BUG=1`
-en 0 `UVM_ERROR`. Las 183 fallas desaparecen sin que nada avise.
+en 0 `UVM_ERROR`. Las 154 fallas desaparecen sin que nada avise.
 La tercera es la lección de la sección y la única de la lista que no está en
 ningún tutorial. El reflejo equivocado, cuando aparecen los falsos positivos, es
 aflojar la property hasta que calle: ahí uno se queda sin chequeo y con la

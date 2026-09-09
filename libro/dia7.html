@@ -409,7 +409,7 @@ flujo: <code>$past</code> con el argumento de reloj explícito no lo soporta Ver
    <span class="hljs-comment">// is not seen on that negedge: it is seen on the next one. With everything on</span>
    <span class="hljs-comment">// posedge, two consecutive no_op -- start goes down at t=111 and back up at</span>
    <span class="hljs-comment">// t=120, between two posedges -- read as ONE transaction with the operands</span>
-   <span class="hljs-comment">// changing: 185 false positives every 1000 operations. With everything on</span>
+   <span class="hljs-comment">// changing: 145 false positives every 1000 operations. With everything on</span>
    <span class="hljs-comment">// negedge, the false positives move to the done properties.</span>
    <span class="hljs-comment">//</span>
    <span class="hljs-comment">//   stimulus (start, A, B, op_set)  -&gt; negedge, where the BFM writes</span>
@@ -514,7 +514,7 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.</p>
    <span class="hljs-comment">// is not seen on that negedge: it is seen on the next one. With everything on</span>
    <span class="hljs-comment">// posedge, two consecutive no_op -- start goes down at t=111 and back up at</span>
    <span class="hljs-comment">// t=120, between two posedges -- read as ONE transaction with the operands</span>
-   <span class="hljs-comment">// changing: 185 false positives every 1000 operations. With everything on</span>
+   <span class="hljs-comment">// changing: 145 false positives every 1000 operations. With everything on</span>
    <span class="hljs-comment">// negedge, the false positives move to the done properties.</span>
    <span class="hljs-comment">//</span>
    <span class="hljs-comment">//   stimulus (start, A, B, op_set)  -&gt; negedge, where the BFM writes</span>
@@ -665,7 +665,7 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.</p>
    <span class="hljs-comment">// is not seen on that negedge: it is seen on the next one. With everything on</span>
    <span class="hljs-comment">// posedge, two consecutive no_op -- start goes down at t=111 and back up at</span>
    <span class="hljs-comment">// t=120, between two posedges -- read as ONE transaction with the operands</span>
-   <span class="hljs-comment">// changing: 185 false positives every 1000 operations. With everything on</span>
+   <span class="hljs-comment">// changing: 145 false positives every 1000 operations. With everything on</span>
    <span class="hljs-comment">// negedge, the false positives move to the done properties.</span>
    <span class="hljs-comment">//</span>
    <span class="hljs-comment">//   stimulus (start, A, B, op_set)  -&gt; negedge, where the BFM writes</span>
@@ -747,7 +747,7 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.</p>
 </thead>
 <tbody><tr>
 <td>todo en <code>posedge</code></td>
-<td><strong>185 falsos positivos</strong> en la estabilidad de operandos</td>
+<td><strong>145 falsos positivos</strong> en la estabilidad de operandos</td>
 </tr>
 <tr>
 <td>todo en <code>negedge</code></td>
@@ -769,10 +769,10 @@ no se ve en ese flanco, se ve en el siguiente</li>
 vale contarla con la traza en la mano: en dos <code>no_op</code> consecutivas, <code>start</code> baja
 en <code>t=111</code> y vuelve a subir en <code>t=120</code> — <strong>entre dos <code>posedge</code></strong>. El muestreo no
 lo ve bajar. Las dos transacciones se leen como una sola, con los operandos
-cambiando en el medio, y la property grita 185 veces por algo que nunca pasó.
+cambiando en el medio, y la property grita 145 veces por algo que nunca pasó.
 La forma corta de decirlo: <em>una assertion no chequea lo que pasó, chequea lo que
 vio</em>. Y lo que ve depende de un solo carácter en el <code>@()</code>.
-Es otra <strong>trampa muda</strong>, y de las peores: compila, corre, y te tira 185 errores
+Es otra <strong>trampa muda</strong>, y de las peores: compila, corre, y te tira 145 errores
 que no existen. El reflejo del principiante es aflojar la property hasta que
 calle —y ahí se quedó sin chequeo. El reflejo correcto es mirar en qué flanco
 escribe el que estimula.
@@ -949,7 +949,7 @@ nombrarlo acá, porque recién ahora se ve el problema completo que resuelve.</p
    <span class="hljs-comment">// is not seen on that negedge: it is seen on the next one. With everything on</span>
    <span class="hljs-comment">// posedge, two consecutive no_op -- start goes down at t=111 and back up at</span>
    <span class="hljs-comment">// t=120, between two posedges -- read as ONE transaction with the operands</span>
-   <span class="hljs-comment">// changing: 185 false positives every 1000 operations. With everything on</span>
+   <span class="hljs-comment">// changing: 145 false positives every 1000 operations. With everything on</span>
    <span class="hljs-comment">// negedge, the false positives move to the done properties.</span>
    <span class="hljs-comment">//</span>
    <span class="hljs-comment">//   stimulus (start, A, B, op_set)  -&gt; negedge, where the BFM writes</span>
@@ -1142,7 +1142,7 @@ por eso <code>uvm_summary_ok</code> de <code>common.sh</code> lo detecta sin que
 nada.
 La razón por la que el default no sirve es práctica: una regresión nocturna que
 se corta en la primera falla informa <strong>una</strong> falla. La misma corrida con
-<code>uvm_error</code> informa las 183, y eso es la diferencia entre <em>&quot;algo anda mal&quot;</em> y
+<code>uvm_error</code> informa las 154, y eso es la diferencia entre <em>&quot;algo anda mal&quot;</em> y
 <em>&quot;anda mal en todas las multiplicaciones&quot;</em>.
 El <code>%m</code> parece un detalle y no lo es: con dos instancias de la misma interface,
 un mensaje sin <code>%m</code> no dice cuál de las dos ALU se rompió. Es el mismo problema
@@ -1307,7 +1307,7 @@ en vez de la de la librería.</p>
    <span class="hljs-comment">// is not seen on that negedge: it is seen on the next one. With everything on</span>
    <span class="hljs-comment">// posedge, two consecutive no_op -- start goes down at t=111 and back up at</span>
    <span class="hljs-comment">// t=120, between two posedges -- read as ONE transaction with the operands</span>
-   <span class="hljs-comment">// changing: 185 false positives every 1000 operations. With everything on</span>
+   <span class="hljs-comment">// changing: 145 false positives every 1000 operations. With everything on</span>
    <span class="hljs-comment">// negedge, the false positives move to the done properties.</span>
    <span class="hljs-comment">//</span>
    <span class="hljs-comment">//   stimulus (start, A, B, op_set)  -&gt; negedge, where the BFM writes</span>
@@ -1380,9 +1380,9 @@ en vez de la de la librería.</p>
 
 <span class="hljs-keyword">endinterface</span> : vtalu_bfm</code></pre></details></figure>
 
-<pre><code class="language-text">covergroup : 86.8% (66/76)
-user       : 66.7% ( 2/ 3)     &lt;- c_mult_3ciclos: 0 hits
-</code></pre>
+<figure class="codigo"><figcaption><code>code/u8/assertions/cover.txt</code></figcaption><pre><code class="hljs">  covergroup : 86.8% (66/76)
+  user       : 80.0% ( 4/ 5)</code></pre></figure>
+
 <ul>
 <li>Una property cuyo <strong>antecedente no ocurre nunca</strong> pasa. Sin cobertura de
 assertions, un chequeo apagado se ve igual que un chequeo verde</li>
@@ -1625,7 +1625,7 @@ cuenta como anécdota.</p>
    <span class="hljs-comment">// is not seen on that negedge: it is seen on the next one. With everything on</span>
    <span class="hljs-comment">// posedge, two consecutive no_op -- start goes down at t=111 and back up at</span>
    <span class="hljs-comment">// t=120, between two posedges -- read as ONE transaction with the operands</span>
-   <span class="hljs-comment">// changing: 185 false positives every 1000 operations. With everything on</span>
+   <span class="hljs-comment">// changing: 145 false positives every 1000 operations. With everything on</span>
    <span class="hljs-comment">// negedge, the false positives move to the done properties.</span>
    <span class="hljs-comment">//</span>
    <span class="hljs-comment">//   stimulus (start, A, B, op_set)  -&gt; negedge, where the BFM writes</span>
@@ -1698,15 +1698,23 @@ cuenta como anécdota.</p>
 
 <span class="hljs-keyword">endinterface</span> : vtalu_bfm</code></pre></details></figure>
 
-<pre><code class="language-text">** Report counts by severity        ** Report counts by id
-UVM_ERROR :  183                    [SVA]   183      &lt;- y ni un [SELF CHECKER]
-</code></pre>
+<figure class="codigo"><figcaption><code>code/u8/assertions/sva.txt</code></figcaption><pre><code class="hljs">** Report counts by severity
+UVM_INFO :    2
+UVM_WARNING :    0
+UVM_ERROR :  154
+UVM_FATAL :    0
+** Report counts by id
+[MAXMULT]     1
+[RNTST]     1
+[SVA]   154</code></pre></figure>
+
 <ul>
 <li><code>+BUG=1</code> cambia <code>B</code> <strong>a mitad de la multiplicación</strong>. El multiplicador ya
 latcheó los operandos en el primer flanco: <strong>el resultado sale bien igual</strong></li>
-<li>El scoreboard compara 1000 operaciones y no encuentra una sola diferencia. Está
-haciendo bien su trabajo — este bug no es de datos</li>
-<li>La assertion lo caza 183 veces, en el flanco exacto. Es el mismo ejemplo de reporting, dado vuelta: allá se rompía el scoreboard para enseñar reporting;
+<li>El scoreboard compara 1000 operaciones y no encuentra una sola diferencia: en
+el resumen <strong>no hay un solo <code>[SELF CHECKER]</code></strong>. Está haciendo bien su trabajo —
+este bug no es de datos</li>
+<li>La assertion lo caza 154 veces, en el flanco exacto. Es el mismo ejemplo de reporting, dado vuelta: allá se rompía el scoreboard para enseñar reporting;
 acá se rompe el protocolo para mostrar quién lo ve</li>
 </ul>
 <div class="nota">
@@ -1817,7 +1825,7 @@ clases de punta a punta y deja las assertions afuera: son de la otra mitad de
 SystemVerilog</li>
 <li>Esta sección existe porque la pregunta llega igual —en la entrevista, y en el
 primer bloque real que a uno le toca verificar</li>
-<li>Los dos relojes, la tabla de los 185 falsos positivos y el <code>cover property</code> que
+<li>Los dos relojes, la tabla de los 145 falsos positivos y el <code>cover property</code> que
 nunca se cubre <strong>no salieron de un tutorial</strong>: salieron de escribir esta
 sección sobre el VTALU del curso y mirar por qué no daba</li>
 <li>Todo lo de acá corre en Verilator, sin licencias, con el mismo <code>run.sh</code> de los
@@ -1903,7 +1911,7 @@ existiera este testbench.</p>
 <section id="s356" class="slide quiz">
 <h2 id="repaso-·-día-7">Repaso · Día 7</h2>
 <h4 id="3-de-5-·-el-flanco-de-muestreo"><em>3 de 5 · El flanco de muestreo</em></h4>
-<p><strong>Todas las properties del VTALU muestreadas en <code>@(posedge clk)</code> dan 185 errores sobre 1000 operaciones, y el DUT está sano. ¿Por qué?</strong></p>
+<p><strong>Todas las properties del VTALU muestreadas en <code>@(posedge clk)</code> dan 145 errores sobre 1000 operaciones, y el DUT está sano. ¿Por qué?</strong></p>
 <ul>
 <li><input disabled="" type="checkbox"> Falta el <code>disable iff (!reset_n)</code></li>
 <li><input disabled="" type="checkbox"> El <code>posedge</code> es demasiado rápido: hay que dividir el reloj</li>
@@ -2649,7 +2657,7 @@ segunda se entiende justo la que te está pasando.</p>
 <td align="left">Assertions</td>
 </tr>
 <tr>
-<td><strong>185 falsos positivos</strong> y el DUT está sano</td>
+<td><strong>145 falsos positivos</strong> y el DUT está sano</td>
 <td>la muestreás con el flanco en el que se escribe</td>
 <td>estímulo en <code>negedge</code>, respuesta del DUT en <code>posedge</code></td>
 <td align="left">Assertions · d7</td>
@@ -2673,7 +2681,7 @@ testbench; éstas son bugs del que chequea el testbench. Por eso el antídoto es
 siempre el mismo y por eso vale repetirlo hasta el cansancio: <strong>un <code>cover property</code> por cada <code>assert property</code></strong>.
 La primera fila es la más barata de cometer en este flujo y conviene mostrarla en
 vivo: sacar <code>--assert</code> del <code>run.sh</code> de <code>code/u8/assertions</code> deja la corrida con <code>+BUG=1</code>
-en 0 <code>UVM_ERROR</code>. Las 183 fallas desaparecen sin que nada avise.
+en 0 <code>UVM_ERROR</code>. Las 154 fallas desaparecen sin que nada avise.
 La tercera es la lección de la sección y la única de la lista que no está en
 ningún tutorial. El reflejo equivocado, cuando aparecen los falsos positivos, es
 aflojar la property hasta que calle: ahí uno se queda sin chequeo y con la

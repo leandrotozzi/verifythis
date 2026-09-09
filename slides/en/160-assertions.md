@@ -1,4 +1,4 @@
-<!-- es-sha: 610a02511bdc -->
+<!-- es-sha: c34771a4bb9d -->
 ## Assertions (SVA)
 
 #### *The hole the scoreboard left*
@@ -216,7 +216,7 @@ curiosity that gets cleared up on the next slide. Somebody is going to ask first
 
 | With a single clock | Over 1000 operations |
 | --- | --- |
-| everything on `posedge` | **185 false positives** on the stability of operands |
+| everything on `posedge` | **145 false positives** on the stability of operands |
 | everything on `negedge` | false positives on the `done` properties |
 | **stimulus on `negedge`, response on `posedge`** | **0 errors** ✅ |
 
@@ -230,10 +230,10 @@ This is the most valuable lesson of the section and it is not in the tutorials, 
 it is worth telling it with the trace in hand: on two consecutive `no_op`, `start` goes down
 at `t=111` and comes back up at `t=120` — **between two `posedge`**. The sampling does not
 see it go down. The two transactions read as a single one, with the operands
-changing in the middle, and the property screams 185 times about something that never happened.
+changing in the middle, and the property screams 145 times about something that never happened.
 The short way of saying it: *an assertion does not check what happened, it checks what it
 saw*. And what it sees depends on a single character in the `@()`.
-It is another **silent trap**, and one of the worst: it compiles, it runs, and it throws 185 errors
+It is another **silent trap**, and one of the worst: it compiles, it runs, and it throws 145 errors
 at you that do not exist. The beginner's reflex is to loosen the property until it
 shuts up —and there they are left without a check. The correct reflex is to look at which edge
 the one driving the stimulus writes on.
@@ -370,7 +370,7 @@ that is why `uvm_summary_ok` of `common.sh` detects it without anything having h
 touched.
 The reason the default is no good is practical: a nightly regression that
 gets cut off at the first failure reports **one** failure. The same run with
-`uvm_error` reports all 183, and that is the difference between *"something is wrong"* and
+`uvm_error` reports all 154, and that is the difference between *"something is wrong"* and
 *"it is wrong on every multiplication"*.
 The `%m` looks like a detail and it is not: with two instances of the same interface,
 a message without `%m` does not say which of the two ALUs broke. It is the same problem
@@ -385,10 +385,7 @@ instead of the one of the library.
 
 {{code:code/u8/assertions/vtalu_bfm.sv#the-covers}}
 
-```text
-covergroup : 86.8% (66/76)
-user       : 66.7% ( 2/ 3)     <- c_mult_3ciclos: 0 hits
-```
+{{code:code/u8/assertions/cover.txt}}
 
 - A property whose **antecedent never occurs** passes. Without assertion
   coverage, a switched-off check looks exactly like a green check
@@ -453,16 +450,14 @@ as an anecdote.
 
 {{code:code/u8/assertions/vtalu_bfm.sv#the-planted-bug}}
 
-```text
-** Report counts by severity        ** Report counts by id
-UVM_ERROR :  183                    [SVA]   183      <- and not one [SELF CHECKER]
-```
+{{code:code/u8/assertions/sva.txt}}
 
 - `+BUG=1` changes `B` **halfway through the multiplication**. The multiplier has already
   latched the operands on the first edge: **the result comes out right all the same**
-- The scoreboard compares 1000 operations and does not find a single difference. It is
-  doing its job properly — this bug is not a data bug
-- The assertion catches it 183 times, on the exact edge. It is the same example as reporting, turned inside out: over there the scoreboard was broken to teach reporting;
+- The scoreboard compares 1000 operations and does not find a single difference: in the
+  summary there is **not one `[SELF CHECKER]`**. It is doing its job properly — this bug is
+  not a data bug
+- The assertion catches it 154 times, on the exact edge. It is the same example as reporting, turned inside out: over there the scoreboard was broken to teach reporting;
   here the protocol gets broken to show who sees it
 
 Note:
@@ -550,7 +545,7 @@ serious verification plan has both columns.
   SystemVerilog
 - This section exists because the question comes anyway —in the interview, and in the
   first real block one gets to verify
-- The two clocks, the table of the 185 false positives and the `cover property` that
+- The two clocks, the table of the 145 false positives and the `cover property` that
   never gets covered **did not come out of a tutorial**: they came out of writing this
   section on the VTALU of the course and looking at why it did not add up
 - Everything here runs on Verilator, without licences, with the same `run.sh` as the

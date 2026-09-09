@@ -74,6 +74,23 @@ if quiere code/u4/tests; then
   sim_out "$log" | escribe code/u4/tests/output.txt
 fi
 
+# --- u8/assertions: SVA --------------------------------------------------------
+# Los dos numeros que la seccion de assertions muestra en pantalla vivian
+# escritos a mano en la slide, y por eso envejecieron sin que nada avisara: los
+# UVM_ERROR del +BUG=1 y la cobertura de assertions. Ahora salen de correr.
+#
+# El run.sh hace DOS corridas -- el DUT sano y +BUG=1 -- asi que el resumen que
+# la slide muestra es el ultimo del log.
+if quiere code/u8/assertions; then
+  log=$(corre code/u8/assertions)
+  awk '/^--- UVM Report Summary ---$/ {buf=""} {buf = buf $0 "\n"} END {printf "%s", buf}' "$log" \
+    | sed -n '/^\*\* Report counts by severity/,/^$/p' \
+    | escribe code/u8/assertions/sva.txt
+  # cov_report imprime una sola vez, al final de las dos corridas.
+  sed -n '/^Coverage Summary:/,$p' "$log" | grep -E 'covergroup|user' \
+    | escribe code/u8/assertions/cover.txt
+fi
+
 # --- u5/threads: blocking vs non-blocking ------------------------------------------
 for v in 02-bloqueante 03-no-bloqueante; do
   quiere "code/u5/threads/$v" || continue

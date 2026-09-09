@@ -38,7 +38,7 @@
 
 #### *3 de 5 · El flanco de muestreo*
 
-**Todas las properties del VTALU muestreadas en `@(posedge clk)` dan 185 errores sobre 1000 operaciones, y el DUT está sano. ¿Por qué?**
+**Todas las properties del VTALU muestreadas en `@(posedge clk)` dan 145 errores sobre 1000 operaciones, y el DUT está sano. ¿Por qué?**
 
 - [ ] Falta el `disable iff (!reset_n)`
 - [ ] El `posedge` es demasiado rápido: hay que dividir el reloj

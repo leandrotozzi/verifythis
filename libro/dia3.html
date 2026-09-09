@@ -1857,7 +1857,10 @@ de debug, subir el techo global te trae los de todos</li>
 <figure class="codigo"><figcaption><code>code/u4/reporting/tb_classes/verbosity_ceiling.txt</code></figcaption><pre><code class="hljs">./obj_dir/top/sim +UVM_TESTNAME=random_test +UVM_VERBOSITY=UVM_HIGH</code></pre></figure><div class="nota">
 <p>Conviene correrlo en vivo, porque es la demostración más barata de la sección:
 el mismo <code>make u4/reporting</code> con y sin <code>+UVM_VERBOSITY=UVM_HIGH</code>, y el log pasa
-de veinte líneas a mil. Sin recompilar nada — es el mismo binario.
+de 7 <code>uvm_info</code> a 22. Sin recompilar nada — es el mismo binario. Parecen pocos
+porque este ejemplo manda <strong>diez</strong> operaciones a propósito, para que el
+transcript entre en la pantalla; con las mil de las otras secciones la diferencia
+es de tres órdenes de magnitud.
 El detalle que hay que decir para que después no sorprenda: el plusarg fija el
 techo del <strong>árbol entero</strong>, desde <code>uvm_top</code> para abajo. No hay forma de pedir
 &quot;alto, pero sólo el monitor&quot; desde la línea de comando con este flag; para eso
@@ -2001,9 +2004,12 @@ UVM_FATAL :    0
 - S i m u l a t i o n   R e p o r t: Verilator 5.052 2026-09-05
 - Verilator: $finish at 820ps</code></pre></figure><div class="nota">
 <p>El log de la slide es el de un scoreboard que suma mal a propósito, y conviene
-mirar el <em>Report Summary</em> del final antes que el error: son mil errores, uno por
-transacción. Ése es el problema real que la sección viene a resolver — no &quot;el
-mensaje molesta&quot;, sino que <strong>el log deja de servir para buscar otra cosa</strong>.
+mirar el <em>Report Summary</em> del final antes que el error: <code>UVM_ERROR : 2</code>, uno por
+cada <code>add_op</code> que salió en las diez operaciones del ejemplo. Ahí está la cuenta
+que hay que hacer en voz alta: con las mil operaciones de las otras secciones son
+<strong>cien y pico de errores</strong>, uno por cada suma. Ése es el problema real que la
+sección viene a resolver — no &quot;el mensaje molesta&quot;, sino que <strong>el log deja de
+servir para buscar otra cosa</strong>.
 La pregunta para tirar al grupo, porque la respuesta equivocada es la intuitiva:
 <em>&quot;¿bajo el techo de verbosidad y listo?&quot;</em>. No. Un <code>`uvm_error</code> no tiene
 verbosidad; el techo no lo toca. Es la misma distinción de la primera slide, y

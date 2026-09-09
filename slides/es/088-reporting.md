@@ -159,7 +159,10 @@ Que sea el nombre del componente, en mayúsculas, y siempre el mismo.
 Note:
 Conviene correrlo en vivo, porque es la demostración más barata de la sección:
 el mismo `make u4/reporting` con y sin `+UVM_VERBOSITY=UVM_HIGH`, y el log pasa
-de veinte líneas a mil. Sin recompilar nada — es el mismo binario.
+de 7 `uvm_info` a 22. Sin recompilar nada — es el mismo binario. Parecen pocos
+porque este ejemplo manda **diez** operaciones a propósito, para que el
+transcript entre en la pantalla; con las mil de las otras secciones la diferencia
+es de tres órdenes de magnitud.
 El detalle que hay que decir para que después no sorprenda: el plusarg fija el
 techo del **árbol entero**, desde `uvm_top` para abajo. No hay forma de pedir
 "alto, pero sólo el monitor" desde la línea de comando con este flag; para eso
@@ -287,9 +290,12 @@ si apuntás a una clase, sin.
 
 Note:
 El log de la slide es el de un scoreboard que suma mal a propósito, y conviene
-mirar el *Report Summary* del final antes que el error: son mil errores, uno por
-transacción. Ése es el problema real que la sección viene a resolver — no "el
-mensaje molesta", sino que **el log deja de servir para buscar otra cosa**.
+mirar el *Report Summary* del final antes que el error: `UVM_ERROR : 2`, uno por
+cada `add_op` que salió en las diez operaciones del ejemplo. Ahí está la cuenta
+que hay que hacer en voz alta: con las mil operaciones de las otras secciones son
+**cien y pico de errores**, uno por cada suma. Ése es el problema real que la
+sección viene a resolver — no "el mensaje molesta", sino que **el log deja de
+servir para buscar otra cosa**.
 La pregunta para tirar al grupo, porque la respuesta equivocada es la intuitiva:
 *"¿bajo el techo de verbosidad y listo?"*. No. Un `` `uvm_error `` no tiene
 verbosidad; el techo no lo toca. Es la misma distinción de la primera slide, y

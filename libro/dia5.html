@@ -686,10 +686,10 @@ exactamente la unidad que sigue.</p>
 <code>struct</code></strong>: <code>command_s</code> para los comandos y una <code>shortint</code> pelada para los
 resultados</li>
 <li>Una <code>struct</code> no hace nada por sí sola. Imprimir un comando es un <code>$sformatf</code>
-escrito a mano, y está escrito <strong>cuatro veces</strong>: tester, driver, coverage y
+escrito a mano, y está escrito <strong>tres veces</strong>: los dos monitores y el
 scoreboard</li>
 <li>Lo mismo con randomizar y con comparar: cada componente se arma el suyo, y el
-día que la <code>struct</code> gana un campo hay que acordarse de los cuatro</li>
+día que la <code>struct</code> gana un campo hay que acordarse de los tres</li>
 <li>Y el resultado ni siquiera es una <code>struct</code>: es un <code>shortint</code> <strong>pelado</strong>, así
 que el <code>ovf</code> del VTALU —la segunda salida— no tiene dónde viajar</li>
 <li>Una clase, en cambio, tiene métodos: los datos y lo que se hace con ellos viven
@@ -776,7 +776,8 @@ O sea que la clase base que elegimos hoy es la que nos deja seguir mañana.</p>
 <h4 id="los-campos-randomizados-el-antes"><em>Los campos randomizados: el &quot;antes&quot;</em></h4>
 <ul>
 <li>Hoy el estímulo se arma con dos funciones escritas a mano, <code>get_op()</code> y
-<code>get_data()</code>, que sortean los valores con <code>$random</code> y <code>$urandom_range</code></li>
+<code>get_data()</code>, que sortean los valores con <code>$random</code> — el de Verilog-95, con
+semilla global</li>
 <li>El rango legal de <code>A</code> y <code>B</code> y el sesgo a los bordes son propiedades <strong>del
 dato</strong>, no del test — y sin embargo viven en el tester</li>
 <li>SystemVerilog ya trae esto hecho, y no hace falta escribir ni un <code>$urandom</code></li>
@@ -817,9 +818,12 @@ dato</strong>, no del test — y sin embargo viven en el tester</li>
 respuesta: ¿qué parte de esto es <em>del test</em> y qué parte es <em>del dato</em>? El rango
 legal de A y B, y el sesgo a los bordes, son propiedades del dato — no tienen
 nada que ver con qué querés probar.
-El <code>$random</code> y el <code>$urandom_range</code> escritos a mano son el síntoma: cada
-componente que quiera un comando válido tiene que repetirlos. Y si el DUT cambia,
-hay que acordarse de todos.
+El <code>$random</code> escrito a mano es el síntoma: cada componente que quiera un comando
+válido tiene que repetirlo. Y si el DUT cambia, hay que acordarse de todos.
+Un detalle que se cobra en la slide de semillas: <code>$random</code> es el de Verilog-95 y
+tiene <strong>una semilla global</strong>, así que dos hilos que lo llamen se pisan y la
+corrida no es reproducible. <code>$urandom</code> tiene semilla por hilo. El <code>randomize()</code>
+de la slide siguiente usa el segundo.
 El remate para la slide siguiente: SystemVerilog ya trae esto hecho, y no hace
 falta escribir ni un <code>$urandom</code>.</p>
 </div>

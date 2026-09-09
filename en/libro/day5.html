@@ -688,17 +688,17 @@ ready-made — which is exactly the unit that follows.</p>
 </section>
 
 <section id="s236" class="slide">
-<!-- es-sha: 44a782ad2aef -->
+<!-- es-sha: 0bb5764edd65 -->
 <h2 id="transactions">Transactions</h2>
 <h4 id="the-testbench-is-well-divided-up-and-the-data-is-not"><em>The testbench is well divided up, and the data is not</em></h4>
 <ul>
 <li>The testbench is already well divided up, but <strong>the data is still a <code>struct</code></strong>:
 <code>command_s</code> for the commands and a bare <code>shortint</code> for the results</li>
 <li>A <code>struct</code> does nothing by itself. Printing a command is a <code>$sformatf</code> written
-by hand, and it is written <strong>four times</strong>: tester, driver, coverage and
+by hand, and it is written <strong>three times</strong>: the two monitors and the
 scoreboard</li>
 <li>The same with randomizing and with comparing: every component builds its own,
-and the day the <code>struct</code> gains a field you have to remember all four</li>
+and the day the <code>struct</code> gains a field you have to remember all three</li>
 <li>And the result is not even a <code>struct</code>: it is a <strong>bare</strong> <code>shortint</code>, so the <code>ovf</code>
 of the VTALU —the second output— has nowhere to travel</li>
 <li>A class, on the other hand, has methods: the data and what gets done with it
@@ -787,7 +787,8 @@ Which means the base class we pick today is the one that lets us go on tomorrow.
 <h4 id="the-randomized-fields-the-before"><em>The randomized fields: the &quot;before&quot;</em></h4>
 <ul>
 <li>Today the stimulus gets built with two hand-written functions, <code>get_op()</code> and
-<code>get_data()</code>, which draw the values with <code>$random</code> and <code>$urandom_range</code></li>
+<code>get_data()</code>, which draw the values with <code>$random</code> — the Verilog-95 one, with a
+global seed</li>
 <li>The legal range of <code>A</code> and <code>B</code> and the bias to the edges are properties <strong>of the
 data</strong>, not of the test — and yet they live in the tester</li>
 <li>SystemVerilog already brings this ready-made, and there is no need to write a
@@ -829,9 +830,13 @@ single <code>$urandom</code></li>
 giving the answer: which part of this belongs to <em>the test</em> and which part
 belongs to <em>the data</em>? The legal range of A and B, and the bias to the edges, are
 properties of the data — they have nothing to do with what you want to test.
-The hand-written <code>$random</code> and <code>$urandom_range</code> are the symptom: every component
-that wants a valid command has to repeat them. And if the DUT changes, all of
-them have to be remembered.
+The hand-written <code>$random</code> is the symptom: every component that wants a valid
+command has to repeat it. And if the DUT changes, all of them have to be
+remembered.
+A detail that gets charged for in the seeds slide: <code>$random</code> is the Verilog-95
+one and has a <strong>global seed</strong>, so two threads calling it step on each other and
+the run is not reproducible. <code>$urandom</code> has a per-thread seed. The <code>randomize()</code>
+of the next slide uses the second one.
 The punchline for the next slide: SystemVerilog already brings this ready-made,
 and there is no need to write a single <code>$urandom</code>.</p>
 </div>

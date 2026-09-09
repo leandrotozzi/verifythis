@@ -23,7 +23,7 @@ vlt_uvm top -Wno-fatal -Wno-WIDTHEXPAND \
 
 run_sim +UVM_TESTNAME=ral_test
 
-# The two library sequences do 380 transfers, and the capstone monitor
+# The two library sequences do 378 transfers, and the capstone monitor
 # reports every one. UVM_LOW keeps the errors and drops the diary.
 run_sim +UVM_TESTNAME=builtin_test +UVM_VERBOSITY=UVM_LOW
 

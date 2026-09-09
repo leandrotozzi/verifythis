@@ -1,4 +1,4 @@
-<!-- es-sha: 889705c27c04 -->
+<!-- es-sha: 83d81dad101f -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 7
@@ -39,7 +39,7 @@
 
 #### *3 of 5 · The sampling edge*
 
-**All the properties of the VTALU sampled on `@(posedge clk)` give 185 errors over 1000 operations, and the DUT is healthy. Why?**
+**All the properties of the VTALU sampled on `@(posedge clk)` give 145 errors over 1000 operations, and the DUT is healthy. Why?**
 
 - [ ] The `disable iff (!reset_n)` is missing
 - [ ] The `posedge` is too fast: the clock has to be divided

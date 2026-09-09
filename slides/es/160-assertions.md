@@ -216,7 +216,7 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.
 
 | Con un solo reloj | Sobre 1000 operaciones |
 | --- | --- |
-| todo en `posedge` | **185 falsos positivos** en la estabilidad de operandos |
+| todo en `posedge` | **145 falsos positivos** en la estabilidad de operandos |
 | todo en `negedge` | falsos positivos en las properties de `done` |
 | **estímulo en `negedge`, respuesta en `posedge`** | **0 errores** ✅ |
 
@@ -230,10 +230,10 @@ Note:
 vale contarla con la traza en la mano: en dos `no_op` consecutivas, `start` baja
 en `t=111` y vuelve a subir en `t=120` — **entre dos `posedge`**. El muestreo no
 lo ve bajar. Las dos transacciones se leen como una sola, con los operandos
-cambiando en el medio, y la property grita 185 veces por algo que nunca pasó.
+cambiando en el medio, y la property grita 145 veces por algo que nunca pasó.
 La forma corta de decirlo: *una assertion no chequea lo que pasó, chequea lo que
 vio*. Y lo que ve depende de un solo carácter en el `@()`.
-Es otra **trampa muda**, y de las peores: compila, corre, y te tira 185 errores
+Es otra **trampa muda**, y de las peores: compila, corre, y te tira 145 errores
 que no existen. El reflejo del principiante es aflojar la property hasta que
 calle —y ahí se quedó sin chequeo. El reflejo correcto es mirar en qué flanco
 escribe el que estimula.
@@ -370,7 +370,7 @@ por eso `uvm_summary_ok` de `common.sh` lo detecta sin que hubiera que tocar
 nada.
 La razón por la que el default no sirve es práctica: una regresión nocturna que
 se corta en la primera falla informa **una** falla. La misma corrida con
-`uvm_error` informa las 183, y eso es la diferencia entre *"algo anda mal"* y
+`uvm_error` informa las 154, y eso es la diferencia entre *"algo anda mal"* y
 *"anda mal en todas las multiplicaciones"*.
 El `%m` parece un detalle y no lo es: con dos instancias de la misma interface,
 un mensaje sin `%m` no dice cuál de las dos ALU se rompió. Es el mismo problema
@@ -385,10 +385,7 @@ en vez de la de la librería.
 
 {{code:code/u8/assertions/vtalu_bfm.sv#the-covers}}
 
-```text
-covergroup : 86.8% (66/76)
-user       : 66.7% ( 2/ 3)     <- c_mult_3ciclos: 0 hits
-```
+{{code:code/u8/assertions/cover.txt}}
 
 - Una property cuyo **antecedente no ocurre nunca** pasa. Sin cobertura de
   assertions, un chequeo apagado se ve igual que un chequeo verde
@@ -453,16 +450,14 @@ cuenta como anécdota.
 
 {{code:code/u8/assertions/vtalu_bfm.sv#the-planted-bug}}
 
-```text
-** Report counts by severity        ** Report counts by id
-UVM_ERROR :  183                    [SVA]   183      <- y ni un [SELF CHECKER]
-```
+{{code:code/u8/assertions/sva.txt}}
 
 - `+BUG=1` cambia `B` **a mitad de la multiplicación**. El multiplicador ya
   latcheó los operandos en el primer flanco: **el resultado sale bien igual**
-- El scoreboard compara 1000 operaciones y no encuentra una sola diferencia. Está
-  haciendo bien su trabajo — este bug no es de datos
-- La assertion lo caza 183 veces, en el flanco exacto. Es el mismo ejemplo de reporting, dado vuelta: allá se rompía el scoreboard para enseñar reporting;
+- El scoreboard compara 1000 operaciones y no encuentra una sola diferencia: en
+  el resumen **no hay un solo `[SELF CHECKER]`**. Está haciendo bien su trabajo —
+  este bug no es de datos
+- La assertion lo caza 154 veces, en el flanco exacto. Es el mismo ejemplo de reporting, dado vuelta: allá se rompía el scoreboard para enseñar reporting;
   acá se rompe el protocolo para mostrar quién lo ve
 
 Note:
@@ -550,7 +545,7 @@ plan de verificación serio tiene las dos columnas.
   SystemVerilog
 - Esta sección existe porque la pregunta llega igual —en la entrevista, y en el
   primer bloque real que a uno le toca verificar
-- Los dos relojes, la tabla de los 185 falsos positivos y el `cover property` que
+- Los dos relojes, la tabla de los 145 falsos positivos y el `cover property` que
   nunca se cubre **no salieron de un tutorial**: salieron de escribir esta
   sección sobre el VTALU del curso y mirar por qué no daba
 - Todo lo de acá corre en Verilator, sin licencias, con el mismo `run.sh` de los
