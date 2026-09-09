@@ -9,9 +9,9 @@
 - La hace **Accellera**, el mismo consorcio que estandarizó SystemVerilog, y es
   **IEEE 1800.2**. El curso usa la implementación de referencia, `uvm-core
   2020.3.1`
-- Viene de VMM (Synopsys), OVM (Cadence + Mentor) y eRM: tres metodologías que
-  competían, hasta que la industria se cansó de traducir testbenches entre
-  herramientas
+- Viene de OVM (Cadence + Mentor), con ideas de VMM (Synopsys) y de eRM
+  (Verisity): las metodologías de tres vendors que competían, hasta que la
+  industria se cansó de traducir testbenches entre herramientas
 - Y ahí está el objetivo, que es uno solo: **que el testbench del de al lado se
   parezca al tuyo**
 
@@ -41,9 +41,9 @@ siempre no lo es — salvo en este curso, que es de lo que se trata todo esto.
 <!-- .element: class="grande" -->
 
 Note:
-El diagrama en una frase: cuatro metodologías de vendors distintos que
-convergen. eRM era de Verisity (lenguaje `e`), VMM de Synopsys, AVM y después
-OVM de Mentor y Cadence.
+El diagrama en una frase: seis siglas de cuatro vendors que convergen. eRM era
+de Verisity (lenguaje `e`), RVM y después VMM de Synopsys, AVM de Mentor y URM
+de Cadence; OVM fusionó AVM con URM, y es la base de la que salió UVM.
 Lo que hay que señalar es la fecha de abajo y el salto que significa: UVM 1.0 es
 de 2011, o sea que esto es **joven**. El que hoy tiene quince años de carrera
 empezó antes de que existiera.
@@ -63,7 +63,7 @@ testbench anterior a 2011 que nadie migró. Pasa más de lo que parece.
 Note:
 Éste es el testbench que vamos a escribir **nosotros**, a mano, en los días 1 y
 2. Conviene decirlo así: las cajas de este diagrama no son teoría, son los
-archivos que van a estar abiertos el miércoles.
+archivos que van a estar abiertos hoy mismo.
 Señalar el generador, el driver, el monitor y el checker, y hacer notar que
 ninguno de esos nombres es de UVM: son los nombres que cualquiera le pone a las
 piezas de un testbench, en cualquier lenguaje. UVM no los inventó; los

@@ -1,4 +1,4 @@
-<!-- es-sha: 7ab5fdb2591e -->
+<!-- es-sha: 5af5ed505af3 -->
 # Day 1 — a new operation, end to end
 
 Two files: a copy of the DUT single-cycle block and a copy of the conventional
@@ -55,6 +55,11 @@ lessons that are on no slide:
 
 With the solution, the coverage goes from **86.8 % (66 bins out of 76) to 100 %
 (77 out of 77)**: the shift adds its own bin and along the way closes the ones
-that were still open. Look at the denominator, not at the percentage: a
-covergroup that never declared the bin does not count it as missing either, so
-without step 3 the report also says 100 % — out of 76.
+that were still open. The ten that were missing were **a single one**: Verilator
+hands out the automatic bins of `all_ops` by the base type —`bit [2:0]`— and not
+by enum member, so it invents a bucket for `3'b110`, the value the enum did not
+have, and crosses it nine times with `a_leg` and `b_leg`. The shift is precisely
+`3'b110`, which is why it fills it along the way; on Questa you start from
+100 %. Look at the denominator, not at the percentage: a covergroup that never
+declared the bin does not count it as missing either, so without step 3 the
+report also says 100 % — out of 76.

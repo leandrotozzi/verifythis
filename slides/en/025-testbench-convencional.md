@@ -1,4 +1,4 @@
-<!-- es-sha: c64f160dc43f -->
+<!-- es-sha: 136dc6043a15 -->
 ## The conventional testbench
 
 #### *Coverage First Methodology*
@@ -49,14 +49,16 @@ and nothing else passes green with `ovf` stuck at zero.
 
 #### *The stimulus: a thousand operations, and the protocol by hand*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=186-216}}
+{{code:code/u2/convencional/vtalu_tb.sv|lines=219-247}}
 
 - A thousand rounds: pick the operation, pick the operands, raise `start`, wait for
-  `done`, lower `start`
+  **an edge with `done` up**, lower `start`
 - The `case` is there because of the fine print of the spec: `no_op` does not raise
   `done`, `rst_op` pulses `reset_n`, and the rest wait
 - `get_op()` and `get_data()` bias the random towards the edges —00 and FF— to
   reach the cases the plan asks for. It is *constrained random* written by hand
+- `enviadas` gets counted here and `chequeadas` in the scoreboard, and a `final`
+  demands they match: it is the testbench checking itself
 - Notice who knows about the protocol here: **the tester**. In interfaces and BFM that moves
   to the BFM and this task shrinks to one line
 
@@ -64,9 +66,17 @@ Note:
 This is the "before" slide of the whole course: the stimulus and the protocol mixed
 in the same loop. Worth pointing at it, because the next five units
 are successive separations of these thirty lines.
-The `wait(done)` of the `default` is the one that hangs if the DUT does not answer, and it is the
-place the student is going to end up in the first time they break something. The safety
-net is `VLT_TRACE=1` and the waves.
+The `do … while (done == 0)` of the `default` is the one that hangs if the DUT does
+not answer, and it is the place the student is going to end up in the first time they
+break something. The safety net is `VLT_TRACE=1` and the waves.
+And why it is not a `wait(done)`, which is the first thing anybody writes: on the
+one-cycle operations `done` is a level, and on the `negedge` where the tester loads
+the next operation **it is still up from the previous one**. The `wait(done)` does
+not block, `start` drops at the same instant and the DUT never sees that operation.
+There is no error: the scoreboard does not fire, and the coverage —which samples
+`op_set`— counts it anyway. This testbench had it, and it dropped 38 % of the
+one-cycle operations with the report in green. What catches it is the sent-versus-
+checked counter, and it is the cheapest silent trap to guard against.
 The bias of `get_data()` —a quarter at 00, a quarter at FF, half in the
 middle— is exactly what the transactions are going to write in one line with `dist`
 and `:/`. Worth naming it now so that the saving is visible later.
@@ -77,14 +87,15 @@ and `:/`. Worth naming it now so that the saving is visible later.
 
 #### *The self-checking: predict and compare*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=165-181}}
+{{code:code/u2/convencional/vtalu_tb.sv|lines=181-208}}
 
 - An `always @(posedge done)`: every time the DUT says it finished, the
   scoreboard predicts the result and compares it
 - The `#1` is not decoration: without it the signals get read at the same instant
   `done` goes up and a delta race can be swallowed
-- `no_op` and `rst_op` get discarded because they produce no result. Forgetting that
-  `if` makes the whole test fail without the DUT having anything wrong
+- `no_op` and `rst_op` do not raise `done`, so this block should never run with
+  them. The `if` is defensive —with no prediction for those two it would compare
+  garbage— and inside goes `chequeadas++`, the other half of the counter
 - The covergroup —the third leg— is the section that follows
 
 Note:
@@ -119,7 +130,8 @@ concept, with a counter and a severity policy behind it.
 
 Note:
 The last bullet is the one that orders the day: this testbench works and is badly
-split up. Three different files know how `start` gets wiggled, and the day
-the protocol changes all three have to be touched.
+split up. The tester knows how `start` gets wiggled and the scoreboard knows when
+to read `done`: the protocol lives in two places of the same file, and the day it
+changes both have to be touched.
 That is the whole motivation for interfaces and BFM, and it is worth leaving it as an
 open question instead of answering it here.

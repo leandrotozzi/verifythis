@@ -1,21 +1,22 @@
-<!-- es-sha: 56a350407959 -->
+<!-- es-sha: 6a0f3c15074d -->
 ## Interfaces and BFM
 
 #### *First: the signals stop being loose*
 
-{{code:code/u2/interfaces-bfm/vtalu_bfm.sv|lines=1-28}}
+{{code:code/u2/interfaces-bfm/vtalu_bfm.sv|lines=1-29}}
 
 - An `interface` is a **bundle** of signals with a name of its own. Nine wires that
   used to be declared in the `top` now live together
 - The clock gets generated inside: the interface is not a wire, it is a model of the bus
-- Connecting the DUT becomes `.A(bfm.A)`, `.clk(bfm.clk)`… and adding a signal
-  touches **one** file, not every file that uses it
+- Connecting the DUT becomes `.A(bfm.A)`, `.clk(bfm.clk)`… and a new signal gets
+  declared **once**: the modules that use it see it appear without touching their ports
 
 Note:
 First step towards UVM and it does not have a single line of UVM.
-The immediate gain is a maintenance one and it is worth measuring: in the conventional
-testbench, adding a signal to the DUT forced you to touch the `top`, the tester and the
-scoreboard. Here, the interface file.
+The immediate gain is a maintenance one and it is worth measuring: with loose
+signals, splitting the testbench into modules forces every one of them through every
+port list, and a new signal gets wired in all of them. Here it gets declared in the
+interface, and the only port that changes is the DUT's.
 One detail of types that costs you: `op` is a `wire [2:0]` and `op_set` is the
 `operation_t`. The `assign op = op_set` is the bridge between the testbench enum and
 the DUT wires. It is the only place in the course where the seam between the
@@ -27,7 +28,7 @@ two worlds is visible.
 
 #### *Then: the protocol hides inside a task*
 
-{{code:code/u2/interfaces-bfm/vtalu_bfm.sv|lines=41-68}}
+{{code:code/u2/interfaces-bfm/vtalu_bfm.sv|lines=40-69}}
 
 - `send_op(A, B, op, result)` translates *"do an addition"* into the signal wiggling
   the DUT expects. That is a **Bus Functional Model**
@@ -115,8 +116,10 @@ Note:
 The comparison with the conventional testbench is the slide: over there the `tester` raised `start`,
 waited for `done` and lowered `start`, mixed in with the stimulus generation. Here
 it only generates stimulus.
-Worth counting how many places of the conventional testbench knew about the protocol —the tester and the
-scoreboard— and how many know it now: one.
+Worth counting how many places of the conventional testbench knew about the protocol
+—the tester and the scoreboard— and how many move `start` now: one, the `send_op`.
+The scoreboard still waits for `done` on its own; that debt gets paid by the monitor
+of the analysis ports.
 And the hook for day 4: in the put and get ports this same tester is going to be a class with
 a `put_port`, and the BFM is going to end up on the other side of a driver. The operation is
 the same one we did here —hiding the wire— repeated one level up.
@@ -190,8 +193,8 @@ detail.
 
 - The BFM wrapped **the protocol**. What it did **not** wrap is *when* it
   drives and *when* it samples: that is still decided task by task
-- Three ways of reading the same data, and **three different results**: `0`, `11`
-  and `11`. The middle one depends on a `#1` that is visible nowhere
+- Three ways of reading the same data: `0`, `11` and `11`. Two values, but **three
+  mechanisms**, and the middle one depends on a `#1` that is visible nowhere
 - The `@(negedge clk)` of our BFM is the third one. It works — and it asks whoever
   reads it to know why
 
@@ -206,7 +209,10 @@ and it is the same on Questa.
 The second one is the worst of the three, and it is the one to mark as a silent trap:
 it works, and it works **by accident**. The `#1` does not say which problem it solves,
 it is not documented, and the day somebody deletes it because "it did nothing" the
-testbench keeps compiling and starts lying.
+testbench keeps compiling and starts lying. It is the same `#1` as the scoreboard of
+the conventional testbench, and the difference is a single one: there the slide says
+which race it avoids. An explained `#1` is a patch that knows it is a patch; a loose
+`#1` is the trap.
 And the third is ours. Worth being honest with the group: the course drives on
 `negedge` and samples on `posedge` because it is the trick you can understand without having
 seen clocking blocks, not because it is what gets written on a project.

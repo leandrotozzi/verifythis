@@ -1,5 +1,6 @@
-// Three-cycle multiplication: the latency is deliberate. It is what forces the
-// testbench to wait for 'done' instead of reading the result on the next cycle.
+// Multi-cycle multiplication: done rises on the FOURTH clock edge after start
+// (the one-cycle ops raise it on the first). The latency is deliberate: it is
+// what forces the testbench to wait for 'done' instead of counting cycles.
 module vtalu_mult (
     input  logic [ 7:0] A,
     input  logic [ 7:0] B,
@@ -14,7 +15,7 @@ module vtalu_mult (
    logic [15:0] mult1, mult2;  // pipeline registers
    logic done3, done2, done1;  // done travels down the same pipeline
 
-   // Three-stage multiplier. done is pipelined alongside the data, and each
+   // Four register stages. done is pipelined alongside the data, and each
    // stage clears itself with (& ~done_mult): that is what makes done a
    // one-cycle pulse instead of staying high for as long as start does. It is
    // subtle -- it is copied straight from the VHDL.

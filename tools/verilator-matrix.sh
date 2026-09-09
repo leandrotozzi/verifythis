@@ -123,6 +123,7 @@ herramienta comercial:
 |---|---|
 | bins de transicion (\`=>\`, \`[* n]\`) | Internal Error, no compila |
 | \`binsof\` / \`intersect\` / bins explicitos de cross | \`%Warning-COVERIGN\`, los ignora y sigue |
+| bins automaticos de un \`enum\` | uno por valor del **tipo base** y no por miembro: \`operation_t\` es \`bit [2:0]\`, y el \`3'b110\` que el enum no tiene sale como \`auto_5\` y queda en 0 para siempre. De ahi el 86.8 % de arriba: los 10 bins que faltan son ese valor y sus 9 cruces |
 | \`option.at_least\` en el **covergroup** | lo ignora **sin avisar**: los coverpoints siguen contando con un hit |
 | \`option.weight\` | \`%Warning-COVERIGN\`, lo ignora y sigue |
 | \`type_option.merge_instances\` | sin efecto observable, porque la cobertura type-wide da 0 igual |

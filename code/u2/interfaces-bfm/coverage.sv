@@ -103,7 +103,7 @@ endgroup
       oc = new();
       c_00_FF = new();
       forever begin  : sampling_block
-         @(negedge bfm.clk);
+         @(posedge bfm.clk);
          A = bfm.A;
          B = bfm.B;
          op_set = bfm.op_set;

@@ -44,15 +44,18 @@ picosegundos y sin unidad:
 5678
 ```
 
-Los dos números salen del visor y de ningún otro lado: no están en el log.
+Los dos números salen del visor y de ningún otro lado: no están en el log. Están
+en picosegundos porque el `run.sh` compila con `--timescale 1ps/1ps`; sin eso
+dependerían del default del simulador.
 
 > Mientras estés ahí, mirá `A` y `B` en el instante de la segunda respuesta y
 > compará con los que imprimió el `FAILED`. Ésa es la respuesta a *por qué*.
 
 ### 2 · Arreglar la BFM
 
-Con las ondas a la vista se ve solo: `done` de una multiplicación llega **tres
-ciclos** después del `start`, y el de las demás operaciones llega en uno. El
+Con las ondas a la vista se ve solo: `done` de una multiplicación llega en el
+**cuarto flanco** después del `start`, y el de las demás operaciones en el
+primero. El
 `send_op` de `vtalu_bfm.sv` **cuenta flancos** en vez de esperar el handshake,
 así que vuelve antes de tiempo y el estímulo siguiente pisa `A` y `B` mientras
 el multiplicador todavía está calculando.

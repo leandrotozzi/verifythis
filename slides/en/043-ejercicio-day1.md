@@ -1,4 +1,4 @@
-<!-- es-sha: 17a5d3509bb9 -->
+<!-- es-sha: 21796343bcf4 -->
 ## Exercise · Day 1 · 1 of 2
 
 #### *A new operation, end to end*
@@ -27,6 +27,8 @@ missing bin does not lower the percentage because it never made it into the
 denominator. There is the lesson that holds for the rest of the course: an opcode
 nobody measures is an opcode nobody verified, and the percentage is precisely the
 metric that cannot see it.
-With the solution it is 77 out of 77, starting from 86.8 % (66 out of 76). Worth
-showing both numbers and not only the percentage: that is why the `run.sh` demands
-the bin count and not 100 %, which a half-done job reaches too.
+With the solution it is 77 out of 77, starting from 86.8 % (66 out of 76). The ten
+that were missing were a single one: the bucket Verilator invents for `3'b110`, the
+value the enum did not have — and the shift is precisely `3'b110`, so it fills it
+along the way. Worth showing both numbers and not only the percentage: that is why
+the `run.sh` demands the bin count and not 100 %, which a half-done job reaches too.

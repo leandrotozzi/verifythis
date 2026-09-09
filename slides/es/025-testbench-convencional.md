@@ -48,14 +48,16 @@ y nada más pasa en verde con el `ovf` clavado en cero.
 
 #### *El estímulo: mil operaciones, y el protocolo a mano*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=186-216}}
+{{code:code/u2/convencional/vtalu_tb.sv|lines=219-247}}
 
 - Mil vueltas: elegir operación, elegir operandos, levantar `start`, esperar
-  `done`, bajar `start`
+  **un flanco con `done` arriba**, bajar `start`
 - El `case` está ahí por la letra chica de la spec: `no_op` no levanta
   `done`, `rst_op` pulsa `reset_n`, y las demás esperan
 - `get_op()` y `get_data()` sesgan el random hacia los bordes —00 y FF— para
   llegar a los casos que el plan pide. Es *constrained random* escrito a mano
+- `enviadas` se cuenta acá y `chequeadas` en el scoreboard, y un `final` exige
+  que sean iguales: es el testbench chequeándose a sí mismo
 - Fijate quién sabe del protocolo acá: **el tester**. En interfaces y BFM eso se muda
   a la BFM y esta task se achica a una línea
 
@@ -63,9 +65,17 @@ Note:
 Ésta es la slide del "antes" de todo el curso: el estímulo y el protocolo mezclados
 en el mismo bucle. Vale marcarlo con el dedo, porque las próximas cinco unidades
 son separaciones sucesivas de estas treinta líneas.
-El `wait(done)` del `default` es el que se cuelga si el DUT no responde, y es el
-lugar donde el alumno va a terminar la primera vez que rompa algo. La red de
-seguridad es `VLT_TRACE=1` y las ondas.
+El `do … while (done == 0)` del `default` es el que se cuelga si el DUT no
+responde, y es el lugar donde el alumno va a terminar la primera vez que rompa
+algo. La red de seguridad es `VLT_TRACE=1` y las ondas.
+Y por qué no es un `wait(done)`, que es lo primero que uno escribe: en las
+operaciones de un ciclo `done` es un nivel, y en el `negedge` en que el tester
+carga la operación siguiente **todavía está arriba por la anterior**. El
+`wait(done)` no bloquea, `start` baja en el mismo instante y el DUT nunca ve esa
+operación. No hay error: el scoreboard no dispara, y la cobertura —que muestrea
+`op_set`— la cuenta igual. Este testbench la tuvo, y descartaba el 38 % de las
+operaciones de un ciclo con el reporte en verde. La atrapa el contador de
+enviadas contra chequeadas, y es la trampa muda más barata de poner.
 El sesgo de `get_data()` —un cuarto en 00, un cuarto en FF, la mitad en el
 medio— es exactamente lo que las transactions van a escribir en una línea con `dist`
 y `:/`. Conviene nombrarlo ahora para que después se vea el ahorro.
@@ -76,14 +86,15 @@ y `:/`. Conviene nombrarlo ahora para que después se vea el ahorro.
 
 #### *El self-checking: predecir y comparar*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=165-181}}
+{{code:code/u2/convencional/vtalu_tb.sv|lines=181-208}}
 
 - Un `always @(posedge done)`: cada vez que el DUT dice que terminó, el
   scoreboard predice el resultado y lo compara
 - El `#1` no es un adorno: sin él se leen las señales en el mismo instante en que
   `done` sube y se puede comer una carrera de deltas
-- `no_op` y `rst_op` se descartan porque no producen resultado. Olvidarse de ese
-  `if` hace fallar todo el test sin que el DUT tenga nada
+- `no_op` y `rst_op` no levantan `done`, así que este bloque no debería correr
+  con ellas. El `if` es defensivo —sin predicción para esas dos compararía
+  basura— y adentro va `chequeadas++`, la otra mitad del contador
 - El covergroup —la tercera pata— es la sección que sigue
 
 Note:
@@ -118,7 +129,8 @@ concepto, con un contador y una política de severidad detrás.
 
 Note:
 El último bullet es el que ordena el día: este testbench funciona y está mal
-repartido. Tres archivos distintos saben cómo se menea `start`, y el día que
-cambie el protocolo hay que tocar los tres.
+repartido. El tester sabe cómo se menea `start` y el scoreboard sabe cuándo leer
+`done`: el protocolo vive en dos lugares del mismo archivo, y el día que cambie
+hay que tocar los dos.
 Ésa es toda la motivación de interfaces y BFM, y conviene dejarla como pregunta
 abierta en vez de contestarla acá.

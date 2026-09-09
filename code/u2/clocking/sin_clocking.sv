@@ -1,6 +1,6 @@
 // Sampling by hand: without a clocking block you have to pick the edge AND the
 // delta, in every task, over and over. This top runs the three variants people
-// write in their first week and shows they give THREE different numbers.
+// write in their first week: one reads the OLD value, the other two the NEW.
 //
 //   bash run.sh
 module dut_reg (input bit clk, input byte unsigned d_in, output byte unsigned d_out);

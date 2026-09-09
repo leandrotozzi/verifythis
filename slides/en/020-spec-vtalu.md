@@ -1,4 +1,4 @@
-<!-- es-sha: e745e3f38c41 -->
+<!-- es-sha: 7bdb0eec8328 -->
 ## The VTALU spec
 
 ![ALU waveform](res/diagrams/wave-dut.svg)
@@ -32,13 +32,16 @@ knows why.
 | sub_op | 3'b010 | 1 | **`A < B`** |
 | and_op | 3'b011 | 1 | 0 |
 | xor_op | 3'b100 | 1 | 0 |
-| mul_op | 3'b101 | 3 | 0 |
+| mul_op | 3'b101 | 4 | 0 |
 | *free* | 3'b110 | — | — |
 | rst_op | 3'b111 | — | — |
 
+- **Cycles** counts `clk` edges with `start` up, up to and including the one
+  that raises `done`: one on the single-cycle ops, four on the multiplication.
+  The plan and the day 7 assertions count the same way
 - `rst_op` is not decoded by the RTL — the DUT sees it as *unused*.
   It is the testbench convention for pulsing `reset_n`, and that is why it
-  is in the `operation_t` of `vtalu_pkg.sv`
+  is in the `operation_t` of the testbench
 - **`3'b110` is free on purpose**: it is today's exercise
 
 Note:
@@ -61,7 +64,7 @@ design slip.
 
 #### *Single Cycle: Add - Sub - AND - XOR*
 
-{{code:code/vtalu_dut/vtalu_1c.sv|lines=18-33}}
+{{code:code/vtalu_dut/vtalu_1c.sv|lines=20-42}}
 
 - Two `always_ff` and nothing else: one registers `A op B`, the other raises `done`
 - The resets **are not the same**: the one on the result is **synchronous** —only `clk` in
@@ -88,14 +91,14 @@ change the result: the ALU keeps whatever it computed last.
 {{code:code/vtalu_dut/vtalu_mult.sv|lines=32-42}}
 
 - It is a pipeline: the operands get registered, they get multiplied, and the product
-  goes through two more registers before coming out on `result_mult`
+  goes through two more registers before coming out on `result_mult`: four edges
 - The `done` travels down **the same chain** —`done3`, `done2`, `done1`— so it
   arrives exactly with the data and not before
 - The `& ~done_mult` of each stage is what turns the chain off on its own: that is why here
   `done` is a **one-cycle pulse**, even if `start` stays up
 
 Note:
-The three-cycle latency is on purpose, and it is the reason the conventional testbench exists:
+The four-edge latency is on purpose, and it is the reason the conventional testbench exists:
 it forces the testbench to **wait for `done`** instead of reading the result on the next
 cycle. A combinational DUT would teach nothing.
 The `& ~done_mult` is subtle and worth reading slowly: without it, while `start`
@@ -206,7 +209,7 @@ it is in the code.
   operands stable **until `done` goes up**
 - The fine print that is going to hang the first testbench: `done` is a one-cycle
   **pulse** on the multiplication and a **level** on the single-cycle ones
-- Inside there are **two blocks** with different latencies —one and three cycles— and the
+- Inside there are **two blocks** with different latencies —one and four cycles— and the
   top **decodes** the opcode. Outside, the bus is a single one
 - `ovf` is one more output, and it belongs to `sub_op` and to nobody else
 - `rst_op` **does not exist for the RTL**: it is a testbench convention for
@@ -219,7 +222,7 @@ it is in the code.
 Note:
 Closing of the section that looks like RTL and is really about verification. The
 question to close with: which of these seven facts is the most expensive one to
-forget? The one about `done`, and it will show on Wednesday.
+forget? The one about `done`, and it will show today, in the waves exercise.
 Worth saying why the DUT was not "cleaned up" when it was translated from VHDL: the
 asymmetry of the resets and the unvalidated opcode are **exactly** the kind of
 thing a testbench has to expose. A tidy DUT teaches nothing.

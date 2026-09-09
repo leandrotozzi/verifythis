@@ -1,4 +1,4 @@
-<!-- es-sha: 0d93720543be -->
+<!-- es-sha: 88519380b99e -->
 ## Functional coverage
 
 #### *When are you done verifying?*
@@ -60,14 +60,15 @@ endgroup
 op_cov oc;                             // 2. it gets INSTANTIATED: it is a type, like a class
 initial oc = new();
 
-always @(negedge clk) oc.sample();     // 3. WHEN it gets counted
+always @(posedge clk) oc.sample();     // 3. WHEN it gets counted
 ```
 
 - A `covergroup` is a **type**: declaring it measures nothing, it has to be `new()`ed
 - `sample()` is the one that counts. Without `sample()` the report reads **0 %** and the code
   compiles just the same
-- *Where* to sample is a design decision. Here, every negative edge; when
-  the TB has monitors it will be *"every time the monitor sees a command"*
+- *Where* to sample is a design decision. Here, the edge the **DUT reads on**,
+  never the same one the tester writes on; when the TB has monitors it will be
+  *"every time the monitor sees a command"*
 
 Note:
 Everybody's first-time mistake is declaring the covergroup and forgetting the
@@ -77,6 +78,10 @@ The third point is the one that holds for the rest of the course: the moment of 
 defines what you are measuring. Sampling on the clock counts cycles; sampling on
 transactions counts operations. In the analysis ports the `coverage` becomes a
 subscriber and samples when a command arrives — which is the right thing.
+And the edge is not a whim: sampling on the same `negedge` the tester writes
+`op_set` on is a race the LRM does not define —Verilator always resolves it the
+same way; another simulator may not—. It is the same rule as the day 7
+assertions: you read on the opposite edge to the one that writes.
 
 ---
 
@@ -94,7 +99,8 @@ coverpoint op_set {
 ```
 
 - Without `{ }`, SystemVerilog creates one bin per value. That works for an `enum`; for an
-  `int` it would be thousands and the number would mean nothing
+  `int` the tool chops the range into **64** buckets —`auto_bin_max`— that
+  correspond to no row of the plan
 - The brackets `[]` **hand out**: one bucket per value of the range. Without them,
   every value falls into the same bucket
 - A coverpoint is covered when **all** of its bins have at least one hit.
@@ -120,7 +126,7 @@ two slides.
 
 #### *The VTALU covergroup*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=42-64}}
+{{code:code/u2/convencional/vtalu_tb.sv|lines=44-66}}
 
 - `single_cycle[]` generates six bins —one per operation—, `multi_cycle` a single one
 - What is inside `` `ifndef VERILATOR `` are the transition bins: two
@@ -147,7 +153,7 @@ tool does not do is a course that lies.
 
 #### *ignore_bins: saying out loud what does not get covered*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=66-82}}
+{{code:code/u2/convencional/vtalu_tb.sv|lines=69-84}}
 
 - `all_ops` **ignores** `rst_op` and `no_op`: it makes no sense to ask for "an addition with
   the operands at 0x00" when the operation is a reset
@@ -171,19 +177,19 @@ The rule of thumb: if it cannot be covered, `ignore_bins`; if it must not happen
 #### *cross: the combinations, and how not to drown*
 
 ```systemverilog
-op_00_FF : cross a_leg, b_leg, all_ops;    // 3 x 3 x 4 = 36 bins, almost all meaningless
+op_00_FF : cross a_leg, b_leg, all_ops;    // 3 x 3 x 5 = 45 bins, almost all meaningless
 ```
 
 - A `cross` is the **cartesian product** of its coverpoints: it grows fast and
   most of the combinations are in nobody's spec
 - `binsof(x) intersect {v}` reads as *"the bins of `x` that contain `v`"*
 - They combine with `&&` and `||`, and what is left over gets thrown away with `ignore_bins`
-- That way the 36 bins come down to the 9 the plan actually asked for
+- That way the 45 bins come down to the 11 the plan actually asked for
 
 Note:
 The arithmetic in the comment is what has to be done out loud, because the number
-is scary and it has to be: three bins of A by three of B by four operations
-is **36**, and out of those 36 the plan asked for nine. The other 27 are not wrong — they are
+is scary and it has to be: three bins of A by three of B by five operations
+is **45**, and out of those 45 the plan asked for eleven. The other 34 are not wrong — they are
 surplus, and a surplus bin is as expensive as a missing one: it pins your coverage
 below 100 % and nobody knows whether it is a real hole.
 `binsof(x) intersect {v}` is worth reading in plain words before
@@ -200,7 +206,9 @@ the problem is an unfiltered cross, not a missing test.
 
 #### *The VTALU cross*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=84-114}}
+{{code:code/u2/convencional/vtalu_tb.sv|lines=94-99}}
+
+{{code:code/u2/convencional/vtalu_tb.sv|lines=119-130}}
 
 - `add_00` reads straight through: *an addition where A **or** B is 0x00*
 - `mul_max` is the only one with `&&`: it asks for **both** legs at 0xFF: the
@@ -222,9 +230,10 @@ something for being the maximum of the input space, not for overflowing. The onl
 that overflows is the subtraction, and only when A < B.
 The honesty of this slide is part of the course, so it is worth saying and not
 rushing past: the 86.8 % the example reports **is not** the number Questa would give.
-Verilator ignores the filter and measures the 36 bins, so the percentage comes out
-lower and for a reason that is not the testbench's. It is written, dated and with a
-version in `docs/verilator.md`.
+Verilator ignores the filter and measures the whole cross —the 45, and on top it
+adds a value the enum does not have; the "Reading the number" slide says which—, so
+the percentage comes out lower and for a reason that is not the testbench's. It is
+written, dated and with a version in `docs/verilator.md`.
 The useful question for the classroom: does that invalidate the exercise? No. What gets learned
 —writing the cross, filtering it, and knowing which bin belongs to which row of the plan—
 is identical. The only thing that cannot be done with this tool is signing off on
@@ -317,19 +326,28 @@ Coverage Summary:
 
 - 66 of 76 bins filled, with 1000 random operations. The other rows of the
   summary come out `0/0`: `--coverage-user` leaves code coverage out
-- The 13 % that is missing **is not a bug**: it is the bins Verilator does not measure plus
-  the ones 1000 random operations did not get to touch
-- The number is not the goal. The question that helps is **which** bin is missing: that
-  tells you which test to write
+- The 10 that are missing are **a single value**: `all_ops.auto_5` and its nine
+  crosses. It is `3'b110`, which the enum **does not have** — Verilator hands out
+  the automatic bins by the base type, `bit [2:0]`, and not by enum member
+- Which means no row of the plan was left uncovered, and on Questa this gives 100 %.
+  The number is not the goal: the question that helps is **which** bin is missing,
+  and only the per-bin report says that, `obj_dir/top/coverage.dat`
 - Run → look at what is missing → write the directed test → run again. That is
   called *coverage closure*, and it is what a verifier spends the day on
 
 Note:
-This is where it is worth running it live and opening the report: the student has to
-see that the tool is telling them what they still have to do.
-And the punchline: the exercise of the day does exactly this. Adding the new operation
-of the free opcode with its bins takes the coverage from 86.8 % to 100 %, and the one who
-raises it is the same one who wrote the test.
+This is where it is worth running it live and opening the `coverage.dat`: the
+student has to see that the ten zeros have the same name, and that the name is not
+in the `operation_t`. The lesson is to read the report and not the number: the
+number says 86.8 % and the report says "nothing is missing, the tool invented a
+bucket". On a commercial tool the automatic bin of an enum is one per member
+(IEEE 1800, 19.5) and this gives 100 % from the start; it is noted in
+`docs/verilator.md`.
+And the punchline: the exercise of the day uses precisely `3'b110` for the shift, so
+the new operation fills the phantom bucket and the coverage goes from 86.8 % to
+100 % — 77 out of 77, with the shift's own bin added. The one who raises it is the
+same one who wrote the test, and the checker counts bins and not the percentage,
+because we have just seen the percentage cannot read.
 
 ---
 

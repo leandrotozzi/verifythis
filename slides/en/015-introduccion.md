@@ -1,4 +1,4 @@
-<!-- es-sha: 02808786ca79 -->
+<!-- es-sha: 4659d324cac3 -->
 ## Introduction
 
 #### *What is UVM?*
@@ -10,9 +10,9 @@
 - It is made by **Accellera**, the same consortium that standardized SystemVerilog, and it is
   **IEEE 1800.2**. The course uses the reference implementation, `uvm-core
   2020.3.1`
-- It comes from VMM (Synopsys), OVM (Cadence + Mentor) and eRM: three methodologies that
-  competed, until the industry got tired of translating testbenches between
-  tools
+- It comes from OVM (Cadence + Mentor), with ideas from VMM (Synopsys) and from eRM
+  (Verisity): the methodologies of three vendors that competed, until the
+  industry got tired of translating testbenches between tools
 - And there is the goal, and it is a single one: **that the testbench of the person next to
   you looks like yours**
 
@@ -42,9 +42,9 @@ always is not — except in this course, which is what all of this is about.
 <!-- .element: class="grande" -->
 
 Note:
-The diagram in one sentence: four methodologies from different vendors that
-converge. eRM was Verisity's (the `e` language), VMM Synopsys', AVM and later
-OVM Mentor's and Cadence's.
+The diagram in one sentence: six acronyms from four vendors that converge. eRM was
+Verisity's (the `e` language), RVM and later VMM Synopsys', AVM Mentor's and URM
+Cadence's; OVM merged AVM with URM, and it is the base UVM came out of.
 What has to be pointed out is the date at the bottom and the jump it means: UVM 1.0 is
 from 2011, which means this is **young**. Somebody with fifteen years of career today
 started before it existed.
@@ -64,7 +64,7 @@ testbench from before 2011 that nobody migrated. It happens more than it seems.
 Note:
 This is the testbench **we** are going to write, by hand, on days 1 and
 2. It is worth saying it like that: the boxes in this diagram are not theory, they are the
-files that are going to be open on Wednesday.
+files that are going to be open today.
 Point at the generator, the driver, the monitor and the checker, and make the point that
 none of those names is UVM's: they are the names anybody gives to the pieces of a
 testbench, in any language. UVM did not invent them; it standardized them.

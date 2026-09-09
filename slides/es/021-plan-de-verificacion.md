@@ -65,5 +65,5 @@ El tercer bullet es una promesa que el curso cumple el día 7: hasta entonces
 todos los chequeos son de scoreboard, y la mitad del protocolo queda sin
 chequear. Vale dejarlo dicho ahora para que el día 7 no parezca un agregado.
 Un plan serio tiene las dos columnas, y la tabla del VTALU —que se ve entera en
-la unidad que viene, ya con los bins— tiene siete filas de scoreboard y tres de
+la unidad que viene, ya con los bins— tiene ocho filas de scoreboard y cuatro de
 assertion.

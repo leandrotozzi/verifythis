@@ -12,6 +12,9 @@
 //   3. ERROR  un "### " en una slide -- la convencion es "## titulo" + "#### *sub*",
 //             y un h3 se dibuja mas grande que un h4 (unica excepcion: la portada)
 //   4. AVISO  un "#### " sin italica -- el subtitulo del curso va en italica ambar
+//   5. ERROR  un lines= que arranca en una linea de cierre: ")", "}", "endgroup",
+//             "`endif". Es la firma de un rango que quedo viejo porque el archivo
+//             crecio arriba de el, y la slide muestra el final de otra cosa.
 //
 // Los archivos de quiz, agenda y ejercicio estan exentos de la regla 1: ahi el
 // texto es la pregunta, y el codigo es el enunciado.
@@ -27,6 +30,7 @@ const EXENTOS = /quiz|agenda|ejercicio/;
 // La portada es la unica slide con un h1: ahi el subtitulo va en h3 a proposito.
 const PORTADA = '000-verify-this.md';
 const RE_CODE = /\{\{code:([^}|]+?)(?:\|lines=(\d+)-(\d+))?\}\}/g;
+const CIERRE = /^\s*(\)\s*;?|\}|end(group|module|task|function|case|interface|package)|`endif|`else)\s*$/;
 
 const errores = [], avisos = [];
 const sinNota = new Map();
@@ -80,10 +84,16 @@ for (const [SLIDES_DIR, f] of ARBOLES) {
       sinNota.set(f, (sinNota.get(f) ?? 0) + 1);
     }
 
-    for (const [, ruta, desde] of s.matchAll(RE_CODE)) {
-      if (desde) continue;
-      const n = (await readFile(ruta.trim(), 'utf8').catch(() => '')).split('\n').length;
-      if (n > MAX_LINEAS) avisos.push(`${donde} — ${ruta.trim()} entero: ${n} lineas (max ${MAX_LINEAS} sin lines=)`);
+    for (const [, ruta, desde, hasta] of s.matchAll(RE_CODE)) {
+      const lineas = (await readFile(ruta.trim(), 'utf8').catch(() => '')).split('\n');
+      if (!desde) {
+        if (lineas.length > MAX_LINEAS) avisos.push(`${donde} — ${ruta.trim()} entero: ${lineas.length} lineas (max ${MAX_LINEAS} sin lines=)`);
+        continue;
+      }
+      const primera = lineas[+desde - 1] ?? '';
+      if (CIERRE.test(primera)) {
+        errores.push(`${donde} — ${ruta.trim()}|lines=${desde}-${hasta} arranca en "${primera.trim()}": el rango quedo viejo`);
+      }
     }
   }
 }

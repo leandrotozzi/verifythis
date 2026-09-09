@@ -56,8 +56,8 @@ mitad del proyecto, con su propio equipo y su propio lenguaje.
 | VHDL 2008 | 115 |
 | Verilog 95 | 102 |
 | C# | 102 |
-| C++ | 82 |
-| Python3.x | 33 |
+| C++ 20 | 92 |
+| Python 3 | 35 |
 
 > *"* No academic computer scientists participated in the design of COBOL;
 >  all of those on the committee came from commerce or government"* ¿Parecido no?

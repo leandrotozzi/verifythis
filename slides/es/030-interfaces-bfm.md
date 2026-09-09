@@ -2,19 +2,20 @@
 
 #### *Primero: las señales dejan de estar sueltas*
 
-{{code:code/u2/interfaces-bfm/vtalu_bfm.sv|lines=1-28}}
+{{code:code/u2/interfaces-bfm/vtalu_bfm.sv|lines=1-29}}
 
 - Una `interface` es un **bundle** de señales con nombre propio. Nueve cables que
   antes estaban declarados en el `top` ahora viven juntos
 - El reloj se genera adentro: la interface no es un cable, es un modelo del bus
-- Conectar el DUT pasa a ser `.A(bfm.A)`, `.clk(bfm.clk)`… y agregar una señal
-  toca **un** archivo, no todos los que la usan
+- Conectar el DUT pasa a ser `.A(bfm.A)`, `.clk(bfm.clk)`… y una señal nueva se
+  declara **una vez**: los módulos que la usan la ven aparecer sin tocar sus puertos
 
 Note:
 Primer paso hacia UVM y no tiene una línea de UVM.
-La ganancia inmediata es de mantenimiento y conviene medirla: en el testbench
-convencional, agregar una señal al DUT obligaba a tocar el `top`, el tester y el
-scoreboard. Acá, el archivo de la interface.
+La ganancia inmediata es de mantenimiento y conviene medirla: con las señales
+sueltas, partir el testbench en módulos obliga a pasar cada una por cada port
+list, y una señal nueva se cablea en todos. Acá se declara en la interface, y el
+único puerto que cambia es el del DUT.
 Un detalle de tipos que se cobra: `op` es un `wire [2:0]` y `op_set` es el
 `operation_t`. El `assign op = op_set` es el puente entre el enum del testbench y
 los cables del DUT. Es el único lugar del curso donde se ve la costura entre los
@@ -26,7 +27,7 @@ dos mundos.
 
 #### *Después: el protocolo se esconde en una task*
 
-{{code:code/u2/interfaces-bfm/vtalu_bfm.sv|lines=41-68}}
+{{code:code/u2/interfaces-bfm/vtalu_bfm.sv|lines=40-69}}
 
 - `send_op(A, B, op, result)` traduce *"hacé una suma"* al meneo de señales que
   el DUT espera. Eso es un **Bus Functional Model**
@@ -114,8 +115,10 @@ Note:
 La comparación con el testbench convencional es la slide: allá el `tester` levantaba `start`,
 esperaba `done` y bajaba `start`, mezclado con la generación de estímulo. Acá
 sólo genera estímulo.
-Vale contar cuántos lugares del testbench convencional sabían del protocolo —el tester y el
-scoreboard— y cuántos lo saben ahora: uno.
+Vale contar cuántos lugares del testbench convencional sabían del protocolo —el
+tester y el scoreboard— y cuántos mueven `start` ahora: uno, el `send_op`. El
+scoreboard sigue esperando `done` por su cuenta; esa deuda la paga el monitor de
+los analysis ports.
 Y el enganche del día 4: en los put y get ports este mismo tester va a ser una clase con
 un `put_port`, y la BFM va a quedar del otro lado de un driver. La operación es
 la misma que hicimos acá — esconder el cable— repetida un nivel más arriba.
@@ -189,8 +192,8 @@ detalle.
 
 - La BFM encapsuló **el protocolo**. Lo que **no** encapsuló es *cuándo* se
   maneja y *cuándo* se muestrea: eso sigue decidido task por task
-- Tres formas de leer el mismo dato, y **tres resultados distintos**: `0`, `11`
-  y `11`. La del medio depende de un `#1` que no se ve en ningún lado
+- Tres formas de leer el mismo dato: `0`, `11` y `11`. Dos valores, pero **tres
+  mecanismos**, y el del medio depende de un `#1` que no se ve en ningún lado
 - El `@(negedge clk)` de nuestra BFM es la tercera. Anda — y le pide al que la
   lee que sepa por qué
 
@@ -205,7 +208,10 @@ LRM, y es igual en Questa.
 La segunda es la peor de las tres, y es la que hay que marcar como trampa muda:
 funciona, y funciona **por accidente**. El `#1` no dice qué problema resuelve,
 no está documentado, y el día que alguien lo borra porque "no hacía nada" el
-testbench sigue compilando y empieza a mentir.
+testbench sigue compilando y empieza a mentir. Es el mismo `#1` del scoreboard
+del testbench convencional, y la diferencia es una sola: allá la slide dice qué
+carrera evita. Un `#1` explicado es un parche que se sabe parche; un `#1` suelto
+es la trampa.
 Y la tercera es la nuestra. Vale ser honesto con el grupo: el curso maneja en
 `negedge` y muestrea en `posedge` porque es el truco que se entiende sin haber
 visto clocking blocks, no porque sea lo que se escribe en un proyecto.

@@ -31,13 +31,16 @@ sabe por qué.
 | sub_op | 3'b010 | 1 | **`A < B`** |
 | and_op | 3'b011 | 1 | 0 |
 | xor_op | 3'b100 | 1 | 0 |
-| mul_op | 3'b101 | 3 | 0 |
+| mul_op | 3'b101 | 4 | 0 |
 | *libre* | 3'b110 | — | — |
 | rst_op | 3'b111 | — | — |
 
+- **Ciclos** cuenta flancos de `clk` con `start` arriba, hasta el que levanta
+  `done` inclusive: uno en las de un ciclo, cuatro en la multiplicación. El
+  plan y las assertions del día 7 cuentan igual
 - `rst_op` no lo decodifica el RTL — el DUT lo ve como *unused*.
   Es la convención del testbench para pulsar `reset_n`, y por eso
-  está en el `operation_t` de `vtalu_pkg.sv`
+  está en el `operation_t` del testbench
 - **`3'b110` está libre a propósito**: es el ejercicio de hoy
 
 Note:
@@ -60,7 +63,7 @@ descuido del diseño.
 
 #### *Single Cycle: Add - Sub - AND - XOR*
 
-{{code:code/vtalu_dut/vtalu_1c.sv|lines=18-33}}
+{{code:code/vtalu_dut/vtalu_1c.sv|lines=20-42}}
 
 - Dos `always_ff` y nada más: uno registra `A op B`, el otro levanta `done`
 - Los resets **no son iguales**: el del resultado es **síncrono** —sólo `clk` en
@@ -87,14 +90,14 @@ cambien el resultado: la ALU se queda con lo último que calculó.
 {{code:code/vtalu_dut/vtalu_mult.sv|lines=32-42}}
 
 - Es un pipeline: los operandos se registran, se multiplican, y el producto
-  atraviesa dos registros más antes de salir por `result_mult`
+  atraviesa dos registros más antes de salir por `result_mult`: cuatro flancos
 - El `done` viaja por **la misma cadena** —`done3`, `done2`, `done1`— así que
   llega exactamente con el dato y no antes
 - El `& ~done_mult` de cada etapa es lo que apaga la cadena sola: por eso acá
   `done` es un **pulso de un ciclo**, aunque `start` siga arriba
 
 Note:
-La latencia de tres ciclos es a propósito, y es la razón de ser del testbench convencional:
+La latencia de cuatro flancos es a propósito, y es la razón de ser del testbench convencional:
 obliga al testbench a **esperar `done`** en vez de leer el resultado al ciclo
 siguiente. Un DUT combinacional no enseñaría nada.
 El `& ~done_mult` es sutil y conviene leerlo despacio: sin eso, mientras `start`
@@ -205,7 +208,7 @@ que en el código.
   operandos estables **hasta que sube `done`**
 - La letra chica que va a colgar al primer testbench: `done` es un **pulso** de
   un ciclo en la multiplicación y un **nivel** en las de un ciclo
-- Adentro hay **dos bloques** con latencias distintas —uno y tres ciclos— y el
+- Adentro hay **dos bloques** con latencias distintas —uno y cuatro ciclos— y el
   top **decodifica** el opcode. Afuera, el bus es uno solo
 - `ovf` es una salida más, y es del `sub_op` y de nadie más
 - `rst_op` **no existe para el RTL**: es una convención del testbench para
@@ -218,7 +221,7 @@ que en el código.
 Note:
 Cierre de la sección que parece de RTL y en realidad es de verificación. La
 pregunta con la que conviene cerrar: ¿cuál de estos siete datos es el que más
-caro sale olvidarse? El del `done`, y se va a ver el miércoles.
+caro sale olvidarse? El del `done`, y se va a ver hoy mismo, en el ejercicio de las ondas.
 Vale dejar dicho por qué el DUT no se "limpió" al traducirlo del VHDL: la
 asimetría de los resets y el opcode sin validar son **exactamente** el tipo de
 cosa que un testbench tiene que exponer. Un DUT prolijo no enseña nada.

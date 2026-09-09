@@ -136,7 +136,7 @@ module top;
       oc = new();
       c_00_FF = new();
 
-      forever begin @(negedge clk);
+      forever begin @(posedge clk);
          oc.sample();
          c_00_FF.sample();
       end
@@ -169,6 +169,10 @@ module top;
         return $random;
    endfunction : get_data
 
+   // Sent by the tester, compared by the scoreboard: the final block below
+   // demands that the two match.
+   int enviadas, chequeadas;
+
    // Scoreboard loop: checks that everything came out right
    always @(posedge done) begin : scoreboard
       shortint predicted_result;
@@ -190,6 +194,7 @@ module top;
       predicted_ovf = (op_set == sub_op) && (A < B);
 
       if ((op_set != no_op) && (op_set != rst_op)) begin
+        chequeadas++;
         if (op == 3'b110) shifts++;
         if (predicted_result != result || predicted_ovf != ovf)
           $error ("FAILED: A: %0h  B: %0h  op: %s result: %0h ovf: %0b",
@@ -200,11 +205,14 @@ module top;
 
    // --- exercise checker (you do not need to touch this) ---------------------
    // A $error in Verilator aborts the simulation, so a result that does not
-   // match shows up on its own: the only thing to count are the shifts.
+   // match shows up on its own: what is left to count are the shifts, and that
+   // every operation sent came back through the scoreboard.
    int shifts = 0;
 
    final begin
-      if (shifts == 0)
+      if (enviadas != chequeadas)
+        $display("EXERCISE INCOMPLETE: sent %0d operations, the scoreboard checked %0d", enviadas, chequeadas);
+      else if (shifts == 0)
         $display("EXERCISE INCOMPLETE: the TB never sent a shift (look at get_op)");
       else
         $display("EXERCISE OK: %0d shifts checked, 0 errors", shifts);
@@ -237,7 +245,11 @@ module top;
               reset_n = 1'b1;
            end
            default: begin
-              wait(done);
+              // Wait for an EDGE with done up, not for done itself: on the
+              // one-cycle ops done is a level still up from the previous op,
+              // and a plain wait(done) drops this one without a sound.
+              enviadas++;
+              do @(negedge clk); while (done == 0);
               start = 1'b0;
            end
          endcase // case (op_set)

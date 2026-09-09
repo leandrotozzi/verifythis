@@ -1,4 +1,4 @@
-<!-- es-sha: 607a6dd59d8a -->
+<!-- es-sha: 42c12a76b98e -->
 ## Trends
 
 #### *First silicon almost never comes out right*
@@ -57,8 +57,8 @@ half the project, with its own team and its own language.
 | VHDL 2008 | 115 |
 | Verilog 95 | 102 |
 | C# | 102 |
-| C++ | 82 |
-| Python3.x | 33 |
+| C++ 20 | 92 |
+| Python 3 | 35 |
 
 > *"* No academic computer scientists participated in the design of COBOL;
 >  all of those on the committee came from commerce or government"* Sound familiar?

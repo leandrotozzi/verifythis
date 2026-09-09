@@ -14,14 +14,18 @@
 # The TB is the conventional testbench one (u2/interfaces-bfm): from here come the
 # BFM -- the one with the bug -- and the top, which brings the wave dump.
 set -e
+# --trace always: the waves are the exercise, not an opt-in. It has to be set
+# BEFORE common.sh is sourced: that is where VLT_FLAGS gets assembled from it.
+export VLT_TRACE=1
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
 SRC=${SOLUCION:+solucion/}
 
 falta() { echo "not yet: $1" >&2; exit 1; }
 
-# --trace always: the waves are the exercise, not an opt-in.
-VLT_TRACE=1
-vlt top -Wno-fatal -f pkg.f "${SRC}vtalu_bfm.sv" -f tb.f top.sv -f dut.f
+# --timescale: the two times the README asks for are read in picoseconds, and
+# no source declares a timeunit -- without this they would depend on the
+# simulator's default.
+vlt top -Wno-fatal --timescale 1ps/1ps -f pkg.f "${SRC}vtalu_bfm.sv" -f tb.f top.sv -f dut.f
 
 echo "=== running, and dumping ondas.vcd ==="
 # The run ABORTS on the first $error while the bug is there: that is expected.
@@ -69,11 +73,14 @@ echo "STAGE 1 OK: you read the waves -- first done at $T_PRIMERO ps, the one of 
 
 echo ""
 echo "=== STAGE 2: fix the BFM ==="
+# The run first, the grep after: a wait(done) fails the run (done is a level
+# still up from the previous op, so start drops before the DUT sees the new
+# one), and a repeat(5) passes the run while still counting cycles. Each gets
+# the message that is true for it.
+run_sim || falta "the run still reports errors: look at the lines above"
 grep -q 'while *( *done' "${SRC}vtalu_bfm.sv" ||
   falta "send_op still counts cycles. The DUT says when it finished: wait for the
     handshake (done), not a number of edges. It is one line."
-
-run_sim || falta "the run still reports errors: look at the lines above"
 echo "STAGE 2 OK: the BFM waits for the handshake and no operation fails"
 echo ""
 echo "EXERCISE OK"

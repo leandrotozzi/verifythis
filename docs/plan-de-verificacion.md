@@ -81,8 +81,9 @@ Seis cosas que esta tabla dice y que ninguna slide suelta dice:
   el bug ciego de las assertions y del ejercicio
   [`d7-sva`](../code/ejercicios/d7-sva/).
 - **La fila 11 tiene un cover que nunca se llena a propósito**: `c_mult_3ciclos`
-  se queda en 0 porque la multiplicación "de tres ciclos" tarda cuatro flancos.
-  Un cover en cero es información, no una falla.
+  se queda en 0 porque la multiplicación tarda cuatro flancos —es lo que dice la
+  tabla de la spec, y el pipeline se cuenta a ojo como tres—. Un cover en cero
+  es información, no una falla.
 
 ## La plantilla, para el capstone
 

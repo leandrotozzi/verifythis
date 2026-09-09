@@ -231,8 +231,8 @@ mitad del proyecto, con su propio equipo y su propio lenguaje.
 | VHDL 2008 | 115 |
 | Verilog 95 | 102 |
 | C# | 102 |
-| C++ | 82 |
-| Python3.x | 33 |
+| C++ 20 | 92 |
+| Python 3 | 35 |
 
 > *"* No academic computer scientists participated in the design of COBOL;
 >  all of those on the committee came from commerce or government"* ¿Parecido no?
@@ -260,9 +260,9 @@ Sirve para bajarle la ansiedad al que llega asustado por el tamaño de UVM.
 - La hace **Accellera**, el mismo consorcio que estandarizó SystemVerilog, y es
   **IEEE 1800.2**. El curso usa la implementación de referencia, `uvm-core
   2020.3.1`
-- Viene de VMM (Synopsys), OVM (Cadence + Mentor) y eRM: tres metodologías que
-  competían, hasta que la industria se cansó de traducir testbenches entre
-  herramientas
+- Viene de OVM (Cadence + Mentor), con ideas de VMM (Synopsys) y de eRM
+  (Verisity): las metodologías de tres vendors que competían, hasta que la
+  industria se cansó de traducir testbenches entre herramientas
 - Y ahí está el objetivo, que es uno solo: **que el testbench del de al lado se
   parezca al tuyo**
 
@@ -292,9 +292,9 @@ siempre no lo es — salvo en este curso, que es de lo que se trata todo esto.
 <!-- .element: class="grande" -->
 
 Note:
-El diagrama en una frase: cuatro metodologías de vendors distintos que
-convergen. eRM era de Verisity (lenguaje `e`), VMM de Synopsys, AVM y después
-OVM de Mentor y Cadence.
+El diagrama en una frase: seis siglas de cuatro vendors que convergen. eRM era
+de Verisity (lenguaje `e`), RVM y después VMM de Synopsys, AVM de Mentor y URM
+de Cadence; OVM fusionó AVM con URM, y es la base de la que salió UVM.
 Lo que hay que señalar es la fecha de abajo y el salto que significa: UVM 1.0 es
 de 2011, o sea que esto es **joven**. El que hoy tiene quince años de carrera
 empezó antes de que existiera.
@@ -314,7 +314,7 @@ testbench anterior a 2011 que nadie migró. Pasa más de lo que parece.
 Note:
 Éste es el testbench que vamos a escribir **nosotros**, a mano, en los días 1 y
 2. Conviene decirlo así: las cajas de este diagrama no son teoría, son los
-archivos que van a estar abiertos el miércoles.
+archivos que van a estar abiertos hoy mismo.
 Señalar el generador, el driver, el monitor y el checker, y hacer notar que
 ninguno de esos nombres es de UVM: son los nombres que cualquiera le pone a las
 piezas de un testbench, en cualquier lenguaje. UVM no los inventó; los
@@ -435,13 +435,16 @@ sabe por qué.
 | sub_op | 3'b010 | 1 | **`A < B`** |
 | and_op | 3'b011 | 1 | 0 |
 | xor_op | 3'b100 | 1 | 0 |
-| mul_op | 3'b101 | 3 | 0 |
+| mul_op | 3'b101 | 4 | 0 |
 | *libre* | 3'b110 | — | — |
 | rst_op | 3'b111 | — | — |
 
+- **Ciclos** cuenta flancos de `clk` con `start` arriba, hasta el que levanta
+  `done` inclusive: uno en las de un ciclo, cuatro en la multiplicación. El
+  plan y las assertions del día 7 cuentan igual
 - `rst_op` no lo decodifica el RTL — el DUT lo ve como *unused*.
   Es la convención del testbench para pulsar `reset_n`, y por eso
-  está en el `operation_t` de `vtalu_pkg.sv`
+  está en el `operation_t` del testbench
 - **`3'b110` está libre a propósito**: es el ejercicio de hoy
 
 Note:
@@ -465,8 +468,6 @@ descuido del diseño.
 #### *Single Cycle: Add - Sub - AND - XOR*
 
 ```sv
-);
-
    // The two resets are deliberately different: the one on the result is
    // SYNCHRONOUS and the one on done is ASYNCHRONOUS. Not an oversight: the spec.
    always_ff @(posedge clk) begin
@@ -481,6 +482,15 @@ descuido del diseño.
             3'b011:  result_1c <= {8'h00, A} & {8'h00, B};
             3'b100:  result_1c <= {8'h00, A} ^ {8'h00, B};
             default: ;  // 3'b110 is free: it is the day 1 exercise
+         endcase
+      end
+   end
+
+   // done goes high on the edge if start is high and the op is not no_op
+   always_ff @(posedge clk or negedge reset_n) begin
+      if (!reset_n) done_1c <= 1'b0;
+      else done_1c <= start && (op != 3'b000);
+   end
 ```
 
 - Dos `always_ff` y nada más: uno registra `A op B`, el otro levanta `done`
@@ -506,6 +516,7 @@ cambien el resultado: la ALU se queda con lo último que calculó.
 #### *Multi Cycle: Multiplicación*
 
 ```sv
+         result_mult <= 16'h0000;
       end else begin
          a_int <= A;
          b_int <= B;
@@ -516,18 +527,17 @@ cambien el resultado: la ALU se queda con lo último que calculó.
          done2 <= done3 & ~done_mult;
          done1 <= done2 & ~done_mult;
          done_mult <= done1 & ~done_mult;
-      end
 ```
 
 - Es un pipeline: los operandos se registran, se multiplican, y el producto
-  atraviesa dos registros más antes de salir por `result_mult`
+  atraviesa dos registros más antes de salir por `result_mult`: cuatro flancos
 - El `done` viaja por **la misma cadena** —`done3`, `done2`, `done1`— así que
   llega exactamente con el dato y no antes
 - El `& ~done_mult` de cada etapa es lo que apaga la cadena sola: por eso acá
   `done` es un **pulso de un ciclo**, aunque `start` siga arriba
 
 Note:
-La latencia de tres ciclos es a propósito, y es la razón de ser del testbench convencional:
+La latencia de cuatro flancos es a propósito, y es la razón de ser del testbench convencional:
 obliga al testbench a **esperar `done`** en vez de leer el resultado al ciclo
 siguiente. Un DUT combinacional no enseñaría nada.
 El `& ~done_mult` es sutil y conviene leerlo despacio: sin eso, mientras `start`
@@ -645,7 +655,7 @@ que en el código.
   operandos estables **hasta que sube `done`**
 - La letra chica que va a colgar al primer testbench: `done` es un **pulso** de
   un ciclo en la multiplicación y un **nivel** en las de un ciclo
-- Adentro hay **dos bloques** con latencias distintas —uno y tres ciclos— y el
+- Adentro hay **dos bloques** con latencias distintas —uno y cuatro ciclos— y el
   top **decodifica** el opcode. Afuera, el bus es uno solo
 - `ovf` es una salida más, y es del `sub_op` y de nadie más
 - `rst_op` **no existe para el RTL**: es una convención del testbench para
@@ -658,7 +668,7 @@ que en el código.
 Note:
 Cierre de la sección que parece de RTL y en realidad es de verificación. La
 pregunta con la que conviene cerrar: ¿cuál de estos siete datos es el que más
-caro sale olvidarse? El del `done`, y se va a ver el miércoles.
+caro sale olvidarse? El del `done`, y se va a ver hoy mismo, en el ejercicio de las ondas.
 Vale dejar dicho por qué el DUT no se "limpió" al traducirlo del VHDL: la
 asimetría de los resets y el opcode sin validar son **exactamente** el tipo de
 cosa que un testbench tiene que exponer. Un DUT prolijo no enseña nada.
@@ -735,7 +745,7 @@ El tercer bullet es una promesa que el curso cumple el día 7: hasta entonces
 todos los chequeos son de scoreboard, y la mitad del protocolo queda sin
 chequear. Vale dejarlo dicho ahora para que el día 7 no parezca un agregado.
 Un plan serio tiene las dos columnas, y la tabla del VTALU —que se ve entera en
-la unidad que viene, ya con los bins— tiene siete filas de scoreboard y tres de
+la unidad que viene, ya con los bins— tiene ocho filas de scoreboard y cuatro de
 assertion.
         </textarea>
       </section>
@@ -794,6 +804,83 @@ y nada más pasa en verde con el `ovf` clavado en cero.
 #### *El estímulo: mil operaciones, y el protocolo a mano*
 
 ```sv
+      repeat (1000) begin
+         @(negedge clk);
+         op_set = get_op();
+         A = get_data();
+         B = get_data();
+         start = 1'b1;
+         case (op_set) // handle the start signal
+           no_op: begin
+              @(posedge clk);
+              start = 1'b0;
+           end
+           rst_op: begin
+              reset_n = 1'b0;
+              start = 1'b0;
+              @(negedge clk);
+              reset_n = 1'b1;
+           end
+           default: begin
+              // Wait for an EDGE with done up, not for done itself: on the
+              // one-cycle ops done is a level still up from the previous op,
+              // and a plain wait(done) drops this one without a sound.
+              enviadas++;
+              do @(negedge clk); while (done == 0);
+              start = 1'b0;
+           end
+         endcase // case (op_set)
+      end
+      $finish;
+   end : tester
+```
+
+- Mil vueltas: elegir operación, elegir operandos, levantar `start`, esperar
+  **un flanco con `done` arriba**, bajar `start`
+- El `case` está ahí por la letra chica de la spec: `no_op` no levanta
+  `done`, `rst_op` pulsa `reset_n`, y las demás esperan
+- `get_op()` y `get_data()` sesgan el random hacia los bordes —00 y FF— para
+  llegar a los casos que el plan pide. Es *constrained random* escrito a mano
+- `enviadas` se cuenta acá y `chequeadas` en el scoreboard, y un `final` exige
+  que sean iguales: es el testbench chequeándose a sí mismo
+- Fijate quién sabe del protocolo acá: **el tester**. En interfaces y BFM eso se muda
+  a la BFM y esta task se achica a una línea
+
+Note:
+Ésta es la slide del "antes" de todo el curso: el estímulo y el protocolo mezclados
+en el mismo bucle. Vale marcarlo con el dedo, porque las próximas cinco unidades
+son separaciones sucesivas de estas treinta líneas.
+El `do … while (done == 0)` del `default` es el que se cuelga si el DUT no
+responde, y es el lugar donde el alumno va a terminar la primera vez que rompa
+algo. La red de seguridad es `VLT_TRACE=1` y las ondas.
+Y por qué no es un `wait(done)`, que es lo primero que uno escribe: en las
+operaciones de un ciclo `done` es un nivel, y en el `negedge` en que el tester
+carga la operación siguiente **todavía está arriba por la anterior**. El
+`wait(done)` no bloquea, `start` baja en el mismo instante y el DUT nunca ve esa
+operación. No hay error: el scoreboard no dispara, y la cobertura —que muestrea
+`op_set`— la cuenta igual. Este testbench la tuvo, y descartaba el 38 % de las
+operaciones de un ciclo con el reporte en verde. La atrapa el contador de
+enviadas contra chequeadas, y es la trampa muda más barata de poner.
+El sesgo de `get_data()` —un cuarto en 00, un cuarto en FF, la mitad en el
+medio— es exactamente lo que las transactions van a escribir en una línea con `dist`
+y `:/`. Conviene nombrarlo ahora para que después se vea el ahorro.
+
+---
+
+## El testbench convencional
+
+#### *El self-checking: predecir y comparar*
+
+```sv
+   // Sent by the tester, compared by the scoreboard: the final block below
+   // demands that the two match.
+   int enviadas, chequeadas;
+
+   // Scoreboard loop: checks that everything came out right
+   always @(posedge done) begin : scoreboard
+      shortint predicted_result;
+      bit      predicted_ovf;
+      #1;
       case (op_set)
         add_op: predicted_result = A + B;
         sub_op: predicted_result = A - B;
@@ -806,79 +893,22 @@ y nada más pasa en verde con el `ovf` clavado en cero.
       // output, neither the addition nor the multiplication can overflow.
       predicted_ovf = (op_set == sub_op) && (A < B);
 
-      if ((op_set != no_op) && (op_set != rst_op))
+      if ((op_set != no_op) && (op_set != rst_op)) begin
+        chequeadas++;
         if (predicted_result != result || predicted_ovf != ovf)
           $error ("FAILED: A: %0h  B: %0h  op: %s result: %0h ovf: %0b",
                   A, B, op_set.name(), result, ovf);
-
+      end
    end : scoreboard
-
-   // Randomize the stimulus
-   // get_op and get_data are Constrained Random Data
-   // The point of CRD is to build values that are random but legal
-   initial begin : tester
-      reset_n = 1'b0;
-      @(negedge clk);
-      @(negedge clk);
-      reset_n = 1'b1;
-      start = 1'b0;
-      repeat (1000) begin
-         @(negedge clk);
-         op_set = get_op();
-```
-
-- Mil vueltas: elegir operación, elegir operandos, levantar `start`, esperar
-  `done`, bajar `start`
-- El `case` está ahí por la letra chica de la spec: `no_op` no levanta
-  `done`, `rst_op` pulsa `reset_n`, y las demás esperan
-- `get_op()` y `get_data()` sesgan el random hacia los bordes —00 y FF— para
-  llegar a los casos que el plan pide. Es *constrained random* escrito a mano
-- Fijate quién sabe del protocolo acá: **el tester**. En interfaces y BFM eso se muda
-  a la BFM y esta task se achica a una línea
-
-Note:
-Ésta es la slide del "antes" de todo el curso: el estímulo y el protocolo mezclados
-en el mismo bucle. Vale marcarlo con el dedo, porque las próximas cinco unidades
-son separaciones sucesivas de estas treinta líneas.
-El `wait(done)` del `default` es el que se cuelga si el DUT no responde, y es el
-lugar donde el alumno va a terminar la primera vez que rompa algo. La red de
-seguridad es `VLT_TRACE=1` y las ondas.
-El sesgo de `get_data()` —un cuarto en 00, un cuarto en FF, la mitad en el
-medio— es exactamente lo que las transactions van a escribir en una línea con `dist`
-y `:/`. Conviene nombrarlo ahora para que después se vea el ahorro.
-
----
-
-## El testbench convencional
-
-#### *El self-checking: predecir y comparar*
-
-```sv
-        3'b111 : return rst_op;
-      endcase // case (op_choice)
-   endfunction : get_op
-
-   function byte get_data();
-      // This is how the random gets biased
-      bit [1:0] zero_ones;
-      zero_ones = $random;
-      if (zero_ones == 2'b00)
-        return 8'h00;
-      else if (zero_ones == 2'b11)
-        return 8'hFF;
-      else
-        return $random;
-   endfunction : get_data
-
-   // Scoreboard loop: checks that everything came out right
 ```
 
 - Un `always @(posedge done)`: cada vez que el DUT dice que terminó, el
   scoreboard predice el resultado y lo compara
 - El `#1` no es un adorno: sin él se leen las señales en el mismo instante en que
   `done` sube y se puede comer una carrera de deltas
-- `no_op` y `rst_op` se descartan porque no producen resultado. Olvidarse de ese
-  `if` hace fallar todo el test sin que el DUT tenga nada
+- `no_op` y `rst_op` no levantan `done`, así que este bloque no debería correr
+  con ellas. El `if` es defensivo —sin predicción para esas dos compararía
+  basura— y adentro va `chequeadas++`, la otra mitad del contador
 - El covergroup —la tercera pata— es la sección que sigue
 
 Note:
@@ -913,8 +943,9 @@ concepto, con un contador y una política de severidad detrás.
 
 Note:
 El último bullet es el que ordena el día: este testbench funciona y está mal
-repartido. Tres archivos distintos saben cómo se menea `start`, y el día que
-cambie el protocolo hay que tocar los tres.
+repartido. El tester sabe cómo se menea `start` y el scoreboard sabe cuándo leer
+`done`: el protocolo vive en dos lugares del mismo archivo, y el día que cambie
+hay que tocar los dos.
 Ésa es toda la motivación de interfaces y BFM, y conviene dejarla como pregunta
 abierta en vez de contestarla acá.
         </textarea>
@@ -984,14 +1015,15 @@ endgroup
 op_cov oc;                             // 2. se INSTANCIA: es un tipo, como una clase
 initial oc = new();
 
-always @(negedge clk) oc.sample();     // 3. CUANDO se cuenta
+always @(posedge clk) oc.sample();     // 3. CUANDO se cuenta
 ```
 
 - Un `covergroup` es un **tipo**: declararlo no mide nada, hay que hacerle `new()`
 - `sample()` es el que cuenta. Sin `sample()` el reporte da **0 %** y el código
   compila igual
-- *Dónde* muestrear es una decisión de diseño. Acá, cada flanco negativo; cuando
-  el TB tenga monitores va a ser *"cada vez que el monitor ve un comando"*
+- *Dónde* muestrear es una decisión de diseño. Acá, el flanco en el que **lee el
+  DUT**, nunca el mismo en el que escribe el tester; cuando el TB tenga
+  monitores va a ser *"cada vez que el monitor ve un comando"*
 
 Note:
 El error de todos la primera vez es declarar el covergroup y olvidarse del
@@ -1001,6 +1033,10 @@ El tercer punto es el que vale para el resto del curso: el momento del sample
 define qué estás midiendo. Muestrear por reloj cuenta ciclos; muestrear por
 transacción cuenta operaciones. En los analysis ports el `coverage` pasa a ser un
 subscriber y muestrea cuando llega un comando — que es lo correcto.
+Y el flanco no es capricho: muestrear en el mismo `negedge` en el que el tester
+escribe `op_set` es una carrera que el LRM no define —Verilator la resuelve
+siempre igual; otro simulador puede no—. Es la misma regla de las assertions
+del día 7: se lee en el flanco opuesto al que escribe.
 
 ---
 
@@ -1018,7 +1054,8 @@ coverpoint op_set {
 ```
 
 - Sin `{ }`, SystemVerilog crea un bin por valor. Anda para un `enum`; para un
-  `int` serían miles y el número no significaría nada
+  `int` la herramienta corta el rango en **64** casilleros —`auto_bin_max`— que
+  no corresponden a ninguna fila del plan
 - Los corchetes `[]` **reparten**: un casillero por valor del rango. Sin ellos,
   todos los valores caen en el mismo casillero
 - Un coverpoint está cubierto cuando **todos** sus bins tienen al menos un hit.
@@ -1045,8 +1082,6 @@ dos slides.
 #### *El covergroup del VTALU*
 
 ```sv
-`endif
-
    //op_cov: make sure every operation, and every interaction between them, is covered
    covergroup op_cov;
       coverpoint op_set {
@@ -1068,6 +1103,8 @@ dos slides.
          bins twoops[] = ([add_op:mul_op] [* 2]);
          bins manymult = (mul_op [* 3:5]);
 `endif
+      }
+   endgroup
 ```
 
 - `single_cycle[]` genera seis bins —uno por operación—, `multi_cycle` uno solo
@@ -1096,9 +1133,6 @@ herramienta no hace es un curso que miente.
 #### *ignore_bins: decir en voz alta lo que no se cubre*
 
 ```sv
-   endgroup
-
-   // Check the corners where the inputs are all 0s or all 1s
    covergroup zeros_or_ones_on_ops;
 
       all_ops : coverpoint op_set {
@@ -1113,6 +1147,8 @@ herramienta no hace es un curso que miente.
       b_leg: coverpoint B {
          bins zeros = {8'h00};
          bins others= {[8'h01:8'hFE]};
+         bins ones  = {8'hFF};
+      }
 ```
 
 - `all_ops` **ignora** `rst_op` y `no_op`: no tiene sentido pedir "una suma con
@@ -1137,19 +1173,19 @@ La regla práctica: si no se puede cubrir, `ignore_bins`; si no debe pasar,
 #### *cross: las combinaciones, y cómo no ahogarse*
 
 ```systemverilog
-op_00_FF : cross a_leg, b_leg, all_ops;    // 3 x 3 x 4 = 36 bins, casi todos sin sentido
+op_00_FF : cross a_leg, b_leg, all_ops;    // 3 x 3 x 5 = 45 bins, casi todos sin sentido
 ```
 
 - Un `cross` es el **producto cartesiano** de sus coverpoints: crece rápido y la
   mayoría de las combinaciones no está en ninguna spec
 - `binsof(x) intersect {v}` se lee *"los bins de `x` que contienen `v`"*
 - Se combinan con `&&` y `||`, y lo que sobra se tira con `ignore_bins`
-- Así los 36 bins quedan en los 9 que el plan pidió de verdad
+- Así los 45 bins quedan en los 11 que el plan pidió de verdad
 
 Note:
 La cuenta del comentario es lo que hay que hacer en voz alta, porque el número
-asusta y tiene que asustar: tres bins de A por tres de B por cuatro operaciones
-son **36**, y de esos 36 el plan pedía nueve. Los otros 27 no están mal — están
+asusta y tiene que asustar: tres bins de A por tres de B por cinco operaciones
+son **45**, y de esos 45 el plan pedía once. Los otros 34 no están mal — están
 de más, y un bin de más es tan caro como uno que falta: te clava la cobertura
 abajo del 100 % y nadie sabe si es un agujero real.
 `binsof(x) intersect {v}` conviene leerlo siempre en castellano antes de
@@ -1167,37 +1203,27 @@ el problema es un cross sin filtrar, no un test que falta.
 #### *El cross del VTALU*
 
 ```sv
-      }
-      // VTALU rev2: the borrow of the subtraction, the row of the plan that the
-      // scoreboard can only close by looking at TWO outputs. Without this bin, a
-      // subtraction that never went negative looks exactly like one that did.
-      borrow: coverpoint ((op_set == sub_op) && (A < B)) {
-         bins hubo_borrow = {1};
-         ignore_bins resto = {0};
-      }
-
-
       op_00_FF:  cross a_leg, b_leg, all_ops {
          bins add_00 = binsof (all_ops) intersect {add_op} &&
                        (binsof (a_leg.zeros) || binsof (b_leg.zeros));
 
          bins add_FF = binsof (all_ops) intersect {add_op} &&
                        (binsof (a_leg.ones) || binsof (b_leg.ones));
+```
 
-         bins sub_00 = binsof (all_ops) intersect {sub_op} &&
+```sv
+         bins mul_00 = binsof (all_ops) intersect {mul_op} &&
                        (binsof (a_leg.zeros) || binsof (b_leg.zeros));
 
-         bins sub_FF = binsof (all_ops) intersect {sub_op} &&
+         bins mul_FF = binsof (all_ops) intersect {mul_op} &&
                        (binsof (a_leg.ones) || binsof (b_leg.ones));
 
-         bins and_00 = binsof (all_ops) intersect {and_op} &&
-                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
+         bins mul_max = binsof (all_ops) intersect {mul_op} &&
+                        (binsof (a_leg.ones) && binsof (b_leg.ones));
 
-         bins and_FF = binsof (all_ops) intersect {and_op} &&
-                       (binsof (a_leg.ones) || binsof (b_leg.ones));
-
-         bins xor_00 = binsof (all_ops) intersect {xor_op} &&
-                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
+         ignore_bins others_only =
+                         binsof(a_leg.others) && binsof(b_leg.others);
+      }
 ```
 
 - `add_00` se lee de corrido: *una suma en la que A **o** B valgan 0x00*
@@ -1220,9 +1246,10 @@ vale por ser el máximo del espacio de entrada, no por desbordar. La única
 operación que desborda es la resta, y sólo cuando A < B.
 La honestidad de esta slide es parte del curso, así que conviene decirla y no
 pasarla rápido: el 86,8 % que reporta el ejemplo **no es** el número que daría
-Questa. Verilator ignora el filtro y mide los 36 bins, así que el porcentaje sale
-más bajo y por un motivo que no es del testbench. Está escrito, fechado y con
-versión en `docs/verilator.md`.
+Questa. Verilator ignora el filtro y mide el cross entero —los 45, y además le
+suma un valor que el enum no tiene; la slide "Leer el número" dice cuál—, así
+que el porcentaje sale más bajo y por un motivo que no es del testbench. Está
+escrito, fechado y con versión en `docs/verilator.md`.
 La pregunta útil para el aula: ¿eso invalida el ejercicio? No. Lo que se aprende
 —escribir el cross, filtrarlo, y saber qué bin corresponde a qué fila del plan—
 es idéntico. Lo único que no se puede hacer con esta herramienta es firmar el
@@ -1315,19 +1342,28 @@ Coverage Summary:
 
 - 66 de 76 bins llenos, con 1000 operaciones al azar. Las otras filas del
   resumen salen `0/0`: `--coverage-user` deja afuera la cobertura de código
-- El 13 % que falta **no es un bug**: son los bins que Verilator no mide más los
-  que 1000 operaciones al azar no llegaron a tocar
-- El número no es la meta. La pregunta que sirve es **cuál** bin falta: eso te
-  dice qué test escribir
+- Los 10 que faltan son **un solo valor**: `all_ops.auto_5` y sus nueve cruces.
+  Es `3'b110`, que el enum **no tiene** — Verilator reparte los bins
+  automáticos por el tipo de base, `bit [2:0]`, y no por miembro del enum
+- O sea que ninguna fila del plan quedó sin cubrir, y en Questa esto da 100 %.
+  El número no es la meta: la pregunta que sirve es **cuál** bin falta, y eso
+  sólo lo dice el reporte por bin, `obj_dir/top/coverage.dat`
 - Correr → mirar qué falta → escribir el test dirigido → volver a correr. Eso se
   llama *coverage closure*, y es a lo que un verificador le dedica el día
 
 Note:
-Acá es donde conviene correrlo en vivo y abrir el reporte: el alumno tiene que
-ver que la herramienta le está diciendo qué le falta hacer.
-Y el remate: el ejercicio del día hace exactamente esto. Agregar la operación
-nueva del opcode libre con sus bins lleva la cobertura de 86,8 % a 100 %, y el
-que la sube es el mismo que escribió el test.
+Acá es donde conviene correrlo en vivo y abrir el `coverage.dat`: el alumno
+tiene que ver que los diez ceros tienen el mismo nombre, y que ese nombre no
+está en el `operation_t`. La lección es leer el reporte y no el número: el
+número dice 86,8 % y el reporte dice "no falta nada, la herramienta inventó un
+casillero". En una herramienta comercial el bin automático de un enum es uno
+por miembro (IEEE 1800, 19.5) y esto da 100 % de entrada; está anotado en
+`docs/verilator.md`.
+Y el remate: el ejercicio del día usa justamente `3'b110` para el shift, así
+que la operación nueva llena el casillero fantasma y la cobertura pasa de
+86,8 % a 100 % — 77 de 77, con el bin propio del shift sumado. El que la sube
+es el mismo que escribió el test, y el corrector cuenta bins y no porcentaje,
+porque el porcentaje ya vimos que no sabe leer.
 
 ---
 
@@ -1443,19 +1479,21 @@ interface vtalu_bfm;
          #10;
          clk = ~clk;
       end
+   end
 ```
 
 - Una `interface` es un **bundle** de señales con nombre propio. Nueve cables que
   antes estaban declarados en el `top` ahora viven juntos
 - El reloj se genera adentro: la interface no es un cable, es un modelo del bus
-- Conectar el DUT pasa a ser `.A(bfm.A)`, `.clk(bfm.clk)`… y agregar una señal
-  toca **un** archivo, no todos los que la usan
+- Conectar el DUT pasa a ser `.A(bfm.A)`, `.clk(bfm.clk)`… y una señal nueva se
+  declara **una vez**: los módulos que la usan la ven aparecer sin tocar sus puertos
 
 Note:
 Primer paso hacia UVM y no tiene una línea de UVM.
-La ganancia inmediata es de mantenimiento y conviene medirla: en el testbench
-convencional, agregar una señal al DUT obligaba a tocar el `top`, el tester y el
-scoreboard. Acá, el archivo de la interface.
+La ganancia inmediata es de mantenimiento y conviene medirla: con las señales
+sueltas, partir el testbench en módulos obliga a pasar cada una por cada port
+list, y una señal nueva se cablea en todos. Acá se declara en la interface, y el
+único puerto que cambia es el del DUT.
 Un detalle de tipos que se cobra: `op` es un `wire [2:0]` y `op_set` es el
 `operation_t`. El `assign op = op_set` es el puente entre el enum del testbench y
 los cables del DUT. Es el único lugar del curso donde se ve la costura entre los
@@ -1468,6 +1506,7 @@ dos mundos.
 #### *Después: el protocolo se esconde en una task*
 
 ```sv
+   // The protocol handling can now be changed in one single place.
    // Fix it here once, and the fix propagates through the rest of the code
    task send_op(input byte iA, input byte iB, input operation_t iop,
                 output shortint alu_result);
@@ -1495,6 +1534,8 @@ dos mundos.
             start = 1'b0;
          end
       end
+
+   endtask : send_op
 ```
 
 - `send_op(A, B, op, result)` traduce *"hacé una suma"* al meneo de señales que
@@ -1657,8 +1698,10 @@ Note:
 La comparación con el testbench convencional es la slide: allá el `tester` levantaba `start`,
 esperaba `done` y bajaba `start`, mezclado con la generación de estímulo. Acá
 sólo genera estímulo.
-Vale contar cuántos lugares del testbench convencional sabían del protocolo —el tester y el
-scoreboard— y cuántos lo saben ahora: uno.
+Vale contar cuántos lugares del testbench convencional sabían del protocolo —el
+tester y el scoreboard— y cuántos mueven `start` ahora: uno, el `send_op`. El
+scoreboard sigue esperando `done` por su cuenta; esa deuda la paga el monitor de
+los analysis ports.
 Y el enganche del día 4: en los put y get ports este mismo tester va a ser una clase con
 un `put_port`, y la BFM va a quedar del otro lado de un driver. La operación es
 la misma que hicimos acá — esconder el cable— repetida un nivel más arriba.
@@ -1751,8 +1794,8 @@ detalle.
 
 - La BFM encapsuló **el protocolo**. Lo que **no** encapsuló es *cuándo* se
   maneja y *cuándo* se muestrea: eso sigue decidido task por task
-- Tres formas de leer el mismo dato, y **tres resultados distintos**: `0`, `11`
-  y `11`. La del medio depende de un `#1` que no se ve en ningún lado
+- Tres formas de leer el mismo dato: `0`, `11` y `11`. Dos valores, pero **tres
+  mecanismos**, y el del medio depende de un `#1` que no se ve en ningún lado
 - El `@(negedge clk)` de nuestra BFM es la tercera. Anda — y le pide al que la
   lee que sepa por qué
 
@@ -1767,7 +1810,10 @@ LRM, y es igual en Questa.
 La segunda es la peor de las tres, y es la que hay que marcar como trampa muda:
 funciona, y funciona **por accidente**. El `#1` no dice qué problema resuelve,
 no está documentado, y el día que alguien lo borra porque "no hacía nada" el
-testbench sigue compilando y empieza a mentir.
+testbench sigue compilando y empieza a mentir. Es el mismo `#1` del scoreboard
+del testbench convencional, y la diferencia es una sola: allá la slide dice qué
+carrera evita. Un `#1` explicado es un parche que se sabe parche; un `#1` suelto
+es la trampa.
 Y la tercera es la nuestra. Vale ser honesto con el grupo: el curso maneja en
 `negedge` y muestrea en `posedge` porque es el truco que se entiende sin haber
 visto clocking blocks, no porque sea lo que se escribe en un proyecto.
@@ -2076,9 +2122,12 @@ y —acá está lo peor— el reporte sigue diciendo **100 %**: 76 de 76. El bin
 falta no baja el porcentaje porque nunca llegó a entrar en el denominador. Ahí
 está la lección que vale para el resto del curso: un opcode que nadie mide es un
 opcode que nadie verificó, y el porcentaje es justo la métrica que no lo ve.
-Con la solución son 77 de 77, y se arranca en 86,8 % (66 de 76). Vale mostrar
-los dos números, no sólo el porcentaje: por eso el `run.sh` exige la cantidad de
-bins y no el 100 %, que un trabajo a medias también alcanza.
+Con la solución son 77 de 77, y se arranca en 86,8 % (66 de 76). Los diez que
+faltaban eran uno solo: el casillero que Verilator inventa para `3'b110`, el
+valor que el enum no tenía — y el shift es justamente `3'b110`, así que lo llena
+de paso. Vale mostrar los dos números, no sólo el porcentaje: por eso el
+`run.sh` exige la cantidad de bins y no el 100 %, que un trabajo a medias
+también alcanza.
         </textarea>
       </section>
       <!-- 043-ejercicio-day1.md -->
@@ -2106,7 +2155,7 @@ las ondas son la herramienta con la que se hace el 47 % del trabajo, y hasta ac�
 el curso no las había hecho usar ni una vez.
 El bug es de protocolo y es el mismo que vuelve en el capstone: `send_op`
 **cuenta flancos** en vez de esperar el handshake. Para las operaciones de un
-ciclo da igual; la multiplicación tarda tres, así que `send_op` vuelve antes de
+ciclo da igual; la multiplicación tarda cuatro, así que `send_op` vuelve antes de
 tiempo, el estímulo siguiente pisa `A` y `B`, y cuando `done` finalmente sube el
 scoreboard compara los operandos nuevos contra el resultado viejo.
 Por eso los dos tiempos que pide la etapa 1 no son burocracia: el segundo es el
@@ -2114,7 +2163,7 @@ Por eso los dos tiempos que pide la etapa 1 no son burocracia: el segundo es el
 `A` y `B` ya cambiaron. Esa es la respuesta al *por qué*, y no hay forma de
 leerla en el log.
 La pregunta para tirar al grupo cuando lo terminen: si el multiplicador pasara
-de tres ciclos a cuatro, ¿cuál de las dos versiones de `send_op` se entera?
+de cuatro flancos a cinco, ¿cuál de las dos versiones de `send_op` se entera?
 Ninguna cuenta bien; sólo la que espera `done` sigue andando. Es literalmente la
 pista del wait state del APB del día 7.
         </textarea>

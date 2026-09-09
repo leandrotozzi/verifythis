@@ -1,4 +1,4 @@
-<!-- es-sha: 0bf11eb2a278 -->
+<!-- es-sha: be650bb551ef -->
 ## Exercise · Day 1 · 2 of 2
 
 #### *The waves: when the log is not enough*
@@ -20,7 +20,7 @@ the waves are the tool 47 % of the work gets done with, and up to here
 the course had not made them use one even once.
 The bug is a protocol one and it is the same one that comes back in the capstone: `send_op`
 **counts edges** instead of waiting for the handshake. For single-cycle operations it
-makes no difference; the multiplication takes three, so `send_op` returns too
+makes no difference; the multiplication takes four, so `send_op` returns too
 early, the next stimulus overwrites `A` and `B`, and when `done` finally goes up the
 scoreboard compares the new operands against the old result.
 That is why the two times stage 1 asks for are not bureaucracy: the second is the
@@ -28,6 +28,6 @@ That is why the two times stage 1 asks for are not bureaucracy: the second is th
 `A` and `B` have already changed. That is the answer to the *why*, and there is no way to
 read it in the log.
 The question to throw at the group when they finish: if the multiplier went
-from three cycles to four, which of the two versions of `send_op` finds out?
+from four edges to five, which of the two versions of `send_op` finds out?
 Neither counts right; only the one that waits for `done` keeps working. It is literally the
 clue of the APB wait state of day 7.

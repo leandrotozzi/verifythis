@@ -59,14 +59,15 @@ endgroup
 op_cov oc;                             // 2. se INSTANCIA: es un tipo, como una clase
 initial oc = new();
 
-always @(negedge clk) oc.sample();     // 3. CUANDO se cuenta
+always @(posedge clk) oc.sample();     // 3. CUANDO se cuenta
 ```
 
 - Un `covergroup` es un **tipo**: declararlo no mide nada, hay que hacerle `new()`
 - `sample()` es el que cuenta. Sin `sample()` el reporte da **0 %** y el código
   compila igual
-- *Dónde* muestrear es una decisión de diseño. Acá, cada flanco negativo; cuando
-  el TB tenga monitores va a ser *"cada vez que el monitor ve un comando"*
+- *Dónde* muestrear es una decisión de diseño. Acá, el flanco en el que **lee el
+  DUT**, nunca el mismo en el que escribe el tester; cuando el TB tenga
+  monitores va a ser *"cada vez que el monitor ve un comando"*
 
 Note:
 El error de todos la primera vez es declarar el covergroup y olvidarse del
@@ -76,6 +77,10 @@ El tercer punto es el que vale para el resto del curso: el momento del sample
 define qué estás midiendo. Muestrear por reloj cuenta ciclos; muestrear por
 transacción cuenta operaciones. En los analysis ports el `coverage` pasa a ser un
 subscriber y muestrea cuando llega un comando — que es lo correcto.
+Y el flanco no es capricho: muestrear en el mismo `negedge` en el que el tester
+escribe `op_set` es una carrera que el LRM no define —Verilator la resuelve
+siempre igual; otro simulador puede no—. Es la misma regla de las assertions
+del día 7: se lee en el flanco opuesto al que escribe.
 
 ---
 
@@ -93,7 +98,8 @@ coverpoint op_set {
 ```
 
 - Sin `{ }`, SystemVerilog crea un bin por valor. Anda para un `enum`; para un
-  `int` serían miles y el número no significaría nada
+  `int` la herramienta corta el rango en **64** casilleros —`auto_bin_max`— que
+  no corresponden a ninguna fila del plan
 - Los corchetes `[]` **reparten**: un casillero por valor del rango. Sin ellos,
   todos los valores caen en el mismo casillero
 - Un coverpoint está cubierto cuando **todos** sus bins tienen al menos un hit.
@@ -119,7 +125,7 @@ dos slides.
 
 #### *El covergroup del VTALU*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=42-64}}
+{{code:code/u2/convencional/vtalu_tb.sv|lines=44-66}}
 
 - `single_cycle[]` genera seis bins —uno por operación—, `multi_cycle` uno solo
 - Lo que está entre `` `ifndef VERILATOR `` son los bins de transición: dos
@@ -146,7 +152,7 @@ herramienta no hace es un curso que miente.
 
 #### *ignore_bins: decir en voz alta lo que no se cubre*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=66-82}}
+{{code:code/u2/convencional/vtalu_tb.sv|lines=69-84}}
 
 - `all_ops` **ignora** `rst_op` y `no_op`: no tiene sentido pedir "una suma con
   los operandos en 0x00" cuando la operación es un reset
@@ -170,19 +176,19 @@ La regla práctica: si no se puede cubrir, `ignore_bins`; si no debe pasar,
 #### *cross: las combinaciones, y cómo no ahogarse*
 
 ```systemverilog
-op_00_FF : cross a_leg, b_leg, all_ops;    // 3 x 3 x 4 = 36 bins, casi todos sin sentido
+op_00_FF : cross a_leg, b_leg, all_ops;    // 3 x 3 x 5 = 45 bins, casi todos sin sentido
 ```
 
 - Un `cross` es el **producto cartesiano** de sus coverpoints: crece rápido y la
   mayoría de las combinaciones no está en ninguna spec
 - `binsof(x) intersect {v}` se lee *"los bins de `x` que contienen `v`"*
 - Se combinan con `&&` y `||`, y lo que sobra se tira con `ignore_bins`
-- Así los 36 bins quedan en los 9 que el plan pidió de verdad
+- Así los 45 bins quedan en los 11 que el plan pidió de verdad
 
 Note:
 La cuenta del comentario es lo que hay que hacer en voz alta, porque el número
-asusta y tiene que asustar: tres bins de A por tres de B por cuatro operaciones
-son **36**, y de esos 36 el plan pedía nueve. Los otros 27 no están mal — están
+asusta y tiene que asustar: tres bins de A por tres de B por cinco operaciones
+son **45**, y de esos 45 el plan pedía once. Los otros 34 no están mal — están
 de más, y un bin de más es tan caro como uno que falta: te clava la cobertura
 abajo del 100 % y nadie sabe si es un agujero real.
 `binsof(x) intersect {v}` conviene leerlo siempre en castellano antes de
@@ -199,7 +205,9 @@ el problema es un cross sin filtrar, no un test que falta.
 
 #### *El cross del VTALU*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=84-114}}
+{{code:code/u2/convencional/vtalu_tb.sv|lines=94-99}}
+
+{{code:code/u2/convencional/vtalu_tb.sv|lines=119-130}}
 
 - `add_00` se lee de corrido: *una suma en la que A **o** B valgan 0x00*
 - `mul_max` es el único con `&&`: pide las **dos** patas en 0xFF: el **producto
@@ -221,9 +229,10 @@ vale por ser el máximo del espacio de entrada, no por desbordar. La única
 operación que desborda es la resta, y sólo cuando A < B.
 La honestidad de esta slide es parte del curso, así que conviene decirla y no
 pasarla rápido: el 86,8 % que reporta el ejemplo **no es** el número que daría
-Questa. Verilator ignora el filtro y mide los 36 bins, así que el porcentaje sale
-más bajo y por un motivo que no es del testbench. Está escrito, fechado y con
-versión en `docs/verilator.md`.
+Questa. Verilator ignora el filtro y mide el cross entero —los 45, y además le
+suma un valor que el enum no tiene; la slide "Leer el número" dice cuál—, así
+que el porcentaje sale más bajo y por un motivo que no es del testbench. Está
+escrito, fechado y con versión en `docs/verilator.md`.
 La pregunta útil para el aula: ¿eso invalida el ejercicio? No. Lo que se aprende
 —escribir el cross, filtrarlo, y saber qué bin corresponde a qué fila del plan—
 es idéntico. Lo único que no se puede hacer con esta herramienta es firmar el
@@ -316,19 +325,28 @@ Coverage Summary:
 
 - 66 de 76 bins llenos, con 1000 operaciones al azar. Las otras filas del
   resumen salen `0/0`: `--coverage-user` deja afuera la cobertura de código
-- El 13 % que falta **no es un bug**: son los bins que Verilator no mide más los
-  que 1000 operaciones al azar no llegaron a tocar
-- El número no es la meta. La pregunta que sirve es **cuál** bin falta: eso te
-  dice qué test escribir
+- Los 10 que faltan son **un solo valor**: `all_ops.auto_5` y sus nueve cruces.
+  Es `3'b110`, que el enum **no tiene** — Verilator reparte los bins
+  automáticos por el tipo de base, `bit [2:0]`, y no por miembro del enum
+- O sea que ninguna fila del plan quedó sin cubrir, y en Questa esto da 100 %.
+  El número no es la meta: la pregunta que sirve es **cuál** bin falta, y eso
+  sólo lo dice el reporte por bin, `obj_dir/top/coverage.dat`
 - Correr → mirar qué falta → escribir el test dirigido → volver a correr. Eso se
   llama *coverage closure*, y es a lo que un verificador le dedica el día
 
 Note:
-Acá es donde conviene correrlo en vivo y abrir el reporte: el alumno tiene que
-ver que la herramienta le está diciendo qué le falta hacer.
-Y el remate: el ejercicio del día hace exactamente esto. Agregar la operación
-nueva del opcode libre con sus bins lleva la cobertura de 86,8 % a 100 %, y el
-que la sube es el mismo que escribió el test.
+Acá es donde conviene correrlo en vivo y abrir el `coverage.dat`: el alumno
+tiene que ver que los diez ceros tienen el mismo nombre, y que ese nombre no
+está en el `operation_t`. La lección es leer el reporte y no el número: el
+número dice 86,8 % y el reporte dice "no falta nada, la herramienta inventó un
+casillero". En una herramienta comercial el bin automático de un enum es uno
+por miembro (IEEE 1800, 19.5) y esto da 100 % de entrada; está anotado en
+`docs/verilator.md`.
+Y el remate: el ejercicio del día usa justamente `3'b110` para el shift, así
+que la operación nueva llena el casillero fantasma y la cobertura pasa de
+86,8 % a 100 % — 77 de 77, con el bin propio del shift sumado. El que la sube
+es el mismo que escribió el test, y el corrector cuenta bins y no porcentaje,
+porque el porcentaje ya vimos que no sabe leer.
 
 ---
 

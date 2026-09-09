@@ -1,4 +1,4 @@
-<!-- es-sha: 1d0acff8718c -->
+<!-- es-sha: dad3babdf73d -->
 # Day 1 — the waves: the log is not enough
 
 The debug appendix says that the waves are the tool **47 % of the work** gets
@@ -46,14 +46,16 @@ picoseconds and without the unit:
 ```
 
 Both numbers come out of the viewer and from nowhere else: they are not in the log.
+They are in picoseconds because the `run.sh` compiles with `--timescale 1ps/1ps`;
+without it they would depend on the simulator's default.
 
 > While you are there, look at `A` and `B` at the instant of the second answer and
 > compare them with the ones the `FAILED` printed. That is the answer to *why*.
 
 ### 2 · Fix the BFM
 
-With the waves in sight it shows on its own: `done` of a multiplication arrives **three
-cycles** after the `start`, and the one of the other operations arrives in one. The
+With the waves in sight it shows on its own: `done` of a multiplication arrives on the
+**fourth edge** after the `start`, and the one of the other operations on the first. The
 `send_op` of `vtalu_bfm.sv` **counts edges** instead of waiting for the handshake,
 so it returns too early and the next stimulus overwrites `A` and `B` while
 the multiplier is still computing.

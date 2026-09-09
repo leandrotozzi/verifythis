@@ -52,6 +52,11 @@ lecciones que no están en ninguna slide:
 
 Con la solución, la cobertura pasa de **86,8 % (66 bins de 76) a 100 %
 (77 de 77)**: el shift agrega su propio bin y de paso cierra los que quedaban
-abiertos. Mirá el denominador, no el porcentaje: un covergroup que nunca declaró
-el bin tampoco lo cuenta como faltante, así que sin el paso 3 el reporte también
-dice 100 %, pero de 76.
+abiertos. Los diez que faltaban eran **uno solo**: Verilator reparte los bins
+automáticos de `all_ops` por el tipo de base —`bit [2:0]`— y no por miembro del
+enum, así que inventa un casillero para `3'b110`, el valor que el enum no
+tenía, y lo cruza nueve veces con `a_leg` y `b_leg`. El shift es justamente
+`3'b110`, y por eso lo llena de paso; en Questa se arranca de 100 %. Mirá el
+denominador, no el porcentaje: un covergroup que nunca declaró el bin tampoco
+lo cuenta como faltante, así que sin el paso 3 el reporte también dice 100 %,
+pero de 76.
