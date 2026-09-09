@@ -516,7 +516,6 @@ cambien el resultado: la ALU se queda con lo último que calculó.
 #### *Multi Cycle: Multiplicación*
 
 ```sv
-      end else begin
          a_int <= A;
          b_int <= B;
          mult1 <= a_int * b_int;
@@ -526,7 +525,6 @@ cambien el resultado: la ALU se queda con lo último que calculó.
          done2 <= done3 & ~done_mult;
          done1 <= done2 & ~done_mult;
          done_mult <= done1 & ~done_mult;
-      end
 ```
 
 - Es un pipeline: los operandos se registran, se multiplican, y el producto
@@ -1204,15 +1202,6 @@ el problema es un cross sin filtrar, no un test que falta.
 #### *El cross del VTALU*
 
 ```sv
-      op_00_FF:  cross a_leg, b_leg, all_ops {
-         bins add_00 = binsof (all_ops) intersect {add_op} &&
-                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
-
-         bins add_FF = binsof (all_ops) intersect {add_op} &&
-                       (binsof (a_leg.ones) || binsof (b_leg.ones));
-```
-
-```sv
          bins mul_00 = binsof (all_ops) intersect {mul_op} &&
                        (binsof (a_leg.zeros) || binsof (b_leg.zeros));
 
@@ -1227,16 +1216,18 @@ el problema es un cross sin filtrar, no un test que falta.
       }
 ```
 
-- `add_00` se lee de corrido: *una suma en la que A **o** B valgan 0x00*
+- `mul_00` se lee de corrido: *una multiplicación en la que A **o** B valgan
+  0x00*. Los otros ocho bins del cross son estas dos líneas con otro `op`
 - `mul_max` es el único con `&&`: pide las **dos** patas en 0xFF: el **producto
   máximo**, `FF` × `FF` = `FE01`. No desborda — 8 bits por 8 entran en 16
 - Verilator 5.052 **ignora** `binsof` / `intersect` (`%Warning-COVERIGN`) y mide
   el cross completo: por eso el número no es el de una herramienta comercial
 
 Note:
-Vale leer `add_00` y `mul_max` en castellano, uno detrás del otro, porque la
-diferencia entre `||` y `&&` es la que se copia mal: *"una suma en la que A **o**
-B valgan 0x00"* contra *"una multiplicación con A **y** B en 0xFF"*. El primero
+Vale leer `mul_00` y `mul_max` en castellano, uno detrás del otro, porque la
+diferencia entre `||` y `&&` es la que se copia mal, y acá los dos bins son de la
+misma operación: *"una multiplicación en la que A **o** B valgan 0x00"* contra
+*"una multiplicación con A **y** B en 0xFF"*. El primero
 son dos casos, el segundo es uno solo — el **producto máximo**, la esquina de
 arriba del espacio de entrada. Y acá conviene matar el malentendido que viene
 solo, porque es caro: `FF` × `FF` **no desborda nada**. Da `FE01`, que entra
@@ -1828,6 +1819,35 @@ es la trampa.
 Y la tercera es la nuestra. Vale ser honesto con el grupo: el curso maneja en
 `negedge` y muestrea en `posedge` porque es el truco que se entiende sin haber
 visto clocking blocks, no porque sea lo que se escribe en un proyecto.
+
+---
+
+## Interfaces y BFM
+
+#### *Por qué el flanco solo no alcanza: las regiones*
+
+![Las regiones de un flanco: Preponed, Active y NBA, y los tres muestreos](res/diagrams/interfaces-bfm_regiones.svg)
+<!-- .element: class="grande" -->
+
+- Un flanco no es un instante indivisible: adentro hay **regiones**, en orden fijo
+- El `<=` del `always_ff` **aterriza en NBA**: el que lee en *Active* lee el viejo
+- El `#1` cruza el NBA, el flanco opuesto lo cruza sobrado, y SVA no necesita
+  ninguno de los dos: muestrea en *preponed*, antes de todo
+
+Note:
+Esta figura es la que hay que dejar en pantalla mientras se leen las tres
+lecturas de la slide anterior. Sin ella la explicación es *"el valor viejo"*,
+que suena a rareza del simulador; con ella es una consecuencia del orden, y el
+orden está en el LRM.
+El scheduler tiene más regiones que las cuatro del dibujo —`docs/clocking-blocks.md`
+las lista todas—, pero con éstas se explican los tres casos, y agregar las otras
+no cambia ninguna respuesta.
+La pregunta que conviene hacer al grupo antes de mostrar la respuesta: si el DUT
+escribe en NBA y tu `initial` despierta en Active, ¿quién corre primero? Ahí se
+ve solo por qué muestrear **en** el flanco da el valor de antes.
+Y el enganche con el día 7: la barra ámbar de la izquierda es la región donde
+muestrea SVA. Es la misma figura que explica por qué una assertion no chequea lo
+que pasó sino lo que vio, y por qué el `@()` que se le pone cambia el resultado.
 
 ---
 
@@ -3484,10 +3504,6 @@ justamente lo que se sintetiza.
 - Con clases, cambiar el estímulo es **extender una clase**, y las dos versiones
   conviven. Eso es todo lo que compra la OOP acá
 
-<br>
-
-<br>
-
 #### *El VTALU TB, pieza por pieza*
 
 - top: Instancia la clase testbench
@@ -3496,9 +3512,16 @@ justamente lo que se sintetiza.
 - scoreboard: Chequea que la VTALU está funcionando
 - coverage: Captura la información de cobertura funcional
 
+![El árbol de objetos: el top elabora, y adentro viven la clase testbench y sus tres piezas](res/diagrams/tb-en-objetos_arbol.svg)
+<!-- .element: class="grande" -->
+
 Note:
 Es el mismo testbench de interfaces y BFM, pero en objetos: cambia la forma, no lo
 que hace. Si se puede, mostrarlos lado a lado.
+El dibujo es el que hay que poder redibujar de memoria al final del día, y la
+línea que lo parte al medio es la que importa: arriba lo que se **elabora** —el
+módulo, el DUT, la interface—, abajo lo que alguien tiene que **crear**. Un
+objeto que nadie crea es un handle nulo, y ése es el error de la primera tarde.
 Es la última versión sin UVM. Desde los tests lo mismo lo arma UVM, y el
 alumno tiene que poder decir qué parte reemplaza a qué.
 
@@ -4337,6 +4360,36 @@ exactamente el caso de esta slide, y el capstone lo pisa de nuevo.
 
 ## Tests
 
+#### *La línea de tiempo, de punta a punta*
+
+![Línea de tiempo de una objection: raise, estímulo, drop, drain y fin de la fase](res/diagrams/tests_objections.svg)
+<!-- .element: class="grande" -->
+
+- `raise` y `drop` marcan **el estímulo**, y nada más que el estímulo
+- Lo que quedó en vuelo no entra en esa cuenta: son las tres cajas vacías
+- El `drain_time` es el tiempo que se regala para que esas respuestas lleguen
+- Sin `raise` no hay nada entre las marcas; sin `drop`, la línea no termina nunca
+
+Note:
+La figura es para pausarla y preguntar dónde termina la simulación. La respuesta
+que casi todo el mundo da la primera vez —*"cuando el test terminó de mandar"*—
+es justo la que produce el bug: ahí es donde cae la última objection, y ahí es
+donde la fase corta si nadie pidió un colchón.
+Vale marcar con el dedo las tres cajas vacías: son transacciones que el DUT
+todavía no contestó. No están perdidas por un error de nadie, están en vuelo, que
+es el estado normal de cualquier pipeline. Lo que decide si se comparan o no es
+cuánto tiempo más vive la fase.
+El detalle que conviene decir en voz alta: el `drain_time` se mide desde el
+último `drop`, no desde el principio. Si el test manda mil operaciones y el DUT
+tarda dos ciclos en contestar, el colchón son dos ciclos y no dos mil.
+Y la versión con criterio —`phase_ready_to_end()`— es esta misma figura con una
+diferencia: el largo del colchón lo decide el scoreboard mirando su FIFO, en vez
+de decidirlo de antemano el que escribió el test.
+
+---
+
+## Tests
+
 #### *El segundo test: lo mismo, con otro tester*
 
 ```sv
@@ -4521,6 +4574,38 @@ amablemente.
 
 ## Components y fases
 
+#### *El árbol, dos veces: una baja y la otra sube*
+
+![El árbol recorrido dos veces: build_phase baja y connect_phase sube](res/diagrams/components_fases.svg)
+<!-- .element: class="grande" -->
+
+- `build_phase` baja porque el padre tiene que existir para crear a sus hijos
+- `connect_phase` sube por lo contrario: el otro extremo ya tiene que estar
+- El hijo se **crea** adentro del build del padre; su propio build corre después
+- Por eso el `set()` del `config_db` va **antes** del `create()` que lo construye
+
+Note:
+El dibujo contesta dos preguntas que en la tabla se leen como una convención
+arbitraria. La primera: por qué `build_phase` es top-down. Porque un padre tiene
+que existir para crear a sus hijos, y no hay otra forma de armar un árbol; las
+del medio necesitan lo contrario, que los hijos ya estén.
+La segunda es la que se pregunta en voz baja: si el padre crea al hijo adentro de
+su propio `build_phase`, ¿cuándo corre el `build_phase` del hijo? Después, y ésa
+es la parte que hay que decir despacio: `create()` llama al **constructor**, no a
+la fase. UVM recorre el árbol llamando la fase a los componentes que fueron
+apareciendo, así que el hijo se construye en dos tiempos.
+La consecuencia práctica es la del último bullet y es la que se cobra: un
+`uvm_config_db::set()` escrito **después** del `create()` del hijo llega tarde,
+el hijo ya leyó, y el campo queda en su default sin que nadie avise. Es el mismo
+modo de falla asimétrico de la slide que sigue.
+Si alguien pregunta por el código: `uvm_topdown_phase::traverse` ejecuta la fase
+en el componente y recién después recorre sus hijos —`get_first_child()`—, que
+para entonces ya existen.
+
+---
+
+## Components y fases
+
 #### *¿Y el `super.build_phase()`?*
 
 ```systemverilog
@@ -4613,17 +4698,11 @@ necesitan lo contrario — que los hijos ya estén. La otra top-down es
 
 #### *Y adentro del `run_phase`, un cronograma*
 
-```
-   reset          configure          main          shutdown
-  pre  post      pre     post      pre   post     pre    post
-```
+![Las doce fases runtime en paralelo con run_phase, y dónde engancha la default_sequence](res/diagrams/components_runtime.svg)
+<!-- .element: class="grande" -->
 
-- En **paralelo** con `run_phase`, UVM recorre doce fases *runtime*, todas
-  `task`, en ese orden
-- Están para coordinar componentes de equipos distintos sin banderas a mano:
-  nadie manda tráfico en `main` hasta que **todos** terminaron `reset`
-- Cada una tiene su propio objection, con la regla de los tests: una fase
-  runtime sin objection **termina en cuanto arranca**
+- Las doce son `task`, corren **en paralelo** con `run_phase`, y están para
+  coordinar componentes de equipos distintos sin banderas a mano
 - El curso usa `run_phase` y nada más — con un solo agent no hay nada que
   coordinar. Pero el `default_sequence` del día 6 se engancha a **`main_phase`**
 
@@ -9596,6 +9675,9 @@ $ cd code/u6/transactions/constraints && bash run.sh
   :/   A=00  23.2%   A=FF  27.0%   the weight gets split
 ```
 
+![Histograma medido: con := los bins de borde salen 0,2 %; con :/ salen 23 % y 27 %](res/diagrams/constrained-random_dist.svg)
+<!-- .element: class="grande" -->
+
 Note:
 Este experimento salió de un bug de este mismo curso: `command_transaction`
 tenía el `dist` escrito con `:=`, o sea que el sesgo a los casos borde que las transactions decía tener **no existía**. La distribución era prácticamente uniforme
@@ -9724,15 +9806,17 @@ rand byte unsigned A;
 constraint c {es_reset -> A == 8'h00;}   // "si pido reset, los operandos en cero"
 ```
 
-- Parece inofensiva. **No lo es**: el solver elige uniformemente entre las
-  *soluciones*, no entre los valores de cada campo
-- Con `es_reset = 1` hay **una** solución (`A = 00`). Con `es_reset = 0` hay
-  **256**. Total: 257, y sólo una tiene el reset
-- O sea: pediste reset la mitad de las veces y lo vas a ver **1 de cada 257**. El
-  bin *"cualquier operación después de un reset"* del plan del testbench convencional no se
-  llena, y el reporte no te dice por qué
+- Parece inofensiva. **No lo es**: el solver elige entre las *soluciones*, no
+  entre los valores de cada campo
+- Con `es_reset = 1` hay **una**; con `es_reset = 0`, **256**. Pediste reset la
+  mitad de las veces y lo vas a ver **1 de cada 257**
+- El bin *"cualquier operación después de un reset"* del plan no se llena, y el
+  reporte no te dice por qué
 - La respuesta del lenguaje es `solve es_reset before A`: elegí el campo de
   control primero
+
+![Una celda contra un bloque de 16 por 16: las 257 soluciones, y una sola tiene el reset](res/diagrams/constrained-random_solve.svg)
+<!-- .element: class="grande" -->
 
 Note:
 La frase que desarma la intuición es la del primer bullet, y conviene repetirla
@@ -9909,14 +9993,11 @@ DUT, no una preferencia del que escribió la clase primero.
 
 #### *Así se cierra la cobertura*
 
-| Paso | Herramienta |
-| --- | --- |
-| Cubrir el grueso barato | `randomize()` con `dist` e `inside` en la transaction |
-| Ver qué quedó afuera | el reporte de cobertura — `cov_report` |
-| Llenar el bin que falta | `randomize() with { ... }`, tres líneas, sin clases nuevas |
-| Romper una regla a propósito | `constraint_mode(0)` / `rand_mode(0)` |
-| Repetir | otra semilla, y de nuevo |
+![El ciclo de closure: randomizar, mirar el reporte, llenar el bin que falta, otra semilla](res/diagrams/constrained-random_closure.svg)
+<!-- .element: class="grande" -->
 
+- Ningún paso pide una clase nueva: `dist` e `inside` en la transaction, tres
+  líneas de `with {}`, y `rand_mode(0)` o `constraint_mode(0)` para romper una regla
 - Eso es *coverage closure*, y es a lo que un verificador le dedica el día
 - Lo que **no** es: escribir un test por bin. Ni mirar el porcentaje total
 - El estímulo todavía sale de un `tester` que escribiste vos. En UVM moderno eso
@@ -9952,11 +10033,11 @@ $ SEED=7 bash run.sh    # u2/convencional, y de nuevo con SEED=8
   distribución
 - **No** mueve los 10 bins que faltan. Con 1000 operaciones el random ya llegó
   hasta donde puede, y otra semilla es tirar la moneda esperando otro resultado
-- Por eso *"repetir"* es la **última** fila de la tabla anterior y no la primera:
-  primero el `with {}`
+- Por eso *"otra semilla"* es el **último** paso del ciclo anterior y no el
+  primero: primero el `with {}`
 
 Note:
-Esta slide existe para desactivar un malentendido que la tabla anterior invita:
+Esta slide existe para desactivar un malentendido que el ciclo anterior invita:
 *"si no cierro, corro otra semilla"*. Se midió, y no: `code/u2/convencional` da 66 de 76 con
 la semilla por defecto, con la 7 y con la 8, y el merge de las tres da 66. Los 10
 que faltan no faltan por suerte — faltan porque son bins de transición que
@@ -13007,6 +13088,36 @@ nombrarlo acá, porque recién ahora se ve el problema completo que resuelve.
 
 ## Assertions (SVA)
 
+#### *El pulso que el muestreo no ve*
+
+![Dos no_op seguidas: start baja en 111 y sube en 120, entre dos posedge](res/diagrams/assertions_dos_relojes.svg)
+<!-- .element: class="grande" -->
+
+- Entre dos `posedge` cabe un pulso entero de `start` que el muestreo no ve
+- Todo en `posedge`: las dos `no_op` se leen como **una sola**, y salen 145 gritos
+- El estímulo en `negedge`: en `t=120` ya está abajo, el antecedente no arranca
+
+Note:
+Ésta es la figura para pausar y recorrer con el dedo, porque el argumento entero
+está en dos flancos. Conviene preguntarlo antes de mostrarlo: *¿cuántas
+transacciones ve una assertion muestreada en `posedge`?* La respuesta que se lee
+del dibujo es una, y son dos.
+La banda ámbar es lo que la sección viene diciendo con palabras: entre `t=111` y
+`t=120` la señal cambia dos veces y ningún muestreo en `posedge` cae ahí. No es
+un bug del simulador ni de la property — es que el muestreo es en *preponed*, y
+en `t=130` lo que se ve es `start` arriba, igual que en `t=110`.
+Y la segunda fila es la cura: el mismo dibujo con el otro flanco. En `t=120` el
+muestreo en `negedge` ve `start` abajo, el antecedente es falso, y la property ni
+siquiera arranca. Un carácter.
+El detalle que casi nadie mira: los valores de `A`, `B` y `op_set` cambian
+exactamente en `t=120`, o sea adentro de la transacción que el muestreo en
+`posedge` cree estar viendo. Por eso los 145 errores hablan de estabilidad de
+operandos y no de otra cosa.
+
+---
+
+## Assertions (SVA)
+
 #### *La latencia variable, en una línea*
 
 ```sv
@@ -13284,7 +13395,6 @@ cuenta como anécdota.
 #### *El ejemplo de la sección: el bug que el scoreboard no ve*
 
 ```sv
-         end else begin
             // +BUG=1: changes B halfway through the multiplication. The
             // multiplier already latched A and B on the first edge, so the
             // RESULT DOES NOT CHANGE: the scoreboard stays green. The only
@@ -14799,6 +14909,35 @@ puede hacer eso ni en principio.
 
 ## RAL
 
+#### *El camino completo, de la llamada al espejo*
+
+![El camino de datos de RAL: del write al bus, y del monitor al espejo](res/diagrams/ral_camino.svg)
+<!-- .element: class="grande" -->
+
+- La bajada se escribe; la subida —monitor, analysis port y `bus2reg`— **ya estaba**
+- El `uvm_reg_predictor` no se escribe: se instancia y se le enchufa el mapa
+- La punteada es `set_auto_predict(1)`: el atajo que no hay que tomar
+
+Note:
+Ésta es la figura que conviene tener en pantalla mientras se lee el
+`connect_phase`: cada una de las tres líneas de esa función es una flecha del
+dibujo. `set_sequencer` empalma la bajada, `predictor.map`/`predictor.adapter` le
+dan al predictor las dos cosas que necesita, y `agent_h.ap.connect(...)` es la
+flecha que sube del monitor.
+La simetría es el punto: el adapter aparece **dos veces**, una por sentido, y es
+la única pieza del dibujo que sabe que abajo hay un APB. Cambiarlo por uno de AHB
+mueve esas dos cajas y ninguna otra.
+Y la mitad derecha no es de RAL: el monitor, el analysis port y el agent son los
+del capstone, sin un cambio. Vale decirlo con el dedo en el dibujo, porque es lo
+que explica que la unidad entre en tres archivos.
+El atajo punteado es la trampa de la unidad. Con `set_auto_predict(1)` esa flecha
+alcanza para que el espejo cambie, así que la mitad de abajo del dibujo se vuelve
+decorativa: el modelo cree lo que el test quiso mandar, no lo que pasó.
+
+---
+
+## RAL
+
 #### *El estímulo, sin un solo `PADDR`*
 
 ```sv
@@ -15487,91 +15626,91 @@ apareciendo donde nadie lo esperaba.
           <li><a href="#/26" data-h="26"><span>El testbench convencional</span><span class="ind-n">27</span></a></li>
           <li><a href="#/31" data-h="31"><span>Cobertura funcional</span><span class="ind-n">32</span></a></li>
           <li><a href="#/44" data-h="44"><span>Interfaces y BFM</span><span class="ind-n">45</span></a></li>
-          <li><a href="#/56" data-h="56"><span>Repaso · Día 1</span><span class="ind-n">57</span></a></li>
-          <li><a href="#/63" data-h="63"><span>Ejercicio · Día 1 · 1 de 2</span><span class="ind-n">64</span></a></li>
-          <li><a href="#/64" data-h="64"><span>Ejercicio · Día 1 · 2 de 2</span><span class="ind-n">65</span></a></li>
+          <li><a href="#/57" data-h="57"><span>Repaso · Día 1</span><span class="ind-n">58</span></a></li>
+          <li><a href="#/64" data-h="64"><span>Ejercicio · Día 1 · 1 de 2</span><span class="ind-n">65</span></a></li>
+          <li><a href="#/65" data-h="65"><span>Ejercicio · Día 1 · 2 de 2</span><span class="ind-n">66</span></a></li>
         </ul>
         <h3 class="ind-grupo">Día 2</h3>
         <ul>
-          <li><a href="#/65" data-h="65"><span>Agenda</span><span class="ind-n">66</span></a></li>
-          <li><a href="#/66" data-h="66"><span>Clases y extensiones</span><span class="ind-n">67</span></a></li>
-          <li><a href="#/73" data-h="73"><span>Polimorfismo</span><span class="ind-n">74</span></a></li>
-          <li><a href="#/80" data-h="80"><span>Variables estáticas</span><span class="ind-n">81</span></a></li>
-          <li><a href="#/85" data-h="85"><span>Clases paramétricas</span><span class="ind-n">86</span></a></li>
-          <li><a href="#/90" data-h="90"><span>El patrón factory</span><span class="ind-n">91</span></a></li>
-          <li><a href="#/96" data-h="96"><span>Un testbench sin un solo módulo</span><span class="ind-n">97</span></a></li>
-          <li><a href="#/105" data-h="105"><span>Repaso · Día 2</span><span class="ind-n">106</span></a></li>
-          <li><a href="#/113" data-h="113"><span>Ejercicio · Día 2</span><span class="ind-n">114</span></a></li>
+          <li><a href="#/66" data-h="66"><span>Agenda</span><span class="ind-n">67</span></a></li>
+          <li><a href="#/67" data-h="67"><span>Clases y extensiones</span><span class="ind-n">68</span></a></li>
+          <li><a href="#/74" data-h="74"><span>Polimorfismo</span><span class="ind-n">75</span></a></li>
+          <li><a href="#/81" data-h="81"><span>Variables estáticas</span><span class="ind-n">82</span></a></li>
+          <li><a href="#/86" data-h="86"><span>Clases paramétricas</span><span class="ind-n">87</span></a></li>
+          <li><a href="#/91" data-h="91"><span>El patrón factory</span><span class="ind-n">92</span></a></li>
+          <li><a href="#/97" data-h="97"><span>Un testbench sin un solo módulo</span><span class="ind-n">98</span></a></li>
+          <li><a href="#/106" data-h="106"><span>Repaso · Día 2</span><span class="ind-n">107</span></a></li>
+          <li><a href="#/114" data-h="114"><span>Ejercicio · Día 2</span><span class="ind-n">115</span></a></li>
         </ul>
         <h3 class="ind-grupo">Día 3</h3>
         <ul>
-          <li><a href="#/114" data-h="114"><span>Agenda</span><span class="ind-n">115</span></a></li>
-          <li><a href="#/115" data-h="115"><span>Tests</span><span class="ind-n">116</span></a></li>
-          <li><a href="#/126" data-h="126"><span>Components y fases</span><span class="ind-n">127</span></a></li>
-          <li><a href="#/135" data-h="135"><span>El env: estructura y estímulo</span><span class="ind-n">136</span></a></li>
-          <li><a href="#/152" data-h="152"><span>Reporting</span><span class="ind-n">153</span></a></li>
-          <li><a href="#/166" data-h="166"><span>Repaso · Día 3</span><span class="ind-n">167</span></a></li>
-          <li><a href="#/173" data-h="173"><span>Ejercicio · Día 3</span><span class="ind-n">174</span></a></li>
+          <li><a href="#/115" data-h="115"><span>Agenda</span><span class="ind-n">116</span></a></li>
+          <li><a href="#/116" data-h="116"><span>Tests</span><span class="ind-n">117</span></a></li>
+          <li><a href="#/128" data-h="128"><span>Components y fases</span><span class="ind-n">129</span></a></li>
+          <li><a href="#/138" data-h="138"><span>El env: estructura y estímulo</span><span class="ind-n">139</span></a></li>
+          <li><a href="#/155" data-h="155"><span>Reporting</span><span class="ind-n">156</span></a></li>
+          <li><a href="#/169" data-h="169"><span>Repaso · Día 3</span><span class="ind-n">170</span></a></li>
+          <li><a href="#/176" data-h="176"><span>Ejercicio · Día 3</span><span class="ind-n">177</span></a></li>
         </ul>
         <h3 class="ind-grupo">Día 4</h3>
         <ul>
-          <li><a href="#/174" data-h="174"><span>Agenda</span><span class="ind-n">175</span></a></li>
-          <li><a href="#/175" data-h="175"><span>Un productor, muchos oyentes</span><span class="ind-n">176</span></a></li>
-          <li><a href="#/191" data-h="191"><span>Un solo lugar que mira el cable</span><span class="ind-n">192</span></a></li>
-          <li><a href="#/204" data-h="204"><span>Cuando alguien tiene que esperar</span><span class="ind-n">205</span></a></li>
-          <li><a href="#/217" data-h="217"><span>Quién espera a quién</span><span class="ind-n">218</span></a></li>
-          <li><a href="#/224" data-h="224"><span>Repaso · Día 4</span><span class="ind-n">225</span></a></li>
-          <li><a href="#/229" data-h="229"><span>Ejercicio · Día 4 · 1 de 2</span><span class="ind-n">230</span></a></li>
-          <li><a href="#/230" data-h="230"><span>Ejercicio · Día 4 · 2 de 2</span><span class="ind-n">231</span></a></li>
+          <li><a href="#/177" data-h="177"><span>Agenda</span><span class="ind-n">178</span></a></li>
+          <li><a href="#/178" data-h="178"><span>Un productor, muchos oyentes</span><span class="ind-n">179</span></a></li>
+          <li><a href="#/194" data-h="194"><span>Un solo lugar que mira el cable</span><span class="ind-n">195</span></a></li>
+          <li><a href="#/207" data-h="207"><span>Cuando alguien tiene que esperar</span><span class="ind-n">208</span></a></li>
+          <li><a href="#/220" data-h="220"><span>Quién espera a quién</span><span class="ind-n">221</span></a></li>
+          <li><a href="#/227" data-h="227"><span>Repaso · Día 4</span><span class="ind-n">228</span></a></li>
+          <li><a href="#/232" data-h="232"><span>Ejercicio · Día 4 · 1 de 2</span><span class="ind-n">233</span></a></li>
+          <li><a href="#/233" data-h="233"><span>Ejercicio · Día 4 · 2 de 2</span><span class="ind-n">234</span></a></li>
         </ul>
         <h3 class="ind-grupo">Día 5</h3>
         <ul>
-          <li><a href="#/231" data-h="231"><span>Agenda</span><span class="ind-n">232</span></a></li>
-          <li><a href="#/232" data-h="232"><span>Copiar un objeto que contiene otro</span><span class="ind-n">233</span></a></li>
-          <li><a href="#/242" data-h="242"><span>Transactions</span><span class="ind-n">243</span></a></li>
-          <li><a href="#/262" data-h="262"><span>Constrained random</span><span class="ind-n">263</span></a></li>
-          <li><a href="#/276" data-h="276"><span>Repaso · Día 5</span><span class="ind-n">277</span></a></li>
-          <li><a href="#/284" data-h="284"><span>Ejercicio · Día 5 · 1 de 2</span><span class="ind-n">285</span></a></li>
-          <li><a href="#/285" data-h="285"><span>Ejercicio · Día 5 · 2 de 2</span><span class="ind-n">286</span></a></li>
+          <li><a href="#/234" data-h="234"><span>Agenda</span><span class="ind-n">235</span></a></li>
+          <li><a href="#/235" data-h="235"><span>Copiar un objeto que contiene otro</span><span class="ind-n">236</span></a></li>
+          <li><a href="#/245" data-h="245"><span>Transactions</span><span class="ind-n">246</span></a></li>
+          <li><a href="#/265" data-h="265"><span>Constrained random</span><span class="ind-n">266</span></a></li>
+          <li><a href="#/279" data-h="279"><span>Repaso · Día 5</span><span class="ind-n">280</span></a></li>
+          <li><a href="#/287" data-h="287"><span>Ejercicio · Día 5 · 1 de 2</span><span class="ind-n">288</span></a></li>
+          <li><a href="#/288" data-h="288"><span>Ejercicio · Día 5 · 2 de 2</span><span class="ind-n">289</span></a></li>
         </ul>
         <h3 class="ind-grupo">Día 6</h3>
         <ul>
-          <li><a href="#/286" data-h="286"><span>Agenda</span><span class="ind-n">287</span></a></li>
-          <li><a href="#/287" data-h="287"><span>Agents</span><span class="ind-n">288</span></a></li>
-          <li><a href="#/306" data-h="306"><span>Callbacks</span><span class="ind-n">307</span></a></li>
-          <li><a href="#/311" data-h="311"><span>Sequences</span><span class="ind-n">312</span></a></li>
-          <li><a href="#/337" data-h="337"><span>Repaso · Día 6</span><span class="ind-n">338</span></a></li>
-          <li><a href="#/347" data-h="347"><span>Ejercicio · Día 6 · 1 de 5</span><span class="ind-n">348</span></a></li>
-          <li><a href="#/348" data-h="348"><span>Ejercicio · Día 6 · 2 de 5</span><span class="ind-n">349</span></a></li>
-          <li><a href="#/349" data-h="349"><span>Ejercicio · Día 6 · 3 de 5</span><span class="ind-n">350</span></a></li>
-          <li><a href="#/350" data-h="350"><span>Ejercicio · Día 6 · 4 de 5</span><span class="ind-n">351</span></a></li>
-          <li><a href="#/351" data-h="351"><span>Ejercicio · Día 6 · 5 de 5</span><span class="ind-n">352</span></a></li>
+          <li><a href="#/289" data-h="289"><span>Agenda</span><span class="ind-n">290</span></a></li>
+          <li><a href="#/290" data-h="290"><span>Agents</span><span class="ind-n">291</span></a></li>
+          <li><a href="#/309" data-h="309"><span>Callbacks</span><span class="ind-n">310</span></a></li>
+          <li><a href="#/314" data-h="314"><span>Sequences</span><span class="ind-n">315</span></a></li>
+          <li><a href="#/340" data-h="340"><span>Repaso · Día 6</span><span class="ind-n">341</span></a></li>
+          <li><a href="#/350" data-h="350"><span>Ejercicio · Día 6 · 1 de 5</span><span class="ind-n">351</span></a></li>
+          <li><a href="#/351" data-h="351"><span>Ejercicio · Día 6 · 2 de 5</span><span class="ind-n">352</span></a></li>
+          <li><a href="#/352" data-h="352"><span>Ejercicio · Día 6 · 3 de 5</span><span class="ind-n">353</span></a></li>
+          <li><a href="#/353" data-h="353"><span>Ejercicio · Día 6 · 4 de 5</span><span class="ind-n">354</span></a></li>
+          <li><a href="#/354" data-h="354"><span>Ejercicio · Día 6 · 5 de 5</span><span class="ind-n">355</span></a></li>
         </ul>
         <h3 class="ind-grupo">Día 7</h3>
         <ul>
-          <li><a href="#/352" data-h="352"><span>Agenda</span><span class="ind-n">353</span></a></li>
-          <li><a href="#/353" data-h="353"><span>Assertions (SVA)</span><span class="ind-n">354</span></a></li>
-          <li><a href="#/371" data-h="371"><span>Ejercicio · Día 7</span><span class="ind-n">372</span></a></li>
-          <li><a href="#/372" data-h="372"><span>Repaso · Día 7</span><span class="ind-n">373</span></a></li>
-          <li><a href="#/377" data-h="377"><span>Capstone · Día 7</span><span class="ind-n">378</span></a></li>
-          <li><a href="#/381" data-h="381"><span>Apéndice · De la VTALU a un bus real</span><span class="ind-n">382</span></a></li>
-          <li><a href="#/385" data-h="385"><span>Apéndice · La caja de herramientas de debug</span><span class="ind-n">386</span></a></li>
-          <li><a href="#/387" data-h="387"><span>Apéndice · Las 21 trampas mudas</span><span class="ind-n">388</span></a></li>
-          <li><a href="#/392" data-h="392"><span>Glosario · ES → EN</span><span class="ind-n">393</span></a></li>
-          <li><a href="#/395" data-h="395"><span>Referencias</span><span class="ind-n">396</span></a></li>
-          <li><a href="#/398" data-h="398"><span>Hasta acá llegamos</span><span class="ind-n">399</span></a></li>
-          <li><a href="#/400" data-h="400"><span>Autoevaluación</span><span class="ind-n">401</span></a></li>
+          <li><a href="#/355" data-h="355"><span>Agenda</span><span class="ind-n">356</span></a></li>
+          <li><a href="#/356" data-h="356"><span>Assertions (SVA)</span><span class="ind-n">357</span></a></li>
+          <li><a href="#/375" data-h="375"><span>Ejercicio · Día 7</span><span class="ind-n">376</span></a></li>
+          <li><a href="#/376" data-h="376"><span>Repaso · Día 7</span><span class="ind-n">377</span></a></li>
+          <li><a href="#/381" data-h="381"><span>Capstone · Día 7</span><span class="ind-n">382</span></a></li>
+          <li><a href="#/385" data-h="385"><span>Apéndice · De la VTALU a un bus real</span><span class="ind-n">386</span></a></li>
+          <li><a href="#/389" data-h="389"><span>Apéndice · La caja de herramientas de debug</span><span class="ind-n">390</span></a></li>
+          <li><a href="#/391" data-h="391"><span>Apéndice · Las 21 trampas mudas</span><span class="ind-n">392</span></a></li>
+          <li><a href="#/396" data-h="396"><span>Glosario · ES → EN</span><span class="ind-n">397</span></a></li>
+          <li><a href="#/399" data-h="399"><span>Referencias</span><span class="ind-n">400</span></a></li>
+          <li><a href="#/402" data-h="402"><span>Hasta acá llegamos</span><span class="ind-n">403</span></a></li>
+          <li><a href="#/404" data-h="404"><span>Autoevaluación</span><span class="ind-n">405</span></a></li>
         </ul>
         <h3 class="ind-grupo">Día 8 · opcional</h3>
         <ul>
-          <li><a href="#/403" data-h="403"><span>Agenda</span><span class="ind-n">404</span></a></li>
-          <li><a href="#/404" data-h="404"><span>RAL</span><span class="ind-n">405</span></a></li>
-          <li><a href="#/415" data-h="415"><span>Ejercicio · Día 8 · 1 de 2</span><span class="ind-n">416</span></a></li>
-          <li><a href="#/416" data-h="416"><span>El modelo de referencia en C</span><span class="ind-n">417</span></a></li>
-          <li><a href="#/420" data-h="420"><span>Repaso · Día 8</span><span class="ind-n">421</span></a></li>
-          <li><a href="#/428" data-h="428"><span>Ejercicio · Día 8 · 2 de 2</span><span class="ind-n">429</span></a></li>
-          <li><a href="#/429" data-h="429"><span>Capstone 2 · Día 8</span><span class="ind-n">430</span></a></li>
-          <li><a href="#/430" data-h="430"><span>Fin</span><span class="ind-n">431</span></a></li>
+          <li><a href="#/407" data-h="407"><span>Agenda</span><span class="ind-n">408</span></a></li>
+          <li><a href="#/408" data-h="408"><span>RAL</span><span class="ind-n">409</span></a></li>
+          <li><a href="#/420" data-h="420"><span>Ejercicio · Día 8 · 1 de 2</span><span class="ind-n">421</span></a></li>
+          <li><a href="#/421" data-h="421"><span>El modelo de referencia en C</span><span class="ind-n">422</span></a></li>
+          <li><a href="#/425" data-h="425"><span>Repaso · Día 8</span><span class="ind-n">426</span></a></li>
+          <li><a href="#/433" data-h="433"><span>Ejercicio · Día 8 · 2 de 2</span><span class="ind-n">434</span></a></li>
+          <li><a href="#/434" data-h="434"><span>Capstone 2 · Día 8</span><span class="ind-n">435</span></a></li>
+          <li><a href="#/435" data-h="435"><span>Fin</span><span class="ind-n">436</span></a></li>
         </ul>
     </nav>
   </dialog>
@@ -15715,7 +15854,7 @@ apareciendo donde nadie lo esperaba.
       // escribe esa coordenada en la URL y el de llegada la resuelve con SU
       // propio mapa: si todavia no tradujo esa seccion, avisa y arranca de
       // cero en vez de aterrizar en cualquier lado.
-      const SECCIONES = [["000-verify-this",1],["002-como-usar",2],["005-agenda-day1",1],["010-tendencias",5],["015-introduccion",6],["020-spec-vtalu",8],["021-plan-de-verificacion",3],["025-testbench-convencional",5],["026-cobertura-funcional",13],["030-interfaces-bfm",12],["042-quiz-day1",7],["043-ejercicio-day1",1],["044-ejercicio-day1b",1],["045-agenda-day2",1],["046-clases-y-extensiones",7],["047-polimorfismo",7],["050-variables-estaticas",5],["055-clases-parametricas",5],["060-factory",6],["065-tb-en-objetos",9],["067-quiz-day2",8],["068-ejercicio-day2",1],["070-agenda-day3",1],["075-tests",11],["080-components",9],["085-env",17],["088-reporting",14],["092-quiz-day3",7],["093-ejercicio-day3",1],["095-agenda-day4",1],["100-varios-objetos",16],["105-analysis-ports",13],["110-threads",13],["115-put-get",7],["117-quiz-day4",5],["118-ejercicio-day4",1],["118b-ejercicio-day4b",1],["120-agenda-day5",1],["130-jerarquias",10],["135-transactions",20],["136-constrained-random",14],["137-quiz-day5",8],["138-ejercicio-day5",1],["139-ejercicio-day5b",1],["140-agenda-day6",1],["145-agents",19],["146-callbacks",5],["150-sequences",26],["151-quiz-day6",10],["152-ejercicio-day6-agents",1],["153-ejercicio-day6-sequences",1],["153b-ejercicio-day6-bins",1],["153c-ejercicio-day6-semillas",1],["153d-ejercicio-day6-debug",1],["159-agenda-day7",1],["160-assertions",18],["161-ejercicio-day7-sva",1],["162-quiz-day7",5],["163-ejercicio-day7-capstone",4],["170-de-la-vtalu-a-un-bus",4],["171-apendice-debug",2],["172-apendice-trampas",5],["173-glosario",3],["174-referencias",3],["175-cierre",2],["175b-autoevaluacion",3],["179-agenda-day8",1],["180-ral",11],["181-ejercicio-day8-ral",1],["182-dpi",4],["182b-quiz-day8",8],["182c-ejercicio-day8-dpi",1],["183-ejercicio-day8-fifo",1],["190-the-end",1]];
+      const SECCIONES = [["000-verify-this",1],["002-como-usar",2],["005-agenda-day1",1],["010-tendencias",5],["015-introduccion",6],["020-spec-vtalu",8],["021-plan-de-verificacion",3],["025-testbench-convencional",5],["026-cobertura-funcional",13],["030-interfaces-bfm",13],["042-quiz-day1",7],["043-ejercicio-day1",1],["044-ejercicio-day1b",1],["045-agenda-day2",1],["046-clases-y-extensiones",7],["047-polimorfismo",7],["050-variables-estaticas",5],["055-clases-parametricas",5],["060-factory",6],["065-tb-en-objetos",9],["067-quiz-day2",8],["068-ejercicio-day2",1],["070-agenda-day3",1],["075-tests",12],["080-components",10],["085-env",17],["088-reporting",14],["092-quiz-day3",7],["093-ejercicio-day3",1],["095-agenda-day4",1],["100-varios-objetos",16],["105-analysis-ports",13],["110-threads",13],["115-put-get",7],["117-quiz-day4",5],["118-ejercicio-day4",1],["118b-ejercicio-day4b",1],["120-agenda-day5",1],["130-jerarquias",10],["135-transactions",20],["136-constrained-random",14],["137-quiz-day5",8],["138-ejercicio-day5",1],["139-ejercicio-day5b",1],["140-agenda-day6",1],["145-agents",19],["146-callbacks",5],["150-sequences",26],["151-quiz-day6",10],["152-ejercicio-day6-agents",1],["153-ejercicio-day6-sequences",1],["153b-ejercicio-day6-bins",1],["153c-ejercicio-day6-semillas",1],["153d-ejercicio-day6-debug",1],["159-agenda-day7",1],["160-assertions",19],["161-ejercicio-day7-sva",1],["162-quiz-day7",5],["163-ejercicio-day7-capstone",4],["170-de-la-vtalu-a-un-bus",4],["171-apendice-debug",2],["172-apendice-trampas",5],["173-glosario",3],["174-referencias",3],["175-cierre",2],["175b-autoevaluacion",3],["179-agenda-day8",1],["180-ral",12],["181-ejercicio-day8-ral",1],["182-dpi",4],["182b-quiz-day8",8],["182c-ejercicio-day8-dpi",1],["183-ejercicio-day8-fifo",1],["190-the-end",1]];
       const coordDe = h => {
         let base = 0;
         for (const [f, n] of SECCIONES) {

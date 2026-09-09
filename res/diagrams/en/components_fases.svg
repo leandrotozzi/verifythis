@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="IBM Plex Sans, system-ui, sans-serif">
+<title>The tree walked twice: build_phase goes down and connect_phase goes up, and the real order in which a child gets built</title>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#5b6b7a"/>
+  </marker>
+  <marker id="a-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#e7ad52"/>
+  </marker>
+</defs>
+
+<!-- el arbol -->
+<g fill="none" stroke="#5b6b7a" stroke-width="2">
+  <path d="M450,90 V150"/>
+  <path d="M450,196 V224"/>
+  <path d="M310,224 H600"/>
+  <path d="M310,224 V256 M600,224 V256"/>
+</g>
+
+<rect x="340" y="44" width="220" height="46" rx="4" fill="#e7ad52" fill-opacity="0.12" stroke="#e7ad52" stroke-width="2"/>
+<text x="450" y="75" text-anchor="middle" fill="#e7ad52" font-size="22" font-family="IBM Plex Mono, ui-monospace, monospace">uvm_test_top</text>
+
+<rect x="340" y="150" width="220" height="46" rx="4" fill="#ffffff" fill-opacity="0.06" stroke="#5b6b7a" stroke-width="2"/>
+<text x="450" y="181" text-anchor="middle" fill="#f0f0f0" font-size="22" font-family="IBM Plex Mono, ui-monospace, monospace">env_h</text>
+
+<rect x="215" y="256" width="190" height="46" rx="4" fill="#ffffff" fill-opacity="0.06" stroke="#5b6b7a" stroke-width="2"/>
+<text x="310" y="286" text-anchor="middle" fill="#f0f0f0" font-size="20" font-family="IBM Plex Mono, ui-monospace, monospace">agent_h</text>
+
+<rect x="495" y="256" width="210" height="46" rx="4" fill="#ffffff" fill-opacity="0.06" stroke="#5b6b7a" stroke-width="2"/>
+<text x="600" y="286" text-anchor="middle" fill="#f0f0f0" font-size="20" font-family="IBM Plex Mono, ui-monospace, monospace">scoreboard_h</text>
+
+<!-- la bajada: build -->
+<path d="M100,44 V300" fill="none" stroke="#e7ad52" stroke-width="2" marker-end="url(#a-acc)"/>
+<text x="100" y="32" text-anchor="middle" fill="#e7ad52" font-size="18" font-family="IBM Plex Mono, ui-monospace, monospace">build_phase</text>
+<text x="100" y="326" text-anchor="middle" fill="#e7ad52" font-size="17">top-down</text>
+<text x="100" y="350" text-anchor="middle" fill="#8d8d8d" font-size="15">the parent, before</text>
+<text x="100" y="370" text-anchor="middle" fill="#8d8d8d" font-size="15">the child</text>
+
+<!-- la subida: connect -->
+<path d="M800,300 V44" fill="none" stroke="#5b6b7a" stroke-width="2" marker-end="url(#a)"/>
+<text x="800" y="32" text-anchor="middle" fill="#f0f0f0" font-size="18" font-family="IBM Plex Mono, ui-monospace, monospace">connect_phase</text>
+<text x="800" y="326" text-anchor="middle" fill="#f0f0f0" font-size="17">bottom-up</text>
+<text x="800" y="350" text-anchor="middle" fill="#8d8d8d" font-size="15">the children,</text>
+<text x="800" y="370" text-anchor="middle" fill="#8d8d8d" font-size="15">already built</text>
+
+<path d="M40,398 H860" stroke="#333" stroke-width="1"/>
+<text x="40" y="426" fill="#8d8d8d" font-size="17">And inside that descent, the real order:</text>
+
+<!-- el interleaving -->
+<g fill="none" stroke="#5b6b7a" stroke-width="2">
+  <path d="M232,462 H248" marker-end="url(#a)"/>
+  <path d="M442,462 H458" marker-end="url(#a)"/>
+  <path d="M612,462 H628" marker-end="url(#a)"/>
+</g>
+
+<rect x="40" y="442" width="190" height="40" rx="4" fill="#e7ad52" fill-opacity="0.12" stroke="#e7ad52" stroke-width="2"/>
+<text x="135" y="468" text-anchor="middle" fill="#e7ad52" font-size="16" font-family="IBM Plex Mono, ui-monospace, monospace">test.build_phase()</text>
+
+<rect x="250" y="442" width="190" height="40" rx="4" fill="#ffffff" fill-opacity="0.06" stroke="#5b6b7a" stroke-width="2"/>
+<text x="345" y="468" text-anchor="middle" fill="#f0f0f0" font-size="16" font-family="IBM Plex Mono, ui-monospace, monospace">create("env_h")</text>
+
+<rect x="460" y="442" width="150" height="40" rx="4" fill="#ffffff" fill-opacity="0.06" stroke="#5b6b7a" stroke-width="2"/>
+<text x="535" y="468" text-anchor="middle" fill="#f0f0f0" font-size="16" font-family="IBM Plex Mono, ui-monospace, monospace">env.new()</text>
+
+<rect x="630" y="442" width="200" height="40" rx="4" fill="#e7ad52" fill-opacity="0.12" stroke="#e7ad52" stroke-width="2"/>
+<text x="730" y="468" text-anchor="middle" fill="#e7ad52" font-size="16" font-family="IBM Plex Mono, ui-monospace, monospace">env.build_phase()</text>
+
+<text x="40" y="518" fill="#8d8d8d" font-size="17">The child gets created inside the parent build, and its own build runs only once the parent one is done.</text>
+<text x="40" y="544" fill="#8d8d8d" font-size="17">That is why instantiating a component outside <tspan font-family="IBM Plex Mono, ui-monospace, monospace" fill="#f0f0f0">build_phase</tspan> arrives late: the tree was already walked.</text>
+</svg>

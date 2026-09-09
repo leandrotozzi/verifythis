@@ -93,14 +93,12 @@ module top;
       }
 
 
-      // cb: cross-add-bins
       op_00_FF:  cross a_leg, b_leg, all_ops {
          bins add_00 = binsof (all_ops) intersect {add_op} &&
                        (binsof (a_leg.zeros) || binsof (b_leg.zeros));
 
          bins add_FF = binsof (all_ops) intersect {add_op} &&
                        (binsof (a_leg.ones) || binsof (b_leg.ones));
-      // cb: end
 
          bins sub_00 = binsof (all_ops) intersect {sub_op} &&
                        (binsof (a_leg.zeros) || binsof (b_leg.zeros));

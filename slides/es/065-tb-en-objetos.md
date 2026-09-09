@@ -38,10 +38,6 @@ justamente lo que se sintetiza.
 - Con clases, cambiar el estímulo es **extender una clase**, y las dos versiones
   conviven. Eso es todo lo que compra la OOP acá
 
-<br>
-
-<br>
-
 #### *El VTALU TB, pieza por pieza*
 
 - top: Instancia la clase testbench
@@ -50,9 +46,16 @@ justamente lo que se sintetiza.
 - scoreboard: Chequea que la VTALU está funcionando
 - coverage: Captura la información de cobertura funcional
 
+![El árbol de objetos: el top elabora, y adentro viven la clase testbench y sus tres piezas](res/diagrams/tb-en-objetos_arbol.svg)
+<!-- .element: class="grande" -->
+
 Note:
 Es el mismo testbench de interfaces y BFM, pero en objetos: cambia la forma, no lo
 que hace. Si se puede, mostrarlos lado a lado.
+El dibujo es el que hay que poder redibujar de memoria al final del día, y la
+línea que lo parte al medio es la que importa: arriba lo que se **elabora** —el
+módulo, el DUT, la interface—, abajo lo que alguien tiene que **crear**. Un
+objeto que nadie crea es un handle nulo, y ése es el error de la primera tarde.
 Es la última versión sin UVM. Desde los tests lo mismo lo arma UVM, y el
 alumno tiene que poder decir qué parte reemplaza a qué.
 

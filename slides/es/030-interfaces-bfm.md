@@ -230,6 +230,35 @@ visto clocking blocks, no porque sea lo que se escribe en un proyecto.
 
 ## Interfaces y BFM
 
+#### *Por qué el flanco solo no alcanza: las regiones*
+
+![Las regiones de un flanco: Preponed, Active y NBA, y los tres muestreos](res/diagrams/interfaces-bfm_regiones.svg)
+<!-- .element: class="grande" -->
+
+- Un flanco no es un instante indivisible: adentro hay **regiones**, en orden fijo
+- El `<=` del `always_ff` **aterriza en NBA**: el que lee en *Active* lee el viejo
+- El `#1` cruza el NBA, el flanco opuesto lo cruza sobrado, y SVA no necesita
+  ninguno de los dos: muestrea en *preponed*, antes de todo
+
+Note:
+Esta figura es la que hay que dejar en pantalla mientras se leen las tres
+lecturas de la slide anterior. Sin ella la explicación es *"el valor viejo"*,
+que suena a rareza del simulador; con ella es una consecuencia del orden, y el
+orden está en el LRM.
+El scheduler tiene más regiones que las cuatro del dibujo —`docs/clocking-blocks.md`
+las lista todas—, pero con éstas se explican los tres casos, y agregar las otras
+no cambia ninguna respuesta.
+La pregunta que conviene hacer al grupo antes de mostrar la respuesta: si el DUT
+escribe en NBA y tu `initial` despierta en Active, ¿quién corre primero? Ahí se
+ve solo por qué muestrear **en** el flanco da el valor de antes.
+Y el enganche con el día 7: la barra ámbar de la izquierda es la región donde
+muestrea SVA. Es la misma figura que explica por qué una assertion no chequea lo
+que pasó sino lo que vio, y por qué el `@()` que se le pone cambia el resultado.
+
+---
+
+## Interfaces y BFM
+
 #### *El clocking block: el flanco y el delta, declarados una vez*
 
 {{code:code/u2/clocking/con_clocking.sv#reg_bfm}}

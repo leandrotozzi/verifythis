@@ -18,6 +18,12 @@
 //             regeneran y no pueden llevar un marcador adentro.
 //   6. ERROR  el sesgo de longitud del banco: la correcta no puede ser la
 //             opcion mas larga en mas de 1 de cada 4 preguntas del idioma.
+//   7. ERROR  un recorte que ARRANCA en un token de cierre -- "end else begin",
+//             ")", "endcase". Se lee como un pedazo cortado al medio, y el que
+//             mira la slide no tiene el archivo al lado para reponerlo. El
+//             marcador va ADENTRO del bloque, no arriba. Es la regla que la
+//             etapa 2 dio de baja al migrar de lines= a marcadores, y en la
+//             revision de septiembre 2026 habia dos recortes asi.
 //
 // Los archivos de quiz, agenda y ejercicio estan exentos de la regla 1: ahi el
 // texto es la pregunta, y el codigo es el enunciado. La 6 es al reves: corre
@@ -39,6 +45,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { IDIOMAS, SALIDAS } from './i18n.mjs';
+import { recortar } from './codigo.mjs';
 const MAX_LINEAS = 35;
 const EXENTOS = /quiz|agenda|ejercicio/;
 // La portada es la unica slide con un h1: ahi el subtitulo va en h3 a proposito.
@@ -47,6 +54,10 @@ const RE_CODE = /\{\{code:([^}|#]+?)(?:#([\w.-]+))?(?:\|lines=(\d+)-(\d+))?\}\}/
 // Salidas capturadas: tools/regen-outputs.sh las reescribe enteras, asi que un
 // marcador adentro duraria hasta la proxima corrida. Ahi lines= es lo correcto.
 const GENERADO = /\.(txt|log|questa)$/;
+// Regla 7: con que arranque asi ya se lee colgado. No se mira el final: un
+// recorte que termina antes de cerrar se lee como "sigue", que es lo normal en
+// una slide; uno que EMPIEZA cerrando se lee como un error de recorte.
+const COLGADO = /^\s*(end\b|else\b|join|join_any|join_none|\)|\}|`endif|`else|endcase|endgroup|endproperty|endsequence|endfunction|endtask|endclass|endmodule|endinterface|endpackage)/;
 
 const errores = [], avisos = [];
 const sinNota = new Map();
@@ -124,6 +135,17 @@ for (const [SLIDES_DIR, f] of ARBOLES) {
 
     for (const [, r, simbolo, desde, hasta] of s.matchAll(RE_CODE)) {
       const ruta = r.trim();
+      // Regla 7. Corre sobre el recorte expandido, asi que va antes de los dos
+      // `continue` de abajo: el caso tipico es justamente un #nombre.
+      if (!GENERADO.test(ruta)) {
+        const { recorte } = await recortar(ruta, simbolo, desde, hasta).catch(() => ({ recorte: [] }));
+        const primera = recorte.find(l => l.trim()) ?? '';
+        if (COLGADO.test(primera)) {
+          const cita = ruta + (simbolo ? `#${simbolo}` : '');
+          errores.push(`${donde} — ${cita} arranca en "${primera.trim()}": el recorte empieza colgado.`
+            + ' El marcador va adentro del bloque, no arriba');
+        }
+      }
       // #nombre ya es un recorte, y uno que no se pudre: no aplica ninguna de
       // las dos reglas de abajo.
       if (simbolo) continue;

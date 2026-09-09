@@ -111,8 +111,8 @@ interface vtalu_bfm;
             @(posedge clk);
             #1;
             start = 1'b0;
-         // cb: the-planted-bug
          end else begin
+         // cb: the-planted-bug
             // +BUG=1: changes B halfway through the multiplication. The
             // multiplier already latched A and B on the first edge, so the
             // RESULT DOES NOT CHANGE: the scoreboard stays green. The only

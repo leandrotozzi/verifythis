@@ -1,4 +1,4 @@
-<!-- es-sha: c25696d6d800 -->
+<!-- es-sha: efe7f071236a -->
 ## Constrained random
 
 #### *The other half of the pincer*
@@ -168,6 +168,9 @@ $ cd code/u6/transactions/constraints && bash run.sh
   :/   A=00  23.2%   A=FF  27.0%   the weight gets split
 ```
 
+![Measured histogram: with := the edge bins come out 0.2 %; with :/ they come out 23 % and 27 %](res/diagrams/en/constrained-random_dist.svg)
+<!-- .element: class="grande" -->
+
 Note:
 This experiment came out of a bug in this very course: `command_transaction` had
 the `dist` written with `:=`, which means the bias to the corner cases the
@@ -275,15 +278,17 @@ rand byte unsigned A;
 constraint c {es_reset -> A == 8'h00;}   // "if I ask for a reset, the operands at zero"
 ```
 
-- It looks harmless. **It is not**: the solver picks uniformly among the
-  *solutions*, not among the values of each field
-- With `es_reset = 1` there is **one** solution (`A = 00`). With `es_reset = 0`
-  there are **256**. Total: 257, and only one of them has the reset
-- Which means: you asked for a reset half the time and you are going to see it **1
-  time in 257**. The *"any operation after a reset"* bin of the plan of the
-  conventional testbench does not get filled, and the report does not tell you why
+- It looks harmless. **It is not**: the solver picks among the *solutions*, not
+  among the values of each field
+- With `es_reset = 1` there is **one**; with `es_reset = 0`, **256**. You asked for
+  a reset half the time and you will see it **1 time in 257**
+- The *"any operation after a reset"* bin of the plan does not get filled, and the
+  report does not tell you why
 - The answer from the language is `solve es_reset before A`: pick the control field
   first
+
+![One cell against a 16 by 16 block: the 257 solutions, and only one has the reset](res/diagrams/en/constrained-random_solve.svg)
+<!-- .element: class="grande" -->
 
 Note:
 The sentence that dismantles the intuition is the one in the first bullet, and it
@@ -420,17 +425,13 @@ DUT, not a preference of whoever wrote the class first.
 
 #### *This is how coverage gets closed*
 
-| Step | Tool |
-| --- | --- |
-| Cover the bulk cheaply | `randomize()` with `dist` and `inside` in the transaction |
-| See what was left out | the coverage report — `cov_report` |
-| Fill the bin that is missing | `randomize() with { ... }`, three lines, no new classes |
-| Break a rule on purpose | `constraint_mode(0)` / `rand_mode(0)` |
-| Repeat | another seed, and again |
+![The closure cycle: randomize, read the report, fill the missing bin, another seed](res/diagrams/en/constrained-random_closure.svg)
+<!-- .element: class="grande" -->
 
+- No step asks for a new class: `dist` and `inside` in the transaction, three
+  lines of `with {}`, and `rand_mode(0)` or `constraint_mode(0)` to break a rule
 - That is *coverage closure*, and it is what a verifier spends the day on
-- What it is **not**: writing one test per bin. Nor looking at the total
-  percentage
+- What it is **not**: writing one test per bin. Nor looking at the total percentage
 - The stimulus still comes out of a `tester` you wrote yourself. In modern UVM
   that is a `uvm_sequence` — and that is day 6
 
@@ -465,11 +466,11 @@ $ SEED=7 bash run.sh    # u2/convencional, and again with SEED=8
 - It does **not** move the 10 bins that are missing. With 1000 operations the
   random already got as far as it can, and another seed is tossing the coin
   expecting a different result
-- That is why *"repeat"* is the **last** row of the previous table and not the
-  first: the `with {}` comes first
+- That is why *"another seed"* is the **last** step of the previous cycle and not
+  the first: the `with {}` comes first
 
 Note:
-This slide exists to defuse a misunderstanding the previous table invites: *"if I
+This slide exists to defuse a misunderstanding the previous cycle invites: *"if I
 do not close, I run another seed"*. It was measured, and no: `code/u2/convencional`
 gives 66 out of 76 with the default seed, with 7 and with 8, and the merge of the
 three gives 66. The 10 that are missing are not missing out of luck — they are

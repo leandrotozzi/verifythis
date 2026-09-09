@@ -1,4 +1,4 @@
-<!-- es-sha: 363f4ae0559a -->
+<!-- es-sha: 5c2088d92c4e -->
 ## Assertions (SVA)
 
 #### *The hole the scoreboard left*
@@ -241,6 +241,36 @@ The underlying industrial way out is the **clocking block**, which declares the 
 once for the whole interface instead of repeating it property by property. It is in
 day 1 —`030-interfaces-bfm.md` and `docs/clocking-blocks.md`— and it is worth naming
 again here, because only now is the full problem it solves in view.
+
+---
+
+## Assertions (SVA)
+
+#### *The pulse the sampling does not see*
+
+![Two no_op in a row: start goes down at 111 and up at 120, between two posedge](res/diagrams/en/assertions_dos_relojes.svg)
+<!-- .element: class="grande" -->
+
+- Between two `posedge` a whole `start` pulse fits that the sampling never sees
+- All on `posedge`: the two `no_op` read as **one**, and out come 145 screams
+- Stimulus on `negedge`: at `t=120` it is already low, the antecedent never starts
+
+Note:
+This is the figure to pause on and walk through with a finger, because the whole
+argument is in two edges. It is worth asking before showing it: *how many
+transactions does an assertion sampled on `posedge` see?* The answer read off the
+drawing is one, and there are two.
+The amber band is what the section has been saying in words: between `t=111` and
+`t=120` the signal changes twice and no `posedge` sampling lands in there. It is
+not a bug of the simulator nor of the property — it is that sampling happens in
+*preponed*, and at `t=130` what it sees is `start` high, same as at `t=110`.
+And the second row is the cure: the same drawing with the other edge. At `t=120`
+the `negedge` sampling sees `start` low, the antecedent is false, and the property
+does not even start. One character.
+The detail almost nobody looks at: the values of `A`, `B` and `op_set` change
+exactly at `t=120`, that is, inside the transaction the `posedge` sampling believes
+it is watching. That is why the 145 errors talk about operand stability and not
+about something else.
 
 ---
 

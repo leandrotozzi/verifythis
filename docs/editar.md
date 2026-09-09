@@ -179,7 +179,7 @@ npm run inventario  # cuántos ejemplos, slides, secciones… hay ahora
 
 ### Los números del curso no se escriben a mano
 
-*"431 slides"*, *"38 ejemplos"*, *"18 ejercicios"* aparecen repartidos en **más
+*"436 slides"*, *"38 ejemplos"*, *"18 ejercicios"* aparecen repartidos en **más
 de veinticinco lugares** —el README, la landing, el `CITATION.cff`, el
 `Makefile`, los workflows, los docs y las propias slides—, y agregar una slide
 los desactualizaba todos en silencio.
@@ -207,7 +207,7 @@ sigue siendo prosa, y el que miente falla en CI.
 > hace que el deck y el libro funcionen sin build. `npm run check` falla si te lo
 > olvidaste, y corre en CI.
 
-`npm run overflow` recorre las 431 slides en Chrome headless y falla si alguna no
+`npm run overflow` recorre las 436 slides en Chrome headless y falla si alguna no
 entra en el canvas de 1100×700, tanto en pantalla como en la maquetación del PDF.
 Es la red que garantiza que ninguna diapositiva salga cortada.
 
@@ -229,7 +229,7 @@ npm run pptx    # dist/curso-uvm.pptx  — texto editable
 
 El PDF **se puede imprimir**, y es también lo que sale con <kbd>Ctrl</kbd>+<kbd>P</kbd>
 desde el deck: papel blanco, tinta oscura, el código sobre una
-plancha gris tenue y las 40 figuras en paleta clara —las genera
+plancha gris tenue y las 50 figuras en paleta clara —las genera
 `tools/figs-print.mjs` en `res/print/`, porque un SVG referenciado con `<img>`
 es un documento aparte y no lo alcanza el CSS de la página—. El ámbar y el
 verde siguen siendo los dos colores-señal del curso, oscurecidos hasta pasar

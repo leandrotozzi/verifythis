@@ -1,4 +1,4 @@
-<!-- es-sha: c768fd19f644 -->
+<!-- es-sha: a8dbef25c50f -->
 ## Functional coverage
 
 #### *When are you done verifying?*
@@ -206,20 +206,20 @@ the problem is an unfiltered cross, not a missing test.
 
 #### *The VTALU cross*
 
-{{code:code/u2/convencional/vtalu_tb.sv#cross-add-bins}}
-
 {{code:code/u2/convencional/vtalu_tb.sv#cross-mul-bins}}
 
-- `add_00` reads straight through: *an addition where A **or** B is 0x00*
+- `mul_00` reads straight through: *a multiplication where A **or** B is 0x00*.
+  The other eight bins of the cross are these two lines with another `op`
 - `mul_max` is the only one with `&&`: it asks for **both** legs at 0xFF: the
   **maximum product**, `FF` × `FF` = `FE01`. It does not overflow — 8 bits by 8 fit in 16
 - Verilator 5.052 **ignores** `binsof` / `intersect` (`%Warning-COVERIGN`) and measures
   the whole cross: that is why the number is not a commercial tool's
 
 Note:
-Worth reading `add_00` and `mul_max` in plain words, one after the other, because the
-difference between `||` and `&&` is the one that gets copied wrong: *"an addition where A **or**
-B is 0x00"* against *"a multiplication with A **and** B at 0xFF"*. The first
+Worth reading `mul_00` and `mul_max` in plain words, one after the other, because the
+difference between `||` and `&&` is the one that gets copied wrong, and here both bins
+belong to the same operation: *"a multiplication where A **or** B is 0x00"*
+against *"a multiplication with A **and** B at 0xFF"*. The first
 is two cases, the second is a single one — the **maximum product**, the top corner of
 the input space. And here it is worth killing the misunderstanding that comes on its own,
 because it is expensive: `FF` × `FF` **does not overflow anything**. It gives `FE01`, which

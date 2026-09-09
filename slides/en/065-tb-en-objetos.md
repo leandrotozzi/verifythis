@@ -1,4 +1,4 @@
-<!-- es-sha: e63443305ef6 -->
+<!-- es-sha: 4e44963e3099 -->
 ## A testbench without a single module
 
 #### *The same testbench, without a single module*
@@ -39,10 +39,6 @@ precisely what gets synthesized.
 - With classes, changing the stimulus is **extending a class**, and the two versions
   live side by side. That is all OOP buys you here
 
-<br>
-
-<br>
-
 #### *The VTALU TB, piece by piece*
 
 - top: Instantiates the testbench class
@@ -51,9 +47,17 @@ precisely what gets synthesized.
 - scoreboard: Checks that the VTALU is working
 - coverage: Captures the functional coverage information
 
+![The object tree: top elaborates, and inside live the testbench class and its three pieces](res/diagrams/en/tb-en-objetos_arbol.svg)
+<!-- .element: class="grande" -->
+
 Note:
 It is the same testbench as interfaces and BFM, but in objects: what changes is the shape, not
 what it does. If possible, show them side by side.
+The drawing is the one to be able to redraw from memory at the end of the day, and
+the line that splits it in half is the one that matters: above, what gets
+**elaborated** —the module, the DUT, the interface—; below, what somebody has to
+**create**. An object nobody creates is a null handle, and that is the mistake of
+the first afternoon.
 It is the last version without UVM. From the tests on the same thing gets assembled by UVM, and the
 student has to be able to say which part replaces which.
 

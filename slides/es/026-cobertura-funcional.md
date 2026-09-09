@@ -205,20 +205,20 @@ el problema es un cross sin filtrar, no un test que falta.
 
 #### *El cross del VTALU*
 
-{{code:code/u2/convencional/vtalu_tb.sv#cross-add-bins}}
-
 {{code:code/u2/convencional/vtalu_tb.sv#cross-mul-bins}}
 
-- `add_00` se lee de corrido: *una suma en la que A **o** B valgan 0x00*
+- `mul_00` se lee de corrido: *una multiplicación en la que A **o** B valgan
+  0x00*. Los otros ocho bins del cross son estas dos líneas con otro `op`
 - `mul_max` es el único con `&&`: pide las **dos** patas en 0xFF: el **producto
   máximo**, `FF` × `FF` = `FE01`. No desborda — 8 bits por 8 entran en 16
 - Verilator 5.052 **ignora** `binsof` / `intersect` (`%Warning-COVERIGN`) y mide
   el cross completo: por eso el número no es el de una herramienta comercial
 
 Note:
-Vale leer `add_00` y `mul_max` en castellano, uno detrás del otro, porque la
-diferencia entre `||` y `&&` es la que se copia mal: *"una suma en la que A **o**
-B valgan 0x00"* contra *"una multiplicación con A **y** B en 0xFF"*. El primero
+Vale leer `mul_00` y `mul_max` en castellano, uno detrás del otro, porque la
+diferencia entre `||` y `&&` es la que se copia mal, y acá los dos bins son de la
+misma operación: *"una multiplicación en la que A **o** B valgan 0x00"* contra
+*"una multiplicación con A **y** B en 0xFF"*. El primero
 son dos casos, el segundo es uno solo — el **producto máximo**, la esquina de
 arriba del espacio de entrada. Y acá conviene matar el malentendido que viene
 solo, porque es caro: `FF` × `FF` **no desborda nada**. Da `FE01`, que entra

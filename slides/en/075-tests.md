@@ -1,4 +1,4 @@
-<!-- es-sha: f9904d3af165 -->
+<!-- es-sha: e87cbca1cbd5 -->
 ## Tests
 
 #### *Compile once, pick the test from the command line*
@@ -237,6 +237,36 @@ The third piece, for whoever wants to hook in at exactly that instant, is
 reaches zero.
 And the hook forward: the scoreboard with a FIFO of the analysis ports is
 exactly the case of this slide, and the capstone steps on it again.
+
+---
+
+## Tests
+
+#### *The timeline, end to end*
+
+![Timeline of an objection: raise, stimulus, drop, drain and the end of the phase](res/diagrams/en/tests_objections.svg)
+<!-- .element: class="grande" -->
+
+- `raise` and `drop` mark **the stimulus**, and nothing but the stimulus
+- What is left in flight is not in that count: the three empty boxes of the drawing
+- The `drain_time` is the time given away so those answers arrive and get compared
+- Without `raise` nothing sits between the marks; without `drop`, the line never ends
+
+Note:
+The figure is there to be paused on, asking where the simulation ends. The answer
+almost everybody gives the first time —*"when the test finished sending"*— is
+exactly the one that produces the bug: that is where the last objection drops, and
+that is where the phase cuts if nobody asked for a cushion.
+It is worth pointing at the three empty boxes: they are transactions the DUT has
+not answered yet. They are not lost through anybody's mistake, they are in flight,
+which is the normal state of any pipeline. What decides whether they get compared
+or not is how much longer the phase lives.
+The detail worth saying out loud: the `drain_time` is measured from the last
+`drop`, not from the beginning. If the test sends a thousand operations and the DUT
+takes two cycles to answer, the cushion is two cycles and not two thousand.
+And the version with a criterion —`phase_ready_to_end()`— is this same figure with
+one difference: the length of the cushion gets decided by the scoreboard looking at
+its FIFO, instead of being decided up front by whoever wrote the test.
 
 ---
 

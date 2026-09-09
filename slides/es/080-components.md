@@ -56,6 +56,38 @@ amablemente.
 
 ## Components y fases
 
+#### *El árbol, dos veces: una baja y la otra sube*
+
+![El árbol recorrido dos veces: build_phase baja y connect_phase sube](res/diagrams/components_fases.svg)
+<!-- .element: class="grande" -->
+
+- `build_phase` baja porque el padre tiene que existir para crear a sus hijos
+- `connect_phase` sube por lo contrario: el otro extremo ya tiene que estar
+- El hijo se **crea** adentro del build del padre; su propio build corre después
+- Por eso el `set()` del `config_db` va **antes** del `create()` que lo construye
+
+Note:
+El dibujo contesta dos preguntas que en la tabla se leen como una convención
+arbitraria. La primera: por qué `build_phase` es top-down. Porque un padre tiene
+que existir para crear a sus hijos, y no hay otra forma de armar un árbol; las
+del medio necesitan lo contrario, que los hijos ya estén.
+La segunda es la que se pregunta en voz baja: si el padre crea al hijo adentro de
+su propio `build_phase`, ¿cuándo corre el `build_phase` del hijo? Después, y ésa
+es la parte que hay que decir despacio: `create()` llama al **constructor**, no a
+la fase. UVM recorre el árbol llamando la fase a los componentes que fueron
+apareciendo, así que el hijo se construye en dos tiempos.
+La consecuencia práctica es la del último bullet y es la que se cobra: un
+`uvm_config_db::set()` escrito **después** del `create()` del hijo llega tarde,
+el hijo ya leyó, y el campo queda en su default sin que nadie avise. Es el mismo
+modo de falla asimétrico de la slide que sigue.
+Si alguien pregunta por el código: `uvm_topdown_phase::traverse` ejecuta la fase
+en el componente y recién después recorre sus hijos —`get_first_child()`—, que
+para entonces ya existen.
+
+---
+
+## Components y fases
+
 #### *¿Y el `super.build_phase()`?*
 
 ```systemverilog
@@ -148,17 +180,11 @@ necesitan lo contrario — que los hijos ya estén. La otra top-down es
 
 #### *Y adentro del `run_phase`, un cronograma*
 
-```
-   reset          configure          main          shutdown
-  pre  post      pre     post      pre   post     pre    post
-```
+![Las doce fases runtime en paralelo con run_phase, y dónde engancha la default_sequence](res/diagrams/components_runtime.svg)
+<!-- .element: class="grande" -->
 
-- En **paralelo** con `run_phase`, UVM recorre doce fases *runtime*, todas
-  `task`, en ese orden
-- Están para coordinar componentes de equipos distintos sin banderas a mano:
-  nadie manda tráfico en `main` hasta que **todos** terminaron `reset`
-- Cada una tiene su propio objection, con la regla de los tests: una fase
-  runtime sin objection **termina en cuanto arranca**
+- Las doce son `task`, corren **en paralelo** con `run_phase`, y están para
+  coordinar componentes de equipos distintos sin banderas a mano
 - El curso usa `run_phase` y nada más — con un solo agent no hay nada que
   coordinar. Pero el `default_sequence` del día 6 se engancha a **`main_phase`**
 

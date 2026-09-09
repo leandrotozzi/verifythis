@@ -1,4 +1,4 @@
-<!-- es-sha: fe75ec040192 -->
+<!-- es-sha: d3b5d4c3a279 -->
 ## Interfaces and BFM
 
 #### *First: the signals stop being loose*
@@ -226,6 +226,35 @@ which race it avoids. An explained `#1` is a patch that knows it is a patch; a l
 And the third is ours. Worth being honest with the group: the course drives on
 `negedge` and samples on `posedge` because it is the trick you can understand without having
 seen clocking blocks, not because it is what gets written on a project.
+
+---
+
+## Interfaces and BFM
+
+#### *Why the edge alone is not enough: the regions*
+
+![The regions of an edge: Preponed, Active and NBA, and the three samples](res/diagrams/en/interfaces-bfm_regiones.svg)
+<!-- .element: class="grande" -->
+
+- An edge is not an indivisible instant: inside it there are **regions**, in order
+- The `<=` of the `always_ff` **lands in NBA**: whoever reads in *Active* reads the old value
+- The `#1` crosses the NBA, the opposite edge crosses it with room to spare, and
+  SVA needs neither of the two: it samples in *preponed*, before everything
+
+Note:
+This figure is the one to leave on screen while reading the three samples of the
+previous slide. Without it the explanation is *"the old value"*, which sounds like
+a quirk of the simulator; with it, it is a consequence of the order, and the order
+is in the LRM.
+The scheduler has more regions than the four in the drawing —`docs/clocking-blocks.md`
+lists them all— but these are enough to explain the three cases, and adding the
+others changes no answer.
+The question worth asking the group before showing the answer: if the DUT writes in
+NBA and your `initial` wakes up in Active, which one runs first? That is where it
+shows on its own why sampling **on** the edge gives the value from before.
+And the hook with day 7: the amber bar on the left is the region where SVA samples.
+It is the same figure that explains why an assertion does not check what happened
+but what it saw, and why the `@()` you give it changes the result.
 
 ---
 

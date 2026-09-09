@@ -241,6 +241,36 @@ exactamente el caso de esta slide, y el capstone lo pisa de nuevo.
 
 ## Tests
 
+#### *La línea de tiempo, de punta a punta*
+
+![Línea de tiempo de una objection: raise, estímulo, drop, drain y fin de la fase](res/diagrams/tests_objections.svg)
+<!-- .element: class="grande" -->
+
+- `raise` y `drop` marcan **el estímulo**, y nada más que el estímulo
+- Lo que quedó en vuelo no entra en esa cuenta: son las tres cajas vacías
+- El `drain_time` es el tiempo que se regala para que esas respuestas lleguen
+- Sin `raise` no hay nada entre las marcas; sin `drop`, la línea no termina nunca
+
+Note:
+La figura es para pausarla y preguntar dónde termina la simulación. La respuesta
+que casi todo el mundo da la primera vez —*"cuando el test terminó de mandar"*—
+es justo la que produce el bug: ahí es donde cae la última objection, y ahí es
+donde la fase corta si nadie pidió un colchón.
+Vale marcar con el dedo las tres cajas vacías: son transacciones que el DUT
+todavía no contestó. No están perdidas por un error de nadie, están en vuelo, que
+es el estado normal de cualquier pipeline. Lo que decide si se comparan o no es
+cuánto tiempo más vive la fase.
+El detalle que conviene decir en voz alta: el `drain_time` se mide desde el
+último `drop`, no desde el principio. Si el test manda mil operaciones y el DUT
+tarda dos ciclos en contestar, el colchón son dos ciclos y no dos mil.
+Y la versión con criterio —`phase_ready_to_end()`— es esta misma figura con una
+diferencia: el largo del colchón lo decide el scoreboard mirando su FIFO, en vez
+de decidirlo de antemano el que escribió el test.
+
+---
+
+## Tests
+
 #### *El segundo test: lo mismo, con otro tester*
 
 {{code:code/u4/tests/tb_classes/add_test.svh#run_phase}}

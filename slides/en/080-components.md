@@ -1,4 +1,4 @@
-<!-- es-sha: f7bb28940a64 -->
+<!-- es-sha: 28668dba74f2 -->
 ## Components and phases
 
 #### *A component is what is in the tree, and the tree is walked by UVM*
@@ -52,6 +52,38 @@ Three things that have to be said no matter what: build_phase is top-down, conne
 bottom-up, and every run_phase runs in parallel, each one in its thread.
 And the classic mistake: instantiating components outside build_phase. UVM does not warn you
 kindly.
+
+---
+
+## Components and phases
+
+#### *The tree, twice: one walk goes down and the other goes up*
+
+![The tree walked twice: build_phase goes down and connect_phase goes up](res/diagrams/en/components_fases.svg)
+<!-- .element: class="grande" -->
+
+- `build_phase` goes down because a parent has to exist to create its children
+- `connect_phase` goes up for the opposite reason: the other end has to be there
+- The child gets **created** inside the parent build; its own build runs later
+- That is why the `config_db` `set()` goes **before** the `create()` that builds it
+
+Note:
+The drawing answers two questions that in the table read like an arbitrary
+convention. The first one: why `build_phase` is top-down. Because a parent has to
+exist in order to create its children, and there is no other way to assemble a
+tree; the ones in the middle need the opposite, that the children are already there.
+The second one is the one asked under one's breath: if the parent creates the
+child inside its own `build_phase`, when does the `build_phase` of the child run?
+Later, and that is the part that has to be said slowly: `create()` calls the
+**constructor**, not the phase. UVM walks the tree calling the phase on the
+components that showed up along the way, so the child gets built in two steps.
+The practical consequence is the one in the last bullet and it is the one that
+charges: a `uvm_config_db::set()` written **after** the `create()` of the child
+arrives late, the child already read, and the field stays at its default without
+anybody warning. It is the same asymmetric failure mode as the next slide.
+If somebody asks about the code: `uvm_topdown_phase::traverse` runs the phase on
+the component and only then walks its children —`get_first_child()`—, which by
+then already exist.
 
 ---
 
@@ -150,19 +182,13 @@ top-down one is `final_phase`, which closes the tree in the same order it was bu
 
 #### *And inside the `run_phase`, a schedule*
 
-```
-   reset          configure          main          shutdown
-  pre  post      pre     post      pre   post     pre    post
-```
+![The twelve runtime phases in parallel with run_phase, and where the default_sequence hooks in](res/diagrams/en/components_runtime.svg)
+<!-- .element: class="grande" -->
 
-- **In parallel** with `run_phase`, UVM walks twelve *runtime* phases, all of them
-  `task`, in that order
-- They are there to coordinate components from different teams without hand-made flags:
-  nobody sends traffic in `main` until **everybody** finished `reset`
-- Each one has its own objection, with the rule from the tests: a runtime
-  phase without an objection **ends the moment it starts**
-- The course uses `run_phase` and nothing else — with a single agent there is nothing to
-  coordinate. But the `default_sequence` of day 6 hooks into **`main_phase`**
+- The twelve are `task`s, they run **in parallel** with `run_phase`, and they are
+  there to coordinate components from different teams without hand-made flags
+- The course uses `run_phase` and nothing else — with a single agent there is nothing
+  to coordinate. But the `default_sequence` of day 6 hooks into **`main_phase`**
 
 Note:
 This slide exists so that `main_phase` does not show up for the first time on day 6.

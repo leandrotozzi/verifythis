@@ -10,7 +10,7 @@
 // tambien aplasta los medios -- los trazos de #5b6b7a quedarian en 2:1 contra
 // el papel, ilegibles justo donde vive el dibujo.
 //
-// El deck usa una paleta chica y consistente (12 colores en 40 figuras), asi
+// El deck usa una paleta chica y consistente (12 colores en 50 figuras), asi
 // que la tabla es corta y el mapeo es exacto, no una heuristica.
 import { readdir, readFile, writeFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';

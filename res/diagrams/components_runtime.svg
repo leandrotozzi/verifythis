@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" font-family="IBM Plex Sans, system-ui, sans-serif">
+<title>Las doce fases runtime corriendo en paralelo con run_phase, y dónde se engancha la default_sequence</title>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#5b6b7a"/>
+  </marker>
+  <marker id="a-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#e7ad52"/>
+  </marker>
+</defs>
+
+<!-- el carril de run_phase -->
+<text x="156" y="86" text-anchor="end" fill="#e7ad52" font-size="19" font-family="IBM Plex Mono, ui-monospace, monospace">run_phase</text>
+<rect x="176" y="54" width="674" height="48" rx="4" fill="#e7ad52" fill-opacity="0.14" stroke="#e7ad52" stroke-width="2"/>
+<text x="513" y="84" text-anchor="middle" fill="#e7ad52" font-size="17">un solo thread, de punta a punta</text>
+
+<text x="513" y="130" text-anchor="middle" fill="#8d8d8d" font-size="16">las dos cosas pasan <tspan fill="#f0f0f0">a la vez</tspan>, no una adentro de la otra</text>
+
+<!-- el carril de las doce -->
+<text x="156" y="186" text-anchor="end" fill="#f0f0f0" font-size="18">fases runtime</text>
+<text x="156" y="208" text-anchor="end" fill="#8d8d8d" font-size="15">las doce</text>
+
+<g stroke="#444" stroke-width="2" fill="#ffffff" fill-opacity="0.04">
+  <rect x="176" y="160" width="36" height="52" rx="3"/>
+  <rect x="298" y="160" width="36" height="52" rx="3"/>
+  <rect x="348" y="160" width="36" height="52" rx="3"/>
+  <rect x="470" y="160" width="36" height="52" rx="3"/>
+  <rect x="520" y="160" width="36" height="52" rx="3"/>
+  <rect x="642" y="160" width="36" height="52" rx="3"/>
+  <rect x="692" y="160" width="36" height="52" rx="3"/>
+  <rect x="814" y="160" width="36" height="52" rx="3"/>
+</g>
+<g font-size="12" fill="#8d8d8d" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">
+  <text x="194" y="191">pre</text>
+  <text x="316" y="191">post</text>
+  <text x="366" y="191">pre</text>
+  <text x="488" y="191">post</text>
+  <text x="538" y="191">pre</text>
+  <text x="660" y="191">post</text>
+  <text x="710" y="191">pre</text>
+  <text x="832" y="191">post</text>
+</g>
+
+<g stroke="#5b6b7a" stroke-width="2" fill="#ffffff" fill-opacity="0.06">
+  <rect x="214" y="160" width="82" height="52" rx="3"/>
+  <rect x="386" y="160" width="82" height="52" rx="3"/>
+  <rect x="730" y="160" width="82" height="52" rx="3"/>
+</g>
+<rect x="558" y="160" width="82" height="52" rx="3" fill="#e7ad52" fill-opacity="0.12" stroke="#e7ad52" stroke-width="2"/>
+<g font-size="14" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">
+  <text x="255" y="191" fill="#f0f0f0">reset</text>
+  <text x="427" y="191" fill="#f0f0f0">configure</text>
+  <text x="599" y="191" fill="#e7ad52">main</text>
+  <text x="771" y="191" fill="#f0f0f0">shutdown</text>
+</g>
+
+<path d="M599,212 V248" fill="none" stroke="#e7ad52" stroke-width="2" marker-end="url(#a-acc)"/>
+<text x="599" y="272" text-anchor="middle" fill="#e7ad52" font-size="16">acá se engancha la <tspan font-family="IBM Plex Mono, ui-monospace, monospace">default_sequence</tspan></text>
+
+<path d="M176,308 H850" fill="none" stroke="#5b6b7a" stroke-width="2" marker-end="url(#a)"/>
+<text x="176" y="332" fill="#8d8d8d" font-size="15">el orden es fijo: nadie manda tráfico en <tspan font-family="IBM Plex Mono, ui-monospace, monospace" fill="#f0f0f0">main</tspan> hasta que todos terminaron <tspan font-family="IBM Plex Mono, ui-monospace, monospace" fill="#f0f0f0">reset</tspan></text>
+
+<text x="40" y="372" fill="#8d8d8d" font-size="17">El nombre real lleva el sufijo: <tspan font-family="IBM Plex Mono, ui-monospace, monospace" fill="#f0f0f0">pre_reset_phase</tspan>, <tspan font-family="IBM Plex Mono, ui-monospace, monospace" fill="#f0f0f0">reset_phase</tspan>, <tspan font-family="IBM Plex Mono, ui-monospace, monospace" fill="#f0f0f0">post_reset_phase</tspan>…</text>
+<text x="40" y="394" fill="#8d8d8d" font-size="17">Cada una tiene su propio objection, y una fase runtime sin objection <tspan fill="#f0f0f0">termina en cuanto arranca</tspan>.</text>
+</svg>

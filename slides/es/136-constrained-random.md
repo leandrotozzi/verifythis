@@ -166,6 +166,9 @@ $ cd code/u6/transactions/constraints && bash run.sh
   :/   A=00  23.2%   A=FF  27.0%   the weight gets split
 ```
 
+![Histograma medido: con := los bins de borde salen 0,2 %; con :/ salen 23 % y 27 %](res/diagrams/constrained-random_dist.svg)
+<!-- .element: class="grande" -->
+
 Note:
 Este experimento salió de un bug de este mismo curso: `command_transaction`
 tenía el `dist` escrito con `:=`, o sea que el sesgo a los casos borde que las transactions decía tener **no existía**. La distribución era prácticamente uniforme
@@ -270,15 +273,17 @@ rand byte unsigned A;
 constraint c {es_reset -> A == 8'h00;}   // "si pido reset, los operandos en cero"
 ```
 
-- Parece inofensiva. **No lo es**: el solver elige uniformemente entre las
-  *soluciones*, no entre los valores de cada campo
-- Con `es_reset = 1` hay **una** solución (`A = 00`). Con `es_reset = 0` hay
-  **256**. Total: 257, y sólo una tiene el reset
-- O sea: pediste reset la mitad de las veces y lo vas a ver **1 de cada 257**. El
-  bin *"cualquier operación después de un reset"* del plan del testbench convencional no se
-  llena, y el reporte no te dice por qué
+- Parece inofensiva. **No lo es**: el solver elige entre las *soluciones*, no
+  entre los valores de cada campo
+- Con `es_reset = 1` hay **una**; con `es_reset = 0`, **256**. Pediste reset la
+  mitad de las veces y lo vas a ver **1 de cada 257**
+- El bin *"cualquier operación después de un reset"* del plan no se llena, y el
+  reporte no te dice por qué
 - La respuesta del lenguaje es `solve es_reset before A`: elegí el campo de
   control primero
+
+![Una celda contra un bloque de 16 por 16: las 257 soluciones, y una sola tiene el reset](res/diagrams/constrained-random_solve.svg)
+<!-- .element: class="grande" -->
 
 Note:
 La frase que desarma la intuición es la del primer bullet, y conviene repetirla
@@ -412,14 +417,11 @@ DUT, no una preferencia del que escribió la clase primero.
 
 #### *Así se cierra la cobertura*
 
-| Paso | Herramienta |
-| --- | --- |
-| Cubrir el grueso barato | `randomize()` con `dist` e `inside` en la transaction |
-| Ver qué quedó afuera | el reporte de cobertura — `cov_report` |
-| Llenar el bin que falta | `randomize() with { ... }`, tres líneas, sin clases nuevas |
-| Romper una regla a propósito | `constraint_mode(0)` / `rand_mode(0)` |
-| Repetir | otra semilla, y de nuevo |
+![El ciclo de closure: randomizar, mirar el reporte, llenar el bin que falta, otra semilla](res/diagrams/constrained-random_closure.svg)
+<!-- .element: class="grande" -->
 
+- Ningún paso pide una clase nueva: `dist` e `inside` en la transaction, tres
+  líneas de `with {}`, y `rand_mode(0)` o `constraint_mode(0)` para romper una regla
 - Eso es *coverage closure*, y es a lo que un verificador le dedica el día
 - Lo que **no** es: escribir un test por bin. Ni mirar el porcentaje total
 - El estímulo todavía sale de un `tester` que escribiste vos. En UVM moderno eso
@@ -455,11 +457,11 @@ $ SEED=7 bash run.sh    # u2/convencional, y de nuevo con SEED=8
   distribución
 - **No** mueve los 10 bins que faltan. Con 1000 operaciones el random ya llegó
   hasta donde puede, y otra semilla es tirar la moneda esperando otro resultado
-- Por eso *"repetir"* es la **última** fila de la tabla anterior y no la primera:
-  primero el `with {}`
+- Por eso *"otra semilla"* es el **último** paso del ciclo anterior y no el
+  primero: primero el `with {}`
 
 Note:
-Esta slide existe para desactivar un malentendido que la tabla anterior invita:
+Esta slide existe para desactivar un malentendido que el ciclo anterior invita:
 *"si no cierro, corro otra semilla"*. Se midió, y no: `code/u2/convencional` da 66 de 76 con
 la semilla por defecto, con la 7 y con la 8, y el merge de las tres da 66. Los 10
 que faltan no faltan por suerte — faltan porque son bins de transición que

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="IBM Plex Sans, system-ui, sans-serif">
+<title>Two clocks: the start pulse that posedge sampling does not see, and the 145 false positives it produces</title>
+
+<!-- lo que el muestreo en posedge se pierde -->
+<rect x="463" y="60" width="117" height="155" fill="#b0761d" opacity="0.12"/>
+<path d="M463,60 V215" stroke="#b0761d" stroke-width="2" stroke-dasharray="5 5"/>
+<text x="521" y="50" text-anchor="middle" fill="#b0761d" font-size="16">nobody looks here</text>
+
+<!-- nombres -->
+<g text-anchor="end" fill="#16181d" font-size="19" font-family="IBM Plex Mono, ui-monospace, monospace">
+  <text x="176" y="107">clk</text>
+  <text x="176" y="187">start</text>
+  <text x="176" y="270">A, B, op_set</text>
+</g>
+
+<!-- ondas -->
+<path d="M190,80 H320 V120 H450 V80 H580 V120 H710 V80 H840" fill="none" stroke="#5b6b7a" stroke-width="2"/>
+<path d="M190,200 H320 V160 H463 V200 H580 V160 H723 V200 H840" fill="none" stroke="#5b6b7a" stroke-width="2"/>
+
+<!-- los operandos: dos transacciones distintas -->
+<path d="M190,242 H313 M190,278 H313 M190,242 V278" fill="none" stroke="#d0d3d8" stroke-width="2" stroke-dasharray="6 5"/>
+<polygon points="320,260 327,242 573,242 573,278 327,278" fill="#16181d" opacity="0.07"/>
+<polygon points="580,260 587,242 833,242 840,260 833,278 587,278" fill="#16181d" opacity="0.07"/>
+<path d="M327,242 H573 M327,278 H573 M320,260 L327,242 M320,260 L327,278 M587,242 H833 M587,278 H833 M580,260 L587,242 M580,260 L587,278 M833,242 L840,260 M833,278 L840,260" fill="none" stroke="#5b6b7a" stroke-width="2"/>
+<text x="420" y="268" text-anchor="middle" fill="#16181d" font-size="17" font-family="IBM Plex Mono, ui-monospace, monospace">no_op #1</text>
+<text x="700" y="268" text-anchor="middle" fill="#16181d" font-size="17" font-family="IBM Plex Mono, ui-monospace, monospace">no_op #2</text>
+
+<!-- el tiempo -->
+<g font-size="14" fill="#5a6068" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">
+  <text x="320" y="306">100</text>
+  <text x="436" y="306">110</text>
+  <text x="486" y="306">111</text>
+  <text x="580" y="306">120</text>
+  <text x="710" y="306">130</text>
+</g>
+
+<!-- muestreo en posedge -->
+<text x="176" y="352" text-anchor="end" fill="#b0761d" font-size="17" font-family="IBM Plex Mono, ui-monospace, monospace">@(posedge clk)</text>
+<g stroke="#b0761d" stroke-width="2" stroke-dasharray="4 5" fill="none">
+  <path d="M450,70 V290"/>
+  <path d="M710,70 V290"/>
+  <path d="M450,324 V344"/>
+  <path d="M710,324 V344"/>
+</g>
+<circle cx="450" cy="346" r="8" fill="#b0761d"/>
+<circle cx="710" cy="346" r="8" fill="#b0761d"/>
+<text x="190" y="382" fill="#b0761d" font-size="16">sees <tspan font-family="IBM Plex Mono, ui-monospace, monospace">start</tspan> high both times: reads one single transaction</text>
+
+<!-- muestreo en negedge -->
+<text x="176" y="424" text-anchor="end" fill="#1f8b45" font-size="17" font-family="IBM Plex Mono, ui-monospace, monospace">@(negedge clk)</text>
+<g stroke="#1f8b45" stroke-width="2" stroke-dasharray="4 5" fill="none">
+  <path d="M320,210 V290"/>
+  <path d="M580,210 V290"/>
+  <path d="M320,396 V416"/>
+  <path d="M580,396 V416"/>
+</g>
+<circle cx="320" cy="418" r="8" fill="#1f8b45"/>
+<circle cx="580" cy="418" r="8" fill="#1f8b45"/>
+<text x="190" y="454" fill="#1f8b45" font-size="16">at 120 it sees it low: the antecedent never starts</text>
+
+<text x="40" y="502" fill="#5a6068" font-size="17">Two <tspan font-family="IBM Plex Mono, ui-monospace, monospace" fill="#16181d">no_op</tspan> in a row: <tspan font-family="IBM Plex Mono, ui-monospace, monospace" fill="#16181d">start</tspan> goes down at 111 and back up at 120, between two <tspan font-family="IBM Plex Mono, ui-monospace, monospace" fill="#16181d">posedge</tspan>.</text>
+<text x="40" y="528" fill="#5a6068" font-size="17">The sampling never sees it go down: the two read as one, with the operands changing in the middle.</text>
+<text x="40" y="554" fill="#b0761d" font-size="17">145 false positives every thousand operations, from a single character in the <tspan font-family="IBM Plex Mono, ui-monospace, monospace">@()</tspan>.</text>
+</svg>

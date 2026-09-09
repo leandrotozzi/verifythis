@@ -246,6 +246,36 @@ nombrarlo acá, porque recién ahora se ve el problema completo que resuelve.
 
 ## Assertions (SVA)
 
+#### *El pulso que el muestreo no ve*
+
+![Dos no_op seguidas: start baja en 111 y sube en 120, entre dos posedge](res/diagrams/assertions_dos_relojes.svg)
+<!-- .element: class="grande" -->
+
+- Entre dos `posedge` cabe un pulso entero de `start` que el muestreo no ve
+- Todo en `posedge`: las dos `no_op` se leen como **una sola**, y salen 145 gritos
+- El estímulo en `negedge`: en `t=120` ya está abajo, el antecedente no arranca
+
+Note:
+Ésta es la figura para pausar y recorrer con el dedo, porque el argumento entero
+está en dos flancos. Conviene preguntarlo antes de mostrarlo: *¿cuántas
+transacciones ve una assertion muestreada en `posedge`?* La respuesta que se lee
+del dibujo es una, y son dos.
+La banda ámbar es lo que la sección viene diciendo con palabras: entre `t=111` y
+`t=120` la señal cambia dos veces y ningún muestreo en `posedge` cae ahí. No es
+un bug del simulador ni de la property — es que el muestreo es en *preponed*, y
+en `t=130` lo que se ve es `start` arriba, igual que en `t=110`.
+Y la segunda fila es la cura: el mismo dibujo con el otro flanco. En `t=120` el
+muestreo en `negedge` ve `start` abajo, el antecedente es falso, y la property ni
+siquiera arranca. Un carácter.
+El detalle que casi nadie mira: los valores de `A`, `B` y `op_set` cambian
+exactamente en `t=120`, o sea adentro de la transacción que el muestreo en
+`posedge` cree estar viendo. Por eso los 145 errores hablan de estabilidad de
+operandos y no de otra cosa.
+
+---
+
+## Assertions (SVA)
+
 #### *La latencia variable, en una línea*
 
 {{code:code/u8/assertions/vtalu_bfm.sv#done-arrives}}

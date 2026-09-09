@@ -30,8 +30,8 @@ module vtalu_mult (
          mult1 <= 16'h0000;
          mult2 <= 16'h0000;
          result_mult <= 16'h0000;
-      // cb: the-pipeline
       end else begin
+      // cb: the-pipeline
          a_int <= A;
          b_int <= B;
          mult1 <= a_int * b_int;
@@ -41,8 +41,8 @@ module vtalu_mult (
          done2 <= done3 & ~done_mult;
          done1 <= done2 & ~done_mult;
          done_mult <= done1 & ~done_mult;
-      end
       // cb: end
+      end
    end
 
 endmodule : vtalu_mult

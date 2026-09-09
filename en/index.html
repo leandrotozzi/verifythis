@@ -521,7 +521,6 @@ change the result: the ALU keeps whatever it computed last.
 #### *Multi Cycle: Multiplication*
 
 ```sv
-      end else begin
          a_int <= A;
          b_int <= B;
          mult1 <= a_int * b_int;
@@ -531,7 +530,6 @@ change the result: the ALU keeps whatever it computed last.
          done2 <= done3 & ~done_mult;
          done1 <= done2 & ~done_mult;
          done_mult <= done1 & ~done_mult;
-      end
 ```
 
 - It is a pipeline: the operands get registered, they get multiplied, and the product
@@ -962,7 +960,7 @@ open question instead of answering it here.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: c768fd19f644 -->
+<!-- es-sha: a8dbef25c50f -->
 ## Functional coverage
 
 #### *When are you done verifying?*
@@ -1212,15 +1210,6 @@ the problem is an unfiltered cross, not a missing test.
 #### *The VTALU cross*
 
 ```sv
-      op_00_FF:  cross a_leg, b_leg, all_ops {
-         bins add_00 = binsof (all_ops) intersect {add_op} &&
-                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
-
-         bins add_FF = binsof (all_ops) intersect {add_op} &&
-                       (binsof (a_leg.ones) || binsof (b_leg.ones));
-```
-
-```sv
          bins mul_00 = binsof (all_ops) intersect {mul_op} &&
                        (binsof (a_leg.zeros) || binsof (b_leg.zeros));
 
@@ -1235,16 +1224,18 @@ the problem is an unfiltered cross, not a missing test.
       }
 ```
 
-- `add_00` reads straight through: *an addition where A **or** B is 0x00*
+- `mul_00` reads straight through: *a multiplication where A **or** B is 0x00*.
+  The other eight bins of the cross are these two lines with another `op`
 - `mul_max` is the only one with `&&`: it asks for **both** legs at 0xFF: the
   **maximum product**, `FF` × `FF` = `FE01`. It does not overflow — 8 bits by 8 fit in 16
 - Verilator 5.052 **ignores** `binsof` / `intersect` (`%Warning-COVERIGN`) and measures
   the whole cross: that is why the number is not a commercial tool's
 
 Note:
-Worth reading `add_00` and `mul_max` in plain words, one after the other, because the
-difference between `||` and `&&` is the one that gets copied wrong: *"an addition where A **or**
-B is 0x00"* against *"a multiplication with A **and** B at 0xFF"*. The first
+Worth reading `mul_00` and `mul_max` in plain words, one after the other, because the
+difference between `||` and `&&` is the one that gets copied wrong, and here both bins
+belong to the same operation: *"a multiplication where A **or** B is 0x00"*
+against *"a multiplication with A **and** B at 0xFF"*. The first
 is two cases, the second is a single one — the **maximum product**, the top corner of
 the input space. And here it is worth killing the misunderstanding that comes on its own,
 because it is expensive: `FF` × `FF` **does not overflow anything**. It gives `FE01`, which
@@ -1455,7 +1446,7 @@ And the operational mistake that repeats the most, to leave it burned in: the mi
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: fe75ec040192 -->
+<!-- es-sha: d3b5d4c3a279 -->
 ## Interfaces and BFM
 
 #### *First: the signals stop being loose*
@@ -1837,6 +1828,35 @@ which race it avoids. An explained `#1` is a patch that knows it is a patch; a l
 And the third is ours. Worth being honest with the group: the course drives on
 `negedge` and samples on `posedge` because it is the trick you can understand without having
 seen clocking blocks, not because it is what gets written on a project.
+
+---
+
+## Interfaces and BFM
+
+#### *Why the edge alone is not enough: the regions*
+
+![The regions of an edge: Preponed, Active and NBA, and the three samples](../res/diagrams/en/interfaces-bfm_regiones.svg)
+<!-- .element: class="grande" -->
+
+- An edge is not an indivisible instant: inside it there are **regions**, in order
+- The `<=` of the `always_ff` **lands in NBA**: whoever reads in *Active* reads the old value
+- The `#1` crosses the NBA, the opposite edge crosses it with room to spare, and
+  SVA needs neither of the two: it samples in *preponed*, before everything
+
+Note:
+This figure is the one to leave on screen while reading the three samples of the
+previous slide. Without it the explanation is *"the old value"*, which sounds like
+a quirk of the simulator; with it, it is a consequence of the order, and the order
+is in the LRM.
+The scheduler has more regions than the four in the drawing —`docs/clocking-blocks.md`
+lists them all— but these are enough to explain the three cases, and adding the
+others changes no answer.
+The question worth asking the group before showing the answer: if the DUT writes in
+NBA and your `initial` wakes up in Active, which one runs first? That is where it
+shows on its own why sampling **on** the edge gives the value from before.
+And the hook with day 7: the amber bar on the left is the region where SVA samples.
+It is the same figure that explains why an assertion does not check what happened
+but what it saw, and why the `@()` you give it changes the result.
 
 ---
 
@@ -3459,7 +3479,7 @@ Python it takes ten lines. We invented nothing, and that is good news.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: e63443305ef6 -->
+<!-- es-sha: 4e44963e3099 -->
 ## A testbench without a single module
 
 #### *The same testbench, without a single module*
@@ -3500,10 +3520,6 @@ precisely what gets synthesized.
 - With classes, changing the stimulus is **extending a class**, and the two versions
   live side by side. That is all OOP buys you here
 
-<br>
-
-<br>
-
 #### *The VTALU TB, piece by piece*
 
 - top: Instantiates the testbench class
@@ -3512,9 +3528,17 @@ precisely what gets synthesized.
 - scoreboard: Checks that the VTALU is working
 - coverage: Captures the functional coverage information
 
+![The object tree: top elaborates, and inside live the testbench class and its three pieces](../res/diagrams/en/tb-en-objetos_arbol.svg)
+<!-- .element: class="grande" -->
+
 Note:
 It is the same testbench as interfaces and BFM, but in objects: what changes is the shape, not
 what it does. If possible, show them side by side.
+The drawing is the one to be able to redraw from memory at the end of the day, and
+the line that splits it in half is the one that matters: above, what gets
+**elaborated** —the module, the DUT, the interface—; below, what somebody has to
+**create**. An object nobody creates is a null handle, and that is the mistake of
+the first afternoon.
 It is the last version without UVM. From the tests on the same thing gets assembled by UVM, and the
 student has to be able to say which part replaces which.
 
@@ -4052,7 +4076,7 @@ with the factory, and only then do you see what the factory is for.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: f9904d3af165 -->
+<!-- es-sha: e87cbca1cbd5 -->
 ## Tests
 
 #### *Compile once, pick the test from the command line*
@@ -4357,6 +4381,36 @@ exactly the case of this slide, and the capstone steps on it again.
 
 ## Tests
 
+#### *The timeline, end to end*
+
+![Timeline of an objection: raise, stimulus, drop, drain and the end of the phase](../res/diagrams/en/tests_objections.svg)
+<!-- .element: class="grande" -->
+
+- `raise` and `drop` mark **the stimulus**, and nothing but the stimulus
+- What is left in flight is not in that count: the three empty boxes of the drawing
+- The `drain_time` is the time given away so those answers arrive and get compared
+- Without `raise` nothing sits between the marks; without `drop`, the line never ends
+
+Note:
+The figure is there to be paused on, asking where the simulation ends. The answer
+almost everybody gives the first time —*"when the test finished sending"*— is
+exactly the one that produces the bug: that is where the last objection drops, and
+that is where the phase cuts if nobody asked for a cushion.
+It is worth pointing at the three empty boxes: they are transactions the DUT has
+not answered yet. They are not lost through anybody's mistake, they are in flight,
+which is the normal state of any pipeline. What decides whether they get compared
+or not is how much longer the phase lives.
+The detail worth saying out loud: the `drain_time` is measured from the last
+`drop`, not from the beginning. If the test sends a thousand operations and the DUT
+takes two cycles to answer, the cushion is two cycles and not two thousand.
+And the version with a criterion —`phase_ready_to_end()`— is this same figure with
+one difference: the length of the cushion gets decided by the scoreboard looking at
+its FIFO, instead of being decided up front by whoever wrote the test.
+
+---
+
+## Tests
+
 #### *The second test: the same thing, with another tester*
 
 ```sv
@@ -4483,7 +4537,7 @@ course goes inside an `if` with its `uvm_fatal`.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: f7bb28940a64 -->
+<!-- es-sha: 28668dba74f2 -->
 ## Components and phases
 
 #### *A component is what is in the tree, and the tree is walked by UVM*
@@ -4537,6 +4591,38 @@ Three things that have to be said no matter what: build_phase is top-down, conne
 bottom-up, and every run_phase runs in parallel, each one in its thread.
 And the classic mistake: instantiating components outside build_phase. UVM does not warn you
 kindly.
+
+---
+
+## Components and phases
+
+#### *The tree, twice: one walk goes down and the other goes up*
+
+![The tree walked twice: build_phase goes down and connect_phase goes up](../res/diagrams/en/components_fases.svg)
+<!-- .element: class="grande" -->
+
+- `build_phase` goes down because a parent has to exist to create its children
+- `connect_phase` goes up for the opposite reason: the other end has to be there
+- The child gets **created** inside the parent build; its own build runs later
+- That is why the `config_db` `set()` goes **before** the `create()` that builds it
+
+Note:
+The drawing answers two questions that in the table read like an arbitrary
+convention. The first one: why `build_phase` is top-down. Because a parent has to
+exist in order to create its children, and there is no other way to assemble a
+tree; the ones in the middle need the opposite, that the children are already there.
+The second one is the one asked under one's breath: if the parent creates the
+child inside its own `build_phase`, when does the `build_phase` of the child run?
+Later, and that is the part that has to be said slowly: `create()` calls the
+**constructor**, not the phase. UVM walks the tree calling the phase on the
+components that showed up along the way, so the child gets built in two steps.
+The practical consequence is the one in the last bullet and it is the one that
+charges: a `uvm_config_db::set()` written **after** the `create()` of the child
+arrives late, the child already read, and the field stays at its default without
+anybody warning. It is the same asymmetric failure mode as the next slide.
+If somebody asks about the code: `uvm_topdown_phase::traverse` runs the phase on
+the component and only then walks its children —`get_first_child()`—, which by
+then already exist.
 
 ---
 
@@ -4635,19 +4721,13 @@ top-down one is `final_phase`, which closes the tree in the same order it was bu
 
 #### *And inside the `run_phase`, a schedule*
 
-```
-   reset          configure          main          shutdown
-  pre  post      pre     post      pre   post     pre    post
-```
+![The twelve runtime phases in parallel with run_phase, and where the default_sequence hooks in](../res/diagrams/en/components_runtime.svg)
+<!-- .element: class="grande" -->
 
-- **In parallel** with `run_phase`, UVM walks twelve *runtime* phases, all of them
-  `task`, in that order
-- They are there to coordinate components from different teams without hand-made flags:
-  nobody sends traffic in `main` until **everybody** finished `reset`
-- Each one has its own objection, with the rule from the tests: a runtime
-  phase without an objection **ends the moment it starts**
-- The course uses `run_phase` and nothing else — with a single agent there is nothing to
-  coordinate. But the `default_sequence` of day 6 hooks into **`main_phase`**
+- The twelve are `task`s, they run **in parallel** with `run_phase`, and they are
+  there to coordinate components from different teams without hand-made flags
+- The course uses `run_phase` and nothing else — with a single agent there is nothing
+  to coordinate. But the `default_sequence` of day 6 hooks into **`main_phase`**
 
 Note:
 This slide exists so that `main_phase` does not show up for the first time on day 6.
@@ -9538,7 +9618,7 @@ an agent. That is day 6.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: c25696d6d800 -->
+<!-- es-sha: efe7f071236a -->
 ## Constrained random
 
 #### *The other half of the pincer*
@@ -9721,6 +9801,9 @@ $ cd code/u6/transactions/constraints && bash run.sh
   :/   A=00  23.2%   A=FF  27.0%   the weight gets split
 ```
 
+![Measured histogram: with := the edge bins come out 0.2 %; with :/ they come out 23 % and 27 %](../res/diagrams/en/constrained-random_dist.svg)
+<!-- .element: class="grande" -->
+
 Note:
 This experiment came out of a bug in this very course: `command_transaction` had
 the `dist` written with `:=`, which means the bias to the corner cases the
@@ -9852,15 +9935,17 @@ rand byte unsigned A;
 constraint c {es_reset -> A == 8'h00;}   // "if I ask for a reset, the operands at zero"
 ```
 
-- It looks harmless. **It is not**: the solver picks uniformly among the
-  *solutions*, not among the values of each field
-- With `es_reset = 1` there is **one** solution (`A = 00`). With `es_reset = 0`
-  there are **256**. Total: 257, and only one of them has the reset
-- Which means: you asked for a reset half the time and you are going to see it **1
-  time in 257**. The *"any operation after a reset"* bin of the plan of the
-  conventional testbench does not get filled, and the report does not tell you why
+- It looks harmless. **It is not**: the solver picks among the *solutions*, not
+  among the values of each field
+- With `es_reset = 1` there is **one**; with `es_reset = 0`, **256**. You asked for
+  a reset half the time and you will see it **1 time in 257**
+- The *"any operation after a reset"* bin of the plan does not get filled, and the
+  report does not tell you why
 - The answer from the language is `solve es_reset before A`: pick the control field
   first
+
+![One cell against a 16 by 16 block: the 257 solutions, and only one has the reset](../res/diagrams/en/constrained-random_solve.svg)
+<!-- .element: class="grande" -->
 
 Note:
 The sentence that dismantles the intuition is the one in the first bullet, and it
@@ -10040,17 +10125,13 @@ DUT, not a preference of whoever wrote the class first.
 
 #### *This is how coverage gets closed*
 
-| Step | Tool |
-| --- | --- |
-| Cover the bulk cheaply | `randomize()` with `dist` and `inside` in the transaction |
-| See what was left out | the coverage report — `cov_report` |
-| Fill the bin that is missing | `randomize() with { ... }`, three lines, no new classes |
-| Break a rule on purpose | `constraint_mode(0)` / `rand_mode(0)` |
-| Repeat | another seed, and again |
+![The closure cycle: randomize, read the report, fill the missing bin, another seed](../res/diagrams/en/constrained-random_closure.svg)
+<!-- .element: class="grande" -->
 
+- No step asks for a new class: `dist` and `inside` in the transaction, three
+  lines of `with {}`, and `rand_mode(0)` or `constraint_mode(0)` to break a rule
 - That is *coverage closure*, and it is what a verifier spends the day on
-- What it is **not**: writing one test per bin. Nor looking at the total
-  percentage
+- What it is **not**: writing one test per bin. Nor looking at the total percentage
 - The stimulus still comes out of a `tester` you wrote yourself. In modern UVM
   that is a `uvm_sequence` — and that is day 6
 
@@ -10085,11 +10166,11 @@ $ SEED=7 bash run.sh    # u2/convencional, and again with SEED=8
 - It does **not** move the 10 bins that are missing. With 1000 operations the
   random already got as far as it can, and another seed is tossing the coin
   expecting a different result
-- That is why *"repeat"* is the **last** row of the previous table and not the
-  first: the `with {}` comes first
+- That is why *"another seed"* is the **last** step of the previous cycle and not
+  the first: the `with {}` comes first
 
 Note:
-This slide exists to defuse a misunderstanding the previous table invites: *"if I
+This slide exists to defuse a misunderstanding the previous cycle invites: *"if I
 do not close, I run another seed"*. It was measured, and no: `code/u2/convencional`
 gives 66 out of 76 with the default seed, with 7 and with 8, and the merge of the
 three gives 66. The 10 that are missing are not missing out of luck — they are
@@ -12885,7 +12966,7 @@ to look at what went out on the bus.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 363f4ae0559a -->
+<!-- es-sha: 5c2088d92c4e -->
 ## Assertions (SVA)
 
 #### *The hole the scoreboard left*
@@ -13156,6 +13237,36 @@ The underlying industrial way out is the **clocking block**, which declares the 
 once for the whole interface instead of repeating it property by property. It is in
 day 1 —`030-interfaces-bfm.md` and `docs/clocking-blocks.md`— and it is worth naming
 again here, because only now is the full problem it solves in view.
+
+---
+
+## Assertions (SVA)
+
+#### *The pulse the sampling does not see*
+
+![Two no_op in a row: start goes down at 111 and up at 120, between two posedge](../res/diagrams/en/assertions_dos_relojes.svg)
+<!-- .element: class="grande" -->
+
+- Between two `posedge` a whole `start` pulse fits that the sampling never sees
+- All on `posedge`: the two `no_op` read as **one**, and out come 145 screams
+- Stimulus on `negedge`: at `t=120` it is already low, the antecedent never starts
+
+Note:
+This is the figure to pause on and walk through with a finger, because the whole
+argument is in two edges. It is worth asking before showing it: *how many
+transactions does an assertion sampled on `posedge` see?* The answer read off the
+drawing is one, and there are two.
+The amber band is what the section has been saying in words: between `t=111` and
+`t=120` the signal changes twice and no `posedge` sampling lands in there. It is
+not a bug of the simulator nor of the property — it is that sampling happens in
+*preponed*, and at `t=130` what it sees is `start` high, same as at `t=110`.
+And the second row is the cure: the same drawing with the other edge. At `t=120`
+the `negedge` sampling sees `start` low, the antecedent is false, and the property
+does not even start. One character.
+The detail almost nobody looks at: the values of `A`, `B` and `op_set` change
+exactly at `t=120`, that is, inside the transaction the `posedge` sampling believes
+it is watching. That is why the 145 errors talk about operand stability and not
+about something else.
 
 ---
 
@@ -13438,7 +13549,6 @@ as an anecdote.
 #### *The example of the section: the bug the scoreboard does not see*
 
 ```sv
-         end else begin
             // +BUG=1: changes B halfway through the multiplication. The
             // multiplier already latched A and B on the first edge, so the
             // RESULT DOES NOT CHANGE: the scoreboard stays green. The only
@@ -14704,7 +14814,7 @@ the optional unit, or the final project for those who want a high mark.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: b042f72c221a -->
+<!-- es-sha: 24324cf31de1 -->
 <!-- .slide: id="ral" -->
 
 ## RAL
@@ -14959,6 +15069,35 @@ The bonus, which can be seen in the example: since the predictor listens to the 
 calls, the model also finds out about the transfers **somebody else** made —
 another sequence, another master, an ordinary module. Automatic prediction cannot
 do that even in principle.
+
+---
+
+## RAL
+
+#### *The whole path, from the call to the mirror*
+
+![The RAL data path: from the write to the bus, and from the monitor to the mirror](../res/diagrams/en/ral_camino.svg)
+<!-- .element: class="grande" -->
+
+- The way down is written; the way up —monitor, analysis port and `bus2reg`— **was there**
+- The `uvm_reg_predictor` is not written: instantiate it and plug in the map
+- The dashed one is `set_auto_predict(1)`: the shortcut not to take
+
+Note:
+This is the figure worth having on screen while reading the `connect_phase`: every
+one of the three lines of that function is an arrow of the drawing.
+`set_sequencer` splices the way down, `predictor.map`/`predictor.adapter` give the
+predictor the two things it needs, and `agent_h.ap.connect(...)` is the arrow that
+goes up from the monitor.
+The symmetry is the point: the adapter shows up **twice**, once per direction, and
+it is the only piece of the drawing that knows there is an APB underneath. Swapping
+it for an AHB one moves those two boxes and no other.
+And the right half is not RAL: the monitor, the analysis port and the agent are the
+ones from the capstone, without a change. Worth saying it with a finger on the
+drawing, because it is what explains that the unit fits in three files.
+The dashed shortcut is the trap of the unit. With `set_auto_predict(1)` that arrow
+is enough for the mirror to change, so the bottom half of the drawing turns
+decorative: the model believes what the test meant to send, not what happened.
 
 ---
 
@@ -15656,91 +15795,91 @@ showing up where nobody expected it.
           <li><a href="#/26" data-h="26"><span>The conventional testbench</span><span class="ind-n">27</span></a></li>
           <li><a href="#/31" data-h="31"><span>Functional coverage</span><span class="ind-n">32</span></a></li>
           <li><a href="#/44" data-h="44"><span>Interfaces and BFM</span><span class="ind-n">45</span></a></li>
-          <li><a href="#/56" data-h="56"><span>Review · Day 1</span><span class="ind-n">57</span></a></li>
-          <li><a href="#/63" data-h="63"><span>Exercise · Day 1 · 1 of 2</span><span class="ind-n">64</span></a></li>
-          <li><a href="#/64" data-h="64"><span>Exercise · Day 1 · 2 of 2</span><span class="ind-n">65</span></a></li>
+          <li><a href="#/57" data-h="57"><span>Review · Day 1</span><span class="ind-n">58</span></a></li>
+          <li><a href="#/64" data-h="64"><span>Exercise · Day 1 · 1 of 2</span><span class="ind-n">65</span></a></li>
+          <li><a href="#/65" data-h="65"><span>Exercise · Day 1 · 2 of 2</span><span class="ind-n">66</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 2</h3>
         <ul>
-          <li><a href="#/65" data-h="65"><span>Agenda</span><span class="ind-n">66</span></a></li>
-          <li><a href="#/66" data-h="66"><span>Classes and extensions</span><span class="ind-n">67</span></a></li>
-          <li><a href="#/73" data-h="73"><span>Polymorphism</span><span class="ind-n">74</span></a></li>
-          <li><a href="#/80" data-h="80"><span>Static variables</span><span class="ind-n">81</span></a></li>
-          <li><a href="#/85" data-h="85"><span>Parameterized classes</span><span class="ind-n">86</span></a></li>
-          <li><a href="#/90" data-h="90"><span>The factory pattern</span><span class="ind-n">91</span></a></li>
-          <li><a href="#/96" data-h="96"><span>A testbench without a single module</span><span class="ind-n">97</span></a></li>
-          <li><a href="#/105" data-h="105"><span>Review · Day 2</span><span class="ind-n">106</span></a></li>
-          <li><a href="#/113" data-h="113"><span>Exercise · Day 2</span><span class="ind-n">114</span></a></li>
+          <li><a href="#/66" data-h="66"><span>Agenda</span><span class="ind-n">67</span></a></li>
+          <li><a href="#/67" data-h="67"><span>Classes and extensions</span><span class="ind-n">68</span></a></li>
+          <li><a href="#/74" data-h="74"><span>Polymorphism</span><span class="ind-n">75</span></a></li>
+          <li><a href="#/81" data-h="81"><span>Static variables</span><span class="ind-n">82</span></a></li>
+          <li><a href="#/86" data-h="86"><span>Parameterized classes</span><span class="ind-n">87</span></a></li>
+          <li><a href="#/91" data-h="91"><span>The factory pattern</span><span class="ind-n">92</span></a></li>
+          <li><a href="#/97" data-h="97"><span>A testbench without a single module</span><span class="ind-n">98</span></a></li>
+          <li><a href="#/106" data-h="106"><span>Review · Day 2</span><span class="ind-n">107</span></a></li>
+          <li><a href="#/114" data-h="114"><span>Exercise · Day 2</span><span class="ind-n">115</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 3</h3>
         <ul>
-          <li><a href="#/114" data-h="114"><span>Agenda</span><span class="ind-n">115</span></a></li>
-          <li><a href="#/115" data-h="115"><span>Tests</span><span class="ind-n">116</span></a></li>
-          <li><a href="#/126" data-h="126"><span>Components and phases</span><span class="ind-n">127</span></a></li>
-          <li><a href="#/135" data-h="135"><span>The env: structure and stimulus</span><span class="ind-n">136</span></a></li>
-          <li><a href="#/152" data-h="152"><span>Reporting</span><span class="ind-n">153</span></a></li>
-          <li><a href="#/166" data-h="166"><span>Review · Day 3</span><span class="ind-n">167</span></a></li>
-          <li><a href="#/173" data-h="173"><span>Exercise · Day 3</span><span class="ind-n">174</span></a></li>
+          <li><a href="#/115" data-h="115"><span>Agenda</span><span class="ind-n">116</span></a></li>
+          <li><a href="#/116" data-h="116"><span>Tests</span><span class="ind-n">117</span></a></li>
+          <li><a href="#/128" data-h="128"><span>Components and phases</span><span class="ind-n">129</span></a></li>
+          <li><a href="#/138" data-h="138"><span>The env: structure and stimulus</span><span class="ind-n">139</span></a></li>
+          <li><a href="#/155" data-h="155"><span>Reporting</span><span class="ind-n">156</span></a></li>
+          <li><a href="#/169" data-h="169"><span>Review · Day 3</span><span class="ind-n">170</span></a></li>
+          <li><a href="#/176" data-h="176"><span>Exercise · Day 3</span><span class="ind-n">177</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 4</h3>
         <ul>
-          <li><a href="#/174" data-h="174"><span>Agenda</span><span class="ind-n">175</span></a></li>
-          <li><a href="#/175" data-h="175"><span>One producer, many listeners</span><span class="ind-n">176</span></a></li>
-          <li><a href="#/191" data-h="191"><span>A single place that watches the wire</span><span class="ind-n">192</span></a></li>
-          <li><a href="#/204" data-h="204"><span>When somebody has to wait</span><span class="ind-n">205</span></a></li>
-          <li><a href="#/217" data-h="217"><span>Who waits for whom</span><span class="ind-n">218</span></a></li>
-          <li><a href="#/224" data-h="224"><span>Review · Day 4</span><span class="ind-n">225</span></a></li>
-          <li><a href="#/229" data-h="229"><span>Exercise · Day 4 · 1 of 2</span><span class="ind-n">230</span></a></li>
-          <li><a href="#/230" data-h="230"><span>Exercise · Day 4 · 2 of 2</span><span class="ind-n">231</span></a></li>
+          <li><a href="#/177" data-h="177"><span>Agenda</span><span class="ind-n">178</span></a></li>
+          <li><a href="#/178" data-h="178"><span>One producer, many listeners</span><span class="ind-n">179</span></a></li>
+          <li><a href="#/194" data-h="194"><span>A single place that watches the wire</span><span class="ind-n">195</span></a></li>
+          <li><a href="#/207" data-h="207"><span>When somebody has to wait</span><span class="ind-n">208</span></a></li>
+          <li><a href="#/220" data-h="220"><span>Who waits for whom</span><span class="ind-n">221</span></a></li>
+          <li><a href="#/227" data-h="227"><span>Review · Day 4</span><span class="ind-n">228</span></a></li>
+          <li><a href="#/232" data-h="232"><span>Exercise · Day 4 · 1 of 2</span><span class="ind-n">233</span></a></li>
+          <li><a href="#/233" data-h="233"><span>Exercise · Day 4 · 2 of 2</span><span class="ind-n">234</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 5</h3>
         <ul>
-          <li><a href="#/231" data-h="231"><span>Agenda</span><span class="ind-n">232</span></a></li>
-          <li><a href="#/232" data-h="232"><span>Copying an object that contains another</span><span class="ind-n">233</span></a></li>
-          <li><a href="#/242" data-h="242"><span>Transactions</span><span class="ind-n">243</span></a></li>
-          <li><a href="#/262" data-h="262"><span>Constrained random</span><span class="ind-n">263</span></a></li>
-          <li><a href="#/276" data-h="276"><span>Review · Day 5</span><span class="ind-n">277</span></a></li>
-          <li><a href="#/284" data-h="284"><span>Exercise · Day 5 · 1 of 2</span><span class="ind-n">285</span></a></li>
-          <li><a href="#/285" data-h="285"><span>Exercise · Day 5 · 2 of 2</span><span class="ind-n">286</span></a></li>
+          <li><a href="#/234" data-h="234"><span>Agenda</span><span class="ind-n">235</span></a></li>
+          <li><a href="#/235" data-h="235"><span>Copying an object that contains another</span><span class="ind-n">236</span></a></li>
+          <li><a href="#/245" data-h="245"><span>Transactions</span><span class="ind-n">246</span></a></li>
+          <li><a href="#/265" data-h="265"><span>Constrained random</span><span class="ind-n">266</span></a></li>
+          <li><a href="#/279" data-h="279"><span>Review · Day 5</span><span class="ind-n">280</span></a></li>
+          <li><a href="#/287" data-h="287"><span>Exercise · Day 5 · 1 of 2</span><span class="ind-n">288</span></a></li>
+          <li><a href="#/288" data-h="288"><span>Exercise · Day 5 · 2 of 2</span><span class="ind-n">289</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 6</h3>
         <ul>
-          <li><a href="#/286" data-h="286"><span>Agenda</span><span class="ind-n">287</span></a></li>
-          <li><a href="#/287" data-h="287"><span>Agents</span><span class="ind-n">288</span></a></li>
-          <li><a href="#/306" data-h="306"><span>Callbacks</span><span class="ind-n">307</span></a></li>
-          <li><a href="#/311" data-h="311"><span>Sequences</span><span class="ind-n">312</span></a></li>
-          <li><a href="#/337" data-h="337"><span>Review · Day 6</span><span class="ind-n">338</span></a></li>
-          <li><a href="#/347" data-h="347"><span>Exercise · Day 6 · 1 of 5</span><span class="ind-n">348</span></a></li>
-          <li><a href="#/348" data-h="348"><span>Exercise · Day 6 · 2 of 5</span><span class="ind-n">349</span></a></li>
-          <li><a href="#/349" data-h="349"><span>Exercise · Day 6 · 3 of 5</span><span class="ind-n">350</span></a></li>
-          <li><a href="#/350" data-h="350"><span>Exercise · Day 6 · 4 of 5</span><span class="ind-n">351</span></a></li>
-          <li><a href="#/351" data-h="351"><span>Exercise · Day 6 · 5 of 5</span><span class="ind-n">352</span></a></li>
+          <li><a href="#/289" data-h="289"><span>Agenda</span><span class="ind-n">290</span></a></li>
+          <li><a href="#/290" data-h="290"><span>Agents</span><span class="ind-n">291</span></a></li>
+          <li><a href="#/309" data-h="309"><span>Callbacks</span><span class="ind-n">310</span></a></li>
+          <li><a href="#/314" data-h="314"><span>Sequences</span><span class="ind-n">315</span></a></li>
+          <li><a href="#/340" data-h="340"><span>Review · Day 6</span><span class="ind-n">341</span></a></li>
+          <li><a href="#/350" data-h="350"><span>Exercise · Day 6 · 1 of 5</span><span class="ind-n">351</span></a></li>
+          <li><a href="#/351" data-h="351"><span>Exercise · Day 6 · 2 of 5</span><span class="ind-n">352</span></a></li>
+          <li><a href="#/352" data-h="352"><span>Exercise · Day 6 · 3 of 5</span><span class="ind-n">353</span></a></li>
+          <li><a href="#/353" data-h="353"><span>Exercise · Day 6 · 4 of 5</span><span class="ind-n">354</span></a></li>
+          <li><a href="#/354" data-h="354"><span>Exercise · Day 6 · 5 of 5</span><span class="ind-n">355</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 7</h3>
         <ul>
-          <li><a href="#/352" data-h="352"><span>Agenda</span><span class="ind-n">353</span></a></li>
-          <li><a href="#/353" data-h="353"><span>Assertions (SVA)</span><span class="ind-n">354</span></a></li>
-          <li><a href="#/371" data-h="371"><span>Exercise · Day 7</span><span class="ind-n">372</span></a></li>
-          <li><a href="#/372" data-h="372"><span>Review · Day 7</span><span class="ind-n">373</span></a></li>
-          <li><a href="#/377" data-h="377"><span>Capstone · Day 7</span><span class="ind-n">378</span></a></li>
-          <li><a href="#/381" data-h="381"><span>Appendix · From the VTALU to a real bus</span><span class="ind-n">382</span></a></li>
-          <li><a href="#/385" data-h="385"><span>Appendix · The debug toolbox</span><span class="ind-n">386</span></a></li>
-          <li><a href="#/387" data-h="387"><span>Appendix · The 21 silent traps</span><span class="ind-n">388</span></a></li>
-          <li><a href="#/392" data-h="392"><span>Glossary · the words of the trade</span><span class="ind-n">393</span></a></li>
-          <li><a href="#/395" data-h="395"><span>References</span><span class="ind-n">396</span></a></li>
-          <li><a href="#/398" data-h="398"><span>This is as far as we got</span><span class="ind-n">399</span></a></li>
-          <li><a href="#/400" data-h="400"><span>Self-assessment</span><span class="ind-n">401</span></a></li>
+          <li><a href="#/355" data-h="355"><span>Agenda</span><span class="ind-n">356</span></a></li>
+          <li><a href="#/356" data-h="356"><span>Assertions (SVA)</span><span class="ind-n">357</span></a></li>
+          <li><a href="#/375" data-h="375"><span>Exercise · Day 7</span><span class="ind-n">376</span></a></li>
+          <li><a href="#/376" data-h="376"><span>Review · Day 7</span><span class="ind-n">377</span></a></li>
+          <li><a href="#/381" data-h="381"><span>Capstone · Day 7</span><span class="ind-n">382</span></a></li>
+          <li><a href="#/385" data-h="385"><span>Appendix · From the VTALU to a real bus</span><span class="ind-n">386</span></a></li>
+          <li><a href="#/389" data-h="389"><span>Appendix · The debug toolbox</span><span class="ind-n">390</span></a></li>
+          <li><a href="#/391" data-h="391"><span>Appendix · The 21 silent traps</span><span class="ind-n">392</span></a></li>
+          <li><a href="#/396" data-h="396"><span>Glossary · the words of the trade</span><span class="ind-n">397</span></a></li>
+          <li><a href="#/399" data-h="399"><span>References</span><span class="ind-n">400</span></a></li>
+          <li><a href="#/402" data-h="402"><span>This is as far as we got</span><span class="ind-n">403</span></a></li>
+          <li><a href="#/404" data-h="404"><span>Self-assessment</span><span class="ind-n">405</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 8 · optional</h3>
         <ul>
-          <li><a href="#/403" data-h="403"><span>Agenda</span><span class="ind-n">404</span></a></li>
-          <li><a href="#/404" data-h="404"><span>RAL</span><span class="ind-n">405</span></a></li>
-          <li><a href="#/415" data-h="415"><span>Exercise · Day 8 · 1 of 2</span><span class="ind-n">416</span></a></li>
-          <li><a href="#/416" data-h="416"><span>The reference model in C</span><span class="ind-n">417</span></a></li>
-          <li><a href="#/420" data-h="420"><span>Review · Day 8</span><span class="ind-n">421</span></a></li>
-          <li><a href="#/428" data-h="428"><span>Exercise · Day 8 · 2 of 2</span><span class="ind-n">429</span></a></li>
-          <li><a href="#/429" data-h="429"><span>Capstone 2 · Day 8</span><span class="ind-n">430</span></a></li>
-          <li><a href="#/430" data-h="430"><span>The end</span><span class="ind-n">431</span></a></li>
+          <li><a href="#/407" data-h="407"><span>Agenda</span><span class="ind-n">408</span></a></li>
+          <li><a href="#/408" data-h="408"><span>RAL</span><span class="ind-n">409</span></a></li>
+          <li><a href="#/420" data-h="420"><span>Exercise · Day 8 · 1 of 2</span><span class="ind-n">421</span></a></li>
+          <li><a href="#/421" data-h="421"><span>The reference model in C</span><span class="ind-n">422</span></a></li>
+          <li><a href="#/425" data-h="425"><span>Review · Day 8</span><span class="ind-n">426</span></a></li>
+          <li><a href="#/433" data-h="433"><span>Exercise · Day 8 · 2 of 2</span><span class="ind-n">434</span></a></li>
+          <li><a href="#/434" data-h="434"><span>Capstone 2 · Day 8</span><span class="ind-n">435</span></a></li>
+          <li><a href="#/435" data-h="435"><span>The end</span><span class="ind-n">436</span></a></li>
         </ul>
     </nav>
   </dialog>
@@ -15884,7 +16023,7 @@ showing up where nobody expected it.
       // escribe esa coordenada en la URL y el de llegada la resuelve con SU
       // propio mapa: si todavia no tradujo esa seccion, avisa y arranca de
       // cero en vez de aterrizar en cualquier lado.
-      const SECCIONES = [["000-verify-this",1],["002-como-usar",2],["005-agenda-day1",1],["010-tendencias",5],["015-introduccion",6],["020-spec-vtalu",8],["021-plan-de-verificacion",3],["025-testbench-convencional",5],["026-cobertura-funcional",13],["030-interfaces-bfm",12],["042-quiz-day1",7],["043-ejercicio-day1",1],["044-ejercicio-day1b",1],["045-agenda-day2",1],["046-clases-y-extensiones",7],["047-polimorfismo",7],["050-variables-estaticas",5],["055-clases-parametricas",5],["060-factory",6],["065-tb-en-objetos",9],["067-quiz-day2",8],["068-ejercicio-day2",1],["070-agenda-day3",1],["075-tests",11],["080-components",9],["085-env",17],["088-reporting",14],["092-quiz-day3",7],["093-ejercicio-day3",1],["095-agenda-day4",1],["100-varios-objetos",16],["105-analysis-ports",13],["110-threads",13],["115-put-get",7],["117-quiz-day4",5],["118-ejercicio-day4",1],["118b-ejercicio-day4b",1],["120-agenda-day5",1],["130-jerarquias",10],["135-transactions",20],["136-constrained-random",14],["137-quiz-day5",8],["138-ejercicio-day5",1],["139-ejercicio-day5b",1],["140-agenda-day6",1],["145-agents",19],["146-callbacks",5],["150-sequences",26],["151-quiz-day6",10],["152-ejercicio-day6-agents",1],["153-ejercicio-day6-sequences",1],["153b-ejercicio-day6-bins",1],["153c-ejercicio-day6-semillas",1],["153d-ejercicio-day6-debug",1],["159-agenda-day7",1],["160-assertions",18],["161-ejercicio-day7-sva",1],["162-quiz-day7",5],["163-ejercicio-day7-capstone",4],["170-de-la-vtalu-a-un-bus",4],["171-apendice-debug",2],["172-apendice-trampas",5],["173-glosario",3],["174-referencias",3],["175-cierre",2],["175b-autoevaluacion",3],["179-agenda-day8",1],["180-ral",11],["181-ejercicio-day8-ral",1],["182-dpi",4],["182b-quiz-day8",8],["182c-ejercicio-day8-dpi",1],["183-ejercicio-day8-fifo",1],["190-the-end",1]];
+      const SECCIONES = [["000-verify-this",1],["002-como-usar",2],["005-agenda-day1",1],["010-tendencias",5],["015-introduccion",6],["020-spec-vtalu",8],["021-plan-de-verificacion",3],["025-testbench-convencional",5],["026-cobertura-funcional",13],["030-interfaces-bfm",13],["042-quiz-day1",7],["043-ejercicio-day1",1],["044-ejercicio-day1b",1],["045-agenda-day2",1],["046-clases-y-extensiones",7],["047-polimorfismo",7],["050-variables-estaticas",5],["055-clases-parametricas",5],["060-factory",6],["065-tb-en-objetos",9],["067-quiz-day2",8],["068-ejercicio-day2",1],["070-agenda-day3",1],["075-tests",12],["080-components",10],["085-env",17],["088-reporting",14],["092-quiz-day3",7],["093-ejercicio-day3",1],["095-agenda-day4",1],["100-varios-objetos",16],["105-analysis-ports",13],["110-threads",13],["115-put-get",7],["117-quiz-day4",5],["118-ejercicio-day4",1],["118b-ejercicio-day4b",1],["120-agenda-day5",1],["130-jerarquias",10],["135-transactions",20],["136-constrained-random",14],["137-quiz-day5",8],["138-ejercicio-day5",1],["139-ejercicio-day5b",1],["140-agenda-day6",1],["145-agents",19],["146-callbacks",5],["150-sequences",26],["151-quiz-day6",10],["152-ejercicio-day6-agents",1],["153-ejercicio-day6-sequences",1],["153b-ejercicio-day6-bins",1],["153c-ejercicio-day6-semillas",1],["153d-ejercicio-day6-debug",1],["159-agenda-day7",1],["160-assertions",19],["161-ejercicio-day7-sva",1],["162-quiz-day7",5],["163-ejercicio-day7-capstone",4],["170-de-la-vtalu-a-un-bus",4],["171-apendice-debug",2],["172-apendice-trampas",5],["173-glosario",3],["174-referencias",3],["175-cierre",2],["175b-autoevaluacion",3],["179-agenda-day8",1],["180-ral",12],["181-ejercicio-day8-ral",1],["182-dpi",4],["182b-quiz-day8",8],["182c-ejercicio-day8-dpi",1],["183-ejercicio-day8-fifo",1],["190-the-end",1]];
       const coordDe = h => {
         let base = 0;
         for (const [f, n] of SECCIONES) {
