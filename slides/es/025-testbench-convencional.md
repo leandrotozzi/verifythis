@@ -73,8 +73,9 @@ operaciones de un ciclo `done` es un nivel, y en el `negedge` en que el tester
 carga la operación siguiente **todavía está arriba por la anterior**. El
 `wait(done)` no bloquea, `start` baja en el mismo instante y el DUT nunca ve esa
 operación. No hay error: el scoreboard no dispara, y la cobertura —que muestrea
-`op_set`— la cuenta igual. Este testbench la tuvo, y descartaba el 38 % de las
-operaciones de un ciclo con el reporte en verde. La atrapa el contador de
+`op_set`— la cuenta igual. Este testbench la tuvo, y descartaba cuatro de cada diez
+operaciones de un ciclo con el reporte en verde: en `d1`, 77 shifts chequeados
+contra 130 con el arreglo. La atrapa el contador de
 enviadas contra chequeadas, y es la trampa muda más barata de poner.
 El sesgo de `get_data()` —un cuarto en 00, un cuarto en FF, la mitad en el
 medio— es exactamente lo que las transactions van a escribir en una línea con `dist`

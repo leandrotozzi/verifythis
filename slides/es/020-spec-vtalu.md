@@ -87,7 +87,7 @@ cambien el resultado: la ALU se queda con lo último que calculó.
 
 #### *Multi Cycle: Multiplicación*
 
-{{code:code/vtalu_dut/vtalu_mult.sv|lines=32-42}}
+{{code:code/vtalu_dut/vtalu_mult.sv|lines=33-43}}
 
 - Es un pipeline: los operandos se registran, se multiplican, y el producto
   atraviesa dos registros más antes de salir por `result_mult`: cuatro flancos

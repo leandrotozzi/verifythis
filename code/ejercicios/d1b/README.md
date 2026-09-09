@@ -72,9 +72,10 @@ SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
 ```
 
 El corrector va por etapas y cada una imprime su `STAGE N OK`, como el capstone.
-Los dos tiempos que pide son los mismos antes y después de arreglar el bug
-—ocurren antes de que nada se desincronice—, así que la respuesta no se te
-vence cuando toques la BFM.
+Los dos tiempos que pide son los de la BFM tal como viene: la primera corrida
+los mide de las ondas y los guarda en `obj_dir`, así que la respuesta no se te
+vence cuando toques la BFM —con el handshake bien esperado la primera
+multiplicación se adelanta—. Un `make clean` los olvida.
 
 ## Cuánto tarda
 

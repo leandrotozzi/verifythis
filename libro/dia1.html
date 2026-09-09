@@ -300,7 +300,7 @@ testbench anterior a 2011 que nadie migró. Pasa más de lo que parece.</p>
 <p>Éste es el testbench que vamos a escribir <strong>nosotros</strong>, a mano, en los días 1 y
 2. Conviene decirlo así: las cajas de este diagrama no son teoría, son los
 archivos que van a estar abiertos hoy mismo.
-Señalar el generador, el driver, el monitor y el checker, y hacer notar que
+Señalar el tester, el driver, el monitor y el scoreboard, y hacer notar que
 ninguno de esos nombres es de UVM: son los nombres que cualquiera le pone a las
 piezas de un testbench, en cualquier lenguaje. UVM no los inventó; los
 estandarizó.</p>
@@ -582,8 +582,7 @@ cambien el resultado: la ALU se queda con lo último que calculó.</p>
 <section id="s18" class="slide">
 <h2 id="la-spec-del-vtalu">La spec del VTALU</h2>
 <h4 id="multi-cycle-multiplicación"><em>Multi Cycle: Multiplicación</em></h4>
-<figure class="codigo"><figcaption><code>code/vtalu_dut/vtalu_mult.sv</code> · líneas 32-42 de 46</figcaption><pre><code class="hljs">         result_mult &lt;= <span class="hljs-number">16&#x27;h0000</span>;
-      <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
+<figure class="codigo"><figcaption><code>code/vtalu_dut/vtalu_mult.sv</code> · líneas 33-43 de 46</figcaption><pre><code class="hljs">      <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
          a_int &lt;= A;
          b_int &lt;= B;
          mult1 &lt;= a_int * b_int;
@@ -592,7 +591,8 @@ cambien el resultado: la ALU se queda con lo último que calculó.</p>
          done3 &lt;= start &amp; ~done_mult;
          done2 &lt;= done3 &amp; ~done_mult;
          done1 &lt;= done2 &amp; ~done_mult;
-         done_mult &lt;= done1 &amp; ~done_mult;</code></pre><details><summary>el archivo entero, 46 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Multi-cycle multiplication: done rises on the FOURTH clock edge after start</span>
+         done_mult &lt;= done1 &amp; ~done_mult;
+      <span class="hljs-keyword">end</span></code></pre><details><summary>el archivo entero, 46 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Multi-cycle multiplication: done rises on the FOURTH clock edge after start</span>
 <span class="hljs-comment">// (the one-cycle ops raise it on the first). The latency is deliberate: it is</span>
 <span class="hljs-comment">// what forces the testbench to wait for &#x27;done&#x27; instead of counting cycles.</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">vtalu_mult</span> (
@@ -1329,8 +1329,9 @@ operaciones de un ciclo <code>done</code> es un nivel, y en el <code>negedge</co
 carga la operación siguiente <strong>todavía está arriba por la anterior</strong>. El
 <code>wait(done)</code> no bloquea, <code>start</code> baja en el mismo instante y el DUT nunca ve esa
 operación. No hay error: el scoreboard no dispara, y la cobertura —que muestrea
-<code>op_set</code>— la cuenta igual. Este testbench la tuvo, y descartaba el 38 % de las
-operaciones de un ciclo con el reporte en verde. La atrapa el contador de
+<code>op_set</code>— la cuenta igual. Este testbench la tuvo, y descartaba cuatro de cada diez
+operaciones de un ciclo con el reporte en verde: en <code>d1</code>, 77 shifts chequeados
+contra 130 con el arreglo. La atrapa el contador de
 enviadas contra chequeadas, y es la trampa muda más barata de poner.
 El sesgo de <code>get_data()</code> —un cuarto en 00, un cuarto en FF, la mitad en el
 medio— es exactamente lo que las transactions van a escribir en una línea con <code>dist</code>

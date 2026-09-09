@@ -1,4 +1,4 @@
-<!-- es-sha: 4659d324cac3 -->
+<!-- es-sha: b9e6bddac2ec -->
 ## Introduction
 
 #### *What is UVM?*
@@ -65,7 +65,7 @@ Note:
 This is the testbench **we** are going to write, by hand, on days 1 and
 2. It is worth saying it like that: the boxes in this diagram are not theory, they are the
 files that are going to be open today.
-Point at the generator, the driver, the monitor and the checker, and make the point that
+Point at the tester, the driver, the monitor and the scoreboard, and make the point that
 none of those names is UVM's: they are the names anybody gives to the pieces of a
 testbench, in any language. UVM did not invent them; it standardized them.
 

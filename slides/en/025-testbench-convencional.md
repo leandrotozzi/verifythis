@@ -1,4 +1,4 @@
-<!-- es-sha: 136dc6043a15 -->
+<!-- es-sha: 1cd59220cd73 -->
 ## The conventional testbench
 
 #### *Coverage First Methodology*
@@ -74,8 +74,9 @@ one-cycle operations `done` is a level, and on the `negedge` where the tester lo
 the next operation **it is still up from the previous one**. The `wait(done)` does
 not block, `start` drops at the same instant and the DUT never sees that operation.
 There is no error: the scoreboard does not fire, and the coverage —which samples
-`op_set`— counts it anyway. This testbench had it, and it dropped 38 % of the
-one-cycle operations with the report in green. What catches it is the sent-versus-
+`op_set`— counts it anyway. This testbench had it, and it dropped four in ten
+one-cycle operations with the report in green: on `d1`, 77 shifts checked
+against 130 with the fix. What catches it is the sent-versus-
 checked counter, and it is the cheapest silent trap to guard against.
 The bias of `get_data()` —a quarter at 00, a quarter at FF, half in the
 middle— is exactly what the transactions are going to write in one line with `dist`

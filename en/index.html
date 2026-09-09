@@ -253,7 +253,7 @@ It is useful for lowering the anxiety of whoever arrives scared by the size of U
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 4659d324cac3 -->
+<!-- es-sha: b9e6bddac2ec -->
 ## Introduction
 
 #### *What is UVM?*
@@ -320,7 +320,7 @@ Note:
 This is the testbench **we** are going to write, by hand, on days 1 and
 2. It is worth saying it like that: the boxes in this diagram are not theory, they are the
 files that are going to be open today.
-Point at the generator, the driver, the monitor and the checker, and make the point that
+Point at the tester, the driver, the monitor and the scoreboard, and make the point that
 none of those names is UVM's: they are the names anybody gives to the pieces of a
 testbench, in any language. UVM did not invent them; it standardized them.
 
@@ -406,7 +406,7 @@ one. It is literally the `d6-semillas` exercise of day 6.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 7bdb0eec8328 -->
+<!-- es-sha: 684bb5800f79 -->
 ## The VTALU spec
 
 ![ALU waveform](res/diagrams/wave-dut.svg)
@@ -521,7 +521,6 @@ change the result: the ALU keeps whatever it computed last.
 #### *Multi Cycle: Multiplication*
 
 ```sv
-         result_mult <= 16'h0000;
       end else begin
          a_int <= A;
          b_int <= B;
@@ -532,6 +531,7 @@ change the result: the ALU keeps whatever it computed last.
          done2 <= done3 & ~done_mult;
          done1 <= done2 & ~done_mult;
          done_mult <= done1 & ~done_mult;
+      end
 ```
 
 - It is a pipeline: the operands get registered, they get multiplied, and the product
@@ -759,7 +759,7 @@ assertion ones.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 136dc6043a15 -->
+<!-- es-sha: 1cd59220cd73 -->
 ## The conventional testbench
 
 #### *Coverage First Methodology*
@@ -865,8 +865,9 @@ one-cycle operations `done` is a level, and on the `negedge` where the tester lo
 the next operation **it is still up from the previous one**. The `wait(done)` does
 not block, `start` drops at the same instant and the DUT never sees that operation.
 There is no error: the scoreboard does not fire, and the coverage —which samples
-`op_set`— counts it anyway. This testbench had it, and it dropped 38 % of the
-one-cycle operations with the report in green. What catches it is the sent-versus-
+`op_set`— counts it anyway. This testbench had it, and it dropped four in ten
+one-cycle operations with the report in green: on `d1`, 77 shifts checked
+against 130 with the fix. What catches it is the sent-versus-
 checked counter, and it is the cheapest silent trap to guard against.
 The bias of `get_data()` —a quarter at 00, a quarter at FF, half in the
 middle— is exactly what the transactions are going to write in one line with `dist`

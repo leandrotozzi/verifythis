@@ -1,4 +1,4 @@
-<!-- es-sha: dad3babdf73d -->
+<!-- es-sha: e49b430f5506 -->
 # Day 1 — the waves: the log is not enough
 
 The debug appendix says that the waves are the tool **47 % of the work** gets
@@ -72,9 +72,10 @@ SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 ```
 
 The checker goes in stages and each one prints its `STAGE N OK`, like the capstone.
-The two times it asks for are the same before and after fixing the bug
-—they happen before anything gets out of sync—, so your answer does not
-expire when you touch the BFM.
+The two times it asks for are the shipped BFM's: the first run measures them
+off the waves and keeps them in `obj_dir`, so your answer does not expire when
+you touch the BFM —with the handshake properly waited for, the first
+multiplication moves earlier—. A `make clean` forgets them.
 
 ## How long it takes
 

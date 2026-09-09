@@ -64,7 +64,7 @@ Note:
 Éste es el testbench que vamos a escribir **nosotros**, a mano, en los días 1 y
 2. Conviene decirlo así: las cajas de este diagrama no son teoría, son los
 archivos que van a estar abiertos hoy mismo.
-Señalar el generador, el driver, el monitor y el checker, y hacer notar que
+Señalar el tester, el driver, el monitor y el scoreboard, y hacer notar que
 ninguno de esos nombres es de UVM: son los nombres que cualquiera le pone a las
 piezas de un testbench, en cualquier lenguaje. UVM no los inventó; los
 estandarizó.

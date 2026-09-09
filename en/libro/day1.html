@@ -252,7 +252,7 @@ It is useful for lowering the anxiety of whoever arrives scared by the size of U
 </section>
 
 <section id="s9" class="slide">
-<!-- es-sha: 4659d324cac3 -->
+<!-- es-sha: b9e6bddac2ec -->
 <h2 id="introduction">Introduction</h2>
 <h4 id="what-is-uvm"><em>What is UVM?</em></h4>
 <ul>
@@ -313,7 +313,7 @@ testbench from before 2011 that nobody migrated. It happens more than it seems.<
 <p>This is the testbench <strong>we</strong> are going to write, by hand, on days 1 and
 2. It is worth saying it like that: the boxes in this diagram are not theory, they are the
 files that are going to be open today.
-Point at the generator, the driver, the monitor and the checker, and make the point that
+Point at the tester, the driver, the monitor and the scoreboard, and make the point that
 none of those names is UVM&#39;s: they are the names anybody gives to the pieces of a
 testbench, in any language. UVM did not invent them; it standardized them.</p>
 </div>
@@ -397,7 +397,7 @@ one. It is literally the <code>d6-semillas</code> exercise of day 6.</p>
 </section>
 
 <section id="s15" class="slide">
-<!-- es-sha: 7bdb0eec8328 -->
+<!-- es-sha: 684bb5800f79 -->
 <h2 id="the-vtalu-spec">The VTALU spec</h2>
 <p><img src="../../res/print/diagrams/wave-dut.svg" alt="ALU waveform"></p>
 <ul>
@@ -595,8 +595,7 @@ change the result: the ALU keeps whatever it computed last.</p>
 <section id="s18" class="slide">
 <h2 id="the-vtalu-spec">The VTALU spec</h2>
 <h4 id="multi-cycle-multiplication"><em>Multi Cycle: Multiplication</em></h4>
-<figure class="codigo"><figcaption><code>code/vtalu_dut/vtalu_mult.sv</code> · líneas 32-42 de 46</figcaption><pre><code class="hljs">         result_mult &lt;= <span class="hljs-number">16&#x27;h0000</span>;
-      <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
+<figure class="codigo"><figcaption><code>code/vtalu_dut/vtalu_mult.sv</code> · líneas 33-43 de 46</figcaption><pre><code class="hljs">      <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
          a_int &lt;= A;
          b_int &lt;= B;
          mult1 &lt;= a_int * b_int;
@@ -605,7 +604,8 @@ change the result: the ALU keeps whatever it computed last.</p>
          done3 &lt;= start &amp; ~done_mult;
          done2 &lt;= done3 &amp; ~done_mult;
          done1 &lt;= done2 &amp; ~done_mult;
-         done_mult &lt;= done1 &amp; ~done_mult;</code></pre><details><summary>el archivo entero, 46 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Multi-cycle multiplication: done rises on the FOURTH clock edge after start</span>
+         done_mult &lt;= done1 &amp; ~done_mult;
+      <span class="hljs-keyword">end</span></code></pre><details><summary>el archivo entero, 46 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Multi-cycle multiplication: done rises on the FOURTH clock edge after start</span>
 <span class="hljs-comment">// (the one-cycle ops raise it on the first). The latency is deliberate: it is</span>
 <span class="hljs-comment">// what forces the testbench to wait for &#x27;done&#x27; instead of counting cycles.</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">vtalu_mult</span> (
@@ -977,7 +977,7 @@ assertion ones.</p>
 </section>
 
 <section id="s26" class="slide">
-<!-- es-sha: 136dc6043a15 -->
+<!-- es-sha: 1cd59220cd73 -->
 <h2 id="the-conventional-testbench">The conventional testbench</h2>
 <h4 id="coverage-first-methodology"><em>Coverage First Methodology</em></h4>
 <ul>
@@ -1344,8 +1344,9 @@ one-cycle operations <code>done</code> is a level, and on the <code>negedge</cod
 the next operation <strong>it is still up from the previous one</strong>. The <code>wait(done)</code> does
 not block, <code>start</code> drops at the same instant and the DUT never sees that operation.
 There is no error: the scoreboard does not fire, and the coverage —which samples
-<code>op_set</code>— counts it anyway. This testbench had it, and it dropped 38 % of the
-one-cycle operations with the report in green. What catches it is the sent-versus-
+<code>op_set</code>— counts it anyway. This testbench had it, and it dropped four in ten
+one-cycle operations with the report in green: on <code>d1</code>, 77 shifts checked
+against 130 with the fix. What catches it is the sent-versus-
 checked counter, and it is the cheapest silent trap to guard against.
 The bias of <code>get_data()</code> —a quarter at 00, a quarter at FF, half in the
 middle— is exactly what the transactions are going to write in one line with <code>dist</code>

@@ -1,4 +1,4 @@
-<!-- es-sha: 7bdb0eec8328 -->
+<!-- es-sha: 684bb5800f79 -->
 ## The VTALU spec
 
 ![ALU waveform](res/diagrams/wave-dut.svg)
@@ -88,7 +88,7 @@ change the result: the ALU keeps whatever it computed last.
 
 #### *Multi Cycle: Multiplication*
 
-{{code:code/vtalu_dut/vtalu_mult.sv|lines=32-42}}
+{{code:code/vtalu_dut/vtalu_mult.sv|lines=33-43}}
 
 - It is a pipeline: the operands get registered, they get multiplied, and the product
   goes through two more registers before coming out on `result_mult`: four edges

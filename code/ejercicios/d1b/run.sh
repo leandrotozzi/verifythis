@@ -25,31 +25,54 @@ falta() { echo "not yet: $1" >&2; exit 1; }
 # --timescale: the two times the README asks for are read in picoseconds, and
 # no source declares a timeunit -- without this they would depend on the
 # simulator's default.
-vlt top -Wno-fatal --timescale 1ps/1ps -f pkg.f "${SRC}vtalu_bfm.sv" -f tb.f top.sv -f dut.f
-
-echo "=== running, and dumping ondas.vcd ==="
+build() { vlt top -Wno-fatal --timescale 1ps/1ps -f pkg.f "$1" -f tb.f top.sv -f dut.f; }
 # The run ABORTS on the first $error while the bug is there: that is expected.
-run_sim || true
-[ -f ondas.vcd ] || falta "ondas.vcd was not generated. Check that top.sv has the \`ifdef VLT_TRACE block."
+corre() {
+  run_sim || true
+  [ -f ondas.vcd ] || falta "ondas.vcd was not generated. Check that top.sv has the \`ifdef VLT_TRACE block."
+}
 
 # The truth comes out of the .vcd itself, not out of a number written by hand
-# here: that way the exercise survives a change of DUT or stimulus. The two times
-# asked for are the same with the broken BFM and with the healthy one -- they
-# happen BEFORE the bug desynchronizes anything -- so fixing it changes nothing.
+# here: that way the exercise survives a change of DUT or stimulus.
 #   done       top.DUT.done        start_mult  top.DUT.start_mult
 # The one-letter ids come from the $var section of the .vcd header.
 ids() { awk -v s="$1" '/\$scope module DUT/ { d = 1 }
                        d && $0 ~ ("\\$var .* " s " \\$end") { print $(NF-2); exit }' ondas.vcd; }
-ID_DONE=$(ids done); ID_MUL=$(ids start_mult)
-[ -n "$ID_DONE" ] && [ -n "$ID_MUL" ] || falta "could not find done/start_mult in ondas.vcd"
-
-read -r T_PRIMERO T_MUL <<EOF
-$(awk -v d="$ID_DONE" -v m="$ID_MUL" '
+tiempos() {
+  local d m
+  d=$(ids done); m=$(ids start_mult)
+  [ -n "$d" ] && [ -n "$m" ] || falta "could not find done/start_mult in ondas.vcd"
+  awk -v d="$d" -v m="$m" '
     /^#/ { t = substr($0,2)+0; next }
     $0 == "1" m { if (!sm) sm = t }
     $0 == "1" d { if (!p) p = t; if (sm && !dm) dm = t }
-    END { print p, dm }' ondas.vcd)
-EOF
+    END { print p, dm }' ondas.vcd
+}
+
+# The two times are the ones of the BFM AS SHIPPED, which is what the student
+# reads: with a send_op that waits for the handshake every one-cycle op takes
+# one cycle less, and the first multiplication moves (830 ps -> 650 ps). So the
+# reference is measured once per directory -- on the first run, before anybody
+# touched send_op -- and kept in obj_dir. Under SOLUCION=1 the shipped BFM gets
+# built and measured apart, first. make clean forgets it: if you already fixed
+# the BFM, put the repeat(2) back for one run.
+REF=obj_dir/tiempos.txt
+if [ ! -f "$REF" ] && [ -n "$SRC" ]; then
+  build vtalu_bfm.sv
+  corre
+  t=$(tiempos) || exit 1; echo "$t" > "$REF"
+fi
+
+# Under SOLUCION=1 whatever is in obj_dir/top was built from the other BFM --
+# the reference above, or the student's own run a moment ago. Two builds within
+# the same second come out stale on macOS (its make 3.81 compares whole
+# seconds, and the regenerated .cpp is not newer than the .o), so start clean.
+[ -z "$SRC" ] || rm -rf obj_dir/top
+build "${SRC}vtalu_bfm.sv"
+echo "=== running, and dumping ondas.vcd ==="
+corre
+if [ ! -f "$REF" ]; then t=$(tiempos) || exit 1; echo "$t" > "$REF"; fi
+read -r T_PRIMERO T_MUL < "$REF"
 
 echo ""
 echo "=== STAGE 1: read the waves ==="
