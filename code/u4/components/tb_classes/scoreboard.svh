@@ -1,6 +1,6 @@
 // cb: class-and-build
-// The scoreboard of unit 10, now as a uvm_component. The four steps
-// --extend, register, constructor, phases-- are in the slides of unit 12.
+// The scoreboard of the TB in objects, now as a uvm_component. The four steps
+// --extend, register, constructor, phases-- are in the slides of the components section.
 class scoreboard extends uvm_component;
    `uvm_component_utils(scoreboard);
 

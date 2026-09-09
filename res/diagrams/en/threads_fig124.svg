@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" font-family="IBM Plex Sans, system-ui, sans-serif">
+<title>Interthread communication with put port, get port and uvm_tlm_fifo</title>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#5b6b7a"/>
+  </marker>
+  <marker id="a-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#e7ad52"/>
+  </marker>
+</defs>
+
+<!-- thread del producer -->
+<rect x="26" y="104" width="232" height="116" rx="6" fill="none" stroke="#444" stroke-width="2" stroke-dasharray="7 6"/>
+<text x="38" y="94" fill="#8d8d8d" font-size="17">thread A</text>
+<rect x="48" y="128" width="180" height="68" rx="4" fill="#ffffff" opacity="0.06"/>
+<rect x="48" y="128" width="180" height="68" rx="4" fill="none" stroke="#5b6b7a" stroke-width="2"/>
+<text x="138" y="158" fill="#f0f0f0" font-size="22" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">producer_h</text>
+<text x="138" y="182" fill="#8d8d8d" font-size="16" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">run_phase()</text>
+<rect x="217" y="151" width="22" height="22" fill="#5b6b7a"/>
+<text x="228" y="244" fill="#8d8d8d" font-size="17" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">put_port_h</text>
+
+<!-- fifo compartida -->
+<rect x="345" y="128" width="210" height="68" rx="4" fill="#ffffff" opacity="0.06"/>
+<rect x="345" y="128" width="210" height="68" rx="4" fill="none" stroke="#5b6b7a" stroke-width="2"/>
+<text x="450" y="158" fill="#f0f0f0" font-size="22" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">fifo_h</text>
+<text x="450" y="182" fill="#8d8d8d" font-size="16" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">uvm_tlm_fifo #(int)</text>
+<circle cx="345" cy="162" r="9" fill="#5b6b7a"/>
+<circle cx="555" cy="162" r="9" fill="#e7ad52"/>
+<text x="345" y="220" fill="#8d8d8d" font-size="17" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">put_export</text>
+<text x="555" y="220" fill="#e7ad52" font-size="17" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">get_export</text>
+<text x="450" y="248" fill="#8d8d8d" font-size="17" text-anchor="middle">capacity: 1 element</text>
+
+<!-- thread del consumer -->
+<rect x="640" y="104" width="230" height="116" rx="6" fill="none" stroke="#444" stroke-width="2" stroke-dasharray="7 6"/>
+<text x="652" y="94" fill="#8d8d8d" font-size="17">thread B</text>
+<rect x="672" y="128" width="180" height="68" rx="4" fill="#ffffff" opacity="0.06"/>
+<rect x="672" y="128" width="180" height="68" rx="4" fill="none" stroke="#5b6b7a" stroke-width="2"/>
+<text x="762" y="158" fill="#f0f0f0" font-size="22" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">consumer_h</text>
+<text x="762" y="182" fill="#8d8d8d" font-size="16" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">run_phase()</text>
+<rect x="661" y="151" width="22" height="22" fill="#e7ad52"/>
+<text x="672" y="244" fill="#e7ad52" font-size="17" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">get_port_h</text>
+
+<!-- transferencias -->
+<path d="M243,162 L334,162" fill="none" stroke="#5b6b7a" stroke-width="2" marker-end="url(#a)"/>
+<text x="288" y="150" fill="#8d8d8d" font-size="18" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">put()</text>
+<path d="M566,162 L657,162" fill="none" stroke="#e7ad52" stroke-width="2" marker-end="url(#a-acc)"/>
+<text x="611" y="150" fill="#e7ad52" font-size="18" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">get()</text>
+
+<!-- notas -->
+<rect x="32" y="289" width="12" height="12" fill="#e7ad52"/>
+<text x="56" y="300" font-size="19" fill="#f0f0f0"><tspan fill="#e7ad52" font-family="IBM Plex Mono, ui-monospace, monospace">get()</tspan> blocks the <tspan font-family="IBM Plex Mono, ui-monospace, monospace">consumer_h</tspan> until the FIFO has a datum</text>
+<rect x="32" y="321" width="12" height="12" fill="#5b6b7a"/>
+<text x="56" y="332" font-size="19" fill="#8d8d8d"><tspan font-family="IBM Plex Mono, ui-monospace, monospace">put()</tspan> blocks the <tspan font-family="IBM Plex Mono, ui-monospace, monospace">producer_h</tspan> if the FIFO already holds its only element</text>
+<rect x="32" y="353" width="12" height="12" fill="#5b6b7a"/>
+<text x="56" y="364" font-size="19" fill="#8d8d8d"><tspan font-family="IBM Plex Mono, ui-monospace, monospace">try_get()</tspan> y <tspan font-family="IBM Plex Mono, ui-monospace, monospace">try_put()</tspan> they do not block: they return 0 if they could not</text>
+</svg>

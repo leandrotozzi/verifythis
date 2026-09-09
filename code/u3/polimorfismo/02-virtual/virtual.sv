@@ -1,5 +1,5 @@
 // Identical to 01-sin-virtual except for ONE word: trago's servir() is
-// now virtual. See unit 6.
+// now virtual. See the polymorphism section.
 
 class trago;
    int hielos = -1;

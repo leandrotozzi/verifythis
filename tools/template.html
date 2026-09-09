@@ -403,10 +403,13 @@
       // res/print/ tiene las mismas en paleta clara (tools/figs-print.mjs). No
       // alcanza con CSS: un <img> a un SVG externo es otro documento y no lo
       // toca el estilo de esta pagina.
+      // El (^|\.\./) es por el deck en ingles, que vive en en/ y pide ../res/:
+      // con un ^res/ pelado no matcheaba ninguna figura y el PDF en ingles salia
+      // con las figuras del tema oscuro sobre papel blanco.
       const figurasClaras = claro => document.querySelectorAll('.reveal img[src$=".svg"]')
         .forEach(img => img.setAttribute('src', claro
-          ? img.getAttribute('src').replace(/^res\//, 'res/print/')
-          : img.getAttribute('src').replace(/^res\/print\//, 'res/')));
+          ? img.getAttribute('src').replace(/(^|\.\.\/)res\//, '$1res/print/')
+          : img.getAttribute('src').replace(/(^|\.\.\/)res\/print\//, '$1res/')));
 
       if (/print-pdf/gi.test(window.location.search)) {
         figurasClaras(true);   // antes de esperar las imagenes, que es lo que sigue

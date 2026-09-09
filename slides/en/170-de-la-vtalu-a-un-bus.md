@@ -1,5 +1,5 @@
 <!-- es-sha: c16462a2cd9e -->
-<!-- .slide: id="apendice-bus" data-machete="res/diagrams/sequences_tb_completo.svg,res/diagrams/agents_agent.svg" -->
+<!-- .slide: id="apendice-bus" data-machete="res/diagrams/en/sequences_tb_completo.svg,res/diagrams/en/agents_agent.svg" -->
 
 ## Appendix · From the VTALU to a real bus
 

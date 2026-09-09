@@ -83,7 +83,7 @@ objects, the five connections, and rename everything</li>
 <li>Copying and pasting structure is exactly what we had been avoiding since the <code>env</code></li>
 <li>UVM puts a name on the solution: <strong><code>uvm_agent</code></strong></li>
 </ul>
-<p><img src="../../res/print/diagrams/agents_env_antes_despues.svg" alt="The env of transactions against the env with an agent"></p>
+<p><img src="../../res/print/diagrams/en/agents_env_antes_despues.svg" alt="The env of transactions against the env with an agent"></p>
 <div class="nota">
 <p>The question that orders the whole section: what is the natural unit of reuse
 in a testbench? It is not the component, and it is not the env. It is <strong>the interface</strong>.
@@ -115,7 +115,7 @@ the one that publishes results</li>
 <li>From this section on every piece uses <strong>its</strong> base class: <code>uvm_driver #(T)</code>,
 <code>uvm_sequencer #(T)</code> and <code>uvm_monitor</code> instead of a plain <code>uvm_component</code></li>
 </ul>
-<p><img src="../../res/print/diagrams/agents_agent.svg" alt="Internal structure of the agent"></p>
+<p><img src="../../res/print/diagrams/en/agents_agent.svg" alt="Internal structure of the agent"></p>
 <div class="nota">
 <p>There is a decision here that is worth saying out loud because the <em>UVM Primer</em> takes
 it the other way round: it puts the scoreboard and the coverage <em>inside</em> the agent. We do not.
@@ -153,7 +153,7 @@ middle: three components in the tree and two <code>connect()</code></li>
 <li>And the <code>tester</code> disappears: a <code>uvm_sequence</code> replaces it, and that <strong>is not a
 component</strong> — it is an object, it is not in the tree and it does not get connected</li>
 </ul>
-<p><img src="../../res/print/diagrams/agents_seq_item_port.svg" alt="From the put/get to the seq_item_port"></p>
+<p><img src="../../res/print/diagrams/en/agents_seq_item_port.svg" alt="From the put/get to the seq_item_port"></p>
 <div class="nota">
 <p>This is the hardest jump of the course, and the reason is that there are two changes on
 the same line. It is worth separating them.
@@ -442,7 +442,7 @@ else drives</li>
 agent keeps feeding scoreboard and coverage</li>
 <li>It is read with <code>get_is_active()</code> and decided in the <code>build_phase</code>, with an <code>if</code></li>
 </ul>
-<p><img src="../../res/print/diagrams/agents_active_passive.svg" alt="Active against passive"></p>
+<p><img src="../../res/print/diagrams/en/agents_active_passive.svg" alt="Active against passive"></p>
 <div class="nota">
 <p>The honest question is &quot;and what do I want an agent that drives nothing for?&quot;. Three
 answers from the field, in order of frequency:
@@ -803,7 +803,7 @@ of the component that is going to read</li>
 the driver and the monitors find the same config without anybody passing it to them</li>
 <li>The <code>this</code> of the <code>set()</code> is the starting point of that path: the <code>env</code></li>
 </ul>
-<p><img src="../../res/print/diagrams/agents_config_scope.svg" alt="The hierarchical scope of the config_db"></p>
+<p><img src="../../res/print/diagrams/en/agents_config_scope.svg" alt="The hierarchical scope of the config_db"></p>
 <div class="nota">
 <p>Here is the classic trap of the section, and it is one of the ones that never fail. With a single
 agent, everybody writes <code>&quot;*&quot;</code> in the scope and it works. The day the
@@ -1010,7 +1010,7 @@ to reach the sequencer, and with that it knows the inside of the env again</li>
       phase.raise_objection(<span class="hljs-keyword">this</span>);
 
       <span class="hljs-comment">// The only thing left wired by hand: the test reaches across the</span>
-      <span class="hljs-comment">// hierarchy to get to the sequencer. Unit 23 takes it out of here.</span>
+      <span class="hljs-comment">// hierarchy to get to the sequencer. The sequences section takes it out of here.</span>
       seq = command_sequence::type_id::create(<span class="hljs-string">&quot;seq&quot;</span>);
       seq.start(env_h.clase_agent_h.sequencer_h);
 
@@ -1053,7 +1053,7 @@ to reach the sequencer, and with that it knows the inside of the env again</li>
       phase.raise_objection(<span class="hljs-keyword">this</span>);
 
       <span class="hljs-comment">// The only thing left wired by hand: the test reaches across the</span>
-      <span class="hljs-comment">// hierarchy to get to the sequencer. Unit 23 takes it out of here.</span>
+      <span class="hljs-comment">// hierarchy to get to the sequencer. The sequences section takes it out of here.</span>
       seq = command_sequence::type_id::create(<span class="hljs-string">&quot;seq&quot;</span>);
       seq.start(env_h.clase_agent_h.sequencer_h);
 
@@ -1568,7 +1568,7 @@ classes</em>.</p>
 <section id="s298" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="an-object-not-a-component"><em>An object, not a component</em></h4>
-<p><img src="../../res/print/diagrams/sequences_donde_vive.svg" alt="The sequence lives outside the component tree; the sequencer, inside"></p>
+<p><img src="../../res/print/diagrams/en/sequences_donde_vive.svg" alt="The sequence lives outside the component tree; the sequencer, inside"></p>
 <ul>
 <li>The <code>uvm_sequencer</code> is a <code>uvm_component</code>: <strong>it is in the tree</strong>, it has a parent,
 it has phases, the <code>build_phase</code> of the agent builds it</li>
@@ -1658,7 +1658,7 @@ in class by deleting the <code>reset_sequence</code> from <code>full_sequence</c
 <section id="s300" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="the-handshake-now-from-the-sequence-side"><em>The handshake, now from the sequence side</em></h4>
-<p><img src="../../res/print/diagrams/sequences_handshake.svg" alt="Timeline of start_item, get_next_item, item_done and finish_item"></p>
+<p><img src="../../res/print/diagrams/en/sequences_handshake.svg" alt="Timeline of start_item, get_next_item, item_done and finish_item"></p>
 <ul>
 <li>The same four calls as the agents, looking at the other lane:
 <code>start_item()</code> blocks the <strong>sequence</strong> until the sequencer gives it the turn,
@@ -1975,7 +1975,7 @@ test is cheap; what is expensive is the random, and that is why it runs at night
 <section id="s305" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="sequences-that-call-sequences"><em>Sequences that call sequences</em></h4>
-<p><img src="../../res/print/diagrams/sequences_subsequences.svg" alt="full_sequence starting three sub-sequences on the same sequencer"></p>
+<p><img src="../../res/print/diagrams/en/sequences_subsequences.svg" alt="full_sequence starting three sub-sequences on the same sequencer"></p>
 <ul>
 <li>A sequence can start others: it is the way of composing stimulus without
 duplicating code</li>
@@ -2023,7 +2023,7 @@ on a single sequencer, the order is the one the <code>body()</code> says.</p>
       reset_seq.start(get_sequencer(), <span class="hljs-keyword">this</span>);
       random_seq.start(get_sequencer(), <span class="hljs-keyword">this</span>);
       maxmult_seq.start(get_sequencer(), <span class="hljs-keyword">this</span>);
-   <span class="hljs-keyword">endtask</span> : body</code></pre><details><summary>el archivo entero, 32 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The command_sequence of unit 22, split into three pieces that can now be</span>
+   <span class="hljs-keyword">endtask</span> : body</code></pre><details><summary>el archivo entero, 32 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The command_sequence of the agents section, split into three pieces that can now be</span>
 <span class="hljs-comment">// combined at will. This sequence sends no item of its own: it only</span>
 <span class="hljs-comment">// starts the other ones.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">full_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span> #(<span class="hljs-type">command_transaction</span>);
@@ -2099,7 +2099,7 @@ sequencer, and there are six modes, one of them with weights.</p>
       phase.raise_objection(<span class="hljs-keyword">this</span>);
       full_seq.start(sequencer_h);   <span class="hljs-comment">// no vuelve hasta que body() termino</span>
       phase.drop_objection(<span class="hljs-keyword">this</span>);
-   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 20 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Same stimulus as the dual_test of unit 22, now in three sequences.</span>
+   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 20 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Same stimulus as the dual_test of the agents section, now in three sequences.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">full_test</span> <span class="hljs-keyword">extends</span> base_test;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(full_test)
 
@@ -2958,7 +2958,7 @@ is exactly what one wants.</p>
 <section id="s318" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="the-testbench-complete"><em>The testbench, complete</em></h4>
-<p><img src="../../res/print/diagrams/sequences_tb_completo.svg" alt="The final testbench: sequences, agent, sequencer, driver, monitors and the analysis layer"></p>
+<p><img src="../../res/print/diagrams/en/sequences_tb_completo.svg" alt="The final testbench: sequences, agent, sequencer, driver, monitors and the analysis layer"></p>
 <ul>
 <li>It is the diagram drawn today in any verification project, with the
 names used today</li>

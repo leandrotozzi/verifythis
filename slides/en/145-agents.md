@@ -12,7 +12,7 @@
 - Copying and pasting structure is exactly what we had been avoiding since the `env`
 - UVM puts a name on the solution: **`uvm_agent`**
 
-![The env of transactions against the env with an agent](res/diagrams/agents_env_antes_despues.svg)
+![The env of transactions against the env with an agent](res/diagrams/en/agents_env_antes_despues.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -43,7 +43,7 @@ registers one at a time.
 - From this section on every piece uses **its** base class: `uvm_driver #(T)`,
   `uvm_sequencer #(T)` and `uvm_monitor` instead of a plain `uvm_component`
 
-![Internal structure of the agent](res/diagrams/agents_agent.svg)
+![Internal structure of the agent](res/diagrams/en/agents_agent.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -82,7 +82,7 @@ arbitration—; `uvm_monitor`, `uvm_env` and `uvm_agent` are almost pure vocabul
 - And the `tester` disappears: a `uvm_sequence` replaces it, and that **is not a
   component** — it is an object, it is not in the tree and it does not get connected
 
-![From the put/get to the seq_item_port](res/diagrams/agents_seq_item_port.svg)
+![From the put/get to the seq_item_port](res/diagrams/en/agents_seq_item_port.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -235,7 +235,7 @@ to adopt it from day one.
   agent keeps feeding scoreboard and coverage
 - It is read with `get_is_active()` and decided in the `build_phase`, with an `if`
 
-![Active against passive](res/diagrams/agents_active_passive.svg)
+![Active against passive](res/diagrams/en/agents_active_passive.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -436,7 +436,7 @@ inside the agent.
   the driver and the monitors find the same config without anybody passing it to them
 - The `this` of the `set()` is the starting point of that path: the `env`
 
-![The hierarchical scope of the config_db](res/diagrams/agents_config_scope.svg)
+![The hierarchical scope of the config_db](res/diagrams/en/agents_config_scope.svg)
 <!-- .element: class="grande" -->
 
 Note:

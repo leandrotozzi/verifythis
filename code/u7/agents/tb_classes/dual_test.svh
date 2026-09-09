@@ -36,7 +36,7 @@ class dual_test extends uvm_test;
       phase.raise_objection(this);
 
       // The only thing left wired by hand: the test reaches across the
-      // hierarchy to get to the sequencer. Unit 23 takes it out of here.
+      // hierarchy to get to the sequencer. The sequences section takes it out of here.
       seq = command_sequence::type_id::create("seq");
       seq.start(env_h.clase_agent_h.sequencer_h);
 

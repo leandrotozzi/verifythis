@@ -1,5 +1,5 @@
 <!-- es-sha: 95edf94ae33d -->
-<!-- .slide: id="day3" data-machete="res/TB_UVM.svg,res/diagrams/env_uvm_incantation.svg,res/diagrams/UVM-hierarchy.svg,res/machete-debug.svg" -->
+<!-- .slide: id="day3" data-machete="res/TB_UVM.svg,res/diagrams/en/env_uvm_incantation.svg,res/diagrams/en/UVM-hierarchy.svg,res/machete-debug.svg" -->
 
 <!-- .slide: data-transition="convex" -->
 

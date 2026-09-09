@@ -3,7 +3,7 @@
 
 #### *First silicon almost never comes out right*
 
-![Percentage of projects reaching first silicon with no bugs, by year](res/trends/resultado.svg)
+![Percentage of projects reaching first silicon with no bugs, by year](res/trends/en/resultado.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -20,7 +20,7 @@ regenerated with `make figs`.
 
 #### *Why: what is inside a chip today*
 
-![Growth in the number of blocks and embedded processors per chip](res/trends/complejidad.svg)
+![Growth in the number of blocks and embedded processors per chip](res/trends/en/complejidad.svg)
 <!-- .element: class="grande" -->
 
 ---
@@ -29,7 +29,7 @@ regenerated with `make figs`.
 
 #### *Verification is not a stage, it is half the work*
 
-![How the verifier's time is split: almost half of it goes into debug](res/trends/esfuerzo.svg)
+![How the verifier's time is split: almost half of it goes into debug](res/trends/en/esfuerzo.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -43,7 +43,7 @@ half the project, with its own team and its own language.
 
 #### *And it is verified, mostly, with UVM*
 
-![Adoption of verification methodologies: UVM against the rest](res/trends/metodologia.svg)
+![Adoption of verification methodologies: UVM against the rest](res/trends/en/metodologia.svg)
 <!-- .element: class="grande" -->
 
 ---

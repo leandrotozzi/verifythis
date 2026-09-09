@@ -1,6 +1,6 @@
 // The first UVM test of the course. The five steps this class puts together
 // --registration, constructor, build_phase, run_phase and objections-- are
-// explained one by one in the slides of unit 11.
+// explained one by one in the slides of the tests section.
 // cb: class-head
 class random_test extends uvm_test;
    `uvm_component_utils(random_test);

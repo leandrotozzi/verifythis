@@ -145,7 +145,7 @@ between threads something else is needed.</p>
 </ul>
 </li>
 </ul>
-<p><img src="../../res/print/funs/dados.svg" alt="Two d6 and the histogram of their sums"></p>
+<p><img src="../../res/print/funs/en/dados.svg" alt="Two d6 and the histogram of their sums"></p>
 <div class="nota">
 <p>It is worth posing it as a programming problem before showing a single line: they
 are three consumers of the same piece of data, and each one does something
@@ -460,7 +460,7 @@ data subscribe. The producer <strong>does not keep the list</strong></li>
 <li>The property that buys everything: adding a fourth observer <strong>does not touch
 one line</strong> of the one producing</li>
 </ul>
-<p><img src="../../res/print/funs/observer-broadcast.svg" alt="One emitter publishes and N observers receive"></p>
+<p><img src="../../res/print/funs/en/observer-broadcast.svg" alt="One emitter publishes and N observers receive"></p>
 <div class="nota">
 <p>The analogy works better the other way round: the one who publishes does not know
 who reads them, and that is exactly the property you want in a monitor. Adding a
@@ -482,7 +482,7 @@ the noise of the protocol.</p>
 </ul>
 </li>
 </ul>
-<p><img src="../../res/print/diagrams/varios-objetos_ports.svg" alt="A uvm_analysis_port publishing towards several uvm_subscriber"></p>
+<p><img src="../../res/print/diagrams/en/varios-objetos_ports.svg" alt="A uvm_analysis_port publishing towards several uvm_subscriber"></p>
 <div class="nota">
 <p>The names cost a minute and save half an hour later: <strong>port</strong> is the end of the
 one producing, <strong>export</strong> the end of the one consuming, and the <code>connect()</code> is
@@ -605,7 +605,7 @@ And a detail that shows up in the output: here the coverage is read with
       <span class="hljs-keyword">end</span>
       phase.drop_objection(<span class="hljs-keyword">this</span>);
    <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 41 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Same as version 01, but publishing: instead of returning the number it writes</span>
-<span class="hljs-comment">// it to an analysis port, and stops knowing who reads it. Unit 15.</span>
+<span class="hljs-comment">// it to an analysis port, and stops knowing who reads it.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">dice_roller</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(dice_roller);
 
@@ -718,7 +718,7 @@ port: <code>ap.connect(sub_h.analysis_export)</code></li>
       dice_roller_h.roll_ap.connect(histogram_h.analysis_export);
       dice_roller_h.roll_ap.connect(average_h.analysis_export);
    <span class="hljs-keyword">endfunction</span> : connect_phase</code></pre><details><summary>el archivo entero, 30 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The structure of the example: it instantiates the four components and WIRES the</span>
-<span class="hljs-comment">// producer to the three observers. The run_phase is gone. Unit 15.</span>
+<span class="hljs-comment">// producer to the three observers. The run_phase is gone.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">dice_test</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_test</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(dice_test);
 
@@ -776,7 +776,7 @@ class and <strong>one</strong> line here. Not one in <code>dice_roller</code>.</
 <li>Each subscriber has an analysis_export object</li>
 <li>The connection between the two is made through the connect() method</li>
 </ul>
-<p><img src="../../res/print/diagrams/varios-objetos_spicy.svg" alt="The dice example wired up with analysis ports"></p>
+<p><img src="../../res/print/diagrams/en/varios-objetos_spicy.svg" alt="The dice example wired up with analysis ports"></p>
 <div class="nota">
 <p>It is the first TLM diagram of the course and it is worth teaching how to read it
 now, because the ones from the rest of the day and the one from the agents use
@@ -889,7 +889,7 @@ the section that follows the other one gets done.</p>
 <section id="s191" class="slide">
 <h2 id="a-single-place-that-watches-the-wire">A single place that watches the wire</h2>
 <h4 id="testbench-diagram"><em>Testbench diagram</em></h4>
-<p><img src="../../res/print/diagrams/analysis-ports_fig102.svg" alt="The VTALU TB with analysis ports"></p>
+<p><img src="../../res/print/diagrams/en/analysis-ports_fig102.svg" alt="The VTALU TB with analysis ports"></p>
 <p class="al-deck"><a href="../index.html#/191">see this slide in the deck &rsaquo;</a></p>
 </section>
 
@@ -965,7 +965,7 @@ keeps a handle to the class</strong> and it is the interface that calls the meth
    <span class="hljs-comment">// --- the protocol, in the BFM ---</span>
    <span class="hljs-comment">// Everything that knows HOW the DUT is talked to lives here, in one place:</span>
    <span class="hljs-comment">// the rest of the testbench asks for an operation and never touches a wire.</span>
-   <span class="hljs-comment">// That is the idea of unit 3, and it holds to the end of the course.</span>
+   <span class="hljs-comment">// That is the idea of the interfaces-and-BFM section, and it holds to the end of the course.</span>
 
    <span class="hljs-keyword">task</span> <span class="hljs-title">reset_alu</span>();
       reset_n = <span class="hljs-number">1&#x27;b0</span>;
@@ -1159,7 +1159,7 @@ raises <code>done</code></li>
    <span class="hljs-comment">// --- the protocol, in the BFM ---</span>
    <span class="hljs-comment">// Everything that knows HOW the DUT is talked to lives here, in one place:</span>
    <span class="hljs-comment">// the rest of the testbench asks for an operation and never touches a wire.</span>
-   <span class="hljs-comment">// That is the idea of unit 3, and it holds to the end of the course.</span>
+   <span class="hljs-comment">// That is the idea of the interfaces-and-BFM section, and it holds to the end of the course.</span>
 
    <span class="hljs-keyword">task</span> <span class="hljs-title">reset_alu</span>();
       reset_n = <span class="hljs-number">1&#x27;b0</span>;
@@ -2214,7 +2214,7 @@ written a single line of formatting.</p>
 <section id="s209" class="slide">
 <h2 id="when-somebody-has-to-wait">When somebody has to wait</h2>
 <h4 id="non-blocking-communication-the-timeline"><em>NON-blocking communication: the timeline</em></h4>
-<p><img src="../../res/print/diagrams/threads_nonblocking.svg" alt="try_get() returns 0 when the FIFO is empty"></p>
+<p><img src="../../res/print/diagrams/en/threads_nonblocking.svg" alt="try_get() returns 0 when the FIFO is empty"></p>
 <ul>
 <li>The producer puts a piece of data in every 17 ns and the consumer looks every
 14 ns: the clocks run differently, and on two edges the FIFO is empty</li>
@@ -2235,7 +2235,7 @@ with a clock that is a lost edge.</p>
 <section id="s210" class="slide">
 <h2 id="when-somebody-has-to-wait">When somebody has to wait</h2>
 <h4 id="how-tlm-diagrams-are-read"><em>How TLM diagrams are read</em></h4>
-<p><img src="../../res/print/diagrams/threads_fig124.svg" alt="Put port, TLM FIFO and get port between two threads"></p>
+<p><img src="../../res/print/diagrams/en/threads_fig124.svg" alt="Put port, TLM FIFO and get port between two threads"></p>
 <ul>
 <li>The convention holds for all the UVM material you are going to read afterwards:<ul>
 <li><em>Square:</em> put port / get port — the one that <strong>starts</strong> the call</li>
@@ -2417,7 +2417,7 @@ it is the only class of the testbench that has the right to write an
 <li>The result: one class decides <strong>what</strong> to send and another one knows <strong>how</strong> to
 send it, and between the two there is a FIFO instead of a method call</li>
 </ul>
-<p><img src="../../res/print/diagrams/put-get_fig125.svg" alt="The tester picks the stimulus and the driver applies it"></p>
+<p><img src="../../res/print/diagrams/en/put-get_fig125.svg" alt="The tester picks the stimulus and the driver applies it"></p>
 <div class="nota">
 <p>The box in the middle is the one to point at, because it is the one that
 surprises: between the tester and the driver <strong>there is no arrow</strong>. There is a

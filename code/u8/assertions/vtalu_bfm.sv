@@ -76,7 +76,7 @@ interface vtalu_bfm;
    // --- the protocol, in the BFM ---
    // Everything that knows HOW the DUT is talked to lives here, in one place:
    // the rest of the testbench asks for an operation and never touches a wire.
-   // That is the idea of unit 3, and it holds to the end of the course.
+   // That is the idea of the interfaces-and-BFM section, and it holds to the end of the course.
 
    task reset_alu();
       reset_n = 1'b0;
@@ -86,7 +86,7 @@ interface vtalu_bfm;
       start   = 1'b0;
    endtask : reset_alu
 
-   // NEW in unit 23: the fourth argument. The protocol did not change; the only
+   // NEW with the sequences: the fourth argument. The protocol did not change; the only
    // thing added is reading result on the edge where done is already up.
    bit bug_operandos;
    initial bug_operandos = $test$plusargs("BUG");
@@ -132,7 +132,7 @@ interface vtalu_bfm;
 
 
    // ==========================================================================
-   //  Unit 24 - the protocol, checked where it happens
+   //  The protocol, checked where it happens
    // ==========================================================================
    //
    // The properties live HERE, with the signals, and not in the testbench: they

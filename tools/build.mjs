@@ -168,7 +168,14 @@ let html = conUI.replace('<!--SLIDES-->', sections).replace('<!--INDICE-->', ind
 // bloque de codigo del curso contiene literalmente src="res/, sale mal.
 // Y no alcanza a data-machete, que es una lista separada por comas: ese lo
 // prefija el paint() del template con el {{base}} de arriba.
-if (OUT.base) html = html.replace(/(src|href)="(css|js|res|vendor)\//g, `$1="${OUT.base}$2/`);
+//
+// El segundo replace es por las figuras: adentro del <textarea> las slides las
+// escriben en markdown --![alt](res/...)--, que no es src="res/, asi que el
+// primer regex no las veia y el deck en ingles pedia en/res/... para TODAS sus
+// figuras. El libro no tenia el problema porque libro.mjs pasa el markdown a
+// HTML y despues reescribe el <img src>.
+if (OUT.base) html = html.replace(/(src|href)="(css|js|res|vendor)\//g, `$1="${OUT.base}$2/`)
+                         .replace(/\]\((css|js|res|vendor)\//g, `](${OUT.base}$1/`);
 // Pandoc no entiende el "Note:" de reveal: sin esto las notas del presentador
 // saldrian como texto en el cuerpo de la slide del .pptx. El fenced div
 // ::: notes es lo que pandoc manda a las notas del orador.

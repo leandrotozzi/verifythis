@@ -1,5 +1,5 @@
 <!-- es-sha: 4a71e1803167 -->
-<!-- .slide: id="glosario" data-machete="res/uvm_class_diagram.svg,res/diagrams/sequences_tb_completo.svg" -->
+<!-- .slide: id="glosario" data-machete="res/uvm_class_diagram.svg,res/diagrams/en/sequences_tb_completo.svg" -->
 
 ## Glossary · the words of the trade
 

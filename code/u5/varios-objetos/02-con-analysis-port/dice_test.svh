@@ -1,5 +1,5 @@
 // The structure of the example: it instantiates the four components and WIRES the
-// producer to the three observers. The run_phase is gone. Unit 15.
+// producer to the three observers. The run_phase is gone.
 class dice_test extends uvm_test;
    `uvm_component_utils(dice_test);
 

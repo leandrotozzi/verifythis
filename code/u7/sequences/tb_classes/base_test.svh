@@ -1,4 +1,4 @@
-// The dual_test of unit 22, without the run_phase: the structure is identical and
+// The dual_test of the agents section, without the run_phase: the structure is identical and
 // the only thing that changes between one test and the next is the STIMULUS.
 //
 // Abstract: nobody runs +UVM_TESTNAME=base_test. uvm_component_abstract_utils

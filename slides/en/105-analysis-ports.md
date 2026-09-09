@@ -64,7 +64,7 @@ the section that follows the other one gets done.
 
 #### *Testbench diagram*
 
-![The VTALU TB with analysis ports](res/diagrams/analysis-ports_fig102.svg)
+![The VTALU TB with analysis ports](res/diagrams/en/analysis-ports_fig102.svg)
 <!-- .element: class="grande" -->
 
 ---

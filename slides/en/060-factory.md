@@ -50,7 +50,7 @@ that we invented nothing.
 
 ## The factory pattern
 
-![UML Class Example Diagram](res/diagrams/factory_diagram.svg)
+![UML Class Example Diagram](res/diagrams/en/factory_diagram.svg)
 <!-- .element: class="grande" -->
 
 <br>

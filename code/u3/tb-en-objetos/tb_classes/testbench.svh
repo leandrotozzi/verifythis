@@ -2,7 +2,7 @@ class testbench;
 
    // virtual: the object-world equivalent of a module's port list. It tells
    // the compiler that this variable is going to receive a handle to an
-   // interface at some point in the future. See the slide in unit 10.
+   // interface at some point in the future. See the slide in the TB-in-objects section.
    virtual vtalu_bfm bfm;
 
    tester    tester_h;

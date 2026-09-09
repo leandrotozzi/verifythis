@@ -22,7 +22,7 @@ class un_op_sequence extends uvm_sequence #(command_transaction);
       command.op = op;
       finish_item(command);
       // finish_item() returns after the driver's item_done(), so result is
-      // already written. It is the way back of unit 23.
+      // already written. It is the way back the sequences added.
       result = command.result;
    endtask : body
 

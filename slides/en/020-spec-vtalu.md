@@ -1,7 +1,7 @@
 <!-- es-sha: d339e0e31c8e -->
 ## The VTALU spec
 
-![ALU waveform](res/diagrams/wave-dut.svg)
+![ALU waveform](res/diagrams/en/wave-dut.svg)
 <!-- .element: class="grande" -->
 
 - *start* has to stay at 1 and the operands stable until  

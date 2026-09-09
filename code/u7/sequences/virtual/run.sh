@@ -1,5 +1,5 @@
 #!/bin/bash
-# Virtual sequences -- unit 23, with BOTH agents driving.
+# Virtual sequences, with BOTH agents driving.
 #
 # The testbench is the whole one from the Sequences section: the +incdir below bring it in by
 # reference and this directory only puts in what changes. See docs/verilator.md.

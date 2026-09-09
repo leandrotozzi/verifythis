@@ -3,7 +3,7 @@
 
 #### *A `trago` variable, a `fernet` object: which `servir()` runs?*
 
-![UML diagram of the trago classes](res/diagrams/uml-poli.svg)
+![UML diagram of the trago classes](res/diagrams/en/uml-poli.svg)
 <!-- .element: class="grande" -->
 
 - A `fernet` **is** a `trago`, so storing it in a `trago` variable

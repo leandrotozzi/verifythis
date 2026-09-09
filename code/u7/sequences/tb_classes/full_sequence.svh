@@ -1,4 +1,4 @@
-// The command_sequence of unit 22, split into three pieces that can now be
+// The command_sequence of the agents section, split into three pieces that can now be
 // combined at will. This sequence sends no item of its own: it only
 // starts the other ones.
 class full_sequence extends uvm_sequence #(command_transaction);

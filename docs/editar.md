@@ -143,6 +143,31 @@ Un párrafo que aparece después
 <!-- .element: class="fragment" -->
 ```
 
+### Una figura con texto son dos archivos
+
+`code/` y `res/` no se duplican por idioma —el código es uno solo— **salvo las
+figuras que tienen texto adentro**, que son casi todas. Un SVG es un documento
+aparte: no lo alcanza ni el CSS de la página ni `tools/i18n.mjs`, así que la
+única forma de que el deck en castellano no muestre una figura en inglés es
+tener las dos.
+
+| | Castellano | Inglés |
+|:--|:--|:--|
+| Diagramas | `res/diagrams/X.svg` | `res/diagrams/en/X.svg` |
+| Figuras sueltas | `res/funs/X.svg` | `res/funs/en/X.svg` |
+| Tendencias (generadas) | `res/trends/X.svg` | `res/trends/en/X.svg` |
+
+`slides/es/` apunta a la primera columna y `slides/en/` a la segunda; el resto
+de `res/` (el machete, los diagramas de clases de UVM) no tiene prosa y se
+comparte. Las de tendencias **no se editan a mano**: salen de
+`res/trends/data.json`, donde cada texto va como `{"es": ..., "en": ...}` al
+lado del número —que es uno solo, para que las dos versiones no puedan decir
+porcentajes distintos—, y `make figs` escribe las dos.
+
+Lo que se descartó: `<switch systemLanguage>` adentro de un solo SVG. Elige por
+el idioma del **navegador**, no por el del deck, así que el curso en castellano
+abierto en una máquina configurada en inglés mostraría las figuras en inglés.
+
 ### Después de editar
 
 ```sh
@@ -276,7 +301,9 @@ code/             ejemplos SystemVerilog, un directorio por sección
 docs/             verilator.md (qué anda y qué no), docker.md, el plan de
                   verificación —las cinco columnas, el del VTALU y la
                   plantilla—, para-docentes.md y banco-de-examen.md (GENERADO)
-res/              imágenes, diagramas y las figuras de tendencias (generadas)
+res/              imágenes, diagramas y las figuras de tendencias (generadas).
+                  Las que tienen texto van dos veces: res/<X>.svg en castellano
+                  y res/<X>/en/ en inglés
 css/              tema del curso + fuentes vendorizadas
   code.css        tema de los bloques de código (reemplaza a monokai)
 tools/
@@ -298,7 +325,7 @@ tools/
                   del inventario contra el filesystem
   regresion.sh    N semillas + merge de cobertura
   regresion.mjs   el reporte HTML, con los bins que quedaron abiertos
-  trends.mjs      res/trends/data.json  →  res/trends/*.svg
+  trends.mjs      res/trends/data.json  →  res/trends/*.svg + res/trends/en/
   vendor.mjs      vendoriza reveal.js desde node_modules
   hljs-slim.mjs   los 6 lenguajes del deck, en vez de los ~190 de highlight.js
   hljs-sv.mjs     gramática propia de SystemVerilog + UVM (hljs no trae una)

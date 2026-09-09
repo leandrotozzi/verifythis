@@ -1,5 +1,5 @@
 // Same as version 01, but publishing: instead of returning the number it writes
-// it to an analysis port, and stops knowing who reads it. Unit 15.
+// it to an analysis port, and stops knowing who reads it.
 class dice_roller extends uvm_component;
    `uvm_component_utils(dice_roller);
 

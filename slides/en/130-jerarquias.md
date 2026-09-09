@@ -51,7 +51,7 @@ In OOP, instead of copying code...
 
 #### *`convert2string()`: the problem*
 
-![The four levels of the hierarchy](res/diagrams/jerarquias_convert2string.svg)
+![The four levels of the hierarchy](res/diagrams/en/jerarquias_convert2string.svg)
 <!-- .element: class="grande" -->
 
 - The hierarchy goes from the general to the particular, and each class adds
@@ -80,7 +80,7 @@ The method still returns a string.
 
 #### *`convert2string()`: the deep version*
 
-![The deep copy, level by level](res/diagrams/jerarquias_convert2string_deep.svg)
+![The deep copy, level by level](res/diagrams/en/jerarquias_convert2string_deep.svg)
 <!-- .element: class="grande" -->
 
 - The day somebody puts a class **in the middle**, the ones below go on printing

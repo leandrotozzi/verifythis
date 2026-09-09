@@ -72,7 +72,7 @@ it is the only class of the testbench that has the right to write an
 - The result: one class decides **what** to send and another one knows **how** to
   send it, and between the two there is a FIFO instead of a method call
 
-![The tester picks the stimulus and the driver applies it](res/diagrams/put-get_fig125.svg)
+![The tester picks the stimulus and the driver applies it](res/diagrams/en/put-get_fig125.svg)
 <!-- .element: class="grande" -->
 
 Note:

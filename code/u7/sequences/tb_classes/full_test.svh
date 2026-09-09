@@ -1,4 +1,4 @@
-// Same stimulus as the dual_test of unit 22, now in three sequences.
+// Same stimulus as the dual_test of the agents section, now in three sequences.
 class full_test extends base_test;
    `uvm_component_utils(full_test)
 

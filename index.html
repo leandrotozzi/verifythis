@@ -3551,7 +3551,7 @@ class testbench;
 
    // virtual: the object-world equivalent of a module's port list. It tells
    // the compiler that this variable is going to receive a handle to an
-   // interface at some point in the future. See the slide in unit 10.
+   // interface at some point in the future. See the slide in the TB-in-objects section.
    virtual vtalu_bfm bfm;
 
    tester    tester_h;
@@ -4620,8 +4620,8 @@ haya tenido que escribir un `uvm_event` ni una bandera compartida.
 #### *El scoreboard, ahora como component*
 
 ```sv
-// The scoreboard of unit 10, now as a uvm_component. The four steps
-// --extend, register, constructor, phases-- are in the slides of unit 12.
+// The scoreboard of the TB in objects, now as a uvm_component. The four steps
+// --extend, register, constructor, phases-- are in the slides of the components section.
 class scoreboard extends uvm_component;
    `uvm_component_utils(scoreboard);
 
@@ -4715,7 +4715,7 @@ pero conviene sembrarlo.
 
 ```sv
 // add_test extends random_test, redeclares tester_h with another type and
-// REWRITES the whole build_phase. That duplication is the problem unit 13 solves
+// REWRITES the whole build_phase. That duplication is the problem the env section solves
 // with the factory override.
 
 class add_test extends random_test;
@@ -5076,7 +5076,7 @@ tantos como tests hubiera.
 
 ```sv
 // The structure of the TB, and nothing else: it instantiates the components and
-// connects them. Which tester arrives is the test's call, with a factory override. Unit 13.
+// connects them. Which tester arrives is the test's call, with a factory override.
 class env extends uvm_env;
    `uvm_component_utils(env);
 
@@ -10478,7 +10478,7 @@ seq.start(env_h.clase_agent_h.sequencer_h);
       phase.raise_objection(this);
 
       // The only thing left wired by hand: the test reaches across the
-      // hierarchy to get to the sequencer. Unit 23 takes it out of here.
+      // hierarchy to get to the sequencer. The sequences section takes it out of here.
       seq = command_sequence::type_id::create("seq");
       seq.start(env_h.clase_agent_h.sequencer_h);
 
@@ -14929,10 +14929,13 @@ apareciendo donde nadie lo esperaba.
       // res/print/ tiene las mismas en paleta clara (tools/figs-print.mjs). No
       // alcanza con CSS: un <img> a un SVG externo es otro documento y no lo
       // toca el estilo de esta pagina.
+      // El (^|\.\./) es por el deck en ingles, que vive en en/ y pide ../res/:
+      // con un ^res/ pelado no matcheaba ninguna figura y el PDF en ingles salia
+      // con las figuras del tema oscuro sobre papel blanco.
       const figurasClaras = claro => document.querySelectorAll('.reveal img[src$=".svg"]')
         .forEach(img => img.setAttribute('src', claro
-          ? img.getAttribute('src').replace(/^res\//, 'res/print/')
-          : img.getAttribute('src').replace(/^res\/print\//, 'res/')));
+          ? img.getAttribute('src').replace(/(^|\.\.\/)res\//, '$1res/print/')
+          : img.getAttribute('src').replace(/(^|\.\.\/)res\/print\//, '$1res/')));
 
       if (/print-pdf/gi.test(window.location.search)) {
         figurasClaras(true);   // antes de esperar las imagenes, que es lo que sigue

@@ -4,7 +4,7 @@ class command_transaction extends uvm_sequence_item;
    rand byte unsigned B;
    rand operation_t   op;
 
-   // NEW in unit 23 -- the way back. It is not rand: the stimulus does not pick
+   // NEW with the sequences -- the way back. It is not rand: the stimulus does not pick
    // it, the DRIVER writes it before calling item_done(), and the sequence reads
    // it when finish_item() returns. It is the only agreed exception to MOOCOW in
    // the whole testbench.

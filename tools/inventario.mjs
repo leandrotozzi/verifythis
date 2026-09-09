@@ -60,7 +60,11 @@ export async function inventario() {
   const dias = (await readdir('libro')).filter(f => /^dia\d+\.html$/.test(f)).length;
 
   // --- figuras: las que figs-print.mjs regenera en paleta clara para el PDF ---
-  const figuras = (await archivos('res/print')).filter(f => f.endsWith('.svg')).length;
+  // Sin las de res/**/en/: son las MISMAS figuras con el texto traducido, no
+  // figuras nuevas. Se cuentan una vez, como las slides -- que tambien salen
+  // del arbol ES y no se cuentan dos veces por estar traducidas.
+  const figuras = (await archivos('res/print'))
+    .filter(f => f.endsWith('.svg') && !f.includes('/en/')).length;
 
   // --- bloques de codigo del deck: los ```...``` de las slides, contando
   // tambien los que build.mjs expande desde {{code:}} ---

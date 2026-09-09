@@ -207,7 +207,7 @@ written a single line of formatting.
 
 #### *NON-blocking communication: the timeline*
 
-![try_get() returns 0 when the FIFO is empty](res/diagrams/threads_nonblocking.svg)
+![try_get() returns 0 when the FIFO is empty](res/diagrams/en/threads_nonblocking.svg)
 <!-- .element: class="grande" -->
 
 - The producer puts a piece of data in every 17 ns and the consumer looks every
@@ -229,7 +229,7 @@ with a clock that is a lost edge.
 
 #### *How TLM diagrams are read*
 
-![Put port, TLM FIFO and get port between two threads](res/diagrams/threads_fig124.svg)
+![Put port, TLM FIFO and get port between two threads](res/diagrams/en/threads_fig124.svg)
 <!-- .element: class="grande" -->
 
 - The convention holds for all the UVM material you are going to read afterwards:

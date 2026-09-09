@@ -1,5 +1,5 @@
 // The APB interface: the pins, the clock, the protocol and the monitor hook.
-// It is unit 3 applied to a real bus -- everything that knows HOW the DUT is
+// It is the same idea applied to a real bus -- everything that knows HOW the DUT is
 // talked to lives here, in one place.
 interface apb_if;
    import apb_pkg::*;

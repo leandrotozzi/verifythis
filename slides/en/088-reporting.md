@@ -226,7 +226,7 @@ so at least you can notice. It is the kind of thing you pay for once and remembe
 - It is the same tree the prefix of each message comes out of, and the same one the
   `uvm_config_db` uses as a scope
 
-![Instance hierarchy and where the prefix of the messages comes from](res/diagrams/UVM-hierarchy.svg)
+![Instance hierarchy and where the prefix of the messages comes from](res/diagrams/en/UVM-hierarchy.svg)
 <!-- .element: class="grande" -->
 
 Note:

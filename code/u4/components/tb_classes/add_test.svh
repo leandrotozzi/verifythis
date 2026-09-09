@@ -1,5 +1,5 @@
 // add_test extends random_test, redeclares tester_h with another type and
-// REWRITES the whole build_phase. That duplication is the problem unit 13 solves
+// REWRITES the whole build_phase. That duplication is the problem the env section solves
 // with the factory override.
 
 class add_test extends random_test;

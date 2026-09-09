@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 672" font-family="IBM Plex Sans, system-ui, sans-serif">
+<title>Inside a uvm_agent: sequencer, driver, monitors and the analysis ports it exposes</title>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#5b6b7a"/>
+  </marker>
+  <marker id="a-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#b0761d"/>
+  </marker>
+</defs>
+
+<!-- la sequence: NO es parte del agent, la arranca el test -->
+<rect x="48" y="12" width="306" height="62" rx="4" fill="#b0761d" fill-opacity="0.12" stroke="#b0761d" stroke-width="2"/>
+<text x="201" y="40" fill="#b0761d" font-size="21" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">command_sequence</text>
+<text x="201" y="63" fill="#5a6068" font-size="15" text-anchor="middle">uvm_object — does not live inside the agent</text>
+<path d="M201,74 V166" fill="none" stroke="#b0761d" stroke-width="2" marker-end="url(#a-acc)"/>
+<text x="214" y="112" fill="#5a6068" font-size="16" font-family="IBM Plex Mono, ui-monospace, monospace">seq.start(sequencer_h)</text>
+
+<!-- el agent -->
+<rect x="30" y="120" width="700" height="380" rx="6" fill="none" stroke="#b0761d" stroke-width="2"/>
+<text x="48" y="482" fill="#b0761d" font-size="21" font-family="IBM Plex Mono, ui-monospace, monospace">vtalu_agent</text>
+<text x="210" y="482" fill="#5a6068" font-size="16">uvm_agent — one instance per interface</text>
+
+<!-- columna de estimulo, condicional -->
+<rect x="54" y="150" width="300" height="320" rx="6" fill="none" stroke="#d0d3d8" stroke-width="2" stroke-dasharray="7 6"/>
+<text x="54" y="142" fill="#5a6068" font-size="15">only if is_active == UVM_ACTIVE</text>
+
+<rect x="76" y="176" width="250" height="76" rx="4" fill="#16181d" opacity="0.06"/>
+<rect x="76" y="176" width="250" height="76" rx="4" fill="none" stroke="#5b6b7a" stroke-width="2"/>
+<text x="201" y="209" fill="#16181d" font-size="21" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">sequencer_h</text>
+<text x="201" y="234" fill="#5a6068" font-size="15" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">uvm_sequencer</text>
+
+<rect x="76" y="356" width="250" height="76" rx="4" fill="#16181d" opacity="0.06"/>
+<rect x="76" y="356" width="250" height="76" rx="4" fill="none" stroke="#5b6b7a" stroke-width="2"/>
+<text x="201" y="389" fill="#16181d" font-size="21" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">driver_h</text>
+<text x="201" y="414" fill="#5a6068" font-size="15" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">uvm_driver</text>
+
+<circle cx="201" cy="252" r="9" fill="#b0761d"/>
+<rect x="190" y="345" width="22" height="22" fill="#5b6b7a"/>
+<path d="M201,341 L201,267" fill="none" stroke="#5b6b7a" stroke-width="2" marker-end="url(#a)"/>
+<text x="216" y="274" fill="#5a6068" font-size="14" font-family="IBM Plex Mono, ui-monospace, monospace">seq_item_export</text>
+<text x="216" y="306" fill="#b0761d" font-size="15" font-family="IBM Plex Mono, ui-monospace, monospace">get_next_item()</text>
+<text x="216" y="328" fill="#b0761d" font-size="15" font-family="IBM Plex Mono, ui-monospace, monospace">item_done()</text>
+<text x="216" y="360" fill="#5a6068" font-size="14" font-family="IBM Plex Mono, ui-monospace, monospace">seq_item_port</text>
+
+<path d="M201,432 V532" fill="none" stroke="#5b6b7a" stroke-width="2" marker-end="url(#a)"/>
+<text x="214" y="522" fill="#5a6068" font-size="16" font-family="IBM Plex Mono, ui-monospace, monospace">send_op()</text>
+
+<!-- columna de monitoreo, siempre -->
+<rect x="420" y="176" width="280" height="76" rx="4" fill="#16181d" opacity="0.06"/>
+<rect x="420" y="176" width="280" height="76" rx="4" fill="none" stroke="#5b6b7a" stroke-width="2"/>
+<text x="560" y="209" fill="#16181d" font-size="19" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">command_monitor_h</text>
+<text x="560" y="234" fill="#5a6068" font-size="15" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">uvm_monitor</text>
+
+<rect x="420" y="356" width="280" height="76" rx="4" fill="#16181d" opacity="0.06"/>
+<rect x="420" y="356" width="280" height="76" rx="4" fill="none" stroke="#5b6b7a" stroke-width="2"/>
+<text x="560" y="389" fill="#16181d" font-size="19" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">result_monitor_h</text>
+<text x="560" y="414" fill="#5a6068" font-size="15" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">uvm_monitor</text>
+
+<!-- la BFM llama a los monitores -->
+<path d="M390,532 V214 L411,214" fill="none" stroke="#5b6b7a" stroke-width="2" marker-end="url(#a)"/>
+<path d="M560,532 V441" fill="none" stroke="#5b6b7a" stroke-width="2" marker-end="url(#a)"/>
+<text x="398" y="522" fill="#5a6068" font-size="16" font-family="IBM Plex Mono, ui-monospace, monospace">write_to_monitor()</text>
+
+<!-- los analysis ports que el agent expone -->
+<path d="M700,214 L719,214" fill="none" stroke="#b0761d" stroke-width="2"/>
+<path d="M700,394 L719,394" fill="none" stroke="#b0761d" stroke-width="2"/>
+<path d="M700,203 L711,214 L700,225 L689,214 z" fill="#b0761d"/>
+<path d="M700,383 L711,394 L700,405 L689,394 z" fill="#b0761d"/>
+<path d="M730,203 L741,214 L730,225 L719,214 z" fill="#b0761d"/>
+<path d="M730,383 L741,394 L730,405 L719,394 z" fill="#b0761d"/>
+<text x="684" y="272" fill="#b0761d" font-size="15" text-anchor="end" font-family="IBM Plex Mono, ui-monospace, monospace">ap</text>
+<text x="684" y="452" fill="#b0761d" font-size="15" text-anchor="end" font-family="IBM Plex Mono, ui-monospace, monospace">ap</text>
+<text x="750" y="209" fill="#b0761d" font-size="16" font-family="IBM Plex Mono, ui-monospace, monospace">command_ap</text>
+<text x="750" y="232" fill="#5a6068" font-size="15">to the env →</text>
+<text x="750" y="389" fill="#b0761d" font-size="16" font-family="IBM Plex Mono, ui-monospace, monospace">result_ap</text>
+<text x="750" y="412" fill="#5a6068" font-size="15">to the env →</text>
+
+<!-- la BFM -->
+<rect x="30" y="536" width="840" height="52" rx="4" fill="#16181d" opacity="0.06"/>
+<rect x="30" y="536" width="840" height="52" rx="4" fill="none" stroke="#5b6b7a" stroke-width="2"/>
+<text x="450" y="569" fill="#16181d" font-size="24" text-anchor="middle" font-family="IBM Plex Mono, ui-monospace, monospace">vtalu_bfm</text>
+
+<!-- notacion -->
+<rect x="40" y="614" width="20" height="20" fill="#5b6b7a"/>
+<text x="72" y="631" fill="#5a6068" font-size="16" font-family="IBM Plex Mono, ui-monospace, monospace">port</text>
+<circle cx="184" cy="624" r="9" fill="#b0761d"/>
+<text x="204" y="631" fill="#5a6068" font-size="16" font-family="IBM Plex Mono, ui-monospace, monospace">export</text>
+<path d="M340,613 L351,624 L340,635 L329,624 z" fill="#b0761d"/>
+<text x="364" y="631" fill="#5a6068" font-size="16" font-family="IBM Plex Mono, ui-monospace, monospace">analysis_port</text>
+<text x="540" y="631" fill="#5a6068" font-size="16">The scoreboard and the coverage live in the env, hanging off those two diamonds.</text>
+</svg>

@@ -11,7 +11,7 @@
 #   make uvm        baja UVM 2020.3.1 a code/.uvm/ (se hace solo si hace falta)
 #   make ejercicios corre las SOLUCIONES de code/ejercicios/ (lento: once usan UVM)
 #   make regresion  el mismo test con N semillas + merge de cobertura + reporte HTML
-#   make figs       regenera las figuras de tendencias (res/trends/*.svg)
+#   make figs       regenera las figuras de tendencias (res/trends/, es + en)
 #   make machete    res/machete.html -> docs/machete-uvm.pdf (una carilla, A4)
 #   make deck       regenera index.html y en/index.html desde slides/
 #   make check      lo obligatorio antes de commitear: build --check + overflow

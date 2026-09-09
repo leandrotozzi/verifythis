@@ -1,6 +1,6 @@
 // The exercise, already written. There is no need to touch it.
 //
-// It starts the stimulus in three stretches, which is the shape of unit 23:
+// It starts the stimulus in three stretches, which is the shape of the sequences section:
 //
 //   1. reset_sequence           the DUT starts with reset_n at 0
 //   2. random_sequence          the "cheap bulk": COUNT random operations

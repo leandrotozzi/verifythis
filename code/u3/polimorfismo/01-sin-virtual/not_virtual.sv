@@ -1,4 +1,4 @@
-// Basic polymorphism, WITHOUT virtual: the case that fails. See unit 6.
+// Basic polymorphism, WITHOUT virtual: the case that fails. See the polymorphism section.
 // cb: three-classes
 class trago;
    int hielos = -1;

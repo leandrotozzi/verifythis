@@ -1,5 +1,5 @@
 // The structure of the TB, and nothing else: it instantiates the components and
-// connects them. Which tester arrives is the test's call, with a factory override. Unit 13.
+// connects them. Which tester arrives is the test's call, with a factory override.
 class env extends uvm_env;
    `uvm_component_utils(env);
 

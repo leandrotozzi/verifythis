@@ -36,7 +36,7 @@ classes*.
 
 #### *An object, not a component*
 
-![The sequence lives outside the component tree; the sequencer, inside](res/diagrams/sequences_donde_vive.svg)
+![The sequence lives outside the component tree; the sequencer, inside](res/diagrams/en/sequences_donde_vive.svg)
 <!-- .element: class="grande" -->
 
 - The `uvm_sequencer` is a `uvm_component`: **it is in the tree**, it has a parent,
@@ -101,7 +101,7 @@ in class by deleting the `reset_sequence` from `full_sequence`.
 
 #### *The handshake, now from the sequence side*
 
-![Timeline of start_item, get_next_item, item_done and finish_item](res/diagrams/sequences_handshake.svg)
+![Timeline of start_item, get_next_item, item_done and finish_item](res/diagrams/en/sequences_handshake.svg)
 <!-- .element: class="grande" -->
 
 - The same four calls as the agents, looking at the other lane:
@@ -266,7 +266,7 @@ test is cheap; what is expensive is the random, and that is why it runs at night
 
 #### *Sequences that call sequences*
 
-![full_sequence starting three sub-sequences on the same sequencer](res/diagrams/sequences_subsequences.svg)
+![full_sequence starting three sub-sequences on the same sequencer](res/diagrams/en/sequences_subsequences.svg)
 <!-- .element: class="grande" -->
 
 - A sequence can start others: it is the way of composing stimulus without
@@ -703,7 +703,7 @@ is exactly what one wants.
 
 #### *The testbench, complete*
 
-![The final testbench: sequences, agent, sequencer, driver, monitors and the analysis layer](res/diagrams/sequences_tb_completo.svg)
+![The final testbench: sequences, agent, sequencer, driver, monitors and the analysis layer](res/diagrams/en/sequences_tb_completo.svg)
 <!-- .element: class="grande" -->
 
 - It is the diagram drawn today in any verification project, with the
