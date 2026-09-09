@@ -1,4 +1,4 @@
-<!-- es-sha: 3d38d9648445 -->
+<!-- es-sha: 7113e5aebd65 -->
 # For teachers
 
 *Verify This!* is written as **seven days of class** —plus an **optional day
@@ -6,7 +6,7 @@
 how a university subject is. This page maps it onto a **15-week term**, says
 what can be dropped, and what to assess in each midterm.
 
-Everything you need is already in the repository and marks itself: the **15
+Everything you need is already in the repository and marks itself: the **18
 solutions** (`make ejercicios`), the **bank of 58 questions**
 ([`exam-bank.md`](exam-bank.md)), the capstone with its stage-by-stage marker,
 and the **self-assessment rubric** at the end of day 7.
@@ -50,13 +50,14 @@ code by hand until the capstone.
 | 8 | **Midterm 1** (1 h) + **U4** · Tests | — |
 | 9 | **U4** · Components and phases · The env | [`d3`](../../code/ejercicios/d3/) — a factory override without touching the `env` |
 | 10 | **U4** · Reporting · **U5** · One producer, many listeners | [`d4`](../../code/ejercicios/d4/) — one more subscriber |
+| 10b | **U5** · Who waits for whom · `fork` and family | [`d4b`](../../code/ejercicios/d4b/) — the `#500` is a patch |
 | 11 | **U5** · A single place that watches the wire · Who waits for whom | [`d5`](../../code/ejercicios/d5/) — the scoreboard shouts and the DUT is healthy |
 | 12 | **U6** · Copying an object that holds another · Transactions | [`d5b`](../../code/ejercicios/d5b/) — measure your `dist` |
 | 13 | **U6** · Constrained random + **Midterm 2** (1 h) | [`d6-bins`](../../code/ejercicios/d6-bins/) — closing a directed bin |
-| 14 | **U7** · Agents · Sequences — and *Callbacks* and *Virtual sequences* if they fit, which are the first two on the list of cuts | [`d6-agents`](../../code/ejercicios/d6-agents/) · [`d6-sequences`](../../code/ejercicios/d6-sequences/) · [`d6-semillas`](../../code/ejercicios/d6-semillas/) with `make regresion` |
+| 14 | **U7** · Agents · Sequences — and *Callbacks* and *Virtual sequences* if they fit, which are the first two on the list of cuts | [`d6-agents`](../../code/ejercicios/d6-agents/) · [`d6-sequences`](../../code/ejercicios/d6-sequences/) · [`d6-semillas`](../../code/ejercicios/d6-semillas/) with `make regresion` · [`d6-debug`](../../code/ejercicios/d6-debug/) — three planted bugs |
 | 15 | **U8** · Assertions (SVA) | [`d7-sva`](../../code/ejercicios/d7-sva/) · **capstone kick-off** |
 | — | *(exam period)* | **Capstone**: [`d7-final`](../../code/ejercicios/d7-final/) |
-| + | **Day 8** *(optional)* · **U9** · RAL · DPI · the second capstone — outside the 15 weeks | [`d8-ral`](../../code/ejercicios/d8-ral/) — the register map · [`d8-fifo`](../../code/ejercicios/d8-fifo/) — the second capstone |
+| + | **Day 8** *(optional)* · **U9** · RAL · DPI · the second capstone — outside the 15 weeks | [`d8-ral`](../../code/ejercicios/d8-ral/) — the register map · [`d8-dpi`](../../code/ejercicios/d8-dpi/) — the model in C · [`d8-fifo`](../../code/ejercicios/d8-fifo/) — the second capstone |
 
 **Day 8** is the row left over on purpose. It does not fit in a 15-week term and
 the course does not need it to close: it is there for the group that arrives
@@ -148,9 +149,16 @@ comes out of running `bash run.sh` and reading how far it got:
 |:--:|---|--:|
 | **1** · Monitor | A passive agent that reconstructs transfers by watching the bus, with no driver | 20 % |
 | **2** · Driver | The protocol inside the interface, with its *wait state*, and a directed sequence | 25 % |
-| **3** · Scoreboard | The DUT modelled in software. It is run twice: against the healthy DUT it has to stay quiet, and with `+BUG=1` it has to **shout** | 30 % |
-| **4** · Coverage | The covergroup comes out of the seven rows of the verification plan in the spec: > 20 points, 90 % covered | 15 % |
-| — | **The verification plan handed in**, with its five columns | 10 % |
+| **3** · Scoreboard | The DUT modelled in software. It is run twice: against the healthy DUT it has to stay quiet, and with `+BUG=1` it has to **shout** | 25 % |
+| **4** · Coverage | The covergroup comes out of the nine rows of the verification plan in the spec: > 20 points, 90 % covered, and the `back_to_back` and `unaligned` bins filled | 15 % |
+| **5** · Properties | The APB protocol inside `apb_if.sv`, compiled with `--assert`. With `+BUG=2` the ordinary module moves `PADDR` in the middle of ACCESS: the monitor sees eight spotless transfers and the only one that notices is the assertion | 10 % |
+| — | **The two missing rows of the plan**, written by the student | 5 % |
+
+**Rows 8 and 9 of the plan come empty** in `spec.md` and the student writes them:
+they are the two things the spec promises on a loose line —`PSEL` can stay high
+between two transfers, and `PADDR[1:0]` is ignored— and that none of the seven
+rows above measures. Row 9 also trips up the scoreboard that decodes with the
+whole address.
 
 Stage 3 is the one that sorts people out. A scoreboard that never saw an error
 is not tested: `+BUG=1` removes the `CTRL.EN` gate from the DUT, and a model
@@ -180,7 +188,7 @@ and the three that get the most hands up are the ones to go over again.
 ## What marks itself
 
 ```sh
-make ejercicios     # runs the 15 SOLUTIONS: checks that they are still solvable
+make ejercicios     # runs the 18 SOLUTIONS: checks that they are still solvable
 make regresion      # N seeds + coverage merge + HTML report of open bins
 npm run check       # the exam bank and the deck, in sync with slides/
 ```

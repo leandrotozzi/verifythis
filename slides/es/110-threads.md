@@ -239,6 +239,147 @@ El rombo es el caso especial que ya vieron: un analysis port puede apuntar a
 muchos círculos a la vez, y por eso se dibuja distinto. Los otros dos son uno a
 uno.
 
+
+---
+
+## Cuando alguien tiene que esperar
+
+#### *`fork`: las tres formas de arrancar en paralelo*
+
+```systemverilog
+fork  esperar_done();  contar_ciclos();  join        // sigue cuando terminaron LAS DOS
+fork  esperar_done();  contar_ciclos();  join_any    // sigue con LA PRIMERA; la otra sigue viva
+fork  esperar_done();  contar_ciclos();  join_none   // sigue YA; las dos quedan corriendo
+```
+
+| Variante | El padre sigue… | Para qué se usa |
+| --- | --- | --- |
+| `join` | cuando terminan **todas** | dos chequeos que tienen que cerrar los dos |
+| `join_any` | cuando termina **la primera** | respuesta contra timeout |
+| `join_none` | **enseguida** | lanzar threads que viven todo el test |
+
+- La diferencia entre las tres no es cómo arrancan —las tres arrancan todo a la
+  vez— sino **cuándo sigue el que las arrancó**
+- `join_none` ya lo usaron: es el `fork` de la clase `testbench` del día 2, y es
+  lo que UVM hace sola con un `run_phase()` por componente
+- La rama que quedó viva después de un `join_any` **no se muere sola**. Sigue
+  hasta que termine — o hasta que alguien la mate, que es la slide siguiente
+
+Note:
+Es la unidad que se llama *threads* y hasta acá los threads los puso UVM. Esta
+slide y las dos siguientes son las tres palabras del lenguaje con las que se
+escribe cualquier monitor o driver de producción, y las tres entran en una tabla.
+El punto que conviene repetir, porque es donde todo el mundo se confunde la
+primera vez: **las tres arrancan igual**. Los procesos del `fork` se lanzan todos
+en el mismo instante en las tres variantes. Lo único que cambia es qué hace el
+proceso padre inmediatamente después, y por eso la columna del medio es la que
+hay que leer.
+Un ejemplo por variante alcanza para que se fije. `join`: mandar el estímulo y
+contar los ciclos, y no seguir hasta que las dos terminen. `join_any`: esperar la
+respuesta del DUT **o** que venza un timeout, lo que pase primero. `join_none`:
+el `run_phase` del monitor, que arranca y se queda mirando para siempre mientras
+el resto del testbench sigue.
+Y el enganche con el día 2, que conviene hacer explícito: la clase `testbench`
+escrita a mano usaba `fork ... join_none` para arrancar los tres objetos. No era
+una casualidad ni un truco — es exactamente lo que hace UVM cuando corre la
+`run_phase` de cien componentes a la vez.
+
+
+---
+
+## Cuando alguien tiene que esperar
+
+#### *`disable fork` y `wait fork`: apagar lo que quedó prendido*
+
+```systemverilog
+// El idiom de la respuesta contra el timeout. El fork de afuera AÍSLA
+fork begin
+   fork
+      begin  esperar_done();          `uvm_info("BFM", "llegó", UVM_LOW)  end
+      begin  repeat (100) @(posedge clk);  `uvm_error("BFM", "timeout")   end
+   join_any
+   disable fork;      // mata a la hermana que perdió, y a nadie más
+end join
+
+wait fork;            // no mata a nadie: espera a TODOS los hijos de este thread
+```
+
+- `disable fork` mata **todos los procesos hijos del thread que lo ejecuta**. Por
+  eso el `fork begin ... end join` de afuera: sin él, se lleva puesto también lo
+  que ya estaba corriendo
+- `wait fork` es lo contrario: no mata nada, **espera** a que terminen los hijos.
+  Es lo que usa un test para no cerrar con transacciones en vuelo
+- El par `join_any` + `disable fork` es el timeout de todo BFM de producción. Se
+  escribe una vez y se copia siempre
+- Medido: con el `disable fork`, la rama de 5 unidades que iba a imprimir
+  *"llegó la respuesta"* **no imprime nada** — el timeout de 3 la mató
+
+Note:
+El `disable fork` sin el `fork ... join` de aislamiento es el bug clásico de esta
+construcción y vale dibujarlo: mata a **todos** los hijos del thread actual, no a
+los del `fork` de al lado. Si el `run_phase` ya había lanzado un monitor con
+`join_none` y después hace un `disable fork` suelto, el monitor se muere y el
+testbench sigue corriendo ciego. No hay error, no hay warning: hay un log que
+deja de tener líneas.
+La forma de acordarse es pensar en el alcance: `disable fork` no dice *cuál*
+fork. Dice "los hijos de este proceso". El `fork begin ... end join` de afuera
+crea un proceso nuevo cuyos únicos hijos son los dos del `join_any`, y por eso el
+`disable` no puede llegar más lejos.
+`wait fork` es la pareja tranquila y se usa mucho menos de lo que se debería: es
+lo que hace falta al final de una sequence o de un `run_phase` que lanzó cosas
+con `join_none` y no quiere que la fase termine con la mitad del estímulo en el
+aire. En UVM el mismo problema se resuelve con objections — pero adentro de una
+task, `wait fork` es la respuesta.
+
+
+---
+
+## Cuando alguien tiene que esperar
+
+#### *⚠ La trampa: el índice del `for` adentro del `fork`*
+
+```systemverilog
+int i;                                  // declarado AFUERA del for: uno solo
+for (i = 0; i < 3; i++)
+   fork  $display("i = %0d", i);  join_none      //  i = 3   i = 3   i = 3
+
+for (int j = 0; j < 3; j++)             // declarado EN el for: uno por vuelta
+   fork  $display("j = %0d", j);  join_none      //  j = 0   j = 1   j = 2
+
+for (i = 0; i < 3; i++)
+   fork  begin
+      automatic int k = i;              // la copia se hace AL ARRANCAR el thread
+      $display("k = %0d", k);
+   end join_none                                 //  k = 0   k = 1   k = 2
+```
+
+- Un `join_none` **no ejecuta nada todavía**: deja el thread listo y sigue. Para
+  cuando el thread corre, el `for` ya terminó y la variable vale lo último
+- Si la variable se declara **adentro** del `for`, cada vuelta tiene la suya y no
+  hay problema. Es lo que dice el LRM y lo que Verilator hace
+- Si viene de afuera —un `int` del `run_phase`, un campo de la clase— hay que
+  **copiarla** con un `automatic` como primera línea del bloque
+- Medido en Verilator 5.052: las tres líneas de arriba imprimen `3 3 3`,
+  `0 1 2` y `0 1 2`
+
+Note:
+Es el bug de threads que más caro sale y el que menos se ve leyendo el código,
+porque las tres versiones se parecen muchísimo. Conviene hacer la pregunta antes
+de mostrar la respuesta: *"¿qué imprime la primera?"*. Casi todo el mundo dice
+`0 1 2`.
+La explicación que hay que dejar es una sola frase: **`join_none` no corre el
+thread, lo agenda**. El `for` sigue de largo hasta el final, y recién ahí el
+scheduler le da lugar a los tres threads — que leen la variable *ahora*, no
+cuando se los lanzó. Con `i` afuera hay una sola variable, y ahora vale 3.
+La versión con `for (int j …)` funciona y conviene decir por qué, para que no
+parezca magia: el LRM declara automática la variable de un `for` que la declara,
+así que cada vuelta tiene su copia. Está medido acá, no es teoría.
+El caso donde igual hace falta el `automatic` es el que aparece en la vida real:
+el índice no es del `for`, es un campo de la clase o un argumento de la task.
+Ahí no hay copia por vuelta y hay que hacerla a mano. La regla práctica para
+llevarse: **si un thread lanzado con `join_none` lee una variable de afuera,
+copiala en un `automatic` en su primera línea.**
+
 ---
 
 ## Cuando alguien tiene que esperar
@@ -253,6 +394,8 @@ uno.
 - Ojo con el par de nombres: los *analysis port* de las dos secciones anteriores son
   **intra**-thread —`write()` es una `function` y corre en el thread del que
   publica—; esto es **inter**-thread, y por eso `put()` y `get()` son `task`
+- Y abajo de todo está `fork`: `join` espera a todos, `join_any` a la primera,
+  `join_none` a ninguno. `disable fork` mata a los hijos y `wait fork` los espera
 - Ahora tenemos que usar esto para conectar nuestro TB: vamos a separar la
   generación de estímulo del driver de la DUT
 

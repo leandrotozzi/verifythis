@@ -1,4 +1,4 @@
-## Ejercicio · Día 4
+## Ejercicio · Día 4 · 1 de 2
 
 #### *Un observador más, sin tocar a los que ya miran*
 

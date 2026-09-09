@@ -1,4 +1,4 @@
-## Ejercicio · Día 6 · 4 de 4
+## Ejercicio · Día 6 · 4 de 5
 
 #### *La misma sequence, otra semilla*
 

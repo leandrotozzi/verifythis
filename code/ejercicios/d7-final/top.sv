@@ -11,6 +11,7 @@ module top;
    `include "uvm_macros.svh"
 
    bit bug_en;
+   int bug;
 
    // The one your testbench drives
    apb_if bfm ();
@@ -33,7 +34,12 @@ module top;
    apb_stim_module stim (stim_bfm);
 
    initial begin
-      bug_en = $test$plusargs("BUG");
+      // The number matters: +BUG=1 is the DUT's (the CTRL.EN gate), +BUG=2 is
+      // the usual module's (it moves PADDR during ACCESS). $test$plusargs("BUG")
+      // would say yes to both, so it is read as a value.
+      bug = 0;
+      void'($value$plusargs("BUG=%d", bug));
+      bug_en = (bug == 1);
       // As in the Sequences section: the top leaves the two interfaces with a name and walks
       // away. Handing them out is the test's job.
       uvm_config_db#(virtual apb_if)::set(null, "*", "bfm", bfm);

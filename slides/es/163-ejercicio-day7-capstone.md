@@ -71,8 +71,11 @@ puede pasar.
   dirigida que escriba y lea los cuatro registros
 - **3 · El scoreboard.** El DUT modelado en software. El corrector lo corre dos
   veces: contra el DUT sano tiene que callarse, y con **`+BUG=1`** tiene que gritar
-- **4 · La cobertura.** El covergroup con las siete filas del plan de
-  verificación de la spec: más de 20 puntos, 90 % cubierto
+- **4 · La cobertura.** El covergroup con las nueve filas del plan de
+  verificación de la spec: más de 20 puntos, 90 % cubierto. Y **dos filas vienen
+  vacías**
+- **5 · Las properties.** El protocolo del APB adentro de `apb_if.sv`, con
+  `--assert`. Con **`+BUG=2`** hay un bug que el scoreboard no puede ver
 
 Note:
 El orden no es un capricho del corrector: es el consejo de campo del apéndice
@@ -94,3 +97,52 @@ simple: ahí el patrón es la tabla indexada por ID de los analysis ports.
 Y la etapa 4 cierra el círculo del día 6: el covergroup no se inventa, se copia
 de la tabla del plan de verificación. Si un bin queda en cero, hay una fila del
 plan que no se verificó — por más que el scoreboard esté en verde.
+
+---
+
+## Capstone · Día 7
+
+#### *La etapa 5: el bug que el scoreboard no puede ver*
+
+```systemverilog
+// En apb_if.sv, con las señales. El payload no se mueve hasta que termina
+property p_payload_estable;
+   @(posedge PCLK) PSEL && !(PENABLE && PREADY) |=> $stable({PADDR, PWRITE, PWDATA});
+endproperty
+
+a_payload_estable : assert property (p_payload_estable)
+   else `uvm_error("SVA", $sformatf("%m: el payload se movió antes del PREADY"))
+```
+
+- `+BUG=2` le hace al módulo de siempre lo que `d7-sva` le hacía al tester
+  heredado: **mover `PADDR` en el medio de ACCESS**
+- El DUT contesta en la dirección nueva, el monitor reconstruye **ocho
+  transferencias impecables**, y el scoreboard no tiene nada que comparar mal
+- Medido: **8 `UVM_ERROR [SVA]`** y las mismas 8 transferencias en el log del
+  monitor. La única que se entera es la assertion
+- Y las filas **8 y 9** del plan vienen vacías: *back to back* y dirección no
+  alineada. Los bins se llaman `back_to_back` y `unaligned`
+
+Note:
+Ésta es la etapa que hace que el capstone integre el día entero y no la mitad. El
+argumento *"el scoreboard chequea qué, la assertion chequea cómo"* venía desde el
+día 1 y se demostraba sobre la VTALU; acá se demuestra sobre un bus con
+direcciones, dos fases y wait state, que es donde el alumno lo va a necesitar.
+Vale hacer la cuenta en voz alta, porque es lo que convence: con `+BUG=2` el
+módulo cambia la dirección después del SETUP. El DUT es combinacional en la
+decodificación, así que atiende la dirección nueva. El monitor muestrea en el
+flanco del handshake, así que reconstruye la transferencia con la dirección
+nueva. Monitor y DUT coinciden — **no hay nada que el scoreboard pueda comparar
+mal**. El único que sabe que la dirección se movió es el que estaba mirando el
+cable en cada flanco.
+Las dos filas vacías son la otra mitad del ejercicio y son deliberadamente
+incómodas: las dos cosas que miden están prometidas en la spec, cada una en una
+línea suelta, y ninguna de las siete filas de arriba las mide. La fila 9 además
+cuelga al scoreboard que decodifica con la dirección entera — `PADDR[1:0]` se
+ignora, así que `0x06` **es** el `SCRATCH`.
+Y una trampa que vale la pena contar porque el propio curso se la comió: la
+lectura obvia de *"`PSLVERR` es válido junto con `PREADY`"* es
+`PSLVERR |-> PREADY`, y es **falsa** en este DUT. `PSLVERR` es combinacional, así
+que en una lectura no mapeada ya está alto durante el wait state. Escrita como
+assertion dispara sobre el DUT sano. Esa regla es un `cover`, no un `assert`.
+

@@ -1,4 +1,4 @@
-<!-- es-sha: 6867b357cfd7 -->
+<!-- es-sha: 8630eaf320e4 -->
 ## Sequences
 
 #### *The only thing left hard-wired*
@@ -232,6 +232,56 @@ vast majority of cases. It is worth naming so they recognise it if they see it.
 An implementation detail that does matter: the `send_op` reads `bfm.result` on the
 same edge on which it sees `done` high. One edge later the DUT has already started the
 next operation.
+---
+
+## Sequences
+
+#### *The formal way back: `get_response()`*
+
+```systemverilog
+// The sequence declares TWO types, and the response is no longer the request
+class fib_sequence extends uvm_sequence #(command_transaction, result_transaction);
+   start_item(cmd);
+   finish_item(cmd);
+   get_response(rsp);              // blocks until the driver answers
+
+// And the driver, on the other side:
+   seq_item_port.get_next_item(req);
+   rsp = result_transaction::type_id::create("rsp");
+   rsp.set_id_info(req);           // without this the response does not find its sequence
+   seq_item_port.item_done(rsp);   // or item_done() now and put_response(rsp) later
+```
+
+- The shared handle of the previous slide holds as long as the driver is
+  **blocking and serves one at a time**. The course's one is
+- A *pipelined* driver calls `item_done()` as soon as it pushes the command and the response
+  arrives N cycles later: by then the sequence has already sent another item, and
+  writing into `req.result` writes **to the wrong item**
+- `set_id_info(req)` copies the sequence and transaction id onto the response.
+  It is what makes `get_response()` know who to answer
+- The other two cases where it is needed: a VIP that **clones** the item, and a
+  protocol with **more than one response** per request
+
+Note:
+This is the half slide that avoids a poor answer in an interview. The
+question sounds like *"how do you give the data back to the sequence?"*, and answering "I
+write the `result` field into the item" is right **for this driver** and fails on
+any real bus. It is worth saying both halves together.
+The reasoning to leave behind: the shared handle trick is not a
+technique, it is a consequence of the driver being blocking. The condition is
+written in the `get_next_item()`/`item_done()` of the previous slide — as long as the
+`item_done()` is **after** having the response, there is a single item in flight and
+the handle is enough. The day somebody moves that `item_done()` up to
+gain throughput, the testbench keeps compiling and starts lying.
+The other failure mode, more treacherous: a VIP that clones the item between the
+sequence and the driver. There the driver writes into its copy, the sequence reads the
+original, and the result that arrives is always the previous one. There is no error, there is no
+warning: there is a scoreboard shifted by one.
+And the `set_id_info()` detail, which is the one that makes this fail silently the
+first time: if it is missing, the response is sent anyway and `get_response()` waits
+forever. A test that "hangs after the first transaction" and uses REQ/RSP is this
+bug until proven otherwise.
+
 
 ---
 
@@ -597,6 +647,58 @@ And the honest close: the example runs on two VTALU because it is the DUT we
 have. With two different interfaces —two transactions, two drivers— the
 virtual sequence is written **the same**: the handles would be of two types of
 sequencer, and nothing more.
+---
+
+## Sequences
+
+#### *And if branch B has to wait for A?*
+
+```systemverilog
+// uvm_event: a notice, from one to many. It comes from the global pool, nobody builds it
+uvm_event listo = uvm_event_pool::get_global("dut_configurado");
+
+listo.trigger();          // the branch that configured gives notice
+listo.wait_trigger();     // the one waiting blocks here
+listo.wait_ptrigger();    // the same, but if it already happened, it walks on
+
+// uvm_barrier: a meeting point between N branches
+uvm_barrier arranque = uvm_barrier_pool::get_global("arranque");
+arranque.set_threshold(2);
+arranque.wait_for();      // neither of the two goes on until both have arrived
+```
+
+- The `join` synchronizes **at the end**. When branch B has to wait for A
+  **in the middle**, a synchronization object is needed
+- `uvm_event` is **one to many**: one gives notice, those waiting move on. And
+  `trigger(data)` can carry a `uvm_object` attached
+- `uvm_barrier` is **symmetric**: nobody goes on until everybody has arrived. It is the
+  "start together" of two agents that have to begin on the same cycle
+- A shared `bit` with `wait(flag)` is not enough: it **loses the pulse** if the one
+  waiting arrived late, and it carries no data
+
+Note:
+This is the question that shows up on its own as soon as the `fork` of the previous
+slide is drawn, and it is worth answering right there: *"and if branch B cannot start
+until A configured the DUT?"*.
+The distinction to make clear is **one to many versus symmetric**. The
+`uvm_event` has a side that gives notice and another that waits, and the roles do not
+change: it is for "the reset finished", "the DUT is configured", "the interrupt
+arrived". The `uvm_barrier` has no sides: the N branches execute the same
+line and none goes on until all are there. It is for "start together" and for
+"everybody wait until the configuration phase ends".
+The `wait_ptrigger()` deserves its own second, because it is the classic race: if
+branch A triggers before B reaches the `wait_trigger()`, B waits
+forever. The `p` is for *persistent*: it asks whether the event **already** happened at some point.
+The practical rule: if you cannot guarantee the order, `wait_ptrigger()`.
+And why not a shared `bit`, which is the first thing anybody tries: a `bit` does not
+keep history, does not carry attached data, and cannot be reset between phases without
+somebody swallowing a pulse. The two UVM objects exist precisely because
+that homemade version fails once every hundred runs.
+Its own failure mode: a barrier with the threshold set wrong does not give an error —
+it hangs. The symptom is a test that ends on `+UVM_TIMEOUT` without a single
+`UVM_ERROR`, and `+UVM_OBJECTION_TRACE` shows the objection up and nobody
+moving on.
+
 
 ---
 

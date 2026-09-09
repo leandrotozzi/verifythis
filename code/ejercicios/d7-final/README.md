@@ -58,19 +58,29 @@ contra el DUT sano —tiene que cerrar en 0 `UVM_ERROR`— y otra con `+BUG=1`, 
 le saca al DUT el gate de `CTRL.EN`. Ahí **tiene que gritar**: un scoreboard que
 nunca vio un error no está probado.
 
-**4 · La cobertura.** El `covergroup` con las siete filas del plan de
+**4 · La cobertura.** El `covergroup` con las nueve filas del plan de
 verificación de `spec.md`. El corrector pide **más de 20 puntos** y **90 %**
-cubierto con el `random_test`. El plan viene lleno, pero no está cerrado: si
-encontrás un escenario que no está en la tabla, agregá la fila **y** el bin — eso
-también es el ejercicio. Cómo se llena una tabla de éstas, en
+cubierto con el `random_test`. Las filas **8 y 9 vienen vacías**: las escribís
+vos, y los bins se llaman `back_to_back` y `unaligned` porque el corrector los
+busca por nombre. Cómo se llena una tabla de éstas, en
 [`docs/plan-de-verificacion.md`](../../../docs/plan-de-verificacion.md).
 
-Listo cuando `bash run.sh` imprime las cuatro etapas y termina con
+**5 · Las properties.** El protocolo del APB chequeado **donde ocurre**, adentro
+de `apb_if.sv`: SETUP dura un ciclo, el payload no se mueve hasta que termina la
+transferencia, ACCESS se sostiene hasta el handshake. Se compilan con `--assert`
+—el `run.sh` ya lo pasa— y reportan con `` `uvm_error("SVA", ...) `` en el `else`.
+El corrector corre el módulo de siempre con **`+BUG=2`**, que le mueve `PADDR` en
+el medio de ACCESS: el DUT contesta en la dirección nueva, el monitor reconstruye
+ocho transferencias impecables, el scoreboard no tiene nada que decir, y la única
+que se entera es la assertion. Ése es el argumento del día 7, ahora sobre un bus
+de verdad.
+
+Listo cuando `bash run.sh` imprime las cinco etapas y termina con
 `EXERCISE OK`.
 
 ## El contrato con el corrector
 
-El corrector no lee tu código: lee el log. Tres cosas tienen que ser así:
+El corrector no lee tu código: lee el log. Cuatro cosas tienen que ser así:
 
 - Los **tests** se llaman `monitor_test`, `smoke_test` y `random_test`.
 - El **monitor** imprime una línea por transferencia completa, con este formato
@@ -84,7 +94,10 @@ El corrector no lee tu código: lee el log. Tres cosas tienen que ser así:
   RD @0x08 = 0x00000030  slverr=1
   ```
   En una escritura el valor es `PWDATA`; en una lectura, `PRDATA`.
-- El **scoreboard** reporta con `` `uvm_error("SCOREBOARD", ...) ``.
+- El **scoreboard** reporta con `` `uvm_error("SCOREBOARD", ...) ``, y las
+  **properties** de la etapa 5 con `` `uvm_error("SVA", ...) ``.
+- Los dos bins de las filas 8 y 9 del plan se llaman **`back_to_back`** y
+  **`unaligned`**: el corrector los busca por nombre en la base de cobertura.
 
 No es burocracia: un formato de log acordado es lo que hace que el que llega
 mañana al proyecto pueda grepear tu testbench sin leerlo.
@@ -134,7 +147,22 @@ instalado, `randomize()` devuelve 0 en silencio — ver
   estímulo no lee `ACC` nunca. Las dos cosas se arreglan mirando la fila 5 del
   plan de verificación.
 - El `covergroup` no lo inventes: la tabla del final de `spec.md` tiene las
-  siete filas, y la columna de la derecha dice qué bin es cada una.
+  filas, y la columna de la derecha dice qué bin es cada una. Las dos últimas
+  están vacías a propósito.
+- Si el scoreboard falla en una dirección rara —`0x06`, `0x0D`— es la fila 9:
+  `PADDR[1:0]` se ignora, así que `0x06` **es** el `SCRATCH`. Un `case` sobre la
+  dirección entera manda esas transferencias al `default`.
+- Para la fila 8 el que decide es el driver: si deja `PSEL` alto al final de una
+  transferencia, la siguiente arranca pegada. Ojo con la última de la sequence —
+  si queda encadenada y no viene nadie, el bus se queda en ACCESS para siempre.
+- Las properties de la etapa 5 van **en la interface**, no en el testbench: ahí
+  ven las señales sin que nadie se las pase, y las heredan las dos instancias del
+  `top.sv`. Y cada una con su `cover property`: una assertion cuyo antecedente
+  nunca pasa está en verde sin haber chequeado nada.
+- La lectura obvia de *"`PSLVERR` es válido junto con `PREADY`"* —
+  `PSLVERR |-> PREADY` — es **falsa** en este DUT: `PSLVERR` es combinacional y
+  ya está alto durante el wait state de la lectura. Esa regla es un `cover`, no
+  un `assert`.
 - Manejá en el flanco de **bajada** y muestreá en el de **subida**, como toda la
   BFM del curso. Es la misma lección de los dos relojes de las assertions.
 - **O mejor: usá un `clocking block`** en `apb_if.sv`, que es lo que se escribe
@@ -174,5 +202,7 @@ lo mismo en tu máquina y además escribe un reporte HTML con los bins abiertos.
 Todo. Es el único ejercicio del curso donde no hay estructura previa: la
 transaction, la interface con el protocolo adentro, el agent activo y el pasivo,
 el `config_db` con dos ámbitos, el scoreboard como modelo de referencia, el
-covergroup como plan de verificación medido, las sequences y los tests. Y una
-cosa más, que no es de UVM: **leer una spec y desconfiar de ella**.
+covergroup como plan de verificación medido, las sequences, los tests y las
+properties del protocolo. Y dos cosas más, que no son de UVM: **leer una spec y
+desconfiar de ella**, y **escribir dos filas del plan** que la spec promete en una
+línea suelta y que nadie había medido.

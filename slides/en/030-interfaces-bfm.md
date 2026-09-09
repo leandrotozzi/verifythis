@@ -1,4 +1,4 @@
-<!-- es-sha: e2605d0f1ce7 -->
+<!-- es-sha: fe75ec040192 -->
 ## Interfaces and BFM
 
 #### *First: the signals stop being loose*
@@ -10,6 +10,8 @@
 - The clock gets generated inside: the interface is not a wire, it is a model of the bus
 - Connecting the DUT becomes `.A(bfm.A)`, `.clk(bfm.clk)`… and a new signal gets
   declared **once**: the modules that use it see it appear without touching their ports
+- What is not needed here and you will see in somebody else's RTL: the **`modport`**, which is
+  the same interface with the directions set for one side of the wire
 
 Note:
 First step towards UVM and it does not have a single line of UVM.
@@ -21,6 +23,14 @@ One detail of types that costs you: `op` is a `wire [2:0]` and `op_set` is the
 `operation_t`. The `assign op = op_set` is the bridge between the testbench enum and
 the DUT wires. It is the only place in the course where the seam between the
 two worlds is visible.
+And the `modport`, which does not show up in the rest of the course and does in anybody
+else's RTL: it is a view of the interface with the directions declared —`modport dut (input
+A, input B, output result)`—, and the module asks for it in its port list
+(`vtalu_bfm.dut bus`). It is good for two things, and both are worth it: it lets the compiler
+stop the DUT if it writes a signal that was an input as far as it is concerned, and it lets whoever reads the
+interface know who drives what without opening the RTL. It is not here because the BFM belongs
+to the testbench and drives everything; at work the interface almost always comes with
+two or three modports and what you need to know is which one to ask for.
 
 ---
 

@@ -6,7 +6,7 @@ como se dicta una materia. Esta página lo pasa a un
 **cuatrimestre de 15 semanas**, dice qué se puede sacar, y qué evaluar en cada
 parcial.
 
-Todo lo que hace falta ya está en el repo y se corrige solo: las **15
+Todo lo que hace falta ya está en el repo y se corrige solo: las **18
 soluciones** (`make ejercicios`), el **banco de 58 preguntas**
 ([`banco-de-examen.md`](banco-de-examen.md)), el capstone con su corrector por
 etapas, y la **rúbrica de autoevaluación** del final del día 7.
@@ -49,13 +49,14 @@ el docente no corrige código a mano hasta el capstone.
 | 8 | **Parcial 1** (1 h) + **U4** · Tests | — |
 | 9 | **U4** · Components y fases · El env | [`d3`](../code/ejercicios/d3/) — factory override sin tocar el `env` |
 | 10 | **U4** · Reporting · **U5** · Un productor, muchos oyentes | [`d4`](../code/ejercicios/d4/) — un subscriber más |
+| 10b | **U5** · Quién espera a quién · `fork` y familia | [`d4b`](../code/ejercicios/d4b/) — el `#500` es un parche |
 | 11 | **U5** · Un solo lugar que mira el cable · Quién espera a quién | [`d5`](../code/ejercicios/d5/) — el scoreboard grita y el DUT está sano |
 | 12 | **U6** · Copiar un objeto que contiene otro · Transactions | [`d5b`](../code/ejercicios/d5b/) — medí tu `dist` |
 | 13 | **U6** · Constrained random + **Parcial 2** (1 h) | [`d6-bins`](../code/ejercicios/d6-bins/) — cerrar un bin dirigido |
-| 14 | **U7** · Agents · Sequences — y *Callbacks* y *Sequences virtuales* si entran, que son las dos primeras de la lista de recortes | [`d6-agents`](../code/ejercicios/d6-agents/) · [`d6-sequences`](../code/ejercicios/d6-sequences/) · [`d6-semillas`](../code/ejercicios/d6-semillas/) con `make regresion` |
+| 14 | **U7** · Agents · Sequences — y *Callbacks* y *Sequences virtuales* si entran, que son las dos primeras de la lista de recortes | [`d6-agents`](../code/ejercicios/d6-agents/) · [`d6-sequences`](../code/ejercicios/d6-sequences/) · [`d6-semillas`](../code/ejercicios/d6-semillas/) con `make regresion` · [`d6-debug`](../code/ejercicios/d6-debug/) — tres bugs plantados |
 | 15 | **U8** · Assertions (SVA) | [`d7-sva`](../code/ejercicios/d7-sva/) · **arranque del capstone** |
 | — | *(período de exámenes)* | **Capstone**: [`d7-final`](../code/ejercicios/d7-final/) |
-| + | **Día 8** *(opcional)* · **U9** · RAL · DPI · el segundo capstone — no entra en las 15 semanas | [`d8-ral`](../code/ejercicios/d8-ral/) — el mapa de registros · [`d8-fifo`](../code/ejercicios/d8-fifo/) — el segundo capstone |
+| + | **Día 8** *(opcional)* · **U9** · RAL · DPI · el segundo capstone — no entra en las 15 semanas | [`d8-ral`](../code/ejercicios/d8-ral/) — el mapa de registros · [`d8-dpi`](../code/ejercicios/d8-dpi/) — el modelo en C · [`d8-fifo`](../code/ejercicios/d8-fifo/) — el segundo capstone |
 
 El **día 8** es la fila que sobra a propósito. No entra en un cuatrimestre de 15
 semanas y el curso no lo necesita para cerrar: está para el grupo que llega con
@@ -147,9 +148,16 @@ nota sale de correr `bash run.sh` y leer hasta dónde llegó:
 |:--:|---|--:|
 | **1** · Monitor | Un agent pasivo que reconstruye transferencias mirando el bus, sin driver | 20 % |
 | **2** · Driver | El protocolo adentro de la interface, con su *wait state*, y una sequence dirigida | 25 % |
-| **3** · Scoreboard | El DUT modelado en software. Se corre dos veces: contra el DUT sano tiene que callarse, y con `+BUG=1` tiene que **gritar** | 30 % |
-| **4** · Cobertura | El covergroup sale de las siete filas del plan de verificación de la spec: > 20 puntos, 90 % cubierto | 15 % |
-| — | **El plan de verificación entregado**, con sus cinco columnas | 10 % |
+| **3** · Scoreboard | El DUT modelado en software. Se corre dos veces: contra el DUT sano tiene que callarse, y con `+BUG=1` tiene que **gritar** | 25 % |
+| **4** · Cobertura | El covergroup sale de las nueve filas del plan de verificación de la spec: > 20 puntos, 90 % cubierto, y los bins `back_to_back` y `unaligned` llenos | 15 % |
+| **5** · Properties | El protocolo del APB adentro de `apb_if.sv`, compilado con `--assert`. Con `+BUG=2` el módulo de siempre mueve `PADDR` en el medio de ACCESS: el monitor ve ocho transferencias impecables y la única que se entera es la assertion | 10 % |
+| — | **Las dos filas del plan que faltan**, escritas por el alumno | 5 % |
+
+Las **filas 8 y 9 del plan vienen vacías** en `spec.md` y las escribe el alumno:
+son las dos cosas que la spec promete en una línea suelta —`PSEL` puede quedar
+alto entre dos transferencias, y `PADDR[1:0]` se ignora— y que ninguna de las
+siete filas de arriba mide. La 9 además cuelga al scoreboard que decodifica con
+la dirección entera.
 
 La etapa 3 es la que separa. Un scoreboard que nunca vio un error no está
 probado: `+BUG=1` le saca al DUT el gate de `CTRL.EN`, y un modelo que no haya
@@ -179,7 +187,7 @@ proyecta, y las tres que más manos levantan son las que hay que repasar.
 ## Lo que se corrige solo
 
 ```sh
-make ejercicios     # corre las 15 SOLUCIONES: verifica que sigan siendo resolubles
+make ejercicios     # corre las 18 SOLUCIONES: verifica que sigan siendo resolubles
 make regresion      # N semillas + merge de cobertura + reporte HTML de bins abiertos
 npm run check       # el banco de examen y el deck, al día con slides/
 ```

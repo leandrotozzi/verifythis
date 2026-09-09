@@ -20,8 +20,15 @@ class apb_scoreboard extends uvm_subscriber #(apb_transaction);
       super.new(name, parent);
    endfunction : new
 
+   // PADDR[1:0] is ignored: 0x06 IS the SCRATCH. Decoding on the whole address
+   // sends every unaligned transfer to the default of the case -- STATUS -- and
+   // the scoreboard reports failures the DUT did not commit.
+   function bit [7:0] registro(bit [7:0] addr);
+      return {addr[7:2], 2'b00};
+   endfunction : registro
+
    function bit [31:0] leer_esperado(bit [7:0] addr);
-      case (addr)
+      case (registro(addr))
          CTRL_ADDR:    return {31'h0, en};        // CLR es autoclear: siempre 0
          SCRATCH_ADDR: return scratch;
          ACC_ADDR:     return acc;
@@ -31,7 +38,7 @@ class apb_scoreboard extends uvm_subscriber #(apb_transaction);
 
    function void aplicar_escritura(apb_transaction t);
       bit [32:0] suma;
-      case (t.addr)
+      case (registro(t.addr))
          CTRL_ADDR: begin
             en = t.wdata[0];
             if (t.wdata[1]) begin  // CLR

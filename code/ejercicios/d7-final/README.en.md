@@ -1,4 +1,4 @@
-<!-- es-sha: f5e9111eec26 -->
+<!-- es-sha: 6f4307922490 -->
 # Day 7 — the capstone: verify the `apb_regs`
 
 The other thirteen exercises with a statement gave you a file with a hole in it. This one gives you a DUT,
@@ -58,18 +58,28 @@ against the healthy DUT —it has to close at 0 `UVM_ERROR`— and another with 
 takes the `CTRL.EN` gate off the DUT. There it **has to scream**: a scoreboard that
 has never seen an error is not tested.
 
-**4 · The coverage.** The `covergroup` with the seven rows of the verification
+**4 · The coverage.** The `covergroup` with the nine rows of the verification
 plan of `spec.en.md`. The checker asks for **more than 20 points** and **90 %**
-covered with the `random_test`. The plan comes filled in, but it is not closed: if
-you find a scenario that is not in the table, add the row **and** the bin — that
-is also the exercise. How a table like this gets filled in, in
+covered with the `random_test`. Rows **8 and 9 come empty**: you write them,
+and the bins are called `back_to_back` and `unaligned` because the checker looks
+them up by name. How a table like this gets filled in, in
 [`docs/plan-de-verificacion.md`](../../../docs/plan-de-verificacion.md) (in Spanish).
 
-Done when `bash run.sh` prints the four stages and ends with `EXERCISE OK`.
+**5 · The properties.** The APB protocol checked **where it happens**, inside
+`apb_if.sv`: SETUP lasts one cycle, the payload does not move until the transfer
+ends, ACCESS is held until the handshake. They are compiled with `--assert` —the
+`run.sh` already passes it— and they report with `` `uvm_error("SVA", ...) `` in the
+`else`. The checker runs the ordinary module with **`+BUG=2`**, which moves its
+`PADDR` in the middle of ACCESS: the DUT answers at the new address, the monitor
+reconstructs eight spotless transfers, the scoreboard has nothing to say, and the
+only one that notices is the assertion. That is the day 7 argument, now on a real
+bus.
+
+Done when `bash run.sh` prints the five stages and ends with `EXERCISE OK`.
 
 ## The contract with the checker
 
-The checker does not read your code: it reads the log. Three things have to be like this:
+The checker does not read your code: it reads the log. Four things have to be like this:
 
 - The **tests** are called `monitor_test`, `smoke_test` and `random_test`.
 - The **monitor** prints one line per complete transfer, with this exact
@@ -83,7 +93,10 @@ The checker does not read your code: it reads the log. Three things have to be l
   RD @0x08 = 0x00000030  slverr=1
   ```
   On a write the value is `PWDATA`; on a read, `PRDATA`.
-- The **scoreboard** reports with `` `uvm_error("SCOREBOARD", ...) ``.
+- The **scoreboard** reports with `` `uvm_error("SCOREBOARD", ...) ``, and the
+  stage 5 **properties** with `` `uvm_error("SVA", ...) ``.
+- The two bins of rows 8 and 9 of the plan are called **`back_to_back`** and
+  **`unaligned`**: the checker looks them up by name in the coverage database.
 
 It is not bureaucracy: an agreed log format is what lets whoever arrives at the
 project tomorrow grep your testbench without reading it.
@@ -133,7 +146,22 @@ installed, `randomize()` returns 0 in silence — see
   stimulus never reads `ACC`. Both things get fixed by looking at row 5 of the
   verification plan.
 - Do not invent the `covergroup`: the table at the end of `spec.en.md` has the
-  seven rows, and the right-hand column says which bin each one is.
+  rows, and the right-hand column says which bin each one is. The last two are
+  empty on purpose.
+- If the scoreboard fails on an odd address —`0x06`, `0x0D`— it is row 9:
+  `PADDR[1:0]` is ignored, so `0x06` **is** the `SCRATCH`. A `case` on the whole
+  address sends those transfers to the `default`.
+- For row 8 the one who decides is the driver: if it leaves `PSEL` high at the end of
+  a transfer, the next one starts glued to it. Careful with the last one of the sequence —
+  if it stays chained and nobody comes, the bus is left in ACCESS forever.
+- The stage 5 properties go **in the interface**, not in the testbench: there they
+  see the signals without anybody passing them along, and both instances of the
+  `top.sv` inherit them. And each one with its `cover property`: an assertion whose
+  antecedent never happens is green without having checked a thing.
+- The obvious reading of *"`PSLVERR` is valid together with `PREADY`"* —
+  `PSLVERR |-> PREADY` — is **false** on this DUT: `PSLVERR` is combinational and
+  is already high during the read's wait state. That rule is a `cover`, not an
+  `assert`.
 - Drive on the **falling** edge and sample on the **rising** one, like the whole
   BFM of the course. It is the same lesson as the two clocks of the assertions.
 - **Or better: use a `clocking block`** in `apb_if.sv`, which is what gets written
@@ -173,5 +201,7 @@ the same on your machine and besides writes an HTML report with the open bins.
 Everything. It is the only exercise of the course where there is no previous structure: the
 transaction, the interface with the protocol inside, the active agent and the passive one,
 the `config_db` with two scopes, the scoreboard as a reference model, the
-covergroup as a measured verification plan, the sequences and the tests. And one
-more thing, which is not about UVM: **reading a spec and distrusting it**.
+covergroup as a measured verification plan, the sequences, the tests and the
+protocol properties. And two more things, which are not about UVM: **reading a
+spec and distrusting it**, and **writing two rows of the plan** that the spec
+promises on a loose line and nobody had measured.

@@ -22,7 +22,7 @@ class apb_driver extends uvm_driver #(apb_transaction);
       bfm.reset();
       forever begin : loop
          seq_item_port.get_next_item(t);
-         bfm.transfer(t.write, t.addr, t.wdata, t.rdata, t.slverr);
+         bfm.transfer(t.write, t.addr, t.wdata, t.b2b, t.rdata, t.slverr);
          seq_item_port.item_done();
       end : loop
    endtask : run_phase

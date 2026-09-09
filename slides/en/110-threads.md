@@ -1,4 +1,4 @@
-<!-- es-sha: 3e69f0f60646 -->
+<!-- es-sha: 27c7476ffa1d -->
 ## When somebody has to wait
 
 #### *You were already doing this, with modules*
@@ -250,6 +250,147 @@ The diamond is the special case they have already seen: an analysis port can
 point at many circles at once, and that is why it is drawn differently. The other
 two are one to one.
 
+
+---
+
+## When somebody has to wait
+
+#### *`fork`: the three ways of starting in parallel*
+
+```systemverilog
+fork  esperar_done();  contar_ciclos();  join        // goes on when BOTH have finished
+fork  esperar_done();  contar_ciclos();  join_any    // goes on with THE FIRST; the other stays alive
+fork  esperar_done();  contar_ciclos();  join_none   // goes on NOW; both stay running
+```
+
+| Variant | The parent goes on… | What it is used for |
+| --- | --- | --- |
+| `join` | when **all** of them finish | two checks that both have to close |
+| `join_any` | when **the first** one finishes | response against a timeout |
+| `join_none` | **right away** | launching threads that live for the whole test |
+
+- The difference between the three is not how they start —all three start everything at
+  once— but **when the one that started them goes on**
+- You have used `join_none` already: it is the `fork` of the day 2 `testbench` class, and it is
+  what UVM does on its own with one `run_phase()` per component
+- The branch left alive after a `join_any` **does not die on its own**. It goes on
+  until it finishes — or until somebody kills it, which is the next slide
+
+Note:
+It is the unit called *threads* and up to here the threads were put there by UVM. This
+slide and the next two are the three words of the language any production monitor
+or driver is written with, and the three fit in one table.
+The point worth repeating, because it is where everybody gets confused the
+first time: **all three start the same**. The `fork` processes are all launched
+at the same instant in the three variants. The only thing that changes is what the
+parent process does immediately afterwards, and that is why the middle column is the one
+to read.
+One example per variant is enough to make it stick. `join`: send the stimulus and
+count the cycles, and do not go on until both have finished. `join_any`: wait for the
+DUT's response **or** for a timeout to expire, whichever happens first. `join_none`:
+the monitor's `run_phase`, which starts and stays watching forever while
+the rest of the testbench goes on.
+And the hook back to day 2, worth making explicit: the hand-written `testbench`
+class used `fork ... join_none` to start the three objects. It was not
+a coincidence nor a trick — it is exactly what UVM does when it runs the
+`run_phase` of a hundred components at once.
+
+
+---
+
+## When somebody has to wait
+
+#### *`disable fork` and `wait fork`: turning off what stayed on*
+
+```systemverilog
+// The response-against-timeout idiom. The outer fork ISOLATES
+fork begin
+   fork
+      begin  esperar_done();          `uvm_info("BFM", "it arrived", UVM_LOW)  end
+      begin  repeat (100) @(posedge clk);  `uvm_error("BFM", "timeout")        end
+   join_any
+   disable fork;      // kills the sister that lost, and nobody else
+end join
+
+wait fork;            // kills nobody: it waits for ALL the children of this thread
+```
+
+- `disable fork` kills **every child process of the thread that executes it**. That
+  is why the outer `fork begin ... end join`: without it, it also takes down
+  whatever was already running
+- `wait fork` is the opposite: it kills nothing, it **waits** for the children to finish.
+  It is what a test uses so as not to close with transactions in flight
+- The `join_any` + `disable fork` pair is the timeout of every production BFM. It gets
+  written once and copied forever
+- Measured: with the `disable fork`, the 5-unit branch that was going to print
+  *"the response arrived"* **prints nothing** — the timeout of 3 killed it
+
+Note:
+The `disable fork` without the isolating `fork ... join` is the classic bug of this
+construct and is worth drawing: it kills **every** child of the current thread, not
+those of the `fork` next door. If the `run_phase` had already launched a monitor with
+`join_none` and then does a bare `disable fork`, the monitor dies and the
+testbench goes on running blind. There is no error, there is no warning: there is a log that
+stops having lines.
+The way to remember it is to think about the scope: `disable fork` does not say *which*
+fork. It says "the children of this process". The outer `fork begin ... end join`
+creates a new process whose only children are the two of the `join_any`, and that is why the
+`disable` cannot reach any further.
+`wait fork` is the quiet partner and gets used far less than it should: it is
+what is needed at the end of a sequence or of a `run_phase` that launched things
+with `join_none` and does not want the phase to end with half the stimulus in the
+air. In UVM the same problem is solved with objections — but inside a
+task, `wait fork` is the answer.
+
+
+---
+
+## When somebody has to wait
+
+#### *⚠ The trap: the `for` index inside the `fork`*
+
+```systemverilog
+int i;                                  // declared OUTSIDE the for: there is only one
+for (i = 0; i < 3; i++)
+   fork  $display("i = %0d", i);  join_none      //  i = 3   i = 3   i = 3
+
+for (int j = 0; j < 3; j++)             // declared IN the for: one per pass
+   fork  $display("j = %0d", j);  join_none      //  j = 0   j = 1   j = 2
+
+for (i = 0; i < 3; i++)
+   fork  begin
+      automatic int k = i;              // the copy is made WHEN the thread starts
+      $display("k = %0d", k);
+   end join_none                                 //  k = 0   k = 1   k = 2
+```
+
+- A `join_none` **does not execute anything yet**: it leaves the thread ready and goes on. By
+  the time the thread runs, the `for` has already finished and the variable holds the last value
+- If the variable is declared **inside** the `for`, each pass has its own and there
+  is no problem. It is what the LRM says and what Verilator does
+- If it comes from outside —an `int` of the `run_phase`, a field of the class— it has to be
+  **copied** with an `automatic` as the first line of the block
+- Measured on Verilator 5.052: the three lines above print `3 3 3`,
+  `0 1 2` and `0 1 2`
+
+Note:
+It is the most expensive threads bug and the hardest to see when reading the code,
+because the three versions look very much alike. It is worth asking the question before
+showing the answer: *"what does the first one print?"*. Almost everybody says
+`0 1 2`.
+The explanation to leave behind is a single sentence: **`join_none` does not run the
+thread, it schedules it**. The `for` walks straight to the end, and only then does the
+scheduler give the three threads their turn — and they read the variable *now*, not
+when they were launched. With `i` outside there is a single variable, and now it holds 3.
+The version with `for (int j …)` works and it is worth saying why, so it does not
+look like magic: the LRM declares automatic the variable of a `for` that declares it,
+so each pass has its own copy. It is measured here, it is not theory.
+The case where the `automatic` is needed anyway is the one that shows up in real life:
+the index is not the `for`'s, it is a field of the class or an argument of the task.
+There is no copy per pass there and it has to be made by hand. The practical rule to
+take home: **if a thread launched with `join_none` reads a variable from outside,
+copy it into an `automatic` on its first line.**
+
 ---
 
 ## When somebody has to wait
@@ -265,6 +406,8 @@ two are one to one.
   are **intra**-thread —`write()` is a `function` and runs in the thread of the
   one publishing—; this is **inter**-thread, and that is why `put()` and `get()`
   are `task`
+- And underneath it all there is `fork`: `join` waits for all, `join_any` for the first,
+  `join_none` for none. `disable fork` kills the children and `wait fork` waits for them
 - Now we have to use this to wire our TB: we are going to separate the stimulus
   generation from the driver of the DUT
 

@@ -231,6 +231,56 @@ enorme mayoría de los casos. Vale nombrarlo para que lo reconozcan si lo ven.
 Detalle de implementación que sí importa: el `send_op` lee `bfm.result` en el
 mismo flanco en que ve `done` alto. Un flanco más tarde el DUT ya arrancó la
 operación siguiente.
+---
+
+## Sequences
+
+#### *El camino de vuelta formal: `get_response()`*
+
+```systemverilog
+// La sequence declara DOS tipos, y la respuesta ya no es el request
+class fib_sequence extends uvm_sequence #(command_transaction, result_transaction);
+   start_item(cmd);
+   finish_item(cmd);
+   get_response(rsp);              // bloquea hasta que el driver conteste
+
+// Y el driver, del otro lado:
+   seq_item_port.get_next_item(req);
+   rsp = result_transaction::type_id::create("rsp");
+   rsp.set_id_info(req);           // sin esto la respuesta no encuentra su sequence
+   seq_item_port.item_done(rsp);   // o item_done() ahora y put_response(rsp) después
+```
+
+- El handle compartido de la slide anterior vale mientras el driver sea
+  **bloqueante y atienda de a uno**. El del curso lo es
+- Un driver *pipelined* llama `item_done()` apenas mete el comando y la respuesta
+  llega N ciclos más tarde: para entonces la sequence ya mandó otro item, y
+  escribir en `req.result` le escribe **al item equivocado**
+- `set_id_info(req)` le copia a la respuesta el id de sequence y de transacción.
+  Es lo que hace que `get_response()` sepa a quién contestarle
+- Los otros dos casos donde hace falta: un VIP que **clona** el item, y un
+  protocolo con **más de una respuesta** por request
+
+Note:
+Ésta es la media slide que evita una respuesta pobre en una entrevista. La
+pregunta suena *"¿cómo le devolvés el dato a la sequence?"*, y contestar "le
+escribo el campo `result` al item" es correcto **para este driver** y falla en
+cualquier bus real. Conviene decir las dos mitades juntas.
+El razonamiento que hay que dejar: el truco del handle compartido no es una
+técnica, es una consecuencia de que el driver sea bloqueante. La condición está
+escrita en el `get_next_item()`/`item_done()` de la slide anterior — mientras el
+`item_done()` esté **después** de tener la respuesta, hay un solo item en vuelo y
+el handle alcanza. El día que alguien mueva ese `item_done()` para arriba para
+ganar throughput, el testbench sigue compilando y empieza a mentir.
+El otro modo de falla, más traicionero: un VIP que clona el item entre la
+sequence y el driver. Ahí el driver escribe en su copia, la sequence lee el
+original, y el resultado que llega es siempre el anterior. No hay error, no hay
+warning: hay un scoreboard corrido en uno.
+Y el detalle de `set_id_info()`, que es el que hace que esto falle en silencio la
+primera vez: si no está, la respuesta se manda igual y `get_response()` se queda
+esperando para siempre. Un test que "cuelga después de la primera transacción" y
+usa REQ/RSP es este bug hasta que se demuestre lo contrario.
+
 
 ---
 
@@ -596,6 +646,58 @@ Y el cierre honesto: el ejemplo corre sobre dos VTALU porque es el DUT que
 tenemos. Con dos interfaces distintas —dos transactions, dos drivers— la
 sequence virtual se escribe **igual**: los handles serían de dos tipos de
 sequencer, y nada más.
+---
+
+## Sequences
+
+#### *¿Y si la rama B tiene que esperar a la A?*
+
+```systemverilog
+// uvm_event: un aviso, de uno a muchos. Sale del pool global, nadie lo construye
+uvm_event listo = uvm_event_pool::get_global("dut_configurado");
+
+listo.trigger();          // la rama que configuró avisa
+listo.wait_trigger();     // la que espera bloquea acá
+listo.wait_ptrigger();    // igual, pero si ya pasó, sigue de largo
+
+// uvm_barrier: un punto de encuentro entre N ramas
+uvm_barrier arranque = uvm_barrier_pool::get_global("arranque");
+arranque.set_threshold(2);
+arranque.wait_for();      // ninguna de las dos pasa hasta que llegaron las dos
+```
+
+- El `join` sincroniza **al final**. Cuando la rama B tiene que esperar a la A
+  **en el medio**, hace falta un objeto de sincronización
+- `uvm_event` es de **uno a muchos**: uno avisa, los que esperan siguen. Y
+  `trigger(data)` puede llevar un `uvm_object` adjunto
+- `uvm_barrier` es **simétrico**: nadie pasa hasta que llegaron todos. Es el
+  "arranquen juntos" de dos agents que tienen que empezar en el mismo ciclo
+- Un `bit` compartido con `wait(flag)` no alcanza: **pierde el pulso** si el que
+  espera llegó tarde, y no lleva dato
+
+Note:
+Ésta es la pregunta que aparece sola apenas se dibuja el `fork` de la slide
+anterior, y conviene contestarla ahí mismo: *"¿y si la rama B no puede arrancar
+hasta que la A configuró el DUT?"*.
+La distinción que hay que dejar clara es **uno a muchos contra simétrico**. El
+`uvm_event` tiene un lado que avisa y otro que espera, y los papeles no se
+cambian: sirve para "el reset terminó", "el DUT quedó configurado", "llegó la
+interrupción". El `uvm_barrier` no tiene lados: las N ramas ejecutan la misma
+línea y ninguna pasa hasta que están todas. Sirve para "arranquen juntas" y para
+"esperen todas a que termine la fase de configuración".
+El `wait_ptrigger()` merece su propio segundo, porque es la carrera clásica: si
+la rama A dispara antes de que la B llegue al `wait_trigger()`, la B espera para
+siempre. La `p` es de *persistent*: pregunta si el evento **ya** pasó alguna vez.
+La regla práctica: si no podés garantizar el orden, `wait_ptrigger()`.
+Y por qué no un `bit` compartido, que es lo primero que se intenta: un `bit` no
+guarda historia, no lleva dato adjunto, y no se puede resetear entre fases sin
+que alguien se coma un pulso. Los dos objetos de UVM existen precisamente porque
+esa versión casera falla una vez de cada cien corridas.
+El modo de falla propio: un barrier con el threshold mal puesto no da error —
+cuelga. El síntoma es un test que termina por `+UVM_TIMEOUT` sin un solo
+`UVM_ERROR`, y `+UVM_OBJECTION_TRACE` muestra la objection arriba y nadie
+avanzando.
+
 
 ---
 

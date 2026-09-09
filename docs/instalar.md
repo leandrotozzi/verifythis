@@ -21,7 +21,7 @@ make doctor          # ¿esta máquina puede correr el curso? qué falta y cómo
 make u3/tb-en-objetos            # una sección
 make                 # los 38 ejemplos (UVM incluido)
 make matrix          # idem, y regenera docs/verilator.md
-make ejercicios      # las 15 soluciones: verifica que sigan siendo resolubles
+make ejercicios      # las 18 soluciones: verifica que sigan siendo resolubles
 ```
 
 **Empezá por `make doctor`.** No compila nada: mira que haya Verilator ≥ 5.050,
@@ -103,7 +103,7 @@ con backpressure, donde el scoreboard no puede ser una tabla de cuatro filas.
 
 Los ejemplos **los corre el CI**, no sólo yo: cada push que toque `code/` corre
 los que no usan UVM (segundos) más `u4/tests`, y todas las noches corren los 38 más
-las 15 soluciones de los ejercicios. El badge `ejemplos` del README dice si están en verde
+las 18 soluciones de los ejercicios. El badge `ejemplos` del README dice si están en verde
 ahora, no en la fecha en que alguien los corrió a mano.
 
 Lo que anda y lo que no —con versión, fecha y el número de cobertura de cada

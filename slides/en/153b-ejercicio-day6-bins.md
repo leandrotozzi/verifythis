@@ -1,5 +1,5 @@
-<!-- es-sha: dba825f69b1f -->
-## Exercise · Day 6 · 3 of 4
+<!-- es-sha: 49c1cc9dfc27 -->
+## Exercise · Day 6 · 3 of 5
 
 #### *Closing a bin*
 

@@ -1,4 +1,4 @@
-## Ejercicio · Día 6 · 3 de 4
+## Ejercicio · Día 6 · 3 de 5
 
 #### *Cerrar un bin*
 

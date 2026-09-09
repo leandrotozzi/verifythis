@@ -1,4 +1,4 @@
-<!-- es-sha: 3876ea100ad4 -->
+<!-- es-sha: 58d61a3aa27d -->
 ## Capstone · Day 7
 
 #### *The whole testbench, from a blank sheet*
@@ -72,8 +72,10 @@ can happen.
   sequence that writes and reads the four registers
 - **3 · The scoreboard.** The DUT modelled in software. The checker runs it twice:
   against the healthy DUT it has to keep quiet, and with **`+BUG=1`** it has to scream
-- **4 · The coverage.** The covergroup with the seven rows of the verification
-  plan of the spec: more than 20 points, 90 % covered
+- **4 · The coverage.** The covergroup with the nine rows of the verification
+  plan of the spec: more than 20 points, 90 % covered. And **two rows come empty**
+- **5 · The properties.** The APB protocol inside `apb_if.sv`, with
+  `--assert`. With **`+BUG=2`** there is a bug the scoreboard cannot see
 
 Note:
 The order is not a whim of the checker: it is the field advice of the appendix
@@ -95,3 +97,52 @@ slave: there the pattern is the table indexed by ID of the analysis ports.
 And stage 4 closes the circle of day 6: the covergroup does not get invented, it gets copied
 from the table of the verification plan. If a bin is left at zero, there is a row of the
 plan that was not verified — no matter how green the scoreboard is.
+
+---
+
+## Capstone · Day 7
+
+#### *Stage 5: the bug the scoreboard cannot see*
+
+```systemverilog
+// In apb_if.sv, with the signals. The payload does not move until it ends
+property p_payload_estable;
+   @(posedge PCLK) PSEL && !(PENABLE && PREADY) |=> $stable({PADDR, PWRITE, PWDATA});
+endproperty
+
+a_payload_estable : assert property (p_payload_estable)
+   else `uvm_error("SVA", $sformatf("%m: the payload moved before PREADY"))
+```
+
+- `+BUG=2` does to the usual module what `d7-sva` did to the legacy
+  tester: **it moves `PADDR` in the middle of ACCESS**
+- The DUT answers at the new address, the monitor reconstructs **eight spotless
+  transfers**, and the scoreboard has nothing to compare wrongly
+- Measured: **8 `UVM_ERROR [SVA]`** and the same 8 transfers in the monitor's
+  log. The only one that notices is the assertion
+- And rows **8 and 9** of the plan come empty: *back to back* and unaligned
+  address. The bins are called `back_to_back` and `unaligned`
+
+Note:
+This is the stage that makes the capstone integrate the whole day and not half of it. The
+argument *"the scoreboard checks what, the assertion checks how"* came all the way from
+day 1 and got demonstrated on the VTALU; here it gets demonstrated on a bus with
+addresses, two phases and a wait state, which is where the student is going to need it.
+It is worth doing the arithmetic out loud, because it is what convinces: with `+BUG=2` the
+module changes the address after SETUP. The DUT is combinational in its
+decoding, so it serves the new address. The monitor samples on the
+handshake edge, so it reconstructs the transfer with the new
+address. Monitor and DUT agree — **there is nothing the scoreboard can compare
+wrongly**. The only one that knows the address moved is the one that was watching the
+wire on every edge.
+The two empty rows are the other half of the exercise and they are deliberately
+uncomfortable: the two things they measure are promised in the spec, each on a
+loose line, and none of the seven rows above measures them. Row 9 also
+trips up the scoreboard that decodes with the whole address — `PADDR[1:0]` is
+ignored, so `0x06` **is** the `SCRATCH`.
+And a trap worth telling because the course itself fell for it: the
+obvious reading of *"`PSLVERR` is valid together with `PREADY`"* is
+`PSLVERR |-> PREADY`, and it is **false** on this DUT. `PSLVERR` is combinational, so
+on an unmapped read it is already high during the wait state. Written as an
+assertion it fires on the healthy DUT. That rule is a `cover`, not an `assert`.
+

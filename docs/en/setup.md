@@ -1,4 +1,4 @@
-<!-- es-sha: 071632e41053 -->
+<!-- es-sha: 278682c53d8d -->
 # Setting up and running the examples
 
 The four ways to get the course running on a machine, from least to most work,
@@ -23,7 +23,7 @@ make doctor          # can this machine run the course? what is missing and how 
 make u3/tb-en-objetos            # one section
 make                 # the 38 examples (UVM included)
 make matrix          # the same, and regenerates docs/verilator.md
-make ejercicios      # the 15 solutions: checks that they are still solvable
+make ejercicios      # the 18 solutions: checks that they are still solvable
 ```
 
 **Start with `make doctor`.** It compiles nothing: it checks that Verilator ≥
@@ -110,7 +110,7 @@ backpressure, where the scoreboard cannot be a four-row table.
 
 The examples **are run by the CI**, not only by me: every push that touches
 `code/` runs the ones that do not use UVM (seconds) plus `u4/tests`, and every
-night the 38 run, plus the 15 exercise solutions. The `ejemplos` badge in the
+night the 38 run, plus the 18 exercise solutions. The `ejemplos` badge in the
 README says whether they are green *now*, not on the day somebody ran them by
 hand.
 

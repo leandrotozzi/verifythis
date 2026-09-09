@@ -67,6 +67,56 @@ conocido casi nunca se escribe. Se compra o se baja.
 
 ## Apéndice · De la VTALU a un bus real
 
+#### *Reuso vertical: el env del bloque adentro del env del sistema*
+
+```systemverilog
+class soc_env extends uvm_env;
+   apb_env apb_env_h;     // el env del bloque, sin tocarle una línea
+   axi_env axi_env_h;
+   soc_scoreboard sb_h;   // el de sistema mira las dos puntas, no las transferencias
+
+   function void build_phase(uvm_phase phase);
+      // Lo que cambia no es el código del env: es su CONFIGURACIÓN
+      apb_cfg.is_active = UVM_PASSIVE;   // acá el APB lo maneja el CPU del SoC
+      uvm_config_db #(apb_env_config)::set(this, "apb_env_h*", "cfg", apb_cfg);
+      apb_env_h = apb_env::type_id::create("apb_env_h", this);
+   endfunction
+endclass
+```
+
+- El reuso de la sección de agents es **horizontal**: dos instancias del mismo
+  agent en el mismo env. Éste es **vertical**, y es el que se cobra en un SoC
+- El env del bloque no se edita. Lo que cambia es su config: el agent pasa a
+  **pasivo** porque a nivel de sistema el bus lo maneja el DUT, no el testbench
+- Por eso `is_active` y el objeto de config no son ceremonia: son la bisagra que
+  hace que el mismo código sirva en los dos niveles
+- Lo que **no** sube es el scoreboard de bloque: el de sistema compara entrada
+  contra salida del SoC, y el de bloque sigue midiendo su bus
+
+Note:
+Ésta es la respuesta a *"¿y para qué tanta clase, si mi DUT tiene un bus?"*, y la
+respuesta es que el testbench del bloque no se escribe para el bloque: se escribe
+para que dentro de seis meses entre entero adentro del testbench del chip.
+La regla concreta que decide si un env es reusable, y conviene bajarla como
+checklist de tres puntos: **no crea su propia interface** —la recibe por
+`config_db`—, **no lee del `config_db` con rutas absolutas** —nada de
+`uvm_test_top.env_h.*`, porque a nivel de sistema esa ruta no existe—, y **no
+levanta objections propias** salvo que sea el que manda. Un env que rompe
+cualquiera de las tres compila igual y no se puede instanciar dos veces.
+El cambio de activo a pasivo es el caso típico y vale explicarlo despacio: a
+nivel de bloque el testbench maneja el APB porque no hay nadie más. A nivel de
+SoC ese bus lo maneja el procesador de verdad, así que el mismo agent tiene que
+mirar sin manejar — y eso ya está resuelto, es el `is_active` de la sección de
+agents. Ninguna línea nueva.
+Y el dato que cierra el capstone: el env que escribieron en `d7-final` **ya** es
+reusable, porque su config viene de afuera y su interface también. No fue
+casualidad; fue el `apb_env_config`.
+
+
+---
+
+## Apéndice · De la VTALU a un bus real
+
 #### *Por dónde empezar*
 
 - **Buscá un VIP antes de escribir un agent.** Casi nadie escribe un agent de AXI

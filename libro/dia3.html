@@ -1581,8 +1581,9 @@ factory devuelve. El <code>env</code> sigue diciendo exactamente lo mismo.
 Conviene nombrar las dos formas que existen, porque las dos aparecen en código
 ajeno: <code>set_type_override</code> cambia <strong>todos</strong> los pedidos de ese tipo en todo el
 testbench; <code>set_inst_override</code> cambia sólo los de una ruta —
-<code>&quot;env_h.tester_h&quot;</code>—. El curso usa la primera porque hay un solo tester; con dos
-agents, la segunda es la que sirve.
+<code>&quot;uvm_test_top.env_h.tester_h&quot;</code>, absoluta—. El curso usa la primera porque hay un
+solo tester; con dos agents, la segunda es la que sirve, y tiene su slide dos más
+adelante.
 Y el enganche hacia adelante: es exactamente el mecanismo que en las transactions va
 a reemplazar una <code>command_transaction</code> por una <code>maxmult_transaction</code>. Misma
 llamada, otro tipo.</p>
@@ -1651,6 +1652,54 @@ Con eso queda dicho el arco: el env no cambia nunca, el test cambia siempre, y l
 
 <section id="s150" class="slide">
 <h2 id="el-env-estructura-y-estímulo">El env: estructura y estímulo</h2>
+<h4 id="por-instancia-y-la-perilla-para-ver-qué-quedó-puesto"><em>Por instancia, y la perilla para ver qué quedó puesto</em></h4>
+<pre><code class="language-systemverilog">base_tester::type_id::set_type_override(add_tester::get_type());          // TODOS
+base_tester::type_id::set_inst_override(mult_tester::get_type(),
+                                        &quot;uvm_test_top.env_h.t2_h&quot;);      // uno solo
+
+uvm_coreservice_t::get().get_factory().print(0);   // qué overrides hay puestos
+</code></pre>
+<pre><code>Instance Overrides:
+  Requested Type  Override Path            Override Type
+  base_tester     uvm_test_top.env_h.t2_h  mult_tester
+  base_tester     env_h.t3_h               mult_tester   &lt;- registrado y NO aplicó
+Type Overrides:
+  base_tester     add_tester
+</code></pre>
+<ul>
+<li><code>set_inst_override</code> cambia <strong>una ruta</strong>, no un tipo. Y donde coinciden los dos,
+gana el de instancia</li>
+<li>La ruta es <strong>absoluta y arranca en <code>uvm_test_top</code></strong>. Medido: <code>&quot;env_h.t3_h&quot;</code> se
+registra igual, no da error, y <code>t3_h</code> sale <code>add_tester</code></li>
+<li><code>factory.print(0)</code> es la contraparte de <code>+TOPOLOGY</code>: uno dice lo que
+<strong>pediste</strong>, el otro lo que <strong>salió</strong>. Cuando no coinciden, el bug está en el medio</li>
+<li>Con <code>*</code> anda: <code>&quot;*.env_h.t4_h&quot;</code> aplica. Es el rodeo cuando el test no sabe dónde
+lo van a instanciar</li>
+</ul>
+<div class="nota">
+<p>Es la segunda mitad del override y la que aparece apenas hay dos agents del mismo
+tipo: no querés cambiar los dos, querés cambiar uno.
+La trampa de la ruta hay que decirla con el número de la medición, porque es
+exactamente la forma en que este mecanismo falla: <strong>el override con la ruta mal
+escrita se registra igual</strong>. <code>factory.print(0)</code> lo muestra en la tabla, prolijo,
+como si estuviera funcionando. No hay warning, no hay error, y el componente sale
+del tipo base. Es la misma familia que el <code>set_type_override</code> tardío del apéndice
+de trampas: la factory no valida rutas porque no puede — cuando se registra el
+override, el componente todavía no existe.
+La regla práctica: la ruta es la que imprime <code>+TOPOLOGY</code>, sin el <code>&lt;unnamed&gt;</code> de
+arriba. Si el árbol dice <code>uvm_test_top.env_h.t2_h</code>, eso es lo que va entre
+comillas. Y si no querés depender de dónde te instancian, <code>*.env_h.t2_h</code>, que
+también está medido y también aplica.
+El par de herramientas es lo que hay que llevarse: <code>factory.print(0)</code> dice lo que
+la factory tiene anotado, <code>print_topology()</code> dice qué se construyó de verdad. Un
+override que aparece en la primera y no se ve en la segunda es una ruta mal
+escrita o un <code>create()</code> que llegó antes.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/150">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s151" class="slide">
+<h2 id="el-env-estructura-y-estímulo">El env: estructura y estímulo</h2>
 <h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
 <ul>
 <li>Un testbench tiene <strong>estructura</strong> —qué componentes hay y cómo se conectan— y
@@ -1675,10 +1724,10 @@ vocabulario, porque vuelve con el agent y con las sequences.
 Código intractable es el que sale rápido y después no se deja tocar: casi
 siempre es estructura duplicada.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/150">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/151">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s151" class="slide">
+<section id="s152" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="el-47--del-tiempo-se-va-acá"><em>El 47 % del tiempo se va acá</em></h4>
 <ul>
@@ -1706,10 +1755,10 @@ Y la distinción de la última línea conviene anotarla en el pizarrón de entra
 porque es la pregunta 6 del repaso: verbosidad e info por un lado, actions y
 error/warning/fatal por el otro. Nunca se cruzan.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/151">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/152">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s152" class="slide">
+<section id="s153" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="lo-que-display-no-puede-hacer"><em>Lo que <code>$display</code> no puede hacer</em></h4>
 <ul>
@@ -1735,10 +1784,10 @@ es magia del simulador. <code>`uvm_info</code> es una macro que arma un string y
 pasa a un objeto —el <em>report server</em>— que decide qué hacer. Todo lo que sigue en
 la sección es configurar ese objeto.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/152">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/153">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s153" class="slide">
+<section id="s154" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="las-macros-de-reporting"><em>Las macros de reporting</em></h4>
 <ul>
@@ -1761,10 +1810,10 @@ decide si el mensaje sale o no</li>
 warnings, errores y fatales no tienen verbosidad — se controlan con actions, que
 es la última parte de la sección.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/153">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/154">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s154" class="slide">
+<section id="s155" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="las-macros-de-reporting-qué-hace-cada-una"><em>Las macros de reporting: qué hace cada una</em></h4>
 <ul>
@@ -1794,10 +1843,10 @@ Y la comparación honesta con el <code>$error</code> del día 2: aquel scoreboar
 hacía fallar el test, pero el contexto había que escribirlo a mano — y ahí nadie
 escribe la ruta jerárquica, porque no la sabe.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/154">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/155">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s155" class="slide">
+<section id="s156" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="los-seis-niveles-y-por-qué-el-mensaje-se-queda"><em>Los seis niveles, y por qué el mensaje se queda</em></h4>
 <ul>
@@ -1839,10 +1888,10 @@ El detalle de forma que se copia mal: la verbosidad es el <strong>tercer</strong
 libre, pero no lo elijas al azar: es la llave con la que después vas a filtrar.
 Que sea el nombre del componente, en mayúsculas, y siempre el mismo.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/155">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/156">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s156" class="slide">
+<section id="s157" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="el-techo-global-un-plusarg-sin-recompilar"><em>El techo global: un plusarg, sin recompilar</em></h4>
 <ul>
@@ -1870,10 +1919,10 @@ código en el componente que te interesa.
 Y el argumento de fondo, por si el grupo lo subestima: éste es el mecanismo que
 hace que un log de regresión de mil tests sea legible. No es cosmética de aula.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/156">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/157">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s157" class="slide">
+<section id="s158" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="uvm_cmdline_processor-la-línea-de-comandos-entera"><em><code>uvm_cmdline_processor</code>: la línea de comandos, entera</em></h4>
 <ul>
@@ -1911,10 +1960,10 @@ línea —porque el script los agrega y el usuario también— es un caso real, 
 así que al menos te podés dar cuenta. Es la clase de cosa que se paga una vez y
 se recuerda.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/157">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/158">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s158" class="slide">
+<section id="s159" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="el-techo-por-rama-dos-métodos-y-un-árbol"><em>El techo por rama: dos métodos y un árbol</em></h4>
 <ul>
@@ -1942,10 +1991,10 @@ escrito por la librería. Es la mejor forma de mostrar que no es un dibujo.
 traza cada <code>set()</code> y cada <code>get()</code> del <code>config_db</code> con el ámbito que se usó — que
 es la perilla del otro problema, el del ámbito que no matchea.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/158">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/159">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s159" class="slide">
+<section id="s160" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="el-techo-por-rama-dónde-va-la-llamada"><em>El techo por rama: dónde va la llamada</em></h4>
 <ul>
@@ -1974,10 +2023,10 @@ El sufijo <code>_hier</code> es el que se olvida, y falla en silencio: fijás el
 querías escuchar sigue callado. Regla práctica: si apuntás a una rama, <code>_hier</code>;
 si apuntás a una clase, sin.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/159">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/160">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s160" class="slide">
+<section id="s161" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="apagar-warnings-errores-y-mensajes-fatales"><em>Apagar warnings, errores y mensajes fatales</em></h4>
 <ul>
@@ -2018,10 +2067,10 @@ Y la aclaración honesta antes de enseñar a apagar errores, porque si no queda
 sonando raro: esto no es para que la regresión dé verde. Es para poder trabajar
 media tarde mientras otro arregla su clase, y se saca el mismo día.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/160">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/161">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s161" class="slide">
+<section id="s162" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="apagar-mensajes-por-dónde-se-hace"><em>Apagar mensajes: por dónde se hace</em></h4>
 <ul>
@@ -2059,10 +2108,10 @@ Y el par que conviene nombrar: <code>set_report_severity_action</code> es por se
 <code>set_report_id_action</code> es por ese string de ID que elegiste al escribir el
 mensaje. Ahí se paga la disciplina de haber usado siempre el mismo.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/161">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/162">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s162" class="slide">
+<section id="s163" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="apagar-mensajes-el-ejemplo-completo-y-el-log-que-queda"><em>Apagar mensajes: el ejemplo completo, y el log que queda</em></h4>
 <ul>
@@ -2102,10 +2151,10 @@ El scoreboard de esta sección suma de más A PROPÓSITO, es el bug que estamos
 mostrando. Por eso <code>code/u4/reporting/run.sh</code> exporta UVM_ERRORS_OK=1: por
 defecto un uvm_error hace fallar la corrida, y acá el error es el ejemplo.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/162">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/163">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s163" class="slide">
+<section id="s164" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="uvm_report_catcher-demotar-el-error-que-esperabas"><em><code>uvm_report_catcher</code>: demotar el error que esperabas</em></h4>
 <ul>
@@ -2149,10 +2198,10 @@ Y la trampa: si el catcher es demasiado ancho —por severidad y nada más— ap
 todos los errores del testbench con más ceremonia que <code>UVM_NO_ACTION</code>. El
 <code>get_id()</code> del <code>if</code> no es opcional.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/163">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/164">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s164" class="slide">
+<section id="s165" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
 <ul>
@@ -2180,10 +2229,10 @@ trabados: el bug no se ve en el log por defecto. Está impreso, en <code>UVM_HIG
 que no se acuerde de esta sección va a leer el código media hora antes de subir
 la verbosidad.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/164">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/165">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s165" class="slide quiz">
+<section id="s166" class="slide quiz">
 <h2 id="repaso-·-día-3">Repaso · Día 3</h2>
 <h4 id="1-de-7-·-uvm_test"><em>1 de 7 · <code>uvm_test</code></em></h4>
 <p><strong>¿Qué te permite hacer <code>+UVM_TESTNAME=add_test</code> que antes no podías?</strong></p>
@@ -2196,10 +2245,10 @@ la verbosidad.</p>
 <blockquote>
 <p><strong>Elegir el test sin recompilar</strong> — UVM lee ese plusarg y le pide el test a la <strong>factory</strong> por nombre. Es la diferencia entre 1000 tests × 5 minutos de compilación y una sola compilación.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/165">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/166">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s166" class="slide quiz">
+<section id="s167" class="slide quiz">
 <h2 id="repaso-·-día-3">Repaso · Día 3</h2>
 <h4 id="2-de-7-·-uvm-phases"><em>2 de 7 · UVM Phases</em></h4>
 <p><strong>¿En qué orden recorre UVM la jerarquía en <code>build_phase</code> y en <code>connect_phase</code>?</strong></p>
@@ -2212,10 +2261,10 @@ la verbosidad.</p>
 <blockquote>
 <p><strong>Build top-down, connect bottom-up</strong> — y tiene sentido: no podés conectar un componente que todavía no existe, así que primero se construye toda la jerarquía y recién después se conecta.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/166">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/167">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s167" class="slide quiz">
+<section id="s168" class="slide quiz">
 <h2 id="repaso-·-día-3">Repaso · Día 3</h2>
 <h4 id="3-de-7-·-objections"><em>3 de 7 · Objections</em></h4>
 <p><strong>¿Para qué sirve <code>raise_objection()</code> / <code>drop_objection()</code> en el <code>run_phase</code>?</strong></p>
@@ -2228,10 +2277,10 @@ la verbosidad.</p>
 <blockquote>
 <p><strong>Para que la fase no termine antes</strong> — todos los <code>run_phase</code> corren en paralelo, cada uno en su thread, y la fase termina cuando <strong>cae la última objection</strong>. Sin levantarla, la simulación se te termina en el tiempo 0.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/167">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/168">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s168" class="slide quiz">
+<section id="s169" class="slide quiz">
 <h2 id="repaso-·-día-3">Repaso · Día 3</h2>
 <h4 id="4-de-7-·-el-env"><em>4 de 7 · El env</em></h4>
 <p><strong>¿Qué le toca a cada uno: <code>uvm_env</code> y <code>uvm_test</code>?</strong></p>
@@ -2244,10 +2293,10 @@ la verbosidad.</p>
 <blockquote>
 <p><strong>Estructura vs. estímulo</strong> — cada clase hace <strong>una sola cosa bien</strong>. Por eso el <code>env</code> casi siempre tiene sólo <code>build_phase</code> y <code>connect_phase</code>, y el test casi siempre tiene sólo un override de la factory.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/168">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/169">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s169" class="slide quiz">
+<section id="s170" class="slide quiz">
 <h2 id="repaso-·-día-3">Repaso · Día 3</h2>
 <h4 id="5-de-7-·-factory-override"><em>5 de 7 · Factory override</em></h4>
 <p><strong><code>set_type_override()</code> reemplaza <code>base_tester</code> por <code>add_tester</code>. ¿Cuándo hay que llamarlo?</strong></p>
@@ -2260,10 +2309,10 @@ la verbosidad.</p>
 <blockquote>
 <p><strong>Antes del <code>build_phase</code></strong> — la factory decide qué construir <strong>en el momento del <code>create()</code></strong>. Si el override llega tarde, el <code>env</code> ya instanció la clase base y no hace nada.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/169">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/170">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s170" class="slide quiz">
+<section id="s171" class="slide quiz">
 <h2 id="repaso-·-día-3">Repaso · Día 3</h2>
 <h4 id="6-de-7-·-verbosidad"><em>6 de 7 · Verbosidad</em></h4>
 <p><strong>El techo de verbosidad (<code>+UVM_VERBOSITY=UVM_HIGH</code>), ¿sobre qué macros actúa?</strong></p>
@@ -2276,10 +2325,10 @@ la verbosidad.</p>
 <blockquote>
 <p><strong>Sólo sobre <code>`uvm_info</code></strong> — warnings, errores y fatales son <strong>inmunes</strong> al techo de verbosidad, y está bien que así sea: nadie quiere apagar un error sin querer. Para esos hace falta el mecanismo de <em>actions</em>.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/170">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/171">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s171" class="slide quiz">
+<section id="s172" class="slide quiz">
 <h2 id="repaso-·-día-3">Repaso · Día 3</h2>
 <h4 id="7-de-7-·-report-actions"><em>7 de 7 · Report actions</em></h4>
 <p><strong>Querés silenciar los <code>`uvm_error</code> de un scoreboard que otra persona está arreglando. ¿Dónde va el <code>set_report_severity_action_hier()</code>?</strong></p>
@@ -2292,10 +2341,10 @@ la verbosidad.</p>
 <blockquote>
 <p><strong>En <code>end_of_elaboration_phase</code></strong> — tiene que ser <strong>después</strong> de que la jerarquía esté construida (si no, el componente todavía no existe) y <strong>antes</strong> de que arranque la simulación. Esa fase es exactamente esa ventana.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/171">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/172">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s172" class="slide">
+<section id="s173" class="slide">
 <h2 id="ejercicio-·-día-3">Ejercicio · Día 3</h2>
 <h4 id="un-test-nuevo-sin-tocar-la-estructura"><em>Un test nuevo sin tocar la estructura</em></h4>
 <p><code>cd code/ejercicios/d3 &amp;&amp; bash run.sh</code></p>
@@ -2316,7 +2365,7 @@ Y que miren la cobertura al final: con puras multiplicaciones baja a 26 %. Un
 test enfocado cubre menos, y ésa es la razón de que hagan falta muchos — y de
 que agregar uno tenga que ser barato.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/172">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/173">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 </main>
 

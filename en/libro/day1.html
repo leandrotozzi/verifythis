@@ -3323,7 +3323,7 @@ And the operational mistake that repeats the most, to leave it burned in: the mi
 </section>
 
 <section id="s44" class="slide">
-<!-- es-sha: e2605d0f1ce7 -->
+<!-- es-sha: fe75ec040192 -->
 <h2 id="interfaces-and-bfm">Interfaces and BFM</h2>
 <h4 id="first-the-signals-stop-being-loose"><em>First: the signals stop being loose</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/interfaces-bfm/vtalu_bfm.sv</code> · #signals-and-clock</figcaption><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
@@ -3432,6 +3432,8 @@ used to be declared in the <code>top</code> now live together</li>
 <li>The clock gets generated inside: the interface is not a wire, it is a model of the bus</li>
 <li>Connecting the DUT becomes <code>.A(bfm.A)</code>, <code>.clk(bfm.clk)</code>… and a new signal gets
 declared <strong>once</strong>: the modules that use it see it appear without touching their ports</li>
+<li>What is not needed here and you will see in somebody else&#39;s RTL: the <strong><code>modport</code></strong>, which is
+the same interface with the directions set for one side of the wire</li>
 </ul>
 <div class="nota">
 <p>First step towards UVM and it does not have a single line of UVM.
@@ -3442,7 +3444,14 @@ interface, and the only port that changes is the DUT&#39;s.
 One detail of types that costs you: <code>op</code> is a <code>wire [2:0]</code> and <code>op_set</code> is the
 <code>operation_t</code>. The <code>assign op = op_set</code> is the bridge between the testbench enum and
 the DUT wires. It is the only place in the course where the seam between the
-two worlds is visible.</p>
+two worlds is visible.
+And the <code>modport</code>, which does not show up in the rest of the course and does in anybody
+else&#39;s RTL: it is a view of the interface with the directions declared —<code>modport dut (input A, input B, output result)</code>—, and the module asks for it in its port list
+(<code>vtalu_bfm.dut bus</code>). It is good for two things, and both are worth it: it lets the compiler
+stop the DUT if it writes a signal that was an input as far as it is concerned, and it lets whoever reads the
+interface know who drives what without opening the RTL. It is not here because the BFM belongs
+to the testbench and drives everything; at work the interface almost always comes with
+two or three modports and what you need to know is which one to ask for.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/44">see this slide in the deck &rsaquo;</a></p>
 </section>

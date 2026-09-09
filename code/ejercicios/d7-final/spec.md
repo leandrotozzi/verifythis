@@ -112,7 +112,18 @@ ejemplo, en [`docs/plan-de-verificacion.md`](../../../docs/plan-de-verificacion.
 | 5 | acumulador | **no** sumar con `EN=0` | random | scoreboard: `ACC` no se mueve | bin `ctrl` × `wr` |
 | 6 | acumulador | desborde de `ACC` | random | scoreboard: `STATUS[1]` | bin `ovf` |
 | 7 | control | `CLR` | random | scoreboard: `ACC=0`, `OVF=0` | bin `clr` |
+| 8 | protocolo | | | | bin `back_to_back` |
+| 9 | direcciones | | | | bin `unaligned` |
 
-Siete filas, y ninguna dice *"probar el APB"*: una fila es un escenario que se
+Nueve filas, y ninguna dice *"probar el APB"*: una fila es un escenario que se
 puede provocar, chequear y medir. Si tu covergroup tiene un bin que no está en
 esta tabla, o te falta una fila o te sobra un bin.
+
+**Las filas 8 y 9 vienen vacías, y ésa es la última parte del ejercicio.** Las
+dos cosas que miden están prometidas más arriba, cada una en una línea suelta:
+*"entre dos transferencias `PSEL` puede quedar alto"* y *"`PADDR[1:0]` se
+ignora"*. Ninguna de las siete filas de arriba las mide, y el scoreboard que
+decodifica con la dirección entera falla en la primera dirección no alineada.
+Completá el escenario, el estímulo y el chequeo. Los nombres de los bins son los
+que están puestos, porque el corrector lee la base de cobertura: son contrato,
+igual que los nombres de los tests.

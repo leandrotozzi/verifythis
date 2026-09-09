@@ -8,6 +8,10 @@ class apb_transaction extends uvm_sequence_item;
    rand bit [ 7:0] addr;
    rand bit [31:0] wdata;
 
+   // Row 8 of the plan: PSEL can stay high between two transfers. It is the
+   // driver that honours it, and the monitor reconstructs it from the bus.
+   rand bit        b2b;
+
    // The response: it is not rand. The driver writes it when it comes back from the bus, and
    // the monitor writes it when it sees it go by.
    bit [31:0]      rdata;
@@ -19,12 +23,19 @@ class apb_transaction extends uvm_sequence_item;
    // noisy, but it warns. See docs/verilator.md.
    // One in six falls outside the map: without that the unmapped bin of the
    // verification plan never fills.
+   // And row 9: PADDR[1:0] is ignored, so 0x06 IS the SCRATCH. Two unaligned
+   // addresses are enough to fill the bin -- and to catch a scoreboard that
+   // decodes with a case on the whole address.
    constraint c_addr {
       addr dist {
          CTRL_ADDR :/ 3, SCRATCH_ADDR :/ 3, ACC_ADDR :/ 2, STATUS_ADDR :/ 2,
-         8'h10 :/ 1, 8'h14 :/ 1
+         8'h06 :/ 1, 8'h0D :/ 1, 8'h10 :/ 1, 8'h14 :/ 1
       };
    }
+
+   // One in four back to back. It is a preference of the stimulus, not a rule of
+   // the protocol: the two spellings are legal.
+   constraint c_b2b { b2b dist {1'b0 :/ 3, 1'b1 :/ 1}; }
 
    // Half of the writes to CTRL turn EN on, and one in four asks for
    // CLR. Without biasing this, EN=1 comes up in half the cases anyway, but CLR
@@ -50,6 +61,7 @@ class apb_transaction extends uvm_sequence_item;
       super.do_copy(rhs);
       write  = copiada.write;
       addr   = copiada.addr;
+      b2b    = copiada.b2b;
       wdata  = copiada.wdata;
       rdata  = copiada.rdata;
       slverr = copiada.slverr;

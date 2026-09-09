@@ -1,4 +1,4 @@
-<!-- es-sha: c16462a2cd9e -->
+<!-- es-sha: e4df2b95cff7 -->
 <!-- .slide: id="apendice-bus" data-machete="res/diagrams/en/sequences_tb_completo.svg,res/diagrams/en/agents_agent.svg" -->
 
 ## Appendix · From the VTALU to a real bus
@@ -63,6 +63,56 @@ being enough and a `uvm_tlm_fifo` shows up inside the driver, or the *pipelined*
 a new topic: they are the same pieces as threads and as put and get.
 And about the second bullet, to bring the anxiety down: the monitor of a known
 protocol almost never gets written. It gets bought or downloaded.
+
+---
+
+## Appendix · From the VTALU to a real bus
+
+#### *Vertical reuse: the block env inside the system env*
+
+```systemverilog
+class soc_env extends uvm_env;
+   apb_env apb_env_h;     // the block env, without touching a line of it
+   axi_env axi_env_h;
+   soc_scoreboard sb_h;   // the system one watches both ends, not the transfers
+
+   function void build_phase(uvm_phase phase);
+      // What changes is not the env's code: it is its CONFIGURATION
+      apb_cfg.is_active = UVM_PASSIVE;   // here the APB is driven by the SoC's CPU
+      uvm_config_db #(apb_env_config)::set(this, "apb_env_h*", "cfg", apb_cfg);
+      apb_env_h = apb_env::type_id::create("apb_env_h", this);
+   endfunction
+endclass
+```
+
+- The reuse of the agents section is **horizontal**: two instances of the same
+  agent in the same env. This one is **vertical**, and it is the one that pays off in a SoC
+- The block env does not get edited. What changes is its config: the agent becomes
+  **passive** because at system level the bus is driven by the DUT, not the testbench
+- That is why `is_active` and the config object are not ceremony: they are the hinge that
+  makes the same code work at both levels
+- What does **not** move up is the block scoreboard: the system one compares the SoC's
+  input against its output, and the block one goes on measuring its bus
+
+Note:
+This is the answer to *"and what are all those classes for, if my DUT has a bus?"*, and the
+answer is that the block testbench is not written for the block: it is written
+so that in six months it goes whole inside the chip's testbench.
+The concrete rule that decides whether an env is reusable, worth handing over as a
+three-point checklist: **it does not create its own interface** —it receives it through
+`config_db`—, **it does not read from the `config_db` with absolute paths** —no
+`uvm_test_top.env_h.*`, because at system level that path does not exist—, and **it does not
+raise objections of its own** unless it is the one in charge. An env that breaks
+any of the three compiles just the same and cannot be instantiated twice.
+The change from active to passive is the typical case and is worth explaining slowly: at
+block level the testbench drives the APB because there is nobody else. At
+SoC level that bus is driven by the real processor, so the same agent has to
+watch without driving — and that is already solved, it is the `is_active` of the agents
+section. Not one new line.
+And the fact that closes the capstone: the env they wrote in `d7-final` **already** is
+reusable, because its config comes from outside and so does its interface. It was not
+a coincidence; it was the `apb_env_config`.
+
 
 ---
 

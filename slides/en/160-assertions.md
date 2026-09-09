@@ -1,4 +1,4 @@
-<!-- es-sha: c34771a4bb9d -->
+<!-- es-sha: 363f4ae0559a -->
 ## Assertions (SVA)
 
 #### *The hole the scoreboard left*
@@ -338,6 +338,49 @@ scoreboard, which has to be built, connected and configured.
 And the twist from the agents is worth saying slowly: the legacy module
 —the "boss's tester", without one line of UVM— is also being checked. Nobody
 asked its permission. That is the exercise of the day.
+---
+
+## Assertions (SVA)
+
+#### *`bind`: when the interface is not yours*
+
+```systemverilog
+// The checker lives outside. The RTL is not touched -- often it cannot be.
+module apb_checks (input bit PCLK, PSEL, PENABLE, PREADY);
+   a_setup : assert property (@(posedge PCLK) PSEL && !PENABLE |=> PENABLE);
+   c_setup : cover  property (@(posedge PCLK) PSEL && !PENABLE);
+endmodule
+
+// And in the top, one line per module you want to watch over:
+bind apb_regs apb_checks chk (.*);
+```
+
+- The previous slide holds when the interface **is yours**. Somebody else's RTL, the
+  bought IP and the legacy module do not get edited
+- `bind` puts an instance **inside** another module from the outside: the checker
+  sees the DUT's internal signals as if it had been written there
+- The `.*` connects by name. One `bind` covers **every** instance of
+  that module — or `bind top.dut ...` for a single one
+- You can also bind to an `interface`, and Verilator supports both forms
+
+Note:
+This is the interview question that follows the previous slide, and it is worth
+putting it like this: *"very nice to put the properties in the interface — and when the
+interface is not yours?"*. The answer is `bind`, and it is the way
+assertions are used in the industry: one checker file per block, all
+bound from the top, and the RTL without a line of verification inside.
+The underlying reason is not aesthetic: in a synthesis flow the RTL that is handed over
+is the one that gets synthesized, and putting `assert property` inside it forces everybody
+to carry the verification along. With `bind`, whoever synthesizes does not compile
+the checker file and that is that.
+The concrete advantage, and the one that makes it worth it: the bound checker sees the
+DUT's **internal signals** — the FSM state, the wait state counter —,
+which is exactly what the interface does not see. That is where assertions stop
+checking the protocol and start checking the implementation.
+And the warning: a badly written `bind` does not fail, connects nothing and the property is
+left not running. As always, the antidote is the `cover property` — if the cover
+is at zero, the `bind` did not arrive.
+
 
 ---
 

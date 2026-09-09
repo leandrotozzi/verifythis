@@ -8,7 +8,7 @@
 
 *Universal Verification Methodology · IEEE 1800.2 · SystemVerilog*
 
-8 unidades en 7 días —más un día 8 opcional— · 415 slides · **38 ejemplos que se ejecutan de verdad**,
+8 unidades en 7 días —más un día 8 opcional— · 431 slides · **38 ejemplos que se ejecutan de verdad**,
 con cobertura funcional, sobre el DUT **VTALU**
 
 [![build](https://github.com/leandrotozzi/verifythis/actions/workflows/build.yml/badge.svg)](https://github.com/leandrotozzi/verifythis/actions/workflows/build.yml)
@@ -39,7 +39,7 @@ o cloná el repo y abrí `index.html` con doble clic
 
 > ## También está entero en inglés — traducido, no pasado por una máquina
 >
-> Las mismas 415 slides, el mismo libro, los mismos 38 ejemplos y los mismos 15
+> Las mismas 431 slides, el mismo libro, los mismos 38 ejemplos y los mismos 15
 > ejercicios. `tools/lint-i18n.mjs` compara los dos árboles sección por sección y
 > falla si uno se movió y el otro no, así que las dos versiones son el mismo
 > curso y no dos cursos parecidos.
@@ -87,7 +87,7 @@ Para sólo **leerlo** no hace falta nada: abrí `index.html` con doble clic para
 deck, o `libro/dia1.html` para el libro. Los dos se commitean ya generados, así
 que un clon fresco anda sin build y sin internet.
 
-Los ejemplos no los corro yo a mano: el CI corre los 38 ejemplos y las 15
+Los ejemplos no los corro yo a mano: el CI corre los 38 ejemplos y las 18
 soluciones todas las noches, y el badge `ejemplos` de arriba dice si están en
 verde **ahora**.
 
@@ -96,9 +96,9 @@ verde **ahora**.
 
 | Tecla | Acción |
 |:--|:--|
-| <kbd>i</kbd> | índice del curso: 71 secciones —charlas, repasos, ejercicios y apéndices— agrupadas por día, o el botón ☰ de la esquina superior izquierda |
+| <kbd>i</kbd> | índice del curso: 74 secciones —charlas, repasos, ejercicios y apéndices— agrupadas por día, o el botón ☰ de la esquina superior izquierda |
 | <kbd>0</kbd>–<kbd>8</kbd> | ir a la portada / al Día 1–8 (la portada tiene los mismos saltos clickeables, y quedan en la URL: `index.html#/day3`) |
-| <kbd>Esc</kbd> | vista general de las 415 slides |
+| <kbd>Esc</kbd> | vista general de las 431 slides |
 | <kbd>s</kbd> | notas del presentador, en una ventana aparte |
 | <kbd>n</kbd> | las mismas notas, abajo de la slide y sin salir de la página (queda recordado) |
 | <kbd>v</kbd> | en las slides de repaso, revelar la respuesta sin clickear |

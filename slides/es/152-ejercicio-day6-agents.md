@@ -1,4 +1,4 @@
-## Ejercicio · Día 6 · 1 de 4
+## Ejercicio · Día 6 · 1 de 5
 
 #### *El agent que sólo mira*
 

@@ -1,4 +1,4 @@
-<!-- es-sha: f99766551b39 -->
+<!-- es-sha: c41a4e77e810 -->
 # APB_REGS — specification
 
 An **APB3** slave with four 32-bit registers. It is all there is: there is no
@@ -113,7 +113,17 @@ example, in [`docs/plan-de-verificacion.md`](../../../docs/plan-de-verificacion.
 | 5 | accumulator | do **not** add with `EN=0` | random | scoreboard: `ACC` does not move | bin `ctrl` × `wr` |
 | 6 | accumulator | overflow of `ACC` | random | scoreboard: `STATUS[1]` | bin `ovf` |
 | 7 | control | `CLR` | random | scoreboard: `ACC=0`, `OVF=0` | bin `clr` |
+| 8 | protocol | | | | bin `back_to_back` |
+| 9 | addresses | | | | bin `unaligned` |
 
-Seven rows, and none of them says *"test the APB"*: a row is a scenario that can
+Nine rows, and none of them says *"test the APB"*: a row is a scenario that can
 be provoked, checked and measured. If your covergroup has a bin that is not in
 this table, either you are missing a row or you have a spare bin.
+
+**Rows 8 and 9 come empty, and that is the last part of the exercise.** The two
+things they measure are promised further up, each one on a loose line: *"between
+two transfers `PSEL` can stay high"* and *"`PADDR[1:0]` is ignored"*. None of the
+seven rows above measures them, and the scoreboard that decodes with the whole
+address fails on the first unaligned address. Fill in the scenario, the stimulus
+and the check. The bin names are the ones already there, because the checker
+reads the coverage database: they are contract, the same as the test names.

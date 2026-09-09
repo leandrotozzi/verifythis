@@ -1174,7 +1174,7 @@ not valid is doing half of each.</p>
 </section>
 
 <section id="s135" class="slide">
-<!-- es-sha: f111a9cec97b -->
+<!-- es-sha: e6223ecdb679 -->
 <h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
 <h4 id="two-things-that-change-for-different-reasons"><em>Two things that change for different reasons</em></h4>
 <ul>
@@ -1591,8 +1591,9 @@ factory returns. The <code>env</code> still says exactly the same thing.
 It is worth naming the two forms that exist, because both show up in code
 that is not yours: <code>set_type_override</code> changes <strong>every</strong> request for that type in the whole
 testbench; <code>set_inst_override</code> changes only the ones on one path —
-<code>&quot;env_h.tester_h&quot;</code>—. The course uses the first because there is a single tester; with two
-agents, the second is the one that helps.
+<code>&quot;uvm_test_top.env_h.tester_h&quot;</code>, absolute—. The course uses the first because there is a
+single tester; with two agents, the second is the one that helps, and it has its slide two
+further on.
 And the hook forward: it is exactly the mechanism that in the transactions is going
 to replace a <code>command_transaction</code> with a <code>maxmult_transaction</code>. Same
 call, another type.</p>
@@ -1661,6 +1662,54 @@ only thing that binds them is a type string in the factory.</p>
 
 <section id="s150" class="slide">
 <h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
+<h4 id="by-instance-and-the-knob-for-seeing-what-got-set"><em>By instance, and the knob for seeing what got set</em></h4>
+<pre><code class="language-systemverilog">base_tester::type_id::set_type_override(add_tester::get_type());          // ALL of them
+base_tester::type_id::set_inst_override(mult_tester::get_type(),
+                                        &quot;uvm_test_top.env_h.t2_h&quot;);      // just one
+
+uvm_coreservice_t::get().get_factory().print(0);   // which overrides are in place
+</code></pre>
+<pre><code>Instance Overrides:
+  Requested Type  Override Path            Override Type
+  base_tester     uvm_test_top.env_h.t2_h  mult_tester
+  base_tester     env_h.t3_h               mult_tester   &lt;- registered and did NOT apply
+Type Overrides:
+  base_tester     add_tester
+</code></pre>
+<ul>
+<li><code>set_inst_override</code> changes <strong>one path</strong>, not a type. And where the two coincide,
+the instance one wins</li>
+<li>The path is <strong>absolute and starts at <code>uvm_test_top</code></strong>. Measured: <code>&quot;env_h.t3_h&quot;</code> gets
+registered all the same, gives no error, and <code>t3_h</code> comes out an <code>add_tester</code></li>
+<li><code>factory.print(0)</code> is the counterpart of <code>+TOPOLOGY</code>: one says what you
+<strong>asked for</strong>, the other what <strong>came out</strong>. When they do not match, the bug is in between</li>
+<li>With <code>*</code> it works: <code>&quot;*.env_h.t4_h&quot;</code> applies. It is the way round when the test does not know where
+it is going to be instantiated</li>
+</ul>
+<div class="nota">
+<p>It is the second half of the override and the one that shows up as soon as there are two agents of the
+same type: you do not want to change both, you want to change one.
+The path trap has to be said with the measurement&#39;s number, because it is
+exactly the way this mechanism fails: <strong>the override with the badly written path
+gets registered all the same</strong>. <code>factory.print(0)</code> shows it in the table, tidy,
+as if it were working. There is no warning, there is no error, and the component comes out
+of the base type. It is the same family as the late <code>set_type_override</code> of the traps
+appendix: the factory does not validate paths because it cannot — when the
+override is registered, the component does not exist yet.
+The practical rule: the path is the one <code>+TOPOLOGY</code> prints, without the <code>&lt;unnamed&gt;</code> at the
+top. If the tree says <code>uvm_test_top.env_h.t2_h</code>, that is what goes between
+quotes. And if you do not want to depend on where they instantiate you, <code>*.env_h.t2_h</code>,
+which is also measured and also applies.
+The pair of tools is what to take home: <code>factory.print(0)</code> says what
+the factory has written down, <code>print_topology()</code> says what actually got built. An
+override that shows up in the first and is not visible in the second is a badly written path
+or a <code>create()</code> that arrived first.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/150">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s151" class="slide">
+<h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
 <h4 id="summary-of-the-unit"><em>Summary of the unit</em></h4>
 <ul>
 <li>A testbench has <strong>structure</strong> —which components there are and how they connect— and
@@ -1685,10 +1734,10 @@ vocabulary, because it comes back with the agent and with the sequences.
 Intractable code is the one that comes out fast and afterwards will not let itself be touched: almost
 always it is duplicated structure.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/150">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/151">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s151" class="slide">
+<section id="s152" class="slide">
 <!-- es-sha: 5c9f5d528669 -->
 <h2 id="reporting">Reporting</h2>
 <h4 id="47--of-the-time-goes-here"><em>47 % of the time goes here</em></h4>
@@ -1717,10 +1766,10 @@ And the distinction on the last line is worth writing on the board from the star
 because it is question 6 of the review: verbosity and info on one side, actions and
 error/warning/fatal on the other. They never cross.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/151">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/152">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s152" class="slide">
+<section id="s153" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="what-display-cannot-do"><em>What <code>$display</code> cannot do</em></h4>
 <ul>
@@ -1746,10 +1795,10 @@ is simulator magic. <code>`uvm_info</code> is a macro that assembles a string an
 to an object —the <em>report server</em>— that decides what to do. Everything that follows in
 the section is configuring that object.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/152">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/153">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s153" class="slide">
+<section id="s154" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="the-reporting-macros"><em>The reporting macros</em></h4>
 <ul>
@@ -1772,10 +1821,10 @@ that decides whether the message comes out or not</li>
 warnings, errors and fatals have no verbosity — they are controlled with actions, which
 is the last part of the section.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/153">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/154">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s154" class="slide">
+<section id="s155" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="the-reporting-macros-what-each-one-does"><em>The reporting macros: what each one does</em></h4>
 <ul>
@@ -1805,10 +1854,10 @@ And the honest comparison with the <code>$error</code> of day 2: that scoreboard
 made the test fail, but the context had to be written by hand — and there nobody
 writes the hierarchical path, because they do not know it.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/154">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/155">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s155" class="slide">
+<section id="s156" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="the-six-levels-and-why-the-message-stays"><em>The six levels, and why the message stays</em></h4>
 <ul>
@@ -1850,10 +1899,10 @@ The formal detail that gets copied wrong: the verbosity is the <strong>third</st
 string, but do not pick it at random: it is the key you are going to filter with afterwards.
 Make it the name of the component, in capitals, and always the same one.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/155">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/156">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s156" class="slide">
+<section id="s157" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="the-global-ceiling-a-plusarg-without-recompiling"><em>The global ceiling: a plusarg, without recompiling</em></h4>
 <ul>
@@ -1881,10 +1930,10 @@ code in the component you care about.
 And the underlying argument, in case the group underrates it: this is the mechanism that
 makes a regression log of a thousand tests readable. It is not classroom cosmetics.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/156">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/157">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s157" class="slide">
+<section id="s158" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="uvm_cmdline_processor-the-command-line-whole"><em><code>uvm_cmdline_processor</code>: the command line, whole</em></h4>
 <ul>
@@ -1921,10 +1970,10 @@ line —because the script adds them and the user does too— is a real case, an
 <code>$value$plusargs</code> takes one without saying which. The <code>uvm_cmdline_processor</code> returns 2,
 so at least you can notice. It is the kind of thing you pay for once and remember.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/157">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/158">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s158" class="slide">
+<section id="s159" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="the-ceiling-per-branch-two-methods-and-a-tree"><em>The ceiling per branch: two methods and a tree</em></h4>
 <ul>
@@ -1953,10 +2002,10 @@ not draw the tree, it traces every <code>set()</code> and every <code>get()</cod
 the scope that was used — which is the knob for the other problem, the scope that
 does not match.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/158">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/159">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s159" class="slide">
+<section id="s160" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="the-ceiling-per-branch-where-the-call-goes"><em>The ceiling per branch: where the call goes</em></h4>
 <ul>
@@ -1985,10 +2034,10 @@ The <code>_hier</code> suffix is the one that gets forgotten, and it fails silen
 wanted to hear stays quiet. Rule of thumb: if you are aiming at a branch, <code>_hier</code>;
 if you are aiming at a class, without.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/159">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/160">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s160" class="slide">
+<section id="s161" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="switching-off-warnings-errors-and-fatal-messages"><em>Switching off warnings, errors and fatal messages</em></h4>
 <ul>
@@ -2028,10 +2077,10 @@ And the honest clarification before teaching how to switch off errors, because o
 sounds odd: this is not so that the regression comes out green. It is to be able to work
 half an afternoon while somebody else fixes their class, and it comes out the same day.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/160">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/161">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s161" class="slide">
+<section id="s162" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="switching-off-messages-where-it-gets-done"><em>Switching off messages: where it gets done</em></h4>
 <ul>
@@ -2070,10 +2119,10 @@ And the pair worth naming: <code>set_report_severity_action</code> is by severit
 <code>set_report_id_action</code> is by that ID string you picked when writing the
 message. That is where the discipline of having always used the same one gets paid back.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/161">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/162">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s162" class="slide">
+<section id="s163" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="switching-off-messages-the-complete-example-and-the-log-you-are-left-with"><em>Switching off messages: the complete example, and the log you are left with</em></h4>
 <ul>
@@ -2113,10 +2162,10 @@ The scoreboard of this section adds too much ON PURPOSE, it is the bug we are
 showing. That is why <code>code/u4/reporting/run.sh</code> exports UVM_ERRORS_OK=1: by
 default a uvm_error makes the run fail, and here the error is the example.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/162">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/163">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s163" class="slide">
+<section id="s164" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="uvm_report_catcher-demoting-the-error-you-were-expecting"><em><code>uvm_report_catcher</code>: demoting the error you were expecting</em></h4>
 <ul>
@@ -2160,10 +2209,10 @@ And the trap: if the catcher is too wide —by severity and nothing else— you 
 every error of the testbench with more ceremony than <code>UVM_NO_ACTION</code>. The
 <code>get_id()</code> of the <code>if</code> is not optional.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/163">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/164">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s164" class="slide">
+<section id="s165" class="slide">
 <h2 id="reporting">Reporting</h2>
 <h4 id="summary-of-the-unit"><em>Summary of the unit</em></h4>
 <ul>
@@ -2191,10 +2240,10 @@ stuck: the bug is not visible in the default log. It is printed, at <code>UVM_HI
 does not remember this section is going to read the code for half an hour before raising
 the verbosity.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/164">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/165">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s165" class="slide quiz">
+<section id="s166" class="slide quiz">
 <!-- es-sha: 48345767ee1d -->
 
 
@@ -2210,10 +2259,10 @@ the verbosity.</p>
 <blockquote>
 <p><strong>Pick the test without recompiling</strong> — UVM reads that plusarg and asks the <strong>factory</strong> for the test by name. It is the difference between 1000 tests × 5 minutes of compilation and a single compilation.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/165">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/166">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s166" class="slide quiz">
+<section id="s167" class="slide quiz">
 <h2 id="review-·-day-3">Review · Day 3</h2>
 <h4 id="2-of-7-·-uvm-phases"><em>2 of 7 · UVM Phases</em></h4>
 <p><strong>In what order does UVM walk the hierarchy in <code>build_phase</code> and in <code>connect_phase</code>?</strong></p>
@@ -2226,10 +2275,10 @@ the verbosity.</p>
 <blockquote>
 <p><strong>Build top-down, connect bottom-up</strong> — and it makes sense: you cannot connect a component that does not exist yet, so first the whole hierarchy gets built and only then does it get connected.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/166">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/167">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s167" class="slide quiz">
+<section id="s168" class="slide quiz">
 <h2 id="review-·-day-3">Review · Day 3</h2>
 <h4 id="3-of-7-·-objections"><em>3 of 7 · Objections</em></h4>
 <p><strong>What are <code>raise_objection()</code> / <code>drop_objection()</code> for in the <code>run_phase</code>?</strong></p>
@@ -2242,10 +2291,10 @@ the verbosity.</p>
 <blockquote>
 <p><strong>So that the phase does not end early</strong> — every <code>run_phase</code> runs in parallel, each one in its thread, and the phase ends when <strong>the last objection drops</strong>. Without raising it, the simulation ends on you at time 0.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/167">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/168">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s168" class="slide quiz">
+<section id="s169" class="slide quiz">
 <h2 id="review-·-day-3">Review · Day 3</h2>
 <h4 id="4-of-7-·-the-env"><em>4 of 7 · The env</em></h4>
 <p><strong>What does each one get: <code>uvm_env</code> and <code>uvm_test</code>?</strong></p>
@@ -2258,10 +2307,10 @@ the verbosity.</p>
 <blockquote>
 <p><strong>Structure vs. stimulus</strong> — each class does <strong>one single thing well</strong>. That is why the <code>env</code> almost always has only <code>build_phase</code> and <code>connect_phase</code>, and the test almost always has only a factory override.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/168">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/169">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s169" class="slide quiz">
+<section id="s170" class="slide quiz">
 <h2 id="review-·-day-3">Review · Day 3</h2>
 <h4 id="5-of-7-·-factory-override"><em>5 of 7 · Factory override</em></h4>
 <p><strong><code>set_type_override()</code> replaces <code>base_tester</code> with <code>add_tester</code>. When does it have to be called?</strong></p>
@@ -2274,10 +2323,10 @@ the verbosity.</p>
 <blockquote>
 <p><strong>Before the <code>build_phase</code></strong> — the factory decides what to build <strong>at the moment of the <code>create()</code></strong>. If the override arrives late, the <code>env</code> has already instantiated the base class and it does nothing.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/169">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/170">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s170" class="slide quiz">
+<section id="s171" class="slide quiz">
 <h2 id="review-·-day-3">Review · Day 3</h2>
 <h4 id="6-of-7-·-verbosity"><em>6 of 7 · Verbosity</em></h4>
 <p><strong>The verbosity ceiling (<code>+UVM_VERBOSITY=UVM_HIGH</code>), which macros does it act on?</strong></p>
@@ -2290,10 +2339,10 @@ the verbosity.</p>
 <blockquote>
 <p><strong>Only on <code>`uvm_info</code></strong> — warnings, errors and fatals are <strong>immune</strong> to the verbosity ceiling, and it is right that they should be: nobody wants to switch off an error by accident. For those you need the <em>actions</em> mechanism.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/170">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/171">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s171" class="slide quiz">
+<section id="s172" class="slide quiz">
 <h2 id="review-·-day-3">Review · Day 3</h2>
 <h4 id="7-of-7-·-report-actions"><em>7 of 7 · Report actions</em></h4>
 <p><strong>You want to silence the <code>`uvm_error</code> of a scoreboard somebody else is fixing. Where does the <code>set_report_severity_action_hier()</code> go?</strong></p>
@@ -2306,10 +2355,10 @@ the verbosity.</p>
 <blockquote>
 <p><strong>In <code>end_of_elaboration_phase</code></strong> — it has to be <strong>after</strong> the hierarchy is built (otherwise the component does not exist yet) and <strong>before</strong> the simulation starts. That phase is exactly that window.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/171">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/172">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s172" class="slide">
+<section id="s173" class="slide">
 <!-- es-sha: 5e56ebbad51e -->
 <h2 id="exercise-·-day-3">Exercise · Day 3</h2>
 <h4 id="a-new-test-without-touching-the-structure"><em>A new test without touching the structure</em></h4>
@@ -2331,7 +2380,7 @@ And have them look at the coverage at the end: with nothing but multiplications 
 focused test covers less, and that is the reason many are needed — and
 the reason adding one has to be cheap.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/172">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/173">see this slide in the deck &rsaquo;</a></p>
 </section>
 </main>
 

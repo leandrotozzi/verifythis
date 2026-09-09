@@ -1,4 +1,4 @@
-<!-- es-sha: 0bb5764edd65 -->
+<!-- es-sha: 0ab8683f26bb -->
 ## Transactions
 
 #### *The testbench is well divided up, and the data is not*
@@ -331,6 +331,54 @@ radix— and there is a `uvm_line_printer` that puts the whole object on one lin
 The reason to prefer `convert2string()` is simpler and should be said that way:
 written by hand it fits in one line that says what you care about, and in a file of
 a hundred thousand lines that matters.
+
+---
+
+## Transactions
+
+#### *The field macros: reading them even if you do not write them*
+
+```systemverilog
+class command_transaction extends uvm_sequence_item;
+   `uvm_object_utils_begin(command_transaction)
+      `uvm_field_int (A,  UVM_DEFAULT | UVM_HEX)   // an integral field
+      `uvm_field_enum(operation_t, op, UVM_DEFAULT)
+      `uvm_field_object(payload, UVM_DEFAULT | UVM_REFERENCE)  // handle, not a copy
+   `uvm_object_utils_end
+endclass
+```
+
+- It is what you will find in **every VIP** you open. They generate `do_copy`,
+  `do_compare`, `do_print`, `do_pack` and the automatic configuration, out of one
+  declaration per field
+- The second argument is a mask: `UVM_DEFAULT` turns on every
+  operation, and `UVM_NOCOMPARE` / `UVM_NOPRINT` turn one off. The radix
+  (`UVM_HEX`, `UVM_DEC`) is only for printing
+- `UVM_REFERENCE` on a `uvm_field_object` copies **the handle**; without it, the copy
+  is deep. It is the same decision as `do_copy()`, taken in a constant
+- The course writes them by hand for the reason already given: that gets debugged, this
+  does not. But reading them you do have to know
+
+Note:
+This is the *"and when you open the VIP at work"* slide. The course's decision
+—writing `do_copy`, `do_compare` and `convert2string` by hand— is taken and well
+taken, and it is not being reversed here: what gets added is the half that was missing,
+which is **reading** what somebody else wrote.
+The way to read it is always the same and is worth handing over as a recipe: the list
+of `` `uvm_field_* `` **is** the definition of what "equal" means and what
+"copy" means for that class. If a field is not on the list, `compare()`
+does not look at it — and that is the most expensive bug these macros produce: a scoreboard
+that goes green because the field that matters was left out of the declaration.
+The `UVM_REFERENCE` deserves its second, because it is the `do_copy()` trap again
+in another disguise: without it, copying the transaction also copies the object hanging off it, and
+a `clone()` in a monitor with heavy traffic gets expensive without anybody noticing.
+With it, the two transactions share the same payload — which is exactly what
+MOOCOW says must not be modified.
+The real cost, so the course's decision does not look like taste: the macros
+expand into hundreds of lines per class, and when something goes wrong the error points
+inside the expansion. A hand-written four-line `do_compare` reads
+on the spot.
+
 
 
 ---

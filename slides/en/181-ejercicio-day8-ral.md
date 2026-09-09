@@ -1,5 +1,5 @@
-<!-- es-sha: 38096c3189a5 -->
-## Exercise · Day 8
+<!-- es-sha: 32d406bafe7d -->
+## Exercise · Day 8 · 1 of 2
 
 #### *Modelling the register map*
 

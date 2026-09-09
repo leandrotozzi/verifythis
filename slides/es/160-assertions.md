@@ -338,6 +338,49 @@ scoreboard, que hay que construir, conectar y configurar.
 Y la vuelta de tuerca de los agents vale decirla despacio: el módulo heredado
 —el "tester del jefe", sin una línea de UVM— también está siendo chequeado. Nadie
 le pidió permiso. Ése es el ejercicio del día.
+---
+
+## Assertions (SVA)
+
+#### *`bind`: cuando la interface no es tuya*
+
+```systemverilog
+// El checker vive afuera. El RTL no se toca — muchas veces no se puede.
+module apb_checks (input bit PCLK, PSEL, PENABLE, PREADY);
+   a_setup : assert property (@(posedge PCLK) PSEL && !PENABLE |=> PENABLE);
+   c_setup : cover  property (@(posedge PCLK) PSEL && !PENABLE);
+endmodule
+
+// Y en el top, una línea por cada módulo que se quiera vigilar:
+bind apb_regs apb_checks chk (.*);
+```
+
+- La slide anterior vale cuando la interface **es tuya**. El RTL ajeno, el IP
+  comprado y el módulo heredado no se editan
+- `bind` mete una instancia **adentro** de otro módulo desde afuera: el checker
+  ve las señales internas del DUT como si estuviera escrito ahí
+- El `.*` conecta por nombre. Un `bind` alcanza para **todas** las instancias de
+  ese módulo — o `bind top.dut ...` para una sola
+- También se puede bindear a una `interface`, y Verilator soporta las dos formas
+
+Note:
+Ésta es la pregunta de entrevista que sigue a la slide anterior, y conviene
+plantearla así: *"muy lindo poner las properties en la interface — ¿y cuando la
+interface no es tuya?"*. La respuesta es `bind`, y es la forma en que las
+assertions se usan en la industria: un archivo de checkers por bloque, todos
+bindeados desde el top, y el RTL sin una línea de verificación adentro.
+El motivo de fondo no es estético: en un flujo de síntesis el RTL que se entrega
+es el que se sintetiza, y meterle `assert property` adentro obliga a todo el
+mundo a llevar la verificación puesta. Con `bind`, el que sintetiza no compila
+el archivo de checkers y listo.
+La ventaja concreta, y la que hace que valga la pena: el checker bindeado ve las
+**señales internas** del DUT — el estado de la FSM, el contador de wait states —,
+que es justamente lo que la interface no ve. Ahí es donde las assertions dejan
+de chequear el protocolo y pasan a chequear la implementación.
+Y el aviso: un `bind` mal escrito no falla, no conecta nada y la property queda
+sin correr. Igual que siempre, el antídoto es el `cover property` — si el cover
+está en cero, el `bind` no llegó.
+
 
 ---
 

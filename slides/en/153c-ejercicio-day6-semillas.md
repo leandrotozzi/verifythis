@@ -1,5 +1,5 @@
-<!-- es-sha: ab7cbfdecff6 -->
-## Exercise · Day 6 · 4 of 4
+<!-- es-sha: a4527060f67f -->
+## Exercise · Day 6 · 4 of 5
 
 #### *The same sequence, another seed*
 

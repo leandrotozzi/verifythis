@@ -3414,6 +3414,8 @@ antes estaban declarados en el <code>top</code> ahora viven juntos</li>
 <li>El reloj se genera adentro: la interface no es un cable, es un modelo del bus</li>
 <li>Conectar el DUT pasa a ser <code>.A(bfm.A)</code>, <code>.clk(bfm.clk)</code>… y una señal nueva se
 declara <strong>una vez</strong>: los módulos que la usan la ven aparecer sin tocar sus puertos</li>
+<li>Lo que acá no hace falta y en un RTL ajeno vas a ver: el <strong><code>modport</code></strong>, que es
+la misma interface con las direcciones puestas para un lado del cable</li>
 </ul>
 <div class="nota">
 <p>Primer paso hacia UVM y no tiene una línea de UVM.
@@ -3424,7 +3426,14 @@ list, y una señal nueva se cablea en todos. Acá se declara en la interface, y 
 Un detalle de tipos que se cobra: <code>op</code> es un <code>wire [2:0]</code> y <code>op_set</code> es el
 <code>operation_t</code>. El <code>assign op = op_set</code> es el puente entre el enum del testbench y
 los cables del DUT. Es el único lugar del curso donde se ve la costura entre los
-dos mundos.</p>
+dos mundos.
+Y el <code>modport</code>, que no aparece en el resto del curso y sí en cualquier RTL ajeno:
+es una vista de la interface con las direcciones declaradas —<code>modport dut (input A, input B, output result)</code>—, y el módulo la pide en su port list
+(<code>vtalu_bfm.dut bus</code>). Sirve para dos cosas, y las dos valen: que el compilador
+frene al DUT si escribe una señal que para él era de entrada, y que el que lee la
+interface sepa quién maneja qué sin abrir el RTL. Acá no está porque la BFM es
+del testbench y maneja todo; en el trabajo la interface casi siempre viene con
+dos o tres modports y lo que hay que saber es cuál pedir.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/44">ver esta slide en el deck &rsaquo;</a></p>
 </section>

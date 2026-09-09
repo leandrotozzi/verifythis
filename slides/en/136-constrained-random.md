@@ -1,4 +1,4 @@
-<!-- es-sha: 781d3c5389f0 -->
+<!-- es-sha: c25696d6d800 -->
 ## Constrained random
 
 #### *The other half of the pincer*
@@ -60,6 +60,63 @@ return value the class is left with the values it had**. The testbench goes on
 running and sends garbage.
 The rule to take away from here, and one the course keeps everywhere in `code/`: a
 `randomize()` always goes inside an `if` that checks the return value. Never on its own.
+
+---
+
+## Constrained random
+
+#### *The other three words: `randc` and the two hooks*
+
+```systemverilog
+class command_transaction extends uvm_sequence_item;
+   rand  byte unsigned A;       // it can repeat: 3 3 6 1 3 4 6 2 ...
+   randc bit [2:0]     indice;  // it walks the 8 and only then repeats
+
+   function void pre_randomize();   // runs BEFORE the draw
+      if (!primera) A = A_anterior; // …with the values still old
+   endfunction
+
+   function void post_randomize();  // runs AFTER, with the new values
+      checksum = A ^ B;             // what is not drawn gets computed here
+   endfunction
+endclass
+```
+
+- `randc` is **cyclic**: it exhausts every value before repeating one. Measured on
+  Verilator 5.052: `4 2 1 7 5 6 3 0` and only then does it start over
+- It is for walking a small space —an opcode, a register index— without
+  waiting for chance to cover it. Only on **small** integral types: the LRM
+  guarantees 8 bits and simulators usually stop at 16
+- `pre_randomize()` / `post_randomize()` are the two hooks `randomize()`
+  calls on its own. The **derived** field —a checksum, a parity— gets computed in the
+  second one, it does not get drawn
+- And a warning: whatever gets computed in `post_randomize()` does **not** take part in the
+  solver. If it has to satisfy a constraint, it is a `rand` field
+
+Note:
+They are the three words of the language that are missing for the student to read any
+foreign transaction without stopping. None is hard; what is needed is knowing
+when each one is used.
+`randc` is the answer to *"I want to go through every opcode"*, and the argument
+is efficiency: with `rand` over eight values it takes some twenty-two
+draws to see all eight —the coupon collector's problem—, and with
+`randc` eight are enough. And the width limit has a concrete reason: the solver
+has to carry the list of what has already come out, so a 32-bit `randc` would be
+a table of four billion entries.
+The two hooks are best explained by what they solve. `post_randomize()` is
+for the field that **derives** from the drawn ones: a CRC, a parity, the
+length of a payload that has already been drawn. Making it `rand` with a constraint
+tying it to the rest is asking the solver to solve a problem that is done with
+an XOR.
+`pre_randomize()` gets used less and has a trap worth naming: it runs **before**
+the draw, which means the fields still have the values of the previous
+transaction. That makes it useful for whatever depends on the past —keeping the previous
+address to ask for a contiguous access— and dangerous if you believe the new ones
+are already there.
+And the underlying warning, which is the same as the whole section's: a field computed in
+`post_randomize()` is **outside** the system of equations. The solver does not see it,
+the constraints do not restrict it, and `randomize()` will never return 0 because of it.
+
 
 ---
 
@@ -162,7 +219,49 @@ that bin—, `with {A inside {[1:10]}}` 2 %, and a field with no `dist` 100 %.
 Why it matters more than it looks: the symptom is **an intermittent directed
 case**, which works when you try it and fails in the overnight regression. The
 numbers are in `code/verilator/repro-dist-with.sv`, and the way around it —turning
-the constraint off— is the same `constraint_mode()` you see two slides further on.
+the constraint off— is the same `constraint_mode()` you see further on.
+
+---
+
+## Constrained random
+
+#### *`soft`: the default a `with {}` can override*
+
+```systemverilog
+class command_transaction extends uvm_sequence_item;
+   rand byte unsigned A;
+   constraint por_defecto { soft A == 8'h00; }   // "zero, unless somebody asks otherwise"
+endclass
+
+t.randomize();                          // A = 00
+t.randomize() with { A inside {[1:10]}; };   // A between 1 and 10: the soft drops on its own
+```
+
+- A `soft` constraint is a **wish**, not a rule: if it clashes with another, the
+  solver **drops** it instead of returning 0
+- It is the modern way of writing a default value in the transaction without
+  forcing anybody to call `constraint_mode(0)` to override it
+- The **hard** constraint wins, and between two clashing `soft` ones the one declared
+  **later** wins — the order does matter here, and only here
+- Measured on Verilator 5.052: with the `with {}` it comes out between 1 and 10; without it, `00`
+
+Note:
+This is the piece that makes the previous slide scale to a real testbench.
+The `randomize() with {}` is for asking for a directed case, but if the class already
+has a hard constraint saying otherwise, the `with` does not override it: it contradicts it,
+and `randomize()` returns 0. The old way out was `constraint_mode(0)` — which forces
+whoever writes the test to know the name of a constraint in a class they did not
+write.
+The design rule to leave behind, because it is the one used in every modern
+VIP: **what is a rule of the protocol goes hard; what is a preference
+of the stimulus goes `soft`**. An address aligned to 4 is hard, because the DUT does not
+accept anything else. That `burst_len` defaults to 1 is `soft`, because the test
+that wants long bursts has the right to ask for them without permission.
+The tie-break between two `soft` ones is worth saying and not using: the last one
+declared wins, and if that matters to you for anything, the constraint was badly written.
+They came in with IEEE 1800-2012, so any simulator of the last decade has
+them — and Verilator too, measured right up there.
+
 
 ---
 
@@ -260,10 +359,60 @@ Note:
 Here the circle closes with the `assert(randomize())` slide: case 1 is precisely
 what happens when two constraints contradict each other, and without the `else`
 the testbench goes on sending the previous transaction.
-`constraint_mode` has a relative worth naming even though we do not use it: `soft`
-constraints, which the solver drops on its own when they get in the way instead of
-returning 0. They came in with IEEE 1800-2012 and they are the modern way of writing a
-default value that a `with {}` can override.
+And the pairing with the `soft` slide, worth closing here: a `soft` constraint is
+the one the solver drops **on its own** when it gets in the way. `constraint_mode(0)`
+is the same thing asked for **by hand and from the outside**, and it is what is left when the
+constraint in the way is hard and the class is not yours.
+
+---
+
+## Constrained random
+
+#### *How a constraint that does not close gets debugged*
+
+```systemverilog
+// 1. Make the testbench say so. Without this there is no bug: there is silence
+if (!t.randomize()) `uvm_fatal("RAND", "the constraint did not close")
+
+// 2. Bisection: turn them off one at a time until it closes. The last one you turned off is it
+foreach (nombres[i]) begin
+   t.chico.constraint_mode(0);
+   if (t.randomize()) `uvm_info("RAND", "it closes without 'chico'", UVM_LOW)
+   t.chico.constraint_mode(1);
+end
+
+// 3. Take the field out of the draw and see which value was blocking it
+t.A.rand_mode(0);
+```
+
+- The symptom is never *"it does not close"*: it is a `randomize()` that returns 0 and a
+  transaction with **the previous one's values**. First it has to be made noisy
+- The method is **bisection**, just like with `git bisect`: `constraint_mode(0)` one
+  at a time until it closes. The one you had not turned off yet is the culprit
+- The other cut is by field: `rand_mode(0)` leaves the value it had and shows whether
+  the conflict was that one
+- The cause is almost always the same: a constraint of the **base** class that the
+  test's `with {}` contradicts. There the design answer is `soft`
+
+Note:
+It is the half hour everybody loses once, and there is a way of losing it
+only once. It is worth saying the order out loud because it is the one that works.
+Step zero, and the one people skip: **make it noisy**. A `randomize()`
+without an `if` does not produce a visible bug, it produces stale stimulus. The course asks for it in
+all of `code/` and the traps appendix has it catalogued; here is where it gets collected.
+Step one: bisection. A commercial simulator prints the set of conflicting
+constraints —Questa says `Constraint solver failed` and lists the blocks—, but
+Verilator returns 0 and says nothing, so bisection by hand is the tool
+there is. It is boring and takes two minutes, which is exactly why it is worth
+having the reflex instead of staring at the code.
+Step two, when bisection is not enough: the conflict is not between two
+constraints but between a constraint and a field that already has a value. There
+`rand_mode(0)` on the suspect freezes it and the message changes.
+And the design moral, which is the one that avoids the problem instead of solving it: if
+a base class defines hard constraints that a reasonable test is going to want to override,
+those constraints should have been `soft`. A hard constraint is a rule of the
+DUT, not a preference of whoever wrote the class first.
+
 
 ---
 

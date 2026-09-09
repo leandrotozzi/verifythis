@@ -9,6 +9,8 @@
 - El reloj se genera adentro: la interface no es un cable, es un modelo del bus
 - Conectar el DUT pasa a ser `.A(bfm.A)`, `.clk(bfm.clk)`… y una señal nueva se
   declara **una vez**: los módulos que la usan la ven aparecer sin tocar sus puertos
+- Lo que acá no hace falta y en un RTL ajeno vas a ver: el **`modport`**, que es
+  la misma interface con las direcciones puestas para un lado del cable
 
 Note:
 Primer paso hacia UVM y no tiene una línea de UVM.
@@ -20,6 +22,14 @@ Un detalle de tipos que se cobra: `op` es un `wire [2:0]` y `op_set` es el
 `operation_t`. El `assign op = op_set` es el puente entre el enum del testbench y
 los cables del DUT. Es el único lugar del curso donde se ve la costura entre los
 dos mundos.
+Y el `modport`, que no aparece en el resto del curso y sí en cualquier RTL ajeno:
+es una vista de la interface con las direcciones declaradas —`modport dut (input
+A, input B, output result)`—, y el módulo la pide en su port list
+(`vtalu_bfm.dut bus`). Sirve para dos cosas, y las dos valen: que el compilador
+frene al DUT si escribe una señal que para él era de entrada, y que el que lee la
+interface sepa quién maneja qué sin abrir el RTL. Acá no está porque la BFM es
+del testbench y maneja todo; en el trabajo la interface casi siempre viene con
+dos o tres modports y lo que hay que saber es cuál pedir.
 
 ---
 

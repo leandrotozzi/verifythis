@@ -1,4 +1,4 @@
-## Ejercicio · Día 8
+## Ejercicio · Día 8 · 1 de 2
 
 #### *Modelar el mapa de registros*
 

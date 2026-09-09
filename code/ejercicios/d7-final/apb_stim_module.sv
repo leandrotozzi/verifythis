@@ -4,7 +4,14 @@
 // It only runs with +STIM, which is what the checker passes to monitor_test.
 // There are EIGHT transfers, and all eight respect the protocol. Your monitor has
 // to see them all and not one more.
+//
+// With +BUG=2 they are still eight and the handshake is still the same, but the
+// module moves PADDR in the middle of ACCESS -- which the protocol forbids. The
+// monitor sees eight tidy transfers, the scoreboard has nothing to complain
+// about, and the only thing that notices is an assertion. That is stage 5.
 module apb_stim_module (apb_if bfm);
+
+   int bug;   // +BUG=2 is this module's; +BUG=1 is the DUT's, see top.sv
 
    // The protocol written by hand, just like whoever wrote this did in
    // 2014: SETUP on a falling edge, ACCESS on the next one, and PREADY
@@ -18,6 +25,11 @@ module apb_stim_module (apb_if bfm);
       bfm.PWDATA = data;
       @(negedge bfm.PCLK);
       bfm.PENABLE = 1'b1;
+      // The protocol violation of +BUG=2: PADDR has to stay put from SETUP until
+      // the transfer ends. Bit 2 is flipped, which lands on another mapped
+      // register (and 0x10 stays unmapped), so the DUT answers as usual and the
+      // reconstructed transaction is consistent with what it did.
+      if (bug == 2) bfm.PADDR = addr ^ 8'h04;
       do @(posedge bfm.PCLK); while (bfm.PREADY !== 1'b1);
       @(negedge bfm.PCLK);
       bfm.PSEL = 1'b0;
@@ -25,6 +37,8 @@ module apb_stim_module (apb_if bfm);
    endtask : xfer
 
    initial begin
+      bug = 0;
+      void'($value$plusargs("BUG=%d", bug));
       bfm.PSEL = 1'b0;
       bfm.PENABLE = 1'b0;
       bfm.PWRITE = 1'b0;

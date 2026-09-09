@@ -1,5 +1,5 @@
-<!-- es-sha: c47ff98350f4 -->
-## Exercise · Day 6 · 2 of 4
+<!-- es-sha: 5be927e405ff -->
+## Exercise · Day 6 · 2 of 5
 
 #### *A sequence that only multiplies*
 

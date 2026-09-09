@@ -317,6 +317,54 @@ objeto entero en un renglón. La razón para preferir `convert2string()` es más
 sencilla y hay que decirla así: escrito a mano entra en un renglón que dice lo
 que a vos te importa, y en un archivo de cien mil líneas eso importa.
 
+---
+
+## Transactions
+
+#### *Las field macros: leerlas aunque no las escribas*
+
+```systemverilog
+class command_transaction extends uvm_sequence_item;
+   `uvm_object_utils_begin(command_transaction)
+      `uvm_field_int (A,  UVM_DEFAULT | UVM_HEX)   // un campo integral
+      `uvm_field_enum(operation_t, op, UVM_DEFAULT)
+      `uvm_field_object(payload, UVM_DEFAULT | UVM_REFERENCE)  // handle, no copia
+   `uvm_object_utils_end
+endclass
+```
+
+- Es lo que vas a encontrar en **todo VIP** que abras. Generan `do_copy`,
+  `do_compare`, `do_print`, `do_pack` y la configuración automática, de una
+  declaración por campo
+- El segundo argumento es una máscara: `UVM_DEFAULT` prende todas las
+  operaciones, y `UVM_NOCOMPARE` / `UVM_NOPRINT` apagan una. El radix
+  (`UVM_HEX`, `UVM_DEC`) es sólo para imprimir
+- `UVM_REFERENCE` en un `uvm_field_object` copia **el handle**; sin él, la copia
+  es profunda. Es la misma decisión de `do_copy()`, tomada en una constante
+- El curso los escribe a mano por lo que ya dijimos: eso se debuggea, esto no.
+  Pero leerlas hay que saber
+
+Note:
+Ésta es la slide del *"y cuando abras el VIP del trabajo"*. La decisión del curso
+—escribir `do_copy`, `do_compare` y `convert2string` a mano— está tomada y bien
+tomada, y no se está revirtiendo acá: lo que se agrega es la mitad que faltaba,
+que es **leer** lo que escribió otro.
+La forma de leerlo es siempre la misma y conviene bajarla como receta: la lista
+de `` `uvm_field_* `` **es** la definición de qué significa "iguales" y qué
+significa "copiar" para esa clase. Si un campo no está en la lista, `compare()`
+no lo mira — y ése es el bug más caro que producen estas macros: un scoreboard
+que da verde porque el campo que importa se quedó afuera de la declaración.
+El `UVM_REFERENCE` merece su segundo, porque es la trampa de `do_copy()` otra vez
+en otro disfraz: sin él, copiar la transaction copia también el objeto colgado, y
+un `clone()` en un monitor de mucho tráfico se vuelve caro sin que nadie lo note.
+Con él, las dos transactions comparten el mismo payload — que es exactamente lo
+que MOOCOW dice que no hay que modificar.
+El costo real, para que la decisión del curso no parezca gusto: las macros
+expanden cientos de líneas por clase, y cuando algo sale mal el error apunta
+adentro de la expansión. Un `do_compare` de cuatro líneas escrito a mano se lee
+en el momento.
+
+
 
 ---
 

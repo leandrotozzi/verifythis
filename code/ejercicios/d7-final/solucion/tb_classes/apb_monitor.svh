@@ -21,7 +21,7 @@ class apb_monitor extends uvm_monitor;
 
    // The interface calls it on the edge where the transfer ends.
    function void write_to_monitor(bit write, bit [7:0] addr, bit [31:0] wdata,
-                                  bit [31:0] rdata, bit slverr);
+                                  bit [31:0] rdata, bit slverr, bit b2b);
       apb_transaction t;
       t = apb_transaction::type_id::create("t");
       t.write = write;
@@ -29,6 +29,7 @@ class apb_monitor extends uvm_monitor;
       t.wdata = wdata;
       t.rdata = rdata;
       t.slverr = slverr;
+      t.b2b = b2b;
       vistas++;
       `uvm_info("MONITOR", t.convert2string(), UVM_MEDIUM)
       ap.write(t);

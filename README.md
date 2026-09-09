@@ -1,4 +1,4 @@
-<!-- es-sha: 13c0b178ab02 -->
+<!-- es-sha: c2cecd341a1e -->
 **English** · [Castellano](README.es.md)
 
 <div align="center">
@@ -9,7 +9,7 @@
 
 *Universal Verification Methodology · IEEE 1800.2 · SystemVerilog · open source EDA*
 
-8 units over 7 days —plus an optional day 8— · 415 slides · **38 examples that really run**,
+8 units over 7 days —plus an optional day 8— · 431 slides · **38 examples that really run**,
 with functional coverage, on the **VTALU** DUT
 
 [![build](https://github.com/leandrotozzi/verifythis/actions/workflows/build.yml/badge.svg)](https://github.com/leandrotozzi/verifythis/actions/workflows/build.yml)
@@ -40,8 +40,8 @@ or clone the repo and open `en/index.html` with a double click
 
 > ## Also available in Spanish — the complete course, not a summary
 >
-> The whole thing exists twice: the same 415 slides, the same book, the same 38
-> examples and the same 15 exercises, written in Spanish rather than
+> The whole thing exists twice: the same 431 slides, the same book, the same 38
+> examples and the same 18 exercises, written in Spanish rather than
 > machine-translated. Almost every other UVM course is English-only, so if you
 > read Spanish this is very likely the only complete one there is.
 >
@@ -89,7 +89,7 @@ To just **read** the course, nothing is needed at all: open `en/index.html` with
 double click for the deck, or `en/libro/day1.html` for the book. Both are
 committed already built, so a fresh clone works offline.
 
-The examples are not run by hand: CI runs the 38 examples and the 15 solutions
+The examples are not run by hand: CI runs the 38 examples and the 18 solutions
 every night, and the `examples` badge above says whether they are green **now**.
 
 <details>
@@ -97,9 +97,9 @@ every night, and the `examples` badge above says whether they are green **now**.
 
 | Key | Action |
 |:--|:--|
-| <kbd>i</kbd> | course index: 71 sections —talks, quizzes, exercises and appendices— grouped by day, or the ☰ button in the top left corner |
+| <kbd>i</kbd> | course index: 74 sections —talks, quizzes, exercises and appendices— grouped by day, or the ☰ button in the top left corner |
 | <kbd>0</kbd>–<kbd>8</kbd> | jump to the cover / to Day 1–8 (the cover has the same clickable jumps, and they end up in the URL: `en/index.html#/day3`) |
-| <kbd>Esc</kbd> | overview of all 415 slides |
+| <kbd>Esc</kbd> | overview of all 431 slides |
 | <kbd>s</kbd> | speaker notes, in a separate window |
 | <kbd>n</kbd> | the same notes, below the slide and without leaving the page (remembered) |
 | <kbd>v</kbd> | on quiz slides, reveal the answer without clicking |
