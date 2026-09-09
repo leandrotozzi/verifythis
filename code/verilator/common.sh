@@ -21,6 +21,11 @@
 #                            also lands in $VLT_LOG
 #
 # Environment variables:
+#   VTALU_BUG=1              passes +VTALU_BUG, which flips bit 0 of the DUT's
+#                            result. It is the NEGATIVE test: the example has to
+#                            FAIL. 'make mutante' runs it and demands the
+#                            failure. Examples that do not instantiate the vtalu
+#                            ignore the plusarg.
 #   SEED=N                   random seed: passes +verilator+seed+N. Without
 #                            SEED, Verilator uses its own, which is fixed too
 #                            (that is why the numbers in the course do not move).
@@ -32,6 +37,10 @@
 #   expect_output <pattern> <args>
 #                            runs and requires that text in the output. For the
 #                            examples that end in $fatal on purpose.
+#   expect_in_log <n> <pattern>
+#                            demands that the LAST run_sim printed that text n
+#                            times. For the examples that demonstrate instead of
+#                            verifying: what they teach is what they print.
 VLT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 UVM_HOME=${UVM_HOME:-$VLT_DIR/../.uvm}
 
@@ -118,6 +127,7 @@ run_sim() {
   VLT_LOG=$VLT_OBJ/run.$VLT_RUN.log
   echo "    seed: ${SEED:-the Verilator default, which is fixed too}"
   "./$VLT_OBJ/sim" +UVM_NO_RELNOTES ${SEED:++verilator+seed+$SEED} \
+    ${VTALU_BUG:++VTALU_BUG} \
     +verilator+coverage+file+"$VLT_OBJ/cov.$VLT_RUN.dat" "$@" 2>&1 | tee "$VLT_LOG"
   local rc=${PIPESTATUS[0]}
   [ "$rc" -eq 0 ] || return "$rc"
@@ -130,6 +140,23 @@ uvm_summary_ok() {
   awk '$1 ~ /^UVM_(ERROR|FATAL)$/ && $2 == ":" && $3 + 0 > 0 {
          print "FAIL: the Report Summary counts " $3 " " $1 > "/dev/stderr"; bad = 1 }
        END { exit bad + 0 }' "$1"
+}
+
+# Demands that the last run_sim printed something exactly N times. The examples
+# that DEMONSTRATE instead of verifying -- the ones without a scoreboard -- have
+# no other way of failing: what they teach IS what they print, and without this a
+# Verilator that stopped dispatching a virtual method would leave the example
+# green with the lesson upside down. N and not "at least one" because the count
+# is usually the lesson: the fernet served twice, once through its own handle and
+# once through the base one.
+#
+#   expect_in_log 2 'Fernet: 70/30'
+expect_in_log() {
+  local got
+  got=$(grep -cF "$2" "$VLT_LOG" || true)
+  [ "$got" -eq "$1" ] && return 0
+  echo "EXPECTED \"$2\" $1 time(s) in the output, found $got" >&2
+  return 1
 }
 
 # Functional coverage (covergroups). Ask for --coverage-user when building: that
@@ -146,7 +173,17 @@ cov_report() {
   dats=$(ls "$VLT_OBJ"/cov.*.dat 2>/dev/null)
   [ -n "$dats" ] || { echo "no coverage was generated in $VLT_OBJ" >&2; return 1; }
   verilator_coverage --write "$VLT_OBJ/coverage.dat" $dats > /dev/null
-  verilator_coverage "$VLT_OBJ/coverage.dat"
+  verilator_coverage "$VLT_OBJ/coverage.dat" | tee "$VLT_OBJ/cov.report"
+  # A covergroup that measures 0 % is not "low coverage": it is a covergroup
+  # NOBODY SAMPLED -- the analysis port left unplugged, the write() that never
+  # gets called, the sample() dropped out of the loop. It prints as a tidy
+  # report, the run ends in 0 UVM_ERROR, and the example passes without having
+  # measured a thing. The number itself is not asserted --it moves with the
+  # seed-- but zero is not a number, it is a symptom.
+  if grep -q '^  covergroup *: *0\.0%' "$VLT_OBJ/cov.report"; then
+    echo "FAIL: the covergroup measured 0 % — nobody sampled it" >&2
+    return 1
+  fi
 }
 
 expect_output() {

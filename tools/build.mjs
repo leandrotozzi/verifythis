@@ -10,6 +10,7 @@
 import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { UI, grupos as gruposDelIndice, idiomaDeArgv, SALIDAS } from './i18n.mjs';
+import { seo } from './sitio.mjs';
 
 // El idioma del curso. code/ y res/ NO se duplican: estan en ingles y los
 // comparten las dos versiones. Lo unico que cambia de idioma es slides/.
@@ -152,7 +153,7 @@ const tpl = await readFile(TEMPLATE, 'utf8');
 const seccionesJs = '[' + items.map((it, i) =>
   `["${chapters[i].f.replace(/\.md$/, '')}",${(items[i + 1]?.h ?? pos) - it.h}]`).join(',') + ']';
 
-for (const marca of ['<!--SLIDES-->', '<!--INDICE-->', '<!--SECCIONES-->']) {
+for (const marca of ['<!--SLIDES-->', '<!--INDICE-->', '<!--SECCIONES-->', '<!--SEO-->']) {
   if (!tpl.includes(marca)) throw new Error(`tools/template.html no tiene el marcador ${marca}`);
 }
 // Los textos de la interfaz salen de tools/i18n.mjs, no de un segundo template:
@@ -162,7 +163,14 @@ const conUI = tpl.replace(/\{\{ui:([a-zA-Z]+)\}\}/g, (_, k) => {
   return T[k];
 }).replace(/\{\{base\}\}/g, OUT.base);
 let html = conUI.replace('<!--SLIDES-->', sections).replace('<!--INDICE-->', indice)
-  .replace('<!--SECCIONES-->', seccionesJs);
+  .replace('<!--SECCIONES-->', seccionesJs)
+  // El favicon sale con la ruta del ES ("css/favicon.svg") a proposito: la
+  // reescritura de abajo le pone el ../ al deck en ingles, igual que al resto
+  // de css/.
+  .replace('<!--SEO-->', seo({
+    es: 'curso.html', en: 'en/curso.html', lang: IDIOMA, css: 'css/',
+    titulo: T.titulo, desc: T.descripcion,
+  }));
 // El deck en ingles vive en en/, y css/, js/, res/ y vendor/ NO se duplican:
 // quedan en la raiz y las rutas necesitan un ../ adelante.
 // ponytail: un regex sobre el HTML ya armado en vez de reescribir cada ruta en

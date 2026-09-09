@@ -1,4 +1,4 @@
-<!-- es-sha: 904b4827022b -->
+<!-- es-sha: 70f176b32625 -->
 ## One producer, many listeners
 
 #### *Two ways of talking between objects*
@@ -375,7 +375,7 @@ class and **one** line here. Not one in `dice_roller`.
 
 #### *The solution, wired up*
 
-- In the connection diagram we can see that the dice_roller class has a uvm_analysis_port object called roll_app
+- In the connection diagram we can see that the dice_roller class has a uvm_analysis_port object called roll_ap
 - Each subscriber has an analysis_export object
 - The connection between the two is made through the connect() method
 

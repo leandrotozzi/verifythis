@@ -354,7 +354,7 @@ En vez del config object, ponés `is_active` directo en el `uvm_config_db`. En e
 - **a)** Porque `is_active` es `protected` y el `config_db` no lo puede escribir
 - **b)** Porque el `config_db` no acepta tipos enumerados
 - **c)** Porque `is_active` se fija en el constructor y `build_phase` llega tarde
-- **d)** Porque quien lo lee es el `build_phase` de `uvm_agent`, y nunca llamamos a `super.build_phase()`
+- **d)** Porque quien lo lee es el `build_phase` de `uvm_agent`, y `vtalu_agent` no llama a `super.build_phase()`
 
 **36. Object, no component**
 
@@ -489,8 +489,8 @@ El DUT devuelve el `result` correcto pero baja `done` un ciclo antes de lo que d
 | 31 | 6 | is_active | **c** | **Los monitores, siempre** — mirar nunca es opcional: un agent pasivo sigue alimentando scoreboard y cobertura. Lo que se saltea es lo que *maneja* la interface, porque ahí ya hay otro manejándola. |
 | 32 | 6 | El handshake del driver | **d** | **Se cuelga, y sin decir nada** — es el error clásico de la primera semana, y el síntoma engaña: no hay error ni warning, el tiempo deja de avanzar y el objection nunca se baja. `get_next_item()` es un préstamo; `item_done()` es devolverlo. |
 | 33 | 6 | Ámbito del config_db | **c** | **Los dos reciben lo mismo** — el `uvm_config_db` no empareja por orden ni por tipo: empareja por **ruta**. Con `"*"` las dos entradas describen a los mismos componentes, así que la última gana. El ámbito es una ruta en el árbol, no una etiqueta. |
-| 34 | 6 | El sequencer | **d** | **Por la clase base que elegimos en transactions** — `uvm_sequencer #(T)` exige que `T` derive de `uvm_sequence_item`. Si aquel día la transaction hubiera extendido `uvm_transaction` a secas, este `typedef` hoy no compilaría. Una decisión de una sección habilitando el siguiente. |
-| 35 | 6 | super.build_phase() | **d** | **Ese mecanismo está apagado** — `uvm_agent::build_phase` busca `is_active` en el resource pool (está en `code/.uvm/src/comps/uvm_agent.svh`, se puede abrir). Sin `super.build_phase()` esa línea no corre nunca. Las dos formas son válidas; lo que no funciona es la mitad de cada una. |
+| 34 | 6 | El sequencer | **d** | **Por la clase base que elegimos en transactions** — `uvm_sequencer #(T)` exige que `T` derive de `uvm_sequence_item`. Si aquel día la transaction hubiera extendido `uvm_transaction` a secas, este `typedef` hoy no compilaría. Una decisión de una sección habilitando la siguiente. |
+| 35 | 6 | super.build_phase() | **d** | **Ese mecanismo está apagado** — `uvm_agent::build_phase` busca `is_active` en el resource pool (está en `code/.uvm/src/comps/uvm_agent.svh`, se puede abrir). Sin `super.build_phase()` esa línea no corre nunca, y nadie avisa. Las dos formas son válidas; lo que no funciona es la mitad de cada una. |
 | 36 | 6 | Object, no component | **b** | **Se crea, corre y se tira** — un componente se construye una vez en `build_phase` y vive hasta el final. Por eso el estímulo no puede ser un componente: cambia test a test, y a veces dentro del mismo test. De ahí sale también que se pueda configurar entre el `create()` y el `start()`, como hace `full_seq.count = 200`. |
 | 37 | 6 | start_item() | **b** | **Tenés el turno, todavía no entregaste nada** — y por eso el `randomize()` va *después*: es el último momento posible para elegir los valores, cuando ya sabés en qué estado está el DUT. Eso es la randomización tardía, y es donde se enganchan `pre_do()` y `mid_do()`. |
 | 38 | 6 | El camino de vuelta | **c** | **Después de `finish_item()`** — no hay ningún canal de vuelta: hay un handle compartido y un acuerdo entre las dos partes. El par REQ/RSP existe y es el mecanismo formal, pero casi nadie lo usa: escribir el resultado en el request alcanza. Esto es lo que hace posible Fibonacci. |

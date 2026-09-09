@@ -24,8 +24,8 @@ queda ahí hasta el final. El estímulo cambia test a test, y a veces cambia
 dentro del mismo test. Transactions, agents y sequences son la misma operación repetida
 sobre tres cosas distintas: separar los **datos** (transaction), separar la
 **estructura** (agent), separar el **estímulo** (sequence).
-La pregunta para tirar al grupo antes de seguir: con el `command_sequence` del
-22, ¿cuántas clases hacen falta para probar tres estímulos y sus combinaciones?
+La pregunta para tirar al grupo antes de seguir: con el `command_sequence` de los
+agents, ¿cuántas clases hacen falta para probar tres estímulos y sus combinaciones?
 Seis, y crece factorial. En el *UVM Primer* eso se llama *explosion of tester
 classes*.
 
@@ -418,7 +418,7 @@ el módulo `top`, con `null` como contexto. Ahí el estímulo se elige por líne
 comandos y el testbench ni se recompila. Es como funcionan las regresiones
 grandes.
 Y la fila que importa para el arco de la sección es la anteúltima: `default_sequence`
-es lo que termina de cerrar el `env` que los agents encapsuló.
+es lo que termina de cerrar el `env` que los agents encapsularon.
 
 ---
 
@@ -451,7 +451,7 @@ misma conclusión: ahorran tipeo y te cobran en debug.
 Vale ser justo: `` `uvm_do_with `` es genuinamente cómodo para una constraint
 inline de una línea, y la vas a ver en todos los testbenches del mundo. Hay que
 saber leerla. Lo que el curso no hace es enseñarla primero: quien aprende con la
-macro no sabe qué pasa entre `start_item()` y `finish_item()`, y ese es la
+macro no sabe qué pasa entre `start_item()` y `finish_item()`, y eso es la
 sección entera.
 Regla práctica para el trabajo: leer todas, escribir las explícitas.
 
@@ -713,7 +713,7 @@ diseño, el análisis por plan de verificación.
 
 ## Sequences
 
-#### *Resumen de la unidad*
+#### *Resumen de la unidad · la sequence y el item*
 
 - El estímulo salió del árbol de componentes: es un `uvm_object`, no un
   `uvm_component`, y por eso se crea, se configura, corre y se tira
@@ -723,6 +723,17 @@ diseño, el análisis por plan de verificación.
   el camino de vuelta, y es lo que hace posible un estímulo que reacciona
 - Dos formas de arrancar: `start(sequencer)` explícito, o `default_sequence` por
   `uvm_config_db` — que además saca la última línea cableada del testbench
+Note:
+La primera mitad del resumen es el mecanismo: qué es una sequence, dónde
+vive el `randomize()`, y por dónde vuelve el resultado. Si alguien se perdió en
+la unidad, se recupera acá.
+
+---
+
+## Sequences
+
+#### *Resumen de la unidad · cómo se componen*
+
 - Las sequences se componen: una llama a otras, en serie o con `fork`/`join`
 - Y cuando hay **más de un sequencer**, la que compone es una **sequence
   virtual**: no manda items propios, saca los handles de un `virtual_sequencer` y

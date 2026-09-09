@@ -1,5 +1,5 @@
-<!-- es-sha: 2c74f490caf5 -->
-# Day 6 ·sequences — closing a bin
+<!-- es-sha: 143f2ef034c5 -->
+# Day 6 · sequences — closing a bin
 
 The course says twice that the daily work of the verifier is to **run, look at
 which bin is missing, write the directed case, run again**. This is that
@@ -20,18 +20,24 @@ sequence, and that way you see the starting coverage. The second one already inc
 
 **`cierre_sequence.svh`** — a sequence of a single item, that sends
 `A = 8'hFF`, `B = 8'hFF` and `op = mul_op`. It is the bin *"both legs at `FF`,
-multiplying"* of the coverage plan of the conventional testbench, and 60 random operations
-do not fill it.
+multiplying"* of the coverage plan of the conventional testbench, and 60 random
+operations do not fill it.
 
 Concretely it is **row 3** of the verification plan
 ([`docs/plan-de-verificacion.md`](../../../docs/plan-de-verificacion.md), in Spanish): the
-overflow of the multiplier, the only row of the twelve whose stimulus column
-says **directed case**. And nobody decided that by hand: `FF` × `FF` is one
-combination out of 65,536, so the random does not visit it. The plan is what makes
+**maximum product** of the multiplier, the only row of the twelve whose stimulus
+column says **directed case**. And nobody decided that by hand: `FF` × `FF` is one
+combination out of 65,536, so the random does not visit it.
+Just so it is clear: `FF` × `FF` **does not overflow**. It gives `FE01`, which fits
+exactly in the 16 bits of `result`, and the DUT leaves `ovf` at 0 in every
+multiplication. It is the maximum of the input space — that is why the bin is
+called `mul_max`. The plan is what makes
 it obvious which test has to be written — this one.
 
-But do not ask for it by assigning the fields: **ask for it with `randomize() with {}`**. The
-directed case gets asked for at the point of use, and that is the tool of the transactions. `run.sh` checks that your file calls `randomize()`.
+But do not ask for it by assigning the fields: **ask for it with
+`randomize() with {}`**. The directed case gets asked for at the point of use,
+and that is the tool of the transactions. `run.sh` checks that your file calls
+`randomize()`.
 
 Done when `bash run.sh` prints `EXERCISE OK` — that is, when the coverage
 of the second run is **greater** than that of the first.

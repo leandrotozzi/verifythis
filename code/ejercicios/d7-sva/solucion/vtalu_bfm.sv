@@ -139,7 +139,7 @@ interface vtalu_bfm;
 
    default disable iff (!reset_n);
 
-   // --- El estimulo ---
+   // --- The stimulus ---
 
    // The rule from slide 1 of day 1, executable at last: while start is up, the
    // operands and the operation are not touched.
@@ -155,7 +155,7 @@ interface vtalu_bfm;
 
    // --- The DUT's answer ---
 
-   // The variable latency of the The VTALU spec section in one line: one cycle for the
+   // The variable latency of the "VTALU spec" section in one line: one cycle for the
    // one-cycle ops, four edges for the multiplication.
    property p_done_llega;
       @(posedge clk) start && (op_set != no_op) |-> ##[1:5] done;

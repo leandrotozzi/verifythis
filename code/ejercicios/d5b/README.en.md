@@ -1,4 +1,4 @@
-<!-- es-sha: 48470165b537 -->
+<!-- es-sha: 493758d4dcb6 -->
 # Day 5 · second — measure your `dist`
 
 No UVM, no DUT and no testbench: one class, one `dist` and a histogram. It is the

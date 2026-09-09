@@ -181,9 +181,9 @@ falta para poder leer una factory.
 
 Note:
 Cierre de la unidad que abre el día más abstracto del curso. Conviene anclar con
-la promesa concreta: todo esto existe para que en el testbench en objetos el testbench del
-día 1 se pueda escribir sin un solo módulo, y en el `env` se pueda cambiar el
-estímulo sin tocar el env.
+la promesa concreta: todo esto existe para que el testbench del día 1 se pueda
+escribir sin un solo módulo, y para que en el `env` se pueda cambiar el estímulo
+sin tocar el env.
 El `null` merece una vuelta más porque vuelve tres veces: acá, en los tests
 con la virtual interface que no se leyó del `config_db`, y en las jerarquías de clases cuando
 `obj1_h = obj2_h` copia el handle y no el objeto.

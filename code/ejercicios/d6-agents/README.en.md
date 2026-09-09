@@ -1,4 +1,4 @@
-<!-- es-sha: cb6800102fed -->
+<!-- es-sha: 6075a9fc81cd -->
 # Day 6 — the agent that only watches
 
 The testbench is the one from the agents, but trimmed: there is **a single agent**, the
@@ -16,6 +16,9 @@ is watching it.
    - the `set()` in the `uvm_config_db`, **with the scope that belongs to it**
    - the agent, a `scoreboard` and a `coverage` of its own
    - the two connections, against the analysis ports **of the agent**
+
+   The names matter: the checker looks for `modulo_agent_h` and
+   `modulo_scoreboard_h`, the same way as the `clase_*` ones already there.
 
 Done when `bash run.sh` prints `EXERCISE OK`.
 

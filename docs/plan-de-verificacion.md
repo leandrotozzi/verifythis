@@ -43,7 +43,7 @@ chequeo dice *scoreboard* o *assertion* según de qué mitad sea la fila.
 |:--:|---|---|---|---|---|---|
 | 1 | ALU | las seis operaciones | random | scoreboard | `coverpoint op_set`, un bin por op | `u7/sequences/tb_classes/coverage.svh` |
 | 2 | ALU | operandos en `00` y en `FF` | `dist` sesgado a los bordes | scoreboard | cross `op_00_FF` | `u7/sequences/tb_classes/command_transaction.svh` · `coverage.svh` |
-| 3 | mult | desborde: `FF` × `FF` | **caso dirigido** | scoreboard, 16 bits | bin `mul_max` del cross | `u7/sequences/tb_classes/maxmult_sequence.svh` |
+| 3 | mult | producto máximo: `FF` × `FF` | **caso dirigido** | scoreboard, 16 bits | bin `mul_max` del cross | `u7/sequences/tb_classes/maxmult_sequence.svh` |
 | 4 | reset | operar después de un reset | `rst_op` intercalado | scoreboard | bin de transición `rst_op => op` | `u7/sequences/tb_classes/reset_sequence.svh` |
 | 5 | mult | una mult después de una de un ciclo | random | scoreboard | bin de transición `sngl_mul` | `u7/sequences/tb_classes/coverage.svh` |
 | 6 | ALU | la misma operación dos veces seguidas | random | scoreboard | bin de repetición `twoops` `[* 2]` | `u7/sequences/tb_classes/coverage.svh` |
@@ -54,12 +54,16 @@ chequeo dice *scoreboard* o *assertion* según de qué mitad sea la fila.
 | 11 | protocolo | `done` llega, y antes de 5 ciclos | random | assertion `a_done_llega` | `c_mult_4ciclos`, `c_un_ciclo` | `u8/assertions/vtalu_bfm.sv` |
 | 12 | protocolo | `no_op` es la única que no contesta | random | assertion `a_no_op_sin_done` | `cover property` | `u8/assertions/vtalu_bfm.sv` |
 
-Cinco cosas que esta tabla dice y que ninguna slide suelta dice:
+Seis cosas que esta tabla dice y que ninguna slide suelta dice:
 
 - **La fila 3 es la única con estímulo dirigido**, y no es un capricho: `FF` × `FF`
   es una combinación entre 65 536 y el random no la visita en mil operaciones.
   El plan es lo que hace evidente **qué test hay que escribir**, y es exactamente
   el ejercicio [`d6-bins`](../code/ejercicios/d6-bins/), que cierra esta fila.
+  Y ojo con el nombre: es el **producto máximo**, no un desborde. `FF` × `FF` da
+  `FE01`, que entra exacto en los 16 bits de `result` —8 bits por 8 nunca pasan
+  de 16—, y el DUT fuerza `ovf` a 0 en toda multiplicación. Por eso el bin se
+  llama `mul_max`. El que desborda es el de la resta, y son las filas 7 y 8.
 - **Las filas 4, 5 y 6 no se miden con Verilator.** Son bins de transición, y
   5.052 todavía no los compila: en el código están entre `` `ifndef VERILATOR ``.
   La fila queda igual —el escenario existe— con la limitación anotada. Ver

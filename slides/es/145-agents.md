@@ -92,7 +92,8 @@ Cambio dos, conceptual: el generador de estímulo **deja de ser un componente**.
 Un componente se construye una vez en `build_phase` y vive toda la simulación;
 una sequence se crea, corre, termina y se tira — y podés correr otra a
 continuación sobre el mismo sequencer. Eso es lo que hace que un test pueda
-combinar estímulos sin tocar la estructura, y es todo las sequences.
+combinar estímulos sin tocar la estructura, y de eso se trata la sección de
+sequences.
 La pregunta para tirar al grupo: ¿por qué el driver del agent pasivo no existe,
 pero el monitor sí? Porque manejar es opcional, mirar no.
 
@@ -123,7 +124,7 @@ una copia. La sequence te presta el item y se queda esperando a que lo
 devuelvas. `put`/`get` era una entrega: el tester soltaba el comando y seguía.
 Y de ahí sale la otra diferencia útil: como la sequence sigue teniendo el
 handle, el driver puede escribirle el resultado adentro y la sequence lo lee al
-volver de `finish_item()`. Eso lo usa las sequences.
+volver de `finish_item()`. Eso lo usa la sección de sequences.
 
 ---
 
@@ -181,7 +182,7 @@ Note:
 transaction hubiera extendido `uvm_transaction`, hoy este `typedef` no compila:
 `uvm_sequencer #(T)` exige que `T` derive de `uvm_sequence_item`.
 Vale decirlo explícitamente: es la primera vez en el curso que una decisión de
-una sección anterior habilita —o rompe— el siguiente. Eso es exactamente lo que
+una sección anterior habilita —o rompe— la siguiente. Eso es exactamente lo que
 significa "código adaptable" y no es una frase de manual.
 Y por si alguien lo intenta: extender `uvm_sequencer` para agregarle cosas es
 casi siempre señal de que eso iba en la sequence. El sequencer es un árbitro, no
@@ -201,7 +202,7 @@ un lugar donde poner lógica.
 - El `randomize()` va **entre los dos**: así las constraints se resuelven en el
   momento en que el item se va a entregar, no antes
 - Ésta es la traducción directa del `tester` de las transactions, y nada más que
-  eso — las sequences son sobre lo que se puede hacer acá adentro
+  eso — la sección de sequences es sobre lo que se puede hacer acá adentro
 
 {{code:code/u7/agents/tb_classes/command_sequence.svh|lines=6-43}}
 
@@ -332,11 +333,11 @@ agent no reparte handles a mano.
 
 #### *La clase agent: `build_phase`*
 
-- Pide su config al `uvm_config_db` y copia el `is_active`
+- Pide su config al `uvm_config_db` y copia el `is_active` **a mano**: sin
+  `super.build_phase()`, el de `uvm_agent` que lo leería no corre
 - Construye sequencer y driver **sólo si es activo**; los monitores y los dos
   analysis ports, siempre
 - Los analysis ports son ports: se instancian con `new()`, no con la factory
-- Como en todo el curso, **no hay `super.build_phase()`**
 
 {{code:code/u7/agents/tb_classes/vtalu_agent.svh|lines=1-33}}
 
@@ -346,8 +347,13 @@ trae la librería **lee solo el `is_active` del resource pool**. Está en
 `code/.uvm/src/comps/uvm_agent.svh`, se puede abrir en clase.
 O sea que en un testbench que llama a `super.build_phase()`, un
 `uvm_config_db#(int)::set(this, "mi_agent", "is_active", UVM_PASSIVE)` funciona
-solo, sin config object. Como este curso nunca llama a `super.build_phase()`,
-ese mecanismo **está apagado**, y por eso lo asignamos a mano.
+solo, sin config object. Como este `vtalu_agent` no lo llama, ese mecanismo
+**está apagado**, y por eso lo asignamos a mano.
+Y acá se cobra lo del día 3: `uvm_agent` es la única clase de la librería,
+además de `uvm_component`, que implementa `build_phase`. Es exactamente el caso
+que la regla de afuera cubre — heredaste de una clase intermedia que hace
+trabajo real, y saltearte el `super` lo apaga sin decir nada. Nosotros podemos
+saltearlo porque escribimos la línea que reemplaza; el que no la escribe, no.
 Las dos formas son válidas. Lo que no es válido es la mitad de cada una: poner
 `is_active` en el config_db, no llamar a `super.build_phase()`, y después
 preguntarse por qué el agent arranca activo. Pasa seguido.
@@ -531,7 +537,7 @@ seq.start(env_h.clase_agent_h.sequencer_h);
 - Funciona, pero mirá lo que hace esa línea: el test **atraviesa la jerarquía**
   para llegar al sequencer, y con eso vuelve a conocer el interior del env
 - Todo lo que acabamos de encapsular se filtra en una línea
-- Las sequences lo arregla: la sequence se le pasa al sequencer **por
+- La sección de sequences lo arregla: la sequence se le pasa al sequencer **por
   `config_db`**, y el test deja de saber dónde está
 
 {{code:code/u7/agents/tb_classes/dual_test.svh|lines=10-44}}

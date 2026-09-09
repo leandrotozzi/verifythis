@@ -299,4 +299,4 @@ Ninguna de estas es una pregunta de UVM, y las tres pesan más que las anteriore
 Las preguntas están ordenadas de más a menos frecuente dentro de cada bloque, y
 los bloques en el orden en que se preguntan. Si tenés una tarde: 1, 4, 5, 7, 9,
 12 y 21. Si tenés una semana, el curso entero son unas 34 horas y todo corre en
-tu máquina — [README](../README.md).
+tu máquina — [README](../README.es.md).

@@ -154,7 +154,7 @@ module top;
         3'b011 : return and_op;
         3'b100 : return xor_op;
         3'b101 : return mul_op;
-        3'b110 : return rst_op;   // TODO(ejercicio 1): que devuelva shr_op
+        3'b110 : return rst_op;   // TODO(exercise 1): make it return shr_op
         3'b111 : return rst_op;
       endcase // case (op_choice)
    endfunction : get_op

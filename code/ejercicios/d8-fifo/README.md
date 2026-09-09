@@ -26,8 +26,8 @@ predecir dependen de todo lo que pasó antes. No hay tabla que sirva.
 La diferencia se ve en una línea del corrector:
 
 ```
-con +BUG=1 almost_full se levanta un lugar tarde, y tu scoreboard no dijo nada.
-Los datos salen bien igual.
+with +BUG=1 almost_full goes up one place late, and your scoreboard said nothing.
+The data still comes out right.
 ```
 
 Un scoreboard que compara sólo lo que sale por `rd_data` cierra seis de las
@@ -67,6 +67,35 @@ real*:
   tiene que gritar.
 - **4 · La cobertura.** El `covergroup` con las siete filas del plan: más de
   20 puntos, 90 % cubierto.
+
+Listo cuando `bash run.sh` imprime las cuatro etapas y termina con
+`EXERCISE OK`.
+
+## El contrato con el corrector
+
+Igual que en el `d7-final`, el corrector no lee tu código: lee el log. Cuatro
+cosas tienen que ser así:
+
+- Los **tests** se llaman `monitor_test`, `smoke_test` y `random_test`.
+- El **monitor** imprime una línea por ciclo con actividad, con el id `MONITOR`
+  y con las banderas adentro:
+
+  ```
+  wr=1 data=a3 rd=0 | count=3 full=0 af=0 empty=0 ae=0
+  ```
+
+  Las etapas 1 y 2 se corrigen contando esas líneas y buscando `full=1` y
+  `empty=1`: si tu formato no las escribe, la etapa 2 no pasa aunque la
+  sequence esté bien.
+- El **scoreboard** reporta con `` `uvm_error("SCOREBOARD", ...) ``.
+- La sequence dirigida del `smoke_test` tiene que llegar a `full=1` **y** a
+  `empty=1` en la misma corrida.
+
+## Cuánto tarda
+
+Compila UVM entera, igual que el `d7-final`: ~2 min la primera vez, y ~15 s las
+siguientes con `ccache`. Necesita **`z3`**: el `random_test` randomiza con
+constraints, y sin el solver `randomize()` devuelve 0 en silencio.
 
 ## Pistas, en orden de utilidad
 

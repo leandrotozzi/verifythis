@@ -20,7 +20,9 @@ que lo tiene que verificar.
    todos los bins**: se ejecuta, pasa el scoreboard, y no aparece en el reporte.
    Metelo.
 
-Listo cuando `bash run.sh` termina con `EXERCISE OK`.
+Listo cuando `bash run.sh` termina con `EXERCISE OK` **y** el reporte de
+cobertura cierra con **77 bins cubiertos o más**. Son dos condiciones porque el
+paso 3 no mueve la primera: la que lo agarra es la segunda.
 
 ## Cómo se corre
 
@@ -32,6 +34,10 @@ SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
 Si un resultado no coincide con el modelo, el `$error` del scoreboard aborta la
 simulación: Verilator lo trata como una aserción.
 
+## Cuánto tarda
+
+No usa UVM: compila y corre en **segundos**, sin `ccache` y sin `z3`.
+
 ## Lo que practica
 
 La spec del VTALU, el testbench convencional y la cobertura funcional. Y dos
@@ -40,8 +46,12 @@ lecciones que no están en ninguna slide:
 - **Una operación nueva se toca en tres lugares** —el DUT, el estímulo con su
   chequeo, y la medida— y si te olvidás de uno, el que se entera es el TB.
 - **Un opcode que nadie mide es un opcode que nadie verificó.** El paso 3 es el
-  que más se saltea, y es el único de los tres que falla **en silencio**: sin
-  tocar los bins, la simulación pasa en verde y la cobertura no se mueve.
+  que más se saltea, y es el único de los tres que la simulación deja pasar **en
+  silencio**: sin tocar los bins pasa en verde, y el porcentaje de cobertura
+  igual te dice 100 %. Por eso el corrector cuenta bins y no mira el porcentaje.
 
-Con la solución, la cobertura pasa de **86,8 % a 100 %**: el shift agrega su
-propio bin y de paso cierra los que quedaban abiertos.
+Con la solución, la cobertura pasa de **86,8 % (66 bins de 76) a 100 %
+(77 de 77)**: el shift agrega su propio bin y de paso cierra los que quedaban
+abiertos. Mirá el denominador, no el porcentaje: un covergroup que nunca declaró
+el bin tampoco lo cuenta como faltante, así que sin el paso 3 el reporte también
+dice 100 %, pero de 76.

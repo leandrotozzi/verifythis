@@ -1,4 +1,4 @@
-<!-- es-sha: 8ab29c86516d -->
+<!-- es-sha: aa5203a4a3af -->
 ## Reporting
 
 #### *47 % of the time goes here*
@@ -24,7 +24,7 @@ The second idea, which is the one that costs: debug messages **do not get delete
 the day you need it, it is there. That the day 5 exercise gets solved by raising
 the verbosity is no coincidence — it is set up so that they live it.
 And the distinction on the last line is worth writing on the board from the start,
-because it is question 1 of the review: verbosity and info on one side, actions and
+because it is question 6 of the review: verbosity and info on one side, actions and
 error/warning/fatal on the other. They never cross.
 
 ---
@@ -178,15 +178,15 @@ makes a regression log of a thousand tests readable. It is not classroom cosmeti
 
 ```systemverilog
 uvm_cmdline_processor clp = uvm_cmdline_processor::get_inst();
-string valor;
+string value;
 
-if (clp.get_arg_value("+COUNT=", valor)) count = valor.atoi();
+if (clp.get_arg_value("+COUNT=", value)) count = value.atoi();
 ```
 
 - It is a **singleton**: `get_inst()` from any class, without building anything and
   without passing it through the `config_db`
 - `get_arg_value` returns **how many times the argument appeared**, not the value:
-  the value comes out through the `ref`. If it appeared twice, it says so — `$value$plusargs`
+  the value comes out through the `ref`. If it appeared twice you find out — `$value$plusargs`
   keeps quiet with the first one
 - And there are `get_args()`, `get_plusargs()` and `get_uvm_args()`, which return the
   whole command line in a queue: it is how you print under what conditions
@@ -204,8 +204,8 @@ turns an old log into something reproducible. Without that, the log says what ha
 but not what it was run with, and a regression from three months ago cannot be repeated.
 The difference in the second bullet is worth an anecdote: two `+COUNT=` on the same
 line —because the script adds them and the user does too— is a real case, and
-`$value$plusargs` takes one without saying which. The `uvm_cmdline_processor` returns 2
-and emits a warning. It is the kind of thing you pay for once and remember.
+`$value$plusargs` takes one without saying which. The `uvm_cmdline_processor` returns 2,
+so at least you can notice. It is the kind of thing you pay for once and remember.
 
 ---
 
@@ -258,9 +258,9 @@ to raise **does not exist yet** —its parent builds it further down— and the
 call finds nobody. If it goes in the `run_phase`, the simulation has already started and
 you missed the messages of the earlier phases.
 `end_of_elaboration_phase` is exactly the gap between the two things: the whole
-tree, and the time still at zero. It is the first time in the course that one of
-the four phases "that exist and are empty" is good for something, and it is worth saying it
-that way — they were not decoration in the day 3 table.
+tree, and the time still at zero. It is the first time in the course that it gets
+used for anything, and it is worth saying it that way — in the table of the nine
+phases of day 3 it was not decoration.
 The `_hier` suffix is the one that gets forgotten, and it fails silently: you set the ceiling of the
 `env` without `_hier`, the `env` prints nothing anyway, and the monitor you
 wanted to hear stays quiet. Rule of thumb: if you are aiming at a branch, `_hier`;
@@ -349,8 +349,8 @@ exactly as broken as it was two slides ago. That is the reason a
 `UVM_NO_ACTION` cannot survive a commit — it is a silent trap, and it is in
 the appendix.
 The scoreboard of this section adds too much ON PURPOSE, it is the bug we are
-showing. That is why `code/u4/reporting/run.sh` is the only example in the repo that exports
-UVM_ERRORS_OK=1: in all the others, a uvm_error makes the run fail.
+showing. That is why `code/u4/reporting/run.sh` exports UVM_ERRORS_OK=1: by
+default a uvm_error makes the run fail, and here the error is the example.
 
 ---
 
@@ -363,7 +363,7 @@ UVM_ERRORS_OK=1: in all the others, a uvm_error makes the run fail.
   has to be silenced is **one single one**, and the rest has to carry on shouting
 
 ```systemverilog
-class demotar_pslverr extends uvm_report_catcher;
+class demote_pslverr extends uvm_report_catcher;
    virtual function action_e catch();
       if (get_severity() == UVM_ERROR && get_id() == "PSLVERR")
          set_severity(UVM_INFO);      // stops counting as an error
@@ -371,7 +371,7 @@ class demotar_pslverr extends uvm_report_catcher;
    endfunction
 endclass
 
-demotar_pslverr c = new();
+demote_pslverr c = new();
 uvm_report_cb::add(null, c);          // null = the whole testbench; or a component
 ```
 
@@ -386,7 +386,7 @@ It is the right answer to the previous slide, and the difference is one of hones
 not of syntax. `UVM_NO_ACTION` on the scoreboard switches off the error and the log ends up
 identical to that of a healthy testbench: nobody reading that log finds out. The catcher
 downgrades **that** message, lets all the others through, and on top of that counts it on a
-line of its own in the *Report Summary*. A reviewer who opens the log sees that there was an
+line of its own in the *UVM Report catcher Summary*. A reviewer who opens the log sees that there was an
 error and that somebody decided it was fine.
 When it really gets used: in the negative tests, which are half of a serious verification
 plan. Writing to a read-only register has to give
@@ -421,7 +421,7 @@ Close the day by going back to the 47 %: of everything seen today —tests, comp
 phases, env— this is the section used **every day**, and the only one you
 notice when it is missing. A testbench without reporting works just the same; debugging it costs
 double.
-The control question, which is also number 1 of the review: *"I lowered the verbosity
+The control question, which is also number 6 of the review: *"I lowered the verbosity
 ceiling and the `` `uvm_error `` still shows up, why?"*. If the group
 answers it without hesitating, the section closed.
 And the warning for the day 5 exercise, worth giving now and not when they are

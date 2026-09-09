@@ -53,7 +53,7 @@ Los dos apéndices del final del deck están escritos para este ejercicio:
 
 - **La caja de herramientas de debug** — la tabla *"cuál usar según el síntoma"*
   tiene la fila `el scoreboard grita en todas`, y dice con qué se mira.
-- **Las diecinueve trampas mudas** — el catálogo de todo lo que compila, corre y
+- **Las veinte trampas mudas** — el catálogo de todo lo que compila, corre y
   miente. La causa de este bug es una de las diecinueve.
 
 Se puede hacer el ejercicio sin haber visto reporting: alcanza con tener la
@@ -61,7 +61,7 @@ slide de síntomas abierta al lado.
 
 ## Lo que practica
 
-Verbosidad y reporting (19), monitores y analysis ports (16), transactions (21).
+Verbosidad y reporting, monitores y analysis ports, transactions.
 Y la lección de fondo, que es de oficio y no de sintaxis: **cuando el scoreboard
 grita, el sospechoso número uno no es el DUT.** Un monitor que muestrea mal
 inventa fallas que no existen, y hace perder días.

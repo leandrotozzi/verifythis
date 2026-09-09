@@ -1,4 +1,4 @@
-# Día 6 ·las sequences — el tester del día 3, ahora como sequence
+# Día 6 · las sequences — el tester del día 3, ahora como sequence
 
 El testbench es el de las sequences entero: agent, sequencer, driver, monitores,
 cobertura y scoreboard. **No hay que tocar nada de eso.** Lo único que falta es
@@ -10,7 +10,8 @@ el estímulo.
    - mande primero un `rst_op`;
    - después mande **20 multiplicaciones** con `A` y `B` al azar;
    - cuente cuántas mandó y se quede con el **resultado más grande** que vio;
-   - imprima al final de `body()`, con verbosidad `UVM_NONE`:
+   - imprima al final de `body()`, con verbosidad `UVM_NONE` y con el id
+     `MULT SEQ`:
 
      ```
      items=<n> max=<m>
@@ -60,6 +61,6 @@ solo— o usá Codespaces, que ya lo trae.
 ## Lo que practica
 
 `body()` y el ciclo de vida de la sequence, `start_item()` / `finish_item()`,
-randomización tardía (23) y `rand_mode()` / `with {}` (21). Y la idea de fondo:
+randomización tardía y `rand_mode()` / `with {}`. Y la idea de fondo:
 **el estímulo se cambia sin tocar una línea de estructura**. Los dos archivos que
 escribís son los dos únicos que este ejercicio tiene.

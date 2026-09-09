@@ -2,7 +2,7 @@
 
 #### *El primer silicio casi nunca sale bien*
 
-![Porcentaje de proyectos que llegan al primer silicio sin errores, por ano](res/trends/resultado.svg)
+![Porcentaje de proyectos que llegan al primer silicio sin errores, por año](res/trends/resultado.svg)
 <!-- .element: class="grande" -->
 
 Note:

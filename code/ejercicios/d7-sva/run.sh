@@ -27,8 +27,8 @@ clase=$(grep -c  'UVM_ERROR.*\[SVA\].*clase_bfm'  "$VLT_LOG" || true)
 
 if [ "$modulo" -eq 0 ]; then
   falta "no assertion fired on modulo_bfm, which is the one driven by the
-    legacy module. Either you have not written the property yet, or its antecedent does not
-    ocurre nunca: agregale un cover property y fijate si se cubre."
+    legacy module. Either you have not written the property yet, or its antecedent
+    never happens: add a cover property to it and see whether it gets covered."
 fi
 if [ "$clase" -gt 0 ]; then
   falta "your property fired $clase times on clase_bfm, which is the one driven by
@@ -39,7 +39,7 @@ fi
 # the result, it stops being a blind bug and the exercise loses its point.
 if grep -q 'UVM_ERROR.*\[SELF CHECKER\]' "$VLT_LOG"; then
   falta "the scoreboard is reporting errors. It should not: check that you did not
-    tocado vtalu_tester_module.sv."
+    touch vtalu_tester_module.sv."
 fi
 
 echo "EXERCISE OK: the assertion catches $modulo violations of the legacy module,"

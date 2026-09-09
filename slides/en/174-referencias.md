@@ -1,4 +1,4 @@
-<!-- es-sha: 7a23758dbf71 -->
+<!-- es-sha: 42b61a50657d -->
 <!-- .slide: id="referencias" -->
 
 ## References
@@ -12,10 +12,10 @@
 - **Salemi, Ray.** *The UVM Primer* — Boston Light Press, 2013. The book I
   learned UVM with, and where several of the examples in `code/` came from.
 - **2024 Siemens EDA / Wilson Research Group Functional Verification Study**.
-  Source of the **data** of the spec. The charts are our own: they are generated
+  Source of the **data** of Trends. The charts are our own: they are generated
   with `make figs` from `res/trends/data.json`.
 - **On RAL**: the *Register Layer* chapter of the **UVM 1.2 User Guide** from
-  Accellera is the normative reference, and the table of the twenty-five field
+  Accellera is the long explanation, and the table of the twenty-five field
   accesses —`RW`, `WOC`, `W1C`…— is in the **IEEE 1800.2**, under `uvm_reg_field`. What
   the unit does not use lives in the same place: `add_hdl_path` for the backdoor,
   and **IP-XACT** (IEEE 1685) or **SystemRDL** (Accellera) to generate the model instead

@@ -170,7 +170,8 @@ endtask
   objection
 - Sin `raise_objection` la simulación se termina en el **tiempo 0**, y el test
   pasa con 0 errores sin haber mandado un estímulo
-- Sin `drop_objection` no termina nunca: no hay error, el tiempo deja de avanzar
+- Sin `drop_objection` no termina nunca: no hay error, la simulación sigue
+  corriendo sola
 - Los dos síntomas son **mudos**, y por eso existen dos plusargs:
   `+UVM_OBJECTION_TRACE` dice quién la levantó y quién la bajó, y `+UVM_TIMEOUT`
   le pone un techo a la corrida
@@ -280,9 +281,9 @@ Note:
 Vale correrlo en vivo y cronometrar: la compilación tarda minutos, los dos
 `run_sim` tardan segundos. Ése es el número que justifica toda la ceremonia de
 la unidad.
-El `$finish at 42ns` de abajo es del segundo test y no coincide con el primero:
-los dos tests mandan la misma cantidad de operaciones pero el multiplicador
-toma más ciclos, así que el tiempo depende de qué salió al azar.
+El `$finish at 46ns` del final es del primer test; el `add_test` termina en 41 ns.
+Los dos mandan la misma cantidad de operaciones, pero la multiplicación toma más
+ciclos que la suma, así que el tiempo depende de qué salió al azar.
 Y una advertencia útil: `UVM_ERROR : 0` quiere decir "nadie llamó a
 `uvm_error`", no "el DUT está bien". Acá el scoreboard sí reporta con
 `` `uvm_error ``, así que la cuenta vale — pero un scoreboard que nunca recibe

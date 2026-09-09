@@ -4,7 +4,7 @@
 
 {{code:code/u2/interfaces-bfm/vtalu_bfm.sv|lines=1-28}}
 
-- Una `interface` es un **bundle** de señales con nombre propio. Ocho cables que
+- Una `interface` es un **bundle** de señales con nombre propio. Nueve cables que
   antes estaban declarados en el `top` ahora viven juntos
 - El reloj se genera adentro: la interface no es un cable, es un modelo del bus
 - Conectar el DUT pasa a ser `.A(bfm.A)`, `.clk(bfm.clk)`… y agregar una señal
@@ -12,8 +12,8 @@
 
 Note:
 Primer paso hacia UVM y no tiene una línea de UVM.
-La ganancia inmediata es de mantenimiento y conviene medirla: en el testbench de
-el testbench convencional, agregar una señal al DUT obligaba a tocar el `top`, el tester y el
+La ganancia inmediata es de mantenimiento y conviene medirla: en el testbench
+convencional, agregar una señal al DUT obligaba a tocar el `top`, el tester y el
 scoreboard. Acá, el archivo de la interface.
 Un detalle de tipos que se cobra: `op` es un `wire [2:0]` y `op_set` es el
 `operation_t`. El `assign op = op_set` es el puente entre el enum del testbench y
@@ -172,7 +172,7 @@ es *"porque la BFM escribe en el negedge, y eso solo se ve entero en las asserti
 
 Note:
 La frase que conviene dejar escrita en el pizarrón todo el curso: *el scoreboard
-chequea qué calcula el DUT; las assertions, cómo se habla con él.* Las dos
+chequea qué calcula el DUT; las assertions, cómo se habla con él.* Las tres
 secciones que faltan del día 1 y los seis días que siguen son la primera mitad;
 la segunda llega al final, y llega sobre este mismo ejemplo.
 No hay que prometer más que eso. Las assertions vuelven con la property de esta

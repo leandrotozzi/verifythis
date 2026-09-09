@@ -1,4 +1,4 @@
-<!-- es-sha: 7b40b2c77542 -->
+<!-- es-sha: 8b77ff6b1052 -->
 ## Polymorphism
 
 #### *A `trago` variable, a `fernet` object: which `servir()` runs?*
@@ -92,7 +92,7 @@ Note:
 Worth running the two examples one after the other and showing the diff: one word.
 A detail that always gets asked: `fernet` and `mojito` do **not** write `virtual`
 on their `servir()`, and they are virtual all the same. Once the method is virtual in
-the base, it is virtual for the whole descent. Writing it anyway does no harm and plenty
+the base, it is virtual for all of its descendants. Writing it anyway does no harm and plenty
 of people do it out of tidiness.
 The rule of thumb for the rest of the course: in verification, **every method you might
 want to redefine goes virtual**. UVM does it that way — `build_phase`,
@@ -148,7 +148,7 @@ explodes in the middle of the simulation, with pure virtual it does not compile.
 Worth doing live: comment out `mojito`'s `servir()` and compile. The
 compiler message is the one that teaches.
 And the hook forward: the factory uses this to create, and the `env` for the
-overrides. What today is a fernet and a mojito, in two days is going to be a
+overrides. What today is a fernet and a mojito, tomorrow is going to be a
 `base_tester` and the testers that extend it — same mechanics, another vocabulary.
 
 ---

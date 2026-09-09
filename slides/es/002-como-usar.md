@@ -15,6 +15,21 @@
   error que comete todo el mundo la primera vez. **No las saltees**
 - Cada día cierra con un **repaso** de opciones clickeables y con un
   **ejercicio que se corrige solo**: `cd code/ejercicios/dN && bash run.sh`
+
+Note:
+Si estás dictando el curso, estas dos slides se saltean con la tecla 1.
+Están acá porque la mayoría de la gente que abra esto no va a tener un
+instructor al lado, y sin las notas del presentador se pierde la mitad del
+material — que además es la mitad más difícil de reconstruir leyendo el código.
+
+---
+
+<!-- .slide: id="como-usar-correrlo" -->
+
+## Cómo usar este curso
+
+#### *Correrlo, navegarlo, y dónde buscar cuando algo no anda*
+
 - **Corré los ejemplos**: `make u4/tests` corre uno, `make u4` la unidad entera. Un curso de verificación que sólo se lee
   no sirve para nada. Un ejemplo con UVM tarda **un minuto y medio la primera
   vez y quince segundos la segunda**, si tenés `ccache` instalado — y si no
@@ -26,11 +41,11 @@
   corrido, con las notas ya adentro del texto. Tené el deck al lado para los
   repasos
 - **Cuando algo no ande, andá al final:** los apéndices *La caja de herramientas
-  de debug* —qué mirar según el síntoma— y *Las diecinueve trampas mudas* —todo lo
+  de debug* —qué mirar según el síntoma— y *Las veinte trampas mudas* —todo lo
   que compila, corre y miente—. Son las dos slides para imprimir
 
 Note:
-Si estás dictando el curso, esta slide se saltea con la tecla 1.
-Está acá porque la mayoría de la gente que abra esto no va a tener un
-instructor al lado, y sin las notas del presentador se pierde la mitad del
-material — que además es la mitad más difícil de reconstruir leyendo el código.
+Las dos últimas son las que más rinden para el que estudia solo, y son las que
+nadie lee hasta que ya se trabó: el libro trae estas mismas notas adentro del
+texto, y los apéndices están escritos como tabla de síntomas, para buscar y no
+para leer de corrido.

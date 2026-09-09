@@ -20,7 +20,7 @@ del VTALU entero: leerlos de a uno y preguntar cuál falta.
 #### *El plan de verificación del VTALU*
 
 - Testear todas las operaciones
-- Casos Border: entradas todas en 0/1 para todas las operaciones
+- Casos borde: entradas todas en 0/1 para todas las operaciones
 - Ejecutar todas las ops luego de un reset
 - Ejecutar una multiplicación luego de una single cycle op y viceversa
 - Simular todas las operaciones ejecutadas 2 veces seguidas

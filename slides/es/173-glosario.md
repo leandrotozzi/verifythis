@@ -57,7 +57,7 @@ verbos se conjugan en español. "Randomizá la transaction", "corré la regresi�
 | *assertion* | una regla del protocolo escrita para que el simulador la chequee |
 | *property* | la regla en sí: reloj, antecedente, implicación, consecuente |
 | *antecedent* / *consequent* | el *"si"* y el *"entonces"* de una property |
-| *cover property* | cuenta **cuántas veces se evaluó** una property. El chequeo del chequeo |
+| *cover property* | cuenta **cuántas veces se cumplió** una property. El chequeo del chequeo |
 
 Note:
 Es la slide para tener abierta mientras se lee código ajeno, y también la que
@@ -77,7 +77,7 @@ verdad, y `p_sequencer`, el handle ya casteado a ese tipo que
 `` `uvm_declare_p_sequencer `` declara por vos.
 Aviso sobre *sequence*, que ahora aparece dos veces en el curso con dos
 significados: la de UVM es un objeto que genera estímulo; la de SVA
-(`sequence ... endsequence`,las assertions) es una expresión temporal —*"esto, y tres
+(`sequence ... endsequence`, las assertions) es una expresión temporal —*"esto, y tres
 flancos después aquello"*— y no tiene nada que ver. El contexto las distingue
 siempre, pero la primera vez confunde.
 

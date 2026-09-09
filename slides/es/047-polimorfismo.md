@@ -147,7 +147,7 @@ explota en el medio de la simulación, con pure virtual no compila.
 Vale hacerlo en vivo: comentar el `servir()` de `mojito` y compilar. El
 mensaje del compilador es el que enseña.
 Y el enganche hacia adelante: la factory usa esto para crear, y el `env` para
-los overrides. Lo que hoy es un fernet y un mojito, en dos días va a ser un
+los overrides. Lo que hoy es un fernet y un mojito, mañana va a ser un
 `base_tester` y los testers que lo extienden — misma mecánica, otro vocabulario.
 
 ---

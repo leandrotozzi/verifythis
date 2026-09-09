@@ -1,32 +1,48 @@
 name: build
 
+# El deck, el libro, el PDF/PPTX y el sitio. El otro workflow (ejemplos.yml)
+# corre el CODIGO.
+#
+#   push / PR         armar todo + los gates (~4 min)
+#   push a master     ademas: publicar en Pages y probar que el sitio ande
+#   todas las noches  solo los links externos, que dependen de servers ajenos
+
 on:
   push:
     branches: [master, main]
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: '30 6 * * *' # 03:30 en Argentina, despues de ejemplos.yml
 
+# Por defecto lo minimo. Los permisos de Pages se dan SOLO en el job que
+# publica: asi ninguna action de terceros (setup-chrome, pandoc) corre en un job
+# que puede firmar un deploy.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
+# Por rama, no global: dos PR abiertos no tienen por que cancelarse entre si.
+# La cola de Pages se serializa en el job de deploy, que es donde importa.
 concurrency:
-  group: pages
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
       - run: npm ci
 
-      # Falla si index.html quedo desactualizado respecto de slides/
-      - name: index.html al dia
+      # El gate barato y el que mas atrapa: que los generados (index.html,
+      # libro/, docs/) esten al dia con slides/, y los cuatro linters.
+      - name: Generados al dia + linters
         run: npm run check
 
       - run: npm run build
@@ -39,27 +55,48 @@ jobs:
           CHROME: ${{ steps.chrome.outputs.chrome-path }}
         run: npm run overflow
 
+      # Las capturas del README y de la og:image se REGENERAN aca, donde hay
+      # Chrome. `npm run check` ya fallo antes si los numeros que muestran
+      # quedaron viejos; esto ademas las deja frescas para el sitio que se
+      # publica. No se commitean: el PNG de este runner no es byte a byte el de
+      # una Mac, y un diff permanente no le sirve a nadie.
+      - name: Capturas del deck
+        env:
+          CHROME: ${{ steps.chrome.outputs.chrome-path }}
+        run: npm run capturas
+
+      # Los dos idiomas sin condicionales: slides/en/ esta completo (70/70
+      # secciones, los 8 dias) desde la fase 15. Si algun dia vuelve a estar a
+      # medias, el que se cae es tools/build.mjs, con un mensaje que lo dice.
       - name: PDF
         env:
           CHROME: ${{ steps.chrome.outputs.chrome-path }}
-        run: node tools/pdf.mjs
+        run: |
+          node tools/pdf.mjs
+          node tools/pdf.mjs --lang=en
 
       - uses: pandoc/actions/setup@v1
       - name: PPTX
-        run: node tools/pptx.mjs
-
-      # El deck en ingles se arma solo cuando slides/en/ tiene algo: el arbol se
-      # llena de a un dia por vez y arranca vacio.
-      - name: PDF y PPTX en ingles
-        env:
-          CHROME: ${{ steps.chrome.outputs.chrome-path }}
         run: |
-          if [ -n "$(ls slides/en/*.md 2>/dev/null)" ]; then
-            node tools/pdf.mjs --lang=en
-            node tools/pptx.mjs --lang=en
-          else
-            echo "slides/en/ vacio: nada que exportar"
-          fi
+          node tools/pptx.mjs
+          node tools/pptx.mjs --lang=en
+
+      # Chrome sin memoria a la mitad de las 440 paginas deja un PDF de 2 MB que
+      # se sube igual. Esto lo mira por adentro: encabezado, cierre, xref y
+      # tantas paginas como slides.
+      #
+      # Y ademas compara el TEXTO del PDF contra los bullets del deck: una slide
+      # que necesita mas de una hoja puede perder la cola al paginar, y eso no lo
+      # ve ni el --check ni tools/overflow.mjs. poppler-utils trae pdftotext, que
+      # es lo unico que hace falta para leerlo; con --exigir el lint falla si no
+      # esta, en vez de saltearse en silencio como hace en una maquina cualquiera.
+      - name: Instalar pdftotext
+        run: sudo apt-get install -y --no-install-recommends poppler-utils
+      - name: El PDF y el PPTX no salieron truncados, y el PDF dice lo mismo que el deck
+        run: |
+          npm run lint:dist
+          node tools/lint-pdf.mjs --exigir
+          node tools/lint-pdf.mjs --exigir --lang=en
 
       - uses: actions/upload-artifact@v4
         with:
@@ -69,46 +106,25 @@ jobs:
             dist/curso-uvm.pptx
             dist/uvm-course.pdf
             dist/uvm-course.pptx
-          if-no-files-found: warn
+          if-no-files-found: error
 
-      # El sitio es index.html + sus assets. NO se sube el repo entero:
-      # node_modules/ pesa mas que todo el curso junto.
-      - name: Preparar sitio
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+      # El sitio: layout, copias y reescrituras estan en tools/sitio.mjs, que se
+      # corre igual en local (`npm run sitio`). Antes eran veinte lineas de sed
+      # aca adentro que nadie podia probar antes de pushear. --estricto exige
+      # ademas los PDF/PPTX, que en el CI ya se generaron.
+      - name: Armar el sitio
+        run: node tools/sitio.mjs _site --estricto
+
+      # Pages acepta hasta 1 GB. El riesgo real no es el HTML sino un asset
+      # gordo que entra sin que nadie mire: un mp4 en res/, un vendor/ inflado.
+      - name: Tamano del sitio
         run: |
-          mkdir -p _site
-          # La raiz del sitio es la landing, no el deck. Dos razones: reveal.js
-          # no le da a un buscador ni una linea de texto que indexar, y el que
-          # llega de Google necesita saber que es esto antes de caer en la slide
-          # 1 de 275. El deck queda en curso.html, y la landing reenvia los
-          # enlaces viejos con hash (verifythis/#/day3).
-          cp web/index.html web/robots.txt web/sitemap.xml _site/
-          cp index.html _site/curso.html
-          cp docs/portada.png _site/portada.png
-          cp -r css js res vendor _site/
-          # El libro: los dias para leer de corrido. css/ y res/ quedan en
-          # ../ igual que en el repo; las dos rutas que cambian se reescriben
-          # aca -- el deck se llama curso.html en el sitio, y la landing es la
-          # raiz en vez de web/index.html.
-          cp -r libro _site/
-          sed -i -e 's|"\.\./index\.html#|"../curso.html#|g' \
-                 -e 's|"\.\./web/index\.html"|"../index.html"|g' _site/libro/*.html
-          grep -q '\.\./curso\.html#' _site/libro/dia1.html  # que la reescritura no se rompa en silencio
-          cp dist/curso-uvm.pdf dist/curso-uvm.pptx _site/
-
-          # La version en ingles, en /en/. css/, js/, res/ y vendor/ NO se
-          # duplican: el deck y el libro en ingles ya salen del build con el ../
-          # y el ../../ que hacen falta para alcanzarlos en la raiz del sitio.
-          mkdir -p _site/en
-          cp web/en/index.html _site/en/
-          if [ -f en/index.html ]; then
-            cp en/index.html _site/en/curso.html
-            cp -r en/libro _site/en/
-            # Un nivel mas abajo que el libro en castellano, asi que ../../
-            sed -i -e 's|"\.\./index\.html#|"../curso.html#|g' \
-                   -e 's|"\.\./\.\./web/index\.html"|"../index.html"|g' _site/en/libro/*.html
-            grep -q '\.\./curso\.html#' _site/en/libro/day1.html
-            cp dist/uvm-course.pdf dist/uvm-course.pptx _site/ 2>/dev/null || true
+          MB=$(du -sm _site | cut -f1)
+          echo "_site: ${MB} MB"
+          echo "### sitio: ${MB} MB" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$MB" -gt 400 ]; then
+            echo "::error::_site pesa ${MB} MB. Algo gordo entro sin querer: revisa res/ y vendor/"
+            exit 1
           fi
 
       - uses: actions/upload-pages-artifact@v3
@@ -120,9 +136,67 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    # La cola de Pages: sin cancel-in-progress, que cortar un deploy a la mitad
+    # deja el sitio en cualquier estado.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     environment:
       name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    outputs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/deploy-pages@v4
         id: deploy
+
+  # Hasta hoy el workflow terminaba en verde con el deploy hecho y nadie miraba
+  # si el sitio SERVIA. Un 404 en /curso.html o en el libro se descubria cuando
+  # alguien abria el link.
+  humo:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Las paginas que tienen que responder
+        env:
+          URL: ${{ needs.deploy.outputs.url }}
+        run: |
+          set -u
+          fallas=0
+          for p in "" curso.html libro/dia1.html libro/dia8.html \
+                   en/ en/curso.html en/libro/day1.html en/libro/day8.html \
+                   curso-uvm.pdf uvm-course.pdf sitemap.xml robots.txt; do
+            # Pages tarda unos segundos en propagar el deploy: tres intentos.
+            for i in 1 2 3; do
+              code=$(curl -sS -o /dev/null -w '%{http_code}' -L "${URL}${p}" || echo 000)
+              [ "$code" = 200 ] && break
+              sleep 5
+            done
+            if [ "$code" = 200 ]; then echo "  ok  ${URL}${p}"
+            else echo "::error::${URL}${p} devuelve ${code}"; fallas=$((fallas+1)); fi
+          done
+          # Que responda 200 no alcanza: Pages sirve una 404 propia con 200 en
+          # algunos casos. La landing tiene que decir de que es.
+          curl -sSL "$URL" | grep -q 'Verify This' \
+            || { echo "::error::la raiz responde pero no es la landing del curso"; fallas=$((fallas+1)); }
+          exit $fallas
+
+  # Los links a sitios ajenos. Aparte y de noche a proposito: que el CI de un PR
+  # se ponga rojo porque se cayo el server de otro es la forma mas rapida de que
+  # el equipo aprenda a ignorar el CI. continue-on-error deja el aviso en la
+  # corrida sin romperla.
+  enlaces:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tools/lint-web.mjs --red

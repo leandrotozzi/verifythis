@@ -1,4 +1,4 @@
-<!-- es-sha: 88ecec8e8464 -->
+<!-- es-sha: 84b63357df96 -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 6
@@ -78,9 +78,9 @@
 - [ ] Because `is_active` is `protected` and the `config_db` cannot write it
 - [ ] Because the `config_db` does not accept enumerated types
 - [ ] Because `is_active` is fixed in the constructor and `build_phase` arrives late
-- [x] Because the one who reads it is the `build_phase` of `uvm_agent`, and we never call `super.build_phase()`
+- [x] Because the one who reads it is the `build_phase` of `uvm_agent`, and `vtalu_agent` does not call `super.build_phase()`
 
-> **That mechanism is switched off** — `uvm_agent::build_phase` looks for `is_active` in the resource pool (it is in `code/.uvm/src/comps/uvm_agent.svh`, it can be opened). Without `super.build_phase()` that line never runs. Both ways are valid; what does not work is half of each one.
+> **That mechanism is switched off** — `uvm_agent::build_phase` looks for `is_active` in the resource pool (it is in `code/.uvm/src/comps/uvm_agent.svh`, it can be opened). Without `super.build_phase()` that line never runs, and nobody warns you. Both ways are valid; what does not work is half of each one.
 
 ---
 

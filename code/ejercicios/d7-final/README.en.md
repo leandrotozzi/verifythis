@@ -1,7 +1,7 @@
-<!-- es-sha: c05f7ef045c3 -->
+<!-- es-sha: f5e9111eec26 -->
 # Day 7 — the capstone: verify the `apb_regs`
 
-The other twelve exercises gave you a file with a hole in it. This one gives you a DUT,
+The other thirteen exercises with a statement gave you a file with a hole in it. This one gives you a DUT,
 a spec and nothing else. **You write the testbench, all of it**, and that is the only
 difference between *"I did the course"* and *"I know how to do it"*.
 
@@ -65,6 +65,8 @@ you find a scenario that is not in the table, add the row **and** the bin — th
 is also the exercise. How a table like this gets filled in, in
 [`docs/plan-de-verificacion.md`](../../../docs/plan-de-verificacion.md) (in Spanish).
 
+Done when `bash run.sh` prints the four stages and ends with `EXERCISE OK`.
+
 ## The contract with the checker
 
 The checker does not read your code: it reads the log. Three things have to be like this:
@@ -93,8 +95,8 @@ bash run.sh              # with your files
 SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 ```
 
-`solucion/` has the complete testbench: fifteen files, which are the same
-nine types of class as `code/u7/sequences` plus the interface and the package. Look at it
+`solucion/` has the complete testbench: seventeen files, which are the same
+types of class as `code/u7/sequences` plus the interface and the package. Look at it
 **afterwards**, or the exercise is good for nothing.
 
 ## How long it takes

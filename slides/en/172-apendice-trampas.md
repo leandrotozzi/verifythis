@@ -1,7 +1,7 @@
-<!-- es-sha: e9a7ea2a6b9e -->
+<!-- es-sha: fcc3e7d65258 -->
 <!-- .slide: id="apendice-trampas" -->
 
-## Appendix · The nineteen silent traps
+## Appendix · The twenty silent traps
 
 #### *It compiles, it runs, and it lies*
 
@@ -16,7 +16,7 @@
   get discovered weeks later, or do not get discovered
 
 Note:
-This appendix is the one to print out and stick next to the monitor. The nineteen
+This appendix is the one to print out and stick next to the monitor. The twenty
 are spread over seven sections because each one shows up when the
 concept shows up, but they are needed together — and they are needed at the worst moment.
 The thesis of the appendix is in the subtitle, and it is worth stating it as a general rule
@@ -31,13 +31,13 @@ the tree UVM actually built, against the one you drew in your head.
 
 ---
 
-## Appendix · The nineteen silent traps
+## Appendix · The twenty silent traps
 
 #### *The one publishing and the one listening*
 
 | The symptom | The cause | How to head it off | Section |
 | --- | --- | --- | :-- |
-| The subscriber counts **0** and the monitor prints 1000 | the `connect()` in the `connect_phase` is missing | grade it crosswise: against what the one that already worked says | Analysis ports · d4 |
+| The subscriber counts **0** and the monitor prints 1000 | the `connect()` in the `connect_phase` is missing | cross-check it: against what the one that already worked says | Analysis ports · d4 |
 | The monitor **never publishes**, and the scoreboard screams | `bfm.command_monitor_h = this` is missing in the `build_phase` | the `uvm_fatal` shows up in the class that is **not** to blame | Analysis ports |
 | The copy **loses the fields of the mother** | a `do_copy()` that does not call `super.do_copy(rhs)` | every `do_copy()` calls the one above first | Hierarchies |
 | Two different transactions **compare equal** | `super.do_compare()` called on a loose line and thrown away | chained with `&&`, never loose | Transactions |
@@ -61,7 +61,7 @@ that are not. The second is worse, because it switches off the whole scoreboard 
 
 ---
 
-## Appendix · The nineteen silent traps
+## Appendix · The twenty silent traps
 
 #### *Stimulus, scope and objections*
 
@@ -71,11 +71,12 @@ that are not. The second is worse, because it switches off the whole scoreboard 
 | The `randomize()` **does not run** with the asserts switched off | `assert(x.randomize())` — `assert` is a simulation directive | `if (!x.randomize()) uvm_fatal(…)` | Constrained random |
 | Under the override, **some** transactions are of the old type | a `new()` where a `type_id::create()` belonged | what goes through the factory is what gets created with `create()` | Transactions |
 | **Both agents** start up the same | two `set()` with scope `"*"`: the second overwrites the first | the scope is the **path** of the one that reads, with `*` at the end | Agents · d6 |
+| The agent starts up **active** even though you set `is_active` in the `config_db` | the missing `super.build_phase()`: the one that reads it is `uvm_agent` | either a config object, or `super` — never half of each | Agents |
 | The simulation **never ends** | an `item_done()` that was not called | `+UVM_TIMEOUT=5ms` first, the trace after | Agents |
 | It ends at **t=0** and says PASS | nobody raised the objection around the sequence | `+UVM_OBJECTION_TRACE` | Sequences |
 
 Note:
-The last two are the only ones of the nineteen that do make noise — one hangs and
+The last two are the only ones of the twenty that do make noise — one hangs and
 the other ends oddly — and they are here because the noise they make does not point at the
 culprit. A hang does not say what was left waiting; a t=0 says PASS, which is
 worse than an error.
@@ -94,7 +95,7 @@ second you understand exactly the one that is happening to you.
 
 ---
 
-## Appendix · The nineteen silent traps
+## Appendix · The twenty silent traps
 
 #### *The four from the assertions*
 
@@ -105,20 +106,20 @@ second you understand exactly the one that is happening to you.
 | **185 false positives** and the DUT is healthy | you sample it with the edge it is written on | stimulus on `negedge`, response of the DUT on `posedge` | Assertions · d7 |
 | False positives **at the start** of every test | the `disable iff (!reset_n)` is missing | `default disable iff`, once, at the very top | Assertions |
 
-- The four are of the same family as the fourteen above, with one aggravating factor:
+- The four are of the same family as the fifteen above, with one aggravating factor:
   a broken assertion **looks exactly the same** as one that works. There is no output
   to look at
 
 Note:
 These four reached the appendix with the assertions and they are the only ones on the list
-where the check itself is what fails — the other fourteen are bugs of the
+where the check itself is what fails — the other fifteen are bugs of the
 testbench; these are bugs of the one checking the testbench. That is why the antidote is
 always the same and that is why it is worth repeating it until you are sick of it: **one `cover
 property` per `assert property`**.
 The first row is the cheapest to commit in this flow and it is worth showing it
 live: taking `--assert` out of the `run.sh` of `code/u8/assertions` leaves the run with `+BUG=1`
 at 0 `UVM_ERROR`. The 183 failures disappear without anything warning you.
-The third is the lesson of the section and the only one of the nineteen that is not in
+The third is the lesson of the section and the only one of the twenty that is not in
 any tutorial. The wrong reflex, when the false positives show up, is to
 loosen the property until it shuts up: there you are left without a check and with the
 feeling of having fixed it. The right reflex is to ask on which edge
@@ -126,7 +127,7 @@ the one driving the stimulus writes.
 
 ---
 
-## Appendix · The nineteen silent traps
+## Appendix · The twenty silent traps
 
 #### *And the one the clocking block brings*
 
@@ -134,7 +135,7 @@ the one driving the stimulus writes.
 | --- | --- | --- | :-- |
 | The scoreboard fails **once every twenty** and the waveform looks fine | half the signals get read through `cb.sig` and the other half through `sig` | if it went into the clocking block, **the whole** protocol reads it through there | Interfaces and BFM |
 
-- It is the only one of the nineteen that **a tool adds**: without a clocking
+- It is the only one of the twenty that **a tool adds**: without a clocking
   block it does not exist. Badly used it is worse than not using it
 - Two names for the same wire, and they differ by one cycle:
   `code/u2/clocking/mezcla.sv` prints `3` and `4` at the same instant

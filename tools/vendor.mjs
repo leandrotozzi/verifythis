@@ -11,6 +11,10 @@ const OUT = 'vendor/reveal';
 // plugin/highlight/highlight.js NO se copia: se rebundlea mas abajo. El de
 // reveal trae highlight.js entero (~190 lenguajes, 940 KB) y el deck usa seis.
 const FILES = [
+  // La MIT viaja con el codigo: vendor/reveal/ se redistribuye en el repo y en
+  // Pages, y la licencia exige incluirla. Va en FILES y no copiada aparte
+  // porque el rm -rf de abajo se lleva puesto todo lo que no este en esta lista.
+  'LICENSE',
   'dist/reveal.js',
   'dist/reveal.css',
   'dist/reset.css',

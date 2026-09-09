@@ -216,7 +216,7 @@ un testbench con reloj eso es un flanco perdido.
 - La convención vale para todo el material de UVM que vayas a leer después:
   - *Cuadrado:* put port / get port — el que **inicia** la llamada
   - *Círculo:* export — el que la **recibe** e implementa
-  - *Rombo:* analysis port — el de los dos secciones anteriores
+  - *Rombo:* analysis port — el de las dos secciones anteriores
 
 Note:
 Vale la pena que el alumno se lleve la convención, porque es la misma en el *UVM
@@ -248,7 +248,7 @@ uno.
   generación de estímulo del driver de la DUT
 
 Note:
-Vale cerrar con la tabla de dos columnas con que abrio hablar con varios objetos, porque
+Vale cerrar con la tabla de dos columnas con que abrió hablar con varios objetos, porque
 es la que ordena las cuatro unidades del día:
 Intra-thread — `uvm_analysis_port` + `uvm_subscriber`, `write()` es `function`, no
 consume tiempo, un solo thread, y sirve para el *analysis layer*.

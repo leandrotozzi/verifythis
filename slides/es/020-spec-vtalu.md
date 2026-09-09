@@ -58,14 +58,14 @@ descuido del diseño.
 
 ## La spec del VTALU
 
-#### *Single Cycle: Add - AND - XOR*
+#### *Single Cycle: Add - Sub - AND - XOR*
 
 {{code:code/vtalu_dut/vtalu_1c.sv|lines=18-33}}
 
 - Dos `always_ff` y nada más: uno registra `A op B`, el otro levanta `done`
 - Los resets **no son iguales**: el del resultado es **síncrono** —sólo `clk` en
   la lista de sensibilidad—, el del `done` es **asíncrono**
-- `done <= start && (op != no_op)`: por eso en estas tres operaciones `done` es
+- `done <= start && (op != no_op)`: por eso en estas cuatro operaciones `done` es
   un **nivel** y se queda arriba mientras `start` lo esté
 
 Note:
@@ -110,7 +110,7 @@ y el scoreboard reporta un error que no está en el DUT.
 
 #### *Top Level*
 
-{{code:code/vtalu_dut/vtalu.sv|lines=18-23}}
+{{code:code/vtalu_dut/vtalu.sv|lines=30-35}}
 
 - El top no calcula nada: instancia los dos bloques y **decodifica** el opcode
 - `es_mult = (op == mul_op)`. El `start` se rutea a uno solo, y `result`,
@@ -217,7 +217,7 @@ que en el código.
 
 Note:
 Cierre de la sección que parece de RTL y en realidad es de verificación. La
-pregunta con la que conviene cerrar: ¿cuál de estos cinco datos es el que más
+pregunta con la que conviene cerrar: ¿cuál de estos siete datos es el que más
 caro sale olvidarse? El del `done`, y se va a ver el miércoles.
 Vale dejar dicho por qué el DUT no se "limpió" al traducirlo del VHDL: la
 asimetría de los resets y el opcode sin validar son **exactamente** el tipo de

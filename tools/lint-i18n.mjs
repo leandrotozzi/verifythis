@@ -18,6 +18,15 @@
 //                slides/en/ lleva el sha del archivo ES del que salio (regla 7):
 //                si el ES cambio, el check falla y dice cual hay que revisar.
 //
+// Y una tercera, que no es divergencia sino traduccion a medias (regla 8):
+// castellano que quedo sin traducir en el arbol EN. Estructuralmente no se ve
+// -- la slide tiene la misma cantidad de bullets -- y el sello es-sha tampoco,
+// porque se sella igual. La unica forma de cacharlo era leer las 402 slides.
+// Es LA falla tipica de una traduccion larga: un bullet, una Note: o la celda
+// de una tabla que se saltearon, en el medio de una seccion por lo demas
+// completa. Se buscan palabras funcionales del castellano que no son palabras
+// del ingles, fuera del codigo y de los links.
+//
 // El arbol EN es un SUBCONJUNTO a proposito: el dia 1 se publica en ingles
 // mucho antes que el 7. Lo que no se permite es un huerfano -- un archivo en
 // en/ que no exista en es/ --, porque eso es una traduccion de algo que ya no
@@ -40,8 +49,46 @@ const EN = SALIDAS.en.slides;
 // leerla y desconfiar de ella, asi que en ingles tiene que estar en ingles.
 const PARES_MD = [['code/ejercicios', 'README.md', 'README.en.md'],
                   ['code/ejercicios', 'spec.md', 'spec.en.md']];
-// Y la landing, que es prosa a mano en los dos idiomas.
-const PARES_SUELTOS = [['web/index.html', 'web/en/index.html']];
+// Y la landing, que es prosa a mano en los dos idiomas. Y el README.
+//
+// El README va al reves que todo el resto del repo, y es a proposito: la
+// TRADUCCION se llama README.md y el ORIGINAL README.es.md. GitHub renderiza
+// README.md y ningun otro, asi que el que cae al repo desde una busqueda en
+// ingles -- casi todo el trafico de un repo de UVM -- se comia 35 KB de
+// castellano y se iba asumiendo que el curso era solo en castellano. Es el
+// mismo bug que tenia la landing en ingles cuando decia "day 1 is complete"
+// con los ocho dias ya traducidos: el lector se va antes de enterarse.
+// Escribir se sigue escribiendo en castellano -- README.es.md es la fuente y
+// este lint sella el ingles contra ella, igual que slides/en/ contra slides/es/.
+//
+// El par se declara [fuente, traduccion], asi que la inversion del sufijo no
+// necesito tocar el mecanismo: origenDe() prueba el sufijo .en.md antes de
+// mirar esta tabla, y "README.md" no termina en ".en.md", asi que cae aca.
+//
+// Y tres docs. docs/ es el unico arbol del repo donde la traduccion NO vive al
+// lado con otro sufijo ni en un arbol espejo completo: la fuente esta en docs/
+// y el ingles en docs/en/, con el nombre traducido tambien -- instalar.md pasa
+// a ser setup.md, que es lo que un anglohablante busca. Por eso van como par
+// suelto y no por regla: el nombre no se puede derivar.
+//
+// Solo estos tres, y no docs/ entero, porque son los tres que estan en el
+// camino del lector en ingles: setup.md es el CRITICO -- el README en ingles lo
+// linkea como el lugar donde estan los cuatro caminos de instalacion, o sea que
+// es donde el lector pasa de "quiero probarlo" a "me corre"; uvm-interview.md es
+// el que trae trafico nuevo; for-teachers.md es el que decide una adopcion.
+// El resto de docs/ sigue en castellano y linkeado con "(in Spanish)" al lado,
+// que es honestidad y no deuda: el lector se entera antes de hacer clic.
+//
+// La comparacion estructural (cantidad de slides, {{code:}}, quiz) se les
+// aplica igual, porque el nombre termina en .md y no dice README. En prosa eso
+// significa que los dos tienen que tener los mismos separadores "---": no es
+// para lo que se escribio la regla, pero es cierto y es gratis -- una seccion
+// que se cae en la traduccion se ve.
+const PARES_SUELTOS = [['web/index.html', 'web/en/index.html'],
+                       ['README.es.md', 'README.md'],
+                       ['docs/instalar.md', 'docs/en/setup.md'],
+                       ['docs/uvm-en-la-entrevista.md', 'docs/en/uvm-interview.md'],
+                       ['docs/para-docentes.md', 'docs/en/for-teachers.md']];
 // En un .md la marca va primera; en un .html va DESPUES del doctype, porque un
 // comentario antes del <!doctype> manda al navegador a quirks mode.
 const MARCA = /^(?:<!doctype html>\n)?<!-- es-sha: ([0-9a-f]{12}) -->\n/i;
@@ -101,6 +148,50 @@ const partes = md => ({
   }).join('|'),
 });
 
+// --- regla 8: castellano sin traducir --------------------------------------
+// Solo palabras funcionales, y solo las que NO son tambien palabras del ingles:
+// "no", "un", "en", "es", "solo" y "a" existen en los dos idiomas y no dicen
+// nada. Nada de sustantivos: "monitor", "sequence" y "driver" se escriben igual
+// en las dos versiones a proposito, que es justo lo que hay que respetar.
+const CASTELLANO = ['qué', 'que', 'para', 'porque', 'pero', 'cuando', 'cuándo', 'donde', 'dónde',
+  'esto', 'esta', 'este', 'esa', 'ese', 'esos', 'esas', 'cada', 'todo', 'toda', 'todos', 'todas',
+  'hay', 'tiene', 'tienen', 'puede', 'pueden', 'hace', 'hacen', 'desde', 'hasta', 'entre',
+  'sobre', 'también', 'más', 'así', 'nunca', 'siempre', 'mismo', 'misma', 'otro', 'otra',
+  'cómo', 'además', 'aunque', 'entonces', 'ahora', 'después', 'antes', 'mientras', 'según',
+  'del', 'las', 'los', 'una', 'unas', 'unos', 'con', 'por', 'sin', 'ya'];
+const RE_CASTELLANO = new RegExp(String.raw`(?<![\w'’-])(${CASTELLANO.join('|')})(?![\w'’-])`, 'gi');
+
+// Todo lo que NO es prosa: los bloques de codigo, el codigo inline, los
+// {{code:}}, los comentarios, las URLs, el destino de un link y los tags. Se
+// borran reemplazando por espacios del mismo largo, para no correr las lineas.
+const enBlanco = m => m.replace(/[^\n]/g, ' ');
+const soloProsa = md => md
+  .replace(/```[\s\S]*?```/g, enBlanco)
+  .replace(/`[^`\n]*`/g, enBlanco)
+  .replace(/\{\{[^}]*\}\}/g, enBlanco)
+  .replace(/<!--[\s\S]*?-->/g, enBlanco)
+  .replace(/<[^>]+>/g, enBlanco)
+  .replace(/\]\([^)]*\)/g, enBlanco)
+  .replace(/https?:\/\/\S+/g, enBlanco);
+
+function castellanoSuelto(f, md) {
+  const t = soloProsa(md);
+  const lineas = new Map();
+  for (const m of t.matchAll(RE_CASTELLANO)) {
+    const n = t.slice(0, m.index).split('\n').length;
+    if (!lineas.has(n)) lineas.set(n, []);
+    lineas.get(n).push(m[0]);
+  }
+  for (const [n, ps] of lineas) {
+    // Una sola coincidencia suelta en una linea suele ser un nombre propio o
+    // una cita ("Verify This!" no, pero "el machete" sí aparece citado). Dos o
+    // mas en la misma linea es una frase en castellano, sin vuelta.
+    if (ps.length < 2) continue;
+    fail(`${f}:${n}`, `quedo castellano sin traducir ("${ps.slice(0, 4).join(' ')}"...) — traducila`
+      + ` y despues: node tools/lint-i18n.mjs --bless ${f}`);
+  }
+}
+
 const CAMPOS = [
   ['slides', 'la cantidad de slides'],
   ['dias', 'los marcadores id="dayN"'],
@@ -115,6 +206,11 @@ async function comparar(fEs, fEn, nombre) {
   if (!marca) fail(fEn, 'le falta la linea "<!-- es-sha: ... -->" del principio — corre: node tools/lint-i18n.mjs --bless ' + fEn);
   else if (marca[1] !== sha(aRaw))
     fail(fEn, `${fEs} cambio desde que se tradujo. Revisa la traduccion y despues: node tools/lint-i18n.mjs --bless ${fEn}`);
+  // Regla 8. Solo sobre .md: la landing en ingles nombra el otro idioma EN
+  // castellano a proposito ("Español", "Ver este deck en castellano").
+  // Sin sinMarca(): sacar la linea del sello correria un renglon todos los
+  // numeros de linea del mensaje. El comentario lo borra soloProsa() igual.
+  if (fEn.endsWith('.md')) castellanoSuelto(fEn, bRaw);
   // La paridad de slides/{{code:}}/quiz solo tiene sentido entre dos slides.
   if (nombre.endsWith('.md') && !nombre.includes('README')) {
     const a = partes(aRaw), b = partes(sinMarca(bRaw));

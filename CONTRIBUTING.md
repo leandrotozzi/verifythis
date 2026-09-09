@@ -4,6 +4,11 @@ Gracias por venir hasta acá. Este curso es de una persona y se mejora con lo qu
 manda la gente que lo usa: un typo, un ejemplo que no corre en tu máquina, una
 explicación que no se entiende.
 
+Antes que nada, lo único que se pide de arriba:
+[el código de conducta](.github/CODE_OF_CONDUCT.md). Son treinta líneas y se
+resumen en una — que alguien no entienda es información sobre el material, no
+sobre esa persona.
+
 **No hace falta saber UVM para ayudar.** El aporte más valioso que existe es el
 del que está haciendo el curso por primera vez y se traba: eso es un bug del
 material, no tuyo.
@@ -23,11 +28,13 @@ material, no tuyo.
 Todo el material vive en dos lugares: `slides/<idioma>/*.md` para el curso y
 `code/` para los ejemplos. Nada más se edita a mano.
 
-El curso está en **dos idiomas** y sólo las slides existen por duplicado:
-`slides/es/` es el original y `slides/en/` la versión en inglés, que se publica
-de a un día por vez. `code/`, `res/` y los diagramas **no se duplican** —están en
-inglés y los comparten las dos versiones—, y por eso una corrección a un ejemplo
-arregla el curso entero de una.
+El curso está en **dos idiomas** y sólo tres cosas existen por duplicado: las
+slides (`slides/es/` es el original, `slides/en/` la traducción), los `README`
+de los ejercicios (`README.md` y `README.en.md` al lado) y el README de la raíz
+—que va al revés, porque GitHub sólo renderiza `README.md`: ahí está el
+**inglés**, y el original en castellano es `README.es.md`—. `code/`, `res/` y los
+diagramas **no se duplican** —están en inglés y los comparten las dos
+versiones—, y por eso una corrección a un ejemplo arregla el curso entero de una.
 
 ```sh
 git clone https://github.com/leandrotozzi/verifythis

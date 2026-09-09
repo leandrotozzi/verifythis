@@ -6,9 +6,32 @@
   <meta name="description" content="An introductory UVM course that runs end to end on Verilator. No EDA licences.">
   <meta name="author" content="LeaT — LEFT">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Canonical, hreflang, favicon y las tarjetas: los arma seo() en
+       tools/sitio.mjs, que es el unico archivo que sabe como se llama esta
+       pagina una vez publicada (el deck es curso.html, no index.html). -->
+  <link rel="canonical" href="https://leandrotozzi.github.io/verifythis/en/curso.html">
   <link rel="alternate" hreflang="es" href="https://leandrotozzi.github.io/verifythis/curso.html">
   <link rel="alternate" hreflang="en" href="https://leandrotozzi.github.io/verifythis/en/curso.html">
   <link rel="alternate" hreflang="x-default" href="https://leandrotozzi.github.io/verifythis/curso.html">
+  <meta name="theme-color" content="#111111">
+  <link rel="icon" type="image/svg+xml" href="../css/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="../css/favicon-32.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Verify This!">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Verify This! — Introduction to UVM">
+  <meta property="og:description" content="An introductory UVM course that runs end to end on Verilator. No EDA licences.">
+  <meta property="og:url" content="https://leandrotozzi.github.io/verifythis/en/curso.html">
+  <meta property="og:image" content="https://leandrotozzi.github.io/verifythis/portada.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Verify This! — Introduction to UVM">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Verify This! — Introduction to UVM">
+  <meta name="twitter:description" content="An introductory UVM course that runs end to end on Verilator. No EDA licences.">
+  <meta name="twitter:image" content="https://leandrotozzi.github.io/verifythis/portada.png">
+  <meta name="twitter:image:alt" content="Verify This! — Introduction to UVM">
 
   <!-- GENERADO POR tools/build.mjs — NO EDITAR A MANO.
        Las slides viven en slides/*.md; el shell, en tools/template.html. -->
@@ -66,7 +89,7 @@
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 0977fd454944 -->
+<!-- es-sha: d9dfd48c1fc3 -->
 <!-- .slide: id="como-usar" -->
 
 ## How to use this course
@@ -84,10 +107,25 @@
   mistake everybody makes the first time. **Do not skip them**
 - Every day closes with a **review** of clickable options and with a
   **self-checking exercise**: `cd code/ejercicios/dN && bash run.sh`
+
+Note:
+If you are teaching the course, these two slides are skipped with the 1 key.
+They are here because most people who open this will not have an
+instructor alongside, and without the presenter notes half the material gets lost
+— and that half is also the hardest one to reconstruct by reading the code.
+
+---
+
+<!-- .slide: id="como-usar-correrlo" -->
+
+## How to use this course
+
+#### *Running it, moving around it, and where to look when something breaks*
+
 - **Run the examples**: `make u4/tests` runs one, `make u4` the whole unit. A verification
   course that is only read is worth nothing. A UVM example takes **a minute and a half the
   first time and fifteen seconds the second**, if you have `ccache` installed — and if you
-  do not have Linux, the short road is GitHub Codespaces, which brings it already
+  do not have Linux, the short road is GitHub Codespaces, which already ships with it
 - <kbd>0</kbd>–<kbd>8</kbd> jump to the cover and to each day ·
   <kbd>i</kbd> opens the index · <kbd>Esc</kbd> shows the whole deck · and the
   corner ribbon unfolds the cheat sheet of the day
@@ -95,14 +133,14 @@
   straight through, with the notes already inside the text. Keep the deck alongside for
   the reviews
 - **When something does not work, go to the end:** the appendices *The debug toolbox*
-  —what to look at for each symptom— and *The nineteen silent traps* —everything that
+  —what to look at for each symptom— and *The twenty silent traps* —everything that
   compiles, runs and lies—. Those are the two slides to print
 
 Note:
-If you are teaching the course, this slide is skipped with the 1 key.
-It is here because most people who open this will not have an
-instructor alongside, and without the presenter notes half the material gets lost
-— and that half is also the hardest one to reconstruct by reading the code.
+The last two are the ones that pay off most for someone studying alone, and the
+ones nobody reads until they are already stuck: the book carries these same notes
+inside the text, and the appendices are written as a table of symptoms, to look
+things up in rather than to read straight through.
         </textarea>
       </section>
       <!-- 002-como-usar.md -->
@@ -138,7 +176,7 @@ instructor alongside, and without the presenter notes half the material gets los
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: ba3dd018f0d9 -->
+<!-- es-sha: 607a6dd59d8a -->
 ## Trends
 
 #### *First silicon almost never comes out right*
@@ -368,7 +406,7 @@ one. It is literally the `d6-semillas` exercise of day 6.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 2a5b772669c9 -->
+<!-- es-sha: e745e3f38c41 -->
 ## The VTALU spec
 
 ![ALU waveform](res/diagrams/wave-dut.svg)
@@ -429,7 +467,7 @@ design slip.
 
 ## The VTALU spec
 
-#### *Single Cycle: Add - AND - XOR*
+#### *Single Cycle: Add - Sub - AND - XOR*
 
 ```sv
 );
@@ -453,7 +491,7 @@ design slip.
 - Two `always_ff` and nothing else: one registers `A op B`, the other raises `done`
 - The resets **are not the same**: the one on the result is **synchronous** —only `clk` in
   the sensitivity list—, the one on `done` is **asynchronous**
-- `done <= start && (op != no_op)`: that is why on these three operations `done` is
+- `done <= start && (op != no_op)`: that is why on these four operations `done` is
   a **level** and stays up while `start` is
 
 Note:
@@ -511,11 +549,12 @@ and the scoreboard reports an error that is not in the DUT.
 #### *Top Level*
 
 ```sv
-    input  logic        start,
-    output logic        done,
-    output logic        ovf,
-    output logic [15:0] result
-);
+   assign es_mult = (op == 3'b101);
+
+   assign start_1c = es_mult ? 1'b0 : start;
+   assign start_mult = es_mult ? start : 1'b0;
+   assign result_mux = es_mult ? result_mult : result_1c;
+   assign done = es_mult ? done_mult : done_1c;
 ```
 
 - The top computes nothing: it instantiates the two blocks and **decodes** the opcode
@@ -623,7 +662,7 @@ it is in the code.
 
 Note:
 Closing of the section that looks like RTL and is really about verification. The
-question to close with: which of these five facts is the most expensive one to
+question to close with: which of these seven facts is the most expensive one to
 forget? The one about `done`, and it will show on Wednesday.
 Worth saying why the DUT was not "cleaned up" when it was translated from VHDL: the
 asymmetry of the resets and the unvalidated opcode are **exactly** the kind of
@@ -634,7 +673,7 @@ thing a testbench has to expose. A tidy DUT teaches nothing.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 78baafce6724 -->
+<!-- es-sha: c23daafc34c1 -->
 ## The verification plan
 
 #### *The most professional deliverable of the discipline, and the cheapest*
@@ -702,7 +741,7 @@ The third bullet is a promise the course keeps on day 7: until then
 every check is a scoreboard check, and half the protocol goes unchecked.
 Worth saying now so that day 7 does not look like an add-on.
 A serious plan has both columns, and the VTALU table —which is seen whole in
-the next unit, already with the bins— has six scoreboard rows and three
+the next unit, already with the bins— has seven scoreboard rows and three
 assertion ones.
         </textarea>
       </section>
@@ -710,7 +749,7 @@ assertion ones.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: fee6a6bf24d9 -->
+<!-- es-sha: c64f160dc43f -->
 ## The conventional testbench
 
 #### *Coverage First Methodology*
@@ -891,7 +930,7 @@ open question instead of answering it here.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 50031909f9f3 -->
+<!-- es-sha: 0d93720543be -->
 ## Functional coverage
 
 #### *When are you done verifying?*
@@ -927,6 +966,7 @@ The six points of the plan from the previous section, translated:
 | Every op after a reset | transition bin `rst_op => op` |
 | Mult after single cycle and the other way round | transition bin |
 | Every operation twice in a row | repetition bin `[* 2]` |
+| Subtract too much: `A < B` and `ovf` goes up | `coverpoint borrow` with the `hubo_borrow` bin |
 
 - The six bullets stop being good intentions: each one is a line of
   code, and the simulator tells you which ones have not happened yet
@@ -1048,8 +1088,8 @@ bottom answering the three questions of the previous slide: **what** gets measur
 coverpoints), **into which buckets** (the bins) and **when** it gets counted (the
 `sample()`, which is further down in the same file).
 That `multi_cycle` is a single bin and `single_cycle[]` is six is not broken
-symmetry: it is the verification plan. The six single-cycle operations matter one
-by one; the multiplication matters as a separate case because it is the only one that takes
+symmetry: it is the verification plan. The six that are not the multiplication matter
+one by one; the multiplication matters as a separate case because it is the only one that takes
 more than one cycle. The shape of the covergroup **is** the table of the plan, and that is why the
 plan gets written first.
 The `` `ifndef VERILATOR `` is worth naming now and not hiding: those bins are
@@ -1169,8 +1209,8 @@ the problem is an unfiltered cross, not a missing test.
 ```
 
 - `add_00` reads straight through: *an addition where A **or** B is 0x00*
-- `mul_max` is the only one with `&&`: it asks for **both** legs at 0xFF, which is the
-  multiplier overflow case
+- `mul_max` is the only one with `&&`: it asks for **both** legs at 0xFF: the
+  **maximum product**, `FF` × `FF` = `FE01`. It does not overflow — 8 bits by 8 fit in 16
 - Verilator 5.052 **ignores** `binsof` / `intersect` (`%Warning-COVERIGN`) and measures
   the whole cross: that is why the number is not a commercial tool's
 
@@ -1178,7 +1218,14 @@ Note:
 Worth reading `add_00` and `mul_max` in plain words, one after the other, because the
 difference between `||` and `&&` is the one that gets copied wrong: *"an addition where A **or**
 B is 0x00"* against *"a multiplication with A **and** B at 0xFF"*. The first
-is two cases, the second is a single one — and it is the one that overflows the multiplier.
+is two cases, the second is a single one — the **maximum product**, the top corner of
+the input space. And here it is worth killing the misunderstanding that comes on its own,
+because it is expensive: `FF` × `FF` **does not overflow anything**. It gives `FE01`, which
+fits exactly in the 16 bits of `result` —8 bits by 8 never go past 16— and that is why the
+DUT forces `ovf` to 0 in every multiplication: `assign ovf = es_mult ? 1'b0 : ovf_1c;`.
+The bin is called `mul_max` and not `mul_ovf` for precisely that reason: the case is worth
+something for being the maximum of the input space, not for overflowing. The only operation
+that overflows is the subtraction, and only when A < B.
 The honesty of this slide is part of the course, so it is worth saying and not
 rushing past: the 86.8 % the example reports **is not** the number Questa would give.
 Verilator ignores the filter and measures the 36 bins, so the percentage comes out
@@ -1246,8 +1293,8 @@ Note:
 This is the slide that puts an asterisk on every percentage of the unit, and
 that is why it only arrives now: `at_least = 1` means the tool tells you
 **covered** with a single hit. For a bin that represents a value of an enum
-that is perfect —either it happened or it did not—. For the bin that represents the multiplier
-overflow, one hit is an anecdote, not a verification.
+that is perfect —either it happened or it did not—. For the bin that represents the maximum
+product of the multiplier, one hit is an anecdote, not a verification.
 The field rule, and it is worth giving because the question comes on its own: `at_least`
 high on the bins that represent a rare case, default on the ones that represent a
 value. Raising it for the whole covergroup is not rigour, it is a regression that never
@@ -1276,7 +1323,7 @@ Coverage Summary:
 
 - 66 of 76 bins filled, with 1000 random operations. The other rows of the
   summary come out `0/0`: `--coverage-user` leaves code coverage out
-- The 27 % that is missing **is not a bug**: it is the bins Verilator does not measure plus
+- The 13 % that is missing **is not a bug**: it is the bins Verilator does not measure plus
   the ones 1000 random operations did not get to touch
 - The number is not the goal. The question that helps is **which** bin is missing: that
   tells you which test to write
@@ -1286,9 +1333,9 @@ Coverage Summary:
 Note:
 This is where it is worth running it live and opening the report: the student has to
 see that the tool is telling them what they still have to do.
-And the punchline: the exercise of the day does exactly this. Adding `sub_op` with
-its bins takes the coverage from 86.8 % to 100 %, and the one who raises it is the same one who
-wrote the test.
+And the punchline: the exercise of the day does exactly this. Adding the new operation
+of the free opcode with its bins takes the coverage from 86.8 % to 100 %, and the one who
+raises it is the same one who wrote the test.
 
 ---
 
@@ -1296,35 +1343,37 @@ wrote the test.
 
 #### *The verification plan, whole and in one table*
 
-| Feature | Scenario | Stimulus | Check | Measure |
-| --- | --- | --- | --- | --- |
-| ALU | the six operations | random | scoreboard | `coverpoint op_set` |
-| ALU | operands at `00` and at `FF` | `dist` biased to the edges | scoreboard | cross `op_00_FF` |
-| sub | subtract too much: `A < B`, and `ovf` goes up | random | scoreboard, **two outputs** | bin `hubo_borrow` |
-| mult | overflow: `FF` × `FF` | directed case | scoreboard, 16 bits | bin `mul_max` |
-| reset | operate after a reset | `rst_op` interleaved | scoreboard | bin `rst_op => op` |
-| mult | a mult after a single-cycle one | random | scoreboard | transition bin |
-| ALU | the same operation twice in a row | random | scoreboard | bin `[* 2]` |
-| protocol | the operands are not touched with `start` up | random | assertion | `cover property` |
-| protocol | `done` arrives, and before 5 cycles | random | assertion | `cover property` |
-| protocol | `no_op` is the only one that does not answer | random | assertion | `cover property` |
+| # | Feature | Scenario | Stimulus | Check | Measure |
+|:--:| --- | --- | --- | --- | --- |
+| 1 | ALU | the six operations | random | scoreboard | `coverpoint op_set` |
+| 2 | ALU | operands at `00` and at `FF` | `dist` biased to the edges | scoreboard | cross `op_00_FF` |
+| 3 | mult | maximum product: `FF` × `FF` | directed case | scoreboard, 16 bits | bin `mul_max` |
+| 4 | reset | operate after a reset | `rst_op` interleaved | scoreboard | bin `rst_op => op` |
+| 5 | mult | a mult after a single-cycle one | random | scoreboard | transition bin |
+| 6 | ALU | the same operation twice in a row | random | scoreboard | bin `[* 2]` |
+| 7 | sub | subtract too much: `A < B`, and `ovf` goes up | random | scoreboard, **two outputs** | bin `hubo_borrow` |
+| 8 | sub | `A == B`: the result is 0 and `ovf` does **not** go up | random | scoreboard, two outputs | bin `sub_00`/`sub_FF` |
+| 9 | ovf | `ovf` does not go up for any other operation | random | assertion | `c_ovf` |
+| 10 | protocol | the operands are not touched with `start` up | random | assertion | `cover property` |
+| 11 | protocol | `done` arrives, and before 5 cycles | random | assertion | `cover property` |
+| 12 | protocol | `no_op` is the only one that does not answer | random | assertion | `cover property` |
 
 - The three right-hand columns are **the three parts of the testbench** of this
   section. What ties them together is the plan, and until now you had not seen it whole
-- The subtraction row is the one that forces the scoreboard to look at **two outputs**: if
-  it only compares `result`, it passes green with `ovf` stuck at zero
-- The last three rows are checked by no scoreboard: they are **protocol**
-  rules and get checked where they happen —the assertions
-- The whole table, with the file where each row lives and an empty template to
-  fill in the capstone: **`docs/plan-de-verificacion.md`**
+- The two subtraction rows are the ones that force the scoreboard to look at **two
+  outputs**: if it only compares `result`, it passes green with `ovf` stuck at zero
+- The **last four** are checked by no scoreboard: they are `ovf` and **protocol**
+  rules, and get checked where they happen —the assertions
+- The twelve rows are numbered the same as in **`docs/plan-de-verificacion.md`**,
+  which also says which file each one lives in and carries the capstone template
 
 Note:
 This is the slide that answers *"and what is this for?"* for the rest of day 1, and
 it is worth saying head on why it only arrives now: the three right-hand columns
 are stimulus, self-checking and coverage — the three parts the previous
 unit showed **loose**. The plan is the table that makes them one thing.
-The row that gets the most discussion is the overflow one, and that is good: `FF` × `FF` is the
-only case that does **not** come out of the random in reasonable time, and that is why its
+The row that gets the most discussion is the maximum-product one, and that is good: `FF` × `FF`
+is the only case that does **not** come out of the random in reasonable time, and that is why its
 stimulus column says *directed case*. There you see that the plan does not only measure,
 it also decides which test has to be written. It is the `d6-bins` exercise, three days
 later, with this same row.
@@ -1369,7 +1418,7 @@ And the operational mistake that repeats the most, to leave it burned in: the mi
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: abba5287271a -->
+<!-- es-sha: 56a350407959 -->
 ## Interfaces and BFM
 
 #### *First: the signals stop being loose*
@@ -1405,7 +1454,7 @@ interface vtalu_bfm;
       end
 ```
 
-- An `interface` is a **bundle** of signals with a name of its own. Eight wires that
+- An `interface` is a **bundle** of signals with a name of its own. Nine wires that
   used to be declared in the `top` now live together
 - The clock gets generated inside: the interface is not a wire, it is a model of the bus
 - Connecting the DUT becomes `.A(bfm.A)`, `.clk(bfm.clk)`… and adding a signal
@@ -1413,8 +1462,8 @@ interface vtalu_bfm;
 
 Note:
 First step towards UVM and it does not have a single line of UVM.
-The immediate gain is a maintenance one and it is worth measuring: in the testbench of
-the conventional testbench, adding a signal to the DUT forced you to touch the `top`, the tester and the
+The immediate gain is a maintenance one and it is worth measuring: in the conventional
+testbench, adding a signal to the DUT forced you to touch the `top`, the tester and the
 scoreboard. Here, the interface file.
 One detail of types that costs you: `op` is a `wire [2:0]` and `op_set` is the
 `operation_t`. The `assign op = op_set` is the bridge between the testbench enum and
@@ -1675,7 +1724,7 @@ is *"because the BFM writes on the negedge, and that is only fully visible in th
 
 Note:
 The sentence worth leaving on the board for the whole course: *the scoreboard
-checks what the DUT computes; the assertions, how it is talked to.* The two
+checks what the DUT computes; the assertions, how it is talked to.* The three
 sections left of day 1 and the six days that follow are the first half;
 the second arrives at the end, and it arrives on this same example.
 There is no need to promise more than that. The assertions come back with the property of this
@@ -2010,7 +2059,7 @@ a device driver is to the operating system.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 8bd1c74ac5d4 -->
+<!-- es-sha: 17a5d3509bb9 -->
 ## Exercise · Day 1 · 1 of 2
 
 #### *A new operation, end to end*
@@ -2022,7 +2071,8 @@ a device driver is to the operating system.
   teach the TB that it has to verify it too
 - It gets touched in **three** places: the RTL, the stimulus with its check, and **the
   measure** — the bin that does not exist today
-- The `run.sh` fails until it prints `EXERCISE OK`; the solution is right next to it
+- The `run.sh` fails until it prints `EXERCISE OK` **and the report closes with
+  77 covered bins**; the solution is right next to it
 
 Note:
 Half an hour, and it is worth leaving them alone: the statement and the README are enough.
@@ -2033,10 +2083,14 @@ is going to accuse them. It is warned about in the README, and it still happens.
 The third step is the most skipped one and the only one that fails **silently**:
 `bins single_cycle[]` covers the range `[add_op : xor_op]`, which reaches up to
 `3'b100`. `shr_op` falls outside every bin, the simulation passes green and
-the coverage does not move. There is the lesson that holds for the rest of the course:
-an opcode nobody measures is an opcode nobody verified.
-With the solution the coverage goes from 86.8 % to 100 %. Worth showing the number
-before and after: it is the whole argument of the morning in two lines of the report.
+— here is the worst part — the report still says **100 %**: 76 out of 76. The
+missing bin does not lower the percentage because it never made it into the
+denominator. There is the lesson that holds for the rest of the course: an opcode
+nobody measures is an opcode nobody verified, and the percentage is precisely the
+metric that cannot see it.
+With the solution it is 77 out of 77, starting from 86.8 % (66 out of 76). Worth
+showing both numbers and not only the percentage: that is why the `run.sh` demands
+the bin count and not 100 %, which a half-done job reaches too.
         </textarea>
       </section>
       <!-- 043-ejercicio-day1.md -->
@@ -2103,7 +2157,7 @@ clue of the APB wait state of day 7.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 6273520e4dd5 -->
+<!-- es-sha: f2010d1f5797 -->
 ## Classes and extensions
 
 #### *Why OOP in a testbench?*
@@ -2370,7 +2424,7 @@ hierarchies when `obj1_h = obj2_h` copies the handle and not the object.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 7b40b2c77542 -->
+<!-- es-sha: 8b77ff6b1052 -->
 ## Polymorphism
 
 #### *A `trago` variable, a `fernet` object: which `servir()` runs?*
@@ -2510,7 +2564,7 @@ Note:
 Worth running the two examples one after the other and showing the diff: one word.
 A detail that always gets asked: `fernet` and `mojito` do **not** write `virtual`
 on their `servir()`, and they are virtual all the same. Once the method is virtual in
-the base, it is virtual for the whole descent. Writing it anyway does no harm and plenty
+the base, it is virtual for all of its descendants. Writing it anyway does no harm and plenty
 of people do it out of tidiness.
 The rule of thumb for the rest of the course: in verification, **every method you might
 want to redefine goes virtual**. UVM does it that way — `build_phase`,
@@ -2579,7 +2633,7 @@ explodes in the middle of the simulation, with pure virtual it does not compile.
 Worth doing live: comment out `mojito`'s `servir()` and compile. The
 compiler message is the one that teaches.
 And the hook forward: the factory uses this to create, and the `env` for the
-overrides. What today is a fernet and a mojito, in two days is going to be a
+overrides. What today is a fernet and a mojito, tomorrow is going to be a
 `base_tester` and the testers that extend it — same mechanics, another vocabulary.
 
 ---
@@ -3068,7 +3122,7 @@ each monitor has its own. With that they can already read both.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: f2af0fb9dafb -->
+<!-- es-sha: 0f3503997186 -->
 ## The factory pattern
 
 #### *Who decides the type?*
@@ -3088,7 +3142,7 @@ Note:
 The sentence that orders the unit: **whoever uses the object stops being the one who picks
 the type**. Everything else is implementation detail.
 It is worth saying up front where this ends, because otherwise it looks like a programming
-detour: the `+UVM_TESTNAME=add_test` of the tests was already a factory —
+detour: the `+UVM_TESTNAME=add_test` of the tests, tomorrow, is going to be a factory —
 UVM reads a string from the command line and builds the class that corresponds.
 Here you see the mechanism from the inside.
 And for whoever comes from software: yes, it is the GoF Factory Method, and we
@@ -3285,9 +3339,9 @@ programming, and you can go and read about it outside the EDA world.
 
 Note:
 Closing of the most abstract section of day 2, and it is worth landing it with what
-they have already seen: the `+UVM_TESTNAME=add_test` of the tests **was already a factory** —
+is coming: the `+UVM_TESTNAME=add_test` of the tests **is a factory** —
 UVM reads a string from the command line and builds the class that corresponds.
-Here they saw the mechanism from the inside.
+Here they saw the mechanism from the inside, a day early.
 The sentence that sums up the whole section: **whoever uses the object stops being the
 one who picks the type.** Everything else is implementation detail.
 And for whoever comes from software: it is the GoF Factory Method, from 1994, and in
@@ -3298,7 +3352,7 @@ Python it takes ten lines. We invented nothing, and that is good news.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: dde615e37a58 -->
+<!-- es-sha: c58c93778ad6 -->
 ## A testbench without a single module
 
 #### *The same testbench, without a single module*
@@ -3700,7 +3754,7 @@ Day 3 answers it piece by piece, and it starts downhill if the student walks out
 of here able to draw the object tree on the board.
 And the argument for why the whole day was worth it: with modules, changing the
 stimulus is editing the file. With classes it is extending a class, and the two
-versions live side by side. That is the exercise they have just done.
+versions live side by side. That is the exercise that follows.
         </textarea>
       </section>
       <!-- 065-tb-en-objetos.md -->
@@ -3891,7 +3945,7 @@ with the factory, and only then do you see what the factory is for.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 99cf2a5b8aef -->
+<!-- es-sha: cf7b93df8c60 -->
 ## Tests
 
 #### *Compile once, pick the test from the command line*
@@ -3948,7 +4002,7 @@ Note:
 The virtual interface gets passed through the config_db because classes do not see the
 signals of the module: `bfm` lives in `top`, and `random_test` is an object that gets
 created at simulation time. There is no way to hand it over through the constructor —
-`uvm_component`'s only accepts `name` and `parent`.
+`uvm_component`'s constructor only accepts `name` and `parent`.
 It is worth pointing at the order: first the `set`, then `run_test()`. The other way round
 the test gets built before the data is in the database and the `get` fails with
 the fatal. It is a mistake you rarely see because almost nobody writes the top the wrong way
@@ -3964,7 +4018,7 @@ whoever starts with UVM.
 
 - A global and **typed** database: the `#(...)` is part of the key
 - Four arguments: *scope* (`cntxt`, `inst_name`), *name* and *data*
-- The **scope** is a hierarchical path, and that is where all the point is
+- The **scope** is a hierarchical path, and that is where the whole point is
 
 ```sv
 // -- IN THE TOP -- top is a module, not a uvm_component ---------------------
@@ -4125,7 +4179,8 @@ endtask
   objection drops
 - Without `raise_objection` the simulation ends at **time 0**, and the test
   passes with 0 errors without having sent a single stimulus
-- Without `drop_objection` it never ends: there is no error, time simply stops advancing
+- Without `drop_objection` it never ends: there is no error, the simulation just
+  keeps running
 - Both symptoms are **silent**, and that is why two plusargs exist:
   `+UVM_OBJECTION_TRACE` says who raised it and who dropped it, and `+UVM_TIMEOUT`
   puts a ceiling on the run
@@ -4276,9 +4331,9 @@ Note:
 Worth running it live and timing it: the compilation takes minutes, the two
 `run_sim` take seconds. That is the number that justifies all the ceremony of
 the unit.
-The `$finish at 42ns` at the bottom is from the second test and does not match the first one:
-both tests send the same number of operations but the multiplier
-takes more cycles, so the time depends on what came out of the random.
+The `$finish at 46ns` at the bottom is from the first test; `add_test` ends at 41 ns.
+Both send the same number of operations, but the multiplication takes more cycles
+than the addition, so the time depends on what came out of the random.
 And a useful warning: `UVM_ERROR : 0` means "nobody called
 `uvm_error`", not "the DUT is fine". Here the scoreboard does report with
 `` `uvm_error ``, so the count is worth something — but a scoreboard that never receives
@@ -4320,7 +4375,7 @@ course goes inside an `if` with its `uvm_fatal`.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: e2133b823a46 -->
+<!-- es-sha: d4c925520e1b -->
 ## Components and phases
 
 #### *A component is what is in the tree, and the tree is walked by UVM*
@@ -4392,30 +4447,43 @@ function void uvm_component::connect_phase(uvm_phase phase);
 endfunction
 ```
 
-- `build_phase` is the **only** phase that does anything in `uvm_component`: it walks the
-  `uvm_config_db` and assigns on its own the fields you registered with `` `uvm_field_* ``
-- The course **does not use those macros** —the fields get read by hand with
-  `uvm_config_db::get()`—, so there is nothing to apply. That is why no
-  `build_phase` in `code/` calls `super`: **it is not an oversight**
-- The moment a `` `uvm_field_int `` shows up in your project, it becomes
-  mandatory: without it the automatic config does not happen, the field stays at its
+- `build_phase` is the **only** phase that does anything in `uvm_component`: it applies
+  the fields registered with `` `uvm_field_* ``. The course does not use those macros
+- Careful, there are **two different `super`s**: that one, and the one of a base
+  class of **yours**, which builds what you wrote. The second one the course **does** call
+- Out there: **always put it in, unless you can name why in your case it is a
+  no-op**. Adding it costs nothing; skipping it when it mattered —a
+  `` `uvm_field_* ``, or inheriting from `uvm_agent`— leaves the field at its
   default and **nobody warns you**
 - And the order matters: whatever has to be decided *before* the children get
-  built goes before the `super`. The `set_type_override` of
-  `add_test` (the transactions) is exactly that
+  built goes before the `super`. The `set_type_override` of `add_test` is that
 
 Note:
 This slide exists because the student is going to see `super.build_phase(phase)` in every
-piece of material on the internet and in the code of the course it is not there. The honest answer is not
-"they forgot": it is that without the field macros the call does nothing.
-And take the chance to name the underlying difference: there are two ways of configuring a
-component. The automatic one (`` `uvm_field_* `` + config_db, magic by macros) and the
-manual one (`uvm_config_db::get()` in the build_phase, which is the one the course uses).
-The manual one is more code and vastly easier to debug — the field macros
-generate hundreds of lines you are never going to read.
-If somebody asks why the other phases usually get called anyway: habit and
-cheap insurance. In `uvm_component` they are `return;`, but if tomorrow you inherit from
-an intermediate class that does implement them, the call is already there.
+piece of material on the internet and in most of the course's `build_phase` it is not
+there. The honest answer is not "they forgot": it is that without the field macros the
+call to `uvm_component`'s does nothing.
+The numbers, so that nobody has to take our word for it:
+`grep -rn 'super\.build_phase' code/` gives eleven real calls —plus three comments
+that talk about them— over 122 `build_phase`. Those eleven call the `super` of a
+`base_test` or a `random_test` of **ours**, which builds the env. None of them calls
+`uvm_component`'s, which is what the slide is about.
+The other underlying difference: there are two ways of configuring a component. The
+automatic one (`` `uvm_field_* `` + config_db, magic by macros) and the manual one
+(`uvm_config_db::get()` in the build_phase, which is the one the course uses). The
+manual one is more code and vastly easier to debug — the field macros generate
+hundreds of lines you are never going to read.
+Why the recommendation for out there is the opposite of what the course does: the
+failure mode is asymmetric. Putting it in for nothing has zero effect. Leaving it out
+when it was needed is silence: the field stays at its default and the simulation runs.
+This course can name why in its case it is a no-op —there is not a single
+`` `uvm_field_* `` macro in `code/`, check it—; whoever walks into somebody else's
+testbench cannot. `uvm_agent` is the counterexample we have at hand: it is the only
+class in the library, besides `uvm_component`, that implements `build_phase`, and what
+it does there is read `is_active`. It comes back on day 6.
+The same goes for the other phases, cheaper still: in `uvm_component` they are
+`return;`, but `uvm_driver::end_of_elaboration_phase` checks that the `seq_item_port`
+is connected, and that one we do extend.
 
 ---
 
@@ -4433,7 +4501,7 @@ an intermediate class that does implement them, the call is already there.
 | `extract_phase` | gather the data of the run | bottom-up |
 | `check_phase` | decide whether it passed or not | bottom-up |
 | `report_phase` | print the verdict | bottom-up |
-| `final_phase` | close files and exit | bottom-up |
+| `final_phase` | close files and exit | top-down |
 
 - The course uses five. The other four exist, they are empty, and you are going to see them
 
@@ -4448,9 +4516,10 @@ way; and `report_phase` is the one they have already seen.
 That `extract` / `check` / `report` are separate has a concrete reason: they are
 bottom-up, so a child scoreboard finishes extracting before the parent env
 decides. If you do the three things in `report_phase`, you lose that guarantee.
-The question that orders the table: why is `build_phase` the only top-down one?
-Because a parent has to exist in order to create its children. All the others
-need the opposite — that the children are already there.
+The question that orders the table: why is `build_phase` top-down?
+Because a parent has to exist in order to create its children. The ones in the
+middle need the opposite — that the children are already there. The other
+top-down one is `final_phase`, which closes the tree in the same order it was built.
 
 ---
 
@@ -4645,24 +4714,27 @@ line of `set_type_override_by_type`.
 - Components get instantiated **in the `build_phase` and nowhere else**
 - Every `run_phase` runs **in parallel**, each one in its thread. None of them
   decides on its own when the simulation ends: that is the **objections**
-- `build_phase` is the only phase that does anything in `uvm_component`, and that is why it is
-  the only one where `super.build_phase()` changes the behaviour
+- There are **two `super.build_phase()`**: `uvm_component`'s and your base class's.
+  **Always put it in, unless you can name why in your case it is a no-op**
 
 Note:
 The unit that turns the testbench into something UVM can walk, and with that
 the tools that did not exist before show up: `print_topology()` shows the
 tree, and the `uvm_config_db` can use paths because now there are paths.
 The `super.build_phase()` deserves the pass we gave it because it is the most
-repeated question in the forums: not calling it switches off the automatic assignment of the
-fields registered with `` `uvm_field_* ``. This course does not use them, so it does not call it —
-but what is not valid is doing half of each.
+repeated question in the forums. What has to be said out loud is the asymmetry: not
+calling it switches off the automatic assignment of the fields registered with
+`` `uvm_field_* ``, and that does not give an error, it gives a default. This course
+does not use those macros and that is why it can skip it; the student who lands in
+somebody else's testbench does not know whether they can, so they put it in. What is
+not valid is doing half of each.
         </textarea>
       </section>
       <!-- 080-components.md -->
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: deed5d27b67f -->
+<!-- es-sha: f111a9cec97b -->
 ## The env: structure and stimulus
 
 #### *Two things that change for different reasons*
@@ -4993,7 +5065,7 @@ left over.
   different class for every registered class, so the type is put in by the compiler
 
 Note:
-The macro is what replaces the `case` of the hand-written factory of the factory: each class signs itself up in the dictionary, and adding a type does not force you to
+The macro is what replaces the `case` of the hand-written factory: each class signs itself up in the dictionary, and adding a type does not force you to
 edit the factory.
 The difference between the two macros is the one that gets collected in the transactions, and it is worth
 planting now: `uvm_component_utils` is for what lives in the tree and receives
@@ -5013,7 +5085,7 @@ forgotten, and forgetting it was a null pointer in simulation.
 
 - It is the *static member/method* pattern of the static variables, exactly as it is: `type_id` is a
   static member of the class, and `create()` a static method of that member
-- The three arguments are the usual ones: the **name** that is going to come out in the
+- The two arguments are the usual ones: the **name** that is going to come out in the
   topology, and the **parent** that hangs it from the tree
 - Everything that can go wrong shows at **compile time**: the misspelt class, the one that
   does not exist, and the one that forgot the `` `uvm_component_utils `` — because without the
@@ -5141,7 +5213,7 @@ endclass
 ```
 
 - We can see that this version is more adaptable
-- Every Test does an override of base_tester depending on the tester it needs for its stimulus
+- Every test does an override of base_tester depending on the tester it needs for its stimulus
 - The env class creates the object and sets it running
 - Now the test class does one thing well (generating stimulus) and the env class does another thing very well (creating the structure)
 
@@ -5191,7 +5263,7 @@ always it is duplicated structure.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 8ab29c86516d -->
+<!-- es-sha: aa5203a4a3af -->
 ## Reporting
 
 #### *47 % of the time goes here*
@@ -5217,7 +5289,7 @@ The second idea, which is the one that costs: debug messages **do not get delete
 the day you need it, it is there. That the day 5 exercise gets solved by raising
 the verbosity is no coincidence — it is set up so that they live it.
 And the distinction on the last line is worth writing on the board from the start,
-because it is question 1 of the review: verbosity and info on one side, actions and
+because it is question 6 of the review: verbosity and info on one side, actions and
 error/warning/fatal on the other. They never cross.
 
 ---
@@ -5400,15 +5472,15 @@ makes a regression log of a thousand tests readable. It is not classroom cosmeti
 
 ```systemverilog
 uvm_cmdline_processor clp = uvm_cmdline_processor::get_inst();
-string valor;
+string value;
 
-if (clp.get_arg_value("+COUNT=", valor)) count = valor.atoi();
+if (clp.get_arg_value("+COUNT=", value)) count = value.atoi();
 ```
 
 - It is a **singleton**: `get_inst()` from any class, without building anything and
   without passing it through the `config_db`
 - `get_arg_value` returns **how many times the argument appeared**, not the value:
-  the value comes out through the `ref`. If it appeared twice, it says so — `$value$plusargs`
+  the value comes out through the `ref`. If it appeared twice you find out — `$value$plusargs`
   keeps quiet with the first one
 - And there are `get_args()`, `get_plusargs()` and `get_uvm_args()`, which return the
   whole command line in a queue: it is how you print under what conditions
@@ -5426,8 +5498,8 @@ turns an old log into something reproducible. Without that, the log says what ha
 but not what it was run with, and a regression from three months ago cannot be repeated.
 The difference in the second bullet is worth an anecdote: two `+COUNT=` on the same
 line —because the script adds them and the user does too— is a real case, and
-`$value$plusargs` takes one without saying which. The `uvm_cmdline_processor` returns 2
-and emits a warning. It is the kind of thing you pay for once and remember.
+`$value$plusargs` takes one without saying which. The `uvm_cmdline_processor` returns 2,
+so at least you can notice. It is the kind of thing you pay for once and remember.
 
 ---
 
@@ -5486,9 +5558,9 @@ to raise **does not exist yet** —its parent builds it further down— and the
 call finds nobody. If it goes in the `run_phase`, the simulation has already started and
 you missed the messages of the earlier phases.
 `end_of_elaboration_phase` is exactly the gap between the two things: the whole
-tree, and the time still at zero. It is the first time in the course that one of
-the four phases "that exist and are empty" is good for something, and it is worth saying it
-that way — they were not decoration in the day 3 table.
+tree, and the time still at zero. It is the first time in the course that it gets
+used for anything, and it is worth saying it that way — in the table of the nine
+phases of day 3 it was not decoration.
 The `_hier` suffix is the one that gets forgotten, and it fails silently: you set the ceiling of the
 `env` without `_hier`, the `env` prints nothing anyway, and the monitor you
 wanted to hear stays quiet. Rule of thumb: if you are aiming at a branch, `_hier`;
@@ -5624,8 +5696,8 @@ exactly as broken as it was two slides ago. That is the reason a
 `UVM_NO_ACTION` cannot survive a commit — it is a silent trap, and it is in
 the appendix.
 The scoreboard of this section adds too much ON PURPOSE, it is the bug we are
-showing. That is why `code/u4/reporting/run.sh` is the only example in the repo that exports
-UVM_ERRORS_OK=1: in all the others, a uvm_error makes the run fail.
+showing. That is why `code/u4/reporting/run.sh` exports UVM_ERRORS_OK=1: by
+default a uvm_error makes the run fail, and here the error is the example.
 
 ---
 
@@ -5638,7 +5710,7 @@ UVM_ERRORS_OK=1: in all the others, a uvm_error makes the run fail.
   has to be silenced is **one single one**, and the rest has to carry on shouting
 
 ```systemverilog
-class demotar_pslverr extends uvm_report_catcher;
+class demote_pslverr extends uvm_report_catcher;
    virtual function action_e catch();
       if (get_severity() == UVM_ERROR && get_id() == "PSLVERR")
          set_severity(UVM_INFO);      // stops counting as an error
@@ -5646,7 +5718,7 @@ class demotar_pslverr extends uvm_report_catcher;
    endfunction
 endclass
 
-demotar_pslverr c = new();
+demote_pslverr c = new();
 uvm_report_cb::add(null, c);          // null = the whole testbench; or a component
 ```
 
@@ -5661,7 +5733,7 @@ It is the right answer to the previous slide, and the difference is one of hones
 not of syntax. `UVM_NO_ACTION` on the scoreboard switches off the error and the log ends up
 identical to that of a healthy testbench: nobody reading that log finds out. The catcher
 downgrades **that** message, lets all the others through, and on top of that counts it on a
-line of its own in the *Report Summary*. A reviewer who opens the log sees that there was an
+line of its own in the *UVM Report catcher Summary*. A reviewer who opens the log sees that there was an
 error and that somebody decided it was fine.
 When it really gets used: in the negative tests, which are half of a serious verification
 plan. Writing to a read-only register has to give
@@ -5696,7 +5768,7 @@ Close the day by going back to the 47 %: of everything seen today —tests, comp
 phases, env— this is the section used **every day**, and the only one you
 notice when it is missing. A testbench without reporting works just the same; debugging it costs
 double.
-The control question, which is also number 1 of the review: *"I lowered the verbosity
+The control question, which is also number 6 of the review: *"I lowered the verbosity
 ceiling and the `` `uvm_error `` still shows up, why?"*. If the group
 answers it without hesitating, the section closed.
 And the warning for the day 5 exercise, worth giving now and not when they are
@@ -5878,7 +5950,7 @@ the reason adding one has to be cheap.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 904b4827022b -->
+<!-- es-sha: 70f176b32625 -->
 ## One producer, many listeners
 
 #### *Two ways of talking between objects*
@@ -6405,7 +6477,7 @@ class and **one** line here. Not one in `dice_roller`.
 
 #### *The solution, wired up*
 
-- In the connection diagram we can see that the dice_roller class has a uvm_analysis_port object called roll_app
+- In the connection diagram we can see that the dice_roller class has a uvm_analysis_port object called roll_ap
 - Each subscriber has an analysis_export object
 - The connection between the two is made through the connect() method
 
@@ -6458,7 +6530,7 @@ naming convention, it is the language telling you which side you are on.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 22d8cf7d8010 -->
+<!-- es-sha: 5c18ae0fbc01 -->
 ## A single place that watches the wire
 
 #### *A single place that watches the wire*
@@ -6497,7 +6569,7 @@ the pieces.
 
 - **`command_monitor`** — watches the start of every operation and publishes what was asked for
 - **`result_monitor`** — watches the `done` and publishes what the DUT answered
-- The **BFM** stops being only signals: it gains two `always` and a handle to each monitor
+- The **BFM** stops being only signals: it gains three `always` and a handle to each monitor
 - The **scoreboard** and the **coverage** stop waiting for edges and get a
   `write()` instead
 - The **`tester`** never finds out about any of it: it goes on sending stimulus just like yesterday
@@ -6594,8 +6666,9 @@ affects tasks — here the one declaring the task is the class, not the interfac
 
 #### *Monitoring the VTALU commands*
 
-- Two `always` in the BFM, one per monitor: the command one fires when an
-  operation starts, the result one when the DUT raises `done`
+- Three `always` in the BFM: the command one fires when an operation starts, the
+  reset one on the falling edge of `reset_n`, and the result one when the DUT
+  raises `done`
 
 ```sv
 
@@ -6903,13 +6976,13 @@ an honest error.
   the request of another, and screams on every one
 
 ```systemverilog
-transaccion esperado [int];              // associative, indexed by whatever pairs them up
+transaction expected [int];              // associative, indexed by whatever pairs them up
 
-function void write_cmd(transaccion c);  esperado[c.id] = c;  endfunction
+function void write_cmd(transaction c);  expected[c.id] = c;  endfunction
 
-function void write_result(respuesta r);
-   if (!esperado.exists(r.id)) `uvm_error("SB", "a response nobody asked for")
-   else begin comparar(esperado[r.id], r); esperado.delete(r.id); end
+function void write_result(response r);
+   if (!expected.exists(r.id)) `uvm_error("SB", "a response nobody asked for")
+   else begin compare(expected[r.id], r); expected.delete(r.id); end
 endfunction
 ```
 
@@ -7002,7 +7075,7 @@ outside the agent in the agents.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 1bf3e9e096ff -->
+<!-- es-sha: 12954fabcd03 -->
 ## When somebody has to wait
 
 #### *You were already doing this, with modules*
@@ -7446,7 +7519,7 @@ two are one to one.
 - UVM provides it with *uvm_put_port*, *uvm_get_port* and *uvm_tlm_fifo*
 - Any object that wants to communicate with another thread has to instantiate a
   port and connect it to a FIFO
-- Careful with the pair of names: the *analysis port* of the two previous sections
+- Careful with the pair of names: the *analysis ports* of the two previous sections
   are **intra**-thread —`write()` is a `function` and runs in the thread of the
   one publishing—; this is **inter**-thread, and that is why `put()` and `get()`
   are `task`
@@ -7471,7 +7544,7 @@ are two threads.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: a0bb7766a72b -->
+<!-- es-sha: 3415a20700e5 -->
 ## Who waits for whom
 
 #### *What to send and how to send it*
@@ -7586,13 +7659,13 @@ to have to be written by hand.
 
 #### *The `env`: seven objects and five `connect()`*
 
-- Mantra: "Ports connects to exports"
+- Mantra: "Ports connect to exports"
 
 ```sv
    function void build_phase(uvm_phase phase);
       command_f = new("command_f", this);
       random_tester_h = random_tester::type_id::create("random_tester_h", this);
-      driver_h = driver::type_id::create("drive_h", this);
+      driver_h = driver::type_id::create("driver_h", this);
 
       coverage_h = coverage::type_id::create("coverage_h", this);
       scoreboard_h = scoreboard::type_id::create("scoreboard_h", this);
@@ -7901,7 +7974,7 @@ match what another component saw.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: bf5d480c39e0 -->
+<!-- es-sha: 647efb74e66a -->
 ## Copying an object that contains another
 
 #### *The handle is not the object*
@@ -8179,7 +8252,7 @@ this?" is this slide.
 - It is the `convert2string()` of `fernet_con_hielo`, the bottom-most class: it
   prints **all four fields by hand**, including the three it inherited
 - It works, and that is why it is dangerous. The day `fernet` gains a field, this
-  method goes on compiling and goes on printing — short
+  method goes on compiling and goes on printing — less than it should
 - The whole file is in `code/u6/jerarquias/wrong.sv`, and the `do_copy()`s have
   the same vice: each one touches fields that are not its own
 
@@ -8256,7 +8329,7 @@ write them no.
 - For that to work, the `do_copy()` / `do_compare()` all take **the same type of
   argument**, the base class. It is polymorphism, once again
 - The day somebody puts a class **in the middle** of the hierarchy, the deep
-  version goes on working by itself. The other one has to be gone out and fixed
+  version goes on working by itself. The other one you have to go out and fix
 
 Note:
 The handle bug is the one everybody writes once: you modify the transaction you
@@ -8703,7 +8776,7 @@ It is the most used of the three methods, and the one that gets the least
 attention: every message of the scoreboard and of the monitors of the rest of the
 course comes out of here.
 The `.name()` of the `enum` is the detail that changes the day: without it the log
-says `op: 4` and you have to go looking for the `typedef`; with it it says
+says `op: 4` and you have to go looking for the `typedef`; with it, it says
 `op: mul_op`. The rule to take home: **if a field is an enum, the log gets its
 name, never its value.**
 Worth naming the relative UVM brings and the course does not use: `sprint()`,
@@ -8926,7 +8999,7 @@ endclass
 
 Note:
 It is worth putting this slide next to the `add_test` of the env and counting
-lines: the same idea, one level further down. Before, what generated was
+lines: the same idea, one level further down. Before, what generates was
 substituted; now, what is generated is.
 The order of the `super` is the trap of the slide, and it is a sibling of the one
 in the env: the factory decides what to build at the moment of the `create()`. If
@@ -9031,14 +9104,14 @@ an agent. That is day 6.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 91ae321e4c15 -->
+<!-- es-sha: a2eae5be73ce -->
 ## Constrained random
 
 #### *The other half of the pincer*
 
 - The functional coverage of the conventional testbench tells you **what is
   missing**. It does not tell you how to get there: that is the stimulus
-- Writing a directed test per bin does not scale — there are 73 of them in the
+- Writing a directed test per bin does not scale — there are 76 of them in the
   VTALU, and a real chip has thousands
 - The industry recipe is the other way round: **random for the bulk, directed for
   the holes**. And the random has to be *legal*, or the DUT complains about things
@@ -9092,7 +9165,7 @@ shows up at simulation time, `randomize()` returns 0, and **if nobody checks the
 return value the class is left with the values it had**. The testbench goes on
 running and sends garbage.
 The rule to take away from here, and one the course keeps everywhere in `code/`: a
-`randomize()` always goes inside an `if` or an `assert`. Never loose.
+`randomize()` always goes inside an `if` that checks the return value. Never on its own.
 
 ---
 
@@ -9219,7 +9292,7 @@ over 400 attempts is six and a bit. With the badly written `dist` of the previou
 slide, the probability of both legs landing on `FF` is 1/65536 per operation: you
 never touch it.
 The mental sequence is always the same: I run random, I look at which bin was left
-empty, I write a three-line `with {}`, I run again. Never "I write 73 tests".
+empty, I write a three-line `with {}`, I run again. Never "I write 76 tests".
 The Verilator limitation that shows up in the output is there on purpose, and it
 is worth stating it properly because it is not a matter of "it works or it does
 not". Verilator resolves the `dist` **by picking a concrete value first** and only
@@ -9470,7 +9543,7 @@ and that in silicon does not start at zero.
 - `dist` sets **weights**, not legality. And `:=` is not `:/`: the first weighs
   **each value** of the range, the second **the whole range**
 - `randomize()` returns 0 and carries on. That is why it **always** goes inside an
-  `assert()` — it is the most expensive silent trap of the course
+  `if` with `` `uvm_fatal `` — it is the most expensive silent trap of the course
 
 Note:
 The last bullet is the one to leave burned in and the one that connects with the
@@ -9558,7 +9631,7 @@ resolves `randomize()` by returning 0 **in silence**. It is in
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: ca6437ca3ad3 -->
+<!-- es-sha: 17ddbff43551 -->
 ## Exercise · Day 5 · 1 of 2
 
 #### *The scoreboard screams and the DUT is healthy*
@@ -9579,7 +9652,8 @@ Let them start without the hint. Almost all of them are going to look at the RTL
 first — that is already half the lesson. When they get stuck, the hint is the
 verbosity: the `uvm_info` of the monitor are UVM_HIGH and they show what the
 monitor says it saw, which does not match what the scoreboard compares.
-The bug is in four lines of `command_monitor.svh`.
+The bug is a single line of `command_monitor.svh`: the monitor copies one of
+the two operands wrong.
         </textarea>
       </section>
       <!-- 138-ejercicio-day5.md -->
@@ -9637,7 +9711,7 @@ bucket gives zero — another one that does not break, it lies.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: e0ffbfbfb9f7 -->
+<!-- es-sha: 9fffe39eea59 -->
 ## Agents
 
 #### *The problem: a testbench that cannot be copied*
@@ -9732,7 +9806,8 @@ Change two, conceptual: the stimulus generator **stops being a component**.
 A component is built once in `build_phase` and lives the whole simulation;
 a sequence is created, runs, finishes and gets thrown away — and you can run another one
 right after on the same sequencer. That is what lets a test
-combine stimuli without touching the structure, and it is the whole of sequences.
+combine stimuli without touching the structure, and that is what the sequences
+section is all about.
 The question to throw at the group: why does the driver of the passive agent not exist,
 but the monitor does? Because driving is optional, watching is not.
 
@@ -9771,7 +9846,7 @@ a copy. The sequence lends you the item and waits for you to
 give it back. `put`/`get` was a delivery: the tester dropped the command and moved on.
 And out of that comes the other useful difference: since the sequence still holds the
 handle, the driver can write the result inside it and the sequence reads it when it
-comes back from `finish_item()`. Sequences uses that.
+comes back from `finish_item()`. The sequences section uses that.
 
 ---
 
@@ -9877,7 +9952,7 @@ a place to put logic.
 - The `randomize()` goes **between the two**: that way the constraints get resolved at
   the moment the item is about to be handed over, not before
 - This is the direct translation of the `tester` of the transactions, and nothing more than
-  that — sequences is about what can be done in here
+  that — the sequences section is about what can be done in here
 
 ```sv
 class command_sequence extends uvm_sequence #(command_transaction);
@@ -10069,11 +10144,11 @@ agent does not hand out handles by hand.
 
 #### *The agent class: `build_phase`*
 
-- It asks the `uvm_config_db` for its config and copies the `is_active`
+- It asks the `uvm_config_db` for its config and copies the `is_active` **by hand**:
+  without `super.build_phase()`, `uvm_agent`'s, the one that would read it, never runs
 - It builds sequencer and driver **only if it is active**; the monitors and the two
   analysis ports, always
 - The analysis ports are ports: they get instantiated with `new()`, not with the factory
-- As in the whole course, **there is no `super.build_phase()`**
 
 ```sv
 class vtalu_agent extends uvm_agent;
@@ -10117,8 +10192,14 @@ the library brings **only reads `is_active` from the resource pool**. It is in
 `code/.uvm/src/comps/uvm_agent.svh`, it can be opened in class.
 Which means that in a testbench that calls `super.build_phase()`, a
 `uvm_config_db#(int)::set(this, "mi_agent", "is_active", UVM_PASSIVE)` works
-on its own, without a config object. Since this course never calls `super.build_phase()`,
+on its own, without a config object. Since this `vtalu_agent` does not call it,
 that mechanism **is switched off**, and that is why we assign it by hand.
+And here is where day 3 gets paid: `uvm_agent` is the only class in the library,
+besides `uvm_component`, that implements `build_phase`. It is exactly the case
+the rule for out there covers — you inherited from an intermediate class that
+does real work, and skipping the `super` switches it off without a word. We can
+skip it because we wrote the line that replaces it; whoever does not write that
+line, cannot.
 Both ways are valid. What is not valid is half of each one: putting
 `is_active` in the config_db, not calling `super.build_phase()`, and then
 wondering why the agent starts up active. It happens often.
@@ -10371,7 +10452,7 @@ seq.start(env_h.clase_agent_h.sequencer_h);
 - It works, but look at what that line does: the test **goes across the hierarchy**
   to reach the sequencer, and with that it knows the inside of the env again
 - Everything we have just encapsulated leaks out in one line
-- Sequences fixes it: the sequence is handed to the sequencer **through the
+- The sequences section fixes it: the sequence is handed to the sequencer **through the
   `config_db`**, and the test stops knowing where it is
 
 ```sv
@@ -10696,7 +10777,7 @@ the DUT, not the stimulus — which is exactly what the `+BUG=1` of the capstone
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: c841bc4b3b2d -->
+<!-- es-sha: 47c0ff491e6a -->
 ## Sequences
 
 #### *The only thing left hard-wired*
@@ -10912,7 +10993,7 @@ class. The slide that follows is exactly that, with the Verilator trap included.
 start_item(command);
 command.data.constraint_mode(0);                       // 1. I switch off the dist
 if (!command.randomize() with {A inside {[1:10]};})    // 2. I ask for the directed one
-   `uvm_fatal("SEQ", "randomize() fallo")
+   `uvm_fatal("SEQ", "randomize() failed")
 finish_item(command);
 ```
 
@@ -11267,7 +11348,7 @@ is what finishes closing the `env` that the agents encapsulated.
 
 command = command_transaction::type_id::create("command");   // four
 start_item(command);
-if (!command.randomize()) `uvm_fatal("SEQ", "randomize() fallo")
+if (!command.randomize()) `uvm_fatal("SEQ", "randomize() failed")
 finish_item(command);
 ```
 
@@ -11611,7 +11692,7 @@ design, the analysis per verification plan.
 
 ## Sequences
 
-#### *Summary of the unit*
+#### *Summary of the unit · the sequence and the item*
 
 - The stimulus came out of the component tree: it is a `uvm_object`, not a
   `uvm_component`, and that is why it gets created, configured, run and thrown away
@@ -11621,6 +11702,17 @@ design, the analysis per verification plan.
   the way back, and it is what makes a stimulus that reacts possible
 - Two ways of starting: explicit `start(sequencer)`, or `default_sequence` through
   `uvm_config_db` — which besides takes the last hard-wired line out of the testbench
+Note:
+The first half of the summary is the mechanism: what a sequence is, where the
+`randomize()` lives, and which way the result comes back. Anyone who got lost in
+the unit catches up here.
+
+---
+
+## Sequences
+
+#### *Summary of the unit · how they compose*
+
 - Sequences compose: one calls others, in series or with `fork`/`join`
 - And when there is **more than one sequencer**, the one that composes is a **virtual
   sequence**: it sends no items of its own, it takes the handles out of a `virtual_sequencer` and
@@ -11649,7 +11741,7 @@ And the best place to go on reading is `code/.uvm/src/`: by this point
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 88ecec8e8464 -->
+<!-- es-sha: 84b63357df96 -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 6
@@ -11729,9 +11821,9 @@ And the best place to go on reading is `code/.uvm/src/`: by this point
 - [ ] Because `is_active` is `protected` and the `config_db` cannot write it
 - [ ] Because the `config_db` does not accept enumerated types
 - [ ] Because `is_active` is fixed in the constructor and `build_phase` arrives late
-- [x] Because the one who reads it is the `build_phase` of `uvm_agent`, and we never call `super.build_phase()`
+- [x] Because the one who reads it is the `build_phase` of `uvm_agent`, and `vtalu_agent` does not call `super.build_phase()`
 
-> **That mechanism is switched off** — `uvm_agent::build_phase` looks for `is_active` in the resource pool (it is in `code/.uvm/src/comps/uvm_agent.svh`, it can be opened). Without `super.build_phase()` that line never runs. Both ways are valid; what does not work is half of each one.
+> **That mechanism is switched off** — `uvm_agent::build_phase` looks for `is_active` in the resource pool (it is in `code/.uvm/src/comps/uvm_agent.svh`, it can be opened). Without `super.build_phase()` that line never runs, and nobody warns you. Both ways are valid; what does not work is half of each one.
 
 ---
 
@@ -11954,7 +12046,7 @@ regression is a hundred seeds overnight and one single number in the morning.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: c2408d0e908c -->
+<!-- es-sha: fc3bb54c447f -->
 <!-- .slide: id="day7" data-machete="res/diagrams/assertions_property.svg,res/machete-debug.svg" -->
 
 ## Agenda
@@ -11965,7 +12057,7 @@ regression is a hundred seeds overnight and one single number in the morning.
 - The capstone: an APB testbench, from scratch
 - From the VTALU to a real bus
 - The debug toolbox
-- The nineteen silent traps
+- The twenty silent traps
 - Glossary, references and wrap-up
 
 *And afterwards, **day 8**: optional, and for whoever has already handed in the capstone*
@@ -11975,7 +12067,7 @@ regression is a hundred seeds overnight and one single number in the morning.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 3ef60d67a219 -->
+<!-- es-sha: 0e951e495f0e -->
 ## Assertions (SVA)
 
 #### *The hole the scoreboard left*
@@ -11986,8 +12078,8 @@ regression is a hundred seeds overnight and one single number in the morning.
   `done` one cycle early, or raises it on a `no_op`, **passes every test of the
   course**
 - The rule of the protocol is written in three places: in prose in the spec,
-  inside the BFM in interfaces and BFM, and in the head of whoever wrote it. In **none** of
-  the three is it checked
+  inside the BFM, and in the head of whoever wrote it. In **none** of the
+  three is it checked
 - An **assertion** is that same sentence, in executable form, running on its own the whole
   simulation
 
@@ -12015,7 +12107,7 @@ testbench does not cover.
 // IMMEDIATE: it is a STATEMENT. It runs when the thread goes past it,
 // once, and that is all. The one from the transactions is of this family.
 assert (cmd.op inside {add_op, and_op, xor_op, mul_op})
-   else `uvm_error("SEQ", "operacion invalida");
+   else `uvm_error("SEQ", "invalid operation");
 
 // CONCURRENT -- the new thing. It is a DECLARATION with a clock: it gets
 // plugged in when the simulation starts and evaluated on every edge, forever.
@@ -12152,8 +12244,6 @@ they need a clock to know what "previous" means.
 #### *The property that is worth the section*
 
 ```sv
-   default disable iff (!reset_n);
-
    // --- El estimulo ---
 
    // The rule from slide 1 of day 1, executable at last: while start is up, the
@@ -12165,6 +12255,8 @@ they need a clock to know what "previous" means.
    a_operandos_estables :
    assert property (p_operandos_estables)
    else
+      `uvm_error("SVA", $sformatf(
+                 "%m: operand changed with start up: A=%0d B=%0d op=%s", A, B, op2enum().name()))
 ```
 
 - It is **the rule of slide 1 of day 1**: while `start` is up, the
@@ -12193,8 +12285,6 @@ curiosity that gets cleared up on the next slide. Somebody is going to ask first
 #### *⚠ Two clocks: an assertion is worth what its sampling is worth*
 
 ```sv
-   // section gets them for free. All they need in order to run is --assert.
-   //
    // TWO CLOCKS, and it is not an implementation detail: the BFM drives on
    // negedge and the DUT registers on posedge. An assertion samples in the
    // preponed region of the edge it is given, so a signal written ON the negedge
@@ -12206,6 +12296,8 @@ curiosity that gets cleared up on the next slide. Somebody is going to ask first
    //
    //   stimulus (start, A, B, op_set)  -> negedge, where the BFM writes
    //   response (done, result)         -> posedge, where the DUT registers
+
+   default disable iff (!reset_n);
 ```
 
 | With a single clock | Over 1000 operations |
@@ -12243,8 +12335,6 @@ which is the hard part.
 #### *Variable latency, in one line*
 
 ```sv
-   // --- The DUT's answer ---
-
    // The variable latency of the The VTALU spec section in one line: one cycle for the
    // one-cycle ops, four edges for the multiplication.
    property p_done_llega;
@@ -12261,6 +12351,8 @@ which is the hard part.
    endproperty : p_no_op_sin_done
 
    a_no_op_sin_done :
+   assert property (p_no_op_sin_done)
+   else `uvm_error("SVA", $sformatf("%m: done subio para una no_op"))
 ```
 
 - `##[1:5] done` says *"between one and five edges later"*. The VTALU takes **one**
@@ -12364,7 +12456,7 @@ a : assert property (p);
 
 // What you want in UVM: the failure counts and the simulation goes on
 a : assert property (p)
-    else `uvm_error("SVA", $sformatf("%m: operando cambiado"));
+    else `uvm_error("SVA", $sformatf("%m: operand changed"));
 ```
 
 - Without an `else`, the default action of an assertion that fails is `$error` —and in
@@ -12397,15 +12489,14 @@ instead of the one of the library.
 #### *Every assertion goes with its `cover property`*
 
 ```sv
-   else `uvm_error("SVA", $sformatf("%m: done subio para una no_op"))
+   // And the cover that goes with it: without this, a regression where the random
+   // never subtracted too much leaves the assertion green having checked nothing.
+   c_ovf : cover property (@(posedge clk) done && ovf);
+   c_sub_sin_borrow : cover property (@(posedge clk) done && (op_set == sub_op) && !ovf);
 
-   // --- Every assertion comes with its cover property ---
-   //
-   // An assertion whose antecedent never happens PASSES, and checks nothing.
-   // The cover is the antidote. And it also debunks mental models: the
-   // "three-cycle" multiplication takes FOUR edges (done3 -> done2 ->
-   // done1 -> done_mult), so c_mult_3ciclos stays at 0 forever.
-   // --- VTALU rev2: the output the scoreboard only glances at ---
+   c_mult_3ciclos : cover property (@(posedge clk) $rose(start) && (op_set == mul_op) ##3 done);
+   c_mult_4ciclos : cover property (@(posedge clk) $rose(start) && (op_set == mul_op) ##4 done);
+   c_un_ciclo : cover property (@(posedge clk) $rose(start) && (op_set inside {add_op, and_op, xor_op}) ##1 done);
 ```
 
 ```text
@@ -12475,8 +12566,6 @@ as an anecdote.
 #### *The example of the section: the bug the scoreboard does not see*
 
 ```sv
-            #1;
-            start = 1'b0;
          end else begin
             // +BUG=1: changes B halfway through the multiplication. The
             // multiplier already latched A and B on the first edge, so the
@@ -12488,6 +12577,8 @@ as an anecdote.
                B = ~iB;
             end
             do @(negedge clk); while (done == 0);
+            oresult   = result;
+            start = 1'b0;
 ```
 
 ```text
@@ -12542,7 +12633,7 @@ property`. If the cover is at zero, either the property does not run, or its ant
 occur. In both cases you have to go and look, and in both cases the `assert` on its own
 would have said that everything is fine.
 These four are added to the appendix of the silent traps, which from this
-section on are nineteen.
+section on are twenty.
 
 ---
 
@@ -12591,7 +12682,7 @@ serious verification plan has both columns.
   never gets covered **did not come out of a tutorial**: they came out of writing this
   section on the VTALU of the course and looking at why it did not add up
 - Everything here runs on Verilator, without licences, with the same `run.sh` as the
-  other thirty-three examples
+  other thirty-seven examples
 
 Note:
 It is worth being explicit with the group about where each thing comes from, because it is part of
@@ -12623,7 +12714,7 @@ without help.
   `done`. It has been in production for years
 - The scoreboard compares a thousand operations and does not find a single difference:
   the multiplier latched `A` and `B` on the first edge. **The bug is not a data bug**
-- Write the property that does see it. The two `done` ones are already there, as a mould
+- Write the property that does see it. The two `done` ones are already there, as a template
 - The checker asks for three things: that it fire on `modulo_bfm`, that it **not** fire
   even once on `clase_bfm`, and that the scoreboard stay green
 
@@ -12735,7 +12826,7 @@ this testbench existed.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 4c8ceb7be78e -->
+<!-- es-sha: c527ad9441c9 -->
 ## Capstone · Day 7
 
 #### *The whole testbench, from a blank sheet*
@@ -12743,7 +12834,7 @@ this testbench existed.
 `cd code/ejercicios/d7-final && cat spec.en.md`
 <!-- .element: class="comando" -->
 
-- The other twelve exercises gave you a file with a hole in it. This one gives a **DUT,
+- The other thirteen exercises gave you a file with a hole in it. This one gives a **DUT,
   a spec and nothing else**
 - The DUT is not the VTALU: it is an **APB3 slave** with four registers. It has
   addresses, two phases per transfer, a *wait state* and an error response
@@ -12851,7 +12942,7 @@ plan that was not verified — no matter how green the scoreboard is.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 9a280ad692bb -->
+<!-- es-sha: c16462a2cd9e -->
 <!-- .slide: id="apendice-bus" data-machete="res/diagrams/sequences_tb_completo.svg,res/diagrams/agents_agent.svg" -->
 
 ## Appendix · From the VTALU to a real bus
@@ -12945,7 +13036,7 @@ plug it in passively on somebody else's stimulus —or on a test from the design
 already contributing on the first day.
 If somebody asks where the learning path goes on from here, the
 order that pays off: RAL, then regression with seeds, then the `clocking block`
-and the prefabricated bus properties. SVA is no longer on that list —it is the assertions— and it is worth saying so, because it is the first question of every interview.
+and the prefabricated bus properties. SVA is no longer on that list —it is a whole unit of this course— and it is worth saying so, because it is the first question of every interview.
 And a last one, which is not technical: in a real project the testbench almost always
 already exists. What gets asked for on the first day is not building one, it is **adding a test
 to it** — which is exactly what they practised in the exercises of days 3 and 6.
@@ -13035,10 +13126,10 @@ the next step is the waveforms, which is the tool that does
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: e9a7ea2a6b9e -->
+<!-- es-sha: fcc3e7d65258 -->
 <!-- .slide: id="apendice-trampas" -->
 
-## Appendix · The nineteen silent traps
+## Appendix · The twenty silent traps
 
 #### *It compiles, it runs, and it lies*
 
@@ -13053,7 +13144,7 @@ the next step is the waveforms, which is the tool that does
   get discovered weeks later, or do not get discovered
 
 Note:
-This appendix is the one to print out and stick next to the monitor. The nineteen
+This appendix is the one to print out and stick next to the monitor. The twenty
 are spread over seven sections because each one shows up when the
 concept shows up, but they are needed together — and they are needed at the worst moment.
 The thesis of the appendix is in the subtitle, and it is worth stating it as a general rule
@@ -13068,13 +13159,13 @@ the tree UVM actually built, against the one you drew in your head.
 
 ---
 
-## Appendix · The nineteen silent traps
+## Appendix · The twenty silent traps
 
 #### *The one publishing and the one listening*
 
 | The symptom | The cause | How to head it off | Section |
 | --- | --- | --- | :-- |
-| The subscriber counts **0** and the monitor prints 1000 | the `connect()` in the `connect_phase` is missing | grade it crosswise: against what the one that already worked says | Analysis ports · d4 |
+| The subscriber counts **0** and the monitor prints 1000 | the `connect()` in the `connect_phase` is missing | cross-check it: against what the one that already worked says | Analysis ports · d4 |
 | The monitor **never publishes**, and the scoreboard screams | `bfm.command_monitor_h = this` is missing in the `build_phase` | the `uvm_fatal` shows up in the class that is **not** to blame | Analysis ports |
 | The copy **loses the fields of the mother** | a `do_copy()` that does not call `super.do_copy(rhs)` | every `do_copy()` calls the one above first | Hierarchies |
 | Two different transactions **compare equal** | `super.do_compare()` called on a loose line and thrown away | chained with `&&`, never loose | Transactions |
@@ -13098,7 +13189,7 @@ that are not. The second is worse, because it switches off the whole scoreboard 
 
 ---
 
-## Appendix · The nineteen silent traps
+## Appendix · The twenty silent traps
 
 #### *Stimulus, scope and objections*
 
@@ -13108,11 +13199,12 @@ that are not. The second is worse, because it switches off the whole scoreboard 
 | The `randomize()` **does not run** with the asserts switched off | `assert(x.randomize())` — `assert` is a simulation directive | `if (!x.randomize()) uvm_fatal(…)` | Constrained random |
 | Under the override, **some** transactions are of the old type | a `new()` where a `type_id::create()` belonged | what goes through the factory is what gets created with `create()` | Transactions |
 | **Both agents** start up the same | two `set()` with scope `"*"`: the second overwrites the first | the scope is the **path** of the one that reads, with `*` at the end | Agents · d6 |
+| The agent starts up **active** even though you set `is_active` in the `config_db` | the missing `super.build_phase()`: the one that reads it is `uvm_agent` | either a config object, or `super` — never half of each | Agents |
 | The simulation **never ends** | an `item_done()` that was not called | `+UVM_TIMEOUT=5ms` first, the trace after | Agents |
 | It ends at **t=0** and says PASS | nobody raised the objection around the sequence | `+UVM_OBJECTION_TRACE` | Sequences |
 
 Note:
-The last two are the only ones of the nineteen that do make noise — one hangs and
+The last two are the only ones of the twenty that do make noise — one hangs and
 the other ends oddly — and they are here because the noise they make does not point at the
 culprit. A hang does not say what was left waiting; a t=0 says PASS, which is
 worse than an error.
@@ -13131,7 +13223,7 @@ second you understand exactly the one that is happening to you.
 
 ---
 
-## Appendix · The nineteen silent traps
+## Appendix · The twenty silent traps
 
 #### *The four from the assertions*
 
@@ -13142,20 +13234,20 @@ second you understand exactly the one that is happening to you.
 | **185 false positives** and the DUT is healthy | you sample it with the edge it is written on | stimulus on `negedge`, response of the DUT on `posedge` | Assertions · d7 |
 | False positives **at the start** of every test | the `disable iff (!reset_n)` is missing | `default disable iff`, once, at the very top | Assertions |
 
-- The four are of the same family as the fourteen above, with one aggravating factor:
+- The four are of the same family as the fifteen above, with one aggravating factor:
   a broken assertion **looks exactly the same** as one that works. There is no output
   to look at
 
 Note:
 These four reached the appendix with the assertions and they are the only ones on the list
-where the check itself is what fails — the other fourteen are bugs of the
+where the check itself is what fails — the other fifteen are bugs of the
 testbench; these are bugs of the one checking the testbench. That is why the antidote is
 always the same and that is why it is worth repeating it until you are sick of it: **one `cover
 property` per `assert property`**.
 The first row is the cheapest to commit in this flow and it is worth showing it
 live: taking `--assert` out of the `run.sh` of `code/u8/assertions` leaves the run with `+BUG=1`
 at 0 `UVM_ERROR`. The 183 failures disappear without anything warning you.
-The third is the lesson of the section and the only one of the nineteen that is not in
+The third is the lesson of the section and the only one of the twenty that is not in
 any tutorial. The wrong reflex, when the false positives show up, is to
 loosen the property until it shuts up: there you are left without a check and with the
 feeling of having fixed it. The right reflex is to ask on which edge
@@ -13163,7 +13255,7 @@ the one driving the stimulus writes.
 
 ---
 
-## Appendix · The nineteen silent traps
+## Appendix · The twenty silent traps
 
 #### *And the one the clocking block brings*
 
@@ -13171,7 +13263,7 @@ the one driving the stimulus writes.
 | --- | --- | --- | :-- |
 | The scoreboard fails **once every twenty** and the waveform looks fine | half the signals get read through `cb.sig` and the other half through `sig` | if it went into the clocking block, **the whole** protocol reads it through there | Interfaces and BFM |
 
-- It is the only one of the nineteen that **a tool adds**: without a clocking
+- It is the only one of the twenty that **a tool adds**: without a clocking
   block it does not exist. Badly used it is worse than not using it
 - Two names for the same wire, and they differ by one cycle:
   `code/u2/clocking/mezcla.sv` prints `3` and `4` at the same instant
@@ -13196,7 +13288,7 @@ long material is in `docs/clocking-blocks.md`.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: dedae37e2814 -->
+<!-- es-sha: 4a71e1803167 -->
 <!-- .slide: id="glosario" data-machete="res/uvm_class_diagram.svg,res/diagrams/sequences_tb_completo.svg" -->
 
 ## Glossary · the words of the trade
@@ -13256,7 +13348,7 @@ jargon and it is how the trade talks.
 | *assertion* | a rule of the protocol written so the simulator checks it |
 | *property* | the rule itself: clock, antecedent, implication, consequent |
 | *antecedent* / *consequent* | the *"if"* and the *"then"* of a property |
-| *cover property* | counts **how many times a property got evaluated**. The check of the check |
+| *cover property* | counts **how many times a property actually held**. The check of the check |
 
 Note:
 It is the slide to keep open while reading somebody else's code, and also the one that
@@ -13317,7 +13409,7 @@ questions with two very different numbers.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 7a23758dbf71 -->
+<!-- es-sha: 42b61a50657d -->
 <!-- .slide: id="referencias" -->
 
 ## References
@@ -13331,10 +13423,10 @@ questions with two very different numbers.
 - **Salemi, Ray.** *The UVM Primer* — Boston Light Press, 2013. The book I
   learned UVM with, and where several of the examples in `code/` came from.
 - **2024 Siemens EDA / Wilson Research Group Functional Verification Study**.
-  Source of the **data** of the spec. The charts are our own: they are generated
+  Source of the **data** of Trends. The charts are our own: they are generated
   with `make figs` from `res/trends/data.json`.
 - **On RAL**: the *Register Layer* chapter of the **UVM 1.2 User Guide** from
-  Accellera is the normative reference, and the table of the twenty-five field
+  Accellera is the long explanation, and the table of the twenty-five field
   accesses —`RW`, `WOC`, `W1C`…— is in the **IEEE 1800.2**, under `uvm_reg_field`. What
   the unit does not use lives in the same place: `add_hdl_path` for the backdoor,
   and **IP-XACT** (IEEE 1685) or **SystemRDL** (Accellera) to generate the model instead
@@ -13961,8 +14053,8 @@ exactly the quality of the model you wrote.
 #### *And that is why the model is the spec*
 
 ```
-    CTRL.CLR como "WOC"  0 UVM_ERROR
-    CTRL.CLR como "RW"   2 UVM_ERROR, de uvm_reg_bit_bash_seq
+    CTRL.CLR as "WOC"  0 UVM_ERROR
+    CTRL.CLR as "RW"   2 UVM_ERROR, from uvm_reg_bit_bash_seq
     > Writing a 1 in bit #1 of register "model.CTRL" ... yielded 'h0
       instead of 'h2
 ```
@@ -14296,7 +14388,7 @@ justify it comes along, and that DUT arrives sooner than you think.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 3a809dc8cc53 -->
+<!-- es-sha: 5bd74e6de67b -->
 ## Capstone 2 · Day 8
 
 #### *The second final: a FIFO with backpressure*
@@ -14371,95 +14463,95 @@ showing up where nobody expected it.
         </ul>
         <h3 class="ind-grupo">Day 1</h3>
         <ul>
-          <li><a href="#/2" data-h="2"><span>Agenda</span><span class="ind-n">3</span></a></li>
-          <li><a href="#/3" data-h="3"><span>Trends</span><span class="ind-n">4</span></a></li>
-          <li><a href="#/8" data-h="8"><span>Introduction</span><span class="ind-n">9</span></a></li>
-          <li><a href="#/14" data-h="14"><span>The VTALU spec</span><span class="ind-n">15</span></a></li>
-          <li><a href="#/22" data-h="22"><span>The verification plan</span><span class="ind-n">23</span></a></li>
-          <li><a href="#/25" data-h="25"><span>The conventional testbench</span><span class="ind-n">26</span></a></li>
-          <li><a href="#/30" data-h="30"><span>Functional coverage</span><span class="ind-n">31</span></a></li>
-          <li><a href="#/43" data-h="43"><span>Interfaces and BFM</span><span class="ind-n">44</span></a></li>
-          <li><a href="#/55" data-h="55"><span>Review · Day 1</span><span class="ind-n">56</span></a></li>
-          <li><a href="#/61" data-h="61"><span>Exercise · Day 1 · 1 of 2</span><span class="ind-n">62</span></a></li>
-          <li><a href="#/62" data-h="62"><span>Exercise · Day 1 · 2 of 2</span><span class="ind-n">63</span></a></li>
+          <li><a href="#/3" data-h="3"><span>Agenda</span><span class="ind-n">4</span></a></li>
+          <li><a href="#/4" data-h="4"><span>Trends</span><span class="ind-n">5</span></a></li>
+          <li><a href="#/9" data-h="9"><span>Introduction</span><span class="ind-n">10</span></a></li>
+          <li><a href="#/15" data-h="15"><span>The VTALU spec</span><span class="ind-n">16</span></a></li>
+          <li><a href="#/23" data-h="23"><span>The verification plan</span><span class="ind-n">24</span></a></li>
+          <li><a href="#/26" data-h="26"><span>The conventional testbench</span><span class="ind-n">27</span></a></li>
+          <li><a href="#/31" data-h="31"><span>Functional coverage</span><span class="ind-n">32</span></a></li>
+          <li><a href="#/44" data-h="44"><span>Interfaces and BFM</span><span class="ind-n">45</span></a></li>
+          <li><a href="#/56" data-h="56"><span>Review · Day 1</span><span class="ind-n">57</span></a></li>
+          <li><a href="#/62" data-h="62"><span>Exercise · Day 1 · 1 of 2</span><span class="ind-n">63</span></a></li>
+          <li><a href="#/63" data-h="63"><span>Exercise · Day 1 · 2 of 2</span><span class="ind-n">64</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 2</h3>
         <ul>
-          <li><a href="#/63" data-h="63"><span>Agenda</span><span class="ind-n">64</span></a></li>
-          <li><a href="#/64" data-h="64"><span>Classes and extensions</span><span class="ind-n">65</span></a></li>
-          <li><a href="#/71" data-h="71"><span>Polymorphism</span><span class="ind-n">72</span></a></li>
-          <li><a href="#/78" data-h="78"><span>Static variables</span><span class="ind-n">79</span></a></li>
-          <li><a href="#/83" data-h="83"><span>Parameterized classes</span><span class="ind-n">84</span></a></li>
-          <li><a href="#/88" data-h="88"><span>The factory pattern</span><span class="ind-n">89</span></a></li>
-          <li><a href="#/94" data-h="94"><span>A testbench without a single module</span><span class="ind-n">95</span></a></li>
-          <li><a href="#/103" data-h="103"><span>Review · Day 2</span><span class="ind-n">104</span></a></li>
-          <li><a href="#/111" data-h="111"><span>Exercise · Day 2</span><span class="ind-n">112</span></a></li>
+          <li><a href="#/64" data-h="64"><span>Agenda</span><span class="ind-n">65</span></a></li>
+          <li><a href="#/65" data-h="65"><span>Classes and extensions</span><span class="ind-n">66</span></a></li>
+          <li><a href="#/72" data-h="72"><span>Polymorphism</span><span class="ind-n">73</span></a></li>
+          <li><a href="#/79" data-h="79"><span>Static variables</span><span class="ind-n">80</span></a></li>
+          <li><a href="#/84" data-h="84"><span>Parameterized classes</span><span class="ind-n">85</span></a></li>
+          <li><a href="#/89" data-h="89"><span>The factory pattern</span><span class="ind-n">90</span></a></li>
+          <li><a href="#/95" data-h="95"><span>A testbench without a single module</span><span class="ind-n">96</span></a></li>
+          <li><a href="#/104" data-h="104"><span>Review · Day 2</span><span class="ind-n">105</span></a></li>
+          <li><a href="#/112" data-h="112"><span>Exercise · Day 2</span><span class="ind-n">113</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 3</h3>
         <ul>
-          <li><a href="#/112" data-h="112"><span>Agenda</span><span class="ind-n">113</span></a></li>
-          <li><a href="#/113" data-h="113"><span>Tests</span><span class="ind-n">114</span></a></li>
-          <li><a href="#/124" data-h="124"><span>Components and phases</span><span class="ind-n">125</span></a></li>
-          <li><a href="#/133" data-h="133"><span>The env: structure and stimulus</span><span class="ind-n">134</span></a></li>
-          <li><a href="#/149" data-h="149"><span>Reporting</span><span class="ind-n">150</span></a></li>
-          <li><a href="#/163" data-h="163"><span>Review · Day 3</span><span class="ind-n">164</span></a></li>
-          <li><a href="#/170" data-h="170"><span>Exercise · Day 3</span><span class="ind-n">171</span></a></li>
+          <li><a href="#/113" data-h="113"><span>Agenda</span><span class="ind-n">114</span></a></li>
+          <li><a href="#/114" data-h="114"><span>Tests</span><span class="ind-n">115</span></a></li>
+          <li><a href="#/125" data-h="125"><span>Components and phases</span><span class="ind-n">126</span></a></li>
+          <li><a href="#/134" data-h="134"><span>The env: structure and stimulus</span><span class="ind-n">135</span></a></li>
+          <li><a href="#/150" data-h="150"><span>Reporting</span><span class="ind-n">151</span></a></li>
+          <li><a href="#/164" data-h="164"><span>Review · Day 3</span><span class="ind-n">165</span></a></li>
+          <li><a href="#/171" data-h="171"><span>Exercise · Day 3</span><span class="ind-n">172</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 4</h3>
         <ul>
-          <li><a href="#/171" data-h="171"><span>Agenda</span><span class="ind-n">172</span></a></li>
-          <li><a href="#/172" data-h="172"><span>One producer, many listeners</span><span class="ind-n">173</span></a></li>
-          <li><a href="#/188" data-h="188"><span>A single place that watches the wire</span><span class="ind-n">189</span></a></li>
-          <li><a href="#/201" data-h="201"><span>When somebody has to wait</span><span class="ind-n">202</span></a></li>
-          <li><a href="#/211" data-h="211"><span>Who waits for whom</span><span class="ind-n">212</span></a></li>
-          <li><a href="#/218" data-h="218"><span>Review · Day 4</span><span class="ind-n">219</span></a></li>
-          <li><a href="#/223" data-h="223"><span>Exercise · Day 4</span><span class="ind-n">224</span></a></li>
+          <li><a href="#/172" data-h="172"><span>Agenda</span><span class="ind-n">173</span></a></li>
+          <li><a href="#/173" data-h="173"><span>One producer, many listeners</span><span class="ind-n">174</span></a></li>
+          <li><a href="#/189" data-h="189"><span>A single place that watches the wire</span><span class="ind-n">190</span></a></li>
+          <li><a href="#/202" data-h="202"><span>When somebody has to wait</span><span class="ind-n">203</span></a></li>
+          <li><a href="#/212" data-h="212"><span>Who waits for whom</span><span class="ind-n">213</span></a></li>
+          <li><a href="#/219" data-h="219"><span>Review · Day 4</span><span class="ind-n">220</span></a></li>
+          <li><a href="#/224" data-h="224"><span>Exercise · Day 4</span><span class="ind-n">225</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 5</h3>
         <ul>
-          <li><a href="#/224" data-h="224"><span>Agenda</span><span class="ind-n">225</span></a></li>
-          <li><a href="#/225" data-h="225"><span>Copying an object that contains another</span><span class="ind-n">226</span></a></li>
-          <li><a href="#/235" data-h="235"><span>Transactions</span><span class="ind-n">236</span></a></li>
-          <li><a href="#/254" data-h="254"><span>Constrained random</span><span class="ind-n">255</span></a></li>
-          <li><a href="#/265" data-h="265"><span>Review · Day 5</span><span class="ind-n">266</span></a></li>
-          <li><a href="#/269" data-h="269"><span>Exercise · Day 5 · 1 of 2</span><span class="ind-n">270</span></a></li>
-          <li><a href="#/270" data-h="270"><span>Exercise · Day 5 · 2 of 2</span><span class="ind-n">271</span></a></li>
+          <li><a href="#/225" data-h="225"><span>Agenda</span><span class="ind-n">226</span></a></li>
+          <li><a href="#/226" data-h="226"><span>Copying an object that contains another</span><span class="ind-n">227</span></a></li>
+          <li><a href="#/236" data-h="236"><span>Transactions</span><span class="ind-n">237</span></a></li>
+          <li><a href="#/255" data-h="255"><span>Constrained random</span><span class="ind-n">256</span></a></li>
+          <li><a href="#/266" data-h="266"><span>Review · Day 5</span><span class="ind-n">267</span></a></li>
+          <li><a href="#/270" data-h="270"><span>Exercise · Day 5 · 1 of 2</span><span class="ind-n">271</span></a></li>
+          <li><a href="#/271" data-h="271"><span>Exercise · Day 5 · 2 of 2</span><span class="ind-n">272</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 6</h3>
         <ul>
-          <li><a href="#/271" data-h="271"><span>Agenda</span><span class="ind-n">272</span></a></li>
-          <li><a href="#/272" data-h="272"><span>Agents</span><span class="ind-n">273</span></a></li>
-          <li><a href="#/291" data-h="291"><span>Callbacks</span><span class="ind-n">292</span></a></li>
-          <li><a href="#/296" data-h="296"><span>Sequences</span><span class="ind-n">297</span></a></li>
-          <li><a href="#/319" data-h="319"><span>Review · Day 6</span><span class="ind-n">320</span></a></li>
-          <li><a href="#/329" data-h="329"><span>Exercise · Day 6 · 1 of 4</span><span class="ind-n">330</span></a></li>
-          <li><a href="#/330" data-h="330"><span>Exercise · Day 6 · 2 of 4</span><span class="ind-n">331</span></a></li>
-          <li><a href="#/331" data-h="331"><span>Exercise · Day 6 · 3 of 4</span><span class="ind-n">332</span></a></li>
-          <li><a href="#/332" data-h="332"><span>Exercise · Day 6 · 4 of 4</span><span class="ind-n">333</span></a></li>
+          <li><a href="#/272" data-h="272"><span>Agenda</span><span class="ind-n">273</span></a></li>
+          <li><a href="#/273" data-h="273"><span>Agents</span><span class="ind-n">274</span></a></li>
+          <li><a href="#/292" data-h="292"><span>Callbacks</span><span class="ind-n">293</span></a></li>
+          <li><a href="#/297" data-h="297"><span>Sequences</span><span class="ind-n">298</span></a></li>
+          <li><a href="#/321" data-h="321"><span>Review · Day 6</span><span class="ind-n">322</span></a></li>
+          <li><a href="#/331" data-h="331"><span>Exercise · Day 6 · 1 of 4</span><span class="ind-n">332</span></a></li>
+          <li><a href="#/332" data-h="332"><span>Exercise · Day 6 · 2 of 4</span><span class="ind-n">333</span></a></li>
+          <li><a href="#/333" data-h="333"><span>Exercise · Day 6 · 3 of 4</span><span class="ind-n">334</span></a></li>
+          <li><a href="#/334" data-h="334"><span>Exercise · Day 6 · 4 of 4</span><span class="ind-n">335</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 7</h3>
         <ul>
-          <li><a href="#/333" data-h="333"><span>Agenda</span><span class="ind-n">334</span></a></li>
-          <li><a href="#/334" data-h="334"><span>Assertions (SVA)</span><span class="ind-n">335</span></a></li>
-          <li><a href="#/351" data-h="351"><span>Exercise · Day 7</span><span class="ind-n">352</span></a></li>
-          <li><a href="#/352" data-h="352"><span>Review · Day 7</span><span class="ind-n">353</span></a></li>
-          <li><a href="#/357" data-h="357"><span>Capstone · Day 7</span><span class="ind-n">358</span></a></li>
-          <li><a href="#/360" data-h="360"><span>Appendix · From the VTALU to a real bus</span><span class="ind-n">361</span></a></li>
-          <li><a href="#/363" data-h="363"><span>Appendix · The debug toolbox</span><span class="ind-n">364</span></a></li>
-          <li><a href="#/365" data-h="365"><span>Appendix · The nineteen silent traps</span><span class="ind-n">366</span></a></li>
-          <li><a href="#/370" data-h="370"><span>Glossary · the words of the trade</span><span class="ind-n">371</span></a></li>
-          <li><a href="#/373" data-h="373"><span>References</span><span class="ind-n">374</span></a></li>
-          <li><a href="#/376" data-h="376"><span>This is as far as we got</span><span class="ind-n">377</span></a></li>
-          <li><a href="#/378" data-h="378"><span>Self-assessment</span><span class="ind-n">379</span></a></li>
+          <li><a href="#/335" data-h="335"><span>Agenda</span><span class="ind-n">336</span></a></li>
+          <li><a href="#/336" data-h="336"><span>Assertions (SVA)</span><span class="ind-n">337</span></a></li>
+          <li><a href="#/353" data-h="353"><span>Exercise · Day 7</span><span class="ind-n">354</span></a></li>
+          <li><a href="#/354" data-h="354"><span>Review · Day 7</span><span class="ind-n">355</span></a></li>
+          <li><a href="#/359" data-h="359"><span>Capstone · Day 7</span><span class="ind-n">360</span></a></li>
+          <li><a href="#/362" data-h="362"><span>Appendix · From the VTALU to a real bus</span><span class="ind-n">363</span></a></li>
+          <li><a href="#/365" data-h="365"><span>Appendix · The debug toolbox</span><span class="ind-n">366</span></a></li>
+          <li><a href="#/367" data-h="367"><span>Appendix · The twenty silent traps</span><span class="ind-n">368</span></a></li>
+          <li><a href="#/372" data-h="372"><span>Glossary · the words of the trade</span><span class="ind-n">373</span></a></li>
+          <li><a href="#/375" data-h="375"><span>References</span><span class="ind-n">376</span></a></li>
+          <li><a href="#/378" data-h="378"><span>This is as far as we got</span><span class="ind-n">379</span></a></li>
+          <li><a href="#/380" data-h="380"><span>Self-assessment</span><span class="ind-n">381</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 8 · optional</h3>
         <ul>
-          <li><a href="#/381" data-h="381"><span>Agenda</span><span class="ind-n">382</span></a></li>
-          <li><a href="#/382" data-h="382"><span>RAL</span><span class="ind-n">383</span></a></li>
-          <li><a href="#/393" data-h="393"><span>Exercise · Day 8</span><span class="ind-n">394</span></a></li>
-          <li><a href="#/394" data-h="394"><span>The reference model in C</span><span class="ind-n">395</span></a></li>
-          <li><a href="#/398" data-h="398"><span>Capstone 2 · Day 8</span><span class="ind-n">399</span></a></li>
-          <li><a href="#/399" data-h="399"><span>The end</span><span class="ind-n">400</span></a></li>
+          <li><a href="#/383" data-h="383"><span>Agenda</span><span class="ind-n">384</span></a></li>
+          <li><a href="#/384" data-h="384"><span>RAL</span><span class="ind-n">385</span></a></li>
+          <li><a href="#/395" data-h="395"><span>Exercise · Day 8</span><span class="ind-n">396</span></a></li>
+          <li><a href="#/396" data-h="396"><span>The reference model in C</span><span class="ind-n">397</span></a></li>
+          <li><a href="#/400" data-h="400"><span>Capstone 2 · Day 8</span><span class="ind-n">401</span></a></li>
+          <li><a href="#/401" data-h="401"><span>The end</span><span class="ind-n">402</span></a></li>
         </ul>
     </nav>
   </dialog>
@@ -14603,7 +14695,7 @@ showing up where nobody expected it.
       // escribe esa coordenada en la URL y el de llegada la resuelve con SU
       // propio mapa: si todavia no tradujo esa seccion, avisa y arranca de
       // cero en vez de aterrizar en cualquier lado.
-      const SECCIONES = [["000-verify-this",1],["002-como-usar",1],["005-agenda-day1",1],["010-tendencias",5],["015-introduccion",6],["020-spec-vtalu",8],["021-plan-de-verificacion",3],["025-testbench-convencional",5],["026-cobertura-funcional",13],["030-interfaces-bfm",12],["042-quiz-day1",6],["043-ejercicio-day1",1],["044-ejercicio-day1b",1],["045-agenda-day2",1],["046-clases-y-extensiones",7],["047-polimorfismo",7],["050-variables-estaticas",5],["055-clases-parametricas",5],["060-factory",6],["065-tb-en-objetos",9],["067-quiz-day2",8],["068-ejercicio-day2",1],["070-agenda-day3",1],["075-tests",11],["080-components",9],["085-env",16],["088-reporting",14],["092-quiz-day3",7],["093-ejercicio-day3",1],["095-agenda-day4",1],["100-varios-objetos",16],["105-analysis-ports",13],["110-threads",10],["115-put-get",7],["117-quiz-day4",5],["118-ejercicio-day4",1],["120-agenda-day5",1],["130-jerarquias",10],["135-transactions",19],["136-constrained-random",11],["137-quiz-day5",4],["138-ejercicio-day5",1],["139-ejercicio-day5b",1],["140-agenda-day6",1],["145-agents",19],["146-callbacks",5],["150-sequences",23],["151-quiz-day6",10],["152-ejercicio-day6-agents",1],["153-ejercicio-day6-sequences",1],["153b-ejercicio-day6-bins",1],["153c-ejercicio-day6-semillas",1],["159-agenda-day7",1],["160-assertions",17],["161-ejercicio-day7-sva",1],["162-quiz-day7",5],["163-ejercicio-day7-capstone",3],["170-de-la-vtalu-a-un-bus",3],["171-apendice-debug",2],["172-apendice-trampas",5],["173-glosario",3],["174-referencias",3],["175-cierre",2],["175b-autoevaluacion",3],["179-agenda-day8",1],["180-ral",11],["181-ejercicio-day8-ral",1],["182-dpi",4],["183-ejercicio-day8-fifo",1],["190-the-end",1]];
+      const SECCIONES = [["000-verify-this",1],["002-como-usar",2],["005-agenda-day1",1],["010-tendencias",5],["015-introduccion",6],["020-spec-vtalu",8],["021-plan-de-verificacion",3],["025-testbench-convencional",5],["026-cobertura-funcional",13],["030-interfaces-bfm",12],["042-quiz-day1",6],["043-ejercicio-day1",1],["044-ejercicio-day1b",1],["045-agenda-day2",1],["046-clases-y-extensiones",7],["047-polimorfismo",7],["050-variables-estaticas",5],["055-clases-parametricas",5],["060-factory",6],["065-tb-en-objetos",9],["067-quiz-day2",8],["068-ejercicio-day2",1],["070-agenda-day3",1],["075-tests",11],["080-components",9],["085-env",16],["088-reporting",14],["092-quiz-day3",7],["093-ejercicio-day3",1],["095-agenda-day4",1],["100-varios-objetos",16],["105-analysis-ports",13],["110-threads",10],["115-put-get",7],["117-quiz-day4",5],["118-ejercicio-day4",1],["120-agenda-day5",1],["130-jerarquias",10],["135-transactions",19],["136-constrained-random",11],["137-quiz-day5",4],["138-ejercicio-day5",1],["139-ejercicio-day5b",1],["140-agenda-day6",1],["145-agents",19],["146-callbacks",5],["150-sequences",24],["151-quiz-day6",10],["152-ejercicio-day6-agents",1],["153-ejercicio-day6-sequences",1],["153b-ejercicio-day6-bins",1],["153c-ejercicio-day6-semillas",1],["159-agenda-day7",1],["160-assertions",17],["161-ejercicio-day7-sva",1],["162-quiz-day7",5],["163-ejercicio-day7-capstone",3],["170-de-la-vtalu-a-un-bus",3],["171-apendice-debug",2],["172-apendice-trampas",5],["173-glosario",3],["174-referencias",3],["175-cierre",2],["175b-autoevaluacion",3],["179-agenda-day8",1],["180-ral",11],["181-ejercicio-day8-ral",1],["182-dpi",4],["183-ejercicio-day8-fifo",1],["190-the-end",1]];
       const coordDe = h => {
         let base = 0;
         for (const [f, n] of SECCIONES) {

@@ -1,11 +1,11 @@
-<!-- es-sha: abba5287271a -->
+<!-- es-sha: 56a350407959 -->
 ## Interfaces and BFM
 
 #### *First: the signals stop being loose*
 
 {{code:code/u2/interfaces-bfm/vtalu_bfm.sv|lines=1-28}}
 
-- An `interface` is a **bundle** of signals with a name of its own. Eight wires that
+- An `interface` is a **bundle** of signals with a name of its own. Nine wires that
   used to be declared in the `top` now live together
 - The clock gets generated inside: the interface is not a wire, it is a model of the bus
 - Connecting the DUT becomes `.A(bfm.A)`, `.clk(bfm.clk)`… and adding a signal
@@ -13,8 +13,8 @@
 
 Note:
 First step towards UVM and it does not have a single line of UVM.
-The immediate gain is a maintenance one and it is worth measuring: in the testbench of
-the conventional testbench, adding a signal to the DUT forced you to touch the `top`, the tester and the
+The immediate gain is a maintenance one and it is worth measuring: in the conventional
+testbench, adding a signal to the DUT forced you to touch the `top`, the tester and the
 scoreboard. Here, the interface file.
 One detail of types that costs you: `op` is a `wire [2:0]` and `op_set` is the
 `operation_t`. The `assign op = op_set` is the bridge between the testbench enum and
@@ -173,7 +173,7 @@ is *"because the BFM writes on the negedge, and that is only fully visible in th
 
 Note:
 The sentence worth leaving on the board for the whole course: *the scoreboard
-checks what the DUT computes; the assertions, how it is talked to.* The two
+checks what the DUT computes; the assertions, how it is talked to.* The three
 sections left of day 1 and the six days that follow are the first half;
 the second arrives at the end, and it arrives on this same example.
 There is no need to promise more than that. The assertions come back with the property of this

@@ -62,7 +62,7 @@
 - [ ] Porque el driver hace el `$cast` por dentro
 - [x] Porque `command_transaction` extiende `uvm_sequence_item`
 
-> **Por la clase base que elegimos en transactions** — `uvm_sequencer #(T)` exige que `T` derive de `uvm_sequence_item`. Si aquel día la transaction hubiera extendido `uvm_transaction` a secas, este `typedef` hoy no compilaría. Una decisión de una sección habilitando el siguiente.
+> **Por la clase base que elegimos en transactions** — `uvm_sequencer #(T)` exige que `T` derive de `uvm_sequence_item`. Si aquel día la transaction hubiera extendido `uvm_transaction` a secas, este `typedef` hoy no compilaría. Una decisión de una sección habilitando la siguiente.
 
 ---
 
@@ -77,9 +77,9 @@
 - [ ] Porque `is_active` es `protected` y el `config_db` no lo puede escribir
 - [ ] Porque el `config_db` no acepta tipos enumerados
 - [ ] Porque `is_active` se fija en el constructor y `build_phase` llega tarde
-- [x] Porque quien lo lee es el `build_phase` de `uvm_agent`, y nunca llamamos a `super.build_phase()`
+- [x] Porque quien lo lee es el `build_phase` de `uvm_agent`, y `vtalu_agent` no llama a `super.build_phase()`
 
-> **Ese mecanismo está apagado** — `uvm_agent::build_phase` busca `is_active` en el resource pool (está en `code/.uvm/src/comps/uvm_agent.svh`, se puede abrir). Sin `super.build_phase()` esa línea no corre nunca. Las dos formas son válidas; lo que no funciona es la mitad de cada una.
+> **Ese mecanismo está apagado** — `uvm_agent::build_phase` busca `is_active` en el resource pool (está en `code/.uvm/src/comps/uvm_agent.svh`, se puede abrir). Sin `super.build_phase()` esa línea no corre nunca, y nadie avisa. Las dos formas son válidas; lo que no funciona es la mitad de cada una.
 
 ---
 

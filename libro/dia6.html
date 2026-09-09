@@ -4,7 +4,29 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Día 6 · El testbench reutilizable — Verify This! · Curso de UVM en español</title>
-<meta name="description" content="Día 6 del curso de UVM en español, para leer de corrido: las slides con las notas del instructor adentro del texto y el código completo.">
+<meta name="description" content="El testbench reutilizable — Día 6 del curso de UVM en español, para leer de corrido: las slides con las notas del instructor adentro del texto y el código completo.">
+  <link rel="canonical" href="https://leandrotozzi.github.io/verifythis/libro/dia6.html">
+  <link rel="alternate" hreflang="es" href="https://leandrotozzi.github.io/verifythis/libro/dia6.html">
+  <link rel="alternate" hreflang="en" href="https://leandrotozzi.github.io/verifythis/en/libro/day6.html">
+  <link rel="alternate" hreflang="x-default" href="https://leandrotozzi.github.io/verifythis/libro/dia6.html">
+  <meta name="theme-color" content="#111111">
+  <link rel="icon" type="image/svg+xml" href="../css/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="../css/favicon-32.png">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Verify This!">
+  <meta property="og:locale" content="es_AR">
+  <meta property="og:title" content="Día 6 · El testbench reutilizable — Verify This! · Curso de UVM en español">
+  <meta property="og:description" content="El testbench reutilizable — Día 6 del curso de UVM en español, para leer de corrido: las slides con las notas del instructor adentro del texto y el código completo.">
+  <meta property="og:url" content="https://leandrotozzi.github.io/verifythis/libro/dia6.html">
+  <meta property="og:image" content="https://leandrotozzi.github.io/verifythis/portada.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Día 6 · El testbench reutilizable — Verify This! · Curso de UVM en español">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Día 6 · El testbench reutilizable — Verify This! · Curso de UVM en español">
+  <meta name="twitter:description" content="El testbench reutilizable — Día 6 del curso de UVM en español, para leer de corrido: las slides con las notas del instructor adentro del texto y el código completo.">
+  <meta name="twitter:image" content="https://leandrotozzi.github.io/verifythis/portada.png">
+  <meta name="twitter:image:alt" content="Día 6 · El testbench reutilizable — Verify This! · Curso de UVM en español">
 <link rel="stylesheet" href="../css/fonts.css">
 <link rel="stylesheet" href="../css/course.css">
 <link rel="stylesheet" href="../css/code.css">
@@ -33,7 +55,7 @@
   instructor adentro del texto</strong> y el código completo. Si estás haciendo
   el curso solo, empezá por acá y tené el deck al lado para los repasos.</p>
 
-<section id="s271" class="slide">
+<section id="s272" class="slide">
 <h2 id="agenda">Agenda</h2>
 <h4 id="día-6-·-≈-5-h-15-·-unidad-7-·-el-testbench-reutilizable"><em>Día 6 · ≈ 5 h 15 · unidad 7 · el testbench reutilizable</em></h4>
 <ul>
@@ -41,10 +63,10 @@
 <li>Callbacks</li>
 <li>Sequences</li>
 </ul>
-<p class="al-deck"><a href="../index.html#/271">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/272">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s272" class="slide">
+<section id="s273" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="el-problema-un-testbench-que-no-se-puede-copiar"><em>El problema: un testbench que no se puede copiar</em></h4>
 <ul>
@@ -67,10 +89,10 @@ Si el grupo viene de RTL, la analogía funciona sola: el agent es al testbench l
 que un módulo parametrizable es al RTL. Nadie instancia una FIFO copiando sus
 registros de a uno.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/272">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/273">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s273" class="slide">
+<section id="s274" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="qué-hay-adentro-de-un-agent"><em>Qué hay adentro de un agent</em></h4>
 <ul>
@@ -110,10 +132,10 @@ código de la librería, está en que todos usan los mismos nombres para las mis
 cosas. <code>uvm_driver</code> y <code>uvm_sequencer</code> sí traen cosas —el <code>seq_item_port</code> y la
 arbitración—; <code>uvm_monitor</code>, <code>uvm_env</code> y <code>uvm_agent</code> son casi puro vocabulario.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/273">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/274">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s274" class="slide">
+<section id="s275" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="el-salto-del-tester-a-la-sequence"><em>El salto: del tester a la sequence</em></h4>
 <ul>
@@ -136,14 +158,15 @@ Cambio dos, conceptual: el generador de estímulo <strong>deja de ser un compone
 Un componente se construye una vez en <code>build_phase</code> y vive toda la simulación;
 una sequence se crea, corre, termina y se tira — y podés correr otra a
 continuación sobre el mismo sequencer. Eso es lo que hace que un test pueda
-combinar estímulos sin tocar la estructura, y es todo las sequences.
+combinar estímulos sin tocar la estructura, y de eso se trata la sección de
+sequences.
 La pregunta para tirar al grupo: ¿por qué el driver del agent pasivo no existe,
 pero el monitor sí? Porque manejar es opcional, mirar no.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/274">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/275">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s275" class="slide">
+<section id="s276" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="el-handshake-get_next_item--item_done"><em>El handshake: <code>get_next_item()</code> / <code>item_done()</code></em></h4>
 <ul>
@@ -198,12 +221,12 @@ una copia. La sequence te presta el item y se queda esperando a que lo
 devuelvas. <code>put</code>/<code>get</code> era una entrega: el tester soltaba el comando y seguía.
 Y de ahí sale la otra diferencia útil: como la sequence sigue teniendo el
 handle, el driver puede escribirle el resultado adentro y la sequence lo lee al
-volver de <code>finish_item()</code>. Eso lo usa las sequences.</p>
+volver de <code>finish_item()</code>. Eso lo usa la sección de sequences.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/275">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/276">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s276" class="slide">
+<section id="s277" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="el-driver-ahora-uvm_driver"><em>El driver, ahora <code>uvm_driver</code></em></h4>
 <ul>
@@ -254,10 +277,10 @@ AXI tenga el mismo driver de veinte líneas.
 Y el corolario, que es el del apéndice del bus: cuando cambia el protocolo,
 cambia la BFM y el monitor. El driver, el agent, el env y el test no se enteran.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/276">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/277">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s277" class="slide">
+<section id="s278" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="el-sequencer-se-declara-con-un-typedef"><em>El sequencer se declara con un <code>typedef</code></em></h4>
 <ul>
@@ -281,16 +304,16 @@ del driver y del agent</li>
 transaction hubiera extendido <code>uvm_transaction</code>, hoy este <code>typedef</code> no compila:
 <code>uvm_sequencer #(T)</code> exige que <code>T</code> derive de <code>uvm_sequence_item</code>.
 Vale decirlo explícitamente: es la primera vez en el curso que una decisión de
-una sección anterior habilita —o rompe— el siguiente. Eso es exactamente lo que
+una sección anterior habilita —o rompe— la siguiente. Eso es exactamente lo que
 significa &quot;código adaptable&quot; y no es una frase de manual.
 Y por si alguien lo intenta: extender <code>uvm_sequencer</code> para agregarle cosas es
 casi siempre señal de que eso iba en la sequence. El sequencer es un árbitro, no
 un lugar donde poner lógica.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/277">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/278">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s278" class="slide">
+<section id="s279" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="la-sequence-mínima"><em>La sequence mínima</em></h4>
 <ul>
@@ -302,7 +325,7 @@ bloquea hasta que el driver llamó a <code>item_done()</code></li>
 <li>El <code>randomize()</code> va <strong>entre los dos</strong>: así las constraints se resuelven en el
 momento en que el item se va a entregar, no antes</li>
 <li>Ésta es la traducción directa del <code>tester</code> de las transactions, y nada más que
-eso — las sequences son sobre lo que se puede hacer acá adentro</li>
+eso — la sección de sequences es sobre lo que se puede hacer acá adentro</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u7/agents/tb_classes/command_sequence.svh</code> · líneas 6-43 de 45</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">command_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span> #(<span class="hljs-type">command_transaction</span>);
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(command_sequence)
@@ -397,10 +420,10 @@ depende del estado del DUT o de la respuesta anterior: para ese momento el valor
 ya estaba elegido. Randomizar tarde es la costumbre correcta y no cuesta nada
 adoptarla desde el primer día.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/278">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/279">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s279" class="slide">
+<section id="s280" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="is_active-activo-y-pasivo"><em><code>is_active</code>: activo y pasivo</em></h4>
 <ul>
@@ -427,10 +450,10 @@ real de haber armado un agent.
 Tres, lo del ejemplo: convivir con estímulo que no es tuyo — un módulo heredado,
 un modelo de referencia, un generador de otro equipo.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/279">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/280">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s280" class="slide">
+<section id="s281" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="y-se-puede-ver"><em>Y se puede ver</em></h4>
 <ul>
@@ -474,10 +497,10 @@ Y la que no está: no hay ninguna <code>sequence</code> en este árbol. Una sequ
 pregunta que se tiró el día 3 con el diagrama de clases, y acá se puede contestar
 señalando la pantalla.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/280">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/281">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s281" class="slide">
+<section id="s282" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="el-config-object-del-agent"><em>El config object del agent</em></h4>
 <ul>
@@ -524,18 +547,18 @@ config. El día que agregás el sexto dato, tocás una clase y no seis.
 Fijate que el driver y los dos monitores también piden el config, no la BFM: el
 agent no reparte handles a mano.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/281">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/282">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s282" class="slide">
+<section id="s283" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="la-clase-agent-build_phase"><em>La clase agent: <code>build_phase</code></em></h4>
 <ul>
-<li>Pide su config al <code>uvm_config_db</code> y copia el <code>is_active</code></li>
+<li>Pide su config al <code>uvm_config_db</code> y copia el <code>is_active</code> <strong>a mano</strong>: sin
+<code>super.build_phase()</code>, el de <code>uvm_agent</code> que lo leería no corre</li>
 <li>Construye sequencer y driver <strong>sólo si es activo</strong>; los monitores y los dos
 analysis ports, siempre</li>
 <li>Los analysis ports son ports: se instancian con <code>new()</code>, no con la factory</li>
-<li>Como en todo el curso, <strong>no hay <code>super.build_phase()</code></strong></li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u7/agents/tb_classes/vtalu_agent.svh</code> · líneas 1-33 de 43</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">vtalu_agent</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_agent</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(vtalu_agent)
@@ -617,16 +640,21 @@ trae la librería <strong>lee solo el <code>is_active</code> del resource pool</
 <code>code/.uvm/src/comps/uvm_agent.svh</code>, se puede abrir en clase.
 O sea que en un testbench que llama a <code>super.build_phase()</code>, un
 <code>uvm_config_db#(int)::set(this, &quot;mi_agent&quot;, &quot;is_active&quot;, UVM_PASSIVE)</code> funciona
-solo, sin config object. Como este curso nunca llama a <code>super.build_phase()</code>,
-ese mecanismo <strong>está apagado</strong>, y por eso lo asignamos a mano.
+solo, sin config object. Como este <code>vtalu_agent</code> no lo llama, ese mecanismo
+<strong>está apagado</strong>, y por eso lo asignamos a mano.
+Y acá se cobra lo del día 3: <code>uvm_agent</code> es la única clase de la librería,
+además de <code>uvm_component</code>, que implementa <code>build_phase</code>. Es exactamente el caso
+que la regla de afuera cubre — heredaste de una clase intermedia que hace
+trabajo real, y saltearte el <code>super</code> lo apaga sin decir nada. Nosotros podemos
+saltearlo porque escribimos la línea que reemplaza; el que no la escribe, no.
 Las dos formas son válidas. Lo que no es válido es la mitad de cada una: poner
 <code>is_active</code> en el config_db, no llamar a <code>super.build_phase()</code>, y después
 preguntarse por qué el agent arranca activo. Pasa seguido.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/282">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/283">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s283" class="slide">
+<section id="s284" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="la-clase-agent-connect_phase"><em>La clase agent: <code>connect_phase</code></em></h4>
 <ul>
@@ -655,10 +683,10 @@ a un export. No es una excepción caprichosa — la dirección sigue siendo la m
 del que llama al que implementa; lo único que pasa es que el agent está en el
 medio y no implementa nada, sólo reenvía.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/283">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/284">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s284" class="slide">
+<section id="s285" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="cómo-queda-el-env"><em>Cómo queda el <code>env</code></em></h4>
 <ul>
@@ -750,10 +778,10 @@ Si el grupo viene bien de tiempo, vale la pena la pregunta: ¿qué habría que
 cambiar en este <code>env</code> para pasar de una FIFO a un sequencer? Nada. Ya está
 adentro del agent.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/284">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/285">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s285" class="slide">
+<section id="s286" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="dos-agents-un-solo-string"><em>Dos agents, un solo string</em></h4>
 <ul>
@@ -780,10 +808,10 @@ agent encuentra su config y el driver no — <code>uvm_fatal</code> en <code>bui
 menos es un error honesto.
 Regla corta para llevarse: <strong>el ámbito del <code>set()</code> es una ruta, no una etiqueta.</strong></p>
 </div>
-<p class="al-deck"><a href="../index.html#/285">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/286">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s286" class="slide">
+<section id="s287" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="cuando-el-config_db-no-encuentra-uvm_config_db_trace"><em>Cuando el <code>config_db</code> no encuentra: <code>+UVM_CONFIG_DB_TRACE</code></em></h4>
 <pre><code class="language-sh">$ bash run.sh +UVM_CONFIG_DB_TRACE
@@ -814,10 +842,10 @@ alumno no escribe esas líneas.
 Pariente cercano que vale nombrar: <code>+UVM_OBJECTION_TRACE</code>, para el otro cuelgue
 clásico —la simulación que no termina porque alguien no bajó su objection—.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/286">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/287">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s287" class="slide">
+<section id="s288" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="el-ejemplo-dos-vtalu-y-el-módulo-heredado"><em>El ejemplo: dos VTALU y el módulo heredado</em></h4>
 <ul>
@@ -922,10 +950,10 @@ interface por puerto en vez de por virtual interface, pero el protocolo es el
 mismo código. Si cada uno manejara el bus a su manera, comparar coberturas no
 querría decir nada.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/287">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/288">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s288" class="slide">
+<section id="s289" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="el-test-y-lo-que-todavía-falta"><em>El test, y lo que todavía falta</em></h4>
 <ul>
@@ -939,7 +967,7 @@ seq.start(env_h.clase_agent_h.sequencer_h);
 <li>Funciona, pero mirá lo que hace esa línea: el test <strong>atraviesa la jerarquía</strong>
 para llegar al sequencer, y con eso vuelve a conocer el interior del env</li>
 <li>Todo lo que acabamos de encapsular se filtra en una línea</li>
-<li>Las sequences lo arregla: la sequence se le pasa al sequencer <strong>por
+<li>La sección de sequences lo arregla: la sequence se le pasa al sequencer <strong>por
 <code>config_db</code></strong>, y el test deja de saber dónde está</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u7/agents/tb_classes/dual_test.svh</code> · líneas 10-44 de 46</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
@@ -1031,10 +1059,10 @@ que viene se lleva puesta.
 Si alguien pregunta por qué no lo hacemos bien de una: porque para entender el
 <code>default_sequence</code> primero hay que haber sufrido escribir el <code>start()</code> a mano.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/288">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/289">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s289" class="slide">
+<section id="s290" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="lo-que-esta-sección-hace-distinto"><em>Lo que esta sección hace distinto</em></h4>
 <ul>
@@ -1060,10 +1088,10 @@ testbench UVM no la fija el estándar, la fija la costumbre. IEEE 1800.2 no dice
 en ningún lado que el scoreboard vaya en el env. Dice qué es un <code>uvm_agent</code> y
 nada más. Todo lo demás es convención — buena, pero convención.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/289">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/290">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s290" class="slide">
+<section id="s291" class="slide">
 <h2 id="agents">Agents</h2>
 <h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
 <ul>
@@ -1088,10 +1116,10 @@ Lo que falta —sequences— es lo que va a <em>escribir</em> el primer día. Po
 juntas en el mismo día y en este orden: primero la casa, después lo que pasa
 adentro.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/290">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/291">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s291" class="slide">
+<section id="s292" class="slide">
 <h2 id="callbacks">Callbacks</h2>
 <h4 id="el-tercer-gancho"><em>El tercer gancho</em></h4>
 <ul>
@@ -1122,10 +1150,10 @@ extensión que el que escribió el VIP dejó a propósito.
 Y el que apilen es lo que hace que dos ingenieros puedan enganchar cosas
 distintas en el mismo driver sin pisarse. Con overrides, el segundo gana.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/291">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/292">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s292" class="slide">
+<section id="s293" class="slide">
 <h2 id="callbacks">Callbacks</h2>
 <h4 id="el-gancho-una-clase-un-método-virtual-vacío"><em>El gancho: una clase, un método virtual vacío</em></h4>
 <figure class="codigo"><figcaption><code>code/u7/callbacks/tb_classes/driver_callback.svh</code> · líneas 9-22 de 68</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">driver_callback</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_callback</span>;
@@ -1231,10 +1259,10 @@ porque <code>uvm_do_callbacks</code> recorre <strong>la cola entera</strong>, y 
 ser legal. La clase base vacía es la que hace que &quot;sin callbacks&quot; sea el caso
 normal y no una excepción.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/292">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/293">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s293" class="slide">
+<section id="s294" class="slide">
 <h2 id="callbacks">Callbacks</h2>
 <h4 id="dos-líneas-en-el-driver-y-ninguna-más"><em>Dos líneas en el driver, y ninguna más</em></h4>
 <figure class="codigo"><figcaption><code>code/u7/callbacks/tb_classes/driver.svh</code> · líneas 3-10 de 35</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">driver</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_driver</span> #(<span class="hljs-type">command_transaction</span>);
@@ -1346,10 +1374,10 @@ Dónde poner el <code>`uvm_do_callbacks</code> es la decisión de diseño real, 
 misma que toma el que escribe un VIP: cada punto de gancho es una promesa de
 compatibilidad hacia adelante. Por eso los VIP tienen tres o cuatro, no treinta.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/293">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/294">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s294" class="slide">
+<section id="s295" class="slide">
 <h2 id="callbacks">Callbacks</h2>
 <h4 id="ponerlos-el-test-y-nada-más-que-el-test"><em>Ponerlos: el test, y nada más que el test</em></h4>
 <figure class="codigo"><figcaption><code>code/u7/callbacks/tb_classes/inject_test.svh</code> · líneas 20-31 de 36</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">end_of_elaboration_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
@@ -1423,10 +1451,10 @@ cuando se dice: no tiene driver. Los callbacks se cuelgan de instancias, no de
 tipos, así que &quot;el driver del agent activo&quot; es una dirección concreta en el
 árbol.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/294">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/295">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s295" class="slide">
+<section id="s296" class="slide">
 <h2 id="callbacks">Callbacks</h2>
 <h4 id="el-bit-dado-vuelta-que-el-scoreboard-no-ve"><em>El bit dado vuelta que el scoreboard no ve</em></h4>
 <p><code>cd code/u7/callbacks &amp;&amp; bash run.sh</code></p>
@@ -1479,10 +1507,10 @@ herramienta, el test más barato que existe para saber si tu monitor lo hace.
 Para inyectar un error que el scoreboard <strong>sí</strong> tenga que cazar, hay que romper
 el DUT, no el estímulo — que es exactamente lo que hace el <code>+BUG=1</code> del capstone.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/295">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/296">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s296" class="slide">
+<section id="s297" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="lo-único-que-quedó-cableado"><em>Lo único que quedó cableado</em></h4>
 <ul>
@@ -1507,15 +1535,15 @@ queda ahí hasta el final. El estímulo cambia test a test, y a veces cambia
 dentro del mismo test. Transactions, agents y sequences son la misma operación repetida
 sobre tres cosas distintas: separar los <strong>datos</strong> (transaction), separar la
 <strong>estructura</strong> (agent), separar el <strong>estímulo</strong> (sequence).
-La pregunta para tirar al grupo antes de seguir: con el <code>command_sequence</code> del
-22, ¿cuántas clases hacen falta para probar tres estímulos y sus combinaciones?
+La pregunta para tirar al grupo antes de seguir: con el <code>command_sequence</code> de los
+agents, ¿cuántas clases hacen falta para probar tres estímulos y sus combinaciones?
 Seis, y crece factorial. En el <em>UVM Primer</em> eso se llama <em>explosion of tester
 classes</em>.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/296">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/297">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s297" class="slide">
+<section id="s298" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="un-objeto-no-un-componente"><em>Un objeto, no un componente</em></h4>
 <p><img src="../res/print/diagrams/sequences_donde_vive.svg" alt="La sequence vive afuera del arbol de componentes; el sequencer, adentro"></p>
@@ -1543,10 +1571,10 @@ y el <code>start()</code>. Eso es lo que hace <code>full_seq.count = 200</code> 
 adelante, y con un componente no se podría: para cuando querés cambiarlo, el
 <code>build_phase</code> ya pasó.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/297">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/298">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s298" class="slide">
+<section id="s299" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="la-sequence-más-chica-que-existe"><em>La sequence más chica que existe</em></h4>
 <figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/reset_sequence.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// The smallest sequence there is: a single item.</span>
@@ -1602,10 +1630,10 @@ síntoma del <code>item_done()</code> olvidado, con otra causa, y conviene mostr
 en clase borrando el <code>reset_sequence</code> de <code>full_sequence</code>.</li>
 </ol>
 </div>
-<p class="al-deck"><a href="../index.html#/298">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/299">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s299" class="slide">
+<section id="s300" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="el-handshake-ahora-desde-el-lado-de-la-sequence"><em>El handshake, ahora desde el lado de la sequence</em></h4>
 <p><img src="../res/print/diagrams/sequences_handshake.svg" alt="Linea de tiempo de start_item, get_next_item, item_done y finish_item"></p>
@@ -1634,10 +1662,10 @@ vuelve enseguida con <code>null</code> si el sequencer no tiene nada. Es la mism
 el bus aunque no haya estímulo — ciclos idle, refresh de una DRAM. El VTALU no lo
 necesita: entre operación y operación las señales se pueden quedar quietas.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/299">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/300">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s300" class="slide">
+<section id="s301" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="lo-que-pasa-entre-start_item-y-finish_item"><em>Lo que pasa entre <code>start_item()</code> y <code>finish_item()</code></em></h4>
 <figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/random_sequence.svh</code> · líneas 12-29 de 31</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">body</span>();
@@ -1714,10 +1742,10 @@ Y el enganche con el día 5: acá es donde va el <code>randomize() with {}</code
 cobertura. Se pide el caso dirigido en el punto de uso, sin escribir una clase
 nueva. La slide que sigue es exactamente eso, con la trampa de Verilator incluida.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/300">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/301">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s301" class="slide">
+<section id="s302" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="randomización-tardía-dirigida-y-el-agujero-de-verilator"><em>Randomización tardía dirigida, y el agujero de Verilator</em></h4>
 <pre><code class="language-systemverilog">start_item(command);
@@ -1755,10 +1783,10 @@ bordes; si ya sabés qué valor querés, no tiene nada que aportar.
 <code>constraint_mode(0)</code> es por <strong>objeto</strong>, no por clase, y el objeto se tira después
 de <code>finish_item()</code>: no hay que acordarse de volver a prenderla.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/301">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/302">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s302" class="slide">
+<section id="s303" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="el-item-vuelve-con-el-resultado-adentro"><em>El item vuelve con el resultado adentro</em></h4>
 <figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/driver.svh</code> · líneas 18-27 de 29</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
@@ -1823,10 +1851,10 @@ Detalle de implementación que sí importa: el <code>send_op</code> lee <code>bf
 mismo flanco en que ve <code>done</code> alto. Un flanco más tarde el DUT ya arrancó la
 operación siguiente.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/302">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/303">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s303" class="slide">
+<section id="s304" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="fibonacci-cuando-el-estímulo-depende-del-resultado"><em>Fibonacci: cuando el estímulo depende del resultado</em></h4>
 <figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/fibonacci_sequence.svh</code> · líneas 11-39 de 41</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">body</span>();
@@ -1919,10 +1947,10 @@ Y una que se ve en la corrida real: el test entero tarda <strong>500 unidades de
 tiempo</strong>, contra las 44.000 del test random. Trece operaciones. Un test dirigido
 bien escrito es barato; lo caro es el random, y por eso se corre de noche.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/303">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/304">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s304" class="slide">
+<section id="s305" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="sequences-que-llaman-sequences"><em>Sequences que llaman sequences</em></h4>
 <p><img src="../res/print/diagrams/sequences_subsequences.svg" alt="full_sequence arrancando tres sub-sequences sobre el mismo sequencer"></p>
@@ -1950,10 +1978,10 @@ sequencer entrega uno por vez, y si dos sequences compiten sobre el mismo
 sequencer hay una política de arbitración decidiendo. Con sequences anidadas
 sobre un solo sequencer, el orden es el que dice el <code>body()</code>.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/304">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/305">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s305" class="slide">
+<section id="s306" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="full_sequence-tres-piezas-un-solo-sequencer"><em><code>full_sequence</code>: tres piezas, un solo sequencer</em></h4>
 <figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/full_sequence.svh</code> · líneas 13-30 de 32</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">body</span>();
@@ -2034,10 +2062,10 @@ Si preguntan por el orden con <code>fork</code>/<code>join</code>: la arbitraci�
 <code>UVM_SEQ_ARB_FIFO</code>, o sea orden de llegada. Se cambia con <code>set_arbitration()</code> del
 sequencer, y hay seis modos, incluido uno con pesos.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/305">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/306">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s306" class="slide">
+<section id="s307" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="arrancar-una-sequence-forma-1-start"><em>Arrancar una sequence, forma 1: <code>start()</code></em></h4>
 <figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/full_test.svh</code> · líneas 9-18 de 20</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
@@ -2093,10 +2121,10 @@ El <code>sequencer_h</code> lo resuelve <code>base_test</code> en <code>end_of_e
 <code>build_phase</code>: durante el <code>build_phase</code> del test el agent todavía no construyó su
 sequencer. Es la misma razón por la que las conexiones van en <code>connect_phase</code>.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/306">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/307">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s307" class="slide">
+<section id="s308" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="forma-2-default_sequence-por-uvm_config_db"><em>Forma 2: <code>default_sequence</code> por <code>uvm_config_db</code></em></h4>
 <figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/default_seq_test.svh</code> · líneas 10-30 de 32</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
@@ -2178,10 +2206,10 @@ Detalle fino: <code>main_phase</code>, no <code>run_phase</code>. La <code>run_p
 el cronograma reset → configure → main → shutdown; el <code>default_sequence</code> se
 engancha a las de ese cronograma.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/307">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/308">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s308" class="slide">
+<section id="s309" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="cuándo-cada-una"><em>Cuándo cada una</em></h4>
 <table>
@@ -2242,12 +2270,12 @@ el módulo <code>top</code>, con <code>null</code> como contexto. Ahí el estím
 comandos y el testbench ni se recompila. Es como funcionan las regresiones
 grandes.
 Y la fila que importa para el arco de la sección es la anteúltima: <code>default_sequence</code>
-es lo que termina de cerrar el <code>env</code> que los agents encapsuló.</p>
+es lo que termina de cerrar el <code>env</code> que los agents encapsularon.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/308">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/309">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s309" class="slide">
+<section id="s310" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="la-macro-uvm_do-y-por-qué-el-curso-no-la-usa"><em>La macro <code>`uvm_do</code> y por qué el curso no la usa</em></h4>
 <pre><code class="language-systemverilog">`uvm_do(command)                         // una linea
@@ -2274,14 +2302,14 @@ misma conclusión: ahorran tipeo y te cobran en debug.
 Vale ser justo: <code>`uvm_do_with</code> es genuinamente cómodo para una constraint
 inline de una línea, y la vas a ver en todos los testbenches del mundo. Hay que
 saber leerla. Lo que el curso no hace es enseñarla primero: quien aprende con la
-macro no sabe qué pasa entre <code>start_item()</code> y <code>finish_item()</code>, y ese es la
+macro no sabe qué pasa entre <code>start_item()</code> y <code>finish_item()</code>, y eso es la
 sección entera.
 Regla práctica para el trabajo: leer todas, escribir las explícitas.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/309">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/310">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s310" class="slide">
+<section id="s311" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="el-override-sigue-funcionando-y-ninguna-sequence-se-enteró"><em>El override sigue funcionando, y ninguna sequence se enteró</em></h4>
 <figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/add_test.svh</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// The same add_test as the Transactions section, word for word. No sequence finds</span>
@@ -2318,10 +2346,10 @@ Y el último bullet es el repaso de la trampa de las transactions, ahora en un l
 donde se ve corriendo: la factory elige el TIPO, las constraints sólo actúan en
 <code>randomize()</code>.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/310">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/311">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s311" class="slide">
+<section id="s312" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="sequences-virtuales-el-problema"><em>Sequences virtuales: el problema</em></h4>
 <ul>
@@ -2349,10 +2377,10 @@ sección con <strong>dos líneas</strong> cambiadas en el <code>env</code>, y to
 referencia. Vale decirlo antes de mostrar el código, porque es la mitad del
 argumento: una sequence virtual no cambia la estructura del testbench.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/311">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/312">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s312" class="slide">
+<section id="s313" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="el-virtual-sequencer-handles-no-items"><em>El virtual sequencer: handles, no items</em></h4>
 <figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/virtual_sequencer.svh</code> · líneas 10-20 de 20</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">virtual_sequencer</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequencer</span>;
@@ -2473,10 +2501,10 @@ alguien renombra el <code>env_h</code>, el <code>find()</code> devuelve <code>nu
 lejos del cambio. Asignarlos en el <code>connect_phase</code> <strong>no compila</strong> si el nombre
 cambió, que es exactamente lo que uno quiere.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/312">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/313">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s313" class="slide">
+<section id="s314" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="la-sequence-virtual-p_sequencer-y-dos-ramas"><em>La sequence virtual: <code>p_sequencer</code> y dos ramas</em></h4>
 <figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · líneas 14-16 de 76</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">coordinada_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span>;
@@ -2666,10 +2694,10 @@ intercalados — que es un escenario legítimo, pero es otro.
 Y una advertencia de campo: una sequence virtual con un solo sequencer es una
 sequence normal con más ceremonia. La clase se justifica cuando hay dos.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/313">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/314">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s314" class="slide">
+<section id="s315" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="lo-que-ninguna-sequence-sola-puede"><em>Lo que ninguna sequence sola puede</em></h4>
 <figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · líneas 59-70 de 76</figcaption><pre><code class="hljs">      primera.A  = <span class="hljs-number">8&#x27;h0F</span>;
@@ -2779,10 +2807,10 @@ tenemos. Con dos interfaces distintas —dos transactions, dos drivers— la
 sequence virtual se escribe <strong>igual</strong>: los handles serían de dos tipos de
 sequencer, y nada más.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/314">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/315">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s315" class="slide">
+<section id="s316" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="dos-sequences-sobre-el-mismo-sequencer-la-arbitración"><em>Dos sequences sobre el mismo sequencer: la arbitración</em></h4>
 <ul>
@@ -2846,10 +2874,10 @@ una función, y para eso está el modo de usuario. El primo de esa idea es
 <code>is_relevant()</code>, que deja a una sequence fuera de la arbitración hasta que ella
 misma diga que está lista.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/315">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/316">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s316" class="slide">
+<section id="s317" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="lock-y-grab-cuando-la-arbitración-no-alcanza"><em><code>lock()</code> y <code>grab()</code>: cuando la arbitración no alcanza</em></h4>
 <ul>
@@ -2890,10 +2918,10 @@ Y el detalle que salva una tarde: <code>grab()</code> no interrumpe el item que 
 vuelo. Se cuela en la próxima arbitración, no en el medio de un handshake — que
 es justamente lo que uno quiere.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/316">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/317">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s317" class="slide">
+<section id="s318" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="el-testbench-completo"><em>El testbench, completo</em></h4>
 <p><img src="../res/print/diagrams/sequences_tb_completo.svg" alt="El testbench final: sequences, agent, sequencer, driver, monitores y la capa de analisis"></p>
@@ -2914,12 +2942,12 @@ sin tocar las otras. Y las tres capas de arriba —sequences, agent, análisis�
 cambian por motivos distintos: el estímulo cambia por test, la estructura por
 diseño, el análisis por plan de verificación.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/317">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/318">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s318" class="slide">
+<section id="s319" class="slide">
 <h2 id="sequences">Sequences</h2>
-<h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
+<h4 id="resumen-de-la-unidad-·-la-sequence-y-el-item"><em>Resumen de la unidad · la sequence y el item</em></h4>
 <ul>
 <li>El estímulo salió del árbol de componentes: es un <code>uvm_object</code>, no un
 <code>uvm_component</code>, y por eso se crea, se configura, corre y se tira</li>
@@ -2929,6 +2957,19 @@ llena el item, ahí va el <code>randomize()</code>, y ahí se enganchan <code>pr
 el camino de vuelta, y es lo que hace posible un estímulo que reacciona</li>
 <li>Dos formas de arrancar: <code>start(sequencer)</code> explícito, o <code>default_sequence</code> por
 <code>uvm_config_db</code> — que además saca la última línea cableada del testbench</li>
+</ul>
+<div class="nota">
+<p>La primera mitad del resumen es el mecanismo: qué es una sequence, dónde
+vive el <code>randomize()</code>, y por dónde vuelve el resultado. Si alguien se perdió en
+la unidad, se recupera acá.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/319">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s320" class="slide">
+<h2 id="sequences">Sequences</h2>
+<h4 id="resumen-de-la-unidad-·-cómo-se-componen"><em>Resumen de la unidad · cómo se componen</em></h4>
+<ul>
 <li>Las sequences se componen: una llama a otras, en serie o con <code>fork</code>/<code>join</code></li>
 <li>Y cuando hay <strong>más de un sequencer</strong>, la que compone es una <strong>sequence
 virtual</strong>: no manda items propios, saca los handles de un <code>virtual_sequencer</code> y
@@ -2952,10 +2993,10 @@ por el <code>uvm_agent</code>.
 Y el mejor lugar para seguir leyendo es <code>code/.uvm/src/</code>: a esta altura
 <code>uvm_sequence_base.svh</code> se puede abrir y entender.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/318">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/320">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s319" class="slide quiz">
+<section id="s321" class="slide quiz">
 <h2 id="repaso-·-día-6">Repaso · Día 6</h2>
 <h4 id="1-de-10-·-is_active"><em>1 de 10 · is_active</em></h4>
 <p><strong>Un agent en <code>UVM_PASSIVE</code>, ¿qué construye su <code>build_phase</code>?</strong></p>
@@ -2968,10 +3009,10 @@ Y el mejor lugar para seguir leyendo es <code>code/.uvm/src/</code>: a esta altu
 <blockquote>
 <p><strong>Los monitores, siempre</strong> — mirar nunca es opcional: un agent pasivo sigue alimentando scoreboard y cobertura. Lo que se saltea es lo que <em>maneja</em> la interface, porque ahí ya hay otro manejándola.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/319">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/321">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s320" class="slide quiz">
+<section id="s322" class="slide quiz">
 <h2 id="repaso-·-día-6">Repaso · Día 6</h2>
 <h4 id="2-de-10-·-el-handshake-del-driver"><em>2 de 10 · El handshake del driver</em></h4>
 <p><strong>El driver llama a <code>get_next_item()</code>, maneja las señales y se olvida del <code>item_done()</code>. ¿Qué pasa?</strong></p>
@@ -2984,10 +3025,10 @@ Y el mejor lugar para seguir leyendo es <code>code/.uvm/src/</code>: a esta altu
 <blockquote>
 <p><strong>Se cuelga, y sin decir nada</strong> — es el error clásico de la primera semana, y el síntoma engaña: no hay error ni warning, el tiempo deja de avanzar y el objection nunca se baja. <code>get_next_item()</code> es un préstamo; <code>item_done()</code> es devolverlo.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/320">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/322">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s321" class="slide quiz">
+<section id="s323" class="slide quiz">
 <h2 id="repaso-·-día-6">Repaso · Día 6</h2>
 <h4 id="3-de-10-·-ámbito-del-config_db"><em>3 de 10 · Ámbito del config_db</em></h4>
 <p><strong>El <code>env</code> instancia dos agents y hace los dos <code>set()</code> con el ámbito <code>&quot;*&quot;</code>. ¿Qué recibe cada uno?</strong></p>
@@ -3000,10 +3041,10 @@ Y el mejor lugar para seguir leyendo es <code>code/.uvm/src/</code>: a esta altu
 <blockquote>
 <p><strong>Los dos reciben lo mismo</strong> — el <code>uvm_config_db</code> no empareja por orden ni por tipo: empareja por <strong>ruta</strong>. Con <code>&quot;*&quot;</code> las dos entradas describen a los mismos componentes, así que la última gana. El ámbito es una ruta en el árbol, no una etiqueta.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/321">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/323">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s322" class="slide quiz">
+<section id="s324" class="slide quiz">
 <h2 id="repaso-·-día-6">Repaso · Día 6</h2>
 <h4 id="4-de-10-·-el-sequencer"><em>4 de 10 · El sequencer</em></h4>
 <p><strong><code>typedef uvm_sequencer #(command_transaction) sequencer;</code> compila sin tocar la transaction de las transactions. ¿Por qué?</strong></p>
@@ -3014,12 +3055,12 @@ Y el mejor lugar para seguir leyendo es <code>code/.uvm/src/</code>: a esta altu
 <li><input checked="" disabled="" type="checkbox"> Porque <code>command_transaction</code> extiende <code>uvm_sequence_item</code></li>
 </ul>
 <blockquote>
-<p><strong>Por la clase base que elegimos en transactions</strong> — <code>uvm_sequencer #(T)</code> exige que <code>T</code> derive de <code>uvm_sequence_item</code>. Si aquel día la transaction hubiera extendido <code>uvm_transaction</code> a secas, este <code>typedef</code> hoy no compilaría. Una decisión de una sección habilitando el siguiente.</p>
+<p><strong>Por la clase base que elegimos en transactions</strong> — <code>uvm_sequencer #(T)</code> exige que <code>T</code> derive de <code>uvm_sequence_item</code>. Si aquel día la transaction hubiera extendido <code>uvm_transaction</code> a secas, este <code>typedef</code> hoy no compilaría. Una decisión de una sección habilitando la siguiente.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/322">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/324">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s323" class="slide quiz">
+<section id="s325" class="slide quiz">
 <h2 id="repaso-·-día-6">Repaso · Día 6</h2>
 <h4 id="5-de-10-·-superbuild_phase"><em>5 de 10 · super.build_phase()</em></h4>
 <p><strong>En vez del config object, ponés <code>is_active</code> directo en el <code>uvm_config_db</code>. En este curso el agent arranca activo igual. ¿Por qué?</strong></p>
@@ -3027,15 +3068,15 @@ Y el mejor lugar para seguir leyendo es <code>code/.uvm/src/</code>: a esta altu
 <li><input disabled="" type="checkbox"> Porque <code>is_active</code> es <code>protected</code> y el <code>config_db</code> no lo puede escribir</li>
 <li><input disabled="" type="checkbox"> Porque el <code>config_db</code> no acepta tipos enumerados</li>
 <li><input disabled="" type="checkbox"> Porque <code>is_active</code> se fija en el constructor y <code>build_phase</code> llega tarde</li>
-<li><input checked="" disabled="" type="checkbox"> Porque quien lo lee es el <code>build_phase</code> de <code>uvm_agent</code>, y nunca llamamos a <code>super.build_phase()</code></li>
+<li><input checked="" disabled="" type="checkbox"> Porque quien lo lee es el <code>build_phase</code> de <code>uvm_agent</code>, y <code>vtalu_agent</code> no llama a <code>super.build_phase()</code></li>
 </ul>
 <blockquote>
-<p><strong>Ese mecanismo está apagado</strong> — <code>uvm_agent::build_phase</code> busca <code>is_active</code> en el resource pool (está en <code>code/.uvm/src/comps/uvm_agent.svh</code>, se puede abrir). Sin <code>super.build_phase()</code> esa línea no corre nunca. Las dos formas son válidas; lo que no funciona es la mitad de cada una.</p>
+<p><strong>Ese mecanismo está apagado</strong> — <code>uvm_agent::build_phase</code> busca <code>is_active</code> en el resource pool (está en <code>code/.uvm/src/comps/uvm_agent.svh</code>, se puede abrir). Sin <code>super.build_phase()</code> esa línea no corre nunca, y nadie avisa. Las dos formas son válidas; lo que no funciona es la mitad de cada una.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/323">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/325">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s324" class="slide quiz">
+<section id="s326" class="slide quiz">
 <h2 id="repaso-·-día-6">Repaso · Día 6</h2>
 <h4 id="6-de-10-·-object-no-component"><em>6 de 10 · Object, no component</em></h4>
 <p><strong>¿Cuál es la diferencia práctica de que una <code>uvm_sequence</code> sea un <code>uvm_object</code> y no un <code>uvm_component</code>?</strong></p>
@@ -3048,10 +3089,10 @@ Y el mejor lugar para seguir leyendo es <code>code/.uvm/src/</code>: a esta altu
 <blockquote>
 <p><strong>Se crea, corre y se tira</strong> — un componente se construye una vez en <code>build_phase</code> y vive hasta el final. Por eso el estímulo no puede ser un componente: cambia test a test, y a veces dentro del mismo test. De ahí sale también que se pueda configurar entre el <code>create()</code> y el <code>start()</code>, como hace <code>full_seq.count = 200</code>.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/324">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/326">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s325" class="slide quiz">
+<section id="s327" class="slide quiz">
 <h2 id="repaso-·-día-6">Repaso · Día 6</h2>
 <h4 id="7-de-10-·-start_item"><em>7 de 10 · start_item()</em></h4>
 <p><strong><code>start_item(command)</code> acaba de volver. ¿Qué es lo que eso garantiza?</strong></p>
@@ -3064,10 +3105,10 @@ Y el mejor lugar para seguir leyendo es <code>code/.uvm/src/</code>: a esta altu
 <blockquote>
 <p><strong>Tenés el turno, todavía no entregaste nada</strong> — y por eso el <code>randomize()</code> va <em>después</em>: es el último momento posible para elegir los valores, cuando ya sabés en qué estado está el DUT. Eso es la randomización tardía, y es donde se enganchan <code>pre_do()</code> y <code>mid_do()</code>.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/325">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/327">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s326" class="slide quiz">
+<section id="s328" class="slide quiz">
 <h2 id="repaso-·-día-6">Repaso · Día 6</h2>
 <h4 id="8-de-10-·-el-camino-de-vuelta"><em>8 de 10 · El camino de vuelta</em></h4>
 <p><strong>¿En qué momento <code>command.result</code> tiene un valor que se puede leer?</strong></p>
@@ -3080,10 +3121,10 @@ Y el mejor lugar para seguir leyendo es <code>code/.uvm/src/</code>: a esta altu
 <blockquote>
 <p><strong>Después de <code>finish_item()</code></strong> — no hay ningún canal de vuelta: hay un handle compartido y un acuerdo entre las dos partes. El par REQ/RSP existe y es el mecanismo formal, pero casi nadie lo usa: escribir el resultado en el request alcanza. Esto es lo que hace posible Fibonacci.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/326">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/328">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s327" class="slide quiz">
+<section id="s329" class="slide quiz">
 <h2 id="repaso-·-día-6">Repaso · Día 6</h2>
 <h4 id="9-de-10-·-default_sequence"><em>9 de 10 · default_sequence</em></h4>
 <p><strong>Configurás una <code>default_sequence</code> por <code>uvm_config_db</code> y te olvidás del <code>set_automatic_phase_objection(1)</code>. ¿Qué pasa?</strong></p>
@@ -3096,10 +3137,10 @@ Y el mejor lugar para seguir leyendo es <code>code/.uvm/src/</code>: a esta altu
 <blockquote>
 <p><strong>Pasa en cero segundos, y miente</strong> — una fase sin objection termina en cuanto arranca. Es el mismo tipo de bug que el <code>new()</code> que se come el override: no rompe, engaña. Y en una regresión de mil tests, el que pasa en cero segundos no lo mira nadie.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/327">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/329">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s328" class="slide quiz">
+<section id="s330" class="slide quiz">
 <h2 id="repaso-·-día-6">Repaso · Día 6</h2>
 <h4 id="10-de-10-·-sub-sequences"><em>10 de 10 · Sub-sequences</em></h4>
 <p><strong><code>full_sequence</code> arranca a sus hijas con <code>reset_seq.start(get_sequencer(), this)</code>. ¿Para qué está el segundo argumento?</strong></p>
@@ -3112,10 +3153,10 @@ Y el mejor lugar para seguir leyendo es <code>code/.uvm/src/</code>: a esta altu
 <blockquote>
 <p><strong>Declara la relación madre-hija</strong> — sin él, el sequencer trata a las dos como sequences independientes y compiten por el turno. Con él, la hija hereda el contexto. Y para el paralelo no alcanza con eso: hace falta un <code>fork</code> / <code>join</code> alrededor de los <code>start()</code>.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/328">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/330">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s329" class="slide">
+<section id="s331" class="slide">
 <h2 id="ejercicio-·-día-6-·-1-de-4">Ejercicio · Día 6 · 1 de 4</h2>
 <h4 id="el-agent-que-sólo-mira"><em>El agent que sólo mira</em></h4>
 <p><code>cd code/ejercicios/d6-agents &amp;&amp; bash run.sh</code></p>
@@ -3137,10 +3178,10 @@ están mirando la misma interface.
 Y el atajo de poner los dos en <code>UVM_PASSIVE</code> para que &quot;pase&quot; tampoco funciona:
 el corrector exige que <code>clase_agent_h</code> siga teniendo driver.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/329">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/331">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s330" class="slide">
+<section id="s332" class="slide">
 <h2 id="ejercicio-·-día-6-·-2-de-4">Ejercicio · Día 6 · 2 de 4</h2>
 <h4 id="una-sequence-que-sólo-multiplica"><em>Una sequence que sólo multiplica</em></h4>
 <p><code>cd code/ejercicios/d6-sequences &amp;&amp; bash run.sh</code></p>
@@ -3161,10 +3202,10 @@ manda un <code>rst_op</code> como primer item, el VTALU arranca con <code>reset_
 nunca sube y el driver se queda en el primer <code>finish_item()</code>. El <code>run.sh</code> tiene
 un <code>+UVM_TIMEOUT</code> puesto para que eso termine con un mensaje en vez de colgarse.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/330">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/332">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s331" class="slide">
+<section id="s333" class="slide">
 <h2 id="ejercicio-·-día-6-·-3-de-4">Ejercicio · Día 6 · 3 de 4</h2>
 <h4 id="cerrar-un-bin"><em>Cerrar un bin</em></h4>
 <p><code>cd code/ejercicios/d6-bins &amp;&amp; bash run.sh</code></p>
@@ -3193,10 +3234,10 @@ probabilidades, quiere un valor.
 La semilla del <code>run.sh</code> está fijada. Sin fijarla, algunas corridas llenarían el
 bin solas con las 60 al azar — y eso es el ejercicio siguiente.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/331">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/333">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s332" class="slide">
+<section id="s334" class="slide">
 <h2 id="ejercicio-·-día-6-·-4-de-4">Ejercicio · Día 6 · 4 de 4</h2>
 <h4 id="la-misma-sequence-otra-semilla"><em>La misma sequence, otra semilla</em></h4>
 <p><code>cd code/ejercicios/d6-semillas &amp;&amp; bash run.sh</code></p>
@@ -3223,7 +3264,7 @@ Y el comando del merge conviene nombrarlo por lo que es en la industria:
 <code>verilator_coverage --write</code> es acá lo que el merge de <code>ucdb</code> es en Questa. Una
 regresión de verdad son cien semillas de noche y un solo número a la mañana.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/332">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/334">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 </main>
 

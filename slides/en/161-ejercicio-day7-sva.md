@@ -11,7 +11,7 @@
   `done`. It has been in production for years
 - The scoreboard compares a thousand operations and does not find a single difference:
   the multiplier latched `A` and `B` on the first edge. **The bug is not a data bug**
-- Write the property that does see it. The two `done` ones are already there, as a mould
+- Write the property that does see it. The two `done` ones are already there, as a template
 - The checker asks for three things: that it fire on `modulo_bfm`, that it **not** fire
   even once on `clase_bfm`, and that the scoreboard stay green
 

@@ -362,7 +362,7 @@ escribir la clase y **una** línea acá. Ni una en `dice_roller`.
 
 #### *La solución, cableada*
 
-- En el diagrama de conexionado podemos ver que la clase dice_roller tiene un objeto uvm_analysis_port llamado roll_app
+- En el diagrama de conexionado podemos ver que la clase dice_roller tiene un objeto uvm_analysis_port llamado roll_ap
 - Cada subscriber tiene un objeto analysis_export
 - La conexión entre ambos se realiza mediante el método connect()
 

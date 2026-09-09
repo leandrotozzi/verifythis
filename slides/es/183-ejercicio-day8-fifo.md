@@ -26,7 +26,7 @@ con el DUT roto. Para verlo hay que predecir las banderas, y para predecir las
 banderas hay que modelar la ocupación — o sea, escribir un modelo de referencia
 con estado, que es lo que el primer capstone no podía pedir.
 Vale decir por qué va segundo y no primero: el APB es el DUT que se cruza el
-primer año, y el patrón tabla-direccion-valor es el correcto ahí. Éste enseña
+primer año, y el patrón tabla-dirección-valor es el correcto ahí. Éste enseña
 cuándo ese patrón deja de servir, y esa lección no se entiende sin haber usado
 el patrón antes.
 La trampa que más cae es la del orden de actualización del modelo: primero mirar

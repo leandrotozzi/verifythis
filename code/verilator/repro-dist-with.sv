@@ -45,12 +45,12 @@ module top;
          if (c.randomize() with {B == 8'hFF;}) sin_dist = sin_dist + 1;
       end
 
-      $display("%0d randomizaciones de cada forma", N);
+      $display("%0d randomizations of each form", N);
       $display("  with {A == 8'hFF}          %5.1f%%   expected ~25%%  (weight of the FF bin)",
                100.0 * ff / N);
-      $display("  with {A inside {[1:10]}}   %5.1f%%   esperado  ~2%%  (10 de 254, x 50%%)",
+      $display("  with {A inside {[1:10]}}   %5.1f%%   expected  ~2%%  (10 of 254, x 50%%)",
                100.0 * rango / N);
-      $display("  with {A != 8'h00}          %5.1f%%   esperado ~75%%",
+      $display("  with {A != 8'h00}          %5.1f%%   expected ~75%%",
                100.0 * distinto / N);
       $display("  with {B == 8'hFF}          %5.1f%%   B has no dist",
                100.0 * sin_dist / N);
@@ -58,7 +58,7 @@ module top;
       // The workaround: with no dist in the way, the directed request always solves.
       c.data.constraint_mode(0);
       repeat (N) if (c.randomize() with {A == 8'hFF;}) apagado = apagado + 1;
-      $display("  + data.constraint_mode(0)  %5.1f%%   esperado 100%%",
+      $display("  + data.constraint_mode(0)  %5.1f%%   expected 100%%",
                100.0 * apagado / N);
       $finish;
    end

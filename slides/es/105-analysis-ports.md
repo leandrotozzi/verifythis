@@ -14,7 +14,7 @@
   `uvm_analysis_port`
 
 Note:
-Es el mismo patrón de los dados, ahora sobre el DUT — y ése es toda la sección.
+Es el mismo patrón de los dados, ahora sobre el DUT — y ésa es toda la sección.
 Lo que hay que remarcar es cuál es la línea divisoria del testbench, porque es la
 que ordena todo lo que viene: **de un lado del monitor se habla en señales, del
 otro en transacciones.** El BFM de interfaces y BFM hizo eso para el estímulo; el
@@ -34,7 +34,7 @@ el agent, y esta sección es el que junta las piezas.
 
 - **`command_monitor`** — mira el arranque de cada operación y publica qué se pidió
 - **`result_monitor`** — mira el `done` y publica qué contestó el DUT
-- El **BFM** deja de ser sólo señales: gana dos `always` y un handle a cada monitor
+- El **BFM** deja de ser sólo señales: gana tres `always` y un handle a cada monitor
 - El **scoreboard** y la **cobertura** dejan de esperar flancos y pasan a tener un
   `write()`
 - El **`tester`** no se entera de nada: sigue mandando estímulo igual que ayer
@@ -102,8 +102,9 @@ afecta a las tasks — acá el que declara la task es la clase, no la interface.
 
 #### *Monitoreando los comandos del VTALU*
 
-- Dos `always` en el BFM, uno por monitor: el del comando dispara cuando arranca
-  una operación, el del resultado cuando el DUT levanta `done`
+- Tres `always` en el BFM: el del comando dispara cuando arranca una operación,
+  el del reset en el flanco de bajada de `reset_n`, y el del resultado cuando el
+  DUT levanta `done`
 
 {{code:code/u5/analysis-ports/vtalu_bfm.sv|lines=17-36}}
 

@@ -4,8 +4,9 @@ Es lo primero que te piden en un proyecto con registros, y es literalmente esto:
 te dan la tabla de la spec y devolvés el modelo.
 
 El DUT es el del capstone —el esclavo APB de cuatro registros— y el testbench
-también: la interface, la transaction, el driver, el monitor y el agent son los
-que escribiste en [`d7-final`](../d7-final/). El adapter, el predictor y los tres
+también: la interface, la transaction, el driver, el monitor y el agent salen de
+[`d7-final/solucion/`](../d7-final/solucion/), así que el ejercicio corre aunque
+todavía no hayas terminado el capstone. El adapter, el predictor y los tres
 tests salen de [`code/u9/ral/`](../../u9/ral/) y no se tocan.
 
 **De todo eso, lo único que escribís es el modelo de registros.**
@@ -39,6 +40,8 @@ El corrector va por etapas y cada una imprime su `STAGE N OK`:
    no son registros: su valor lo produce una escritura a *otra* dirección. Un
    modelo que no diga eso da falsos positivos, y el falso positivo es del modelo,
    no del DUT.
+
+Listo cuando `bash run.sh` imprime las tres etapas y termina con `EXERCISE OK`.
 
 ## Cómo se corre
 
@@ -82,6 +85,6 @@ Compila UVM entera, incluido `uvm-core/src/reg`. Medido con Verilator 5.052:
 
 ## Lo que practica
 
-La unidad 9 entera, que es corta a propósito: el modelo, el `uvm_reg_field` y su
-cadena de accesos, `add_reg` y el mapa. Y una idea que no es de UVM: **la
-diferencia entre un registro y una dirección**.
+La sección de RAL entera, que es corta a propósito: el modelo, el
+`uvm_reg_field` y su cadena de accesos, `add_reg` y el mapa. Y una idea que no
+es de UVM: **la diferencia entre un registro y una dirección**.

@@ -309,7 +309,7 @@ It is the most used of the three methods, and the one that gets the least
 attention: every message of the scoreboard and of the monitors of the rest of the
 course comes out of here.
 The `.name()` of the `enum` is the detail that changes the day: without it the log
-says `op: 4` and you have to go looking for the `typedef`; with it it says
+says `op: 4` and you have to go looking for the `typedef`; with it, it says
 `op: mul_op`. The rule to take home: **if a field is an enum, the log gets its
 name, never its value.**
 Worth naming the relative UVM brings and the course does not use: `sprint()`,
@@ -461,7 +461,7 @@ away the comparison shifts by one and everything fails. It is the day 5 exercise
 
 Note:
 It is worth putting this slide next to the `add_test` of the env and counting
-lines: the same idea, one level further down. Before, what generated was
+lines: the same idea, one level further down. Before, what generates was
 substituted; now, what is generated is.
 The order of the `super` is the trap of the slide, and it is a sibling of the one
 in the env: the factory decides what to build at the moment of the `create()`. If

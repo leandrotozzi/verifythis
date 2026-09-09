@@ -16,6 +16,9 @@ está mirando.
    - el agent, un `scoreboard` y un `coverage` propios
    - las dos conexiones, contra los analysis ports **del agent**
 
+   Los nombres importan: el corrector busca `modulo_agent_h` y
+   `modulo_scoreboard_h`, igual que los `clase_*` que ya están.
+
 Listo cuando `bash run.sh` imprime `EXERCISE OK`.
 
 ## Cómo se corre
@@ -57,7 +60,7 @@ solo— o usá Codespaces, que ya lo trae.
 
 ## Lo que practica
 
-`is_active` y el ámbito del `uvm_config_db` (22), analysis ports (16), y la
+`is_active` y el ámbito del `uvm_config_db`, analysis ports, y la
 idea de fondo de la sección: **el agent es la unidad que se instancia una vez por
 interface**. La segunda VTALU no necesita un testbench nuevo. Necesita una
 línea más.

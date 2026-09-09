@@ -2,7 +2,7 @@
      NO editar a mano: la fila se corrige en la slide y esto se regenera con
      `npm run build`. `npm run check` falla si quedo viejo. -->
 
-# Las 19 trampas mudas de UVM
+# Las 20 trampas mudas de UVM
 
 Todo lo que **compila, corre y miente**: los errores de un testbench UVM que no
 dan un warning, no dejan la regresión en rojo, y se descubren semanas después —
@@ -43,6 +43,7 @@ mañana, y una diapositiva no se puede googlear.
 | El `randomize()` **no corre** con las asserts apagadas | `assert(x.randomize())` — `assert` es una directiva de simulación | `if (!x.randomize()) uvm_fatal(…)` | Constrained random |
 | Bajo el override, **algunas** transactions son del tipo viejo | un `new()` donde iba `type_id::create()` | por la factory pasa lo que se crea con `create()` | Transactions |
 | Los **dos agents** arrancan iguales | dos `set()` con ámbito `"*"`: el segundo pisa al primero | el ámbito es la **ruta** del que lee, con `*` al final | Agents · d6 |
+| El agent arranca **activo** aunque pusiste `is_active` en el `config_db` | falta el `super.build_phase()`: el que lo lee es `uvm_agent` | o config object, o `super` — nunca media de cada una | Agents |
 | La simulación **no termina nunca** | un `item_done()` que no se llamó | `+UVM_TIMEOUT=5ms` primero, el trace después | Agents |
 | Termina en **t=0** y dice PASS | nadie levantó la objection alrededor de la sequence | `+UVM_OBJECTION_TRACE` | Sequences |
 

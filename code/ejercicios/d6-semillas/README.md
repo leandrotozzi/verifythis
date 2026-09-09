@@ -1,7 +1,8 @@
-# Día 6 ·las sequences — la misma sequence, otra semilla
+# Día 6 · las sequences — la misma sequence, otra semilla
 
-La tabla *"así se cierra la cobertura"* de la seccion Constrained random termina con una fila que
-el curso nunca hace: **repetir con otra semilla**. Este ejercicio la hace.
+La tabla *"así se cierra la cobertura"* de la sección Constrained random termina
+con una fila que el curso nunca hace: **repetir con otra semilla**. Este
+ejercicio la hace.
 
 Es el único del curso donde no escribís SystemVerilog. El testbench y el test ya
 están: reset y **25** operaciones al azar. Lo que escribís es la regresión.

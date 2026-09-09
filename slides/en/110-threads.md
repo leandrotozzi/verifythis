@@ -1,4 +1,4 @@
-<!-- es-sha: 1bf3e9e096ff -->
+<!-- es-sha: 12954fabcd03 -->
 ## When somebody has to wait
 
 #### *You were already doing this, with modules*
@@ -252,7 +252,7 @@ two are one to one.
 - UVM provides it with *uvm_put_port*, *uvm_get_port* and *uvm_tlm_fifo*
 - Any object that wants to communicate with another thread has to instantiate a
   port and connect it to a FIFO
-- Careful with the pair of names: the *analysis port* of the two previous sections
+- Careful with the pair of names: the *analysis ports* of the two previous sections
   are **intra**-thread —`write()` is a `function` and runs in the thread of the
   one publishing—; this is **inter**-thread, and that is why `put()` and `get()`
   are `task`

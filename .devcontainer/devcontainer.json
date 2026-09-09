@@ -1,4 +1,14 @@
 {
   "name": "Verify This!",
-  "build": { "dockerfile": "../Dockerfile", "context": ".." }
+  "build": { "dockerfile": "../Dockerfile", "context": ".." },
+
+  // El Dockerfile trae Verilator, z3 y UVM, y nada mas: es para correr los
+  // ejemplos. En Codespaces hace falta ademas Node, porque el que abre un
+  // Codespace desde el README suele venir a mandar un PR y `npm run check` es
+  // lo que el CI exige antes de mergear. Va como feature y no adentro del
+  // Dockerfile para que la imagen de `docker build` siga siendo la chica.
+  // Ver docs/docker.md.
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" }
+  }
 }

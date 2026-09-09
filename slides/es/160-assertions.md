@@ -8,8 +8,8 @@
   `done` un ciclo antes, o lo levanta con `no_op`, **pasa todos los tests del
   curso**
 - La regla del protocolo está escrita en tres lugares: en prosa en la spec,
-  adentro del BFM en interfaces y BFM, y en la cabeza del que lo escribió. En **ninguno** de
-  los tres se chequea
+  adentro del BFM, y en la cabeza del que lo escribió. En **ninguno** de los
+  tres se chequea
 - Una **assertion** es esa misma frase, en forma ejecutable, corriendo sola toda
   la simulación
 
@@ -173,7 +173,7 @@ necesitan un reloj para saber qué quiere decir "anterior".
 
 #### *La property que vale la sección*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=152-164}}
+{{code:code/u8/assertions/vtalu_bfm.sv|lines=154-166}}
 
 - Es **la regla de la slide 1 del día 1**: mientras `start` está arriba, los
   operandos no se tocan. Estuvo escrita en prosa seis días
@@ -200,7 +200,7 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.
 
 #### *⚠ Dos relojes: una assertion vale lo que vale su muestreo*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=138-150}}
+{{code:code/u8/assertions/vtalu_bfm.sv|lines=140-152}}
 
 | Con un solo reloj | Sobre 1000 operaciones |
 | --- | --- |
@@ -236,7 +236,7 @@ que es lo difícil.
 
 #### *La latencia variable, en una línea*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=168-185}}
+{{code:code/u8/assertions/vtalu_bfm.sv|lines=170-187}}
 
 - `##[1:5] done` dice *"entre uno y cinco flancos después"*. La VTALU tarda **uno**
   en `add`/`and`/`xor` y **cuatro** en la multiplicación: una property las cubre a
@@ -371,7 +371,7 @@ en vez de la de la librería.
 
 #### *Toda assertion va con su `cover property`*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=187-195}}
+{{code:code/u8/assertions/vtalu_bfm.sv|lines=208-215}}
 
 ```text
 covergroup : 86.8% (66/76)
@@ -439,7 +439,7 @@ cuenta como anécdota.
 
 #### *El ejemplo de la sección: el bug que el scoreboard no ve*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=112-124}}
+{{code:code/u8/assertions/vtalu_bfm.sv|lines=114-126}}
 
 ```text
 ** Report counts by severity        ** Report counts by id
@@ -493,7 +493,7 @@ property`. Si el cover está en cero, o la property no corre, o su antecedente n
 ocurre. En los dos casos hay que ir a mirar, y en los dos casos el `assert` solo
 habría dicho que todo está bien.
 Estas cuatro se suman al apéndice de las trampas mudas, que a partir de esta
-sección son diecinueve.
+sección son veinte.
 
 ---
 
@@ -542,7 +542,7 @@ plan de verificación serio tiene las dos columnas.
   nunca se cubre **no salieron de un tutorial**: salieron de escribir esta
   sección sobre el VTALU del curso y mirar por qué no daba
 - Todo lo de acá corre en Verilator, sin licencias, con el mismo `run.sh` de los
-  otros treinta y tres ejemplos
+  otros treinta y siete ejemplos
 
 Note:
 Vale ser explícito con el grupo sobre de dónde sale cada cosa, porque es parte de

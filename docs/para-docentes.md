@@ -77,7 +77,7 @@ Las tres piezas dependen de que el capstone esté hecho, así que sólo funciona
   al que entendió del que copió el patrón del primer capstone.
 
 Los cuatro **apéndices** del día 7 —de la VTALU a un bus real, la caja de
-herramientas de debug, las diecinueve trampas mudas y el glosario— no ocupan hora
+herramientas de debug, las veinte trampas mudas y el glosario— no ocupan hora
 de clase: se dan como **lectura**, porque el curso tiene libro. `libro/dia7.html`
 es el mismo material para leer de corrido, con las notas del instructor adentro
 del texto. Los apéndices de debug y de trampas se leen antes del capstone; se
@@ -182,7 +182,7 @@ npm run check       # el banco de examen y el deck, al día con slides/
 ```
 
 `make ejercicios` **no** comprueba que un alumno haya resuelto algo: comprueba
-que los catorce sigan siendo resolubles cuando se toca el código del curso. Es la
+que los quince sigan siendo resolubles cuando se toca el código del curso. Es la
 red que hay que correr después de adaptar un ejercicio.
 
 `make regresion` es el ejercicio [`d6-semillas`](../code/ejercicios/d6-semillas/)

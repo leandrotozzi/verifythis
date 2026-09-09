@@ -4,8 +4,8 @@
 #   bash run.sh              with your files
 #   SOLUCION=1 bash run.sh   with the ones in solucion/, to compare
 #
-# The TB is the whole one from the The whole env section; from here come the package, the env with the
-# checker, and the two files you have to write.
+# The TB is the whole one from the "The whole env" section; from here come the
+# package, the env with the checker, and the two files you have to write.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
 INC=${SOLUCION:+ +incdir+solucion}

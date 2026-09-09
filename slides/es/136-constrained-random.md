@@ -4,7 +4,7 @@
 
 - La cobertura funcional del testbench convencional te dice **qué falta**. No te dice cómo
   llegar: eso es el estímulo
-- Escribir un test dirigido por cada bin no escala — son 73 en el VTALU, y un
+- Escribir un test dirigido por cada bin no escala — son 76 en el VTALU, y un
   chip de verdad tiene miles
 - La receta de la industria es al revés: **random para el grueso, dirigido para
   los agujeros**. Y el random tiene que ser *legal*, o el DUT se queja de cosas
@@ -58,7 +58,7 @@ tiempo de simulación, `randomize()` devuelve 0, y **si nadie chequea el valor d
 retorno la clase queda con los valores que tenía**. El testbench sigue andando y
 manda basura.
 La regla que se lleva de acá, y que el curso cumple en todo `code/`: un
-`randomize()` va siempre adentro de un `if` o de un `assert`. Nunca suelto.
+`randomize()` va siempre adentro de un `if` que chequee el retorno. Nunca suelto.
 
 ---
 
@@ -104,9 +104,9 @@ un `dist`, corré un histograma antes de creerle.
 
 ```sh
 $ cd code/u6/transactions/constraints && bash run.sh
-400 randomizaciones de cada version
-  :=   A=00   0.2%   A=FF   0.2%   el peso va a cada valor
-  :/   A=00  23.2%   A=FF  27.0%   el peso se reparte
+400 randomizations of each version
+  :=   A=00   0.2%   A=FF   0.2%   the weight goes to each value
+  :/   A=00  23.2%   A=FF  27.0%   the weight gets split
 ```
 
 Note:
@@ -146,7 +146,7 @@ de cada cuatro, o sea 1/4 × 1/4 × 1/4 = **1 de cada 64**, que en 400 intentos 
 seis y pico. Con el `dist` mal escrito de la slide anterior, la probabilidad de
 que las dos patas caigan en `FF` es 1/65536 por operación: no lo tocás nunca.
 La secuencia mental es siempre la misma: corro random, miro qué bin quedó vacío,
-escribo un `with {}` de tres líneas, vuelvo a correr. Nunca "escribo 73 tests".
+escribo un `with {}` de tres líneas, vuelvo a correr. Nunca "escribo 76 tests".
 La limitación de Verilator que aparece en la salida está puesta a propósito, y
 conviene enunciarla bien porque no es "anda o no anda". Verilator resuelve el
 `dist` **eligiendo un valor concreto primero** y recién después chequea el resto:
@@ -207,9 +207,9 @@ va donde hace falta y no por costumbre.
 {{code:code/u6/transactions/constraints/03_solve.sv|lines=10-25}}
 
 ```sh
-2000 randomizaciones de cada version
-  tal cual              es_reset=1 en   0.3%   (1 de cada 257)
-  con dist en es_reset  es_reset=1 en  51.7%
+2000 randomizations of each version
+  as written             es_reset=1 in   0.3%   (1 in 257)
+  with dist on es_reset  es_reset=1 in  51.7%
 ```
 
 - Verilator 5.052 **acepta `solve ... before` y no lo respeta**: deja el campo
@@ -238,9 +238,9 @@ confíes en que salga parejo. Medilo.
 {{code:code/u6/transactions/constraints/04_falla.sv|lines=8-32}}
 
 ```sh
-1. randomize() devolvio 0: las constraints no cierran
-2. con 'grande' apagada: A=06, y respeta 'chico'
-3. con A fuera del sorteo: A=06, el mismo de antes
+1. randomize() returned 0: the constraints do not close
+2. with 'grande' turned off: A=06, and it honours 'chico'
+3. with A out of the draw: A=06, the same as before
 ```
 
 - `constraint_mode(0)` apaga **una constraint** en tiempo de ejecución;
@@ -346,8 +346,8 @@ arranca en cero.
   dan un `randomize()` que devuelve 0
 - `dist` pone **pesos**, no legalidad. Y `:=` no es `:/`: el primero pesa **cada
   valor** del rango, el segundo **el rango entero**
-- `randomize()` devuelve 0 y sigue. Por eso va **siempre** adentro de un
-  `assert()` — es la trampa muda más cara del curso
+- `randomize()` devuelve 0 y sigue. Por eso va **siempre** adentro de un `if`
+  con `` `uvm_fatal `` — es la trampa muda más cara del curso
 
 Note:
 El último bullet es el que hay que dejar grabado y el que conecta con el

@@ -27,7 +27,7 @@ falta() { echo "not yet: $1" >&2; exit 1; }
 # topic. It is the only thing this checker looks at in your file.
 grep -q 'randomize()' "${SOLUCION:+solucion/}cierre_sequence.svh" ||
   falta "your cierre_sequence does not call randomize(): the exercise asks for the
-    dirigido con randomize() with {}, no asignando A, B y op a mano."
+    directed case with randomize() with {}, not by assigning A, B and op by hand."
 
 cg() { verilator_coverage "$1" 2>/dev/null | sed -nE 's/.*covergroup *: *([0-9.]+)% *\( *([0-9]+)\/.*/\2 \1/p'; }
 
@@ -51,9 +51,9 @@ maxmul=$(sed -nE 's/.*\[CHEQUEO\].*maxmul=([0-9]+).*/\1/p' "$VLT_LOG" | tail -1)
 
 if [ "$maxmul" -lt 1 ]; then
   falta "not a single FF x FF in mul_op went through the bus.
-    If randomize() returned 0, it is the dist hole: with the data constraint
-    reparto activa, Verilator elige el valor ANTES de mirar tu with. Apagala
-    turned off for this object -- one line, and it is in the Constrained random section."
+    If randomize() returned 0, it is the dist hole: with the data-spread constraint
+    enabled, Verilator picks the value BEFORE looking at your with. Turn it off for
+    this object -- one line, and it is in the Constrained random section."
 fi
 [ "$bins_despues" -gt "$bins_antes" ] ||
   falta "coverage did not go up: $bins_antes bins before, $bins_despues after"

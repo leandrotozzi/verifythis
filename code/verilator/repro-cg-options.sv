@@ -60,7 +60,7 @@ module top;
   // 0.05 of slack: the numbers are ratios of small integers (2/64 = 3.125),
   // not values to compare bit for bit.
   function automatic void check(string what, real got, real want);
-    $display("  %-28s %6.2f %%   (esperado %0.2f)", what, got, want);
+    $display("  %-28s %6.2f %%   (expected %0.2f)", what, got, want);
     if (got < want - 0.05 || got > want + 0.05)
       $fatal(1, "%s: %0.2f, esperaba %0.2f", what, got, want);
   endfunction

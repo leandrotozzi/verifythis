@@ -1,4 +1,4 @@
-<!-- es-sha: f2af0fb9dafb -->
+<!-- es-sha: 0f3503997186 -->
 ## The factory pattern
 
 #### *Who decides the type?*
@@ -18,7 +18,7 @@ Note:
 The sentence that orders the unit: **whoever uses the object stops being the one who picks
 the type**. Everything else is implementation detail.
 It is worth saying up front where this ends, because otherwise it looks like a programming
-detour: the `+UVM_TESTNAME=add_test` of the tests was already a factory —
+detour: the `+UVM_TESTNAME=add_test` of the tests, tomorrow, is going to be a factory —
 UVM reads a string from the command line and builds the class that corresponds.
 Here you see the mechanism from the inside.
 And for whoever comes from software: yes, it is the GoF Factory Method, and we
@@ -154,9 +154,9 @@ programming, and you can go and read about it outside the EDA world.
 
 Note:
 Closing of the most abstract section of day 2, and it is worth landing it with what
-they have already seen: the `+UVM_TESTNAME=add_test` of the tests **was already a factory** —
+is coming: the `+UVM_TESTNAME=add_test` of the tests **is a factory** —
 UVM reads a string from the command line and builds the class that corresponds.
-Here they saw the mechanism from the inside.
+Here they saw the mechanism from the inside, a day early.
 The sentence that sums up the whole section: **whoever uses the object stops being the
 one who picks the type.** Everything else is implementation detail.
 And for whoever comes from software: it is the GoF Factory Method, from 1994, and in

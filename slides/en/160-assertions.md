@@ -1,4 +1,4 @@
-<!-- es-sha: 3ef60d67a219 -->
+<!-- es-sha: 0e951e495f0e -->
 ## Assertions (SVA)
 
 #### *The hole the scoreboard left*
@@ -9,8 +9,8 @@
   `done` one cycle early, or raises it on a `no_op`, **passes every test of the
   course**
 - The rule of the protocol is written in three places: in prose in the spec,
-  inside the BFM in interfaces and BFM, and in the head of whoever wrote it. In **none** of
-  the three is it checked
+  inside the BFM, and in the head of whoever wrote it. In **none** of the
+  three is it checked
 - An **assertion** is that same sentence, in executable form, running on its own the whole
   simulation
 
@@ -38,7 +38,7 @@ testbench does not cover.
 // IMMEDIATE: it is a STATEMENT. It runs when the thread goes past it,
 // once, and that is all. The one from the transactions is of this family.
 assert (cmd.op inside {add_op, and_op, xor_op, mul_op})
-   else `uvm_error("SEQ", "operacion invalida");
+   else `uvm_error("SEQ", "invalid operation");
 
 // CONCURRENT -- the new thing. It is a DECLARATION with a clock: it gets
 // plugged in when the simulation starts and evaluated on every edge, forever.
@@ -174,7 +174,7 @@ they need a clock to know what "previous" means.
 
 #### *The property that is worth the section*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=152-164}}
+{{code:code/u8/assertions/vtalu_bfm.sv|lines=154-166}}
 
 - It is **the rule of slide 1 of day 1**: while `start` is up, the
   operands are not touched. It sat written in prose for six days
@@ -201,7 +201,7 @@ curiosity that gets cleared up on the next slide. Somebody is going to ask first
 
 #### *⚠ Two clocks: an assertion is worth what its sampling is worth*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=138-150}}
+{{code:code/u8/assertions/vtalu_bfm.sv|lines=140-152}}
 
 | With a single clock | Over 1000 operations |
 | --- | --- |
@@ -237,7 +237,7 @@ which is the hard part.
 
 #### *Variable latency, in one line*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=168-185}}
+{{code:code/u8/assertions/vtalu_bfm.sv|lines=170-187}}
 
 - `##[1:5] done` says *"between one and five edges later"*. The VTALU takes **one**
   on `add`/`and`/`xor` and **four** on the multiplication: one property covers
@@ -340,7 +340,7 @@ a : assert property (p);
 
 // What you want in UVM: the failure counts and the simulation goes on
 a : assert property (p)
-    else `uvm_error("SVA", $sformatf("%m: operando cambiado"));
+    else `uvm_error("SVA", $sformatf("%m: operand changed"));
 ```
 
 - Without an `else`, the default action of an assertion that fails is `$error` —and in
@@ -372,7 +372,7 @@ instead of the one of the library.
 
 #### *Every assertion goes with its `cover property`*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=187-195}}
+{{code:code/u8/assertions/vtalu_bfm.sv|lines=208-215}}
 
 ```text
 covergroup : 86.8% (66/76)
@@ -440,7 +440,7 @@ as an anecdote.
 
 #### *The example of the section: the bug the scoreboard does not see*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=112-124}}
+{{code:code/u8/assertions/vtalu_bfm.sv|lines=114-126}}
 
 ```text
 ** Report counts by severity        ** Report counts by id
@@ -494,7 +494,7 @@ property`. If the cover is at zero, either the property does not run, or its ant
 occur. In both cases you have to go and look, and in both cases the `assert` on its own
 would have said that everything is fine.
 These four are added to the appendix of the silent traps, which from this
-section on are nineteen.
+section on are twenty.
 
 ---
 
@@ -543,7 +543,7 @@ serious verification plan has both columns.
   never gets covered **did not come out of a tutorial**: they came out of writing this
   section on the VTALU of the course and looking at why it did not add up
 - Everything here runs on Verilator, without licences, with the same `run.sh` as the
-  other thirty-three examples
+  other thirty-seven examples
 
 Note:
 It is worth being explicit with the group about where each thing comes from, because it is part of

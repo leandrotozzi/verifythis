@@ -155,7 +155,7 @@ interface vtalu_bfm;
 
    // --- The DUT's answer ---
 
-   // The variable latency of the The VTALU spec section in one line: one cycle for the
+   // The variable latency of the "VTALU spec" section in one line: one cycle for the
    // one-cycle ops, four edges for the multiplication.
    property p_done_llega;
       @(posedge clk) start && (op_set != no_op) |-> ##[1:5] done;

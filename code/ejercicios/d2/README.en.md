@@ -1,4 +1,4 @@
-<!-- es-sha: 9a89445f8e37 -->
+<!-- es-sha: 6dfe98909f41 -->
 # Day 2 — a tester that only multiplies, without touching the one already there
 
 The testbench is the object-oriented one from the object-based testbench. Today `tester` sends
@@ -21,6 +21,11 @@ Done when `bash run.sh` prints `EXERCISE OK`.
 bash run.sh              # with your files
 SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 ```
+
+## How long it takes
+
+It does not use UVM —the testbench is the object-oriented one, without the
+library—: it compiles and runs in **seconds**.
 
 ## What it practises
 

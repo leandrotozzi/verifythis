@@ -2,7 +2,7 @@
      NO editar a mano: la fila se corrige en la slide y esto se regenera con
      `npm run build`. `npm run check` falla si quedo viejo. -->
 
-# The 19 silent traps of UVM
+# The 20 silent traps of UVM
 
 Everything that **compiles, runs and lies**: the mistakes of a UVM testbench that
 give no warning, do not leave the regression in red, and get discovered weeks later —
@@ -30,7 +30,7 @@ morning, and a slide cannot be googled.
 
 | The symptom | The cause | How to head it off | Section |
 | --- | --- | --- | :-- |
-| The subscriber counts **0** and the monitor prints 1000 | the `connect()` in the `connect_phase` is missing | grade it crosswise: against what the one that already worked says | Analysis ports · d4 |
+| The subscriber counts **0** and the monitor prints 1000 | the `connect()` in the `connect_phase` is missing | cross-check it: against what the one that already worked says | Analysis ports · d4 |
 | The monitor **never publishes**, and the scoreboard screams | `bfm.command_monitor_h = this` is missing in the `build_phase` | the `uvm_fatal` shows up in the class that is **not** to blame | Analysis ports |
 | The copy **loses the fields of the mother** | a `do_copy()` that does not call `super.do_copy(rhs)` | every `do_copy()` calls the one above first | Hierarchies |
 | Two different transactions **compare equal** | `super.do_compare()` called on a loose line and thrown away | chained with `&&`, never loose | Transactions |
@@ -43,6 +43,7 @@ morning, and a slide cannot be googled.
 | The `randomize()` **does not run** with the asserts switched off | `assert(x.randomize())` — `assert` is a simulation directive | `if (!x.randomize()) uvm_fatal(…)` | Constrained random |
 | Under the override, **some** transactions are of the old type | a `new()` where a `type_id::create()` belonged | what goes through the factory is what gets created with `create()` | Transactions |
 | **Both agents** start up the same | two `set()` with scope `"*"`: the second overwrites the first | the scope is the **path** of the one that reads, with `*` at the end | Agents · d6 |
+| The agent starts up **active** even though you set `is_active` in the `config_db` | the missing `super.build_phase()`: the one that reads it is `uvm_agent` | either a config object, or `super` — never half of each | Agents |
 | The simulation **never ends** | an `item_done()` that was not called | `+UVM_TIMEOUT=5ms` first, the trace after | Agents |
 | It ends at **t=0** and says PASS | nobody raised the objection around the sequence | `+UVM_OBJECTION_TRACE` | Sequences |
 

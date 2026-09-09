@@ -7,8 +7,11 @@
 // T3  ([3'b001:3'b100] => 3'b111) %Error: Internal Error: Null item passed to setOp1p
 // T4  ([add_op:mul_op] [* 2])     %Error: Transition set without items
 //
-// With no -D at all it compiles and runs: the value bins get measured and
-// verilator_coverage reports the "covergroup" line.
+// With no -D at all it compiles and runs: the value bins get measured and the
+// coverage tool reports the "covergroup" line. (The tool's name does not go at
+// the start of a comment line: a comment that BEGINS with "verilator_" is read
+// as a malformed meta-comment and 5.052 aborts with %Error-BADVLTPRAGMA. This
+// file did not compile for exactly that reason until 'make repros' existed.)
 //
 // What 5.052 still does not do:
 //   - transition bins (above)

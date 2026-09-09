@@ -23,7 +23,7 @@ La segunda idea, que es la que cuesta: los mensajes de debug **no se borran**. U
 el día que lo necesitás está ahí. Que el ejercicio del día 5 se resuelva subiendo
 la verbosidad no es casualidad — está armado para que lo vivan.
 Y la distinción de la última línea conviene anotarla en el pizarrón de entrada,
-porque es la pregunta 1 del repaso: verbosidad e info por un lado, actions y
+porque es la pregunta 6 del repaso: verbosidad e info por un lado, actions y
 error/warning/fatal por el otro. Nunca se cruzan.
 
 ---
@@ -185,8 +185,8 @@ if (clp.get_arg_value("+COUNT=", valor)) count = valor.atoi();
 - Es un **singleton**: `get_inst()` desde cualquier clase, sin construir nada y
   sin pasarlo por el `config_db`
 - `get_arg_value` devuelve **cuántas veces apareció** el argumento, no el valor:
-  el valor sale por el `ref`. Si apareció dos veces, avisa — `$value$plusargs` se
-  queda callado con el primero
+  el valor sale por el `ref`. Si apareció dos veces te enterás — `$value$plusargs`
+  se queda callado con el primero
 - Y están `get_args()`, `get_plusargs()` y `get_uvm_args()`, que devuelven la
   línea de comandos entera en un queue: es como se imprime en qué condiciones
   corrió una regresión de hace tres meses
@@ -203,8 +203,9 @@ que convierte un log viejo en algo reproducible. Sin eso, el log dice qué pasó
 pero no con qué se corrió, y una regresión de hace tres meses no se puede repetir.
 La diferencia del segundo bullet vale una anécdota: dos `+COUNT=` en la misma
 línea —porque el script los agrega y el usuario también— es un caso real, y
-`$value$plusargs` toma uno sin decir cuál. El `uvm_cmdline_processor` devuelve 2
-y emite un warning. Es la clase de cosa que se paga una vez y se recuerda.
+`$value$plusargs` toma uno sin decir cuál. El `uvm_cmdline_processor` devuelve 2,
+así que al menos te podés dar cuenta. Es la clase de cosa que se paga una vez y
+se recuerda.
 
 ---
 
@@ -257,9 +258,9 @@ subir el techo **todavía no existe** —lo construye su padre más abajo— y l
 llamada no encuentra a nadie. Si va en el `run_phase`, la simulación ya arrancó y
 te perdiste los mensajes de las fases anteriores.
 `end_of_elaboration_phase` es exactamente el hueco entre las dos cosas: el árbol
-completo, y el tiempo todavía en cero. Es la primera vez en el curso que una de
-las cuatro fases "que existen y están vacías" sirve para algo, y vale decirlo
-así — no estaban de adorno en la tabla del día 3.
+completo, y el tiempo todavía en cero. Es la primera vez en el curso que se usa
+para algo, y vale decirlo así — en la tabla de las nueve fases del día 3 no
+estaba de adorno.
 El sufijo `_hier` es el que se olvida, y falla en silencio: fijás el techo del
 `env` sin `_hier`, el `env` no imprime nada de todos modos, y el monitor que
 querías escuchar sigue callado. Regla práctica: si apuntás a una rama, `_hier`;
@@ -348,8 +349,8 @@ exactamente igual de roto que hace dos slides. Ésa es la razón de que un
 `UVM_NO_ACTION` no pueda sobrevivir a un commit — es una trampa muda, y está en
 el apéndice.
 El scoreboard de esta sección suma de más A PROPÓSITO, es el bug que estamos
-mostrando. Por eso `code/u4/reporting/run.sh` es el único ejemplo del repo que exporta
-UVM_ERRORS_OK=1: en todos los demás, un uvm_error hace fallar la corrida.
+mostrando. Por eso `code/u4/reporting/run.sh` exporta UVM_ERRORS_OK=1: por
+defecto un uvm_error hace fallar la corrida, y acá el error es el ejemplo.
 
 ---
 
@@ -385,7 +386,7 @@ Es la respuesta correcta a la slide anterior, y la diferencia es de honestidad,
 no de sintaxis. `UVM_NO_ACTION` sobre el scoreboard apaga el error y el log queda
 idéntico al de un testbench sano: nadie que lea ese log se entera. El catcher
 degrada **ese** mensaje, deja pasar todos los demás, y encima lo cuenta en una
-línea propia del *Report Summary*. Un revisor que abre el log ve que hubo un
+línea propia del *UVM Report catcher Summary*. Un revisor que abre el log ve que hubo un
 error y que alguien decidió que estaba bien.
 Cuándo se usa de verdad: en los tests negativos, que son la mitad de un plan de
 verificación serio. Escribir en un registro de sólo lectura tiene que dar
@@ -420,7 +421,7 @@ Cerrar el día volviendo al 47 %: de todo lo que se vio hoy —tests, components
 fases, env— ésta es la sección que se usa **todos los días**, y la única que se
 nota cuando falta. Un testbench sin reporting funciona igual; debuggearlo cuesta
 el doble.
-La pregunta de control, que además es la 1 del repaso: *"bajé el techo de
+La pregunta de control, que además es la 6 del repaso: *"bajé el techo de
 verbosidad y el `` `uvm_error `` sigue apareciendo, ¿por qué?"*. Si el grupo la
 contesta sin dudar, la sección cerró.
 Y el aviso para el ejercicio del día 5, que conviene dar ahora y no cuando estén

@@ -1,5 +1,5 @@
-<!-- es-sha: 9a5e501cdfd3 -->
-# Day 6 ·sequences — the tester of day 3, now as a sequence
+<!-- es-sha: cbc690a98b32 -->
+# Day 6 · sequences — the tester of day 3, now as a sequence
 
 The testbench is the whole one from sequences: agent, sequencer, driver, monitors,
 coverage and scoreboard. **None of that has to be touched.** The only thing missing is
@@ -11,7 +11,8 @@ the stimulus.
    - first sends a `rst_op`;
    - then sends **20 multiplications** with `A` and `B` at random;
    - counts how many it sent and keeps the **largest result** it saw;
-   - prints at the end of `body()`, with verbosity `UVM_NONE`:
+   - prints at the end of `body()`, with verbosity `UVM_NONE` and the id
+     `MULT SEQ`:
 
      ```
      items=<n> max=<m>

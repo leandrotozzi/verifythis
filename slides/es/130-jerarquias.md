@@ -155,7 +155,7 @@ conviene que la pregunta quede planteada.
 
 #### *`do_copy()`: cada clase toca lo suyo*
 
-*do_copy():* Cada clase en la jerarquía, debe llamar a su clase superior, por lo tanto, todos los métodos do_copy() necesitan el mismo tipo de argumento Pero tenemos clases distintas... Usamos *polimorfismo*
+*do_copy():* Cada clase en la jerarquía, debe llamar a su clase superior, por lo tanto, todos los métodos do_copy() necesitan el mismo tipo de argumento. Pero tenemos clases distintas... Usamos *polimorfismo*
 
 {{code:code/u6/jerarquias/pre_copy2.sv|lines=24-45}}
 

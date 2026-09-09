@@ -1,4 +1,4 @@
-<!-- es-sha: 8bd1c74ac5d4 -->
+<!-- es-sha: 17a5d3509bb9 -->
 ## Exercise · Day 1 · 1 of 2
 
 #### *A new operation, end to end*
@@ -10,7 +10,8 @@
   teach the TB that it has to verify it too
 - It gets touched in **three** places: the RTL, the stimulus with its check, and **the
   measure** — the bin that does not exist today
-- The `run.sh` fails until it prints `EXERCISE OK`; the solution is right next to it
+- The `run.sh` fails until it prints `EXERCISE OK` **and the report closes with
+  77 covered bins**; the solution is right next to it
 
 Note:
 Half an hour, and it is worth leaving them alone: the statement and the README are enough.
@@ -21,7 +22,11 @@ is going to accuse them. It is warned about in the README, and it still happens.
 The third step is the most skipped one and the only one that fails **silently**:
 `bins single_cycle[]` covers the range `[add_op : xor_op]`, which reaches up to
 `3'b100`. `shr_op` falls outside every bin, the simulation passes green and
-the coverage does not move. There is the lesson that holds for the rest of the course:
-an opcode nobody measures is an opcode nobody verified.
-With the solution the coverage goes from 86.8 % to 100 %. Worth showing the number
-before and after: it is the whole argument of the morning in two lines of the report.
+— here is the worst part — the report still says **100 %**: 76 out of 76. The
+missing bin does not lower the percentage because it never made it into the
+denominator. There is the lesson that holds for the rest of the course: an opcode
+nobody measures is an opcode nobody verified, and the percentage is precisely the
+metric that cannot see it.
+With the solution it is 77 out of 77, starting from 86.8 % (66 out of 76). Worth
+showing both numbers and not only the percentage: that is why the `run.sh` demands
+the bin count and not 100 %, which a half-done job reaches too.

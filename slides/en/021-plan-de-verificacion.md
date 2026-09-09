@@ -1,4 +1,4 @@
-<!-- es-sha: 78baafce6724 -->
+<!-- es-sha: c23daafc34c1 -->
 ## The verification plan
 
 #### *The most professional deliverable of the discipline, and the cheapest*
@@ -66,5 +66,5 @@ The third bullet is a promise the course keeps on day 7: until then
 every check is a scoreboard check, and half the protocol goes unchecked.
 Worth saying now so that day 7 does not look like an add-on.
 A serious plan has both columns, and the VTALU table —which is seen whole in
-the next unit, already with the bins— has six scoreboard rows and three
+the next unit, already with the bins— has seven scoreboard rows and three
 assertion ones.

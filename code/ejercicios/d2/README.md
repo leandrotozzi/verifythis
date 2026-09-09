@@ -21,6 +21,11 @@ bash run.sh              # con tus archivos
 SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
 ```
 
+## Cuánto tarda
+
+No usa UVM —el testbench es el orientado a objetos, sin la librería—: compila y
+corre en **segundos**.
+
 ## Lo que practica
 
 Herencia, polimorfismo y `virtual` sobre el testbench en objetos.

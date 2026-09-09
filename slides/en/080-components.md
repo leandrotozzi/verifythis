@@ -1,4 +1,4 @@
-<!-- es-sha: e2133b823a46 -->
+<!-- es-sha: d4c925520e1b -->
 ## Components and phases
 
 #### *A component is what is in the tree, and the tree is walked by UVM*
@@ -70,30 +70,43 @@ function void uvm_component::connect_phase(uvm_phase phase);
 endfunction
 ```
 
-- `build_phase` is the **only** phase that does anything in `uvm_component`: it walks the
-  `uvm_config_db` and assigns on its own the fields you registered with `` `uvm_field_* ``
-- The course **does not use those macros** —the fields get read by hand with
-  `uvm_config_db::get()`—, so there is nothing to apply. That is why no
-  `build_phase` in `code/` calls `super`: **it is not an oversight**
-- The moment a `` `uvm_field_int `` shows up in your project, it becomes
-  mandatory: without it the automatic config does not happen, the field stays at its
+- `build_phase` is the **only** phase that does anything in `uvm_component`: it applies
+  the fields registered with `` `uvm_field_* ``. The course does not use those macros
+- Careful, there are **two different `super`s**: that one, and the one of a base
+  class of **yours**, which builds what you wrote. The second one the course **does** call
+- Out there: **always put it in, unless you can name why in your case it is a
+  no-op**. Adding it costs nothing; skipping it when it mattered —a
+  `` `uvm_field_* ``, or inheriting from `uvm_agent`— leaves the field at its
   default and **nobody warns you**
 - And the order matters: whatever has to be decided *before* the children get
-  built goes before the `super`. The `set_type_override` of
-  `add_test` (the transactions) is exactly that
+  built goes before the `super`. The `set_type_override` of `add_test` is that
 
 Note:
 This slide exists because the student is going to see `super.build_phase(phase)` in every
-piece of material on the internet and in the code of the course it is not there. The honest answer is not
-"they forgot": it is that without the field macros the call does nothing.
-And take the chance to name the underlying difference: there are two ways of configuring a
-component. The automatic one (`` `uvm_field_* `` + config_db, magic by macros) and the
-manual one (`uvm_config_db::get()` in the build_phase, which is the one the course uses).
-The manual one is more code and vastly easier to debug — the field macros
-generate hundreds of lines you are never going to read.
-If somebody asks why the other phases usually get called anyway: habit and
-cheap insurance. In `uvm_component` they are `return;`, but if tomorrow you inherit from
-an intermediate class that does implement them, the call is already there.
+piece of material on the internet and in most of the course's `build_phase` it is not
+there. The honest answer is not "they forgot": it is that without the field macros the
+call to `uvm_component`'s does nothing.
+The numbers, so that nobody has to take our word for it:
+`grep -rn 'super\.build_phase' code/` gives eleven real calls —plus three comments
+that talk about them— over 122 `build_phase`. Those eleven call the `super` of a
+`base_test` or a `random_test` of **ours**, which builds the env. None of them calls
+`uvm_component`'s, which is what the slide is about.
+The other underlying difference: there are two ways of configuring a component. The
+automatic one (`` `uvm_field_* `` + config_db, magic by macros) and the manual one
+(`uvm_config_db::get()` in the build_phase, which is the one the course uses). The
+manual one is more code and vastly easier to debug — the field macros generate
+hundreds of lines you are never going to read.
+Why the recommendation for out there is the opposite of what the course does: the
+failure mode is asymmetric. Putting it in for nothing has zero effect. Leaving it out
+when it was needed is silence: the field stays at its default and the simulation runs.
+This course can name why in its case it is a no-op —there is not a single
+`` `uvm_field_* `` macro in `code/`, check it—; whoever walks into somebody else's
+testbench cannot. `uvm_agent` is the counterexample we have at hand: it is the only
+class in the library, besides `uvm_component`, that implements `build_phase`, and what
+it does there is read `is_active`. It comes back on day 6.
+The same goes for the other phases, cheaper still: in `uvm_component` they are
+`return;`, but `uvm_driver::end_of_elaboration_phase` checks that the `seq_item_port`
+is connected, and that one we do extend.
 
 ---
 
@@ -111,7 +124,7 @@ an intermediate class that does implement them, the call is already there.
 | `extract_phase` | gather the data of the run | bottom-up |
 | `check_phase` | decide whether it passed or not | bottom-up |
 | `report_phase` | print the verdict | bottom-up |
-| `final_phase` | close files and exit | bottom-up |
+| `final_phase` | close files and exit | top-down |
 
 - The course uses five. The other four exist, they are empty, and you are going to see them
 
@@ -126,9 +139,10 @@ way; and `report_phase` is the one they have already seen.
 That `extract` / `check` / `report` are separate has a concrete reason: they are
 bottom-up, so a child scoreboard finishes extracting before the parent env
 decides. If you do the three things in `report_phase`, you lose that guarantee.
-The question that orders the table: why is `build_phase` the only top-down one?
-Because a parent has to exist in order to create its children. All the others
-need the opposite — that the children are already there.
+The question that orders the table: why is `build_phase` top-down?
+Because a parent has to exist in order to create its children. The ones in the
+middle need the opposite — that the children are already there. The other
+top-down one is `final_phase`, which closes the tree in the same order it was built.
 
 ---
 
@@ -261,14 +275,17 @@ line of `set_type_override_by_type`.
 - Components get instantiated **in the `build_phase` and nowhere else**
 - Every `run_phase` runs **in parallel**, each one in its thread. None of them
   decides on its own when the simulation ends: that is the **objections**
-- `build_phase` is the only phase that does anything in `uvm_component`, and that is why it is
-  the only one where `super.build_phase()` changes the behaviour
+- There are **two `super.build_phase()`**: `uvm_component`'s and your base class's.
+  **Always put it in, unless you can name why in your case it is a no-op**
 
 Note:
 The unit that turns the testbench into something UVM can walk, and with that
 the tools that did not exist before show up: `print_topology()` shows the
 tree, and the `uvm_config_db` can use paths because now there are paths.
 The `super.build_phase()` deserves the pass we gave it because it is the most
-repeated question in the forums: not calling it switches off the automatic assignment of the
-fields registered with `` `uvm_field_* ``. This course does not use them, so it does not call it —
-but what is not valid is doing half of each.
+repeated question in the forums. What has to be said out loud is the asymmetry: not
+calling it switches off the automatic assignment of the fields registered with
+`` `uvm_field_* ``, and that does not give an error, it gives a default. This course
+does not use those macros and that is why it can skip it; the student who lands in
+somebody else's testbench does not know whether they can, so they put it in. What is
+not valid is doing half of each.

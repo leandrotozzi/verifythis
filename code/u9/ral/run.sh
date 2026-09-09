@@ -45,7 +45,7 @@ fi
 
 echo
 echo "=== the model is the spec ==="
-echo "    CTRL.CLR como \"WOC\"  0 UVM_ERROR"
+echo "    CTRL.CLR as   \"WOC\"  0 UVM_ERROR"
 echo "    CTRL.CLR as \"RW\"    $errores UVM_ERROR, from uvm_reg_bit_bash_seq"
 grep -m1 'UVM_ERROR.*uvm_reg_bit_bash_seq' "$VLT_LOG" | sed 's/.*\] //; s/^/    > /'
 echo

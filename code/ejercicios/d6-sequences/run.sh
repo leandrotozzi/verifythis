@@ -24,8 +24,8 @@ if grep -q "\[INVTST\]" "$VLT_LOG"; then
 fi
 if grep -q "\[PH_TIMEOUT\]" "$VLT_LOG"; then
   falta "the simulation stopped advancing. Two causes, in order of likelihood:
-    1) the first item of your sequence is not a rst_op, and without a reset the DUT never
-       levanta done: el driver se queda esperando;
+    1) the first item of your sequence is not a rst_op, and without a reset the DUT
+       never raises done: the driver stays waiting;
     2) you are missing the finish_item() of one of the items."
 fi
 
@@ -47,7 +47,7 @@ busmax=$(sed -nE 's/.*\[CHEQUEO\].*max=([0-9]+).*/\1/p'   "$VLT_LOG" | tail -1)
   falta "you counted $items items and $muls went through the bus"
 [ "$tumax" = "$busmax" ] ||
   falta "your max is $tumax and the bus one is $busmax: check whether you are reading
-    command.result DESPUES de que volvio finish_item()"
+    command.result AFTER finish_item() came back"
 
 uvm_summary_ok "$VLT_LOG" ||
   falta "the Report Summary counts errors: look at the log above"

@@ -45,7 +45,7 @@ qué se copió.
 **Constrained random y sequences virtuales.** Dos temas que el libro no cubre.
 
 **Se evalúa.** 45 preguntas de repaso con explicación, 15 ejercicios con solución
-que compilan y corren, y un apéndice de **diecinueve trampas mudas** —todo lo que
+que compilan y corren, y un apéndice de **veinte trampas mudas** —todo lo que
 compila, corre y miente— que sale de haber corregido esos ejercicios.
 
 **Está en castellano, y con criterio.** No es una traducción: los sustantivos

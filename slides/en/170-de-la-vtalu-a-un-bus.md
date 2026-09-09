@@ -1,4 +1,4 @@
-<!-- es-sha: 9a280ad692bb -->
+<!-- es-sha: c16462a2cd9e -->
 <!-- .slide: id="apendice-bus" data-machete="res/diagrams/sequences_tb_completo.svg,res/diagrams/agents_agent.svg" -->
 
 ## Appendix · From the VTALU to a real bus
@@ -92,7 +92,7 @@ plug it in passively on somebody else's stimulus —or on a test from the design
 already contributing on the first day.
 If somebody asks where the learning path goes on from here, the
 order that pays off: RAL, then regression with seeds, then the `clocking block`
-and the prefabricated bus properties. SVA is no longer on that list —it is the assertions— and it is worth saying so, because it is the first question of every interview.
+and the prefabricated bus properties. SVA is no longer on that list —it is a whole unit of this course— and it is worth saying so, because it is the first question of every interview.
 And a last one, which is not technical: in a real project the testbench almost always
 already exists. What gets asked for on the first day is not building one, it is **adding a test
 to it** — which is exactly what they practised in the exercises of days 3 and 6.

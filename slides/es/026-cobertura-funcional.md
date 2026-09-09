@@ -29,10 +29,11 @@ Los seis puntos del plan de la sección anterior, traducidos:
 | Del plan | Cómo se mide |
 | --- | --- |
 | Todas las operaciones | `coverpoint op_set` con un bin por operación |
-| Casos border: entradas en 0 y en 1 | `cross` de A, B y la operación |
+| Casos borde: entradas en 0 y en 1 | `cross` de A, B y la operación |
 | Todas las ops después de un reset | bin de transición `rst_op => op` |
 | Mult después de single cycle y viceversa | bin de transición |
 | Cada operación dos veces seguidas | bin de repetición `[* 2]` |
+| Restar de menos: `A < B` y el `ovf` sube | `coverpoint borrow` con el bin `hubo_borrow` |
 
 - Los seis bullets dejan de ser buenas intenciones: cada uno es una línea de
   código, y el simulador te dice cuáles todavía no pasaron
@@ -130,9 +131,9 @@ abajo contestando las tres preguntas de la slide anterior: **qué** se mide (los
 coverpoints), **en qué casilleros** (los bins) y **cuándo** se cuenta (el
 `sample()`, que está más abajo en el mismo archivo).
 Que `multi_cycle` sea un bin solo y `single_cycle[]` sean seis no es simetría
-rota: es el plan de verificación. Las seis operaciones de un ciclo interesan una
-por una; la multiplicación interesa como caso aparte porque es la única que tarda
-más de un ciclo. La forma del covergroup **es** la tabla del plan, y por eso el
+rota: es el plan de verificación. Las seis que no son la multiplicación interesan
+una por una; la multiplicación interesa como caso aparte porque es la única que
+tarda más de un ciclo. La forma del covergroup **es** la tabla del plan, y por eso el
 plan se escribe primero.
 El `` `ifndef VERILATOR `` vale nombrarlo ahora y no esconderlo: esos bins son
 tema del curso, están escritos, y hoy Verilator no los compila. Está en
@@ -201,8 +202,8 @@ el problema es un cross sin filtrar, no un test que falta.
 {{code:code/u2/convencional/vtalu_tb.sv|lines=84-114}}
 
 - `add_00` se lee de corrido: *una suma en la que A **o** B valgan 0x00*
-- `mul_max` es el único con `&&`: pide las **dos** patas en 0xFF, que es el caso
-  de desborde del multiplicador
+- `mul_max` es el único con `&&`: pide las **dos** patas en 0xFF: el **producto
+  máximo**, `FF` × `FF` = `FE01`. No desborda — 8 bits por 8 entran en 16
 - Verilator 5.052 **ignora** `binsof` / `intersect` (`%Warning-COVERIGN`) y mide
   el cross completo: por eso el número no es el de una herramienta comercial
 
@@ -210,7 +211,14 @@ Note:
 Vale leer `add_00` y `mul_max` en castellano, uno detrás del otro, porque la
 diferencia entre `||` y `&&` es la que se copia mal: *"una suma en la que A **o**
 B valgan 0x00"* contra *"una multiplicación con A **y** B en 0xFF"*. El primero
-son dos casos, el segundo es uno solo — y es el que desborda el multiplicador.
+son dos casos, el segundo es uno solo — el **producto máximo**, la esquina de
+arriba del espacio de entrada. Y acá conviene matar el malentendido que viene
+solo, porque es caro: `FF` × `FF` **no desborda nada**. Da `FE01`, que entra
+exacto en los 16 bits de `result` —8 bits por 8 nunca pasan de 16— y por eso el
+DUT fuerza `ovf` a 0 en toda multiplicación: `assign ovf = es_mult ? 1'b0 :
+ovf_1c;`. El bin se llama `mul_max` y no `mul_ovf` justamente por eso: el caso
+vale por ser el máximo del espacio de entrada, no por desbordar. La única
+operación que desborda es la resta, y sólo cuando A < B.
 La honestidad de esta slide es parte del curso, así que conviene decirla y no
 pasarla rápido: el 86,8 % que reporta el ejemplo **no es** el número que daría
 Questa. Verilator ignora el filtro y mide los 36 bins, así que el porcentaje sale
@@ -263,7 +271,7 @@ coverpoint A { option.auto_bin_max = 8; } // 8 casilleros automaticos, no 64
 ```
 
 - **`option.at_least`** es la que más importa: por defecto vale **1**, así que un
-  bin que pasó **una sola vez** ya figura cubierto. El caso border que salió una
+  bin que pasó **una sola vez** ya figura cubierto. El caso borde que salió una
   vez en mil corridas no está verificado, y el 100 % dice que sí
 - **`option.auto_bin_max`** acota los bins automáticos. Sin `{ }` y sin esta
   perilla, un coverpoint de 8 bits no da 256 casilleros: da **64**, repartidos
@@ -278,8 +286,8 @@ Note:
 Ésta es la slide que le pone un asterisco a todos los porcentajes de la unidad, y
 por eso llega recién ahora: `at_least = 1` quiere decir que la herramienta te
 dice **cubierto** con un solo hit. Para un bin que representa un valor de un enum
-está perfecto —o pasó o no pasó—. Para el bin que representa el desborde del
-multiplicador, un hit es una anécdota, no una verificación.
+está perfecto —o pasó o no pasó—. Para el bin que representa el producto máximo
+del multiplicador, un hit es una anécdota, no una verificación.
 La regla de campo, y conviene darla porque la pregunta viene sola: `at_least`
 alto en los bins que representan un caso raro, default en los que representan un
 valor. Subirlo para todo el covergroup no es rigor, es una regresión que no
@@ -308,7 +316,7 @@ Coverage Summary:
 
 - 66 de 76 bins llenos, con 1000 operaciones al azar. Las otras filas del
   resumen salen `0/0`: `--coverage-user` deja afuera la cobertura de código
-- El 27 % que falta **no es un bug**: son los bins que Verilator no mide más los
+- El 13 % que falta **no es un bug**: son los bins que Verilator no mide más los
   que 1000 operaciones al azar no llegaron a tocar
 - El número no es la meta. La pregunta que sirve es **cuál** bin falta: eso te
   dice qué test escribir
@@ -318,9 +326,9 @@ Coverage Summary:
 Note:
 Acá es donde conviene correrlo en vivo y abrir el reporte: el alumno tiene que
 ver que la herramienta le está diciendo qué le falta hacer.
-Y el remate: el ejercicio del día hace exactamente esto. Agregar `sub_op` con
-sus bins lleva la cobertura de 86,8 % a 100 %, y el que la sube es el mismo que
-escribió el test.
+Y el remate: el ejercicio del día hace exactamente esto. Agregar la operación
+nueva del opcode libre con sus bins lleva la cobertura de 86,8 % a 100 %, y el
+que la sube es el mismo que escribió el test.
 
 ---
 
@@ -328,35 +336,37 @@ escribió el test.
 
 #### *El plan de verificación, entero y en una tabla*
 
-| Feature | Escenario | Estímulo | Chequeo | Medida |
-| --- | --- | --- | --- | --- |
-| ALU | las seis operaciones | random | scoreboard | `coverpoint op_set` |
-| ALU | operandos en `00` y en `FF` | `dist` sesgado a los bordes | scoreboard | cross `op_00_FF` |
-| sub | restar de menos: `A < B`, y el `ovf` sube | random | scoreboard, **dos salidas** | bin `hubo_borrow` |
-| mult | desborde: `FF` × `FF` | caso dirigido | scoreboard, 16 bits | bin `mul_max` |
-| reset | operar después de un reset | `rst_op` intercalado | scoreboard | bin `rst_op => op` |
-| mult | una mult después de una de un ciclo | random | scoreboard | bin de transición |
-| ALU | la misma operación dos veces seguidas | random | scoreboard | bin `[* 2]` |
-| protocolo | los operandos no se tocan con `start` arriba | random | assertion | `cover property` |
-| protocolo | `done` llega, y antes de 5 ciclos | random | assertion | `cover property` |
-| protocolo | `no_op` es la única que no contesta | random | assertion | `cover property` |
+| # | Feature | Escenario | Estímulo | Chequeo | Medida |
+|:--:| --- | --- | --- | --- | --- |
+| 1 | ALU | las seis operaciones | random | scoreboard | `coverpoint op_set` |
+| 2 | ALU | operandos en `00` y en `FF` | `dist` sesgado a los bordes | scoreboard | cross `op_00_FF` |
+| 3 | mult | producto máximo: `FF` × `FF` | caso dirigido | scoreboard, 16 bits | bin `mul_max` |
+| 4 | reset | operar después de un reset | `rst_op` intercalado | scoreboard | bin `rst_op => op` |
+| 5 | mult | una mult después de una de un ciclo | random | scoreboard | bin de transición |
+| 6 | ALU | la misma operación dos veces seguidas | random | scoreboard | bin `[* 2]` |
+| 7 | sub | restar de menos: `A < B`, y el `ovf` sube | random | scoreboard, **dos salidas** | bin `hubo_borrow` |
+| 8 | sub | `A == B`: el resultado es 0 y el `ovf` **no** sube | random | scoreboard, dos salidas | bin `sub_00`/`sub_FF` |
+| 9 | ovf | `ovf` no se levanta para ninguna otra operación | random | assertion | `c_ovf` |
+| 10 | protocolo | los operandos no se tocan con `start` arriba | random | assertion | `cover property` |
+| 11 | protocolo | `done` llega, y antes de 5 ciclos | random | assertion | `cover property` |
+| 12 | protocolo | `no_op` es la única que no contesta | random | assertion | `cover property` |
 
 - Las tres columnas de la derecha son **las tres partes del testbench** de esta
   sección. Lo que las ata es el plan, y hasta ahora no lo habías visto junto
-- La fila de la resta es la que obliga al scoreboard a mirar **dos salidas**: si
-  sólo compara `result`, pasa en verde con el `ovf` clavado en cero
-- Las tres últimas filas no las chequea ningún scoreboard: son reglas del
-  **protocolo** y se chequean donde ocurren —las assertions
-- La tabla entera, con el archivo donde vive cada fila y una plantilla vacía para
-  llenar en el capstone: **`docs/plan-de-verificacion.md`**
+- Las dos filas de la resta son las que obligan al scoreboard a mirar **dos
+  salidas**: si sólo compara `result`, pasa en verde con el `ovf` clavado en cero
+- Las **cuatro últimas** no las chequea ningún scoreboard: son reglas de `ovf` y
+  de **protocolo**, y se chequean donde ocurren —las assertions
+- Las doce filas van numeradas igual que en **`docs/plan-de-verificacion.md`**,
+  que además dice en qué archivo vive cada una y trae la plantilla del capstone
 
 Note:
 Ésta es la slide que contesta *"¿y esto para qué?"* del resto del día 1, y
 conviene decir de frente por qué llega recién ahora: las tres columnas de la
 derecha son estímulo, self-checking y cobertura — las tres partes que la unidad
 anterior mostró **sueltas**. El plan es la tabla que las hace una sola cosa.
-La fila que más discusión da es la del desborde, y está buena: `FF` × `FF` es el
-único caso que **no** sale del random en un tiempo razonable, y por eso su
+La fila que más discusión da es la del producto máximo, y está buena: `FF` × `FF`
+es el único caso que **no** sale del random en un tiempo razonable, y por eso su
 columna de estímulo dice *caso dirigido*. Ahí se ve que el plan no sólo mide, y
 también decide qué test hay que escribir. Es el ejercicio `d6-bins`, tres días
 después, con esta misma fila.

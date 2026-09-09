@@ -1,4 +1,4 @@
-<!-- es-sha: 22d8cf7d8010 -->
+<!-- es-sha: 5c18ae0fbc01 -->
 ## A single place that watches the wire
 
 #### *A single place that watches the wire*
@@ -37,7 +37,7 @@ the pieces.
 
 - **`command_monitor`** — watches the start of every operation and publishes what was asked for
 - **`result_monitor`** — watches the `done` and publishes what the DUT answered
-- The **BFM** stops being only signals: it gains two `always` and a handle to each monitor
+- The **BFM** stops being only signals: it gains three `always` and a handle to each monitor
 - The **scoreboard** and the **coverage** stop waiting for edges and get a
   `write()` instead
 - The **`tester`** never finds out about any of it: it goes on sending stimulus just like yesterday
@@ -106,8 +106,9 @@ affects tasks — here the one declaring the task is the class, not the interfac
 
 #### *Monitoring the VTALU commands*
 
-- Two `always` in the BFM, one per monitor: the command one fires when an
-  operation starts, the result one when the DUT raises `done`
+- Three `always` in the BFM: the command one fires when an operation starts, the
+  reset one on the falling edge of `reset_n`, and the result one when the DUT
+  raises `done`
 
 {{code:code/u5/analysis-ports/vtalu_bfm.sv|lines=17-36}}
 
@@ -294,13 +295,13 @@ an honest error.
   the request of another, and screams on every one
 
 ```systemverilog
-transaccion esperado [int];              // associative, indexed by whatever pairs them up
+transaction expected [int];              // associative, indexed by whatever pairs them up
 
-function void write_cmd(transaccion c);  esperado[c.id] = c;  endfunction
+function void write_cmd(transaction c);  expected[c.id] = c;  endfunction
 
-function void write_result(respuesta r);
-   if (!esperado.exists(r.id)) `uvm_error("SB", "a response nobody asked for")
-   else begin comparar(esperado[r.id], r); esperado.delete(r.id); end
+function void write_result(response r);
+   if (!expected.exists(r.id)) `uvm_error("SB", "a response nobody asked for")
+   else begin compare(expected[r.id], r); expected.delete(r.id); end
 endfunction
 ```
 

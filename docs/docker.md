@@ -11,7 +11,9 @@ docker run --rm -it -v "$PWD":/work verifythis    # shell interactiva
 ```
 
 O abrí el repo en VS Code / GitHub Codespaces: `.devcontainer/devcontainer.json`
-usa el mismo `Dockerfile` y te deja adentro del contenedor.
+usa el mismo `Dockerfile` y te deja adentro del contenedor. Con una diferencia a
+propósito: el devcontainer le suma **Node 22** por encima, así que ahí sí andan
+`npm run check` y `npm run build`. La imagen pelada no los trae.
 
 ## Dónde vive UVM
 
@@ -49,8 +51,9 @@ todos los cores como siempre.
   del contenedor (root). Si te molesta: `docker run --user "$(id -u)"`.
 - No mezcles `obj_dir/` de macOS con los del contenedor: son objetos de otra
   plataforma y el link falla. `make clean` antes de cambiar de flujo.
-- `make deck` y `npm run build` **no** andan acá: la imagen no trae Node, es
-  para los ejemplos SystemVerilog nada más.
+- `make deck` y `npm run build` **no** andan con la imagen pelada: no trae Node,
+  es para los ejemplos SystemVerilog nada más. En el devcontainer sí, que le
+  agrega Node 22 encima.
 - La imagen se construye para la arquitectura del host (Verilator se compila de
   fuente, no hay binarios prearmados). En Apple Silicon sale arm64 y anda igual,
   pero tarda más.

@@ -4,7 +4,7 @@
 #   vhs docs/demo.tape
 #   gifsicle -O3 --colors 16 -b docs/demo.gif
 #
-# El contenido lo escupe docs/demo.sh: es la salida real de `make ch11`
+# El contenido lo escupe docs/demo.sh: es la salida real de `make u4/tests`
 # replayeada, porque el build de UVM tarda minutos. Ver ese archivo.
 
 Output docs/demo.gif

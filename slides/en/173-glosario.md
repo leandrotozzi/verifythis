@@ -1,4 +1,4 @@
-<!-- es-sha: dedae37e2814 -->
+<!-- es-sha: 4a71e1803167 -->
 <!-- .slide: id="glosario" data-machete="res/uvm_class_diagram.svg,res/diagrams/sequences_tb_completo.svg" -->
 
 ## Glossary · the words of the trade
@@ -58,7 +58,7 @@ jargon and it is how the trade talks.
 | *assertion* | a rule of the protocol written so the simulator checks it |
 | *property* | the rule itself: clock, antecedent, implication, consequent |
 | *antecedent* / *consequent* | the *"if"* and the *"then"* of a property |
-| *cover property* | counts **how many times a property got evaluated**. The check of the check |
+| *cover property* | counts **how many times a property actually held**. The check of the check |
 
 Note:
 It is the slide to keep open while reading somebody else's code, and also the one that

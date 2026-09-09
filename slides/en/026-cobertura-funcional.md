@@ -1,4 +1,4 @@
-<!-- es-sha: 50031909f9f3 -->
+<!-- es-sha: 0d93720543be -->
 ## Functional coverage
 
 #### *When are you done verifying?*
@@ -34,6 +34,7 @@ The six points of the plan from the previous section, translated:
 | Every op after a reset | transition bin `rst_op => op` |
 | Mult after single cycle and the other way round | transition bin |
 | Every operation twice in a row | repetition bin `[* 2]` |
+| Subtract too much: `A < B` and `ovf` goes up | `coverpoint borrow` with the `hubo_borrow` bin |
 
 - The six bullets stop being good intentions: each one is a line of
   code, and the simulator tells you which ones have not happened yet
@@ -131,8 +132,8 @@ bottom answering the three questions of the previous slide: **what** gets measur
 coverpoints), **into which buckets** (the bins) and **when** it gets counted (the
 `sample()`, which is further down in the same file).
 That `multi_cycle` is a single bin and `single_cycle[]` is six is not broken
-symmetry: it is the verification plan. The six single-cycle operations matter one
-by one; the multiplication matters as a separate case because it is the only one that takes
+symmetry: it is the verification plan. The six that are not the multiplication matter
+one by one; the multiplication matters as a separate case because it is the only one that takes
 more than one cycle. The shape of the covergroup **is** the table of the plan, and that is why the
 plan gets written first.
 The `` `ifndef VERILATOR `` is worth naming now and not hiding: those bins are
@@ -202,8 +203,8 @@ the problem is an unfiltered cross, not a missing test.
 {{code:code/u2/convencional/vtalu_tb.sv|lines=84-114}}
 
 - `add_00` reads straight through: *an addition where A **or** B is 0x00*
-- `mul_max` is the only one with `&&`: it asks for **both** legs at 0xFF, which is the
-  multiplier overflow case
+- `mul_max` is the only one with `&&`: it asks for **both** legs at 0xFF: the
+  **maximum product**, `FF` × `FF` = `FE01`. It does not overflow — 8 bits by 8 fit in 16
 - Verilator 5.052 **ignores** `binsof` / `intersect` (`%Warning-COVERIGN`) and measures
   the whole cross: that is why the number is not a commercial tool's
 
@@ -211,7 +212,14 @@ Note:
 Worth reading `add_00` and `mul_max` in plain words, one after the other, because the
 difference between `||` and `&&` is the one that gets copied wrong: *"an addition where A **or**
 B is 0x00"* against *"a multiplication with A **and** B at 0xFF"*. The first
-is two cases, the second is a single one — and it is the one that overflows the multiplier.
+is two cases, the second is a single one — the **maximum product**, the top corner of
+the input space. And here it is worth killing the misunderstanding that comes on its own,
+because it is expensive: `FF` × `FF` **does not overflow anything**. It gives `FE01`, which
+fits exactly in the 16 bits of `result` —8 bits by 8 never go past 16— and that is why the
+DUT forces `ovf` to 0 in every multiplication: `assign ovf = es_mult ? 1'b0 : ovf_1c;`.
+The bin is called `mul_max` and not `mul_ovf` for precisely that reason: the case is worth
+something for being the maximum of the input space, not for overflowing. The only operation
+that overflows is the subtraction, and only when A < B.
 The honesty of this slide is part of the course, so it is worth saying and not
 rushing past: the 86.8 % the example reports **is not** the number Questa would give.
 Verilator ignores the filter and measures the 36 bins, so the percentage comes out
@@ -279,8 +287,8 @@ Note:
 This is the slide that puts an asterisk on every percentage of the unit, and
 that is why it only arrives now: `at_least = 1` means the tool tells you
 **covered** with a single hit. For a bin that represents a value of an enum
-that is perfect —either it happened or it did not—. For the bin that represents the multiplier
-overflow, one hit is an anecdote, not a verification.
+that is perfect —either it happened or it did not—. For the bin that represents the maximum
+product of the multiplier, one hit is an anecdote, not a verification.
 The field rule, and it is worth giving because the question comes on its own: `at_least`
 high on the bins that represent a rare case, default on the ones that represent a
 value. Raising it for the whole covergroup is not rigour, it is a regression that never
@@ -309,7 +317,7 @@ Coverage Summary:
 
 - 66 of 76 bins filled, with 1000 random operations. The other rows of the
   summary come out `0/0`: `--coverage-user` leaves code coverage out
-- The 27 % that is missing **is not a bug**: it is the bins Verilator does not measure plus
+- The 13 % that is missing **is not a bug**: it is the bins Verilator does not measure plus
   the ones 1000 random operations did not get to touch
 - The number is not the goal. The question that helps is **which** bin is missing: that
   tells you which test to write
@@ -319,9 +327,9 @@ Coverage Summary:
 Note:
 This is where it is worth running it live and opening the report: the student has to
 see that the tool is telling them what they still have to do.
-And the punchline: the exercise of the day does exactly this. Adding `sub_op` with
-its bins takes the coverage from 86.8 % to 100 %, and the one who raises it is the same one who
-wrote the test.
+And the punchline: the exercise of the day does exactly this. Adding the new operation
+of the free opcode with its bins takes the coverage from 86.8 % to 100 %, and the one who
+raises it is the same one who wrote the test.
 
 ---
 
@@ -329,35 +337,37 @@ wrote the test.
 
 #### *The verification plan, whole and in one table*
 
-| Feature | Scenario | Stimulus | Check | Measure |
-| --- | --- | --- | --- | --- |
-| ALU | the six operations | random | scoreboard | `coverpoint op_set` |
-| ALU | operands at `00` and at `FF` | `dist` biased to the edges | scoreboard | cross `op_00_FF` |
-| sub | subtract too much: `A < B`, and `ovf` goes up | random | scoreboard, **two outputs** | bin `hubo_borrow` |
-| mult | overflow: `FF` × `FF` | directed case | scoreboard, 16 bits | bin `mul_max` |
-| reset | operate after a reset | `rst_op` interleaved | scoreboard | bin `rst_op => op` |
-| mult | a mult after a single-cycle one | random | scoreboard | transition bin |
-| ALU | the same operation twice in a row | random | scoreboard | bin `[* 2]` |
-| protocol | the operands are not touched with `start` up | random | assertion | `cover property` |
-| protocol | `done` arrives, and before 5 cycles | random | assertion | `cover property` |
-| protocol | `no_op` is the only one that does not answer | random | assertion | `cover property` |
+| # | Feature | Scenario | Stimulus | Check | Measure |
+|:--:| --- | --- | --- | --- | --- |
+| 1 | ALU | the six operations | random | scoreboard | `coverpoint op_set` |
+| 2 | ALU | operands at `00` and at `FF` | `dist` biased to the edges | scoreboard | cross `op_00_FF` |
+| 3 | mult | maximum product: `FF` × `FF` | directed case | scoreboard, 16 bits | bin `mul_max` |
+| 4 | reset | operate after a reset | `rst_op` interleaved | scoreboard | bin `rst_op => op` |
+| 5 | mult | a mult after a single-cycle one | random | scoreboard | transition bin |
+| 6 | ALU | the same operation twice in a row | random | scoreboard | bin `[* 2]` |
+| 7 | sub | subtract too much: `A < B`, and `ovf` goes up | random | scoreboard, **two outputs** | bin `hubo_borrow` |
+| 8 | sub | `A == B`: the result is 0 and `ovf` does **not** go up | random | scoreboard, two outputs | bin `sub_00`/`sub_FF` |
+| 9 | ovf | `ovf` does not go up for any other operation | random | assertion | `c_ovf` |
+| 10 | protocol | the operands are not touched with `start` up | random | assertion | `cover property` |
+| 11 | protocol | `done` arrives, and before 5 cycles | random | assertion | `cover property` |
+| 12 | protocol | `no_op` is the only one that does not answer | random | assertion | `cover property` |
 
 - The three right-hand columns are **the three parts of the testbench** of this
   section. What ties them together is the plan, and until now you had not seen it whole
-- The subtraction row is the one that forces the scoreboard to look at **two outputs**: if
-  it only compares `result`, it passes green with `ovf` stuck at zero
-- The last three rows are checked by no scoreboard: they are **protocol**
-  rules and get checked where they happen —the assertions
-- The whole table, with the file where each row lives and an empty template to
-  fill in the capstone: **`docs/plan-de-verificacion.md`**
+- The two subtraction rows are the ones that force the scoreboard to look at **two
+  outputs**: if it only compares `result`, it passes green with `ovf` stuck at zero
+- The **last four** are checked by no scoreboard: they are `ovf` and **protocol**
+  rules, and get checked where they happen —the assertions
+- The twelve rows are numbered the same as in **`docs/plan-de-verificacion.md`**,
+  which also says which file each one lives in and carries the capstone template
 
 Note:
 This is the slide that answers *"and what is this for?"* for the rest of day 1, and
 it is worth saying head on why it only arrives now: the three right-hand columns
 are stimulus, self-checking and coverage — the three parts the previous
 unit showed **loose**. The plan is the table that makes them one thing.
-The row that gets the most discussion is the overflow one, and that is good: `FF` × `FF` is the
-only case that does **not** come out of the random in reasonable time, and that is why its
+The row that gets the most discussion is the maximum-product one, and that is good: `FF` × `FF`
+is the only case that does **not** come out of the random in reasonable time, and that is why its
 stimulus column says *directed case*. There you see that the plan does not only measure,
 it also decides which test has to be written. It is the `d6-bins` exercise, three days
 later, with this same row.

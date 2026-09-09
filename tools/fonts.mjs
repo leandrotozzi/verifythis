@@ -5,6 +5,17 @@
 // que NO puede haber @import a fonts.googleapis.com: los .woff2 viven en el repo.
 // Se baja solo el subset latino (U+0000-00FF), que cubre el castellano
 // (acentos, ñ, ¿, ¡) -- el resto de los subsets serian peso muerto.
+//
+// font-display: swap, no block. `block` es FOIT: hasta 3 s con el texto
+// INVISIBLE, y eso pega en las 20 paginas del sitio -- la landing que compite
+// por el clic y las 16 del libro, que son prosa larga. Con `swap` el texto se
+// lee desde el primer paint con la fuente de sistema y cambia cuando llega la
+// woff2. Se descarto `optional` (que ademas evita el reflow) porque en la
+// primera visita fria simplemente NO usa la fuente, y la tipografia del deck es
+// la identidad del curso proyectada en un aula: preferimos el reflow. En el
+// deck abierto con doble clic no se nota ninguno de los dos: las woff2 estan
+// en disco al lado del HTML. Las dos landings ademas preloadean las dos caras
+// del above-the-fold, asi que ahi el swap casi nunca llega a verse.
 import { mkdir, writeFile, rm } from 'node:fs/promises';
 
 const OUT = 'css/fonts';
@@ -24,7 +35,7 @@ await mkdir(OUT, { recursive: true });
 
 const faces = [];
 for (const { name, spec } of FAMILIES) {
-  const css = await (await fetch(`https://fonts.googleapis.com/css2?family=${spec}&display=block`,
+  const css = await (await fetch(`https://fonts.googleapis.com/css2?family=${spec}&display=swap`,
     { headers: { 'User-Agent': UA } })).text();
 
   for (const block of css.split('@font-face').slice(1)) {
@@ -57,7 +68,7 @@ ${faces.map(f => `@font-face {
   font-family: '${f.family}';
   font-style: ${f.style};
   font-weight: ${f.weight};
-  font-display: block;
+  font-display: swap;
   src: url(fonts/${f.file}) format('woff2');
 }`).join('\n\n')}
 `;

@@ -1,4 +1,4 @@
-<!-- es-sha: 2a5b772669c9 -->
+<!-- es-sha: e745e3f38c41 -->
 ## The VTALU spec
 
 ![ALU waveform](res/diagrams/wave-dut.svg)
@@ -59,14 +59,14 @@ design slip.
 
 ## The VTALU spec
 
-#### *Single Cycle: Add - AND - XOR*
+#### *Single Cycle: Add - Sub - AND - XOR*
 
 {{code:code/vtalu_dut/vtalu_1c.sv|lines=18-33}}
 
 - Two `always_ff` and nothing else: one registers `A op B`, the other raises `done`
 - The resets **are not the same**: the one on the result is **synchronous** —only `clk` in
   the sensitivity list—, the one on `done` is **asynchronous**
-- `done <= start && (op != no_op)`: that is why on these three operations `done` is
+- `done <= start && (op != no_op)`: that is why on these four operations `done` is
   a **level** and stays up while `start` is
 
 Note:
@@ -111,7 +111,7 @@ and the scoreboard reports an error that is not in the DUT.
 
 #### *Top Level*
 
-{{code:code/vtalu_dut/vtalu.sv|lines=18-23}}
+{{code:code/vtalu_dut/vtalu.sv|lines=30-35}}
 
 - The top computes nothing: it instantiates the two blocks and **decodes** the opcode
 - `es_mult = (op == mul_op)`. The `start` is routed to only one of them, and `result`,
@@ -218,7 +218,7 @@ it is in the code.
 
 Note:
 Closing of the section that looks like RTL and is really about verification. The
-question to close with: which of these five facts is the most expensive one to
+question to close with: which of these seven facts is the most expensive one to
 forget? The one about `done`, and it will show on Wednesday.
 Worth saying why the DUT was not "cleaned up" when it was translated from VHDL: the
 asymmetry of the resets and the unvalidated opcode are **exactly** the kind of

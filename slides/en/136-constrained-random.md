@@ -1,11 +1,11 @@
-<!-- es-sha: 91ae321e4c15 -->
+<!-- es-sha: a2eae5be73ce -->
 ## Constrained random
 
 #### *The other half of the pincer*
 
 - The functional coverage of the conventional testbench tells you **what is
   missing**. It does not tell you how to get there: that is the stimulus
-- Writing a directed test per bin does not scale — there are 73 of them in the
+- Writing a directed test per bin does not scale — there are 76 of them in the
   VTALU, and a real chip has thousands
 - The industry recipe is the other way round: **random for the bulk, directed for
   the holes**. And the random has to be *legal*, or the DUT complains about things
@@ -59,7 +59,7 @@ shows up at simulation time, `randomize()` returns 0, and **if nobody checks the
 return value the class is left with the values it had**. The testbench goes on
 running and sends garbage.
 The rule to take away from here, and one the course keeps everywhere in `code/`: a
-`randomize()` always goes inside an `if` or an `assert`. Never loose.
+`randomize()` always goes inside an `if` that checks the return value. Never on its own.
 
 ---
 
@@ -151,7 +151,7 @@ over 400 attempts is six and a bit. With the badly written `dist` of the previou
 slide, the probability of both legs landing on `FF` is 1/65536 per operation: you
 never touch it.
 The mental sequence is always the same: I run random, I look at which bin was left
-empty, I write a three-line `with {}`, I run again. Never "I write 73 tests".
+empty, I write a three-line `with {}`, I run again. Never "I write 76 tests".
 The Verilator limitation that shows up in the output is there on purpose, and it
 is worth stating it properly because it is not a matter of "it works or it does
 not". Verilator resolves the `dist` **by picking a concrete value first** and only
@@ -359,7 +359,7 @@ and that in silicon does not start at zero.
 - `dist` sets **weights**, not legality. And `:=` is not `:/`: the first weighs
   **each value** of the range, the second **the whole range**
 - `randomize()` returns 0 and carries on. That is why it **always** goes inside an
-  `assert()` — it is the most expensive silent trap of the course
+  `if` with `` `uvm_fatal `` — it is the most expensive silent trap of the course
 
 Note:
 The last bullet is the one to leave burned in and the one that connects with the

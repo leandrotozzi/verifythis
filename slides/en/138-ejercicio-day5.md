@@ -1,4 +1,4 @@
-<!-- es-sha: ca6437ca3ad3 -->
+<!-- es-sha: 17ddbff43551 -->
 ## Exercise · Day 5 · 1 of 2
 
 #### *The scoreboard screams and the DUT is healthy*
@@ -19,4 +19,5 @@ Let them start without the hint. Almost all of them are going to look at the RTL
 first — that is already half the lesson. When they get stuck, the hint is the
 verbosity: the `uvm_info` of the monitor are UVM_HIGH and they show what the
 monitor says it saw, which does not match what the scoreboard compares.
-The bug is in four lines of `command_monitor.svh`.
+The bug is a single line of `command_monitor.svh`: the monitor copies one of
+the two operands wrong.

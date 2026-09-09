@@ -88,7 +88,7 @@ es justamente la sincronización que antes había que escribir a mano.
 
 #### *El `env`: siete objetos y cinco `connect()`*
 
-- Mantra: "Ports connects to exports"
+- Mantra: "Ports connect to exports"
 
 {{code:code/u5/put-get/tb_classes/env.svh|lines=14-34}}
 

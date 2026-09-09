@@ -78,6 +78,31 @@ Cada directorio de ejemplo trae:
 | `dut.f`     | fuentes del DUT |
 | `tb.f`      | lista de fuentes del testbench |
 
+## El test negativo: `make mutante`
+
+Que un ejemplo **corra** no dice nada de si **chequea**. Un scoreboard con el
+analysis port sin conectar, un `uvm_error` que no se puede disparar nunca, un
+covergroup cuyo bin es trivial: los tres pasan verdes y no prueban nada.
+
+Por eso el DUT trae una mutación inyectable. Con `+VTALU_BUG` —lo pone
+`common.sh` cuando ve `VTALU_BUG` en el ambiente— el bit 0 de `result` sale dado
+vuelta para todas las operaciones, y **el ejemplo tiene que fallar**:
+
+```sh
+make mutante                                    # los tres sin UVM: segundos
+make mutante MUTANTES="u4/tests u7/sequences"   # los de UVM: minutos
+cd code/u2/interfaces-bfm && VTALU_BUG=1 ./run.sh    # a mano, uno solo
+```
+
+Es la única diferencia entre "el ejemplo corre" y "el ejemplo prueba". Es la
+misma libertad que se toma `apb_regs.sv` con su `bug_en`, y está declarada en el
+comentario de `vtalu_dut/vtalu.sv`.
+
+Los ejemplos de `u7/callbacks`, `u8/assertions`, `u8/dpi` y `u9/ral` traen su
+propia mutación adentro del `run.sh` —el bit dado vuelta por el callback, el
+`+BUG=1` de la property, el `+GOLDEN_BUG` del modelo en C, el `+MAL` del modelo
+de RAL— y chequean el resultado ellos mismos. Por eso no están en `MUTANTES`.
+
 `code/verilator/` tiene lo compartido por los `run.sh`: los flags, el shim de
 DPI que hace compilar UVM, y cuatro repros mínimos de limitaciones de
 Verilator —los bins de transición y `binsof`/`intersect`, las opciones del

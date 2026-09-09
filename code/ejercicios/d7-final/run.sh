@@ -4,7 +4,7 @@
 #   bash run.sh              with your files
 #   SOLUCION=1 bash run.sh   with the ones in solucion/, to compare
 #
-# Unlike the other fourteen exercises, here there is no file with a
+# Unlike the other exercises with a statement, here there is no file with a
 # hole: there is a DUT, a spec and nothing else. The checker goes in stages and each
 # one prints its STAGE N OK, so it can be finished one stage at a time.
 set -e
@@ -39,7 +39,7 @@ if [ "$vistas" -ne 8 ]; then
 fi
 echo "STAGE 1 OK: the monitor sees the 8 transfers of the usual module"
 
-# --- Etapa 2: el driver -------------------------------------------------------
+# --- Stage 2: the driver -------------------------------------------------------
 run_sim +UVM_TESTNAME=smoke_test || falta "smoke_test ended with UVM_ERROR"
 for patron in 'WR @0x00' 'RD @0x00' 'WR @0x04' 'RD @0x04' 'RD @0x08' 'RD @0x0c'; do
    grep -qi "$patron" "$VLT_LOG" || falta "in smoke_test there is no transfer
@@ -48,7 +48,7 @@ for patron in 'WR @0x00' 'RD @0x00' 'WR @0x04' 'RD @0x04' 'RD @0x08' 'RD @0x0c';
 done
 echo "STAGE 2 OK: the driver drives the bus and the directed sequence passes"
 
-# --- Etapa 3: el scoreboard ---------------------------------------------------
+# --- Stage 3: the scoreboard ---------------------------------------------------
 run_sim +UVM_TESTNAME=random_test || falta "random_test ended with UVM_ERROR.
     The DUT is healthy: the one getting it wrong is your model. The four traps are
     together in the 'The fine print' section of spec.md."
@@ -60,13 +60,13 @@ export UVM_ERRORS_OK=1
 run_sim +UVM_TESTNAME=random_test +BUG=1
 if ! grep -q 'UVM_ERROR.*\[SCOREBOARD\]' "$VLT_LOG"; then
    falta "with +BUG=1 the DUT accumulates even with CTRL.EN at 0, and your scoreboard
-    said nothing. Either it does not model EN, or it never reads ACC: check row 5 of the
-    verificacion."
+    said nothing. Either it does not model EN, or it never reads ACC: check row 5 of
+    the verification plan."
 fi
 unset UVM_ERRORS_OK
 echo "STAGE 3 OK: the scoreboard closes green and catches the +BUG=1 bug"
 
-# --- Etapa 4: la cobertura ----------------------------------------------------
+# --- Stage 4: the coverage ----------------------------------------------------
 cov=$(cov_report | tee /dev/stderr | awk '/covergroup/ {print}')
 [ -n "$cov" ] || falta "no covergroup coverage was generated. Either the coverage
     component hanging off the analysis port is missing, or the covergroup is never sampled."
@@ -74,14 +74,14 @@ puntos=$(echo "$cov" | sed -n 's/.*(\([0-9]*\)\/\([0-9]*\)).*/\2/p')
 llenos=$(echo "$cov" | sed -n 's/.*(\([0-9]*\)\/\([0-9]*\)).*/\1/p')
 if [ "${puntos:-0}" -lt 20 ]; then
    falta "your covergroup has ${puntos:-0} points and the verification plan of
-    spec.md has seven rows: with the address-by-direction cross alone, you already
-    son mas de veinte."
+    spec.md has seven rows: with the address-by-direction cross alone, you are already
+    over twenty."
 fi
 if [ "$((llenos * 100 / puntos))" -lt 90 ]; then
    falta "coverage $llenos/$puntos. Look at which bin stayed at zero and write the
     stimulus that fills it -- it is the coverage closure cycle of day 6."
 fi
-echo "STAGE 4 OK: cobertura $llenos/$puntos"
+echo "STAGE 4 OK: coverage $llenos/$puntos"
 
 echo
-echo "EXERCISE OK: monitor, driver, scoreboard y cobertura. Eso es un testbench."
+echo "EXERCISE OK: monitor, driver, scoreboard and coverage. That is a testbench."

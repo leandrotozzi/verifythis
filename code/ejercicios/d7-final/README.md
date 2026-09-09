@@ -1,8 +1,9 @@
 # Día 7 — el capstone: verificá el `apb_regs`
 
-Los otros doce ejercicios te daban un archivo con un agujero. Éste te da un DUT,
-una spec y nada más. **El testbench lo escribís vos, entero**, y ésa es la única
-diferencia entre *"hice el curso"* y *"sé hacerlo"*.
+Los otros trece ejercicios con enunciado te daban un archivo con un agujero.
+Éste te da un DUT, una spec y nada más. **El testbench lo escribís vos,
+entero**, y ésa es la única diferencia entre *"hice el curso"* y
+*"sé hacerlo"*.
 
 El DUT es un esclavo **APB3** de cuatro registros. No es una ALU: tiene
 direcciones, dos fases por transferencia, un wait state y respuesta de error. Es
@@ -64,6 +65,9 @@ encontrás un escenario que no está en la tabla, agregá la fila **y** el bin �
 también es el ejercicio. Cómo se llena una tabla de éstas, en
 [`docs/plan-de-verificacion.md`](../../../docs/plan-de-verificacion.md).
 
+Listo cuando `bash run.sh` imprime las cuatro etapas y termina con
+`EXERCISE OK`.
+
 ## El contrato con el corrector
 
 El corrector no lee tu código: lee el log. Tres cosas tienen que ser así:
@@ -92,8 +96,8 @@ bash run.sh              # con tus archivos
 SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
 ```
 
-`solucion/` tiene el testbench completo: quince archivos, que son los mismos
-nueve tipos de clase del `code/u7/sequences` más la interface y el package. Mirala
+`solucion/` tiene el testbench completo: diecisiete archivos, que son los mismos
+tipos de clase del `code/u7/sequences` más la interface y el package. Mirala
 **después**, o el ejercicio no sirve para nada.
 
 ## Cuánto tarda

@@ -5,9 +5,11 @@
 #   make u4          corre una unidad entera
 #   make u4/tests    corre un ejemplo suelto
 #   make rapido     solo los ejemplos sin UVM (segundos): lo que corre el CI
+#   make mutante    rompe el DUT a proposito y exige que los ejemplos FALLEN
+#   make repros     corre los repros de code/verilator/ (evidencia de docs/verilator.md)
 #   make matrix     idem que 'make', y ademas regenera docs/verilator.md
 #   make uvm        baja UVM 2020.3.1 a code/.uvm/ (se hace solo si hace falta)
-#   make ejercicios corre las SOLUCIONES de code/ejercicios/ (lento: nueve usan UVM)
+#   make ejercicios corre las SOLUCIONES de code/ejercicios/ (lento: once usan UVM)
 #   make regresion  el mismo test con N semillas + merge de cobertura + reporte HTML
 #   make figs       regenera las figuras de tendencias (res/trends/*.svg)
 #   make machete    res/machete.html -> docs/machete-uvm.pdf (una carilla, A4)
@@ -27,7 +29,7 @@ EJEMPLOS := $(patsubst code/%/,%,$(sort $(dir $(RUNNERS))))
 UVM_HOME ?= code/.uvm
 UVM      := $(UVM_HOME)/src/uvm_pkg.sv
 
-.PHONY: all doctor rapido matrix uvm ejercicios regresion figs machete deck check clean $(UNIDADES) $(EJEMPLOS)
+.PHONY: all doctor rapido mutante repros matrix uvm ejercicios regresion figs machete deck check clean $(UNIDADES) $(EJEMPLOS)
 
 all: $(UNIDADES)
 
@@ -56,6 +58,55 @@ rapido:
 	  ( cd $$(dirname $$r) && bash ./$$(basename $$r) >/dev/null ) \
 	    && echo "    ok" || { echo "    FALLA"; exit 1; }; \
 	done
+
+# El test negativo. Rompe el DUT a proposito --+VTALU_BUG da vuelta el bit 0 de
+# 'result'-- y EXIGE que el ejemplo FALLE. Sin esto, "el ejemplo corre" es todo
+# lo que sabemos: un scoreboard desconectado, un uvm_error que nadie puede
+# disparar y un cov_report vacio pasan igual de verdes.
+#
+#   make mutante                                  los tres sin UVM: segundos
+#   make mutante MUTANTES="u4/tests u7/sequences" los de UVM: minutos
+#
+# Solo entran ejemplos que instancian el vtalu Y cuyo run.sh aborta con el error
+# (los de u8 y u9 ya traen su propia mutacion y chequean el resultado a mano;
+# u4/reporting exporta UVM_ERRORS_OK).
+MUTANTES ?= u2/convencional u2/interfaces-bfm u3/tb-en-objetos
+mutante: $(UVM)
+	@for e in $(MUTANTES); do \
+	  for r in code/$$e/run*.sh; do \
+	    printf '==> %-30s ' "$$r"; \
+	    if ( cd $$(dirname $$r) && VTALU_BUG=1 bash ./$$(basename $$r) ) >/dev/null 2>&1; then \
+	      echo "NO FALLO — el chequeo de este ejemplo no atrapa el bug"; exit 1; \
+	    else echo "ok (fallo, que es lo que tenia que pasar)"; fi; \
+	  done; \
+	done
+
+# Los cinco repros de code/verilator/ son la evidencia de docs/verilator.md y la
+# justificacion de los "ifndef VERILATOR" que hay en dos covergroups del curso.
+# Hasta que existio este target no los corria nadie, y se notaba: repro-cg-transition.sv
+# no compilaba (una linea de comentario que arrancaba con el nombre de la
+# herramienta de cobertura lo hacia abortar con BADVLTPRAGMA, porque Verilator la
+# lee como un meta-comentario mal formado) y nadie se habia enterado.
+#
+# repro-cg-options.sv chequea sus seis numeros solo y termina en $fatal si alguno
+# se movio. El ultimo paso es al reves: exige que -DT1 SIGA sin compilar, porque
+# el dia que Verilator implemente los bins de transicion hay que sacarles el
+# ifndef a los covergroups, y sin esto el curso los iba a seguir escondiendo.
+# Segundos.
+REPROS := repro-cg-options repro-dist-with repro-solve-before repro-vif-task repro-cg-transition
+repros:
+	@cd code/verilator && for f in $(REPROS); do \
+	  printf '==> %-22s ' "$$f"; mkdir -p obj_dir/$$f; \
+	  verilator --binary --timing -j 0 --quiet-build --quiet-stats --coverage-user \
+	    -Wno-fatal --top-module top --Mdir obj_dir/$$f -o sim $$f.sv >/dev/null 2>&1 \
+	    && ./obj_dir/$$f/sim >/dev/null 2>&1 \
+	    && echo ok || { echo FALLA; exit 1; }; \
+	done; \
+	printf '==> %-22s ' "bins de transicion"; \
+	if verilator --lint-only --timing -DT1 repro-cg-transition.sv >/dev/null 2>&1; then \
+	  echo "COMPILA: Verilator ya los implementa — saca el ifndef VERILATOR de los covergroups"; \
+	  exit 1; \
+	else echo "siguen sin implementarse (el ifndef VERILATOR sigue haciendo falta)"; fi
 
 # La matriz corre lo mismo pero tolera fallas y las tabula.
 matrix: $(UVM)

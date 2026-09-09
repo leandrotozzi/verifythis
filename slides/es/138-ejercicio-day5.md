@@ -18,4 +18,5 @@ Dejalos arrancar sin la pista. Casi todos van a mirar el RTL primero — eso ya 
 la mitad de la lección. Cuando se traben, la pista es la verbosidad: los
 `uvm_info` del monitor son UVM_HIGH y muestran lo que el monitor dice que vio,
 que no coincide con lo que el scoreboard compara.
-El bug está en cuatro líneas de `command_monitor.svh`.
+El bug es una sola línea de `command_monitor.svh`: el monitor copia mal uno
+de los dos operandos.

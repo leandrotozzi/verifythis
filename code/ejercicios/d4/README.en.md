@@ -1,4 +1,4 @@
-<!-- es-sha: 756cf0436981 -->
+<!-- es-sha: 25501660e155 -->
 # Day 4 — one more observer, without touching the ones already watching
 
 The testbench is the one from the analysis ports: the `command_monitor` publishes
@@ -9,18 +9,20 @@ and the `scoreboard` are listening. We want to add one that counts.
 
 1. **`op_counter.svh`** — a `uvm_subscriber #(command_s)` that counts the
    commands that reach it (and the `mul_op`s separately), and that in
-   `report_phase` prints, with `UVM_NONE` verbosity:
+   `report_phase` prints, with `UVM_NONE` verbosity and the id `OP_COUNTER`:
 
    ```
-   comandos=<n> multiplicaciones=<m>
+   commands=<n> multiplications=<m>
    ```
+
+   The checker looks for that line as it is: `commands=` is what it greps for.
 
 2. **`env.svh`** — instantiate it and connect it to the analysis port of the
    `command_monitor`, without touching the connections that are already there.
 
 Done when `bash run.sh` prints `EXERCISE OK`.
 
-The marking is done by cross-checking: your `comandos=` has to come out the same
+The marking is done by cross-checking: your `commands=` has to come out the same
 as the number of `[COMMAND MONITOR]` lines the monitor prints, which you did not
 write. If you forget the `connect`, your counter says 0 and the monitor says 1000.
 

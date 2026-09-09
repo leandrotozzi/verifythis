@@ -59,7 +59,7 @@ if command -v verilator >/dev/null 2>&1; then
     rojo "verilator $v — el curso necesita >= $VERILATOR_MIN"
     comose "Los covergroups entraron en $VERILATOR_MIN: con uno anterior la"
     comose "cobertura funcional reporta 0 % y no avisa. Receta de compilacion"
-    comose "en el README, seccion 'A mano'."
+    comose "en docs/instalar.md, seccion 'A mano'."
   fi
 else
   rojo "verilator — no esta instalado"

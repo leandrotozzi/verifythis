@@ -4,7 +4,29 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Day 7 · The other half, and the wrap-up — Verify This! · A UVM course</title>
-<meta name="description" content="Day 7 of the UVM course, to read straight through: the slides with the instructor notes inside the text and the complete code.">
+<meta name="description" content="The other half, and the wrap-up — Day 7 of the UVM course, to read straight through: the slides with the instructor notes inside the text and the complete code.">
+  <link rel="canonical" href="https://leandrotozzi.github.io/verifythis/en/libro/day7.html">
+  <link rel="alternate" hreflang="es" href="https://leandrotozzi.github.io/verifythis/libro/dia7.html">
+  <link rel="alternate" hreflang="en" href="https://leandrotozzi.github.io/verifythis/en/libro/day7.html">
+  <link rel="alternate" hreflang="x-default" href="https://leandrotozzi.github.io/verifythis/libro/dia7.html">
+  <meta name="theme-color" content="#111111">
+  <link rel="icon" type="image/svg+xml" href="../../css/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../css/favicon-32.png">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Verify This!">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Day 7 · The other half, and the wrap-up — Verify This! · A UVM course">
+  <meta property="og:description" content="The other half, and the wrap-up — Day 7 of the UVM course, to read straight through: the slides with the instructor notes inside the text and the complete code.">
+  <meta property="og:url" content="https://leandrotozzi.github.io/verifythis/en/libro/day7.html">
+  <meta property="og:image" content="https://leandrotozzi.github.io/verifythis/portada.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Day 7 · The other half, and the wrap-up — Verify This! · A UVM course">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Day 7 · The other half, and the wrap-up — Verify This! · A UVM course">
+  <meta name="twitter:description" content="The other half, and the wrap-up — Day 7 of the UVM course, to read straight through: the slides with the instructor notes inside the text and the complete code.">
+  <meta name="twitter:image" content="https://leandrotozzi.github.io/verifythis/portada.png">
+  <meta name="twitter:image:alt" content="Day 7 · The other half, and the wrap-up — Verify This! · A UVM course">
 <link rel="stylesheet" href="../../css/fonts.css">
 <link rel="stylesheet" href="../../css/course.css">
 <link rel="stylesheet" href="../../css/code.css">
@@ -33,8 +55,8 @@
   inside the text</strong> and the complete code. If you are taking the course on
   your own, start here and keep the deck alongside for the reviews.</p>
 
-<section id="s333" class="slide">
-<!-- es-sha: c2408d0e908c -->
+<section id="s335" class="slide">
+<!-- es-sha: fc3bb54c447f -->
 
 
 <h2 id="agenda">Agenda</h2>
@@ -44,15 +66,15 @@
 <li>The capstone: an APB testbench, from scratch</li>
 <li>From the VTALU to a real bus</li>
 <li>The debug toolbox</li>
-<li>The nineteen silent traps</li>
+<li>The twenty silent traps</li>
 <li>Glossary, references and wrap-up</li>
 </ul>
 <p><em>And afterwards, <strong>day 8</strong>: optional, and for whoever has already handed in the capstone</em></p>
-<p class="al-deck"><a href="../index.html#/333">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/335">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s334" class="slide">
-<!-- es-sha: 3ef60d67a219 -->
+<section id="s336" class="slide">
+<!-- es-sha: 0e951e495f0e -->
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-hole-the-scoreboard-left"><em>The hole the scoreboard left</em></h4>
 <ul>
@@ -62,8 +84,8 @@ the DUT gave back. A thousand operations, a thousand comparisons, zero errors</l
 <code>done</code> one cycle early, or raises it on a <code>no_op</code>, <strong>passes every test of the
 course</strong></li>
 <li>The rule of the protocol is written in three places: in prose in the spec,
-inside the BFM in interfaces and BFM, and in the head of whoever wrote it. In <strong>none</strong> of
-the three is it checked</li>
+inside the BFM, and in the head of whoever wrote it. In <strong>none</strong> of the
+three is it checked</li>
 <li>An <strong>assertion</strong> is that same sentence, in executable form, running on its own the whole
 simulation</li>
 </ul>
@@ -81,16 +103,16 @@ This is also the answer to <em>&quot;why is SVA the other half of
 verification?&quot;</em>: it is not another technique for doing the same thing, it is the half this
 testbench does not cover.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/334">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/336">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s335" class="slide">
+<section id="s337" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="immediate-and-concurrent-the-one-you-know-and-the-new-one"><em>Immediate and concurrent: the one you know and the new one</em></h4>
 <pre><code class="language-sv">// IMMEDIATE: it is a STATEMENT. It runs when the thread goes past it,
 // once, and that is all. The one from the transactions is of this family.
 assert (cmd.op inside {add_op, and_op, xor_op, mul_op})
-   else `uvm_error(&quot;SEQ&quot;, &quot;operacion invalida&quot;);
+   else `uvm_error(&quot;SEQ&quot;, &quot;invalid operation&quot;);
 
 // CONCURRENT -- the new thing. It is a DECLARATION with a clock: it gets
 // plugged in when the simulation starts and evaluated on every edge, forever.
@@ -118,10 +140,10 @@ is the silent trap of that section —<code>assert</code> is a simulation direct
 with asserts switched off the argument does not get executed. Here you see why: they are the
 same keyword for two different things.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/335">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/337">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s336" class="slide">
+<section id="s338" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="anatomy-of-a-property"><em>Anatomy of a property</em></h4>
 <pre><code class="language-sv">a_done_llega :                      // &lt;- the label: NOT optional
@@ -154,10 +176,10 @@ The <code>disable iff</code> is looked at in detail further on, but it is worth 
 so high up in the template: it is the part that gets forgotten most and the one that generates the most false
 positives.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/336">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/338">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s337" class="slide">
+<section id="s339" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="--against--mistake-number-one"><em><code>|-&gt;</code> against <code>|=&gt;</code>, mistake number one</em></h4>
 <pre><code class="language-sv">// |-&gt;  overlapping: the consequent starts on THE SAME edge
@@ -185,10 +207,10 @@ And the trap to name out loud: getting this wrong almost never gives an
 error. It gives a property that is vacuously satisfied or that is always satisfied, and
 the final report says everything passed. It is the reason why the <code>cover property</code> slide is not an extra: it is the only check of the check.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/337">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/339">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s338" class="slide">
+<section id="s340" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="looking-at-the-past-rose-fell-stable-past"><em>Looking at the past: <code>$rose</code>, <code>$fell</code>, <code>$stable</code>, <code>$past</code></em></h4>
 <pre><code class="language-sv">$rose(start)      // 0 -&gt; 1 between the previous edge and this one
@@ -216,15 +238,13 @@ It is worth saying as well what they are NOT: they are not functions one can cal
 <code>initial</code>. They only make sense inside a property or a sequence, because
 they need a clock to know what &quot;previous&quot; means.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/338">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/340">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s339" class="slide">
+<section id="s341" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-property-that-is-worth-the-section"><em>The property that is worth the section</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 152-164 de 217</figcaption><pre><code class="hljs">   <span class="hljs-keyword">default</span> <span class="hljs-keyword">disable</span> iff (!reset_n);
-
-   <span class="hljs-comment">// --- El estimulo ---</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 154-166 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// --- El estimulo ---</span>
 
    <span class="hljs-comment">// The rule from slide 1 of day 1, executable at last: while start is up, the</span>
    <span class="hljs-comment">// operands and the operation are not touched.</span>
@@ -234,7 +254,9 @@ they need a clock to know what &quot;previous&quot; means.</p>
 
    a_operandos_estables :
    <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_operandos_estables)
-   <span class="hljs-keyword">else</span></code></pre><details><summary>el archivo entero, 217 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
+   <span class="hljs-keyword">else</span>
+      <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
+                 <span class="hljs-string">&quot;%m: operand changed with start up: A=%0d B=%0d op=%s&quot;</span>, A, B, op2enum().name()))</code></pre><details><summary>el archivo entero, 217 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
    <span class="hljs-keyword">import</span> <span class="hljs-uvm-type">uvm_pkg</span>::*;
    <span class="hljs-keyword">import</span> vtalu_pkg::*;
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;uvm_macros.svh&quot;</span>
@@ -472,15 +494,13 @@ illegal for the DUT and transparent for the scoreboard.
 It is worth showing the <code>@(negedge clk)</code> and <strong>not</strong> explaining it yet: leave it as a
 curiosity that gets cleared up on the next slide. Somebody is going to ask first.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/339">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/341">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s340" class="slide">
+<section id="s342" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="⚠-two-clocks-an-assertion-is-worth-what-its-sampling-is-worth"><em>⚠ Two clocks: an assertion is worth what its sampling is worth</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 138-150 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// section gets them for free. All they need in order to run is --assert.</span>
-   <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 140-152 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
    <span class="hljs-comment">// negedge and the DUT registers on posedge. An assertion samples in the</span>
    <span class="hljs-comment">// preponed region of the edge it is given, so a signal written ON the negedge</span>
    <span class="hljs-comment">// is not seen on that negedge: it is seen on the next one. With everything on</span>
@@ -490,7 +510,9 @@ curiosity that gets cleared up on the next slide. Somebody is going to ask first
    <span class="hljs-comment">// negedge, the false positives move to the done properties.</span>
    <span class="hljs-comment">//</span>
    <span class="hljs-comment">//   stimulus (start, A, B, op_set)  -&gt; negedge, where the BFM writes</span>
-   <span class="hljs-comment">//   response (done, result)         -&gt; posedge, where the DUT registers</span></code></pre><details><summary>el archivo entero, 217 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
+   <span class="hljs-comment">//   response (done, result)         -&gt; posedge, where the DUT registers</span>
+
+   <span class="hljs-keyword">default</span> <span class="hljs-keyword">disable</span> iff (!reset_n);</code></pre><details><summary>el archivo entero, 217 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
    <span class="hljs-keyword">import</span> <span class="hljs-uvm-type">uvm_pkg</span>::*;
    <span class="hljs-keyword">import</span> vtalu_pkg::*;
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;uvm_macros.svh&quot;</span>
@@ -751,15 +773,13 @@ once for the whole interface instead of repeating it property by property. This
 course does not teach it; whoever gets this far has already understood the problem it solves,
 which is the hard part.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/340">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/342">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s341" class="slide">
+<section id="s343" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="variable-latency-in-one-line"><em>Variable latency, in one line</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 168-185 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// --- The DUT&#x27;s answer ---</span>
-
-   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 170-187 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
    <span class="hljs-comment">// one-cycle ops, four edges for the multiplication.</span>
    <span class="hljs-keyword">property</span> p_done_llega;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set != no_op) |-&gt; ##[<span class="hljs-number">1</span>:<span class="hljs-number">5</span>] done;
@@ -774,7 +794,9 @@ which is the hard part.</p>
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set == no_op) |=&gt; !done;
    <span class="hljs-keyword">endproperty</span> : p_no_op_sin_done
 
-   a_no_op_sin_done :</code></pre><details><summary>el archivo entero, 217 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
+   a_no_op_sin_done :
+   <span class="hljs-keyword">assert</span> <span class="hljs-keyword">property</span> (p_no_op_sin_done)
+   <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: done subio para una no_op&quot;</span>))</code></pre><details><summary>el archivo entero, 217 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
    <span class="hljs-keyword">import</span> <span class="hljs-uvm-type">uvm_pkg</span>::*;
    <span class="hljs-keyword">import</span> vtalu_pkg::*;
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;uvm_macros.svh&quot;</span>
@@ -1017,10 +1039,10 @@ turns it into a source of false positives when somebody changes the pipeline.
 The <code>p_no_op_sin_done</code> below is the complement and it uses <code>|=&gt;</code> precisely because of what
 the previous slide said: <code>done</code> comes out of an <code>always_ff</code>.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/341">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/343">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s342" class="slide">
+<section id="s344" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="disable-iff-and-the-reset"><em><code>disable iff</code> and the reset</em></h4>
 <pre><code class="language-sv">default disable iff (!reset_n);   // once, for the whole interface
@@ -1053,10 +1075,10 @@ a long transaction. In this DUT it is one cycle; on a real bus, with
 transactions of dozens, it is the difference between a usable property and one that
 has to be switched off.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/342">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/344">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s343" class="slide">
+<section id="s345" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="where-they-live-inside-the-interface"><em>Where they live: inside the interface</em></h4>
 <ul>
@@ -1082,10 +1104,10 @@ And the twist from the agents is worth saying slowly: the legacy module
 —the &quot;boss&#39;s tester&quot;, without one line of UVM— is also being checked. Nobody
 asked its permission. That is the exercise of the day.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/343">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/345">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s344" class="slide">
+<section id="s346" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-integration-with-uvm-the-else-that-makes-it-count"><em>The integration with UVM: the <code>else</code> that makes it count</em></h4>
 <pre><code class="language-sv">// The SystemVerilog default: it KILLS the simulation on the first failure
@@ -1093,7 +1115,7 @@ a : assert property (p);
 
 // What you want in UVM: the failure counts and the simulation goes on
 a : assert property (p)
-    else `uvm_error(&quot;SVA&quot;, $sformatf(&quot;%m: operando cambiado&quot;));
+    else `uvm_error(&quot;SVA&quot;, $sformatf(&quot;%m: operand changed&quot;));
 </code></pre>
 <ul>
 <li>Without an <code>else</code>, the default action of an assertion that fails is <code>$error</code> —and in
@@ -1119,21 +1141,20 @@ a message without <code>%m</code> does not say which of the two ALUs broke. It i
 <code>get_full_name()</code> solved in reporting, with the tool of the language
 instead of the one of the library.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/344">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/346">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s345" class="slide">
+<section id="s347" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="every-assertion-goes-with-its-cover-property"><em>Every assertion goes with its <code>cover property</code></em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 187-195 de 217</figcaption><pre><code class="hljs">   <span class="hljs-keyword">else</span> <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SVA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%m: done subio para una no_op&quot;</span>))
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 208-215 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// And the cover that goes with it: without this, a regression where the random</span>
+   <span class="hljs-comment">// never subtracted too much leaves the assertion green having checked nothing.</span>
+   c_ovf : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; ovf);
+   c_sub_sin_borrow : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; (op_set == sub_op) &amp;&amp; !ovf);
 
-   <span class="hljs-comment">// --- Every assertion comes with its cover property ---</span>
-   <span class="hljs-comment">//</span>
-   <span class="hljs-comment">// An assertion whose antecedent never happens PASSES, and checks nothing.</span>
-   <span class="hljs-comment">// The cover is the antidote. And it also debunks mental models: the</span>
-   <span class="hljs-comment">// &quot;three-cycle&quot; multiplication takes FOUR edges (done3 -&gt; done2 -&gt;</span>
-   <span class="hljs-comment">// done1 -&gt; done_mult), so c_mult_3ciclos stays at 0 forever.</span>
-   <span class="hljs-comment">// --- VTALU rev2: the output the scoreboard only glances at ---</span></code></pre><details><summary>el archivo entero, 217 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
+   c_mult_3ciclos : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set == mul_op) ##<span class="hljs-number">3</span> done);
+   c_mult_4ciclos : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set == mul_op) ##<span class="hljs-number">4</span> done);
+   c_un_ciclo : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set <span class="hljs-keyword">inside</span> {add_op, and_op, xor_op}) ##<span class="hljs-number">1</span> done);</code></pre><details><summary>el archivo entero, 217 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
    <span class="hljs-keyword">import</span> <span class="hljs-uvm-type">uvm_pkg</span>::*;
    <span class="hljs-keyword">import</span> vtalu_pkg::*;
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;uvm_macros.svh&quot;</span>
@@ -1378,10 +1399,10 @@ The rule to take away: for every <code>assert property</code> you write, write t
 <code>cover property</code> of the antecedent. It is two lines and it is the difference between a
 testbench that checks and one that says it checks.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/345">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/347">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s346" class="slide">
+<section id="s348" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="assertion-or-scoreboard-the-same-rule-two-places"><em>Assertion or scoreboard: the same rule, two places</em></h4>
 <table>
@@ -1433,15 +1454,13 @@ The other half of the rule matters too: SVA does not replace the scoreboard. Nob
 wants to read a reference model written in properties, and whoever tried it tells it
 as an anecdote.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/346">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/348">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s347" class="slide">
+<section id="s349" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-example-of-the-section-the-bug-the-scoreboard-does-not-see"><em>The example of the section: the bug the scoreboard does not see</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 112-124 de 217</figcaption><pre><code class="hljs">            #<span class="hljs-number">1</span>;
-            start = <span class="hljs-number">1&#x27;b0</span>;
-         <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 114-126 de 217</figcaption><pre><code class="hljs">         <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
             <span class="hljs-comment">// +BUG=1: changes B halfway through the multiplication. The</span>
             <span class="hljs-comment">// multiplier already latched A and B on the first edge, so the</span>
             <span class="hljs-comment">// RESULT DOES NOT CHANGE: the scoreboard stays green. The only</span>
@@ -1451,7 +1470,9 @@ as an anecdote.</p>
                @(<span class="hljs-keyword">negedge</span> clk);
                B = ~iB;
             <span class="hljs-keyword">end</span>
-            <span class="hljs-keyword">do</span> @(<span class="hljs-keyword">negedge</span> clk); <span class="hljs-keyword">while</span> (done == <span class="hljs-number">0</span>);</code></pre><details><summary>el archivo entero, 217 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
+            <span class="hljs-keyword">do</span> @(<span class="hljs-keyword">negedge</span> clk); <span class="hljs-keyword">while</span> (done == <span class="hljs-number">0</span>);
+            oresult   = result;
+            start = <span class="hljs-number">1&#x27;b0</span>;</code></pre><details><summary>el archivo entero, 217 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
    <span class="hljs-keyword">import</span> <span class="hljs-uvm-type">uvm_pkg</span>::*;
    <span class="hljs-keyword">import</span> vtalu_pkg::*;
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;uvm_macros.svh&quot;</span>
@@ -1693,10 +1714,10 @@ And the punchline: this bug is not hypothetical. It is exactly what the legacy
 module of the exercise does, and it is exactly the kind of thing that survives for years in a
 block that &quot;works&quot;.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/347">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/349">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s348" class="slide">
+<section id="s350" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-traps-of-this-section"><em>The traps of this section</em></h4>
 <table>
@@ -1742,12 +1763,12 @@ And the antidote is the same for all four, which is the elegant part: the <code>
 occur. In both cases you have to go and look, and in both cases the <code>assert</code> on its own
 would have said that everything is fine.
 These four are added to the appendix of the silent traps, which from this
-section on are nineteen.</p>
+section on are twenty.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/348">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/350">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s349" class="slide">
+<section id="s351" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="summary-of-the-unit"><em>Summary of the unit</em></h4>
 <ul>
@@ -1776,10 +1797,10 @@ And it is worth closing with the location on the map: this is the half that was 
 scoreboard checks what the DUT computes; the assertions, how you talk to it. A
 serious verification plan has both columns.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/349">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/351">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s350" class="slide">
+<section id="s352" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="what-this-section-does-differently"><em>What this section does differently</em></h4>
 <ul>
@@ -1792,7 +1813,7 @@ first real block one gets to verify</li>
 never gets covered <strong>did not come out of a tutorial</strong>: they came out of writing this
 section on the VTALU of the course and looking at why it did not add up</li>
 <li>Everything here runs on Verilator, without licences, with the same <code>run.sh</code> as the
-other thirty-three examples</li>
+other thirty-seven examples</li>
 </ul>
 <div class="nota">
 <p>It is worth being explicit with the group about where each thing comes from, because it is part of
@@ -1806,10 +1827,10 @@ What is left out and is worth naming so nobody discovers it late:
 properties that come with commercial VIP. With what is in this section they can be read
 without help.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/350">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/352">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s351" class="slide">
+<section id="s353" class="slide">
 <!-- es-sha: 5e7fbf141734 -->
 <h2 id="exercise-·-day-7">Exercise · Day 7</h2>
 <h4 id="the-legacy-module-violates-the-protocol-and-nobody-knew"><em>The legacy module violates the protocol and nobody knew</em></h4>
@@ -1820,7 +1841,7 @@ multiplication, and it goes about getting the operand of the next one ready whil
 <code>done</code>. It has been in production for years</li>
 <li>The scoreboard compares a thousand operations and does not find a single difference:
 the multiplier latched <code>A</code> and <code>B</code> on the first edge. <strong>The bug is not a data bug</strong></li>
-<li>Write the property that does see it. The two <code>done</code> ones are already there, as a mould</li>
+<li>Write the property that does see it. The two <code>done</code> ones are already there, as a template</li>
 <li>The checker asks for three things: that it fire on <code>modulo_bfm</code>, that it <strong>not</strong> fire
 even once on <code>clase_bfm</code>, and that the scoreboard stay green</li>
 </ul>
@@ -1838,10 +1859,10 @@ thinking about the boss&#39;s module. It lives in the interface, and that is why
 everybody who uses it — including code that was written five years before
 this testbench existed.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/351">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/353">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s352" class="slide quiz">
+<section id="s354" class="slide quiz">
 <!-- es-sha: 6b34f4b84e2d -->
 
 
@@ -1857,10 +1878,10 @@ this testbench existed.</p>
 <blockquote>
 <p><strong>Statement against declaration</strong> — the immediate one is to an <code>if</code> what the concurrent one is to an <code>always_ff</code>: one executes, the other gets instantiated. That is why only the concurrent one can describe something that lasts several cycles.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/352">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/354">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s353" class="slide quiz">
+<section id="s355" class="slide quiz">
 <h2 id="review-·-day-7">Review · Day 7</h2>
 <h4 id="2-of-5-·---against-"><em>2 of 5 · <code>|-&gt;</code> against <code>|=&gt;</code></em></h4>
 <p><strong>The <code>done</code> of the VTALU comes out of an <code>always_ff</code>. Which implication goes in <code>start |?? done</code>?</strong></p>
@@ -1873,10 +1894,10 @@ this testbench existed.</p>
 <blockquote>
 <p><strong><code>|=&gt;</code> when the consequent comes out of a <code>&lt;=</code></strong> — and the operational rule is to look at the RTL, not at the property: if the consequent comes out of an <code>assign</code>, it takes <code>|-&gt;</code>. Getting this wrong almost never gives an error: it gives a property that always passes.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/353">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/355">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s354" class="slide quiz">
+<section id="s356" class="slide quiz">
 <h2 id="review-·-day-7">Review · Day 7</h2>
 <h4 id="3-of-5-·-the-sampling-edge"><em>3 of 5 · The sampling edge</em></h4>
 <p><strong>All the properties of the VTALU sampled on <code>@(posedge clk)</code> give 185 errors over 1000 operations, and the DUT is healthy. Why?</strong></p>
@@ -1889,10 +1910,10 @@ this testbench existed.</p>
 <blockquote>
 <p><strong>An assertion is worth what its sampling is worth</strong> — the stimulus gets sampled where the stimulus gets written. Stimulus on <code>negedge</code>, response of the DUT on <code>posedge</code>: zero errors. With a single clock there is no way.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/354">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/356">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s355" class="slide quiz">
+<section id="s357" class="slide quiz">
 <h2 id="review-·-day-7">Review · Day 7</h2>
 <h4 id="4-of-5-·-the-assertion-that-checks-nothing"><em>4 of 5 · The assertion that checks nothing</em></h4>
 <p><strong>An <code>assert</code> property reports 0 failures during the whole regression. What do you know?</strong></p>
@@ -1905,10 +1926,10 @@ this testbench existed.</p>
 <blockquote>
 <p><strong>Zero failures and zero evaluations look the same</strong> — that is why every assertion goes with its <code>cover property</code>: it is the only check of the check. In the section, <code>c_mult_3ciclos</code> stays at 0 and gives away that the real latency is four edges, not three.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/355">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/357">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s356" class="slide quiz">
+<section id="s358" class="slide quiz">
 <h2 id="review-·-day-7">Review · Day 7</h2>
 <h4 id="5-of-5-·-assertion-or-scoreboard"><em>5 of 5 · Assertion or scoreboard</em></h4>
 <p><strong>The DUT gives back the right <code>result</code> but drops <code>done</code> one cycle earlier than the specification says. Who catches it?</strong></p>
@@ -1921,16 +1942,16 @@ this testbench existed.</p>
 <blockquote>
 <p><strong>Protocol → assertion. Data → scoreboard</strong> — and it is not a preference: by the time the transaction reaches the scoreboard, the protocol is no longer there. Writing the check there would be rebuilding by hand the time the monitor has just erased.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/356">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/358">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s357" class="slide">
-<!-- es-sha: 4c8ceb7be78e -->
+<section id="s359" class="slide">
+<!-- es-sha: c527ad9441c9 -->
 <h2 id="capstone-·-day-7">Capstone · Day 7</h2>
 <h4 id="the-whole-testbench-from-a-blank-sheet"><em>The whole testbench, from a blank sheet</em></h4>
 <p><code>cd code/ejercicios/d7-final &amp;&amp; cat spec.en.md</code></p>
 <ul>
-<li>The other twelve exercises gave you a file with a hole in it. This one gives a <strong>DUT,
+<li>The other thirteen exercises gave you a file with a hole in it. This one gives a <strong>DUT,
 a spec and nothing else</strong></li>
 <li>The DUT is not the VTALU: it is an <strong>APB3 slave</strong> with four registers. It has
 addresses, two phases per transfer, a <em>wait state</em> and an error response</li>
@@ -1952,10 +1973,10 @@ The other use, for whoever is studying alone: it is the exercise that can be sho
 an interview. A UVM testbench on an APB, written from scratch, with its
 coverage plan, is exactly the example they ask for.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/357">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/359">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s358" class="slide">
+<section id="s360" class="slide">
 <h2 id="capstone-·-day-7">Capstone · Day 7</h2>
 <h4 id="the-dut-four-registers-and-the-small-print"><em>The DUT: four registers and the small print</em></h4>
 <table>
@@ -2115,10 +2136,10 @@ write does not wait and the read does, and out of that comes the <code>do @(pose
 <code>PRDATA</code> one cycle too early — and it does not fail every time, which is the worst that
 can happen.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/358">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/360">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s359" class="slide">
+<section id="s361" class="slide">
 <h2 id="capstone-·-day-7">Capstone · Day 7</h2>
 <h4 id="the-order-monitor-driver-scoreboard-coverage"><em>The order: monitor, driver, scoreboard, coverage</em></h4>
 <ul>
@@ -2153,11 +2174,11 @@ And stage 4 closes the circle of day 6: the covergroup does not get invented, it
 from the table of the verification plan. If a bin is left at zero, there is a row of the
 plan that was not verified — no matter how green the scoreboard is.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/359">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/361">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s360" class="slide">
-<!-- es-sha: 9a280ad692bb -->
+<section id="s362" class="slide">
+<!-- es-sha: c16462a2cd9e -->
 
 
 <h2 id="appendix-·-from-the-vtalu-to-a-real-bus">Appendix · From the VTALU to a real bus</h2>
@@ -2186,10 +2207,10 @@ knows about the protocol is shut away in one place. Changing protocol touches th
 place and nothing else. If the student had to rewrite the env, it would be a sign that the
 agent was badly built.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/360">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/362">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s361" class="slide">
+<section id="s363" class="slide">
 <h2 id="appendix-·-from-the-vtalu-to-a-real-bus">Appendix · From the VTALU to a real bus</h2>
 <h4 id="what-does-change"><em>What does change</em></h4>
 <ul>
@@ -2223,10 +2244,10 @@ a new topic: they are the same pieces as threads and as put and get.
 And about the second bullet, to bring the anxiety down: the monitor of a known
 protocol almost never gets written. It gets bought or downloaded.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/361">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/363">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s362" class="slide">
+<section id="s364" class="slide">
 <h2 id="appendix-·-from-the-vtalu-to-a-real-bus">Appendix · From the VTALU to a real bus</h2>
 <h4 id="where-to-start"><em>Where to start</em></h4>
 <ul>
@@ -2252,15 +2273,15 @@ plug it in passively on somebody else&#39;s stimulus —or on a test from the de
 already contributing on the first day.
 If somebody asks where the learning path goes on from here, the
 order that pays off: RAL, then regression with seeds, then the <code>clocking block</code>
-and the prefabricated bus properties. SVA is no longer on that list —it is the assertions— and it is worth saying so, because it is the first question of every interview.
+and the prefabricated bus properties. SVA is no longer on that list —it is a whole unit of this course— and it is worth saying so, because it is the first question of every interview.
 And a last one, which is not technical: in a real project the testbench almost always
 already exists. What gets asked for on the first day is not building one, it is <strong>adding a test
 to it</strong> — which is exactly what they practised in the exercises of days 3 and 6.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/362">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/364">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s363" class="slide">
+<section id="s365" class="slide">
 <!-- es-sha: 0ceed7c63a98 -->
 
 
@@ -2332,10 +2353,10 @@ And one that is not in the table because it is not a tool but a habit:
 running with <code>SEED=N</code>. A bug that shows up once every ten runs does not get debugged
 until you can repeat it at will.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/363">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/365">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s364" class="slide">
+<section id="s366" class="slide">
 <h2 id="appendix-·-the-debug-toolbox">Appendix · The debug toolbox</h2>
 <h4 id="which-one-to-use-according-to-the-symptom"><em>Which one to use, according to the symptom</em></h4>
 <table>
@@ -2400,14 +2421,14 @@ And to close: the last column is all there is. If the symptom is not here,
 the next step is the waveforms, which is the tool that does
 47 % of the work.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/364">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/366">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s365" class="slide">
-<!-- es-sha: e9a7ea2a6b9e -->
+<section id="s367" class="slide">
+<!-- es-sha: fcc3e7d65258 -->
 
 
-<h2 id="appendix-·-the-nineteen-silent-traps">Appendix · The nineteen silent traps</h2>
+<h2 id="appendix-·-the-twenty-silent-traps">Appendix · The twenty silent traps</h2>
 <h4 id="it-compiles-it-runs-and-it-lies"><em>It compiles, it runs, and it lies</em></h4>
 <table>
 <thead>
@@ -2448,7 +2469,7 @@ the next step is the waveforms, which is the tool that does
 get discovered weeks later, or do not get discovered</li>
 </ul>
 <div class="nota">
-<p>This appendix is the one to print out and stick next to the monitor. The nineteen
+<p>This appendix is the one to print out and stick next to the monitor. The twenty
 are spread over seven sections because each one shows up when the
 concept shows up, but they are needed together — and they are needed at the worst moment.
 The thesis of the appendix is in the subtitle, and it is worth stating it as a general rule
@@ -2461,11 +2482,11 @@ the <code>create()</code>, and the stimulus changes without anybody touching the
 That is why the <code>+TOPOLOGY</code> of the agents is so cheap: it is ten seconds of reading
 the tree UVM actually built, against the one you drew in your head.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/365">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/367">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s366" class="slide">
-<h2 id="appendix-·-the-nineteen-silent-traps">Appendix · The nineteen silent traps</h2>
+<section id="s368" class="slide">
+<h2 id="appendix-·-the-twenty-silent-traps">Appendix · The twenty silent traps</h2>
 <h4 id="the-one-publishing-and-the-one-listening"><em>The one publishing and the one listening</em></h4>
 <table>
 <thead>
@@ -2479,7 +2500,7 @@ the tree UVM actually built, against the one you drew in your head.</p>
 <tbody><tr>
 <td>The subscriber counts <strong>0</strong> and the monitor prints 1000</td>
 <td>the <code>connect()</code> in the <code>connect_phase</code> is missing</td>
-<td>grade it crosswise: against what the one that already worked says</td>
+<td>cross-check it: against what the one that already worked says</td>
 <td align="left">Analysis ports · d4</td>
 </tr>
 <tr>
@@ -2519,11 +2540,11 @@ pointing out the asymmetry: <code>do_copy()</code> without <code>super</code> lo
 <code>do_compare()</code> without <code>&amp;&amp;</code> compares too few of them, and gives back <em>equal</em> for two objects
 that are not. The second is worse, because it switches off the whole scoreboard without switching it off.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/366">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/368">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s367" class="slide">
-<h2 id="appendix-·-the-nineteen-silent-traps">Appendix · The nineteen silent traps</h2>
+<section id="s369" class="slide">
+<h2 id="appendix-·-the-twenty-silent-traps">Appendix · The twenty silent traps</h2>
 <h4 id="stimulus-scope-and-objections"><em>Stimulus, scope and objections</em></h4>
 <table>
 <thead>
@@ -2559,6 +2580,12 @@ that are not. The second is worse, because it switches off the whole scoreboard 
 <td align="left">Agents · d6</td>
 </tr>
 <tr>
+<td>The agent starts up <strong>active</strong> even though you set <code>is_active</code> in the <code>config_db</code></td>
+<td>the missing <code>super.build_phase()</code>: the one that reads it is <code>uvm_agent</code></td>
+<td>either a config object, or <code>super</code> — never half of each</td>
+<td align="left">Agents</td>
+</tr>
+<tr>
 <td>The simulation <strong>never ends</strong></td>
 <td>an <code>item_done()</code> that was not called</td>
 <td><code>+UVM_TIMEOUT=5ms</code> first, the trace after</td>
@@ -2572,7 +2599,7 @@ that are not. The second is worse, because it switches off the whole scoreboard 
 </tr>
 </tbody></table>
 <div class="nota">
-<p>The last two are the only ones of the nineteen that do make noise — one hangs and
+<p>The last two are the only ones of the twenty that do make noise — one hangs and
 the other ends oddly — and they are here because the noise they make does not point at the
 culprit. A hang does not say what was left waiting; a t=0 says PASS, which is
 worse than an error.
@@ -2589,11 +2616,11 @@ And a closing recommendation for whoever is studying alone: read this appendix n
 again on the day something does not work. The first time you understand none of them; the
 second you understand exactly the one that is happening to you.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/367">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/369">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s368" class="slide">
-<h2 id="appendix-·-the-nineteen-silent-traps">Appendix · The nineteen silent traps</h2>
+<section id="s370" class="slide">
+<h2 id="appendix-·-the-twenty-silent-traps">Appendix · The twenty silent traps</h2>
 <h4 id="the-four-from-the-assertions"><em>The four from the assertions</em></h4>
 <table>
 <thead>
@@ -2630,29 +2657,29 @@ second you understand exactly the one that is happening to you.</p>
 </tr>
 </tbody></table>
 <ul>
-<li>The four are of the same family as the fourteen above, with one aggravating factor:
+<li>The four are of the same family as the fifteen above, with one aggravating factor:
 a broken assertion <strong>looks exactly the same</strong> as one that works. There is no output
 to look at</li>
 </ul>
 <div class="nota">
 <p>These four reached the appendix with the assertions and they are the only ones on the list
-where the check itself is what fails — the other fourteen are bugs of the
+where the check itself is what fails — the other fifteen are bugs of the
 testbench; these are bugs of the one checking the testbench. That is why the antidote is
 always the same and that is why it is worth repeating it until you are sick of it: <strong>one <code>cover property</code> per <code>assert property</code></strong>.
 The first row is the cheapest to commit in this flow and it is worth showing it
 live: taking <code>--assert</code> out of the <code>run.sh</code> of <code>code/u8/assertions</code> leaves the run with <code>+BUG=1</code>
 at 0 <code>UVM_ERROR</code>. The 183 failures disappear without anything warning you.
-The third is the lesson of the section and the only one of the nineteen that is not in
+The third is the lesson of the section and the only one of the twenty that is not in
 any tutorial. The wrong reflex, when the false positives show up, is to
 loosen the property until it shuts up: there you are left without a check and with the
 feeling of having fixed it. The right reflex is to ask on which edge
 the one driving the stimulus writes.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/368">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/370">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s369" class="slide">
-<h2 id="appendix-·-the-nineteen-silent-traps">Appendix · The nineteen silent traps</h2>
+<section id="s371" class="slide">
+<h2 id="appendix-·-the-twenty-silent-traps">Appendix · The twenty silent traps</h2>
 <h4 id="and-the-one-the-clocking-block-brings"><em>And the one the clocking block brings</em></h4>
 <table>
 <thead>
@@ -2671,7 +2698,7 @@ the one driving the stimulus writes.</p>
 </tr>
 </tbody></table>
 <ul>
-<li>It is the only one of the nineteen that <strong>a tool adds</strong>: without a clocking
+<li>It is the only one of the twenty that <strong>a tool adds</strong>: without a clocking
 block it does not exist. Badly used it is worse than not using it</li>
 <li>Two names for the same wire, and they differ by one cycle:
 <code>code/u2/clocking/mezcla.sv</code> prints <code>3</code> and <code>4</code> at the same instant</li>
@@ -2691,11 +2718,11 @@ The rule in one line, which is Dave Rich&#39;s: if a signal belongs to the
 timing contract of a clocking block, it is always accessed through that contract. The
 long material is in <code>docs/clocking-blocks.md</code>.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/369">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/371">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s370" class="slide">
-<!-- es-sha: dedae37e2814 -->
+<section id="s372" class="slide">
+<!-- es-sha: 4a71e1803167 -->
 
 
 <h2 id="glossary-·-the-words-of-the-trade">Glossary · the words of the trade</h2>
@@ -2772,10 +2799,10 @@ A rule of thumb for work: the technical nouns are fixed and do not get paraphras
 &quot;Randomize the transaction&quot;, &quot;run the regression&quot;, &quot;this does not close coverage&quot;. It sounds like
 jargon and it is how the trade talks.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/370">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/372">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s371" class="slide">
+<section id="s373" class="slide">
 <h2 id="glossary-·-the-pieces">Glossary · The pieces</h2>
 <h4 id="one-line-each-to-have-them-together"><em>One line each, to have them together</em></h4>
 <table>
@@ -2847,7 +2874,7 @@ jargon and it is how the trade talks.</p>
 </tr>
 <tr>
 <td><em>cover property</em></td>
-<td>counts <strong>how many times a property got evaluated</strong>. The check of the check</td>
+<td>counts <strong>how many times a property actually held</strong>. The check of the check</td>
 </tr>
 </tbody></table>
 <div class="nota">
@@ -2872,10 +2899,10 @@ meanings: the UVM one is an object that generates stimulus; the SVA one
 edges later that&quot;*— and has nothing to do with it. The context always tells them
 apart, but the first time it confuses.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/371">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/373">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s372" class="slide">
+<section id="s374" class="slide">
 <h2 id="glossary-·-three-words-that-mislead">Glossary · Three words that mislead</h2>
 <ul>
 <li><strong><code>virtual</code></strong> — in SystemVerilog it is <strong>three unrelated things</strong>: a <em>virtual
@@ -2906,11 +2933,11 @@ And the last row looks obvious until the first project meeting, where
 &quot;how many tests do you have&quot; and &quot;how many tests did you run last night&quot; are two different
 questions with two very different numbers.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/372">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/374">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s373" class="slide">
-<!-- es-sha: 7a23758dbf71 -->
+<section id="s375" class="slide">
+<!-- es-sha: 42b61a50657d -->
 
 
 <h2 id="references">References</h2>
@@ -2924,10 +2951,10 @@ You have the code of <code>uvm-core</code> on disk: <code>make uvm</code>.</li>
 <li><strong>Salemi, Ray.</strong> <em>The UVM Primer</em> — Boston Light Press, 2013. The book I
 learned UVM with, and where several of the examples in <code>code/</code> came from.</li>
 <li><strong>2024 Siemens EDA / Wilson Research Group Functional Verification Study</strong>.
-Source of the <strong>data</strong> of the spec. The charts are our own: they are generated
+Source of the <strong>data</strong> of Trends. The charts are our own: they are generated
 with <code>make figs</code> from <code>res/trends/data.json</code>.</li>
 <li><strong>On RAL</strong>: the <em>Register Layer</em> chapter of the <strong>UVM 1.2 User Guide</strong> from
-Accellera is the normative reference, and the table of the twenty-five field
+Accellera is the long explanation, and the table of the twenty-five field
 accesses —<code>RW</code>, <code>WOC</code>, <code>W1C</code>…— is in the <strong>IEEE 1800.2</strong>, under <code>uvm_reg_field</code>. What
 the unit does not use lives in the same place: <code>add_hdl_path</code> for the backdoor,
 and <strong>IP-XACT</strong> (IEEE 1685) or <strong>SystemRDL</strong> (Accellera) to generate the model instead
@@ -2952,10 +2979,10 @@ verify: the percentages of unit 1 are from the Wilson Research
 Group study; the charts are our own and get regenerated with <code>make figs</code> from a JSON that
 is in the repo. Nothing in unit 1 is an image downloaded from the internet.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/373">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/375">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s374" class="slide">
+<section id="s376" class="slide">
 <h2 id="if-you-want-to-keep-reading">If you want to keep reading</h2>
 <div class="creditos creditos-ref">
 <a class="libro" href="https://www.amazon.com/UVM-Primer-Step-Step-Introduction/dp/0974164933" target="_blank" rel="noopener">
@@ -2972,10 +2999,10 @@ is in the repo. Nothing in unit 1 is an image downloaded from the internet.</p>
 written and it is still the best way to start in English. If the course was of any
 use to somebody, let them buy it.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/374">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/376">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s375" class="slide">
+<section id="s377" class="slide">
 <h2 id="credits">Credits</h2>
 <ul>
 <li>Part of the examples in <code>code/</code> derives from those of the <strong>UVM Primer</strong>, published
@@ -3001,10 +3028,10 @@ things. The code derives from Apache-2.0 code and has to go on being that; the
 slides are original work and CC BY is the one an academic setting understands; the
 tools are software and MIT is what anybody copying them expects.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/375">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/377">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s376" class="slide">
+<section id="s378" class="slide">
 <!-- es-sha: 052564f70afd -->
 
 
@@ -3038,10 +3065,10 @@ follows is a list of what was not covered. Finishing it is not knowing UVM — i
 read somebody else&#39;s testbench, write one of your own, and understand the next thing you
 learn without it sounding like gibberish.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/376">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/378">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s377" class="slide">
+<section id="s379" class="slide">
 <h2 id="what-was-left-out">What was left out</h2>
 <h4 id="and-where-to-go-on"><em>and where to go on</em></h4>
 <table>
@@ -3116,10 +3143,10 @@ If there is time, open it live and look together for the <code>m_set_full_name()
 the config_db find things. It is the best way to close the course: the
 library stops being magic.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/377">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/379">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s378" class="slide">
+<section id="s380" class="slide">
 <!-- es-sha: d97533d950af -->
 <h2 id="self-assessment">Self-assessment</h2>
 <h4 id="fifteen-things-you-should-be-able-to-do-by-now-·-1-of-3"><em>Fifteen things you should be able to do by now · 1 of 3</em></h4>
@@ -3132,23 +3159,23 @@ library stops being magic.</p>
 </thead>
 <tbody><tr>
 <td><strong>1 ·</strong> Explain why <strong>47 %</strong> of a verifier&#39;s time goes on debug, and what this course does about it</td>
-<td><a href="libro/day1.html#trends">Trends</a></td>
+<td><a href="day1.html#trends">Trends</a></td>
 </tr>
 <tr>
 <td><strong>2 ·</strong> Write a five-column <strong>verification plan</strong> for a DUT I have not seen before</td>
-<td><a href="libro/day1.html#the-verification-plan">The verification plan</a></td>
+<td><a href="day1.html#the-verification-plan">The verification plan</a></td>
 </tr>
 <tr>
 <td><strong>3 ·</strong> Say why <strong>100 % code coverage</strong> does not mean the DUT is verified</td>
-<td><a href="libro/day1.html#functional-coverage">Functional coverage</a></td>
+<td><a href="day1.html#functional-coverage">Functional coverage</a></td>
 </tr>
 <tr>
 <td><strong>4 ·</strong> Say what to look at <strong>first</strong> when a <code>covergroup</code> reports 0 %</td>
-<td><a href="libro/day1.html#functional-coverage">Functional coverage</a></td>
+<td><a href="day1.html#functional-coverage">Functional coverage</a></td>
 </tr>
 <tr>
 <td><strong>5 ·</strong> Explain which race a <code>clocking block</code> avoids — and why they are <strong>optional</strong> anyway</td>
-<td><a href="libro/day1.html#interfaces-and-bfm">Interfaces and BFM</a></td>
+<td><a href="day1.html#interfaces-and-bfm">Interfaces and BFM</a></td>
 </tr>
 </tbody></table>
 <div class="nota">
@@ -3164,10 +3191,10 @@ If it is being taught in class, project the three slides and ask for hands per r
 that get the most hands are the ones to review, and that measurement is worth more than
 the complete review.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/378">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/380">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s379" class="slide">
+<section id="s381" class="slide">
 <h2 id="self-assessment">Self-assessment</h2>
 <h4 id="fifteen-things-you-should-be-able-to-do-by-now-·-2-of-3"><em>Fifteen things you should be able to do by now · 2 of 3</em></h4>
 <table>
@@ -3179,23 +3206,23 @@ the complete review.</p>
 </thead>
 <tbody><tr>
 <td><strong>6 ·</strong> Extend a class and change its behaviour <strong>without copying it</strong>, and say what <code>super</code> does</td>
-<td><a href="libro/day2.html#classes-and-extensions">Classes and extensions</a></td>
+<td><a href="day2.html#classes-and-extensions">Classes and extensions</a></td>
 </tr>
 <tr>
 <td><strong>7 ·</strong> Change the class a testbench uses <strong>without touching the <code>env</code></strong>, with a <code>set_type_override</code></td>
-<td><a href="libro/day2.html#the-factory-pattern">The factory pattern</a></td>
+<td><a href="day2.html#the-factory-pattern">The factory pattern</a></td>
 </tr>
 <tr>
 <td><strong>8 ·</strong> Explain why a UVM simulation <strong>ends at t=0</strong> if nobody raises an objection</td>
-<td><a href="libro/day3.html#tests">Tests</a></td>
+<td><a href="day3.html#tests">Tests</a></td>
 </tr>
 <tr>
 <td><strong>9 ·</strong> Say why <code>build_phase</code> runs top down and <code>connect_phase</code> the other way round</td>
-<td><a href="libro/day3.html#components-and-phases">Components and phases</a></td>
+<td><a href="day3.html#components-and-phases">Components and phases</a></td>
 </tr>
 <tr>
 <td><strong>10 ·</strong> Make a scoreboard that fails say <strong>something more</strong> than &quot;it failed&quot;</td>
-<td><a href="libro/day3.html#reporting">Reporting</a></td>
+<td><a href="day3.html#reporting">Reporting</a></td>
 </tr>
 </tbody></table>
 <div class="nota">
@@ -3209,10 +3236,10 @@ debugging exactly where they were, and one that prints the transaction, the
 prediction and the time saves them half a morning. It is the difference between a
 testbench that works and one you can work with.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/379">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/381">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s380" class="slide">
+<section id="s382" class="slide">
 <h2 id="self-assessment">Self-assessment</h2>
 <h4 id="fifteen-things-you-should-be-able-to-do-by-now-·-3-of-3"><em>Fifteen things you should be able to do by now · 3 of 3</em></h4>
 <table>
@@ -3224,23 +3251,23 @@ testbench that works and one you can work with.</p>
 </thead>
 <tbody><tr>
 <td><strong>11 ·</strong> Hang a new subscriber off an analysis port <strong>without touching the one publishing</strong></td>
-<td><a href="libro/day4.html#a-single-place-that-watches-the-wire">A single place that watches the wire</a></td>
+<td><a href="day4.html#a-single-place-that-watches-the-wire">A single place that watches the wire</a></td>
 </tr>
 <tr>
 <td><strong>12 ·</strong> Write a constraint that reaches a corner case, and <strong>measure</strong> whether the <code>dist</code> does what it says</td>
-<td><a href="libro/day5.html#constrained-random">Constrained random</a></td>
+<td><a href="day5.html#constrained-random">Constrained random</a></td>
 </tr>
 <tr>
 <td><strong>13 ·</strong> Say what an agent with <code>is_active = UVM_PASSIVE</code> builds and what it does <strong>not</strong></td>
-<td><a href="libro/day6.html#agents">Agents</a></td>
+<td><a href="day6.html#agents">Agents</a></td>
 </tr>
 <tr>
 <td><strong>14 ·</strong> Explain why a <code>uvm_sequence</code> <strong>does not show up</strong> in <code>print_topology()</code></td>
-<td><a href="libro/day6.html#sequences">Sequences</a></td>
+<td><a href="day6.html#sequences">Sequences</a></td>
 </tr>
 <tr>
 <td><strong>15 ·</strong> Write a property that sees a protocol violation, and say why <code>--assert</code> is not optional</td>
-<td><a href="libro/day7.html#assertions-sva">Assertions (SVA)</a></td>
+<td><a href="day7.html#assertions-sva">Assertions (SVA)</a></td>
 </tr>
 </tbody></table>
 <ul>
@@ -3261,7 +3288,7 @@ a necessary condition, not a sufficient one. What proves somebody knows how to d
 a testbench of their own working, and that is the capstone. A student who ticks all
 fifteen and does not finish it did not finish the course.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/380">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/382">see this slide in the deck &rsaquo;</a></p>
 </section>
 </main>
 

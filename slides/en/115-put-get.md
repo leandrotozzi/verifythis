@@ -1,4 +1,4 @@
-<!-- es-sha: a0bb7766a72b -->
+<!-- es-sha: 3415a20700e5 -->
 ## Who waits for whom
 
 #### *What to send and how to send it*
@@ -96,7 +96,7 @@ to have to be written by hand.
 
 #### *The `env`: seven objects and five `connect()`*
 
-- Mantra: "Ports connects to exports"
+- Mantra: "Ports connect to exports"
 
 {{code:code/u5/put-get/tb_classes/env.svh|lines=14-34}}
 

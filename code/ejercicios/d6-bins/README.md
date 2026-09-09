@@ -1,4 +1,4 @@
-# Día 6 ·las sequences — cerrar un bin
+# Día 6 · las sequences — cerrar un bin
 
 El curso dice dos veces que el trabajo diario del verificador es **correr, mirar
 qué bin falta, escribir el caso dirigido, volver a correr**. Este es ese
@@ -19,18 +19,23 @@ sequence, y así ves la cobertura de partida. La segunda ya te incluye.
 
 **`cierre_sequence.svh`** — una sequence de un solo item, que mande
 `A = 8'hFF`, `B = 8'hFF` y `op = mul_op`. Es el bin *"las dos patas en `FF`,
-multiplicando"* del plan de cobertura del testbench convencional, y 60 operaciones al azar
-no lo llenan.
+multiplicando"* del plan de cobertura del testbench convencional, y 60
+operaciones al azar no lo llenan.
 
 Concretamente es la **fila 3** del plan de verificación
 ([`docs/plan-de-verificacion.md`](../../../docs/plan-de-verificacion.md)): el
-desborde del multiplicador, la única fila de las doce cuya columna de estímulo
-dice **caso dirigido**. Y eso no lo decidió nadie a mano: `FF` × `FF` es una
-combinación entre 65 536, así que el random no la visita. El plan es lo que hace
+**producto máximo** del multiplicador, la única fila de las doce cuya columna de
+estímulo dice **caso dirigido**. Y eso no lo decidió nadie a mano: `FF` × `FF` es
+una combinación entre 65 536, así que el random no la visita.
+Que quede claro por las dudas: `FF` × `FF` **no desborda**. Da `FE01`, que entra
+exacto en los 16 bits de `result`, y el DUT deja `ovf` en 0 en toda
+multiplicación. Es el máximo del espacio de entrada — por eso el bin se llama
+`mul_max`. El plan es lo que hace
 evidente qué test hay que escribir — este.
 
 Pero no lo pidas asignando los campos: **pedilo con `randomize() with {}`**. El
-caso dirigido se pide en el punto de uso, y esa es la herramienta de las transactions. `run.sh` chequea que tu archivo llame a `randomize()`.
+caso dirigido se pide en el punto de uso, y esa es la herramienta de las
+transactions. `run.sh` chequea que tu archivo llame a `randomize()`.
 
 Listo cuando `bash run.sh` imprime `EXERCISE OK` — o sea, cuando la cobertura
 de la segunda corrida es **mayor** que la de la primera.
@@ -70,7 +75,7 @@ nada.
   eligiendo un valor **antes** de mirar el resto de las constraints: si el que
   sorteó no cumple tu `with`, devuelve 0 en vez de buscar otro. Con
   `A dist {00 :/ 1, [01:FE] :/ 2, FF :/ 1}`, `with {A == 8'hFF}` resuelve una de
-  cada cuatro veces. El rodeo es una línea y está en la seccion Constrained random.
+  cada cuatro veces. El rodeo es una línea y está en la sección Constrained random.
 - Ese rodeo, además, es lo correcto acá aunque el simulador fuera perfecto: un
   caso **dirigido** no quiere un reparto de probabilidades, quiere un valor.
 - `randomize()` se chequea con `if`, nunca con `assert()`. Un simulador con las
@@ -81,8 +86,8 @@ nada.
 
 ## Lo que practica
 
-`randomize() with {}` y `constraint_mode()` (21b), `body()` y
-`start_item`/`finish_item` (23), y leer un reporte de cobertura para decidir qué
+`randomize() with {}` y `constraint_mode()`, `body()` y
+`start_item`/`finish_item`, y leer un reporte de cobertura para decidir qué
 escribir. Que es lo que hace que *coverage closure* sea un verbo y no un
 sustantivo: no se escribe un test por bin, se mira el reporte y se escriben
 tres líneas.

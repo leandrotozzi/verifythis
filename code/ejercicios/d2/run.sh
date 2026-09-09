@@ -4,8 +4,9 @@
 #   bash run.sh              with your files
 #   SOLUCION=1 bash run.sh   with the ones in solucion/, to compare
 #
-# The TB is the whole one from the A testbench without a single module section; from here come the package, your mult_tester and
-# the testbench class, which come first thanks to the +incdir order.
+# The TB is the whole one from the "A testbench without a single module" section;
+# from here come the package, your mult_tester and the testbench class, which come
+# first thanks to the +incdir order.
 #
 # If the scoreboard finds a mismatch, Verilator's $error aborts the
 # simulation: there is nothing to check here.

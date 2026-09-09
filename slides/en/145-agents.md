@@ -1,4 +1,4 @@
-<!-- es-sha: e0ffbfbfb9f7 -->
+<!-- es-sha: 9fffe39eea59 -->
 ## Agents
 
 #### *The problem: a testbench that cannot be copied*
@@ -93,7 +93,8 @@ Change two, conceptual: the stimulus generator **stops being a component**.
 A component is built once in `build_phase` and lives the whole simulation;
 a sequence is created, runs, finishes and gets thrown away — and you can run another one
 right after on the same sequencer. That is what lets a test
-combine stimuli without touching the structure, and it is the whole of sequences.
+combine stimuli without touching the structure, and that is what the sequences
+section is all about.
 The question to throw at the group: why does the driver of the passive agent not exist,
 but the monitor does? Because driving is optional, watching is not.
 
@@ -124,7 +125,7 @@ a copy. The sequence lends you the item and waits for you to
 give it back. `put`/`get` was a delivery: the tester dropped the command and moved on.
 And out of that comes the other useful difference: since the sequence still holds the
 handle, the driver can write the result inside it and the sequence reads it when it
-comes back from `finish_item()`. Sequences uses that.
+comes back from `finish_item()`. The sequences section uses that.
 
 ---
 
@@ -202,7 +203,7 @@ a place to put logic.
 - The `randomize()` goes **between the two**: that way the constraints get resolved at
   the moment the item is about to be handed over, not before
 - This is the direct translation of the `tester` of the transactions, and nothing more than
-  that — sequences is about what can be done in here
+  that — the sequences section is about what can be done in here
 
 {{code:code/u7/agents/tb_classes/command_sequence.svh|lines=6-43}}
 
@@ -333,11 +334,11 @@ agent does not hand out handles by hand.
 
 #### *The agent class: `build_phase`*
 
-- It asks the `uvm_config_db` for its config and copies the `is_active`
+- It asks the `uvm_config_db` for its config and copies the `is_active` **by hand**:
+  without `super.build_phase()`, `uvm_agent`'s, the one that would read it, never runs
 - It builds sequencer and driver **only if it is active**; the monitors and the two
   analysis ports, always
 - The analysis ports are ports: they get instantiated with `new()`, not with the factory
-- As in the whole course, **there is no `super.build_phase()`**
 
 {{code:code/u7/agents/tb_classes/vtalu_agent.svh|lines=1-33}}
 
@@ -347,8 +348,14 @@ the library brings **only reads `is_active` from the resource pool**. It is in
 `code/.uvm/src/comps/uvm_agent.svh`, it can be opened in class.
 Which means that in a testbench that calls `super.build_phase()`, a
 `uvm_config_db#(int)::set(this, "mi_agent", "is_active", UVM_PASSIVE)` works
-on its own, without a config object. Since this course never calls `super.build_phase()`,
+on its own, without a config object. Since this `vtalu_agent` does not call it,
 that mechanism **is switched off**, and that is why we assign it by hand.
+And here is where day 3 gets paid: `uvm_agent` is the only class in the library,
+besides `uvm_component`, that implements `build_phase`. It is exactly the case
+the rule for out there covers — you inherited from an intermediate class that
+does real work, and skipping the `super` switches it off without a word. We can
+skip it because we wrote the line that replaces it; whoever does not write that
+line, cannot.
 Both ways are valid. What is not valid is half of each one: putting
 `is_active` in the config_db, not calling `super.build_phase()`, and then
 wondering why the agent starts up active. It happens often.
@@ -532,7 +539,7 @@ seq.start(env_h.clase_agent_h.sequencer_h);
 - It works, but look at what that line does: the test **goes across the hierarchy**
   to reach the sequencer, and with that it knows the inside of the env again
 - Everything we have just encapsulated leaks out in one line
-- Sequences fixes it: the sequence is handed to the sequencer **through the
+- The sequences section fixes it: the sequence is handed to the sequencer **through the
   `config_db`**, and the test stops knowing where it is
 
 {{code:code/u7/agents/tb_classes/dual_test.svh|lines=10-44}}

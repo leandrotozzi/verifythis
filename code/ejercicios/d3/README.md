@@ -40,8 +40,8 @@ solo— o usá Codespaces, que ya lo trae.
 
 ## Lo que practica
 
-UVM tests, components y phases (11 y 12), y sobre todo el factory override del
-13. Compará con el día 2: ahí el tipo se elegía en el código del testbench, acá
+UVM tests, components y phases, y sobre todo el factory override.
+Compará con el día 2: ahí el tipo se elegía en el código del testbench, acá
 lo elige la factory y el testbench ni se entera.
 
 Mirá también la cobertura: con puras multiplicaciones baja a 26 %. Un test

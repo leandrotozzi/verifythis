@@ -1,4 +1,4 @@
-<!-- es-sha: 4c8ceb7be78e -->
+<!-- es-sha: c527ad9441c9 -->
 ## Capstone · Day 7
 
 #### *The whole testbench, from a blank sheet*
@@ -6,7 +6,7 @@
 `cd code/ejercicios/d7-final && cat spec.en.md`
 <!-- .element: class="comando" -->
 
-- The other twelve exercises gave you a file with a hole in it. This one gives a **DUT,
+- The other thirteen exercises gave you a file with a hole in it. This one gives a **DUT,
   a spec and nothing else**
 - The DUT is not the VTALU: it is an **APB3 slave** with four registers. It has
   addresses, two phases per transfer, a *wait state* and an error response

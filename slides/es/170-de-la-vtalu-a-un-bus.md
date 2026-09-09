@@ -91,7 +91,7 @@ enchufarlo pasivo sobre el estímulo de otro —o sobre un test del diseñador�
 está aportando el primer día.
 Si alguien pregunta por dónde sigue el camino de aprendizaje después de acá, el
 orden que rinde: RAL, después regresión con semillas, después el `clocking block`
-y las properties de bus prefabricadas. SVA ya no está en esa lista —es las assertions— y conviene decirlo, porque es la primera pregunta de toda entrevista.
+y las properties de bus prefabricadas. SVA ya no está en esa lista —es una unidad entera de este curso— y conviene decirlo, porque es la primera pregunta de toda entrevista.
 Y una última, que no es técnica: en un proyecto real el testbench casi siempre ya
 existe. Lo que se pide el primer día no es armar uno, es **agregarle un test** —
 que es exactamente lo que practicaron en los ejercicios de los días 3 y 6.

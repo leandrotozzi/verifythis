@@ -1,12 +1,13 @@
-<!-- es-sha: d7a04d8a10dc -->
+<!-- es-sha: f86e4de9cb62 -->
 # Day 8 · RAL — modelling the register map
 
 It is the first thing you get asked for in a project with registers, and it is literally this:
 they give you the table of the spec and you give back the model.
 
 The DUT is the one from the capstone —the APB slave with four registers— and so is the
-testbench: the interface, the transaction, the driver, the monitor and the agent are the
-ones you wrote in [`d7-final`](../d7-final/). The adapter, the predictor and the three
+testbench: the interface, the transaction, the driver, the monitor and the agent come
+from [`d7-final/solucion/`](../d7-final/solucion/), so this exercise runs even if you
+have not finished the capstone yet. The adapter, the predictor and the three
 tests come from [`code/u9/ral/`](../../u9/ral/) and do not get touched.
 
 **Of all that, the only thing you write is the register model.**
@@ -40,6 +41,8 @@ The checker goes in stages and each one prints its `STAGE N OK`:
    they are not registers: their value gets produced by a write to *another* address. A
    model that does not say so gives false positives, and the false positive belongs to the model,
    not to the DUT.
+
+Done when `bash run.sh` prints the three stages and ends with `EXERCISE OK`.
 
 ## How to run it
 
@@ -83,6 +86,6 @@ It compiles the whole of UVM, including `uvm-core/src/reg`. Measured with Verila
 
 ## What it practises
 
-The whole of unit 9, which is short on purpose: the model, the `uvm_reg_field` and its
+The whole of the RAL section, which is short on purpose: the model, the `uvm_reg_field` and its
 chain of accesses, `add_reg` and the map. And an idea that is not about UVM: **the
 difference between a register and an address**.

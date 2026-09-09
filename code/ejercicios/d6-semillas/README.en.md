@@ -1,5 +1,5 @@
-<!-- es-sha: 4ddbe69b75b9 -->
-# Day 6 ·sequences — the same sequence, another seed
+<!-- es-sha: 95df6f6178a8 -->
+# Day 6 · sequences — the same sequence, another seed
 
 The table *"this is how coverage gets closed"* of the Constrained random section ends with a row that
 the course never does: **repeat with another seed**. This exercise does it.

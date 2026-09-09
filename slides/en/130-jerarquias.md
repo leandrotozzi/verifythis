@@ -1,4 +1,4 @@
-<!-- es-sha: bf5d480c39e0 -->
+<!-- es-sha: 647efb74e66a -->
 ## Copying an object that contains another
 
 #### *The handle is not the object*
@@ -190,7 +190,7 @@ this?" is this slide.
 - It is the `convert2string()` of `fernet_con_hielo`, the bottom-most class: it
   prints **all four fields by hand**, including the three it inherited
 - It works, and that is why it is dangerous. The day `fernet` gains a field, this
-  method goes on compiling and goes on printing — short
+  method goes on compiling and goes on printing — less than it should
 - The whole file is in `code/u6/jerarquias/wrong.sv`, and the `do_copy()`s have
   the same vice: each one touches fields that are not its own
 
@@ -254,7 +254,7 @@ write them no.
 - For that to work, the `do_copy()` / `do_compare()` all take **the same type of
   argument**, the base class. It is polymorphism, once again
 - The day somebody puts a class **in the middle** of the hierarchy, the deep
-  version goes on working by itself. The other one has to be gone out and fixed
+  version goes on working by itself. The other one you have to go out and fix
 
 Note:
 The handle bug is the one everybody writes once: you modify the transaction you

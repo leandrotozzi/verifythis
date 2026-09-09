@@ -1,4 +1,4 @@
-<!-- es-sha: 8545845ed94d -->
+<!-- es-sha: 220093e566b6 -->
 # Day 3 — a new test without touching the structure
 
 The testbench already comes with the `env` separating structure from stimulus.

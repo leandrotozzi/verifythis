@@ -19,6 +19,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import hljs from './hljs-slim.mjs';
 import { UI, idiomaDeArgv, SALIDAS } from './i18n.mjs';
+import { seo } from './sitio.mjs';
 
 const IDIOMA = idiomaDeArgv();
 const OUT = SALIDAS[IDIOMA];
@@ -170,6 +171,13 @@ async function renderSlide(s) {
   html = html.replace(/(<img[^>]+src=")(res\/[^"]+)/g,
     (_, pre, rel) => `${pre}${UP}/` + (clara.has(rel) ? rel.replace('res/', 'res/print/') : rel));
 
+  // Lo mismo que arriba pero para los enlaces AL PROPIO LIBRO. Las slides los
+  // escriben desde la raiz del repo -- `libro/dia1.html`, que es lo correcto
+  // desde el deck --, y aca esa slide ya esta ADENTRO de libro/: quedaba
+  // `libro/libro/dia1.html`. Eran los 30 enlaces de la autoevaluacion, o sea
+  // la ultima pantalla del curso, en los dos idiomas.
+  html = html.replace(/(<a[^>]+href=")libro\//g, '$1');
+
   // Los quizzes conservan la lista de tareas: el JS de abajo la convierte en
   // opciones clickeables, con el mismo markup y las mismas clases del deck.
   if (/quiz/.test(s.f)) clases.add('quiz');
@@ -193,6 +201,26 @@ const TITULOS = T.titulos;
 // Solo los dias que existen: en el arbol en ingles todavia hay huecos, y un
 // enlace a un dia que no se genero es un 404.
 const HAY = dias.map(ss => ss.length > 0);
+
+// Los dias que existen en el OTRO idioma. El hreflang reciproco tiene que
+// apuntar a una pagina que exista: un alternate a un 404 le dice al buscador que
+// la traduccion esta cuando no esta. Se lee de slides/, que es la fuente y esta
+// commiteada, y NO del arbol generado: si dependiera de que day3.html ya se
+// escribio, la salida cambiaria segun el orden en que corrio el build y
+// --check quedaria rojo una corrida si y otra no.
+const OTRO = IDIOMA === 'es' ? 'en' : 'es';
+const dirOtro = SALIDAS[OTRO].slides;
+const mdOtro = (await Promise.all((await readdir(dirOtro).catch(() => []))
+  .filter(f => f.endsWith('.md'))
+  .map(f => readFile(path.join(dirOtro, f), 'utf8')))).join('\n');
+// id="dayN" presente <=> ese dia tiene al menos la slide que lo abre, que es
+// exactamente la condicion de HAY.
+const HAY_OTRO = new Set([...mdOtro.matchAll(/id="day(\d)"/g)].map(m => +m[1]));
+
+// La misma pagina, en el sitio publicado, en cada idioma. libro/ y en/libro/ se
+// copian tal cual (tools/sitio.mjs), asi que la ruta del sitio es la del repo.
+const RUTAS = { es: UI.es.archivoDia, en: UI.en.archivoDia };
+const ruta = (l, n) => `${l === 'en' ? 'en/' : ''}libro/${RUTAS[l](n)}`;
 const NAV = n => Array.from({ length: DIAS }, (_, i) => !HAY[i] ? ''
   : i === n ? `<b>${T.dia(i + 1)}</b>` : `<a href="${T.archivoDia(i + 1)}">${T.dia(i + 1)}</a>`)
   .filter(Boolean).join('\n      ');
@@ -232,6 +260,16 @@ const JS_QUIZ = `
         '<p class="ayuda">${T.quizAyuda}</p>');
     });`;
 
+// El <title> ya era propio de cada dia (T.libroTitulo mete el titulo del dia);
+// la description NO: era la misma frase en las ocho paginas, y ocho paginas con
+// la misma description compiten entre si en el mismo indice. El tema del dia sale
+// de T.titulos (tools/i18n.mjs), que es el unico lugar que lo sabe.
+const DESC = n => `${TITULOS[n]} — ${T.libroDescripcion(n + 1)}`;
+
+// n es el indice (0..7); HAY/HAY_OTRO estan en la misma base.
+const HAY_ES = n => IDIOMA === 'es' ? HAY[n] : HAY_OTRO.has(n + 1);
+const HAY_EN = n => IDIOMA === 'en' ? HAY[n] : HAY_OTRO.has(n + 1);
+
 function pagina(n, cuerpo) {
   return `<!DOCTYPE html>
 <html lang="${T.html}" class="libro">
@@ -239,7 +277,13 @@ function pagina(n, cuerpo) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${T.libroTitulo(n + 1)}</title>
-<meta name="description" content="${T.libroDescripcion(n + 1)}">
+<meta name="description" content="${DESC(n)}">
+${seo({
+  es: HAY_ES(n) ? ruta('es', n + 1) : null,
+  en: HAY_EN(n) ? ruta('en', n + 1) : null,
+  lang: IDIOMA, css: `${UP}/css/`, tipo: 'article',
+  titulo: T.libroTitulo(n + 1), desc: DESC(n),
+})}
 <link rel="stylesheet" href="${UP}/css/fonts.css">
 <link rel="stylesheet" href="${UP}/css/course.css">
 <link rel="stylesheet" href="${UP}/css/code.css">

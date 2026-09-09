@@ -1,4 +1,4 @@
-<!-- es-sha: 99cf2a5b8aef -->
+<!-- es-sha: cf7b93df8c60 -->
 ## Tests
 
 #### *Compile once, pick the test from the command line*
@@ -46,7 +46,7 @@ Note:
 The virtual interface gets passed through the config_db because classes do not see the
 signals of the module: `bfm` lives in `top`, and `random_test` is an object that gets
 created at simulation time. There is no way to hand it over through the constructor —
-`uvm_component`'s only accepts `name` and `parent`.
+`uvm_component`'s constructor only accepts `name` and `parent`.
 It is worth pointing at the order: first the `set`, then `run_test()`. The other way round
 the test gets built before the data is in the database and the `get` fails with
 the fatal. It is a mistake you rarely see because almost nobody writes the top the wrong way
@@ -62,7 +62,7 @@ whoever starts with UVM.
 
 - A global and **typed** database: the `#(...)` is part of the key
 - Four arguments: *scope* (`cntxt`, `inst_name`), *name* and *data*
-- The **scope** is a hierarchical path, and that is where all the point is
+- The **scope** is a hierarchical path, and that is where the whole point is
 
 {{code:code/u4/tests/config_db.svh}}
 
@@ -171,7 +171,8 @@ endtask
   objection drops
 - Without `raise_objection` the simulation ends at **time 0**, and the test
   passes with 0 errors without having sent a single stimulus
-- Without `drop_objection` it never ends: there is no error, time simply stops advancing
+- Without `drop_objection` it never ends: there is no error, the simulation just
+  keeps running
 - Both symptoms are **silent**, and that is why two plusargs exist:
   `+UVM_OBJECTION_TRACE` says who raised it and who dropped it, and `+UVM_TIMEOUT`
   puts a ceiling on the run
@@ -281,9 +282,9 @@ Note:
 Worth running it live and timing it: the compilation takes minutes, the two
 `run_sim` take seconds. That is the number that justifies all the ceremony of
 the unit.
-The `$finish at 42ns` at the bottom is from the second test and does not match the first one:
-both tests send the same number of operations but the multiplier
-takes more cycles, so the time depends on what came out of the random.
+The `$finish at 46ns` at the bottom is from the first test; `add_test` ends at 41 ns.
+Both send the same number of operations, but the multiplication takes more cycles
+than the addition, so the time depends on what came out of the random.
 And a useful warning: `UVM_ERROR : 0` means "nobody called
 `uvm_error`", not "the DUT is fine". Here the scoreboard does report with
 `` `uvm_error ``, so the count is worth something — but a scoreboard that never receives

@@ -4,15 +4,21 @@ name: ejemplos
 # promesa fuerte del curso: "38 ejemplos que se ejecutan de verdad".
 #
 #   push / PR que toque code/  ->  los ejemplos sin UVM (segundos) + u4/tests
+#                                  + los mutantes + LOS EJEMPLOS QUE CAMBIARON
 #   todas las noches           ->  los 38, y ademas las 15 soluciones
 #
-# Los de UVM tardan minutos cada uno de COMPILAR, por eso no van en cada push.
-# u4/tests va igual: es el canario que dice que UVM sigue enlazando.
+# Los de UVM tardan minutos cada uno de COMPILAR, por eso no van todos en cada
+# push. Pero correr solo los rapidos dejaba el caso mas probable sin cubrir: el
+# que toca u7/sequences se entera de que lo rompio A LA NOCHE. Por eso el paso
+# "los ejemplos que cambiaron": se deducen del diff, con tope, y asi un PR que
+# toca un ejemplo de UVM lo corre en el PR sin pagar los otros doce.
 
 on:
   schedule:
     - cron: '0 6 * * *' # 03:00 en Argentina
   workflow_dispatch:
+  # Sin anchors de YAML (&x / *x): el parser de GitHub Actions no los expande,
+  # asi que la lista va repetida y punto.
   push:
     paths:
       - 'code/**'
@@ -39,6 +45,9 @@ env:
   # Los covergroups entraron en 5.050 y son tema del curso, asi que el paquete
   # de la distro no sirve: hay que compilar de fuente. Sale cacheado.
   VERILATOR_VERSION: v5.052
+  # Tope de ejemplos que un PR corre por haberlos tocado. Sin tope, un PR que
+  # renombra algo en code/verilator/common.sh pediria los 38 con UVM.
+  MAX_CAMBIADOS: 6
 
 jobs:
   ejemplos:
@@ -48,6 +57,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Para el diff contra la base del PR. 0 es caro; 50 alcanza para
+          # cualquier PR de este repo y no baja los 8 GB de historia.
+          fetch-depth: 50
 
       # Dos que se necesitan SIEMPRE, y por eso no pueden vivir adentro del paso
       # que compila Verilator: ese se saltea en cuanto hay cache hit.
@@ -117,11 +130,56 @@ jobs:
       - name: u4/tests - UVM enlaza y da 0 UVM_ERROR
         run: make u4/tests
 
+      # El test negativo, sobre los tres ejemplos sin UVM: segundos. "El ejemplo
+      # corre" no dice nada si el chequeo no puede fallar -- un scoreboard
+      # desconectado pasa igual de verde. Esto rompe el DUT a proposito y exige
+      # que el ejemplo se de cuenta.
+      - name: Los chequeos atrapan un DUT roto
+        run: make mutante
+
+      # Los ejemplos que toca ESTE cambio, aunque usen UVM. El target sale de
+      # subir por el arbol hasta el directorio que tiene el run*.sh, que es
+      # exactamente como los arma el wildcard del Makefile.
+      - name: Los ejemplos que cambiaron
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -u
+          # En el primer push de una rama, github.event.before son todos ceros.
+          if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            BASE=$(git rev-parse HEAD~1 2>/dev/null || echo "")
+          fi
+          [ -n "$BASE" ] || { echo "sin base para el diff: nada que hacer"; exit 0; }
+
+          objetivos=""
+          for f in $(git diff --name-only "$BASE" HEAD -- 'code/u*'); do
+            d=$(dirname "$f")
+            while [ "$d" != "code" ] && [ "$d" != "." ]; do
+              if [ -n "$(find "$d" -maxdepth 1 -name 'run*.sh' -print -quit)" ]; then
+                objetivos="$objetivos ${d#code/}"; break
+              fi
+              d=$(dirname "$d")
+            done
+          done
+          objetivos=$(echo "$objetivos" | tr ' ' '\n' | grep . | sort -u || true)
+          [ -n "$objetivos" ] || { echo "el diff no toca ningun ejemplo"; exit 0; }
+
+          n=$(echo "$objetivos" | wc -l | tr -d " ")
+          echo "ejemplos tocados por este cambio: $n"
+          echo "$objetivos" | sed 's/^/  /'
+          if [ "$n" -gt "$MAX_CAMBIADOS" ]; then
+            echo "::notice::$n ejemplos cambiados, mas que MAX_CAMBIADOS=$MAX_CAMBIADOS."
+            echo "::notice::Se corren los primeros $MAX_CAMBIADOS; los otros van en la corrida de la noche."
+            objetivos=$(echo "$objetivos" | head -n "$MAX_CAMBIADOS")
+          fi
+          for t in $objetivos; do echo "==> make $t"; make "$t"; done
+
       - name: Los 38 ejemplos
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: make matrix
 
-      # Las soluciones no se corrigen solas: esto comprueba que los doce
+      # Las soluciones no se corrigen solas: esto comprueba que los quince
       # ejercicios sigan siendo RESOLUBLES cuando cambia el codigo del curso.
       - name: Las 15 soluciones de los ejercicios
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'

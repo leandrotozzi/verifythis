@@ -1,4 +1,4 @@
-<!-- es-sha: bc959a01a188 -->
+<!-- es-sha: 2f77fc3ff307 -->
 # Capstone 2 · a FIFO with backpressure
 
 > **This gets done after the `d7-final`.** Not because it is harder to
@@ -27,8 +27,8 @@ predicted depend on everything that happened before. There is no table that will
 The difference shows up in one line of the checker:
 
 ```
-con +BUG=1 almost_full se levanta un lugar tarde, y tu scoreboard no dijo nada.
-Los datos salen bien igual.
+with +BUG=1 almost_full goes up one place late, and your scoreboard said nothing.
+The data still comes out right.
 ```
 
 A scoreboard that compares only what comes out of `rd_data` closes six of the
@@ -68,6 +68,34 @@ bus*:
   it has to scream.
 - **4 · The coverage.** The `covergroup` with the seven rows of the plan: more than
   20 points, 90 % covered.
+
+Done when `bash run.sh` prints the four stages and ends with `EXERCISE OK`.
+
+## The contract with the checker
+
+Just like in `d7-final`, the checker does not read your code: it reads the log.
+Four things have to be like this:
+
+- The **tests** are called `monitor_test`, `smoke_test` and `random_test`.
+- The **monitor** prints one line per cycle with activity, with the id `MONITOR`
+  and with the flags in it:
+
+  ```
+  wr=1 data=a3 rd=0 | count=3 full=0 af=0 empty=0 ae=0
+  ```
+
+  Stages 1 and 2 get graded by counting those lines and looking for `full=1` and
+  `empty=1`: if your format does not write them, stage 2 does not pass even if
+  the sequence is right.
+- The **scoreboard** reports with `` `uvm_error("SCOREBOARD", ...) ``.
+- The directed sequence of the `smoke_test` has to reach `full=1` **and**
+  `empty=1` in the same run.
+
+## How long it takes
+
+It compiles the whole of UVM, like `d7-final`: ~2 min the first time, and ~15 s
+the following ones with `ccache`. It needs **`z3`**: the `random_test` randomizes
+with constraints, and without the solver `randomize()` returns 0 in silence.
 
 ## Hints, in order of usefulness
 

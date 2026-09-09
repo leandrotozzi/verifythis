@@ -354,7 +354,7 @@ Instead of the config object, you put `is_active` straight into the `uvm_config_
 - **a)** Because `is_active` is `protected` and the `config_db` cannot write it
 - **b)** Because the `config_db` does not accept enumerated types
 - **c)** Because `is_active` is fixed in the constructor and `build_phase` arrives late
-- **d)** Because the one who reads it is the `build_phase` of `uvm_agent`, and we never call `super.build_phase()`
+- **d)** Because the one who reads it is the `build_phase` of `uvm_agent`, and `vtalu_agent` does not call `super.build_phase()`
 
 **36. Object, not component**
 
@@ -490,7 +490,7 @@ The DUT gives back the right `result` but drops `done` one cycle earlier than th
 | 32 | 6 | The handshake of the driver | **d** | **It hangs, and without saying anything** — it is the classic mistake of the first week, and the symptom misleads: there is no error and no warning, time stops advancing and the objection never gets dropped. `get_next_item()` is a loan; `item_done()` is giving it back. |
 | 33 | 6 | Scope of the config_db | **c** | **Both receive the same thing** — the `uvm_config_db` does not match by order nor by type: it matches by **path**. With `"*"` both entries describe the same components, so the last one wins. The scope is a path in the tree, not a label. |
 | 34 | 6 | The sequencer | **d** | **Because of the base class we chose in transactions** — `uvm_sequencer #(T)` requires that `T` derive from `uvm_sequence_item`. If that day the transaction had extended a plain `uvm_transaction`, this `typedef` would not compile today. A decision of one section enabling the next. |
-| 35 | 6 | super.build_phase() | **d** | **That mechanism is switched off** — `uvm_agent::build_phase` looks for `is_active` in the resource pool (it is in `code/.uvm/src/comps/uvm_agent.svh`, it can be opened). Without `super.build_phase()` that line never runs. Both ways are valid; what does not work is half of each one. |
+| 35 | 6 | super.build_phase() | **d** | **That mechanism is switched off** — `uvm_agent::build_phase` looks for `is_active` in the resource pool (it is in `code/.uvm/src/comps/uvm_agent.svh`, it can be opened). Without `super.build_phase()` that line never runs, and nobody warns you. Both ways are valid; what does not work is half of each one. |
 | 36 | 6 | Object, not component | **b** | **It gets created, runs and is thrown away** — a component is built once in `build_phase` and lives to the end. That is why the stimulus cannot be a component: it changes from test to test, and sometimes within the same test. Out of that comes as well that it can be configured between the `create()` and the `start()`, the way `full_seq.count = 200` does. |
 | 37 | 6 | start_item() | **b** | **You have the turn, you have not handed anything over yet** — and that is why the `randomize()` goes *after*: it is the last possible moment to choose the values, when you already know what state the DUT is in. That is late randomization, and it is where `pre_do()` and `mid_do()` hook on. |
 | 38 | 6 | The way back | **c** | **After `finish_item()`** — there is no way back at all: there is a shared handle and an agreement between the two parties. The REQ/RSP pair exists and is the formal mechanism, but almost nobody uses it: writing the result into the request is enough. This is what makes Fibonacci possible. |

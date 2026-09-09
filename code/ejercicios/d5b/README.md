@@ -40,7 +40,7 @@ La diferencia entre la solución y el archivo inicial es **un carácter**.
 
 ## Lo que practica
 
-`:=` contra `:/` (21b), y la regla que ordena la sección: **no lo supongas,
+`:=` contra `:/`, y la regla que ordena la sección: **no lo supongas,
 medilo.** Una constraint mal escrita no falla, miente — no hay warning, no hay
 error de compilación, y el testbench pasa igual. Lo único que la delata es la
 cobertura que no sube, y eso se nota semanas después.

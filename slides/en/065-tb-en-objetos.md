@@ -1,4 +1,4 @@
-<!-- es-sha: dde615e37a58 -->
+<!-- es-sha: c58c93778ad6 -->
 ## A testbench without a single module
 
 #### *The same testbench, without a single module*
@@ -260,4 +260,4 @@ Day 3 answers it piece by piece, and it starts downhill if the student walks out
 of here able to draw the object tree on the board.
 And the argument for why the whole day was worth it: with modules, changing the
 stimulus is editing the file. With classes it is extending a class, and the two
-versions live side by side. That is the exercise they have just done.
+versions live side by side. That is the exercise that follows.

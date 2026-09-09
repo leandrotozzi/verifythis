@@ -3,11 +3,12 @@
 # entraron en 5.050) y UVM 2020.3.1 horneada en /opt/uvm.
 #
 #   docker build -t verifythis .
-#   docker run --rm -it -v "$PWD":/work verifythis make ch11
+#   docker run --rm -it -v "$PWD":/work verifythis make u4/tests
 # z3 no es opcional: Verilator resuelve randomize() con constraints llamando a un
 # solver SMT externo, y sin el `randomize()` devuelve 0 en vez de fallar al
-# compilar. Lo necesitan code/ch15, ch21, ch22 y ch23 -- o sea todo el dia 5 y
-# todo el dia 6. Ver docs/verilator.md.
+# compilar. Lo necesitan code/u5/varios-objetos, u6/transactions, u7/agents,
+# u7/sequences, u8/assertions y u8/dpi, mas los ejercicios de constrained
+# random y de cobertura. Ver docs/verilator.md.
 FROM debian:bookworm-slim
 
 ARG VERILATOR_VERSION=v5.052

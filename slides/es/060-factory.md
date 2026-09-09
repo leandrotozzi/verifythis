@@ -17,9 +17,9 @@ Note:
 La frase que ordena la unidad: **el que usa el objeto deja de ser el que elige
 el tipo**. Todo lo demás son detalles de implementación.
 Conviene decir de entrada dónde termina esto, porque si no parece un rodeo de
-programación: el `+UVM_TESTNAME=add_test` de los tests ya era una factory —
-UVM lee un string de la línea de comandos y construye la clase que corresponde.
-Acá se ve el mecanismo por dentro.
+programación: el `+UVM_TESTNAME=add_test` de los tests, mañana, va a ser una
+factory — UVM lee un string de la línea de comandos y construye la clase que
+corresponde. Acá se ve el mecanismo por dentro.
 Y para el que viene de software: sí, es el Factory Method del GoF, y no
 inventamos nada. La versión en Python de la última slide está justamente para
 eso.
@@ -153,10 +153,10 @@ programación, y se puede ir a leer sobre el tema afuera del mundo EDA.
   sola**
 
 Note:
-Cierre de la sección más abstracto del día 2, y conviene aterrizarlo con lo que
-ya vieron: el `+UVM_TESTNAME=add_test` de los tests **ya era una factory** —
+Cierre de la sección más abstracta del día 2, y conviene aterrizarlo con lo que
+viene: el `+UVM_TESTNAME=add_test` de los tests **es una factory** —
 UVM lee un string de la línea de comandos y construye la clase que corresponde.
-Acá vieron el mecanismo por dentro.
+Acá vieron el mecanismo por dentro, un día antes.
 La frase que resume la sección entera: **el que usa el objeto deja de ser el
 que elige el tipo.** Todo lo demás son detalles de implementación.
 Y para el que viene de software: es el Factory Method del GoF, de 1994, y en

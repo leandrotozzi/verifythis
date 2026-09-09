@@ -259,4 +259,4 @@ El día 3 la contesta pieza por pieza, y arranca cuesta abajo si el alumno sale
 de acá pudiendo dibujar el árbol de objetos en el pizarrón.
 Y el argumento de por qué valió la pena todo el día: con módulos, cambiar el
 estímulo es editar el archivo. Con clases es extender una clase, y las dos
-versiones conviven. Eso es el ejercicio que acaban de hacer.
+versiones conviven. Eso es el ejercicio que sigue.

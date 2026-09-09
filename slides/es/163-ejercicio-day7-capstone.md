@@ -5,7 +5,7 @@
 `cd code/ejercicios/d7-final && cat spec.md`
 <!-- .element: class="comando" -->
 
-- Los otros doce ejercicios daban un archivo con un agujero. Éste da un **DUT,
+- Los otros trece ejercicios daban un archivo con un agujero. Éste da un **DUT,
   una spec y nada más**
 - El DUT no es la VTALU: es un **esclavo APB3** de cuatro registros. Tiene
   direcciones, dos fases por transferencia, un *wait state* y respuesta de error

@@ -1,4 +1,4 @@
-<!-- es-sha: bcd5c127e93c -->
+<!-- es-sha: 7ab5fdb2591e -->
 # Day 1 — a new operation, end to end
 
 Two files: a copy of the DUT single-cycle block and a copy of the conventional
@@ -21,7 +21,9 @@ that it has to verify it too.
    every bin**: it runs, it passes the scoreboard, and it does not show up in the report.
    Put it in.
 
-Done when `bash run.sh` finishes with `EXERCISE OK`.
+Done when `bash run.sh` finishes with `EXERCISE OK` **and** the coverage report
+closes with **77 covered bins or more**. Two conditions, because step 3 does not
+move the first one: the one that catches it is the second.
 
 ## How to run it
 
@@ -33,6 +35,11 @@ SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 If a result does not match the model, the scoreboard's `$error` aborts the
 simulation: Verilator treats it as an assertion.
 
+## How long it takes
+
+It does not use UVM: it compiles and runs in **seconds**, without `ccache` and
+without `z3`.
+
 ## What it practises
 
 The VTALU spec, the conventional testbench and functional coverage. Plus two
@@ -41,8 +48,13 @@ lessons that are on no slide:
 - **A new operation gets touched in three places** —the DUT, the stimulus with its
   check, and the measure— and if you forget one, the one that finds out is the TB.
 - **An opcode nobody measures is an opcode nobody verified.** Step 3 is the
-  most skipped one, and it is the only one of the three that fails **silently**: without
-  touching the bins, the simulation passes green and the coverage does not move.
+  most skipped one, and it is the only one of the three the simulation lets
+  through **silently**: without touching the bins it passes green, and the
+  coverage percentage still reads 100 %. That is why the checker counts bins and
+  does not look at the percentage.
 
-With the solution, the coverage goes from **86.8 % to 100 %**: the shift adds its
-own bin and along the way closes the ones that were still open.
+With the solution, the coverage goes from **86.8 % (66 bins out of 76) to 100 %
+(77 out of 77)**: the shift adds its own bin and along the way closes the ones
+that were still open. Look at the denominator, not at the percentage: a
+covergroup that never declared the bin does not count it as missing either, so
+without step 3 the report also says 100 % — out of 76.

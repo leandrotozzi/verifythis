@@ -36,13 +36,13 @@ secuencias.
 #### *Intro UVM phases*
 
 - Todos los uvm components tienen estos phase methods por herencia
-- UVM crea los TB y va llamando estos métodos en orden
+- UVM crea el TB y va llamando estos métodos en orden
 - Las fases son *métodos*: se overridean como cualquier otro método virtual.
   Si además conviene llamar a `super`, es tema de la slide que sigue
 
-- *function void build_phase(uvm_phase phase):* UVM crea el TB (top-down). Los componentes UVM se instancian en este método. Si tratas de instanciarlos en otro lado es error
+- *function void build_phase(uvm_phase phase):* UVM crea el TB (top-down). Los componentes UVM se instancian en este método. Si tratás de instanciarlos en otro lado es error
 - *function void connect_phase(uvm_phase phase):* Conexión de componentes
-- *function void end_of_elaboration_phase(uvm_phase phase):* UVM lo llama una vez que creo y conecto todos los componentes
+- *function void end_of_elaboration_phase(uvm_phase phase):* UVM lo llama una vez que creó y conectó todos los componentes
 - *task run_phase(uvm_phase phase):* UVM ejecuta esta task en su propio thread. Todos los run_phase se ejecutan simultáneamente
 - *function void report_phase(uvm_phase phase):* Se ejecuta cuando se termina la última objection del test. Muestra Resultados
 
@@ -69,30 +69,42 @@ function void uvm_component::connect_phase(uvm_phase phase);
 endfunction
 ```
 
-- `build_phase` es la **única** fase que hace algo en `uvm_component`: recorre el
-  `uvm_config_db` y asigna sola los campos que registraste con `` `uvm_field_* ``
-- El curso **no usa esas macros** —los campos se leen a mano con
-  `uvm_config_db::get()`—, así que no hay nada que aplicar. Por eso ningún
-  `build_phase` de `code/` llama a `super`: **no es un olvido**
-- En cuanto aparezca un `` `uvm_field_int `` en tu proyecto, pasa a ser
-  obligatoria: sin ella la config automática no ocurre, el campo queda en su
-  default y **nadie te avisa**
-- Y el orden importa: lo que tenga que estar decidido *antes* de que se
-  construyan los hijos va antes del `super`. El `set_type_override` de
-  `add_test` (las transactions) es exactamente eso
+- `build_phase` es la **única** fase que hace algo en `uvm_component`: aplica los
+  campos registrados con `` `uvm_field_* ``. El curso no usa esas macros
+- Ojo, hay **dos `super` distintos**: ése, y el de una clase base **tuya**, que
+  construye lo que vos escribiste. El segundo el curso **sí** lo llama
+- Afuera: **ponelo siempre, salvo que puedas nombrar por qué en tu caso es un
+  no-op**. De más no cuesta nada; de menos —un `` `uvm_field_* ``, o heredar de
+  `uvm_agent`— el campo queda en su default y **nadie te avisa**
+- Y el orden importa: lo que tenga que estar decidido *antes* de construir los
+  hijos va antes del `super`. El `set_type_override` de `add_test` es eso
 
 Note:
 Esta slide existe porque el alumno va a ver `super.build_phase(phase)` en todo el
-material de internet y en el código del curso no está. La respuesta honesta no es
-"se olvidaron": es que sin las macros de campo la llamada no hace nada.
-Y aprovechar para nombrar la diferencia de fondo: hay dos formas de configurar un
-componente. La automática (`` `uvm_field_* `` + config_db, magia por macros) y la
-manual (`uvm_config_db::get()` en el build_phase, que es la que usa el curso).
-La manual es más código y muchísimo más fácil de debuggear — las macros de campo
-generan cientos de líneas que no vas a leer nunca.
-Si alguien pregunta por qué las otras fases igual se suelen llamar: costumbre y
-seguro barato. En `uvm_component` son `return;`, pero si mañana heredás de una
-clase intermedia que sí las implementa, la llamada ya está puesta.
+material de internet y en la mayoría de los `build_phase` del curso no está. La
+respuesta honesta no es "se olvidaron": es que sin las macros de campo la llamada
+al de `uvm_component` no hace nada.
+Los números, para que nadie tenga que creernos:
+`grep -rn 'super\.build_phase' code/` da once llamadas reales —más tres
+comentarios que hablan de ellas— sobre 122 `build_phase`. Las once llaman al
+`super` de un `base_test` o un `random_test` **nuestro**, que construye el env.
+Ninguna llama al de `uvm_component`, que es de lo que habla la slide.
+La otra diferencia de fondo: hay dos formas de configurar un componente. La
+automática (`` `uvm_field_* `` + config_db, magia por macros) y la manual
+(`uvm_config_db::get()` en el build_phase, que es la que usa el curso). La manual
+es más código y muchísimo más fácil de debuggear — las macros de campo generan
+cientos de líneas que no vas a leer nunca.
+Por qué la recomendación de afuera es la contraria a lo que hace el curso: el
+modo de falla es asimétrico. Ponerlo de más es cero efecto. No ponerlo cuando
+hacía falta es silencio: el campo queda en su default y la simulación corre.
+Este curso puede nombrar por qué en su caso es un no-op —no hay una sola macro
+`` `uvm_field_* `` en `code/`, verificalo—; el que entra a un testbench ajeno no
+puede. `uvm_agent` es el contraejemplo que tenemos a mano: es la única clase de
+la librería, además de `uvm_component`, que implementa `build_phase`, y lo que
+hace ahí es leer `is_active`. Vuelve en el día 6.
+Con las otras fases pasa lo mismo, más barato todavía: en `uvm_component` son
+`return;`, pero `uvm_driver::end_of_elaboration_phase` chequea que el
+`seq_item_port` esté conectado, y ése lo extendemos nosotros.
 
 ---
 
@@ -110,7 +122,7 @@ clase intermedia que sí las implementa, la llamada ya está puesta.
 | `extract_phase` | juntar los datos de la corrida | bottom-up |
 | `check_phase` | decidir si pasó o no | bottom-up |
 | `report_phase` | imprimir el veredicto | bottom-up |
-| `final_phase` | cerrar archivos y salir | bottom-up |
+| `final_phase` | cerrar archivos y salir | top-down |
 
 - El curso usa cinco. Las otras cuatro existen, están vacías, y las vas a ver
 
@@ -125,9 +137,10 @@ marcha; y `report_phase` es la que ya vieron.
 Que `extract` / `check` / `report` estén separadas tiene una razón concreta: son
 bottom-up, así que un scoreboard hijo termina de extraer antes de que el env
 padre decida. Si hacés las tres cosas en `report_phase`, perdés esa garantía.
-La pregunta que ordena la tabla: ¿por qué `build_phase` es la única top-down?
-Porque un padre tiene que existir para poder crear a sus hijos. Todas las demás
-necesitan lo contrario — que los hijos ya estén.
+La pregunta que ordena la tabla: ¿por qué `build_phase` es top-down?
+Porque un padre tiene que existir para poder crear a sus hijos. Las del medio
+necesitan lo contrario — que los hijos ya estén. La otra top-down es
+`final_phase`, que cierra el árbol en el mismo orden en que se construyó.
 
 ---
 
@@ -260,14 +273,16 @@ línea de `set_type_override_by_type`.
 - Los componentes se instancian **en el `build_phase` y en ningún otro lado**
 - Todos los `run_phase` corren **en paralelo**, cada uno en su thread. Ninguno
   decide solo cuándo termina la simulación: eso son las **objections**
-- `build_phase` es la única fase que hace algo en `uvm_component`, y por eso es
-  la única donde `super.build_phase()` cambia el comportamiento
+- Hay **dos `super.build_phase()`**: el de `uvm_component` y el de tu clase base.
+  **Ponelo siempre, salvo que puedas nombrar por qué en tu caso es un no-op**
 
 Note:
 La unidad que convierte el testbench en algo que UVM puede recorrer, y con eso
 aparecen las herramientas que no existían antes: `print_topology()` muestra el
 árbol, y el `uvm_config_db` puede usar rutas porque ahora hay rutas.
 El `super.build_phase()` merece la vuelta que le dimos porque es la pregunta más
-repetida de los foros: no llamarlo apaga la asignación automática de los campos
-registrados con `` `uvm_field_* ``. Este curso no los usa, así que no lo llama —
-pero lo que no es válido es hacer media cosa de cada una.
+repetida de los foros. Lo que hay que dejar dicho es la asimetría: no llamarlo
+apaga la asignación automática de los campos registrados con `` `uvm_field_* ``,
+y eso no da error, da un default. Este curso no usa esas macros y por eso puede
+no llamarlo; el alumno que cae en un testbench ajeno no sabe si puede, así que
+lo pone. Lo que no es válido es hacer media cosa de cada una.

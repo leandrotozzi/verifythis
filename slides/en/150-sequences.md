@@ -1,4 +1,4 @@
-<!-- es-sha: c841bc4b3b2d -->
+<!-- es-sha: 47c0ff491e6a -->
 ## Sequences
 
 #### *The only thing left hard-wired*
@@ -170,7 +170,7 @@ class. The slide that follows is exactly that, with the Verilator trap included.
 start_item(command);
 command.data.constraint_mode(0);                       // 1. I switch off the dist
 if (!command.randomize() with {A inside {[1:10]};})    // 2. I ask for the directed one
-   `uvm_fatal("SEQ", "randomize() fallo")
+   `uvm_fatal("SEQ", "randomize() failed")
 finish_item(command);
 ```
 
@@ -432,7 +432,7 @@ is what finishes closing the `env` that the agents encapsulated.
 
 command = command_transaction::type_id::create("command");   // four
 start_item(command);
-if (!command.randomize()) `uvm_fatal("SEQ", "randomize() fallo")
+if (!command.randomize()) `uvm_fatal("SEQ", "randomize() failed")
 finish_item(command);
 ```
 
@@ -714,7 +714,7 @@ design, the analysis per verification plan.
 
 ## Sequences
 
-#### *Summary of the unit*
+#### *Summary of the unit · the sequence and the item*
 
 - The stimulus came out of the component tree: it is a `uvm_object`, not a
   `uvm_component`, and that is why it gets created, configured, run and thrown away
@@ -724,6 +724,17 @@ design, the analysis per verification plan.
   the way back, and it is what makes a stimulus that reacts possible
 - Two ways of starting: explicit `start(sequencer)`, or `default_sequence` through
   `uvm_config_db` — which besides takes the last hard-wired line out of the testbench
+Note:
+The first half of the summary is the mechanism: what a sequence is, where the
+`randomize()` lives, and which way the result comes back. Anyone who got lost in
+the unit catches up here.
+
+---
+
+## Sequences
+
+#### *Summary of the unit · how they compose*
+
 - Sequences compose: one calls others, in series or with `fork`/`join`
 - And when there is **more than one sequencer**, the one that composes is a **virtual
   sequence**: it sends no items of its own, it takes the handles out of a `virtual_sequencer` and
