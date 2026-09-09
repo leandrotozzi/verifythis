@@ -1,4 +1,5 @@
-// res/machete.html -> docs/machete-uvm.pdf, una carilla A4 apaisada.
+// res/machete.html -> docs/machete-uvm.pdf, una carilla A4 apaisada. Y la
+// version en ingles, res/en/machete.html -> docs/en/uvm-cheatsheet.pdf.
 //
 //   npm run machete
 //
@@ -6,20 +7,33 @@
 // imprime y se comparte, y va commiteado porque el que lo quiere pegar al lado
 // del monitor no tiene Chrome headless ni ganas. No entra en `npm run check`:
 // necesita Chrome, igual que `npm run pdf`.
+//
+// Las dos salen de la misma corrida por lo mismo que las figuras: era la unica
+// fila de la tabla del README en ingles sin gemela en ingles, y el que la abria
+// se encontraba una carilla en castellano.
 import { spawn } from 'node:child_process';
+import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { chrome } from './chrome.mjs';
 
-const OUT = 'docs/machete-uvm.pdf';
-const url = `file://${path.resolve('res/machete.html')}`;
+const CARILLAS = [
+  ['res/machete.html',    'docs/machete-uvm.pdf'],
+  ['res/en/machete.html', 'docs/en/uvm-cheatsheet.pdf'],
+];
 
-console.log(`${chrome}\n  -> ${OUT}`);
-spawn(chrome, [
+const pdf = (src, out) => new Promise((res, rej) => spawn(chrome, [
   '--headless', '--disable-gpu', '--no-sandbox',
   '--allow-file-access-from-files',
   '--virtual-time-budget=10000',
   '--no-pdf-header-footer',
-  `--print-to-pdf=${OUT}`,
-  url,
+  `--print-to-pdf=${out}`,
+  `file://${path.resolve(src)}`,
 ], { stdio: ['ignore', 'inherit', 'ignore'] })
-  .on('close', c => { console.log(c === 0 ? `ok: ${OUT}` : `chrome salio con ${c}`); process.exit(c); });
+  .on('close', c => (c === 0 ? res() : rej(new Error(`chrome salio con ${c} en ${src}`)))));
+
+console.log(chrome);
+for (const [src, out] of CARILLAS) {
+  await mkdir(path.dirname(out), { recursive: true });
+  await pdf(src, out);
+  console.log(`ok: ${src}  ->  ${out}`);
+}

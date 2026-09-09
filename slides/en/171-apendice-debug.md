@@ -22,8 +22,8 @@ Note:
 This appendix exists because the tools are spread over four
 sections and they are all needed together, at the worst moment: when something does not work and
 the clock is running. It is the slide worth printing — and in fact it is already printed:
-`docs/machete-uvm.pdf` is this table, the class hierarchy, the nine phases and
-the handshake of the driver on a single A4 side. The source is `res/machete.html`,
+`docs/en/uvm-cheatsheet.pdf` is this table, the class hierarchy, the nine phases and
+the handshake of the driver on a single A4 side. The source is `res/en/machete.html`,
 it opens with a double click and it prints with Ctrl+P.
 The point to say out loud is the one about the plusargs. A `$display`
 added by hand costs a recompilation of UVM —minutes— and on top of that you have to

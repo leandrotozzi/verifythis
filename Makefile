@@ -12,7 +12,7 @@
 #   make ejercicios corre las SOLUCIONES de code/ejercicios/ (lento: once usan UVM)
 #   make regresion  el mismo test con N semillas + merge de cobertura + reporte HTML
 #   make figs       regenera las figuras de tendencias (res/trends/, es + en)
-#   make machete    res/machete.html -> docs/machete-uvm.pdf (una carilla, A4)
+#   make machete    res/machete.html -> docs/machete-uvm.pdf (una carilla, A4, es + en)
 #   make deck       regenera index.html y en/index.html desde slides/
 #   make check      lo obligatorio antes de commitear: build --check + overflow
 #   make clean      borra los obj_dir de Verilator
@@ -140,8 +140,9 @@ regresion: $(UVM)
 figs:
 	node tools/trends.mjs
 
-# El machete de una carilla. El HTML se abre con doble clic; esto saca el PDF
-# que se imprime, y va commiteado. Necesita Chrome, igual que 'npm run pdf'.
+# El machete de una carilla, en los dos idiomas. El HTML se abre con doble clic;
+# esto saca los dos PDF que se imprimen, y van commiteados. Necesita Chrome,
+# igual que 'npm run pdf'.
 machete:
 	node tools/machete.mjs
 

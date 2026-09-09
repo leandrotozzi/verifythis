@@ -9,7 +9,7 @@ curso son las slides y `code/`— pero cada uno resuelve algo concreto.
 |---|---|
 | [`instalar.md`](instalar.md) · [`en/setup.md`](en/setup.md) | **Cómo tener el curso corriendo.** Los cuatro caminos —Codespaces, Docker, Verilator de fuente, WSL 2— más las semillas, las ondas y qué corre el CI. El atajo es `make doctor`, que dice qué falta y con qué comando se instala |
 | [`verilator.md`](verilator.md) | **La matriz.** Qué ejemplo corre con qué versión de Verilator, qué falla y por qué. Lo primero que hay que mirar cuando algo no compila. Generado por `make matrix`, y **caduca**: vale para la versión y la fecha que dice arriba |
-| [`machete-uvm.pdf`](machete-uvm.pdf) | El machete de una carilla, A4, para imprimir. Sale de `res/machete.html` con `make machete` |
+| [`machete-uvm.pdf`](machete-uvm.pdf) | El machete de una carilla, A4, para imprimir. Sale de `res/machete.html` con `make machete`, que saca tambien la version en ingles (`en/uvm-cheatsheet.pdf`) |
 | [`trampas-mudas.md`](trampas-mudas.md) · [`en/silent-traps.md`](en/silent-traps.md) | Las trampas que no dan error: compila, corre, pasa, y no verificó nada. Apéndice del día 7. **Generado desde `slides/`** |
 | [`banco-de-examen.md`](banco-de-examen.md) · [`en/exam-bank.md`](en/exam-bank.md) | Todas las preguntas de repaso del curso juntas, con la respuesta. **Generado desde `slides/`** |
 | [`uvm-en-la-entrevista.md`](uvm-en-la-entrevista.md) · [`en/uvm-interview.md`](en/uvm-interview.md) | Las preguntas que se hacen en una entrevista de verificación, con la respuesta corta y el link a la sección y al ejemplo que corre |

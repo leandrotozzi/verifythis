@@ -93,7 +93,11 @@ const PARES_SUELTOS = [['web/index.html', 'web/en/index.html'],
                        ['README.es.md', 'README.md'],
                        ['docs/instalar.md', 'docs/en/setup.md'],
                        ['docs/uvm-en-la-entrevista.md', 'docs/en/uvm-interview.md'],
-                       ['docs/para-docentes.md', 'docs/en/for-teachers.md']];
+                       ['docs/para-docentes.md', 'docs/en/for-teachers.md'],
+                       // La carilla imprimible. Es HTML y no .md, asi que de las
+                       // reglas de arriba solo le corre el sello: alcanza, que es
+                       // lo unico que avisa cuando una se edita y la otra no.
+                       ['res/machete.html', 'res/en/machete.html']];
 // En un .md la marca va primera; en un .html va DESPUES del doctype, porque un
 // comentario antes del <!doctype> manda al navegador a quirks mode.
 const MARCA = /^(?:<!doctype html>\n)?<!-- es-sha: ([0-9a-f]{12}) -->\n/i;

@@ -210,7 +210,7 @@ The course is written as **seven days**, which is how it is taught in a company.
 | [`docs/en/exam-bank.md`](docs/en/exam-bank.md) | The **45 questions without the answer marked**, key at the end. Generated from the same slides, so it cannot drift |
 | [`docs/en/silent-traps.md`](docs/en/silent-traps.md) | The **21 silent traps** —everything that compiles, runs and lies— and the seven debug knobs, as a loose page to hand out. Also generated |
 | [`docs/en/uvm-interview.md`](docs/en/uvm-interview.md) | The questions a verification interview asks, each with the short answer, the link to the section and **the example that runs** |
-| [**`docs/machete-uvm.pdf`**](docs/machete-uvm.pdf) | **The one-page cheat sheet**: the class hierarchy, the nine phases, the driver handshake and the seven debug knobs. To print and stick next to the monitor |
+| [**`docs/en/uvm-cheatsheet.pdf`**](docs/en/uvm-cheatsheet.pdf) | **The one-page cheat sheet**: the class hierarchy, the nine phases, the driver handshake and the seven debug knobs. To print and stick next to the monitor. The source is [`res/en/machete.html`](res/en/machete.html); `make machete` regenerates both PDFs |
 | [`CITATION.cff`](CITATION.cff) | GitHub's *Cite this repository* button, in APA or BibTeX |
 | `make regresion` | N seeds, coverage merge, and an HTML report with the **open bins** |
 
