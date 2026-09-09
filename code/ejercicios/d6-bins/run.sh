@@ -25,7 +25,11 @@ falta() { echo "not yet: $1" >&2; exit 1; }
 # the three fields by hand also closes the bin -- u7/sequences' maxmult_sequence does that --
 # but then neither the with{} nor the dist hole get practised, and those are the
 # topic. It is the only thing this checker looks at in your file.
-grep -q 'randomize()' "${SOLUCION:+solucion/}cierre_sequence.svh" ||
+#
+# The comment lines are dropped first: the header of cierre_sequence.svh explains
+# the exercise and says "randomize()" three times, so a plain grep matched the
+# statement of the problem and the check passed on the untouched file.
+grep -v '^[[:space:]]*//' "${SOLUCION:+solucion/}cierre_sequence.svh" | grep -q 'randomize()' ||
   falta "your cierre_sequence does not call randomize(): the exercise asks for the
     directed case with randomize() with {}, not by assigning A, B and op by hand."
 

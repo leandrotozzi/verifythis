@@ -61,6 +61,13 @@ testbench sale de la sección correspondiente, por referencia: los `+incdir` del
 `run.sh` ponen este directorio primero, así que tu versión de un archivo le gana
 a la de la sección. Nada de lo que hagas acá rompe los ejemplos del curso.
 
+Cuatro —`d3`, `d4`, `d6-sequences` y `d7-sva`— traen además un
+`intocables.sha`: la lista de los archivos que el enunciado dice **no** tocar,
+con su hash, y el `run.sh` la chequea antes de compilar. No es desconfianza: en
+esos cuatro el ejercicio *está* en no tocarlos. Instanciar el `mult_tester` a
+mano en el `env.svh` de `d3` hace pasar el corrector sin escribir un solo
+`set_type_override`, que es justo el tema.
+
 `SOLUCION=1` corre la solución sin pisar tu archivo: en los que usan UVM agrega
 un `+incdir+solucion` adelante de todo, y en los otros cuatro le pone el prefijo
 `solucion/` a los fuentes que compila.

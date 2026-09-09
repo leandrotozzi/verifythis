@@ -8,8 +8,8 @@
 
 - [ ] Cuántos son y de qué tipo
 - [ ] Sólo el primero que se suscribió
-- [ ] Los conoce porque se los pasan en el constructor
-- [x] Nada: ni cuántos son, ni quiénes, ni qué hacen con el dato
+- [ ] Los conoce porque se los pasan en el constructor, uno por uno
+- [x] Nada: ni cuántos son, ni quiénes son
 
 > **No sabe nada** — y esa ignorancia es la gracia. Agregar un cuarto subscriber no obliga a tocar una línea del que publica.
 
@@ -42,10 +42,10 @@
 
 - [ ] Uno por subscriber
 - [ ] Dos: el del publicador y el del suscriptor
-- [x] Uno solo: es comunicación **intra**-thread, son llamadas a función
-- [ ] Depende de la cantidad de subscribers
+- [x] Uno solo: `write()` es una llamada a función
+- [ ] Uno por subscriber más el del monitor, y UVM los sincroniza al final del delta
 
-> **Uno solo** — `write()` es una `function`, no una `task`: no consume tiempo y corre en el thread del que publica. Justamente por eso hace falta **otro** mecanismo (put/get + FIFO) para hablar entre threads.
+> **Uno solo, y es comunicación intra-thread** — `write()` es una `function`, no una `task`: no consume tiempo y corre en el thread del que publica. Justamente por eso hace falta **otro** mecanismo (put/get + FIFO) para hablar entre threads.
 
 ---
 
@@ -60,7 +60,7 @@
 - [x] Se bloquea hasta que el productor ponga un dato
 - [ ] Devuelve 0 y sigue
 - [ ] Error fatal de UVM
-- [ ] Devuelve el último dato leído
+- [ ] Devuelve el último dato leído, que sigue en la FIFO hasta que lo pisen
 
 > **Se bloquea** — `get()` es bloqueante, y por eso se declara `task` y no `function`. Esa es toda la sincronización: no hace falta un handshake de señales a mano.
 
@@ -77,6 +77,6 @@
 - [ ] Se bloquea igual que `get()`
 - [ ] Devuelve 1 con un dato basura
 - [x] Devuelve 0 inmediatamente, sin bloquear
-- [ ] Espera un ciclo de reloj y reintenta
+- [ ] Espera un ciclo de reloj y reintenta, hasta el timeout de la fase
 
 > **Devuelve 0 y sigue** — es la versión no bloqueante, y por eso puede ser una `function`. Fijate que el scoreboard la usa en un `do ... while` para saltear los `no_op` y los `rst_op`.

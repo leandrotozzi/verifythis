@@ -1,5 +1,5 @@
 #!/bin/bash
-# Day 7 exercise (unit 9, RAL). It fails until you solve it, and tells you
+# Day 8 exercise (unit 9, RAL). It fails until you solve it, and tells you
 # at which stage.
 #
 #   bash run.sh              with your file

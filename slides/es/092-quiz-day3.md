@@ -6,9 +6,9 @@
 
 **¿Qué te permite hacer `+UVM_TESTNAME=add_test` que antes no podías?**
 
-- [x] Elegir el test sobre un testbench ya compilado, sin recompilar
+- [x] Elegir el test sobre un testbench ya compilado
 - [ ] Correr más rápido la simulación
-- [ ] Cambiar el DUT sin recompilar
+- [ ] Cambiar el DUT sin recompilar: UVM vuelve a elaborar al arrancar
 - [ ] Bajar la verbosidad de los mensajes
 
 > **Elegir el test sin recompilar** — UVM lee ese plusarg y le pide el test a la **factory** por nombre. Es la diferencia entre 1000 tests × 5 minutos de compilación y una sola compilación.
@@ -26,7 +26,7 @@
 - [ ] Las dos de arriba hacia abajo
 - [ ] Las dos de abajo hacia arriba
 - [x] `build_phase` top-down, `connect_phase` bottom-up
-- [ ] En el orden en que se declararon los componentes
+- [ ] En el orden en que se declararon los componentes, de arriba hacia abajo
 
 > **Build top-down, connect bottom-up** — y tiene sentido: no podés conectar un componente que todavía no existe, así que primero se construye toda la jerarquía y recién después se conecta.
 
@@ -41,9 +41,9 @@
 **¿Para qué sirve `raise_objection()` / `drop_objection()` en el `run_phase`?**
 
 - [ ] Para reportar errores del scoreboard
-- [x] Para mantener viva la simulación mientras el componente tiene trabajo
+- [x] Para mantener viva la simulación mientras hay trabajo
 - [ ] Para sincronizar dos threads
-- [ ] Para registrar la clase en la factory
+- [ ] Para que las `run_phase` de todos los componentes arranquen a la vez
 
 > **Para que la fase no termine antes** — todos los `run_phase` corren en paralelo, cada uno en su thread, y la fase termina cuando **cae la última objection**. Sin levantarla, la simulación se te termina en el tiempo 0.
 
@@ -60,7 +60,7 @@
 - [ ] `env` genera el estímulo; `test` arma la estructura
 - [ ] Los dos hacen lo mismo, `env` es opcional
 - [ ] `env` corre el DUT; `test` corre el scoreboard
-- [x] `env` arma la estructura del TB; `test` define qué estímulo se aplica
+- [x] `env` arma la estructura; `test` elige el estímulo
 
 > **Estructura vs. estímulo** — cada clase hace **una sola cosa bien**. Por eso el `env` casi siempre tiene sólo `build_phase` y `connect_phase`, y el test casi siempre tiene sólo un override de la factory.
 
@@ -75,7 +75,7 @@
 **`set_type_override()` reemplaza `base_tester` por `add_tester`. ¿Cuándo hay que llamarlo?**
 
 - [x] Antes de que corra el `build_phase` que crea el objeto
-- [ ] En cualquier momento: la factory lo aplica retroactivamente
+- [ ] En cualquier momento: la factory lo aplica retroactivamente a lo ya creado
 - [ ] Después del `connect_phase`
 - [ ] Dentro del `run_phase` del tester
 
@@ -109,7 +109,7 @@
 **Querés silenciar los `` `uvm_error `` de un scoreboard que otra persona está arreglando. ¿Dónde va el `set_report_severity_action_hier()`?**
 
 - [ ] En el `build_phase` del `env`
-- [ ] En el `run_phase` del test
+- [ ] En el `run_phase` del test, antes de levantar el objection
 - [ ] En el constructor del scoreboard
 - [x] En el `end_of_elaboration_phase` del `env`
 

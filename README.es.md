@@ -8,7 +8,7 @@
 
 *Universal Verification Methodology · IEEE 1800.2 · SystemVerilog*
 
-8 unidades en 7 días —más un día 8 opcional— · 402 slides · **38 ejemplos que se ejecutan de verdad**,
+8 unidades en 7 días —más un día 8 opcional— · 415 slides · **38 ejemplos que se ejecutan de verdad**,
 con cobertura funcional, sobre el DUT **VTALU**
 
 [![build](https://github.com/leandrotozzi/verifythis/actions/workflows/build.yml/badge.svg)](https://github.com/leandrotozzi/verifythis/actions/workflows/build.yml)
@@ -39,7 +39,7 @@ o cloná el repo y abrí `index.html` con doble clic
 
 > ## También está entero en inglés — traducido, no pasado por una máquina
 >
-> Las mismas 402 slides, el mismo libro, los mismos 38 ejemplos y los mismos 15
+> Las mismas 415 slides, el mismo libro, los mismos 38 ejemplos y los mismos 15
 > ejercicios. `tools/lint-i18n.mjs` compara los dos árboles sección por sección y
 > falla si uno se movió y el otro no, así que las dos versiones son el mismo
 > curso y no dos cursos parecidos.
@@ -96,9 +96,9 @@ verde **ahora**.
 
 | Tecla | Acción |
 |:--|:--|
-| <kbd>i</kbd> | índice del curso: 70 secciones —charlas, repasos, ejercicios y apéndices— agrupadas por día, o el botón ☰ de la esquina superior izquierda |
+| <kbd>i</kbd> | índice del curso: 71 secciones —charlas, repasos, ejercicios y apéndices— agrupadas por día, o el botón ☰ de la esquina superior izquierda |
 | <kbd>0</kbd>–<kbd>8</kbd> | ir a la portada / al Día 1–8 (la portada tiene los mismos saltos clickeables, y quedan en la URL: `index.html#/day3`) |
-| <kbd>Esc</kbd> | vista general de las 402 slides |
+| <kbd>Esc</kbd> | vista general de las 415 slides |
 | <kbd>s</kbd> | notas del presentador, en una ventana aparte |
 | <kbd>n</kbd> | las mismas notas, abajo de la slide y sin salir de la página (queda recordado) |
 | <kbd>v</kbd> | en las slides de repaso, revelar la respuesta sin clickear |
@@ -147,7 +147,7 @@ usar según el síntoma—, **las 21 trampas mudas** —todo lo que compila,
 corre y miente— y un **glosario ES ↔ EN**, porque todo lo que el alumno lea
 después de este curso va a estar en inglés.
 
-Cada día cierra con un **repaso**: 45 preguntas en total, que se responden
+Cada día cierra con un **repaso**: 58 preguntas en total, que se responden
 clickeando. El deck marca en verde la correcta, en rojo la elegida si erró, y
 abajo explica el porqué. En el PDF salen ya respondidas.
 
@@ -209,7 +209,7 @@ El curso está escrito como **siete días**, que es como se dicta en una empresa
 | | Qué es |
 |---|---|
 | [`docs/para-docentes.md`](docs/para-docentes.md) | El mismo curso como **cuatrimestre de 15 semanas** —2 h de teoría y 2 h de laboratorio por semana—, qué se puede saltear y qué cuesta cada recorte, los dos parciales, y cómo corregir el capstone por etapas |
-| [`docs/banco-de-examen.md`](docs/banco-de-examen.md) | Las **45 preguntas sin la respuesta marcada**, con la clave al final. Lo genera `npm run build` desde las mismas slides, así que no se desincroniza |
+| [`docs/banco-de-examen.md`](docs/banco-de-examen.md) | Las **58 preguntas sin la respuesta marcada**, con la clave al final. Lo genera `npm run build` desde las mismas slides, así que no se desincroniza |
 | [`docs/trampas-mudas.md`](docs/trampas-mudas.md) | Las **21 trampas mudas** —todo lo que compila, corre y miente— y las siete perillas de debug, como página suelta para repartir. También generada |
 | [**`docs/machete-uvm.pdf`**](docs/machete-uvm.pdf) | **El machete de una carilla**: la jerarquía de clases, las nueve fases, el handshake del driver y las siete perillas de debug. Para imprimir y pegar al lado del monitor. La fuente es [`res/machete.html`](res/machete.html); `make machete` regenera el PDF |
 | [`docs/uvm-en-la-entrevista.md`](docs/uvm-en-la-entrevista.md) | Las preguntas de una entrevista de verificación, cada una con la respuesta corta, el link a la sección y **el ejemplo que corre** |

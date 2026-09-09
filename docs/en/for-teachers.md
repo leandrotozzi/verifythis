@@ -1,4 +1,4 @@
-<!-- es-sha: b51678e8740d -->
+<!-- es-sha: 3d38d9648445 -->
 # For teachers
 
 *Verify This!* is written as **seven days of class** —plus an **optional day
@@ -7,7 +7,7 @@ how a university subject is. This page maps it onto a **15-week term**, says
 what can be dropped, and what to assess in each midterm.
 
 Everything you need is already in the repository and marks itself: the **15
-solutions** (`make ejercicios`), the **bank of 45 questions**
+solutions** (`make ejercicios`), the **bank of 58 questions**
 ([`exam-bank.md`](exam-bank.md)), the capstone with its stage-by-stage marker,
 and the **self-assessment rubric** at the end of day 7.
 
@@ -46,7 +46,7 @@ code by hand until the capstone.
 | 4 | **U2** · Interfaces and BFM · `clocking block` | [`d1b`](../../code/ejercicios/d1b/) — the bug you can only see in the `.vcd` |
 | 5 | **U3** · Classes and extensions · Polymorphism | [`d2`](../../code/ejercicios/d2/) — extending without copying the whole class |
 | 6 | **U3** · Static variables and methods · Parameterized classes | `d2` (wrap-up) |
-| 7 | **U3** · The factory pattern · A testbench without a single module | Review: questions **7–14** of the bank, in class |
+| 7 | **U3** · The factory pattern · A testbench without a single module | Review: questions **8–15** of the bank, in class |
 | 8 | **Midterm 1** (1 h) + **U4** · Tests | — |
 | 9 | **U4** · Components and phases · The env | [`d3`](../../code/ejercicios/d3/) — a factory override without touching the `env` |
 | 10 | **U4** · Reporting · **U5** · One producer, many listeners | [`d4`](../../code/ejercicios/d4/) — one more subscriber |
@@ -95,7 +95,7 @@ is free.
 | **Callbacks** (U7) | 15 min | The third hook of unit 1 ends up promised and not delivered. If it goes, take it out of the slide *Run more tests writing less code* too |
 | **Parameterized classes** (U3) | 30 min | It can be told in 5 min as "this is what `uvm_driver #(T)` does" and move on. It is the section furthest from UVM in the whole course |
 | **`put`/`get` ports** (U5) | 30 min | Analysis ports —the ones UVM uses all the time— are untouched. `put`/`get` shows up in real TLM, not in a typical testbench |
-| **The review in class** (the seven quizzes) | 1 h 30 total | They become homework with the [exam bank](exam-bank.md). But you lose the best moment of the course for spotting who did not get it, and that gets paid for in the midterm |
+| **The review in class** (the eight quizzes) | 1 h 30 total | They become homework with the [exam bank](exam-bank.md). But you lose the best moment of the course for spotting who did not get it, and that gets paid for in the midterm |
 
 What it is **not** wise to cut, however tempting:
 
@@ -111,20 +111,23 @@ What it is **not** wise to cut, however tempting:
 
 ## The two midterms
 
-The [exam bank](exam-bank.md) has the 45 questions without the answer marked,
+The [exam bank](exam-bank.md) has the 58 questions without the answer marked,
 and the key at the end with the reasoning for each one. They come from the same
 slides as the deck, so there are no two versions of a question that can drift
 apart.
 
 | | Covers | Questions from the bank | Suggested practical part |
 |---|---|:--:|---|
-| **Midterm 1** | U1–U3: why you verify, the testbench without UVM, the OOP UVM takes for granted | **1–14** | Extend a class from the course and do a `set_type_override` — the statement of [`d2`](../../code/ejercicios/d2/) or [`d3`](../../code/ejercicios/d3/) with another operation |
-| **Midterm 2** | U4–U6: phases, env, reporting, how the components talk, transactions and constrained random | **15–30** | Hang a subscriber off the analysis port and count something — [`d4`](../../code/ejercicios/d4/) with another metric |
-| **Final / capstone** | U7–U8 and everything before | **31–45** | The capstone, below |
+| **Midterm 1** | U1–U3: why you verify, the testbench without UVM, the OOP UVM takes for granted | **1–15** | Extend a class from the course and do a `set_type_override` — the statement of [`d2`](../../code/ejercicios/d2/) or [`d3`](../../code/ejercicios/d3/) with another operation |
+| **Midterm 2** | U4–U6: phases, env, reporting, how the components talk, transactions and constrained random | **16–35** | Hang a subscriber off the analysis port and count something — [`d4`](../../code/ejercicios/d4/) with another metric |
+| **Final / capstone** | U7–U8 and everything before | **36–50** | The capstone, below |
 
-The 45 are enough for two midterms and a retake without repeating, if you take
-10 per exam. To take two rows on the same topic —one in the midterm and another
-in the retake— the *Topic* column of the key groups them.
+**51–58** are the day 8 ones and stay outside the semester, like the day itself:
+they are there for whoever takes the optional unit.
+
+The 50 of the semester are enough for two midterms and a retake without
+repeating, if you take 10 per exam. To take two rows on the same topic —one in
+the midterm and another in the retake— the *Topic* column of the key groups them.
 
 **What to look at when marking the multiple choice.** The wrong options in this
 bank are not filler: nearly all of them are the mistake people actually make. A

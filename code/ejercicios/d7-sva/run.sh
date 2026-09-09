@@ -9,6 +9,9 @@
 # where the property goes.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
+# The legacy module is the DUT of this exercise: silencing it is not solving
+# it. Until now only the scoreboard noticed, and it noticed sideways.
+intocables
 
 # --assert is what turns the concurrent properties on. Without the flag they compile,
 # they do not run, and everything "passes".

@@ -1,4 +1,4 @@
-// TODO(exercise 7): write the mult_sequence class here.
+// TODO(exercise d6-sequences): write the mult_sequence class here.
 //
 // It has to:
 //   1. extend uvm_sequence #(command_transaction) and register itself with

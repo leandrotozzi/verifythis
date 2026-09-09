@@ -8,6 +8,9 @@
 # package, the env with the checker, and the two files you have to write.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
+# "Do not touch env.svh" is the whole exercise: instantiating mult_tester
+# there works, and gets there without one set_type_override. See intocables.sha.
+intocables
 INC=${SOLUCION:+ +incdir+solucion}
 vlt_uvm top --coverage-user -Wno-fatal $INC -f dut.f -f tb.f
 run_sim +UVM_TESTNAME=mult_test

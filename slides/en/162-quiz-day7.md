@@ -1,4 +1,4 @@
-<!-- es-sha: 83d81dad101f -->
+<!-- es-sha: 4ea9bbd6d978 -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 7
@@ -9,10 +9,10 @@
 
 - [ ] None: the second is syntactic sugar for the first
 - [ ] The first can be switched off from the command line and the second cannot
-- [x] The first is a **statement** that runs when the thread goes past it; the second is a **declaration with a clock** that gets evaluated on every edge, on its own
-- [ ] The first is only valid inside a class and the second only inside a module
+- [x] One is a **statement**; the other, a **declaration with a clock**
+- [ ] The first is only valid inside a class and the second only inside a module, because of the scheduler
 
-> **Statement against declaration** — the immediate one is to an `if` what the concurrent one is to an `always_ff`: one executes, the other gets instantiated. That is why only the concurrent one can describe something that lasts several cycles.
+> **Statement against declaration** — the immediate one runs when the thread goes past it; the concurrent one gets evaluated on its own, on every edge of its clock. It is to an `if` what the concurrent one is to an `always_ff`: one executes, the other gets instantiated. That is why only the concurrent one can describe something that lasts several cycles.
 
 ---
 
@@ -25,9 +25,9 @@
 **The `done` of the VTALU comes out of an `always_ff`. Which implication goes in `start |?? done`?**
 
 - [ ] `|->`, because the antecedent and the consequent belong to the same transaction
-- [x] `|=>`, because what gets written with `<=` on edge *n* is only read on *n+1*
+- [x] `|=>`, because what gets written with `<=` is read one edge later
 - [ ] Either of the two: the difference is a matter of style
-- [ ] Neither: for registered signals you have to use `$past()`
+- [ ] Neither: for registered signals you have to use `$past()` on the antecedent
 
 > **`|=>` when the consequent comes out of a `<=`** — because `|=>` *is* `|-> ##1`, and the question to ask is how many edges later the spec promises it. With `|->` against a registered signal the property does not pass vacuously: it **fails on every transaction**, because it compares against the old `done`. The one that passes quietly is the one whose antecedent never occurs — which is why it always goes with its `cover property`.
 
@@ -43,10 +43,10 @@
 
 - [ ] The `disable iff (!reset_n)` is missing
 - [ ] The `posedge` is too fast: the clock has to be divided
-- [x] The BFM writes the stimulus **on the `negedge`**, and on two consecutive `no_op` `start` goes down and comes back up between two `posedge`: the sampling does not see it go down
-- [ ] Covergroups and assertions cannot share the same clock
+- [x] The stimulus is written on the `negedge` and the sampling does not see it
+- [ ] Covergroups and assertions cannot share the clock without a `clocking block`
 
-> **An assertion is worth what its sampling is worth** — the stimulus gets sampled where the stimulus gets written. Stimulus on `negedge`, response of the DUT on `posedge`: zero errors. With a single clock there is no way.
+> **An assertion is worth what its sampling is worth** — the BFM writes the stimulus on the `negedge`, and on two consecutive `no_op` `start` goes down and comes back up between two `posedge`: the sampling does not see it go down. The stimulus gets sampled where the stimulus gets written. Stimulus on `negedge`, response of the DUT on `posedge`: zero errors. With a single clock there is no way.
 
 ---
 
@@ -60,10 +60,10 @@
 
 - [ ] That the rule it describes holds
 - [ ] That the DUT is free of protocol bugs
-- [x] Nothing yet: its antecedent may never have occurred, or `--assert` may be missing and it is not even being evaluated
-- [ ] That the property has a badly written `disable iff`
+- [x] Nothing yet: it may never have been evaluated at all
+- [ ] That the property has a badly written `disable iff` and stayed off the whole time
 
-> **Zero failures and zero evaluations look the same** — that is why every assertion goes with its `cover property`: it is the only check of the check. In the section, `c_mult_3ciclos` stays at 0 and gives away that the real latency is four edges, not three.
+> **Zero failures and zero evaluations look the same** — its antecedent may never have occurred, or `--assert` may be missing and it is not even being evaluated. That is why every assertion goes with its `cover property`: it is the only check of the check. In the section, `c_mult_3ciclos` stays at 0 and gives away that the real latency is four edges, not three.
 
 ---
 
@@ -77,7 +77,7 @@
 
 - [ ] The scoreboard, when it compares the result
 - [ ] The functional coverage, because the `done` bin is left empty
-- [x] An assertion in the interface: it is a **protocol** bug, and the monitor has already erased the time before the transaction reaches the scoreboard
-- [ ] The `uvm_fatal` of the `command_monitor`, which would stop seeing commands
+- [x] An assertion in the interface: it is a **protocol** bug
+- [ ] The `uvm_fatal` of the `command_monitor`, which would stop seeing commands on the bus
 
 > **Protocol → assertion. Data → scoreboard** — and it is not a preference: by the time the transaction reaches the scoreboard, the protocol is no longer there. Writing the check there would be rebuilding by hand the time the monitor has just erased.

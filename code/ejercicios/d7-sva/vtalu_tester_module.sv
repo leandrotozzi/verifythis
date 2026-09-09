@@ -12,7 +12,8 @@
 // anyway. This module has been in production for three years.
 //
 // You do not have to touch this file. You have to write the property that
-// catches it, in vtalu_bfm.sv.
+// catches it, in vtalu_bfm.sv. run.sh checks that with intocables.sha before
+// compiling: shutting the legacy module up is not a way of solving the exercise.
 module vtalu_tester_module (vtalu_bfm bfm);
    import vtalu_pkg::*;
 

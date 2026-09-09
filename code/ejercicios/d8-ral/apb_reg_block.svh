@@ -1,4 +1,4 @@
-// Day 7 exercise (unit 9, RAL) -- model the register map.
+// Day 8 exercise (unit 9, RAL) -- model the register map.
 //
 // The table is in the capstone spec: ../d7-final/spec.md, section "The register
 // map". This file is that table written as a UVM model, and there is

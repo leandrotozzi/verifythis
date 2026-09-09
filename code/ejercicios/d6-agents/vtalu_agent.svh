@@ -20,7 +20,7 @@ class vtalu_agent extends uvm_agent;
          `uvm_fatal("AGENT", "Failed to get agent config")
       is_active = cfg.get_is_active();
 
-      // TODO(exercise 6): these two lines have to run ONLY if the agent is
+      // TODO(exercise d6-agents): these two lines have to run ONLY if the agent is
       // active. Today they always run, so is_active is good for nothing.
       // Look at get_is_active().
       sequencer_h = sequencer::type_id::create("sequencer_h", this);
@@ -35,7 +35,7 @@ class vtalu_agent extends uvm_agent;
    endfunction : build_phase
 
    function void connect_phase(uvm_phase phase);
-      // TODO(exercise 6): this connection is the active agent's only too. A
+      // TODO(exercise d6-agents): this connection is the active agent's only too. A
       // passive agent has no driver and no sequencer, so this line goes looking
       // for a port on a null.
       driver_h.seq_item_port.connect(sequencer_h.seq_item_export);

@@ -191,6 +191,9 @@ const md = chapters.map(c => notas(c.md)).join('\n\n---\n\n') + '\n';
 // verde es el que aca se guarda aparte, en la clave del final. Una pregunta
 // nueva en slides/ entra sola, y no hay un segundo archivo que se desincronice.
 const LETRA = 'abcdefgh';
+// Los dias salen de las preguntas, no de una lista escrita a mano: el quiz del
+// dia 8 existia y el banco lo salteaba en silencio porque la lista llegaba
+// hasta el 7.
 const preguntas = [];
 for (const c of chapters.filter(c => /quiz/.test(c.f))) {
   const dia = +(c.f.match(/day(\d+)/)?.[1] ?? 0);
@@ -263,7 +266,7 @@ const banco = `<!-- Generado por tools/build.mjs desde slides/*quiz*.md. NO edit
 # ${T.bancoTitulo}
 
 ${T.bancoIntro(preguntas.length, DOCENTES)}
-${[1, 2, 3, 4, 5, 6, 7].map(d => {
+${[...new Set(preguntas.map(p => p.dia))].sort((a, b) => a - b).map(d => {
   const delDia = preguntas.filter(p => p.dia === d);
   if (!delDia.length) return '';
   return `\n---\n\n${T.bancoDia(d, delDia.length)}\n\n` + delDia.map(p => {

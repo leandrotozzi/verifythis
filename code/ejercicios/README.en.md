@@ -1,4 +1,4 @@
-<!-- es-sha: 9c3bd2446c3c -->
+<!-- es-sha: 7d7f1882ea7d -->
 # Exercises
 
 **Fifteen**, spread across the days. Each one marks itself: `run.sh` fails until
@@ -61,6 +61,13 @@ Each directory holds **only the files you are going to touch**. The rest of the
 testbench comes from the corresponding section, by reference: the `+incdir` in
 `run.sh` put this directory first, so your version of a file wins over the
 section's. Nothing you do here breaks the course examples.
+
+Four of them —`d3`, `d4`, `d6-sequences` and `d7-sva`— also come with an
+`intocables.sha`: the list of the files the statement says **not** to touch,
+with their hashes, and the `run.sh` checks it before compiling. It is not
+distrust: in those four the exercise *is* not touching them. Instantiating the
+`mult_tester` by hand in the `env.svh` of `d3` gets past the grader without
+writing a single `set_type_override`, which is the whole topic.
 
 `SOLUCION=1` runs the solution without overwriting your file: in the ones that
 use UVM it adds a `+incdir+solucion` ahead of everything, and in the other four

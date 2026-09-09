@@ -1,4 +1,4 @@
-// TODO(exercise 7): write the mult_test class here.
+// TODO(exercise d6-sequences): write the mult_test class here.
 //
 // It has to:
 //   1. extend base_test, which already builds the env and leaves the sequencer of the

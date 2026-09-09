@@ -4210,7 +4210,7 @@ un driver de dispositivo es al sistema operativo.</p>
 
 <section id="s56" class="slide quiz">
 <h2 id="repaso-·-día-1">Repaso · Día 1</h2>
-<h4 id="1-de-6-·-tendencias"><em>1 de 6 · Tendencias</em></h4>
+<h4 id="1-de-7-·-tendencias"><em>1 de 7 · Tendencias</em></h4>
 <p><strong>Según el estudio de Wilson 2024, ¿en qué se le va la mayor parte del tiempo a un verificador?</strong></p>
 <ul>
 <li><input disabled="" type="checkbox"> En escribir el testbench</li>
@@ -4226,29 +4226,29 @@ un driver de dispositivo es al sistema operativo.</p>
 
 <section id="s57" class="slide quiz">
 <h2 id="repaso-·-día-1">Repaso · Día 1</h2>
-<h4 id="2-de-6-·-la-spec-de-la-alu"><em>2 de 6 · La spec de la ALU</em></h4>
+<h4 id="2-de-7-·-la-spec-de-la-alu"><em>2 de 7 · La spec de la ALU</em></h4>
 <p><strong>Mientras la VTALU está ejecutando una operación, ¿qué tienen que hacer <code>start</code> y los operandos?</strong></p>
 <ul>
-<li><input disabled="" type="checkbox"> <code>start</code> baja enseguida; los operandos pueden cambiar</li>
+<li><input disabled="" type="checkbox"> <code>start</code> baja enseguida: es un pulso de arranque, y el DUT ya latcheó todo</li>
 <li><input disabled="" type="checkbox"> Da igual: el DUT los registra en el primer flanco</li>
 <li><input disabled="" type="checkbox"> Los operandos tienen que cambiar en cada ciclo</li>
-<li><input checked="" disabled="" type="checkbox"> <code>start</code> se mantiene en 1 y los operandos estables hasta que sube <code>done</code></li>
+<li><input checked="" disabled="" type="checkbox"> <code>start</code> en 1 y los operandos quietos hasta que sube <code>done</code></li>
 </ul>
 <blockquote>
-<p><strong>Estables hasta <code>done</code></strong> — es el protocolo del DUT, y es exactamente el motivo por el que existe el BFM: encapsular esa regla en un solo lugar para que ningún test se la olvide.</p>
+<p><strong>Estables hasta <code>done</code></strong> — es el protocolo del DUT, y es exactamente el motivo por el que existe el BFM: encapsular esa regla en un solo lugar para que ningún test se la olvide. El primer distractor describe un protocolo real —arranque por pulso, operandos latcheados— que este DUT no tiene.</p>
 </blockquote>
 <p class="al-deck"><a href="../index.html#/57">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
 <section id="s58" class="slide quiz">
 <h2 id="repaso-·-día-1">Repaso · Día 1</h2>
-<h4 id="3-de-6-·-cobertura-funcional"><em>3 de 6 · Cobertura funcional</em></h4>
+<h4 id="3-de-7-·-cobertura-funcional"><em>3 de 7 · Cobertura funcional</em></h4>
 <p><strong>El test corre 1000 operaciones al azar y la cobertura de <em>código</em> da 100 %. ¿Qué te dice eso sobre la verificación?</strong></p>
 <ul>
-<li><input disabled="" type="checkbox"> Que el DUT está verificado</li>
-<li><input checked="" disabled="" type="checkbox"> Muy poco: dice qué RTL se <strong>ejecutó</strong>, no qué escenarios de la <strong>spec</strong> pasaron</li>
+<li><input disabled="" type="checkbox"> Que el DUT está verificado y el plan de verificación se puede cerrar</li>
+<li><input checked="" disabled="" type="checkbox"> Muy poco: mide el RTL que se ejecutó, no la spec</li>
 <li><input disabled="" type="checkbox"> Que el testbench no tiene bugs</li>
-<li><input disabled="" type="checkbox"> Que ya se puede cerrar el plan de verificación</li>
+<li><input disabled="" type="checkbox"> Que faltan pocos escenarios: el 100 % ya recorrió el diseño entero</li>
 </ul>
 <blockquote>
 <p><strong>Muy poco</strong> — la cobertura de código mide el DUT; la funcional mide la spec. Una feature que el diseñador nunca escribió da 100 % de líneas y 0 % de lo que importa, y el reporte no te lo va a decir.</p>
@@ -4258,10 +4258,10 @@ un driver de dispositivo es al sistema operativo.</p>
 
 <section id="s59" class="slide quiz">
 <h2 id="repaso-·-día-1">Repaso · Día 1</h2>
-<h4 id="4-de-6-·-covergroup"><em>4 de 6 · covergroup</em></h4>
+<h4 id="4-de-7-·-covergroup"><em>4 de 7 · covergroup</em></h4>
 <p><strong>Declarás un <code>covergroup</code>, le hacés <code>new()</code>, corrés mil operaciones y el reporte da 0 %. ¿Qué es lo primero que hay que mirar?</strong></p>
 <ul>
-<li><input disabled="" type="checkbox"> Que los bins estén mal definidos</li>
+<li><input disabled="" type="checkbox"> Que los bins estén mal definidos y no matcheen ningún valor</li>
 <li><input checked="" disabled="" type="checkbox"> Que nadie esté llamando a <code>sample()</code></li>
 <li><input disabled="" type="checkbox"> Que el DUT no esté respondiendo</li>
 <li><input disabled="" type="checkbox"> Que falten <code>ignore_bins</code></li>
@@ -4274,11 +4274,11 @@ un driver de dispositivo es al sistema operativo.</p>
 
 <section id="s60" class="slide quiz">
 <h2 id="repaso-·-día-1">Repaso · Día 1</h2>
-<h4 id="5-de-6-·-interfaces-y-bfm"><em>5 de 6 · Interfaces y BFM</em></h4>
+<h4 id="5-de-7-·-interfaces-y-bfm"><em>5 de 7 · Interfaces y BFM</em></h4>
 <p><strong>¿Qué gana el testbench cuando el protocolo se mueve a un BFM?</strong></p>
 <ul>
-<li><input checked="" disabled="" type="checkbox"> El resto del TB deja de hablar en señales y pasa a hablar en operaciones</li>
-<li><input disabled="" type="checkbox"> Simula más rápido</li>
+<li><input checked="" disabled="" type="checkbox"> Deja de hablar en señales y pasa a hablar en operaciones</li>
+<li><input disabled="" type="checkbox"> Simula más rápido: una tarea del BFM le cuesta menos al simulador que mover cables</li>
 <li><input disabled="" type="checkbox"> Se puede sintetizar el testbench</li>
 <li><input disabled="" type="checkbox"> Se ahorra tener que declarar un <code>clk</code></li>
 </ul>
@@ -4290,21 +4290,37 @@ un driver de dispositivo es al sistema operativo.</p>
 
 <section id="s61" class="slide quiz">
 <h2 id="repaso-·-día-1">Repaso · Día 1</h2>
-<h4 id="6-de-6-·-clocking-block"><em>6 de 6 · clocking block</em></h4>
-<p><strong>¿Hacen falta los clocking blocks para escribir un testbench UVM sin races?</strong></p>
+<h4 id="6-de-7-·-el-plan-de-verificación"><em>6 de 7 · El plan de verificación</em></h4>
+<p><strong>En el plan de verificación, ¿qué va en la columna <em>Medida</em>?</strong></p>
 <ul>
-<li><input disabled="" type="checkbox"> Sí: sin clocking block, driver y DUT compiten siempre en el mismo flanco</li>
-<li><input disabled="" type="checkbox"> Sí, y además son parte de la librería UVM</li>
-<li><input checked="" disabled="" type="checkbox"> No: con NBA en el driver y disciplina de scheduler alcanza — son una abstracción opcional, útil sobre todo en agents reutilizables</li>
-<li><input disabled="" type="checkbox"> No, y por eso no conviene usarlos nunca</li>
+<li><input disabled="" type="checkbox"> Cuánto tarda el escenario en correr, para poder estimar la regresión</li>
+<li><input disabled="" type="checkbox"> El nombre del archivo del testbench que cubre esa fila</li>
+<li><input checked="" disabled="" type="checkbox"> Qué bin se llena cuando el escenario pasa</li>
+<li><input disabled="" type="checkbox"> Cuántas veces hay que correr el test para darlo por cubierto</li>
 </ul>
 <blockquote>
-<p><strong>No hacen falta, y conviene usarlos igual</strong> — son de <strong>SystemVerilog</strong>, no de UVM. Lo que evita la race es entender el scheduler: un driver que maneja con <code>&lt;=</code> contra un DUT que registra con <code>&lt;=</code> ya es determinista. El clocking block no reemplaza ese entendimiento, lo <strong>encapsula</strong> — y ahí es donde paga: agents reutilizables, VIP, gate-level y protocolos con setup/hold en la spec.</p>
+<p><strong>Qué bin se llena</strong> — las cinco columnas son <em>Feature</em>, <em>Escenario</em>, <em>Estímulo</em>, <em>Chequeo</em> y <em>Medida</em>, y ésta es la que más cuesta: obliga a decidir <strong>antes</strong> qué se va a contar. Si queda vacía, nadie se va a enterar de que el escenario nunca pasó — un caso que el random no tocó y que no tiene bin es indistinguible de uno que pasó mil veces.</p>
 </blockquote>
 <p class="al-deck"><a href="../index.html#/61">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s62" class="slide">
+<section id="s62" class="slide quiz">
+<h2 id="repaso-·-día-1">Repaso · Día 1</h2>
+<h4 id="7-de-7-·-clocking-block"><em>7 de 7 · clocking block</em></h4>
+<p><strong>¿Hacen falta los clocking blocks para escribir un testbench UVM sin races?</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> Sí: sin clocking block, driver y DUT compiten siempre en el mismo flanco</li>
+<li><input disabled="" type="checkbox"> Sí, y además son parte de la librería UVM</li>
+<li><input checked="" disabled="" type="checkbox"> No: alcanza con NBA en el driver y disciplina de scheduler</li>
+<li><input disabled="" type="checkbox"> No: los reemplaza el <code>uvm_driver</code>, que ya muestrea en la región correcta</li>
+</ul>
+<blockquote>
+<p><strong>No hacen falta, y conviene usarlos igual</strong> — son de <strong>SystemVerilog</strong>, no de UVM, y ningún <code>uvm_driver</code> muestrea por vos. Lo que evita la race es entender el scheduler: un driver que maneja con <code>&lt;=</code> contra un DUT que registra con <code>&lt;=</code> ya es determinista. El clocking block no reemplaza ese entendimiento, lo <strong>encapsula</strong> — y ahí es donde paga: agents reutilizables, VIP, gate-level y protocolos con setup/hold en la spec.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/62">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s63" class="slide">
 <h2 id="ejercicio-·-día-1-·-1-de-2">Ejercicio · Día 1 · 1 de 2</h2>
 <h4 id="una-operación-nueva-de-punta-a-punta"><em>Una operación nueva, de punta a punta</em></h4>
 <p><code>cd code/ejercicios/d1 &amp;&amp; bash run.sh</code></p>
@@ -4336,10 +4352,10 @@ de paso. Vale mostrar los dos números, no sólo el porcentaje: por eso el
 <code>run.sh</code> exige la cantidad de bins y no el 100 %, que un trabajo a medias
 también alcanza.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/62">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/63">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s63" class="slide">
+<section id="s64" class="slide">
 <h2 id="ejercicio-·-día-1-·-2-de-2">Ejercicio · Día 1 · 2 de 2</h2>
 <h4 id="las-ondas-cuando-el-log-no-alcanza"><em>Las ondas: cuando el log no alcanza</em></h4>
 <p><code>cd code/ejercicios/d1b &amp;&amp; bash run.sh</code></p>
@@ -4369,7 +4385,7 @@ de cuatro flancos a cinco, ¿cuál de las dos versiones de <code>send_op</code> 
 Ninguna cuenta bien; sólo la que espera <code>done</code> sigue andando. Es literalmente la
 pista del wait state del APB del día 7.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/63">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/64">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 </main>
 

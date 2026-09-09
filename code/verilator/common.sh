@@ -5,7 +5,7 @@
 # how the code works, they are what the {{code:}} blocks show on the slides, and
 # they have to read the same in the Spanish and the English course. What stays
 # in the course language is the text ADDRESSED TO THE STUDENT: the strings this
-# script prints at runtime (below), the TODO(ejercicio N) markers in
+# script prints at runtime (below), the TODO(exercise <dir>) markers in
 # code/ejercicios, and the messages its correctors print. That text is course
 # material, not code documentation, and phase 12.2 translates it together with
 # the slides.
@@ -41,6 +41,8 @@
 #                            demands that the LAST run_sim printed that text n
 #                            times. For the examples that demonstrate instead of
 #                            verifying: what they teach is what they print.
+#   intocables               checks the ./intocables.sha of an exercise: the
+#                            files the statement says NOT to touch.
 VLT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 UVM_HOME=${UVM_HOME:-$VLT_DIR/../.uvm}
 
@@ -140,6 +142,43 @@ uvm_summary_ok() {
   awk '$1 ~ /^UVM_(ERROR|FATAL)$/ && $2 == ":" && $3 + 0 > 0 {
          print "FAIL: the Report Summary counts " $3 " " $1 > "/dev/stderr"; bad = 1 }
        END { exit bad + 0 }' "$1"
+}
+
+# The files an exercise says NOT to touch, plus the ones its grading leans on.
+# Four exercises put their whole point inside one of them, and until now the ban
+# lived only in the README while the corrector read only the log: in d3,
+# replacing random_tester::type_id::create with mult_tester::... inside env.svh
+# passes in green without a single set_type_override, which IS the exercise.
+#
+# The list and its hashes live in intocables.sha, next to the run.sh. To
+# regenerate it after changing one of those files on purpose:
+#
+#   cd code/ejercicios/d3 && sha256 chequeo.svh env.svh vtalu_pkg.sv tb.f dut.f > intocables.sha
+#
+# It runs BEFORE compiling: there is no point in waiting two minutes for UVM to
+# say that the file you were not supposed to touch is the one that moved. And
+# `make ejercicios` runs the fifteen solutions, so a hash that goes stale
+# because the course code changed shows up on the next run and not months later.
+#
+# shasum comes with perl and is the one macOS has; sha256sum comes with
+# coreutils and is the one Debian has. The two write and read the same format.
+sha256() {
+  if command -v shasum > /dev/null 2>&1; then shasum -a 256 "$@"; else sha256sum "$@"; fi
+}
+
+intocables() {
+  [ -f intocables.sha ] || return 0
+  local movidas
+  # "FAILED" and "FAILED open or read": a deleted file counts as touched.
+  movidas=$(sha256 -c intocables.sha 2>/dev/null | sed -n 's/: FAILED.*$//p')
+  [ -n "$movidas" ] || return 0
+  {
+    echo "not yet: the exercise is doing this WITHOUT touching these files, and they moved:"
+    echo "$movidas" | sed 's/^/    /'
+    echo "  Put them back --git checkout -- <file>-- and the point of the exercise comes back"
+    echo "  with them. If you changed them on purpose, regenerate intocables.sha."
+  } >&2
+  return 1
 }
 
 # Demands that the last run_sim printed something exactly N times. The examples

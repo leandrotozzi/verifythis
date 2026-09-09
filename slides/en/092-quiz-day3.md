@@ -1,4 +1,4 @@
-<!-- es-sha: 38003c62dcd2 -->
+<!-- es-sha: 48345767ee1d -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 3
@@ -7,9 +7,9 @@
 
 **What does `+UVM_TESTNAME=add_test` let you do that you could not do before?**
 
-- [x] Pick the test on an already compiled testbench, without recompiling
+- [x] Pick the test on an already compiled testbench
 - [ ] Run the simulation faster
-- [ ] Change the DUT without recompiling
+- [ ] Change the DUT without recompiling: UVM re-elaborates on start-up
 - [ ] Lower the verbosity of the messages
 
 > **Pick the test without recompiling** — UVM reads that plusarg and asks the **factory** for the test by name. It is the difference between 1000 tests × 5 minutes of compilation and a single compilation.
@@ -27,7 +27,7 @@
 - [ ] Both from the top down
 - [ ] Both from the bottom up
 - [x] `build_phase` top-down, `connect_phase` bottom-up
-- [ ] In the order the components were declared
+- [ ] In the order the components were declared, from the top down
 
 > **Build top-down, connect bottom-up** — and it makes sense: you cannot connect a component that does not exist yet, so first the whole hierarchy gets built and only then does it get connected.
 
@@ -42,9 +42,9 @@
 **What are `raise_objection()` / `drop_objection()` for in the `run_phase`?**
 
 - [ ] For reporting scoreboard errors
-- [x] For keeping the simulation alive while the component has work
+- [x] For keeping the simulation alive while there is work
 - [ ] For synchronizing two threads
-- [ ] For registering the class in the factory
+- [ ] So that the `run_phase`s of every component start at the same time
 
 > **So that the phase does not end early** — every `run_phase` runs in parallel, each one in its thread, and the phase ends when **the last objection drops**. Without raising it, the simulation ends on you at time 0.
 
@@ -61,7 +61,7 @@
 - [ ] `env` generates the stimulus; `test` assembles the structure
 - [ ] Both do the same thing, `env` is optional
 - [ ] `env` runs the DUT; `test` runs the scoreboard
-- [x] `env` assembles the structure of the TB; `test` defines which stimulus gets applied
+- [x] `env` assembles the structure; `test` picks the stimulus
 
 > **Structure vs. stimulus** — each class does **one single thing well**. That is why the `env` almost always has only `build_phase` and `connect_phase`, and the test almost always has only a factory override.
 
@@ -76,7 +76,7 @@
 **`set_type_override()` replaces `base_tester` with `add_tester`. When does it have to be called?**
 
 - [x] Before the `build_phase` that creates the object runs
-- [ ] At any moment: the factory applies it retroactively
+- [ ] At any moment: the factory applies it retroactively to what is already built
 - [ ] After the `connect_phase`
 - [ ] Inside the `run_phase` of the tester
 
@@ -110,7 +110,7 @@
 **You want to silence the `` `uvm_error `` of a scoreboard somebody else is fixing. Where does the `set_report_severity_action_hier()` go?**
 
 - [ ] In the `build_phase` of the `env`
-- [ ] In the `run_phase` of the test
+- [ ] In the `run_phase` of the test, before raising the objection
 - [ ] In the constructor of the scoreboard
 - [x] In the `end_of_elaboration_phase` of the `env`
 

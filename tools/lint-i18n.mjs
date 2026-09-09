@@ -26,7 +26,7 @@
 // Y una tercera, que no es divergencia sino traduccion a medias (regla 8):
 // castellano que quedo sin traducir en el arbol EN. Estructuralmente no se ve
 // -- la slide tiene la misma cantidad de bullets -- y el sello es-sha tampoco,
-// porque se sella igual. La unica forma de cacharlo era leer las 402 slides.
+// porque se sella igual. La unica forma de cacharlo era leer las 415 slides.
 // Es LA falla tipica de una traduccion larga: un bullet, una Note: o la celda
 // de una tabla que se saltearon, en el medio de una seccion por lo demas
 // completa. Se buscan palabras funcionales del castellano que no son palabras

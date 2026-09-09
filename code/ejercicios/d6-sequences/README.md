@@ -1,8 +1,9 @@
 # Día 6 · las sequences — el tester del día 3, ahora como sequence
 
 El testbench es el de las sequences entero: agent, sequencer, driver, monitores,
-cobertura y scoreboard. **No hay que tocar nada de eso.** Lo único que falta es
-el estímulo.
+cobertura y scoreboard. **No hay que tocar nada de eso**, y el `run.sh` lo
+verifica con `intocables.sha` antes de compilar. Lo único que falta es el
+estímulo.
 
 ## Qué se pide
 

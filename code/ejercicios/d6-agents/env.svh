@@ -5,7 +5,7 @@ class env extends uvm_env;
    vtalu_agent_config clase_cfg_h;
    scoreboard         clase_scoreboard_h;
    coverage           clase_coverage_h;
-   // TODO(exercise 6): declare here the module's agent, its config, its
+   // TODO(exercise d6-agents): declare here the module's agent, its config, its
    // scoreboard and its coverage.
 
    function new(string name, uvm_component parent);
@@ -20,14 +20,14 @@ class env extends uvm_env;
 
       clase_cfg_h = new(.bfm(env_config_h.clase_bfm), .is_active(UVM_ACTIVE));
       uvm_config_db#(vtalu_agent_config)::set(this, "clase_agent_h*", "config", clase_cfg_h);
-      // TODO(exercise 6): build the config of the second agent -- modulo_bfm and
+      // TODO(exercise d6-agents): build the config of the second agent -- modulo_bfm and
       // UVM_PASSIVE -- and put it in the config_db with the scope it
       // deserves. Careful: if you use "*", the second set() overwrites the first.
 
       clase_agent_h      = vtalu_agent::type_id::create("clase_agent_h", this);
       clase_scoreboard_h = scoreboard::type_id::create("clase_scoreboard_h", this);
       clase_coverage_h   = coverage::type_id::create("clase_coverage_h", this);
-      // TODO(exercise 6): create the module's agent and its analysis pair.
+      // TODO(exercise d6-agents): create the module's agent and its analysis pair.
 
    endfunction : build_phase
 
@@ -35,7 +35,7 @@ class env extends uvm_env;
       clase_agent_h.command_ap.connect(clase_scoreboard_h.cmd_f.analysis_export);
       clase_agent_h.command_ap.connect(clase_coverage_h.analysis_export);
       clase_agent_h.result_ap.connect(clase_scoreboard_h.analysis_export);
-      // TODO(exercise 6): connect the two analysis ports of the module's agent.
+      // TODO(exercise d6-agents): connect the two analysis ports of the module's agent.
       // Notice you never name a monitor: you talk to the agent's ports.
 
    endfunction : connect_phase

@@ -8,6 +8,9 @@
 # checker, and the two files you have to write.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
+# "None of that has to be touched": env, checker and package stay put. The
+# whole point is that the stimulus changes without one line of structure moving.
+intocables
 INC=${SOLUCION:+ +incdir+solucion}
 vlt_uvm top -Wno-fatal $INC -f dut.f -f tb.f
 

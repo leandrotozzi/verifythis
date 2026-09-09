@@ -29,7 +29,7 @@ sobre un testbench que ya funciona, no un testbench distinto.
 ## El idioma de `code/`
 
 **Todo lo que hay acá adentro está en inglés**, y es a propósito: comentarios,
-`TODO(exercise N)`, los mensajes que imprimen los correctores, los `$display` que
+`TODO(exercise <dir>)`, los mensajes que imprimen los correctores, los `$display` que
 narran un ejemplo, y las cabeceras de los `run.sh`.
 
 La razón es una sola y vale la pena decirla entera. El curso se dicta en dos

@@ -2001,12 +2001,12 @@ a device driver is to the operating system.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: f6a4b6d74bdb -->
+<!-- es-sha: b07c9ddc47f6 -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 1
 
-#### *1 of 6 · Trends*
+#### *1 of 7 · Trends*
 
 **According to the Wilson 2024 study, where does most of a verifier's time go?**
 
@@ -2023,16 +2023,16 @@ a device driver is to the operating system.
 
 ## Review · Day 1
 
-#### *2 of 6 · The ALU spec*
+#### *2 of 7 · The ALU spec*
 
 **While the VTALU is running an operation, what do `start` and the operands have to do?**
 
-- [ ] `start` drops right away; the operands can change
+- [ ] `start` drops right away: it is a start pulse, and the DUT already latched everything
 - [ ] It makes no difference: the DUT registers them on the first edge
 - [ ] The operands have to change on every cycle
-- [x] `start` stays at 1 and the operands stable until `done` goes up
+- [x] `start` at 1 and the operands still until `done` goes up
 
-> **Stable until `done`** — it is the DUT protocol, and it is exactly the reason the BFM exists: to wrap that rule in a single place so that no test forgets it.
+> **Stable until `done`** — it is the DUT protocol, and it is exactly the reason the BFM exists: to wrap that rule in a single place so that no test forgets it. The first distractor describes a real protocol —pulse start, latched operands— that this DUT does not have.
 
 ---
 
@@ -2040,14 +2040,14 @@ a device driver is to the operating system.
 
 ## Review · Day 1
 
-#### *3 of 6 · Functional coverage*
+#### *3 of 7 · Functional coverage*
 
 **The test runs 1000 random operations and the *code* coverage reads 100 %. What does that tell you about the verification?**
 
-- [ ] That the DUT is verified
-- [x] Very little: it says which RTL got **executed**, not which scenarios of the **spec** happened
+- [ ] That the DUT is verified and the verification plan can be closed
+- [x] Very little: it measures the RTL that ran, not the spec
 - [ ] That the testbench has no bugs
-- [ ] That the verification plan can already be closed
+- [ ] That few scenarios are missing: 100 % already walked the whole design
 
 > **Very little** — code coverage measures the DUT; functional coverage measures the spec. A feature the designer never wrote gives 100 % of lines and 0 % of what matters, and the report is not going to tell you.
 
@@ -2057,11 +2057,11 @@ a device driver is to the operating system.
 
 ## Review · Day 1
 
-#### *4 of 6 · covergroup*
+#### *4 of 7 · covergroup*
 
 **You declare a `covergroup`, you `new()` it, you run a thousand operations and the report reads 0 %. What is the first thing to look at?**
 
-- [ ] That the bins are badly defined
+- [ ] That the bins are badly defined and match no value at all
 - [x] That nobody is calling `sample()`
 - [ ] That the DUT is not answering
 - [ ] That `ignore_bins` are missing
@@ -2074,12 +2074,12 @@ a device driver is to the operating system.
 
 ## Review · Day 1
 
-#### *5 of 6 · Interfaces and BFM*
+#### *5 of 7 · Interfaces and BFM*
 
 **What does the testbench gain when the protocol moves into a BFM?**
 
-- [x] The rest of the TB stops talking in signals and starts talking in operations
-- [ ] It simulates faster
+- [x] It stops talking in signals and starts talking in operations
+- [ ] It simulates faster: one BFM task costs the simulator less than moving wires
 - [ ] The testbench becomes synthesizable
 - [ ] You save having to declare a `clk`
 
@@ -2091,16 +2091,33 @@ a device driver is to the operating system.
 
 ## Review · Day 1
 
-#### *6 of 6 · clocking block*
+#### *6 of 7 · The verification plan*
+
+**In the verification plan, what goes in the *Measure* column?**
+
+- [ ] How long the scenario takes to run, so the regression can be estimated
+- [ ] The name of the testbench file that covers that row
+- [x] Which bin gets filled when the scenario happens
+- [ ] How many times the test has to be run to call it covered
+
+> **Which bin gets filled** — the five columns are *Feature*, *Scenario*, *Stimulus*, *Check* and *Measure*, and this is the one that costs the most: it forces you to decide **beforehand** what is going to be counted. If it is left empty, nobody is going to find out that the scenario never happened — a case the random never touched and that has no bin is indistinguishable from one that happened a thousand times.
+
+---
+
+<!-- .slide: class="quiz" -->
+
+## Review · Day 1
+
+#### *7 of 7 · clocking block*
 
 **Are clocking blocks needed to write a UVM testbench without races?**
 
 - [ ] Yes: without a clocking block, driver and DUT always compete on the same edge
 - [ ] Yes, and they are also part of the UVM library
-- [x] No: NBA in the driver plus scheduler discipline is enough — they are an optional abstraction, useful above all in reusable agents
-- [ ] No, and that is why they should never be used
+- [x] No: NBA in the driver plus scheduler discipline is enough
+- [ ] No: the `uvm_driver` replaces them, since it already samples in the right region
 
-> **They are not needed, and they are worth using anyway** — they belong to **SystemVerilog**, not to UVM. What avoids the race is understanding the scheduler: a driver that drives with `<=` against a DUT that registers with `<=` is already deterministic. The clocking block does not replace that understanding, it **wraps** it — and that is where it pays off: reusable agents, VIP, gate-level and protocols with setup/hold in the spec.
+> **They are not needed, and they are worth using anyway** — they belong to **SystemVerilog**, not to UVM, and no `uvm_driver` samples for you. What avoids the race is understanding the scheduler: a driver that drives with `<=` against a DUT that registers with `<=` is already deterministic. The clocking block does not replace that understanding, it **wraps** it — and that is where it pays off: reusable agents, VIP, gate-level and protocols with setup/hold in the spec.
         </textarea>
       </section>
       <!-- 042-quiz-day1.md -->
@@ -3841,7 +3858,7 @@ versions live side by side. That is the exercise that follows.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: de4701d8fe6d -->
+<!-- es-sha: 2ee9c4b81bb9 -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 2
@@ -3852,7 +3869,7 @@ versions live side by side. That is the exercise that follows.
 
 - [x] None: `rectangle_h` is `null` until somebody calls `new()`
 - [ ] One, with `length` and `width` at 0
-- [ ] One, half built
+- [ ] One half built: the fields exist but the constructor has not run
 - [ ] It depends on whether the class has a constructor
 
 > **None** — declaring a handle reserves nothing. There is the difference with a `struct`, which the simulator reserves the moment it sees it. And using the handle before the `new()` does not fail at compile time: it blows up in the middle of the simulation.
@@ -3887,7 +3904,7 @@ versions live side by side. That is the exercise that follows.
 - [ ] Nothing, it is a matter of style
 - [x] That the error moves from simulation to the compiler
 - [ ] That the base class can be instantiated
-- [ ] That the methods run faster
+- [ ] That the simulator can pick the most specific override at run time
 
 > **The error moves to the compiler** — with `$fatal` you find out halfway through the simulation that an override was missing. With `pure virtual` it does not compile. Catching it earlier is always cheaper.
 
@@ -3902,7 +3919,7 @@ versions live side by side. That is the exercise that follows.
 **I instantiate 10 objects of a class that has a `static` variable. How many copies are there in memory?**
 
 - [ ] 10, one per object
-- [ ] 0 until somebody writes it
+- [ ] 0 until somebody writes it: the memory is reserved on first access
 - [x] 1, shared by every instance
 - [ ] It depends on the simulator
 
@@ -3919,7 +3936,7 @@ versions live side by side. That is the exercise that follows.
 **Why is it worth declaring the static variable `protected` and exposing it with static methods?**
 
 - [x] To be able to change the data structure without touching whoever uses it
-- [ ] Because otherwise it does not compile
+- [ ] Because a `static` without `protected` is reserved once per instance
 - [ ] So that it takes up less memory
 - [ ] Because UVM demands it
 
@@ -3936,9 +3953,9 @@ versions live side by side. That is the exercise that follows.
 **`bandeja#(fernet)` and `bandeja#(mojito)` have a `static` queue inside. Do they share the queue?**
 
 - [ ] Yes, `static` is a single one for everybody
-- [ ] Yes, unless it is declared `protected`
+- [ ] Yes: the parameter changes the type of the methods, not the static storage
 - [ ] It depends on whether they get instantiated or not
-- [x] No: each specialization of the parameter is a different class, with its own queue
+- [x] No: each specialization is a different class, with its own queue
 
 > **They do not share it** — SystemVerilog generates **one class per combination of parameters**. `static` is unique inside each one of those classes, not across all of them. UVM leans on this all the time.
 
@@ -3953,11 +3970,11 @@ versions live side by side. That is the exercise that follows.
 **What problem does the factory pattern solve?**
 
 - [ ] Creating objects faster
-- [x] Deciding at run time which subtype to build, without hardcoding the `new`
+- [x] Deciding at run time which subtype to build
 - [ ] Avoiding having to declare classes
-- [ ] Copying objects without sharing the handle
+- [ ] Centralizing the `new()`s in one class, to be able to count and free them
 
-> **Deciding the subtype at runtime** — you ask the factory for an object and it decides which one. It is the piece that is later going to let you change the stimulus of a whole test without touching the code of the `env`.
+> **Deciding the subtype at runtime** — without hardcoding the `new`: you ask the factory for an object and it decides which one. It is the piece that is later going to let you change the stimulus of a whole test without touching the code of the `env`.
 
 ---
 
@@ -3971,8 +3988,8 @@ versions live side by side. That is the exercise that follows.
 
 - [ ] Always: it converts any class into any other
 - [ ] Only between classes with no inheritance
-- [ ] Only at compile time
-- [x] Only if the object in `source` really is of the class of `destination` or of a derived one
+- [ ] When the two classes have the same fields, even if they are not related
+- [x] Only if the object in `source` is of the class of `destination` or of a derived one
 
 > **Only if the object allows it** — `$cast` checks **at runtime** and returns 0 if it does not work. That is why UVM's factory is more comfortable than the `cantina` of the section: `type_id::create()` returns the right type and saves you the cast.
         </textarea>
@@ -5877,7 +5894,7 @@ the verbosity.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 38003c62dcd2 -->
+<!-- es-sha: 48345767ee1d -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 3
@@ -5886,9 +5903,9 @@ the verbosity.
 
 **What does `+UVM_TESTNAME=add_test` let you do that you could not do before?**
 
-- [x] Pick the test on an already compiled testbench, without recompiling
+- [x] Pick the test on an already compiled testbench
 - [ ] Run the simulation faster
-- [ ] Change the DUT without recompiling
+- [ ] Change the DUT without recompiling: UVM re-elaborates on start-up
 - [ ] Lower the verbosity of the messages
 
 > **Pick the test without recompiling** — UVM reads that plusarg and asks the **factory** for the test by name. It is the difference between 1000 tests × 5 minutes of compilation and a single compilation.
@@ -5906,7 +5923,7 @@ the verbosity.
 - [ ] Both from the top down
 - [ ] Both from the bottom up
 - [x] `build_phase` top-down, `connect_phase` bottom-up
-- [ ] In the order the components were declared
+- [ ] In the order the components were declared, from the top down
 
 > **Build top-down, connect bottom-up** — and it makes sense: you cannot connect a component that does not exist yet, so first the whole hierarchy gets built and only then does it get connected.
 
@@ -5921,9 +5938,9 @@ the verbosity.
 **What are `raise_objection()` / `drop_objection()` for in the `run_phase`?**
 
 - [ ] For reporting scoreboard errors
-- [x] For keeping the simulation alive while the component has work
+- [x] For keeping the simulation alive while there is work
 - [ ] For synchronizing two threads
-- [ ] For registering the class in the factory
+- [ ] So that the `run_phase`s of every component start at the same time
 
 > **So that the phase does not end early** — every `run_phase` runs in parallel, each one in its thread, and the phase ends when **the last objection drops**. Without raising it, the simulation ends on you at time 0.
 
@@ -5940,7 +5957,7 @@ the verbosity.
 - [ ] `env` generates the stimulus; `test` assembles the structure
 - [ ] Both do the same thing, `env` is optional
 - [ ] `env` runs the DUT; `test` runs the scoreboard
-- [x] `env` assembles the structure of the TB; `test` defines which stimulus gets applied
+- [x] `env` assembles the structure; `test` picks the stimulus
 
 > **Structure vs. stimulus** — each class does **one single thing well**. That is why the `env` almost always has only `build_phase` and `connect_phase`, and the test almost always has only a factory override.
 
@@ -5955,7 +5972,7 @@ the verbosity.
 **`set_type_override()` replaces `base_tester` with `add_tester`. When does it have to be called?**
 
 - [x] Before the `build_phase` that creates the object runs
-- [ ] At any moment: the factory applies it retroactively
+- [ ] At any moment: the factory applies it retroactively to what is already built
 - [ ] After the `connect_phase`
 - [ ] Inside the `run_phase` of the tester
 
@@ -5989,7 +6006,7 @@ the verbosity.
 **You want to silence the `` `uvm_error `` of a scoreboard somebody else is fixing. Where does the `set_report_severity_action_hier()` go?**
 
 - [ ] In the `build_phase` of the `env`
-- [ ] In the `run_phase` of the test
+- [ ] In the `run_phase` of the test, before raising the objection
 - [ ] In the constructor of the scoreboard
 - [x] In the `end_of_elaboration_phase` of the `env`
 
@@ -7951,7 +7968,7 @@ transactions.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 5bc8cd355b58 -->
+<!-- es-sha: 63316b27396f -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 4
@@ -7962,8 +7979,8 @@ transactions.
 
 - [ ] How many there are and of what type
 - [ ] Only the first one that subscribed
-- [ ] It knows them because they get handed to it in the constructor
-- [x] Nothing: not how many there are, not who they are, not what they do with the data
+- [ ] It knows them because they get handed to it in the constructor, one by one
+- [x] Nothing: not how many there are, not who they are
 
 > **It knows nothing** — and that ignorance is the whole point. Adding a fourth subscriber does not force you to touch one line of the one publishing.
 
@@ -7996,10 +8013,10 @@ transactions.
 
 - [ ] One per subscriber
 - [ ] Two: the publisher's and the subscriber's
-- [x] Only one: it is **intra**-thread communication, they are function calls
-- [ ] It depends on how many subscribers there are
+- [x] Only one: `write()` is a function call
+- [ ] One per subscriber plus the monitor's, and UVM syncs them at the end of the delta
 
-> **Only one** — `write()` is a `function`, not a `task`: it consumes no time and runs in the thread of the one publishing. That is precisely why **another** mechanism (put/get + FIFO) is needed to talk between threads.
+> **Only one, and it is intra-thread communication** — `write()` is a `function`, not a `task`: it consumes no time and runs in the thread of the one publishing. That is precisely why **another** mechanism (put/get + FIFO) is needed to talk between threads.
 
 ---
 
@@ -8014,7 +8031,7 @@ transactions.
 - [x] It blocks until the producer puts a piece of data in
 - [ ] It returns 0 and carries on
 - [ ] A UVM fatal error
-- [ ] It returns the last piece of data read
+- [ ] It returns the last piece of data read, which stays in the FIFO until overwritten
 
 > **It blocks** — `get()` is blocking, and that is why it is declared `task` and not `function`. That is the whole synchronization: no hand-written signal handshake is needed.
 
@@ -8031,7 +8048,7 @@ transactions.
 - [ ] It blocks just like `get()`
 - [ ] It returns 1 with a garbage value
 - [x] It returns 0 immediately, without blocking
-- [ ] It waits one clock cycle and tries again
+- [ ] It waits one clock cycle and tries again, up to the timeout of the phase
 
 > **It returns 0 and carries on** — it is the non-blocking version, and that is why it can be a `function`. Notice that the scoreboard uses it in a `do ... while` to skip over the `no_op`s and the `rst_op`s.
         </textarea>
@@ -9683,21 +9700,21 @@ resolves `randomize()` by returning 0 **in silence**. It is in
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 3e2a98054876 -->
+<!-- es-sha: 347fbfb3851b -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 5
 
-#### *1 of 4 · Deep copy*
+#### *1 of 8 · Deep copy*
 
 **`obj1_h = obj2_h`. What did I copy?**
 
 - [x] Nothing: both handles point at the same object
 - [ ] Every field of `obj2_h` into `obj1_h`
 - [ ] Only the `rand` fields
-- [ ] A shallow copy of the first level
+- [ ] A shallow copy: the first level is copied and the handles inside get shared
 
-> **Nothing** — there is no copy, there is a second name for the same object. If you modify it through one handle, the other sees it. That is where the *MOOCOW* rule comes from: if you are going to modify, copy first.
+> **Nothing** — there is no copy, there is a second name for the same object. If you modify it through one handle, the other one sees it. Out of that comes the *MOOCOW* rule: if you are going to modify, copy first.
 
 ---
 
@@ -9705,16 +9722,16 @@ resolves `randomize()` by returning 0 **in silence**. It is in
 
 ## Review · Day 5
 
-#### *2 of 4 · super.do_copy()*
+#### *2 of 8 · super.do_copy()*
 
-**Why does every `do_copy()` of the hierarchy have to call `super.do_copy()`?**
+**Why does every `do_copy()` in the hierarchy have to call `super.do_copy()`?**
 
-- [ ] Because UVM requires it in order to register the class
+- [ ] Because UVM demands it in order to register the class
 - [ ] So that the object ends up registered in the factory
 - [x] Because otherwise the fields of the classes above do not get copied
-- [ ] In order to be able to randomize after copying
+- [ ] Because `do_copy()` is `pure virtual` and the base class has no implementation
 
-> **Otherwise the fields from above get lost** — it is the same problem as `convert2string()`: the day somebody puts a new level in the middle, the method stops seeing half the data and nobody warns you.
+> **Otherwise the fields above get lost** — it is the same problem as `convert2string()`: the day somebody puts a new level in the middle, the method stops seeing half the data and nobody warns you.
 
 ---
 
@@ -9722,16 +9739,16 @@ resolves `randomize()` by returning 0 **in silence**. It is in
 
 ## Review · Day 5
 
-#### *3 of 4 · clone()*
+#### *3 of 8 · clone()*
 
-**`clone()` returns a `uvm_object`. Why is it recommended to write a `clone_me()` as well?**
+**`clone()` returns a `uvm_object`. Why is it recommended to also write a `clone_me()`?**
 
-- [x] To wrap the `$cast` up in a single place and not repeat it all over the TB
+- [x] To wrap the `$cast` in a single place
 - [ ] Because `clone()` does not copy the data
-- [ ] Because `clone()` is deprecated in IEEE 1800.2
-- [ ] In order to be able to clone components as well as transactions
+- [ ] Because `clone()` is deprecated in IEEE 1800.2 and `copy()` replaces it
+- [ ] To be able to clone components as well as transactions
 
-> **So as not to repeat the `$cast`** — without it, every place that clones ends up writing its own cast. It is the same old idea: if you are going to repeat it, wrap it up.
+> **So as not to repeat the `$cast`** — without it, every place that clones ends up writing its own cast. It is the same idea as always: if you are going to repeat it, wrap it.
 
 ---
 
@@ -9739,16 +9756,84 @@ resolves `randomize()` by returning 0 **in silence**. It is in
 
 ## Review · Day 5
 
-#### *4 of 4 · Constrained Random*
+#### *4 of 8 · `dist`: `:=` against `:/`*
 
-**`A dist {8'h00 := 1, [8'h01:8'hFE] := 1, 8'hFF := 1};` — how often does `A = 8'h00` come up?**
+**`A dist {8'h00 := 1, [8'h01:8'hFE] := 1, 8'hFF := 1};` — how often does `A = 8'h00` come out?**
 
 - [ ] A third of the time: they are three entries with the same weight
 - [ ] Half: the edges share it between the two of them
-- [x] One time in 256: with `:=` the weight is applied to **each value** of the range
-- [ ] Never: `:=` only accepts single values, not ranges
+- [x] Once every 256: with `:=` the weight goes to **each value**
+- [ ] Never: `:=` only takes single values, not ranges, and the range is dropped
 
-> **1 in 256** — `:=` gives weight 1 to *each one* of the 254 values in the middle, so the range weighs 254 against 1 and 1 from the edges. To share the weight out *inside* the range you use `:/`. Both forms compile and run: the difference only shows up in the coverage that does not go up.
+> **1 in 256** — `:=` gives weight 1 to *each one* of the 254 values in the middle, so the range weighs 254 against the 1 and 1 of the edges. To spread the weight *inside* the range you need `:/`. Both spellings compile and run: the difference only shows up in the coverage that does not go up.
+
+---
+
+<!-- .slide: class="quiz" -->
+
+## Review · Day 5
+
+#### *5 of 8 · `randomize() with {}`*
+
+**`cmd.randomize() with { A == 8'hFF; }` — what happens to the constraints the class already had?**
+
+- [ ] They get replaced: for that call only what is inside the braces counts
+- [x] They add up: both have to be satisfied
+- [ ] They stay switched off until the next `randomize()` without a `with`
+- [ ] It depends on the declaration order: the one lower in the file wins
+
+> **They add up** — the `with {}` adds constraints **for that call only**, and erases nothing. That is why it is the tool for closing a bin without writing a new class: three lines at the point of use, and the rest of the stimulus stays what it always was. And that is also why it clashes with a `dist` that already biases the same field: both have to hold at once.
+
+---
+
+<!-- .slide: class="quiz" -->
+
+## Review · Day 5
+
+#### *6 of 8 · constraint_mode()*
+
+**`randomize() with { A == 8'hFF; }` on a field the class spreads with a `dist` returns 0 three times out of four. What is the way around it?**
+
+- [ ] Retry in a `do ... while` until it returns 1
+- [x] `constraint_mode(0)` on the `dist` constraint, for that object
+- [ ] Raise the weight of the `8'hFF` bin in the `dist` of the class
+- [ ] `rand_mode(0)` on the field: it takes the `dist` out and lets the `with` rule
+
+> **Switch off the constraint that gets in the way** — Verilator solves the `dist` by **picking a value first** and only then checking the rest, so the probability of success is the probability of the bin: measured, `with {A == 8'hFF}` solves 25 % of the time. `constraint_mode(0)` switches it off for that object alone and touches nobody else. It is exactly the line the `d6-bins` exercise asks for.
+
+---
+
+<!-- .slide: class="quiz" -->
+
+## Review · Day 5
+
+#### *7 of 8 · rand_mode()*
+
+**What does `cmd.A.rand_mode(0)` do?**
+
+- [ ] It switches off every constraint that mentions that field
+- [x] It takes the field out of the draw and leaves it the value it had
+- [ ] It randomizes it once and freezes it afterwards
+- [ ] It makes the solver resolve it last, after all the other fields
+
+> **It stops being `rand`** — they are the two run-time knobs and they get mixed up often: `rand_mode(0)` takes **a field** out of the draw, `constraint_mode(0)` switches off **a constraint**. One picks *what gets drawn*, the other *which rules hold*. It is what you use to pin one operand by hand and go on randomizing the rest.
+
+---
+
+<!-- .slide: class="quiz" -->
+
+## Review · Day 5
+
+#### *8 of 8 · The order of resolution*
+
+**`rand bit es_reset; rand byte unsigned A;` with `constraint c { es_reset -> A == 8'h00; }`. How often does `es_reset = 1` come out?**
+
+- [ ] Half the time: it is a `rand` bit and nothing forbids it
+- [ ] Never: the implication forces it to 0
+- [x] 1 in 257: the solver draws among the **solutions**
+- [ ] It depends on the seed, and over enough runs it averages out to half
+
+> **1 in 257** — the solver picks uniformly among the *solutions*, not among the values of each field: `es_reset=1` leaves a single combination (`A = 00`) and `es_reset=0` leaves 256. The *"any operation after a reset"* row of the plan does not get filled, and the report does not say why. The answer in the language is `solve es_reset before A`; Verilator accepts it and **does not honour it**, so the portable way around is to ask for the spread of the control field with a `dist`.
         </textarea>
       </section>
       <!-- 137-quiz-day5.md -->
@@ -11888,7 +11973,7 @@ And the best place to go on reading is `code/.uvm/src/`: by this point
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 84b63357df96 -->
+<!-- es-sha: b50aeb748a7a -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 6
@@ -11899,10 +11984,10 @@ And the best place to go on reading is `code/.uvm/src/`: by this point
 
 - [ ] Nothing: a passive agent is an empty shell
 - [ ] Everything the same as an active one, but without connecting the driver to the sequencer
-- [x] The monitors and the analysis ports; the sequencer and the driver are left at `null`
-- [ ] Only the sequencer, so it can receive sequences from another agent
+- [x] The monitors and the analysis ports; the driver and the sequencer, no
+- [ ] Only the sequencer, so it can receive sequences from another agent of the same env
 
-> **The monitors, always** — watching is never optional: a passive agent goes on feeding scoreboard and coverage. What gets skipped is what *drives* the interface, because there somebody else is already driving it.
+> **The monitors, always; the sequencer and the driver are left at `null`** — watching is never optional: a passive agent goes on feeding scoreboard and coverage. What gets skipped is what *drives* the interface, because there somebody else is already driving it.
 
 ---
 
@@ -11916,10 +12001,10 @@ And the best place to go on reading is `code/.uvm/src/`: by this point
 
 - [ ] Compilation error: UVM demands the complete pair
 - [ ] The sequencer hands over the next item just the same, with a warning
-- [ ] The item gets discarded and the scoreboard reports a mismatch
-- [x] The sequence stays waiting in `finish_item()` and the simulation does not advance any more
+- [ ] The item gets discarded and the scoreboard reports a mismatch on the next comparison
+- [x] The sequence stays waiting in `finish_item()` and does not advance any more
 
-> **It hangs, and without saying anything** — it is the classic mistake of the first week, and the symptom misleads: there is no error and no warning, time stops advancing and the objection never gets dropped. `get_next_item()` is a loan; `item_done()` is giving it back.
+> **It hangs inside `finish_item()`, and without saying anything** — it is the classic mistake of the first week, and the symptom misleads: there is no error and no warning, time stops advancing and the objection never gets dropped. `get_next_item()` is a loan; `item_done()` is giving it back.
 
 ---
 
@@ -11933,7 +12018,7 @@ And the best place to go on reading is `code/.uvm/src/`: by this point
 
 - [ ] Both fail with `uvm_fatal`: the string `"config"` is duplicated
 - [ ] Each one receives its own, in order of creation
-- [x] Both receive the same object: the second `set()` overwrites the first
+- [x] Both receive the same one: the second `set()` overwrites the first
 - [ ] The first receives its config and the second is left with `cfg == null`
 
 > **Both receive the same thing** — the `uvm_config_db` does not match by order nor by type: it matches by **path**. With `"*"` both entries describe the same components, so the last one wins. The scope is a path in the tree, not a label.
@@ -11966,9 +12051,9 @@ And the best place to go on reading is `code/.uvm/src/`: by this point
 **Instead of the config object, you put `is_active` straight into the `uvm_config_db`. In this course the agent starts up active all the same. Why?**
 
 - [ ] Because `is_active` is `protected` and the `config_db` cannot write it
-- [ ] Because the `config_db` does not accept enumerated types
+- [ ] Because the `config_db` does not accept enumerated types, only `int` and `string`
 - [ ] Because `is_active` is fixed in the constructor and `build_phase` arrives late
-- [x] Because the one who reads it is the `build_phase` of `uvm_agent`, and `vtalu_agent` does not call `super.build_phase()`
+- [x] Because the one who reads it is `uvm_agent::build_phase`, and nobody calls `super`
 
 > **That mechanism is switched off** — `uvm_agent::build_phase` looks for `is_active` in the resource pool (it is in `code/.uvm/src/comps/uvm_agent.svh`, it can be opened). Without `super.build_phase()` that line never runs, and nobody warns you. Both ways are valid; what does not work is half of each one.
 
@@ -11983,11 +12068,11 @@ And the best place to go on reading is `code/.uvm/src/`: by this point
 **What is the practical difference of a `uvm_sequence` being a `uvm_object` and not a `uvm_component`?**
 
 - [ ] That it cannot be registered in the factory nor overridden
-- [x] That it gets created, runs and is thrown away: you can start several, one after the other, on the same sequencer
+- [x] That it gets created, runs and is thrown away
 - [ ] That it cannot have `rand` fields nor constraints
-- [ ] That it starts on its own when the simulation begins, without anybody calling it
+- [ ] That UVM builds it in `build_phase`, like any other class of the tree
 
-> **It gets created, runs and is thrown away** — a component is built once in `build_phase` and lives to the end. That is why the stimulus cannot be a component: it changes from test to test, and sometimes within the same test. Out of that comes as well that it can be configured between the `create()` and the `start()`, the way `full_seq.count = 200` does.
+> **It gets created, runs and is thrown away** — you can start several, one after the other, on the same sequencer. A component is built once in `build_phase` and lives to the end. That is why the stimulus cannot be a component: it changes from test to test, and sometimes within the same test. Out of that comes as well that it can be configured between the `create()` and the `start()`, the way `full_seq.count = 200` does.
 
 ---
 
@@ -12000,11 +12085,11 @@ And the best place to go on reading is `code/.uvm/src/`: by this point
 **`start_item(command)` has just come back. What is it that this guarantees?**
 
 - [ ] That the driver has already received the item and is driving the signals
-- [x] That the sequencer gave the turn to this sequence: nobody else is going to beat it to the driver
+- [x] That the sequencer gave the turn to this sequence
 - [ ] That the `randomize()` has already been resolved with the constraints of the class
-- [ ] That the objection of the phase is already raised
+- [ ] That the objection of the phase is already raised by the sequencer
 
-> **You have the turn, you have not handed anything over yet** — and that is why the `randomize()` goes *after*: it is the last possible moment to choose the values, when you already know what state the DUT is in. That is late randomization, and it is where `pre_do()` and `mid_do()` hook on.
+> **You have the turn —nobody else is going to beat you to the driver— and you have not handed anything over yet** — and that is why the `randomize()` goes *after*: it is the last possible moment to choose the values, when you already know what state the DUT is in. That is late randomization, and it is where `pre_do()` and `mid_do()` hook on.
 
 ---
 
@@ -12034,11 +12119,11 @@ And the best place to go on reading is `code/.uvm/src/`: by this point
 **You configure a `default_sequence` through `uvm_config_db` and forget the `set_automatic_phase_objection(1)`. What happens?**
 
 - [ ] `uvm_fatal` in `build_phase`: the sequence does not find the sequencer
-- [ ] It runs just the same: when there is a `default_sequence`, the sequencer raises the objection
-- [x] The `main_phase` finishes at t=0 and the test passes with 0 errors without having sent a single piece of stimulus
+- [ ] It runs just the same: when there is a `default_sequence`, the sequencer raises the objection on its own
+- [x] The `main_phase` finishes at t=0 and the test passes with 0 errors
 - [ ] The simulation hangs waiting for an objection nobody drops
 
-> **It passes in zero seconds, and it lies** — a phase without an objection finishes as soon as it starts. It is the same kind of bug as the `new()` that eats the override: it does not break, it deceives. And in a regression of a thousand tests, the one that passes in zero seconds is one nobody looks at.
+> **It passes in zero seconds without sending a single piece of stimulus, and it lies** — a phase without an objection finishes as soon as it starts. It is the same kind of bug as the `new()` that eats the override: it does not break, it deceives. And in a regression of a thousand tests, the one that passes in zero seconds is one nobody looks at.
 
 ---
 
@@ -12051,11 +12136,11 @@ And the best place to go on reading is `code/.uvm/src/`: by this point
 **`full_sequence` starts its daughters with `reset_seq.start(get_sequencer(), this)`. What is the second argument for?**
 
 - [ ] To pass it the sequencer, because `get_sequencer()` only returns the type
-- [x] To declare the daughter a sub-sequence of the mother: it inherits her turn and her priority in the arbitration
+- [x] To declare the daughter a sub-sequence of the mother
 - [ ] So the daughter runs in a separate thread, in parallel with the mother
-- [ ] To register the daughter in the factory under the name of the mother
+- [ ] To register the daughter in the factory under the name of the mother, so it can be overridden
 
-> **It declares the mother-daughter relationship** — without it, the sequencer treats the two as independent sequences and they compete for the turn. With it, the daughter inherits the context. And for the parallel that is not enough: a `fork` / `join` around the `start()` is needed.
+> **It declares the mother-daughter relationship** — without it, the sequencer treats the two as independent sequences and they compete for the turn. With it, the daughter inherits the mother's turn and her priority in the arbitration. And for the parallel that is not enough: a `fork` / `join` around the `start()` is needed.
         </textarea>
       </section>
       <!-- 151-quiz-day6.md -->
@@ -12903,7 +12988,7 @@ this testbench existed.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 83d81dad101f -->
+<!-- es-sha: 4ea9bbd6d978 -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 7
@@ -12914,10 +12999,10 @@ this testbench existed.
 
 - [ ] None: the second is syntactic sugar for the first
 - [ ] The first can be switched off from the command line and the second cannot
-- [x] The first is a **statement** that runs when the thread goes past it; the second is a **declaration with a clock** that gets evaluated on every edge, on its own
-- [ ] The first is only valid inside a class and the second only inside a module
+- [x] One is a **statement**; the other, a **declaration with a clock**
+- [ ] The first is only valid inside a class and the second only inside a module, because of the scheduler
 
-> **Statement against declaration** — the immediate one is to an `if` what the concurrent one is to an `always_ff`: one executes, the other gets instantiated. That is why only the concurrent one can describe something that lasts several cycles.
+> **Statement against declaration** — the immediate one runs when the thread goes past it; the concurrent one gets evaluated on its own, on every edge of its clock. It is to an `if` what the concurrent one is to an `always_ff`: one executes, the other gets instantiated. That is why only the concurrent one can describe something that lasts several cycles.
 
 ---
 
@@ -12930,9 +13015,9 @@ this testbench existed.
 **The `done` of the VTALU comes out of an `always_ff`. Which implication goes in `start |?? done`?**
 
 - [ ] `|->`, because the antecedent and the consequent belong to the same transaction
-- [x] `|=>`, because what gets written with `<=` on edge *n* is only read on *n+1*
+- [x] `|=>`, because what gets written with `<=` is read one edge later
 - [ ] Either of the two: the difference is a matter of style
-- [ ] Neither: for registered signals you have to use `$past()`
+- [ ] Neither: for registered signals you have to use `$past()` on the antecedent
 
 > **`|=>` when the consequent comes out of a `<=`** — because `|=>` *is* `|-> ##1`, and the question to ask is how many edges later the spec promises it. With `|->` against a registered signal the property does not pass vacuously: it **fails on every transaction**, because it compares against the old `done`. The one that passes quietly is the one whose antecedent never occurs — which is why it always goes with its `cover property`.
 
@@ -12948,10 +13033,10 @@ this testbench existed.
 
 - [ ] The `disable iff (!reset_n)` is missing
 - [ ] The `posedge` is too fast: the clock has to be divided
-- [x] The BFM writes the stimulus **on the `negedge`**, and on two consecutive `no_op` `start` goes down and comes back up between two `posedge`: the sampling does not see it go down
-- [ ] Covergroups and assertions cannot share the same clock
+- [x] The stimulus is written on the `negedge` and the sampling does not see it
+- [ ] Covergroups and assertions cannot share the clock without a `clocking block`
 
-> **An assertion is worth what its sampling is worth** — the stimulus gets sampled where the stimulus gets written. Stimulus on `negedge`, response of the DUT on `posedge`: zero errors. With a single clock there is no way.
+> **An assertion is worth what its sampling is worth** — the BFM writes the stimulus on the `negedge`, and on two consecutive `no_op` `start` goes down and comes back up between two `posedge`: the sampling does not see it go down. The stimulus gets sampled where the stimulus gets written. Stimulus on `negedge`, response of the DUT on `posedge`: zero errors. With a single clock there is no way.
 
 ---
 
@@ -12965,10 +13050,10 @@ this testbench existed.
 
 - [ ] That the rule it describes holds
 - [ ] That the DUT is free of protocol bugs
-- [x] Nothing yet: its antecedent may never have occurred, or `--assert` may be missing and it is not even being evaluated
-- [ ] That the property has a badly written `disable iff`
+- [x] Nothing yet: it may never have been evaluated at all
+- [ ] That the property has a badly written `disable iff` and stayed off the whole time
 
-> **Zero failures and zero evaluations look the same** — that is why every assertion goes with its `cover property`: it is the only check of the check. In the section, `c_mult_3ciclos` stays at 0 and gives away that the real latency is four edges, not three.
+> **Zero failures and zero evaluations look the same** — its antecedent may never have occurred, or `--assert` may be missing and it is not even being evaluated. That is why every assertion goes with its `cover property`: it is the only check of the check. In the section, `c_mult_3ciclos` stays at 0 and gives away that the real latency is four edges, not three.
 
 ---
 
@@ -12982,8 +13067,8 @@ this testbench existed.
 
 - [ ] The scoreboard, when it compares the result
 - [ ] The functional coverage, because the `done` bin is left empty
-- [x] An assertion in the interface: it is a **protocol** bug, and the monitor has already erased the time before the transaction reaches the scoreboard
-- [ ] The `uvm_fatal` of the `command_monitor`, which would stop seeing commands
+- [x] An assertion in the interface: it is a **protocol** bug
+- [ ] The `uvm_fatal` of the `command_monitor`, which would stop seeing commands on the bus
 
 > **Protocol → assertion. Data → scoreboard** — and it is not a preference: by the time the transaction reaches the scoreboard, the protocol is no longer there. Writing the check there would be rebuilding by hand the time the monitor has just erased.
         </textarea>
@@ -14582,6 +14667,146 @@ justify it comes along, and that DUT arrives sooner than you think.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
+<!-- es-sha: 972e9ea3237a -->
+<!-- .slide: class="quiz" -->
+
+## Review · Day 8
+
+#### *1 of 8 · The access string*
+
+**`CLR` clears itself when you write a 1 to it. You declare it `"WOC"`, and `bit_bash` and `mirror(UVM_CHECK)` give zero errors. What happened?**
+
+- [ ] Nothing: `WOC` is the access that describes a field that clears on a write
+- [ ] `WOC` is not in the LRM, so UVM treats it as a plain `RW`
+- [x] Both skip `WO*` accesses: that bit never got tested
+- [ ] The predictor leaves the mirror at `x`, and a comparison against `x` always passes
+
+> **Green is not checked** — `uvm_reg_bit_bash_seq.svh:129-135` skips every field whose access starts with `WO` (*"you are not supposed to read them"*), and `do_check` takes it out of the comparison mask (`uvm_reg.svh:2782-2788`). The only trace is in the timing: bashing `CTRL` takes four transfers less. The right access is `WC` (or `W1C`), and with it the bit does get bashed. A `WO*` access is the cheapest way there is of switching a check off without noticing.
+
+---
+
+<!-- .slide: class="quiz" -->
+
+## Review · Day 8
+
+#### *2 of 8 · Automatic or explicit prediction*
+
+**What changes between `set_auto_predict(1)` and hooking a `uvm_reg_predictor` to the monitor?**
+
+- [ ] Nothing: the predictor is the internal implementation of auto-predict
+- [x] With auto-predict the model believes what it **meant** to send, not what happened
+- [ ] The predictor is faster: it does not build the bus transaction
+- [ ] Auto-predict only works frontdoor, and the predictor works backdoor too
+
+> **The one who checks cannot believe the one who drives** — with `set_auto_predict(1)`, `model.CTRL.write()` updates the mirror at the moment of the call, before the bus has done anything: if the driver sends the transfer wrong, the model stays convinced. With the predictor, the mirror only changes once the monitor has seen the wire. It is the same drawing as the capstone scoreboard, with a library piece instead of a hand-written class. And it is free: the monitor and its analysis port **were already there**.
+
+---
+
+<!-- .slide: class="quiz" -->
+
+## Review · Day 8
+
+#### *3 of 8 · volatile*
+
+**`STATUS` changes on its own, without anybody writing it. What are you saying when you declare it `volatile` in `configure()`?**
+
+- [ ] That UVM is going to re-read it from the DUT before every comparison, to be safe
+- [x] That the mirror is not evidence: the value can change without going through the bus
+- [ ] That the field drops out of the map and stops having an address
+- [ ] That it has to be read backdoor, because the frontdoor does not get there in time
+
+> **The mirror stops being evidence** — a model predicts *"what I wrote is what I am going to read"*, and for a `volatile` field that sentence is false. The two `UVM_WARNING GET_MIRRORED_VAL/VOL` of the example are the library saying exactly that, and they are in the output on purpose. What does have to be checked gets checked where it is known: in the **scoreboard**, and in the model goes `set_compare(UVM_NO_CHECK)` on that field so that RAL does not invent an error.
+
+---
+
+<!-- .slide: class="quiz" -->
+
+## Review · Day 8
+
+#### *4 of 8 · mirror() against read()*
+
+**`model.CTRL.read(status, data)` and `model.CTRL.mirror(status, UVM_CHECK)`. How do they differ?**
+
+- [ ] `read` goes over the bus and `mirror` stays in the mirror, with no transfer at all
+- [x] Both read from the DUT; `mirror` also compares against what the model believed
+- [ ] `mirror` writes the mirror into the DUT, to leave the two of them equal
+- [ ] `read` updates the mirror and `mirror` does not touch it, so as not to hide an error
+
+> **`mirror` is a register scoreboard in one word** — both read from the DUT; the difference is that `mirror` compares against what the model believed **before** the read, and if it does not match it reports a `uvm_error` without anybody writing a check. And a read *is* a prediction: both update the mirror afterwards.
+
+---
+
+<!-- .slide: class="quiz" -->
+
+## Review · Day 8
+
+#### *5 of 8 · Who knows about the bus*
+
+**What does the `uvm_reg_block` know about the APB?**
+
+- [ ] The base address and the width of `PADDR`, which reach it through the `uvm_reg_map`
+- [x] Nothing: the only one that knows about the bus is the adapter
+- [ ] Everything: that is why there is one register model per protocol
+- [ ] The SETUP and ACCESS timing, to predict the wait state of the read
+
+> **The model does not know there is an APB underneath** — swap the adapter and the same model drives an AHB. The adapter is twenty lines, once per protocol, and it is the file that comes with a VIP you bought. Watch out for one thing: `bus2reg` is called **by the predictor too**, with the item the monitor saw, so an adapter that depends on something the driver put there works in one direction and fails in the other.
+
+---
+
+<!-- .slide: class="quiz" -->
+
+## Review · Day 8
+
+#### *6 of 8 · DPI and time*
+
+**Can an `import "DPI-C" function` of the golden model wait for a clock edge?**
+
+- [ ] Yes, by putting a `#1` inside the `.c`
+- [x] No: a `function` runs in zero time
+- [ ] Yes, as long as the `.c` is compiled with Verilator's timing support
+- [ ] Yes: the simulator suspends the C thread for the duration of the call
+
+> **Zero time, like any `function`** — to consume time you need `import "DPI-C" task`, and with a clarification almost every tutorial skips: C cannot block by itself. A DPI task consumes time **only** if it is declared `context` and from the C it calls back into an `export "DPI-C" task` of SystemVerilog, which is the one that waits for the edge. And at that point it is no longer a golden model, it is a bus model.
+
+---
+
+<!-- .slide: class="quiz" -->
+
+## Review · Day 8
+
+#### *7 of 8 · undefined reference*
+
+**The `.c` is written and it compiles, and the link fails with *undefined reference* to the golden model function. What do you look at first?**
+
+- [ ] Whether the DPI flag is missing from the `verilator` command line
+- [ ] Whether the `.c` is in its own `-f` and not mixed in with the `.sv`
+- [x] The name, and the `extern "C"`: the symbol may have come out mangled
+- [ ] Whether the SystemVerilog `function` is declared `virtual` so the symbol gets exported
+
+> **The compiler does not cross the two declarations: the one that joins them is the linker** — hence an error about something that is written, right there, in plain sight. It is almost always one of two things: the name does not match letter for letter, or the file got compiled as C++ and the symbol came out mangled. That last one is literally the case here: Verilator hands the user's sources to the C++ compiler, so the `.c` needs its `extern "C"`. And there is no DPI flag: the `.c` goes on the `verilator` command line like any other source.
+
+---
+
+<!-- .slide: class="quiz" -->
+
+## Review · Day 8
+
+#### *8 of 8 · The scoreboard that never shouted*
+
+**The scoreboard with the golden model in C runs a thousand operations and reports not one. Is that enough?**
+
+- [ ] Yes: a thousand comparisons without a single difference is the definition of verified
+- [ ] Yes, as long as the functional coverage closed at 100 % on top of that
+- [x] No: a scoreboard that has never seen an error is not tested
+- [ ] No, because both sides share the opcode `enum` and cancel each other out
+
+> **The model has to be broken on purpose** — `vtalu_golden_bug(1)` mutates the multiplication and `run.sh` demands that the scoreboard shout. If it does not shout, the testbench is comparing against itself and nobody was going to find out: it is the same mutation test the capstone grader does with `+BUG=1`, from the other side of the wire. And the duplicated `enum` is real but it is a different symptom: if **every** comparison fails at once, it is the mapping; if one in six fails, it is the DUT.
+        </textarea>
+      </section>
+      <!-- 182b-quiz-day8.md -->
+
+      <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
+        <textarea data-template>
 <!-- es-sha: 5bd74e6de67b -->
 ## Capstone 2 · Day 8
 
@@ -14666,86 +14891,87 @@ showing up where nobody expected it.
           <li><a href="#/31" data-h="31"><span>Functional coverage</span><span class="ind-n">32</span></a></li>
           <li><a href="#/44" data-h="44"><span>Interfaces and BFM</span><span class="ind-n">45</span></a></li>
           <li><a href="#/56" data-h="56"><span>Review · Day 1</span><span class="ind-n">57</span></a></li>
-          <li><a href="#/62" data-h="62"><span>Exercise · Day 1 · 1 of 2</span><span class="ind-n">63</span></a></li>
-          <li><a href="#/63" data-h="63"><span>Exercise · Day 1 · 2 of 2</span><span class="ind-n">64</span></a></li>
+          <li><a href="#/63" data-h="63"><span>Exercise · Day 1 · 1 of 2</span><span class="ind-n">64</span></a></li>
+          <li><a href="#/64" data-h="64"><span>Exercise · Day 1 · 2 of 2</span><span class="ind-n">65</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 2</h3>
         <ul>
-          <li><a href="#/64" data-h="64"><span>Agenda</span><span class="ind-n">65</span></a></li>
-          <li><a href="#/65" data-h="65"><span>Classes and extensions</span><span class="ind-n">66</span></a></li>
-          <li><a href="#/72" data-h="72"><span>Polymorphism</span><span class="ind-n">73</span></a></li>
-          <li><a href="#/79" data-h="79"><span>Static variables</span><span class="ind-n">80</span></a></li>
-          <li><a href="#/84" data-h="84"><span>Parameterized classes</span><span class="ind-n">85</span></a></li>
-          <li><a href="#/89" data-h="89"><span>The factory pattern</span><span class="ind-n">90</span></a></li>
-          <li><a href="#/95" data-h="95"><span>A testbench without a single module</span><span class="ind-n">96</span></a></li>
-          <li><a href="#/104" data-h="104"><span>Review · Day 2</span><span class="ind-n">105</span></a></li>
-          <li><a href="#/112" data-h="112"><span>Exercise · Day 2</span><span class="ind-n">113</span></a></li>
+          <li><a href="#/65" data-h="65"><span>Agenda</span><span class="ind-n">66</span></a></li>
+          <li><a href="#/66" data-h="66"><span>Classes and extensions</span><span class="ind-n">67</span></a></li>
+          <li><a href="#/73" data-h="73"><span>Polymorphism</span><span class="ind-n">74</span></a></li>
+          <li><a href="#/80" data-h="80"><span>Static variables</span><span class="ind-n">81</span></a></li>
+          <li><a href="#/85" data-h="85"><span>Parameterized classes</span><span class="ind-n">86</span></a></li>
+          <li><a href="#/90" data-h="90"><span>The factory pattern</span><span class="ind-n">91</span></a></li>
+          <li><a href="#/96" data-h="96"><span>A testbench without a single module</span><span class="ind-n">97</span></a></li>
+          <li><a href="#/105" data-h="105"><span>Review · Day 2</span><span class="ind-n">106</span></a></li>
+          <li><a href="#/113" data-h="113"><span>Exercise · Day 2</span><span class="ind-n">114</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 3</h3>
         <ul>
-          <li><a href="#/113" data-h="113"><span>Agenda</span><span class="ind-n">114</span></a></li>
-          <li><a href="#/114" data-h="114"><span>Tests</span><span class="ind-n">115</span></a></li>
-          <li><a href="#/125" data-h="125"><span>Components and phases</span><span class="ind-n">126</span></a></li>
-          <li><a href="#/134" data-h="134"><span>The env: structure and stimulus</span><span class="ind-n">135</span></a></li>
-          <li><a href="#/150" data-h="150"><span>Reporting</span><span class="ind-n">151</span></a></li>
-          <li><a href="#/164" data-h="164"><span>Review · Day 3</span><span class="ind-n">165</span></a></li>
-          <li><a href="#/171" data-h="171"><span>Exercise · Day 3</span><span class="ind-n">172</span></a></li>
+          <li><a href="#/114" data-h="114"><span>Agenda</span><span class="ind-n">115</span></a></li>
+          <li><a href="#/115" data-h="115"><span>Tests</span><span class="ind-n">116</span></a></li>
+          <li><a href="#/126" data-h="126"><span>Components and phases</span><span class="ind-n">127</span></a></li>
+          <li><a href="#/135" data-h="135"><span>The env: structure and stimulus</span><span class="ind-n">136</span></a></li>
+          <li><a href="#/151" data-h="151"><span>Reporting</span><span class="ind-n">152</span></a></li>
+          <li><a href="#/165" data-h="165"><span>Review · Day 3</span><span class="ind-n">166</span></a></li>
+          <li><a href="#/172" data-h="172"><span>Exercise · Day 3</span><span class="ind-n">173</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 4</h3>
         <ul>
-          <li><a href="#/172" data-h="172"><span>Agenda</span><span class="ind-n">173</span></a></li>
-          <li><a href="#/173" data-h="173"><span>One producer, many listeners</span><span class="ind-n">174</span></a></li>
-          <li><a href="#/189" data-h="189"><span>A single place that watches the wire</span><span class="ind-n">190</span></a></li>
-          <li><a href="#/202" data-h="202"><span>When somebody has to wait</span><span class="ind-n">203</span></a></li>
-          <li><a href="#/212" data-h="212"><span>Who waits for whom</span><span class="ind-n">213</span></a></li>
-          <li><a href="#/219" data-h="219"><span>Review · Day 4</span><span class="ind-n">220</span></a></li>
-          <li><a href="#/224" data-h="224"><span>Exercise · Day 4</span><span class="ind-n">225</span></a></li>
+          <li><a href="#/173" data-h="173"><span>Agenda</span><span class="ind-n">174</span></a></li>
+          <li><a href="#/174" data-h="174"><span>One producer, many listeners</span><span class="ind-n">175</span></a></li>
+          <li><a href="#/190" data-h="190"><span>A single place that watches the wire</span><span class="ind-n">191</span></a></li>
+          <li><a href="#/203" data-h="203"><span>When somebody has to wait</span><span class="ind-n">204</span></a></li>
+          <li><a href="#/213" data-h="213"><span>Who waits for whom</span><span class="ind-n">214</span></a></li>
+          <li><a href="#/220" data-h="220"><span>Review · Day 4</span><span class="ind-n">221</span></a></li>
+          <li><a href="#/225" data-h="225"><span>Exercise · Day 4</span><span class="ind-n">226</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 5</h3>
         <ul>
-          <li><a href="#/225" data-h="225"><span>Agenda</span><span class="ind-n">226</span></a></li>
-          <li><a href="#/226" data-h="226"><span>Copying an object that contains another</span><span class="ind-n">227</span></a></li>
-          <li><a href="#/236" data-h="236"><span>Transactions</span><span class="ind-n">237</span></a></li>
-          <li><a href="#/255" data-h="255"><span>Constrained random</span><span class="ind-n">256</span></a></li>
-          <li><a href="#/266" data-h="266"><span>Review · Day 5</span><span class="ind-n">267</span></a></li>
-          <li><a href="#/270" data-h="270"><span>Exercise · Day 5 · 1 of 2</span><span class="ind-n">271</span></a></li>
-          <li><a href="#/271" data-h="271"><span>Exercise · Day 5 · 2 of 2</span><span class="ind-n">272</span></a></li>
+          <li><a href="#/226" data-h="226"><span>Agenda</span><span class="ind-n">227</span></a></li>
+          <li><a href="#/227" data-h="227"><span>Copying an object that contains another</span><span class="ind-n">228</span></a></li>
+          <li><a href="#/237" data-h="237"><span>Transactions</span><span class="ind-n">238</span></a></li>
+          <li><a href="#/256" data-h="256"><span>Constrained random</span><span class="ind-n">257</span></a></li>
+          <li><a href="#/267" data-h="267"><span>Review · Day 5</span><span class="ind-n">268</span></a></li>
+          <li><a href="#/275" data-h="275"><span>Exercise · Day 5 · 1 of 2</span><span class="ind-n">276</span></a></li>
+          <li><a href="#/276" data-h="276"><span>Exercise · Day 5 · 2 of 2</span><span class="ind-n">277</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 6</h3>
         <ul>
-          <li><a href="#/272" data-h="272"><span>Agenda</span><span class="ind-n">273</span></a></li>
-          <li><a href="#/273" data-h="273"><span>Agents</span><span class="ind-n">274</span></a></li>
-          <li><a href="#/292" data-h="292"><span>Callbacks</span><span class="ind-n">293</span></a></li>
-          <li><a href="#/297" data-h="297"><span>Sequences</span><span class="ind-n">298</span></a></li>
-          <li><a href="#/321" data-h="321"><span>Review · Day 6</span><span class="ind-n">322</span></a></li>
-          <li><a href="#/331" data-h="331"><span>Exercise · Day 6 · 1 of 4</span><span class="ind-n">332</span></a></li>
-          <li><a href="#/332" data-h="332"><span>Exercise · Day 6 · 2 of 4</span><span class="ind-n">333</span></a></li>
-          <li><a href="#/333" data-h="333"><span>Exercise · Day 6 · 3 of 4</span><span class="ind-n">334</span></a></li>
-          <li><a href="#/334" data-h="334"><span>Exercise · Day 6 · 4 of 4</span><span class="ind-n">335</span></a></li>
+          <li><a href="#/277" data-h="277"><span>Agenda</span><span class="ind-n">278</span></a></li>
+          <li><a href="#/278" data-h="278"><span>Agents</span><span class="ind-n">279</span></a></li>
+          <li><a href="#/297" data-h="297"><span>Callbacks</span><span class="ind-n">298</span></a></li>
+          <li><a href="#/302" data-h="302"><span>Sequences</span><span class="ind-n">303</span></a></li>
+          <li><a href="#/326" data-h="326"><span>Review · Day 6</span><span class="ind-n">327</span></a></li>
+          <li><a href="#/336" data-h="336"><span>Exercise · Day 6 · 1 of 4</span><span class="ind-n">337</span></a></li>
+          <li><a href="#/337" data-h="337"><span>Exercise · Day 6 · 2 of 4</span><span class="ind-n">338</span></a></li>
+          <li><a href="#/338" data-h="338"><span>Exercise · Day 6 · 3 of 4</span><span class="ind-n">339</span></a></li>
+          <li><a href="#/339" data-h="339"><span>Exercise · Day 6 · 4 of 4</span><span class="ind-n">340</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 7</h3>
         <ul>
-          <li><a href="#/335" data-h="335"><span>Agenda</span><span class="ind-n">336</span></a></li>
-          <li><a href="#/336" data-h="336"><span>Assertions (SVA)</span><span class="ind-n">337</span></a></li>
-          <li><a href="#/353" data-h="353"><span>Exercise · Day 7</span><span class="ind-n">354</span></a></li>
-          <li><a href="#/354" data-h="354"><span>Review · Day 7</span><span class="ind-n">355</span></a></li>
-          <li><a href="#/359" data-h="359"><span>Capstone · Day 7</span><span class="ind-n">360</span></a></li>
-          <li><a href="#/362" data-h="362"><span>Appendix · From the VTALU to a real bus</span><span class="ind-n">363</span></a></li>
-          <li><a href="#/365" data-h="365"><span>Appendix · The debug toolbox</span><span class="ind-n">366</span></a></li>
-          <li><a href="#/367" data-h="367"><span>Appendix · The 21 silent traps</span><span class="ind-n">368</span></a></li>
-          <li><a href="#/372" data-h="372"><span>Glossary · the words of the trade</span><span class="ind-n">373</span></a></li>
-          <li><a href="#/375" data-h="375"><span>References</span><span class="ind-n">376</span></a></li>
-          <li><a href="#/378" data-h="378"><span>This is as far as we got</span><span class="ind-n">379</span></a></li>
-          <li><a href="#/380" data-h="380"><span>Self-assessment</span><span class="ind-n">381</span></a></li>
+          <li><a href="#/340" data-h="340"><span>Agenda</span><span class="ind-n">341</span></a></li>
+          <li><a href="#/341" data-h="341"><span>Assertions (SVA)</span><span class="ind-n">342</span></a></li>
+          <li><a href="#/358" data-h="358"><span>Exercise · Day 7</span><span class="ind-n">359</span></a></li>
+          <li><a href="#/359" data-h="359"><span>Review · Day 7</span><span class="ind-n">360</span></a></li>
+          <li><a href="#/364" data-h="364"><span>Capstone · Day 7</span><span class="ind-n">365</span></a></li>
+          <li><a href="#/367" data-h="367"><span>Appendix · From the VTALU to a real bus</span><span class="ind-n">368</span></a></li>
+          <li><a href="#/370" data-h="370"><span>Appendix · The debug toolbox</span><span class="ind-n">371</span></a></li>
+          <li><a href="#/372" data-h="372"><span>Appendix · The 21 silent traps</span><span class="ind-n">373</span></a></li>
+          <li><a href="#/377" data-h="377"><span>Glossary · the words of the trade</span><span class="ind-n">378</span></a></li>
+          <li><a href="#/380" data-h="380"><span>References</span><span class="ind-n">381</span></a></li>
+          <li><a href="#/383" data-h="383"><span>This is as far as we got</span><span class="ind-n">384</span></a></li>
+          <li><a href="#/385" data-h="385"><span>Self-assessment</span><span class="ind-n">386</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 8 · optional</h3>
         <ul>
-          <li><a href="#/383" data-h="383"><span>Agenda</span><span class="ind-n">384</span></a></li>
-          <li><a href="#/384" data-h="384"><span>RAL</span><span class="ind-n">385</span></a></li>
-          <li><a href="#/395" data-h="395"><span>Exercise · Day 8</span><span class="ind-n">396</span></a></li>
-          <li><a href="#/396" data-h="396"><span>The reference model in C</span><span class="ind-n">397</span></a></li>
-          <li><a href="#/400" data-h="400"><span>Capstone 2 · Day 8</span><span class="ind-n">401</span></a></li>
-          <li><a href="#/401" data-h="401"><span>The end</span><span class="ind-n">402</span></a></li>
+          <li><a href="#/388" data-h="388"><span>Agenda</span><span class="ind-n">389</span></a></li>
+          <li><a href="#/389" data-h="389"><span>RAL</span><span class="ind-n">390</span></a></li>
+          <li><a href="#/400" data-h="400"><span>Exercise · Day 8</span><span class="ind-n">401</span></a></li>
+          <li><a href="#/401" data-h="401"><span>The reference model in C</span><span class="ind-n">402</span></a></li>
+          <li><a href="#/405" data-h="405"><span>Review · Day 8</span><span class="ind-n">406</span></a></li>
+          <li><a href="#/413" data-h="413"><span>Capstone 2 · Day 8</span><span class="ind-n">414</span></a></li>
+          <li><a href="#/414" data-h="414"><span>The end</span><span class="ind-n">415</span></a></li>
         </ul>
     </nav>
   </dialog>
@@ -14889,7 +15115,7 @@ showing up where nobody expected it.
       // escribe esa coordenada en la URL y el de llegada la resuelve con SU
       // propio mapa: si todavia no tradujo esa seccion, avisa y arranca de
       // cero en vez de aterrizar en cualquier lado.
-      const SECCIONES = [["000-verify-this",1],["002-como-usar",2],["005-agenda-day1",1],["010-tendencias",5],["015-introduccion",6],["020-spec-vtalu",8],["021-plan-de-verificacion",3],["025-testbench-convencional",5],["026-cobertura-funcional",13],["030-interfaces-bfm",12],["042-quiz-day1",6],["043-ejercicio-day1",1],["044-ejercicio-day1b",1],["045-agenda-day2",1],["046-clases-y-extensiones",7],["047-polimorfismo",7],["050-variables-estaticas",5],["055-clases-parametricas",5],["060-factory",6],["065-tb-en-objetos",9],["067-quiz-day2",8],["068-ejercicio-day2",1],["070-agenda-day3",1],["075-tests",11],["080-components",9],["085-env",16],["088-reporting",14],["092-quiz-day3",7],["093-ejercicio-day3",1],["095-agenda-day4",1],["100-varios-objetos",16],["105-analysis-ports",13],["110-threads",10],["115-put-get",7],["117-quiz-day4",5],["118-ejercicio-day4",1],["120-agenda-day5",1],["130-jerarquias",10],["135-transactions",19],["136-constrained-random",11],["137-quiz-day5",4],["138-ejercicio-day5",1],["139-ejercicio-day5b",1],["140-agenda-day6",1],["145-agents",19],["146-callbacks",5],["150-sequences",24],["151-quiz-day6",10],["152-ejercicio-day6-agents",1],["153-ejercicio-day6-sequences",1],["153b-ejercicio-day6-bins",1],["153c-ejercicio-day6-semillas",1],["159-agenda-day7",1],["160-assertions",17],["161-ejercicio-day7-sva",1],["162-quiz-day7",5],["163-ejercicio-day7-capstone",3],["170-de-la-vtalu-a-un-bus",3],["171-apendice-debug",2],["172-apendice-trampas",5],["173-glosario",3],["174-referencias",3],["175-cierre",2],["175b-autoevaluacion",3],["179-agenda-day8",1],["180-ral",11],["181-ejercicio-day8-ral",1],["182-dpi",4],["183-ejercicio-day8-fifo",1],["190-the-end",1]];
+      const SECCIONES = [["000-verify-this",1],["002-como-usar",2],["005-agenda-day1",1],["010-tendencias",5],["015-introduccion",6],["020-spec-vtalu",8],["021-plan-de-verificacion",3],["025-testbench-convencional",5],["026-cobertura-funcional",13],["030-interfaces-bfm",12],["042-quiz-day1",7],["043-ejercicio-day1",1],["044-ejercicio-day1b",1],["045-agenda-day2",1],["046-clases-y-extensiones",7],["047-polimorfismo",7],["050-variables-estaticas",5],["055-clases-parametricas",5],["060-factory",6],["065-tb-en-objetos",9],["067-quiz-day2",8],["068-ejercicio-day2",1],["070-agenda-day3",1],["075-tests",11],["080-components",9],["085-env",16],["088-reporting",14],["092-quiz-day3",7],["093-ejercicio-day3",1],["095-agenda-day4",1],["100-varios-objetos",16],["105-analysis-ports",13],["110-threads",10],["115-put-get",7],["117-quiz-day4",5],["118-ejercicio-day4",1],["120-agenda-day5",1],["130-jerarquias",10],["135-transactions",19],["136-constrained-random",11],["137-quiz-day5",8],["138-ejercicio-day5",1],["139-ejercicio-day5b",1],["140-agenda-day6",1],["145-agents",19],["146-callbacks",5],["150-sequences",24],["151-quiz-day6",10],["152-ejercicio-day6-agents",1],["153-ejercicio-day6-sequences",1],["153b-ejercicio-day6-bins",1],["153c-ejercicio-day6-semillas",1],["159-agenda-day7",1],["160-assertions",17],["161-ejercicio-day7-sva",1],["162-quiz-day7",5],["163-ejercicio-day7-capstone",3],["170-de-la-vtalu-a-un-bus",3],["171-apendice-debug",2],["172-apendice-trampas",5],["173-glosario",3],["174-referencias",3],["175-cierre",2],["175b-autoevaluacion",3],["179-agenda-day8",1],["180-ral",11],["181-ejercicio-day8-ral",1],["182-dpi",4],["182b-quiz-day8",8],["183-ejercicio-day8-fifo",1],["190-the-end",1]];
       const coordDe = h => {
         let base = 0;
         for (const [f, n] of SECCIONES) {

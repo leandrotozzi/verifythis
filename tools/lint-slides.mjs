@@ -16,9 +16,22 @@
 //             silencio cuando el ejemplo crece arriba del bloque; #nombre y los
 //             marcadores // cb: no. Exentas las salidas capturadas, que se
 //             regeneran y no pueden llevar un marcador adentro.
+//   6. ERROR  el sesgo de longitud del banco: la correcta no puede ser la
+//             opcion mas larga en mas de 1 de cada 4 preguntas del idioma.
 //
 // Los archivos de quiz, agenda y ejercicio estan exentos de la regla 1: ahi el
-// texto es la pregunta, y el codigo es el enunciado.
+// texto es la pregunta, y el codigo es el enunciado. La 6 es al reves: corre
+// SOLO sobre los quiz.
+//
+// Por que la 6 es un error y no un aviso: en la revision de septiembre 2026 la
+// correcta era la mas larga en 37 de las 45 de entonces (82 %), y el banco se publica
+// como parcial. Un alumno que no sabe UVM y marca siempre la mas larga sacaba
+// 82 %, o sea que el instrumento media longitud de renglon. El sesgo entra sin
+// que nadie lo elija: la correcta es la que lleva la matizacion ("Muy poco:
+// dice que RTL se ejecuto, no que escenarios de la spec pasaron") y los
+// distractores salen cortos y planos. El arreglo es mover la matizacion al "> "
+// de la explicacion y darle a un distractor una justificacion plausible y
+// falsa. El techo es 1 de cada 4, que es lo que da el azar con cuatro opciones.
 //
 // Corre sobre los DOS arboles: una slide muda en ingles es igual de muda.
 //
@@ -37,6 +50,12 @@ const GENERADO = /\.(txt|log|questa)$/;
 
 const errores = [], avisos = [];
 const sinNota = new Map();
+// Regla 6, por arbol de idioma: la traduccion tiene sus propios largos.
+const sesgo = new Map();
+const RE_OPCION = /^- \[([ x])\] (.+?)\s*$/gm;
+// Se mide lo que el alumno LEE, no lo que dice el .md: los asteriscos de la
+// negrita y los backticks del codigo inline no se ven en la slide.
+const largo = t => t.replace(/[`*]/g, '').length;
 
 const ARBOLES = [];
 for (const l of IDIOMAS) {
@@ -87,6 +106,22 @@ for (const [SLIDES_DIR, f] of ARBOLES) {
       sinNota.set(f, (sinNota.get(f) ?? 0) + 1);
     }
 
+    if (/quiz/.test(f)) {
+      const ops = [...s.matchAll(RE_OPCION)];
+      if (ops.length) {
+        const largos = ops.map(o => largo(o[2]));
+        const max = Math.max(...largos);
+        const correcta = ops.findIndex(o => o[1] === 'x');
+        // La mas larga, y una sola: si dos empatan arriba, elegir por longitud
+        // ya no resuelve la pregunta y el tell no paga.
+        const esLaMasLarga = largos[correcta] === max && largos.filter(l => l === max).length === 1;
+        const acc = sesgo.get(SLIDES_DIR) ?? { total: 0, largas: [] };
+        acc.total++;
+        if (esLaMasLarga) acc.largas.push(`${donde} — la correcta mide ${max} y la que le sigue, ${Math.max(...largos.filter((_, i) => i !== correcta))}`);
+        sesgo.set(SLIDES_DIR, acc);
+      }
+    }
+
     for (const [, r, simbolo, desde, hasta] of s.matchAll(RE_CODE)) {
       const ruta = r.trim();
       // #nombre ya es un recorte, y uno que no se pudre: no aplica ninguna de
@@ -102,6 +137,17 @@ for (const [SLIDES_DIR, f] of ARBOLES) {
   }
 }
 
+for (const [dir, { total, largas }] of sesgo) {
+  // 1 de cada 4 es lo que sale por azar con cuatro opciones: por debajo de ahi,
+  // la longitud no dice nada y el banco mide lo que dice medir.
+  const techo = Math.floor(total / 4);
+  console.log(`sesgo de longitud en ${dir}: la correcta es la mas larga en ${largas.length} de ${total} (techo ${techo})`);
+  if (largas.length <= techo) continue;
+  errores.push(`${dir} — la correcta es la opcion mas larga en ${largas.length} de ${total} preguntas (el techo es ${techo}):`);
+  errores.push(...largas.map(l => '  ' + l));
+}
+console.log('');
+
 for (const a of avisos) console.log('  ! ' + a);
 if (avisos.length) console.log(`${avisos.length} aviso(s)\n`);
 
@@ -112,9 +158,9 @@ if (sinNota.size) {
 }
 
 if (errores.length) {
-  console.error(`✗ ${errores.length} slide(s) de codigo sin texto:`);
+  console.error(`✗ el lint de slides encontro esto:`);
   errores.forEach(e => console.error('  ✗ ' + e));
   process.exit(1);
 }
-console.log(`✓ lint de slides: ninguna slide de codigo quedo sin texto`);
+console.log(`✓ lint de slides: ninguna slide de codigo quedo sin texto, y el banco no premia la opcion mas larga`);
 if (avisos.length && process.argv.includes('--avisos-fallan')) process.exit(1);

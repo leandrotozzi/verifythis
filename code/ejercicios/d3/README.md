@@ -10,7 +10,10 @@ Ya existen `random_test` y `add_test`. Falta el que multiplica.
 2. **`mult_test.svh`** — un `uvm_test` que le diga a la factory que cuando
    alguien pida un `base_tester` devuelva tu `mult_tester`, y que cree el `env`.
 3. **No toques `env.svh`.** Esa es toda la gracia: la estructura del testbench
-   no se entera de que cambió el estímulo.
+   no se entera de que cambió el estímulo. El `run.sh` lo verifica con
+   `intocables.sha` antes de compilar: instanciar tu `mult_tester` ahí a mano
+   también hace pasar el test, y ahí el ejercicio —el `set_type_override`— no se
+   hizo nunca.
 
 Listo cuando `bash run.sh` imprime `EXERCISE OK`.
 

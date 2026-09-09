@@ -1,4 +1,4 @@
-<!-- es-sha: 5bc8cd355b58 -->
+<!-- es-sha: 63316b27396f -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 4
@@ -9,8 +9,8 @@
 
 - [ ] How many there are and of what type
 - [ ] Only the first one that subscribed
-- [ ] It knows them because they get handed to it in the constructor
-- [x] Nothing: not how many there are, not who they are, not what they do with the data
+- [ ] It knows them because they get handed to it in the constructor, one by one
+- [x] Nothing: not how many there are, not who they are
 
 > **It knows nothing** — and that ignorance is the whole point. Adding a fourth subscriber does not force you to touch one line of the one publishing.
 
@@ -43,10 +43,10 @@
 
 - [ ] One per subscriber
 - [ ] Two: the publisher's and the subscriber's
-- [x] Only one: it is **intra**-thread communication, they are function calls
-- [ ] It depends on how many subscribers there are
+- [x] Only one: `write()` is a function call
+- [ ] One per subscriber plus the monitor's, and UVM syncs them at the end of the delta
 
-> **Only one** — `write()` is a `function`, not a `task`: it consumes no time and runs in the thread of the one publishing. That is precisely why **another** mechanism (put/get + FIFO) is needed to talk between threads.
+> **Only one, and it is intra-thread communication** — `write()` is a `function`, not a `task`: it consumes no time and runs in the thread of the one publishing. That is precisely why **another** mechanism (put/get + FIFO) is needed to talk between threads.
 
 ---
 
@@ -61,7 +61,7 @@
 - [x] It blocks until the producer puts a piece of data in
 - [ ] It returns 0 and carries on
 - [ ] A UVM fatal error
-- [ ] It returns the last piece of data read
+- [ ] It returns the last piece of data read, which stays in the FIFO until overwritten
 
 > **It blocks** — `get()` is blocking, and that is why it is declared `task` and not `function`. That is the whole synchronization: no hand-written signal handshake is needed.
 
@@ -78,6 +78,6 @@
 - [ ] It blocks just like `get()`
 - [ ] It returns 1 with a garbage value
 - [x] It returns 0 immediately, without blocking
-- [ ] It waits one clock cycle and tries again
+- [ ] It waits one clock cycle and tries again, up to the timeout of the phase
 
 > **It returns 0 and carries on** — it is the non-blocking version, and that is why it can be a `function`. Notice that the scoreboard uses it in a `do ... while` to skip over the `no_op`s and the `rst_op`s.

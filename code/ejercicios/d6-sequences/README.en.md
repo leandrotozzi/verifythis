@@ -1,9 +1,10 @@
-<!-- es-sha: cbc690a98b32 -->
+<!-- es-sha: 0fbfc00a49ad -->
 # Day 6 · sequences — the tester of day 3, now as a sequence
 
 The testbench is the whole one from sequences: agent, sequencer, driver, monitors,
-coverage and scoreboard. **None of that has to be touched.** The only thing missing is
-the stimulus.
+coverage and scoreboard. **None of that has to be touched**, and `run.sh` checks
+that with `intocables.sha` before compiling. The only thing missing is the
+stimulus.
 
 ## What is asked
 

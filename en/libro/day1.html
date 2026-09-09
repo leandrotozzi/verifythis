@@ -4227,11 +4227,11 @@ a device driver is to the operating system.</p>
 </section>
 
 <section id="s56" class="slide quiz">
-<!-- es-sha: f6a4b6d74bdb -->
+<!-- es-sha: b07c9ddc47f6 -->
 
 
 <h2 id="review-·-day-1">Review · Day 1</h2>
-<h4 id="1-of-6-·-trends"><em>1 of 6 · Trends</em></h4>
+<h4 id="1-of-7-·-trends"><em>1 of 7 · Trends</em></h4>
 <p><strong>According to the Wilson 2024 study, where does most of a verifier&#39;s time go?</strong></p>
 <ul>
 <li><input disabled="" type="checkbox"> Into writing the testbench</li>
@@ -4247,29 +4247,29 @@ a device driver is to the operating system.</p>
 
 <section id="s57" class="slide quiz">
 <h2 id="review-·-day-1">Review · Day 1</h2>
-<h4 id="2-of-6-·-the-alu-spec"><em>2 of 6 · The ALU spec</em></h4>
+<h4 id="2-of-7-·-the-alu-spec"><em>2 of 7 · The ALU spec</em></h4>
 <p><strong>While the VTALU is running an operation, what do <code>start</code> and the operands have to do?</strong></p>
 <ul>
-<li><input disabled="" type="checkbox"> <code>start</code> drops right away; the operands can change</li>
+<li><input disabled="" type="checkbox"> <code>start</code> drops right away: it is a start pulse, and the DUT already latched everything</li>
 <li><input disabled="" type="checkbox"> It makes no difference: the DUT registers them on the first edge</li>
 <li><input disabled="" type="checkbox"> The operands have to change on every cycle</li>
-<li><input checked="" disabled="" type="checkbox"> <code>start</code> stays at 1 and the operands stable until <code>done</code> goes up</li>
+<li><input checked="" disabled="" type="checkbox"> <code>start</code> at 1 and the operands still until <code>done</code> goes up</li>
 </ul>
 <blockquote>
-<p><strong>Stable until <code>done</code></strong> — it is the DUT protocol, and it is exactly the reason the BFM exists: to wrap that rule in a single place so that no test forgets it.</p>
+<p><strong>Stable until <code>done</code></strong> — it is the DUT protocol, and it is exactly the reason the BFM exists: to wrap that rule in a single place so that no test forgets it. The first distractor describes a real protocol —pulse start, latched operands— that this DUT does not have.</p>
 </blockquote>
 <p class="al-deck"><a href="../index.html#/57">see this slide in the deck &rsaquo;</a></p>
 </section>
 
 <section id="s58" class="slide quiz">
 <h2 id="review-·-day-1">Review · Day 1</h2>
-<h4 id="3-of-6-·-functional-coverage"><em>3 of 6 · Functional coverage</em></h4>
+<h4 id="3-of-7-·-functional-coverage"><em>3 of 7 · Functional coverage</em></h4>
 <p><strong>The test runs 1000 random operations and the <em>code</em> coverage reads 100 %. What does that tell you about the verification?</strong></p>
 <ul>
-<li><input disabled="" type="checkbox"> That the DUT is verified</li>
-<li><input checked="" disabled="" type="checkbox"> Very little: it says which RTL got <strong>executed</strong>, not which scenarios of the <strong>spec</strong> happened</li>
+<li><input disabled="" type="checkbox"> That the DUT is verified and the verification plan can be closed</li>
+<li><input checked="" disabled="" type="checkbox"> Very little: it measures the RTL that ran, not the spec</li>
 <li><input disabled="" type="checkbox"> That the testbench has no bugs</li>
-<li><input disabled="" type="checkbox"> That the verification plan can already be closed</li>
+<li><input disabled="" type="checkbox"> That few scenarios are missing: 100 % already walked the whole design</li>
 </ul>
 <blockquote>
 <p><strong>Very little</strong> — code coverage measures the DUT; functional coverage measures the spec. A feature the designer never wrote gives 100 % of lines and 0 % of what matters, and the report is not going to tell you.</p>
@@ -4279,10 +4279,10 @@ a device driver is to the operating system.</p>
 
 <section id="s59" class="slide quiz">
 <h2 id="review-·-day-1">Review · Day 1</h2>
-<h4 id="4-of-6-·-covergroup"><em>4 of 6 · covergroup</em></h4>
+<h4 id="4-of-7-·-covergroup"><em>4 of 7 · covergroup</em></h4>
 <p><strong>You declare a <code>covergroup</code>, you <code>new()</code> it, you run a thousand operations and the report reads 0 %. What is the first thing to look at?</strong></p>
 <ul>
-<li><input disabled="" type="checkbox"> That the bins are badly defined</li>
+<li><input disabled="" type="checkbox"> That the bins are badly defined and match no value at all</li>
 <li><input checked="" disabled="" type="checkbox"> That nobody is calling <code>sample()</code></li>
 <li><input disabled="" type="checkbox"> That the DUT is not answering</li>
 <li><input disabled="" type="checkbox"> That <code>ignore_bins</code> are missing</li>
@@ -4295,11 +4295,11 @@ a device driver is to the operating system.</p>
 
 <section id="s60" class="slide quiz">
 <h2 id="review-·-day-1">Review · Day 1</h2>
-<h4 id="5-of-6-·-interfaces-and-bfm"><em>5 of 6 · Interfaces and BFM</em></h4>
+<h4 id="5-of-7-·-interfaces-and-bfm"><em>5 of 7 · Interfaces and BFM</em></h4>
 <p><strong>What does the testbench gain when the protocol moves into a BFM?</strong></p>
 <ul>
-<li><input checked="" disabled="" type="checkbox"> The rest of the TB stops talking in signals and starts talking in operations</li>
-<li><input disabled="" type="checkbox"> It simulates faster</li>
+<li><input checked="" disabled="" type="checkbox"> It stops talking in signals and starts talking in operations</li>
+<li><input disabled="" type="checkbox"> It simulates faster: one BFM task costs the simulator less than moving wires</li>
 <li><input disabled="" type="checkbox"> The testbench becomes synthesizable</li>
 <li><input disabled="" type="checkbox"> You save having to declare a <code>clk</code></li>
 </ul>
@@ -4311,21 +4311,37 @@ a device driver is to the operating system.</p>
 
 <section id="s61" class="slide quiz">
 <h2 id="review-·-day-1">Review · Day 1</h2>
-<h4 id="6-of-6-·-clocking-block"><em>6 of 6 · clocking block</em></h4>
-<p><strong>Are clocking blocks needed to write a UVM testbench without races?</strong></p>
+<h4 id="6-of-7-·-the-verification-plan"><em>6 of 7 · The verification plan</em></h4>
+<p><strong>In the verification plan, what goes in the <em>Measure</em> column?</strong></p>
 <ul>
-<li><input disabled="" type="checkbox"> Yes: without a clocking block, driver and DUT always compete on the same edge</li>
-<li><input disabled="" type="checkbox"> Yes, and they are also part of the UVM library</li>
-<li><input checked="" disabled="" type="checkbox"> No: NBA in the driver plus scheduler discipline is enough — they are an optional abstraction, useful above all in reusable agents</li>
-<li><input disabled="" type="checkbox"> No, and that is why they should never be used</li>
+<li><input disabled="" type="checkbox"> How long the scenario takes to run, so the regression can be estimated</li>
+<li><input disabled="" type="checkbox"> The name of the testbench file that covers that row</li>
+<li><input checked="" disabled="" type="checkbox"> Which bin gets filled when the scenario happens</li>
+<li><input disabled="" type="checkbox"> How many times the test has to be run to call it covered</li>
 </ul>
 <blockquote>
-<p><strong>They are not needed, and they are worth using anyway</strong> — they belong to <strong>SystemVerilog</strong>, not to UVM. What avoids the race is understanding the scheduler: a driver that drives with <code>&lt;=</code> against a DUT that registers with <code>&lt;=</code> is already deterministic. The clocking block does not replace that understanding, it <strong>wraps</strong> it — and that is where it pays off: reusable agents, VIP, gate-level and protocols with setup/hold in the spec.</p>
+<p><strong>Which bin gets filled</strong> — the five columns are <em>Feature</em>, <em>Scenario</em>, <em>Stimulus</em>, <em>Check</em> and <em>Measure</em>, and this is the one that costs the most: it forces you to decide <strong>beforehand</strong> what is going to be counted. If it is left empty, nobody is going to find out that the scenario never happened — a case the random never touched and that has no bin is indistinguishable from one that happened a thousand times.</p>
 </blockquote>
 <p class="al-deck"><a href="../index.html#/61">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s62" class="slide">
+<section id="s62" class="slide quiz">
+<h2 id="review-·-day-1">Review · Day 1</h2>
+<h4 id="7-of-7-·-clocking-block"><em>7 of 7 · clocking block</em></h4>
+<p><strong>Are clocking blocks needed to write a UVM testbench without races?</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> Yes: without a clocking block, driver and DUT always compete on the same edge</li>
+<li><input disabled="" type="checkbox"> Yes, and they are also part of the UVM library</li>
+<li><input checked="" disabled="" type="checkbox"> No: NBA in the driver plus scheduler discipline is enough</li>
+<li><input disabled="" type="checkbox"> No: the <code>uvm_driver</code> replaces them, since it already samples in the right region</li>
+</ul>
+<blockquote>
+<p><strong>They are not needed, and they are worth using anyway</strong> — they belong to <strong>SystemVerilog</strong>, not to UVM, and no <code>uvm_driver</code> samples for you. What avoids the race is understanding the scheduler: a driver that drives with <code>&lt;=</code> against a DUT that registers with <code>&lt;=</code> is already deterministic. The clocking block does not replace that understanding, it <strong>wraps</strong> it — and that is where it pays off: reusable agents, VIP, gate-level and protocols with setup/hold in the spec.</p>
+</blockquote>
+<p class="al-deck"><a href="../index.html#/62">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s63" class="slide">
 <!-- es-sha: 21796343bcf4 -->
 <h2 id="exercise-·-day-1-·-1-of-2">Exercise · Day 1 · 1 of 2</h2>
 <h4 id="a-new-operation-end-to-end"><em>A new operation, end to end</em></h4>
@@ -4358,10 +4374,10 @@ value the enum did not have — and the shift is precisely <code>3&#39;b110</cod
 along the way. Worth showing both numbers and not only the percentage: that is why
 the <code>run.sh</code> demands the bin count and not 100 %, which a half-done job reaches too.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/62">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/63">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s63" class="slide">
+<section id="s64" class="slide">
 <!-- es-sha: be650bb551ef -->
 <h2 id="exercise-·-day-1-·-2-of-2">Exercise · Day 1 · 2 of 2</h2>
 <h4 id="the-waves-when-the-log-is-not-enough"><em>The waves: when the log is not enough</em></h4>
@@ -4392,7 +4408,7 @@ from four edges to five, which of the two versions of <code>send_op</code> finds
 Neither counts right; only the one that waits for <code>done</code> keeps working. It is literally the
 clue of the APB wait state of day 7.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/63">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/64">see this slide in the deck &rsaquo;</a></p>
 </section>
 </main>
 

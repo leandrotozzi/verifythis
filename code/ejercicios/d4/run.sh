@@ -8,6 +8,10 @@
 # to connect and your op_counter.
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
+# env.svh is NOT on the list: this exercise is edited there. What is on it is
+# the scaffolding that makes the cross-check mean something -- the command_monitor
+# the grading counts comes from u5 through tb.f. See intocables.sha.
+intocables
 INC=${SOLUCION:+ +incdir+solucion}
 vlt_uvm top -Wno-fatal $INC -f dut.f -f tb.f
 # The command_monitor reports with `uvm_info at UVM_HIGH, so the verbosity

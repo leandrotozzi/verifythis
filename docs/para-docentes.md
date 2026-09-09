@@ -7,7 +7,7 @@ como se dicta una materia. Esta página lo pasa a un
 parcial.
 
 Todo lo que hace falta ya está en el repo y se corrige solo: las **15
-soluciones** (`make ejercicios`), el **banco de 45 preguntas**
+soluciones** (`make ejercicios`), el **banco de 58 preguntas**
 ([`banco-de-examen.md`](banco-de-examen.md)), el capstone con su corrector por
 etapas, y la **rúbrica de autoevaluación** del final del día 7.
 
@@ -45,7 +45,7 @@ el docente no corrige código a mano hasta el capstone.
 | 4 | **U2** · Interfaces y BFM · `clocking block` | [`d1b`](../code/ejercicios/d1b/) — el bug que sólo se ve en el `.vcd` |
 | 5 | **U3** · Clases y extensiones · Polimorfismo | [`d2`](../code/ejercicios/d2/) — extender sin copiar la clase entera |
 | 6 | **U3** · Variables y métodos estáticos · Clases paramétricas | `d2` (cierre) |
-| 7 | **U3** · El patrón factory · Un testbench sin un solo módulo | Repaso: preguntas **7–14** del banco, en clase |
+| 7 | **U3** · El patrón factory · Un testbench sin un solo módulo | Repaso: preguntas **8–15** del banco, en clase |
 | 8 | **Parcial 1** (1 h) + **U4** · Tests | — |
 | 9 | **U4** · Components y fases · El env | [`d3`](../code/ejercicios/d3/) — factory override sin tocar el `env` |
 | 10 | **U4** · Reporting · **U5** · Un productor, muchos oyentes | [`d4`](../code/ejercicios/d4/) — un subscriber más |
@@ -94,7 +94,7 @@ gratis.
 | **Callbacks** (U7) | 15 min | El tercer gancho de la unidad 1 queda prometido y no entregado. Si se saca, sacarlo también de la slide *Correr más tests escribiendo menos código* |
 | **Clases paramétricas** (U3) | 30 min | Se puede contar en 5 min como "esto es lo que hace `uvm_driver #(T)`" y seguir. Es la sección más lejos de UVM de todo el curso |
 | **`put`/`get` ports** (U5) | 30 min | Analysis ports —que son los que UVM usa todo el tiempo— quedan igual. `put`/`get` aparece en el TLM de verdad, no en un testbench típico |
-| **El repaso en clase** (los 7 quizzes) | 1 h 30 total | Se pasan a tarea con el [banco de examen](banco-de-examen.md). Pero perdés el mejor momento del curso para detectar al que no entendió, y eso se paga en el parcial |
+| **El repaso en clase** (los 8 quizzes) | 1 h 30 total | Se pasan a tarea con el [banco de examen](banco-de-examen.md). Pero perdés el mejor momento del curso para detectar al que no entendió, y eso se paga en el parcial |
 
 Lo que **no** conviene sacar, aunque tiente:
 
@@ -110,20 +110,23 @@ Lo que **no** conviene sacar, aunque tiente:
 
 ## Los dos parciales
 
-El [banco de examen](banco-de-examen.md) trae las 45 preguntas sin la respuesta
+El [banco de examen](banco-de-examen.md) trae las 58 preguntas sin la respuesta
 marcada, y la clave al final con el porqué de cada una. Salen de las mismas
 slides que el deck, así que no hay dos versiones de una pregunta que se puedan
 desincronizar.
 
 | | Cubre | Preguntas del banco | Parte práctica sugerida |
 |---|---|:--:|---|
-| **Parcial 1** | U1–U3: por qué se verifica, el testbench sin UVM, la OOP que UVM da por sabida | **1–14** | Extender una clase del curso y hacer un `set_type_override` — el enunciado de [`d2`](../code/ejercicios/d2/) o [`d3`](../code/ejercicios/d3/) con otra operación |
-| **Parcial 2** | U4–U6: fases, env, reporting, cómo hablan los componentes, transactions y constrained random | **15–30** | Colgar un subscriber del analysis port y contar algo — [`d4`](../code/ejercicios/d4/) con otra métrica |
-| **Final / capstone** | U7–U8 y todo lo anterior | **31–45** | El capstone, abajo |
+| **Parcial 1** | U1–U3: por qué se verifica, el testbench sin UVM, la OOP que UVM da por sabida | **1–15** | Extender una clase del curso y hacer un `set_type_override` — el enunciado de [`d2`](../code/ejercicios/d2/) o [`d3`](../code/ejercicios/d3/) con otra operación |
+| **Parcial 2** | U4–U6: fases, env, reporting, cómo hablan los componentes, transactions y constrained random | **16–35** | Colgar un subscriber del analysis port y contar algo — [`d4`](../code/ejercicios/d4/) con otra métrica |
+| **Final / capstone** | U7–U8 y todo lo anterior | **36–50** | El capstone, abajo |
 
-Las 45 alcanzan para dos parciales y un recuperatorio sin repetir, si se toman
-10 por parcial. Para tomar dos filas del mismo tema —una en el parcial y otra en
-el recuperatorio— la columna *Tema* de la clave las agrupa.
+Las **51–58** son las del día 8 y quedan afuera del cuatrimestre, como el día:
+sirven para el que curse la unidad optativa.
+
+Las 50 del cuatrimestre alcanzan para dos parciales y un recuperatorio sin
+repetir, si se toman 10 por parcial. Para tomar dos filas del mismo tema —una en
+el parcial y otra en el recuperatorio— la columna *Tema* de la clave las agrupa.
 
 **Qué mirar al corregir el multiple choice.** Las opciones incorrectas de este
 banco no son de relleno: casi todas son el error que la gente comete de verdad.

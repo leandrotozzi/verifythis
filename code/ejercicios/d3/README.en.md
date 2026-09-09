@@ -1,4 +1,4 @@
-<!-- es-sha: 220093e566b6 -->
+<!-- es-sha: 26c2944ba150 -->
 # Day 3 — a new test without touching the structure
 
 The testbench already comes with the `env` separating structure from stimulus.
@@ -11,7 +11,10 @@ The testbench already comes with the `env` separating structure from stimulus.
 2. **`mult_test.svh`** — a `uvm_test` that tells the factory that when
    somebody asks for a `base_tester` it should hand over your `mult_tester`, and that creates the `env`.
 3. **Do not touch `env.svh`.** That is the whole point: the structure of the testbench
-   never finds out that the stimulus changed.
+   never finds out that the stimulus changed. `run.sh` checks that with
+   `intocables.sha` before compiling: instantiating your `mult_tester` there by
+   hand also makes the test pass, and then the exercise --the
+   `set_type_override`-- never happened.
 
 Done when `bash run.sh` prints `EXERCISE OK`.
 
