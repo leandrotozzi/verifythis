@@ -1,4 +1,4 @@
-<!-- es-sha: 4e44963e3099 -->
+<!-- es-sha: 454b20650c1d -->
 ## A testbench without a single module
 
 #### *The same testbench, without a single module*
@@ -244,18 +244,15 @@ the right-hand column straight through. That is where the day closes on its own.
 
 #### *Summary of the unit*
 
-- This section **adds no functionality**: it is the day 1 testbench, with the
-  same three pieces, written without a single module
-- The class that binds them appears —`testbench`— which instantiates them and starts them.
-  It is the direct ancestor of the `uvm_env`
-- The `top` is still a **module**, and it will be until the end: somebody
-  has to instantiate the DUT and the BFM, and that gets elaborated
-- The BFM arrives through a **virtual interface**, that is, a variable. It is the only
-  way a class has of touching signals
-- The `initial` turns into a method, `execute()`, that somebody calls. That
-  somebody is going to be the `run_phase` in the tests
-- It is the **last version without UVM**. From here on, every piece we
-  write by hand has a class of the library that replaces it
+- The day 1 testbench **without a single module**: the same three pieces, plus
+  the class that binds them —`testbench`—, which is the direct ancestor of the
+  `uvm_env`
+- The `top` is still a **module** and it will be until the end, and the BFM
+  arrives through a **virtual interface**: it is the only way a class has of
+  touching signals
+- It is the **last version without UVM**. From here on, every piece we write by
+  hand has a class of the library that replaces it — `execute()` is going to be
+  the `run_phase`
 
 Note:
 The slide to close the whole of day 2 with, because it leaves the bridge

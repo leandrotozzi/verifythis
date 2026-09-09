@@ -103,18 +103,13 @@ monitor tiene el suyo. El alumno ya tiene el criterio para leer los dos.
 
 #### *Resumen de la unidad*
 
-- Es el `parameter` de RTL que ya conocés, pero el parámetro puede ser un
-  **tipo**: `bandeja #(fernet)` en vez de `#(.dwidth(16))`
-- Una clase paramétrica **no es una clase**: es la receta para fabricar clases.
-  La clase aparece cuando escribís el `#(...)`
-- Y cada `#(...)` distinto es una **clase distinta**, generada en compilación.
-  No comparten nada — **ni siquiera lo `static`**
-- El criterio que se lleva al trabajo: **`static` cuando de verdad hay uno solo,
-  instanciado cuando puede haber más de uno**. Ante la duda, instanciado
+- Una clase paramétrica **no es una clase**: es la receta. Y cada `#(...)`
+  distinto es una **clase distinta**, que no comparte nada con las otras —
+  **ni siquiera lo `static`**
 - El límite: se resuelve **al compilar**, así que el tipo tiene que conocerse
-  ahí. Elegir en runtime es la unidad que sigue
-- Cada `#(...)` del resto del curso es esto: `uvm_analysis_port #(T)`,
-  `uvm_subscriber #(T)`, `uvm_sequence #(T)`
+  ahí. Elegir en runtime es la sección que sigue
+- Dónde reaparece: `uvm_analysis_port #(T)`, `uvm_subscriber #(T)`,
+  `uvm_sequence #(T)` — cada `#(...)` del resto del curso es esto
 
 Note:
 El bullet de las clases distintas es el que hay que dejar clavado, porque es la

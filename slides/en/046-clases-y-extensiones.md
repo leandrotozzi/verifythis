@@ -1,4 +1,4 @@
-<!-- es-sha: 192b13f2e709 -->
+<!-- es-sha: 038f21a96f50 -->
 ## Classes and extensions
 
 #### *Why OOP in a testbench?*
@@ -160,31 +160,9 @@ Close with the table and not with the example: the student has to leave knowing 
 this was not a programming detour, it was the vocabulary of the rest of the course.
 The last bullet leaves the door open to polymorphism, which is the only thing
 missing before a factory can be read.
-
----
-
-## Classes and extensions
-
-#### *Summary of the unit*
-
-- **Modules = structure**, they get elaborated once and live forever.
-  **Classes = data and behaviour**, they get created and thrown away during simulation
-- A stimulus looks like the second, not the first. That is why the testbench
-  moves to classes — and that is why **UVM is a class library**
-- A `struct` holds data and nothing else. A class puts the data together **with what
-  gets done with it**, and on top of that it can be extended
-- **Declaring a handle creates nothing.** Until the `new()` it is `null`, and using it
-  there is the mistake that repeats the most in the whole week
-- There is no `free()`: when no handle is left pointing at the object, the garbage
-  collector takes it away
-- **Extending** a class is adding to it or redefining things without touching the
-  original. It is the base of everything that comes
-
-Note:
-Closing of the unit that opens the most abstract day of the course. It is worth anchoring
-it with the concrete promise: all of this exists so that the day 1 testbench can be
-written without a single module, and so that in the `env` the stimulus can be changed
-without touching the env.
-The `null` deserves one more pass because it comes back three times: here, in the tests
-with the virtual interface that was not read from the `config_db`, and in the class
-hierarchies when `obj1_h = obj2_h` copies the handle and not the object.
+And one single thing more before moving on: **declaring a handle creates
+nothing**. Until the `new()` it is `null`, and using it there is the mistake that
+repeats the most in the whole week. It comes back three times —here, in the tests
+with the virtual interface that was not read from the `config_db`, and in the
+hierarchies when `obj1_h = obj2_h` copies the handle and not the object— so it is
+worth naming it all three.

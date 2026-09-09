@@ -7,19 +7,21 @@ curso son las slides y `code/`— pero cada uno resuelve algo concreto.
 
 | | |
 |---|---|
+| [`systemverilog-para-el-que-viene-de-vhdl.md`](systemverilog-para-el-que-viene-de-vhdl.md) | **Media hora antes del día 1.** Las siete construcciones de SystemVerilog que el curso da por sabidas y no enseña —`logic`, `enum`, `package`, `interface`, `covergroup`, `clocking`, `assert property`—, para el que viene de VHDL o de Verilog-2001 |
 | [`instalar.md`](instalar.md) · [`en/setup.md`](en/setup.md) | **Cómo tener el curso corriendo.** Los cuatro caminos —Codespaces, Docker, Verilator de fuente, WSL 2— más las semillas, las ondas y qué corre el CI. El atajo es `make doctor`, que dice qué falta y con qué comando se instala |
-| [`verilator.md`](verilator.md) | **La matriz.** Qué ejemplo corre con qué versión de Verilator, qué falla y por qué. Lo primero que hay que mirar cuando algo no compila. Generado por `make matrix`, y **caduca**: vale para la versión y la fecha que dice arriba |
+| [`verilator.md`](verilator.md) · [`en/verilator.md`](en/verilator.md) | **La matriz.** Qué ejemplo corre con qué versión de Verilator, qué falla y por qué. Lo primero que hay que mirar cuando algo no compila. Generado por `make matrix`, y **caduca**: vale para la versión y la fecha que dice arriba |
 | [`machete-uvm.pdf`](machete-uvm.pdf) | El machete de una carilla, A4, para imprimir. Sale de `res/machete.html` con `make machete`, que saca tambien la version en ingles (`en/uvm-cheatsheet.pdf`) |
 | [`trampas-mudas.md`](trampas-mudas.md) · [`en/silent-traps.md`](en/silent-traps.md) | Las trampas que no dan error: compila, corre, pasa, y no verificó nada. Apéndice del día 7. **Generado desde `slides/`** |
 | [`banco-de-examen.md`](banco-de-examen.md) · [`en/exam-bank.md`](en/exam-bank.md) | Todas las preguntas de repaso del curso juntas, con la respuesta. **Generado desde `slides/`** |
 | [`uvm-en-la-entrevista.md`](uvm-en-la-entrevista.md) · [`en/uvm-interview.md`](en/uvm-interview.md) | Las preguntas que se hacen en una entrevista de verificación, con la respuesta corta y el link a la sección y al ejemplo que corre |
+| [`cuando-te-sientes-frente-a-questa.md`](cuando-te-sientes-frente-a-questa.md) | **Para el lunes.** Qué cambia y qué no cuando el trabajo usa Questa, VCS o Xcelium: los comandos, lo que empieza a andar —bins de transición, `binsof`, el visor de transacciones, `bind`— y lo que se pone más difícil. No es un flujo alternativo, es una traducción |
 
 ## Para el que va a dictarlo
 
 | | |
 |---|---|
 | [`para-docentes.md`](para-docentes.md) · [`en/for-teachers.md`](en/for-teachers.md) | El reparto de horas por día, qué se puede cortar, qué no, y cómo se corrigen los ejercicios |
-| [`plan-de-verificacion.md`](plan-de-verificacion.md) | El entregable más profesional de la disciplina y el más barato de escribir. El del VTALU, entero, como ejemplo |
+| [`plan-de-verificacion.md`](plan-de-verificacion.md) · [`en/verification-plan.md`](en/verification-plan.md) | El entregable más profesional de la disciplina y el más barato de escribir. El del VTALU, entero, como ejemplo |
 
 ## Para el que va a tocar el repo
 
@@ -42,14 +44,21 @@ Dos textos largos que existen porque la pregunta se repite:
 
 ## El lado en inglés
 
-[`en/`](en/README.md) tiene su propio índice. Son cinco: los dos apéndices
-**generados** (`en/exam-bank.md`, `en/silent-traps.md`) y las tres traducciones
-a mano —`en/setup.md`, `en/uvm-interview.md` y `en/for-teachers.md`—, que son
-los tres docs que están en el camino del lector en inglés: instalar, la
-entrevista, y el que decide una adopción. El nombre del archivo se traduce
-también (`instalar.md` → `en/setup.md`), así que el par no se puede deducir: se
-declara en `PARES_SUELTOS` de [`../tools/lint-i18n.mjs`](../tools/lint-i18n.mjs)
-y se sella por sha. Si tocás el castellano, el lint pide revisar el inglés.
+[`en/`](en/README.md) tiene su propio índice. Son siete: los dos apéndices
+**generados** (`en/exam-bank.md`, `en/silent-traps.md`) y cinco traducciones a
+mano —`en/setup.md`, `en/uvm-interview.md`, `en/for-teachers.md`,
+`en/verification-plan.md` y `en/verilator.md`—, que son los cinco docs que están
+en el camino del lector en inglés: instalar, la entrevista, el que decide una
+adopción, el entregable que viaja con el capstone, y el que se mira cuando algo
+no compila. El nombre del archivo se traduce también (`instalar.md` →
+`en/setup.md`), así que el par no se puede deducir: se declara en
+`PARES_SUELTOS` de [`../tools/lint-i18n.mjs`](../tools/lint-i18n.mjs) y se sella
+por sha. Si tocás el castellano, el lint pide revisar el inglés.
+
+`en/verilator.md` es el caso especial de los siete: su fuente la **genera**
+`make matrix`, así que cada vez que se cambia de versión de Verilator el
+castellano se reescribe entero y el sello avisa que la traducción quedó con los
+números viejos.
 
 El resto de `docs/` sigue en castellano, y todo link desde el árbol en inglés lo
 dice con un *(in Spanish)* al lado. Es honestidad, no deuda: el lector se entera
@@ -66,7 +75,9 @@ arriba que lo dice.
 
 `verilator.md` es otro caso: lo escribe `make matrix` corriendo los ejemplos de
 verdad, así que se regenera al cambiar de versión de Verilator, no en cada
-build.
+build. Su traducción, `en/verilator.md`, **sí** se edita a mano: va sellada
+contra la castellana, y el lint avisa cuando la matriz se regeneró y la
+traducción no.
 
 ---
 

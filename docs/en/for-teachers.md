@@ -1,4 +1,4 @@
-<!-- es-sha: 7113e5aebd65 -->
+<!-- es-sha: 3f6346d9d28f -->
 # For teachers
 
 *Verify This!* is written as **seven days of class** —plus an **optional day
@@ -6,7 +6,7 @@
 how a university subject is. This page maps it onto a **15-week term**, says
 what can be dropped, and what to assess in each midterm.
 
-Everything you need is already in the repository and marks itself: the **18
+Everything you need is already in the repository and marks itself: the **19
 solutions** (`make ejercicios`), the **bank of 58 questions**
 ([`exam-bank.md`](exam-bank.md)), the capstone with its stage-by-stage marker,
 and the **self-assessment rubric** at the end of day 7.
@@ -41,7 +41,7 @@ code by hand until the capstone.
 | # | Theory (2 h) | Lab (2 h) |
 |:--:|---|---|
 | 1 | **U1** · Trends · What UVM is | A working environment: Codespaces, or Verilator ≥ 5.050 + `z3` |
-| 2 | **U1** · The VTALU spec · The verification plan | The VTALU plan on the template in [`plan-de-verificacion.md`](../plan-de-verificacion.md) *(in Spanish)* |
+| 2 | **U1** · The VTALU spec · The verification plan | The VTALU plan on the template in [`verification-plan.md`](verification-plan.md) |
 | 3 | **U2** · The conventional testbench · Functional coverage | [`d1`](../../code/ejercicios/d1/) — a new operation end to end |
 | 4 | **U2** · Interfaces and BFM · `clocking block` | [`d1b`](../../code/ejercicios/d1b/) — the bug you can only see in the `.vcd` |
 | 5 | **U3** · Classes and extensions · Polymorphism | [`d2`](../../code/ejercicios/d2/) — extending without copying the whole class |
@@ -49,13 +49,13 @@ code by hand until the capstone.
 | 7 | **U3** · The factory pattern · A testbench without a single module | Review: questions **8–15** of the bank, in class |
 | 8 | **Midterm 1** (1 h) + **U4** · Tests | — |
 | 9 | **U4** · Components and phases · The env | [`d3`](../../code/ejercicios/d3/) — a factory override without touching the `env` |
-| 10 | **U4** · Reporting · **U5** · One producer, many listeners | [`d4`](../../code/ejercicios/d4/) — one more subscriber |
+| 10 | **U4** · Reporting · **U5** · One producer, many listeners | [`d3b`](../../code/ejercicios/d3b/) — the `uvm_error` that says nothing · [`d4`](../../code/ejercicios/d4/) — one more subscriber |
 | 10b | **U5** · Who waits for whom · `fork` and family | [`d4b`](../../code/ejercicios/d4b/) — the `#500` is a patch |
 | 11 | **U5** · A single place that watches the wire · Who waits for whom | [`d5`](../../code/ejercicios/d5/) — the scoreboard shouts and the DUT is healthy |
 | 12 | **U6** · Copying an object that holds another · Transactions | [`d5b`](../../code/ejercicios/d5b/) — measure your `dist` |
-| 13 | **U6** · Constrained random + **Midterm 2** (1 h) | [`d6-bins`](../../code/ejercicios/d6-bins/) — closing a directed bin |
-| 14 | **U7** · Agents · Sequences — and *Callbacks* and *Virtual sequences* if they fit, which are the first two on the list of cuts | [`d6-agents`](../../code/ejercicios/d6-agents/) · [`d6-sequences`](../../code/ejercicios/d6-sequences/) · [`d6-semillas`](../../code/ejercicios/d6-semillas/) with `make regresion` · [`d6-debug`](../../code/ejercicios/d6-debug/) — three planted bugs |
-| 15 | **U8** · Assertions (SVA) | [`d7-sva`](../../code/ejercicios/d7-sva/) · **capstone kick-off** |
+| 13 | **U6** · Constrained random + **Midterm 2** (1 h) | [`d5c`](../../code/ejercicios/d5c/) — closing a directed bin |
+| 14 | **U7** · Agents · Sequences — and *Callbacks* if it fits, which is the first on the list of cuts | [`d6-agents`](../../code/ejercicios/d6-agents/) · [`d6-sequences`](../../code/ejercicios/d6-sequences/) · [`d6-debug`](../../code/ejercicios/d6-debug/) — three planted bugs |
+| 15 | **U7** · Virtual sequences · **U8** · Assertions (SVA) | [`d7-semillas`](../../code/ejercicios/d7-semillas/) with `make regresion`, as a warm-up · [`d7-sva`](../../code/ejercicios/d7-sva/) · **capstone kick-off** |
 | — | *(exam period)* | **Capstone**: [`d7-final`](../../code/ejercicios/d7-final/) |
 | + | **Day 8** *(optional)* · **U9** · RAL · DPI · the second capstone — outside the 15 weeks | [`d8-ral`](../../code/ejercicios/d8-ral/) — the register map · [`d8-dpi`](../../code/ejercicios/d8-dpi/) — the model in C · [`d8-fifo`](../../code/ejercicios/d8-fifo/) — the second capstone |
 
@@ -92,7 +92,7 @@ is free.
 
 | What goes | What you gain | What it costs |
 |---|--:|---|
-| **Virtual sequences** (U7) | 30 min | Nothing in day 6 depends on it. It is the section the student will need the day they have two agents, not before |
+| **Virtual sequences** (U7) | 30 min | Nothing that follows depends on it. It is the section the student will need the day they have two agents, not before. It is taught on the morning of day 7 precisely so that it is the first thing to go if the capstone needs the hour |
 | **Callbacks** (U7) | 15 min | The third hook of unit 1 ends up promised and not delivered. If it goes, take it out of the slide *Run more tests writing less code* too |
 | **Parameterized classes** (U3) | 30 min | It can be told in 5 min as "this is what `uvm_driver #(T)` does" and move on. It is the section furthest from UVM in the whole course |
 | **`put`/`get` ports** (U5) | 30 min | Analysis ports —the ones UVM uses all the time— are untouched. `put`/`get` shows up in real TLM, not in a typical testbench |
@@ -188,16 +188,16 @@ and the three that get the most hands up are the ones to go over again.
 ## What marks itself
 
 ```sh
-make ejercicios     # runs the 18 SOLUTIONS: checks that they are still solvable
+make ejercicios     # runs the 19 SOLUTIONS: checks that they are still solvable
 make regresion      # N seeds + coverage merge + HTML report of open bins
 npm run check       # the exam bank and the deck, in sync with slides/
 ```
 
 `make ejercicios` does **not** check that a student solved anything: it checks
-that the fifteen are still solvable when the course code is touched. It is the
+that the nineteen are still solvable when the course code is touched. It is the
 net to run after adapting an exercise.
 
-`make regresion` is the [`d6-semillas`](../../code/ejercicios/d6-semillas/)
+`make regresion` is the [`d7-semillas`](../../code/ejercicios/d7-semillas/)
 exercise turned into a tool: it runs the same test with N seeds, merges the
 coverage and leaves in `dist/regresion/regresion.html` the list of **open
 bins**, which is the only useful question after a regression. It works as a
@@ -220,7 +220,7 @@ without an account is the Docker image; see [`docker.md`](../docker.md)
 *(in Spanish)*.
 
 What works and what does not, with the coverage number of each example, is
-measured in [`verilator.md`](../verilator.md) *(in Spanish)*. The two sections
+measured in [`verilator.md`](verilator.md). The two sections
 on silent failures —`z3` and assertions without `--assert`— are worth reading
 **before** the first lab class: they are the two ways this environment has of
 lying without raising an error.

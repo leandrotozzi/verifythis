@@ -1,7 +1,7 @@
-<!-- es-sha: a162dcf16f91 -->
+<!-- es-sha: 8cc23eb6901d -->
 # Exercises
 
-**Eighteen**, spread across the days. Each one marks itself: `run.sh` fails until
+**Nineteen**, spread across the days. Each one marks itself: `run.sh` fails until
 you solve it.
 
 The **Needs** column says what has to be installed besides Verilator: `UVM` means
@@ -14,22 +14,23 @@ solver — without it, `randomize()` returns 0 silently.
 | [`d1b`](d1b/) | 1 | **The waves**: the log gives one line and the rest is in the `.vcd` | The VTALU spec · Interfaces and BFM | — |
 | [`d2`](d2/) | 2 | A tester that only multiplies, without copying the whole class | unit 3 | — |
 | [`d3`](d3/) | 3 | The same tester, now with a factory override and without touching the `env` | unit 4 | UVM |
+| [`d3b`](d3b/) | 3 | The `uvm_error` that says nothing: the same scoreboard, now readable | Reporting | UVM |
 | [`d4`](d4/) | 4 | One more subscriber hanging off the analysis port | unit 5 | UVM |
 | [`d4b`](d4b/) | 4 | The `#500` is a patch: the unbounded FIFO and the missing objection | unit 5 | UVM |
 | [`d5`](d5/) | 5 | The scoreboard screams and the DUT is healthy: find the bug | units 5 and 6 | UVM |
 | [`d5b`](d5b/) | 5 | Measure your `dist`: the weights are right and the histogram lies | Constrained random | z3 |
+| [`d5c`](d5c/) | 5 | Closing a bin with `randomize() with {}` | Constrained random | UVM · z3 |
 | [`d6-agents`](d6-agents/) | 6 | The agent that only watches: `is_active` and the scope of the `config_db` | Agents | UVM |
 | [`d6-sequences`](d6-sequences/) | 6 | A sequence that only multiplies, without touching the structure | Sequences | UVM |
-| [`d6-bins`](d6-bins/) | 6 | Closing a bin with `randomize() with {}` | Constrained random and Sequences | UVM · z3 |
-| [`d6-semillas`](d6-semillas/) | 6 | Five seeds and a merge: what a regression is | Constrained random and Sequences | UVM · z3 |
 | [`d6-debug`](d6-debug/) | 6 | **Three planted bugs**: one hangs, one ends at `t=0`, one lies in green | Tests, Agents and Sequences | UVM · z3 |
+| [`d7-semillas`](d7-semillas/) | 7 | Five seeds and a merge: what a regression is | Constrained random and Sequences | UVM · z3 |
 | [`d7-sva`](d7-sva/) | 7 | The legacy module violates the protocol: write the property that sees it | Assertions | UVM |
 | [`d7-final`](d7-final/) | 7 | **Capstone**: an APB slave, its spec, and the whole testbench from scratch | everything | UVM · z3 |
 | [`d8-ral`](d8-ral/) | 8 | The register map of the spec, as a UVM model | RAL (unit 9) | UVM |
 | [`d8-dpi`](d8-dpi/) | 8 | The reference model in C, and the two mutations that prove it | DPI (unit 9) | UVM · z3 |
 | [`d8-fifo`](d8-fifo/) | 8 | **Capstone 2**: a FIFO with backpressure, where the scoreboard cannot be a table | everything | UVM · z3 |
 
-Three of the table —`d5b`, `d6-bins` and `d6-semillas`— are the *coverage
+Three of the table —`d5b`, `d5c` and `d7-semillas`— are the *coverage
 closure* cycle done by hand: measure a distribution, write the directed case
 that fills the missing bin, and accumulate coverage with a multi-seed
 regression. The course tells it twice; here you do it.
@@ -66,10 +67,10 @@ testbench comes from the corresponding section, by reference: the `+incdir` in
 `run.sh` put this directory first, so your version of a file wins over the
 section's. Nothing you do here breaks the course examples.
 
-Seven of them —`d3`, `d4`, `d4b`, `d6-debug`, `d6-sequences`, `d7-sva` and
+Eight of them —`d3`, `d3b`, `d4`, `d4b`, `d6-debug`, `d6-sequences`, `d7-sva` and
 `d8-dpi`— also come with an `intocables.sha`: the list of the files the statement
 says **not** to touch, with their hashes, and the `run.sh` checks it before
-compiling. It is not distrust: in those seven the exercise *is* not touching
+compiling. It is not distrust: in those eight the exercise *is* not touching
 them. In `d4b`, putting the ceiling back on the FIFO gets past the grader without
 having understood a thing. Instantiating the
 `mult_tester` by hand in the `env.svh` of `d3` gets past the grader without
@@ -86,7 +87,7 @@ case: what it is missing comes from two places at once —the testbench, from
 `d7-final/solucion/`; the adapter and the tests, from `code/u9/ral/`— so it is
 solved with the capstone already done.
 
-Fourteen use UVM: the first compilation takes ~1 min 30 on a 12-core laptop and
+Fifteen use UVM: the first compilation takes ~1 min 30 on a 12-core laptop and
 ~4 min on a free Codespaces; the two capstones take ~2 min. **The following ones
 are 15 seconds on either**, if you have `ccache` installed — `run.sh` detects it
 by itself. The time for each one is in its README.
@@ -94,22 +95,22 @@ by itself. The time for each one is in its README.
 The four that do not use UVM —`d1`, `d1b`, `d2` and `d5b`— run without waiting
 for anything. `d1b` is also the only one that compiles with `--trace`: it leaves
 `ondas.vcd` alongside, because the waves *are* the exercise. The seven that
-randomize with constraints —`d5b`, `d6-bins`, `d6-debug`, `d6-semillas`,
+randomize with constraints —`d5b`, `d5c`, `d6-debug`, `d7-semillas`,
 `d7-final`, `d8-dpi` and `d8-fifo`— also need **`z3`**: without it `randomize()` returns 0 silently. See
-[`docs/verilator.md`](../../docs/verilator.md) (in Spanish).
+[`docs/en/verilator.md`](../../docs/en/verilator.md).
 
 ## For whoever teaches it
 
-`make ejercicios` runs the eighteen **solutions**. It does not check that a
-student solved one: it checks that the eighteen are still solvable when the
+`make ejercicios` runs the nineteen **solutions**. It does not check that a
+student solved one: it checks that the nineteen are still solvable when the
 course code changes.
 
-The five from day 6, the two from day 7 and the three from day 8 compile a whole
-testbench with UVM: they are the slowest.
+The three from day 6, the three from day 7 and the three from day 8 compile a
+whole testbench with UVM: they are the slowest.
 
-Two of them have the seed **pinned**, and it is on purpose: `d6-bins` nails it in
+Two of them have the seed **pinned**, and it is on purpose: `d5c` nails it in
 `run.sh` (`export SEED=7`) because it needs the 60 random operations *not* to
-fill the bin that has to be closed, and `d6-semillas` walks it from 1 to 5 in
+fill the bin that has to be closed, and `d7-semillas` walks it from 1 to 5 in
 `regresion.sh` because it needs the five to give different results. Without
 pinning them, both would be flaky — which is exactly the defect they teach you
 to avoid.

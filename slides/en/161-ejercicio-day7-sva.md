@@ -1,5 +1,5 @@
-<!-- es-sha: 5e7fbf141734 -->
-## Exercise · Day 7
+<!-- es-sha: 4229d49fb795 -->
+## Exercise · Day 7 · 2 of 2
 
 #### *The legacy module violates the protocol and nobody knew*
 

@@ -1,4 +1,4 @@
-<!-- es-sha: 356adbed7c4a -->
+<!-- es-sha: b23240cf9ba2 -->
 ## The factory pattern
 
 #### *Who decides the type?*
@@ -143,19 +143,15 @@ programming, and you can go and read about it outside the EDA world.
 
 #### *Summary of the unit*
 
-- Every `new()` you write is a **hardcoded decision**: that line always
-  builds that class, and changing it means editing and recompiling
-- Parameterized classes are not enough: the `#(...)` gets resolved **at compile time**, and
-  here the decision has to happen **at runtime**
-- The factory inverts who is in charge: instead of building, you **ask** for the object from
-  somebody who knows which type to hand over
-- **It does not work without polymorphism**: both halves are needed —
-  somebody who manufactures and a base variable to store it in
-- **`$cast` checks at runtime and returns 0**, it does not abort. That is why it never goes
-  alone: always inside an `if` with its `$fatal`
-- The annoyance that is left —the `case` you have to edit to add a type— is exactly
-  the one UVM solves: `` `uvm_component_utils `` **registers the class
-  on its own**
+- Every `new()` is a **hardcoded decision**. The factory moves it to runtime:
+  instead of building, you **ask** for the object from somebody who knows which
+  type to hand over
+- **It does not work without polymorphism** —somebody who manufactures and a base
+  variable to store it in are both needed— and the **`$cast` returns 0** instead
+  of aborting, so it never goes alone: always inside an `if` with its `$fatal`
+- Where it comes back: `` `uvm_component_utils `` **registers the class on its
+  own** —the `case` you have just written by hand— and `+UVM_TESTNAME` picks it
+  from the command line
 
 Note:
 Closing of the most abstract section of day 2, and it is worth landing it with what

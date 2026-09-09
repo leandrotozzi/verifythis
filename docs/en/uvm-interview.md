@@ -291,7 +291,7 @@ previous ones.
 - **Have you ever written a verification plan?** It is the deliverable that
   separates whoever ran tests from whoever verified something. The template and
   the filled-in example are in
-  [`plan-de-verificacion.md`](../plan-de-verificacion.md) *(in Spanish)*, and
+  [`verification-plan.md`](verification-plan.md), and
   the capstone of the course is handed in with the plan filled out — which is
   exactly what gets handed in on a project.
 - **Can you show me something that runs?** A UVM testbench over a bus, written

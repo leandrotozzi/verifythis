@@ -1,4 +1,4 @@
-## Ejercicio · Día 6 · 5 de 5
+## Ejercicio · Día 6 · 3 de 3
 
 #### *Tres bugs plantados, y ninguno se parece al otro*
 

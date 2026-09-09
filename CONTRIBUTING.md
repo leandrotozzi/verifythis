@@ -83,7 +83,7 @@ check en rojo que una versión que dice otra cosa.
 ```sh
 make u4/tests      # el ejemplo que tocaste
 make rapido        # todos los ejemplos sin UVM: segundos
-make ejercicios    # las 18 soluciones (lento: nueve compilan UVM)
+make ejercicios    # las 19 soluciones (lento: nueve compilan UVM)
 ```
 
 Hace falta **Verilator ≥ 5.050** y **z3**. Si no los tenés a mano, el botón de

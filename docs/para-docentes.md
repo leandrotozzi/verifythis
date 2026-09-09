@@ -6,7 +6,7 @@ como se dicta una materia. Esta página lo pasa a un
 **cuatrimestre de 15 semanas**, dice qué se puede sacar, y qué evaluar en cada
 parcial.
 
-Todo lo que hace falta ya está en el repo y se corrige solo: las **18
+Todo lo que hace falta ya está en el repo y se corrige solo: las **19
 soluciones** (`make ejercicios`), el **banco de 58 preguntas**
 ([`banco-de-examen.md`](banco-de-examen.md)), el capstone con su corrector por
 etapas, y la **rúbrica de autoevaluación** del final del día 7.
@@ -48,13 +48,13 @@ el docente no corrige código a mano hasta el capstone.
 | 7 | **U3** · El patrón factory · Un testbench sin un solo módulo | Repaso: preguntas **8–15** del banco, en clase |
 | 8 | **Parcial 1** (1 h) + **U4** · Tests | — |
 | 9 | **U4** · Components y fases · El env | [`d3`](../code/ejercicios/d3/) — factory override sin tocar el `env` |
-| 10 | **U4** · Reporting · **U5** · Un productor, muchos oyentes | [`d4`](../code/ejercicios/d4/) — un subscriber más |
+| 10 | **U4** · Reporting · **U5** · Un productor, muchos oyentes | [`d3b`](../code/ejercicios/d3b/) — el `uvm_error` que no dice nada · [`d4`](../code/ejercicios/d4/) — un subscriber más |
 | 10b | **U5** · Quién espera a quién · `fork` y familia | [`d4b`](../code/ejercicios/d4b/) — el `#500` es un parche |
 | 11 | **U5** · Un solo lugar que mira el cable · Quién espera a quién | [`d5`](../code/ejercicios/d5/) — el scoreboard grita y el DUT está sano |
 | 12 | **U6** · Copiar un objeto que contiene otro · Transactions | [`d5b`](../code/ejercicios/d5b/) — medí tu `dist` |
-| 13 | **U6** · Constrained random + **Parcial 2** (1 h) | [`d6-bins`](../code/ejercicios/d6-bins/) — cerrar un bin dirigido |
-| 14 | **U7** · Agents · Sequences — y *Callbacks* y *Sequences virtuales* si entran, que son las dos primeras de la lista de recortes | [`d6-agents`](../code/ejercicios/d6-agents/) · [`d6-sequences`](../code/ejercicios/d6-sequences/) · [`d6-semillas`](../code/ejercicios/d6-semillas/) con `make regresion` · [`d6-debug`](../code/ejercicios/d6-debug/) — tres bugs plantados |
-| 15 | **U8** · Assertions (SVA) | [`d7-sva`](../code/ejercicios/d7-sva/) · **arranque del capstone** |
+| 13 | **U6** · Constrained random + **Parcial 2** (1 h) | [`d5c`](../code/ejercicios/d5c/) — cerrar un bin dirigido |
+| 14 | **U7** · Agents · Sequences — y *Callbacks* si entra, que es el primero de la lista de recortes | [`d6-agents`](../code/ejercicios/d6-agents/) · [`d6-sequences`](../code/ejercicios/d6-sequences/) · [`d6-debug`](../code/ejercicios/d6-debug/) — tres bugs plantados |
+| 15 | **U7** · Sequences virtuales · **U8** · Assertions (SVA) | [`d7-semillas`](../code/ejercicios/d7-semillas/) con `make regresion`, de calentamiento · [`d7-sva`](../code/ejercicios/d7-sva/) · **arranque del capstone** |
 | — | *(período de exámenes)* | **Capstone**: [`d7-final`](../code/ejercicios/d7-final/) |
 | + | **Día 8** *(opcional)* · **U9** · RAL · DPI · el segundo capstone — no entra en las 15 semanas | [`d8-ral`](../code/ejercicios/d8-ral/) — el mapa de registros · [`d8-dpi`](../code/ejercicios/d8-dpi/) — el modelo en C · [`d8-fifo`](../code/ejercicios/d8-fifo/) — el segundo capstone |
 
@@ -91,7 +91,7 @@ gratis.
 
 | Se saca | Se gana | Qué cuesta |
 |---|--:|---|
-| **Sequences virtuales** (U7) | 30 min | Nada del día 6 depende de eso. Es la sección que el alumno va a necesitar el día que tenga dos agents, no antes |
+| **Sequences virtuales** (U7) | 30 min | Nada de lo que sigue depende de eso. Es la sección que el alumno va a necesitar el día que tenga dos agents, no antes. Se dicta a la mañana del día 7 justamente para que sea la primera que se cae si el capstone necesita la hora |
 | **Callbacks** (U7) | 15 min | El tercer gancho de la unidad 1 queda prometido y no entregado. Si se saca, sacarlo también de la slide *Correr más tests escribiendo menos código* |
 | **Clases paramétricas** (U3) | 30 min | Se puede contar en 5 min como "esto es lo que hace `uvm_driver #(T)`" y seguir. Es la sección más lejos de UVM de todo el curso |
 | **`put`/`get` ports** (U5) | 30 min | Analysis ports —que son los que UVM usa todo el tiempo— quedan igual. `put`/`get` aparece en el TLM de verdad, no en un testbench típico |
@@ -187,16 +187,16 @@ proyecta, y las tres que más manos levantan son las que hay que repasar.
 ## Lo que se corrige solo
 
 ```sh
-make ejercicios     # corre las 18 SOLUCIONES: verifica que sigan siendo resolubles
+make ejercicios     # corre las 19 SOLUCIONES: verifica que sigan siendo resolubles
 make regresion      # N semillas + merge de cobertura + reporte HTML de bins abiertos
 npm run check       # el banco de examen y el deck, al día con slides/
 ```
 
 `make ejercicios` **no** comprueba que un alumno haya resuelto algo: comprueba
-que los quince sigan siendo resolubles cuando se toca el código del curso. Es la
-red que hay que correr después de adaptar un ejercicio.
+que los diecinueve sigan siendo resolubles cuando se toca el código del curso. Es
+la red que hay que correr después de adaptar un ejercicio.
 
-`make regresion` es el ejercicio [`d6-semillas`](../code/ejercicios/d6-semillas/)
+`make regresion` es el ejercicio [`d7-semillas`](../code/ejercicios/d7-semillas/)
 convertido en herramienta: corre el mismo test con N semillas, mergea la
 cobertura y deja en `dist/regresion/regresion.html` la lista de **bins
 abiertos**, que es la única pregunta útil después de una regresión. Sirve como

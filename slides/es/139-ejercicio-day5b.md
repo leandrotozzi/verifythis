@@ -1,4 +1,4 @@
-## Ejercicio · Día 5 · 2 de 2
+## Ejercicio · Día 5 · 2 de 3
 
 #### *Medí tu `dist`*
 

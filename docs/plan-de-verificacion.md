@@ -59,7 +59,7 @@ Seis cosas que esta tabla dice y que ninguna slide suelta dice:
 - **La fila 3 es la única con estímulo dirigido**, y no es un capricho: `FF` × `FF`
   es una combinación entre 65 536 y el random no la visita en mil operaciones.
   El plan es lo que hace evidente **qué test hay que escribir**, y es exactamente
-  el ejercicio [`d6-bins`](../code/ejercicios/d6-bins/), que cierra esta fila.
+  el ejercicio [`d5c`](../code/ejercicios/d5c/), que cierra esta fila.
   Y ojo con el nombre: es el **producto máximo**, no un desborde. `FF` × `FF` da
   `FE01`, que entra exacto en los 16 bits de `result` —8 bits por 8 nunca pasan
   de 16—, y el DUT fuerza `ovf` a 0 en toda multiplicación. Por eso el bin se

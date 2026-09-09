@@ -1,4 +1,4 @@
-<!-- es-sha: 04f915233349 -->
+<!-- es-sha: 85efb3009aa8 -->
 ## Polymorphism
 
 #### *A `trago` variable, a `fernet` object: which `servir()` runs?*
@@ -160,18 +160,14 @@ overrides. What today is a fernet and a mojito, tomorrow is going to be a
 
 #### *Summary of the unit*
 
-- A `fernet` **is** a `trago`, so it fits in a `trago` variable. The
-  question is **what code runs** when you call the method through that variable
-- **Without `virtual` the variable rules** (*static binding*): it is decided at compile
-  time, and the derived class is left ignored
-- **With `virtual` the object rules**: it gets resolved during simulation, looking at what
-  is inside. It is a single word and it changes everything
+- **Without `virtual` the variable rules**, and it is decided at compile time.
+  **With `virtual` the object rules**, and it gets resolved during simulation.
+  One word, and it changes everything
 - The underlying idea, the one that comes back in every section that follows: **whoever
   uses the object stops being the one who picks the type**
-- An **abstract class** (`virtual class`, `pure virtual`) moves the error from
-  simulation to compile time: it cannot be instantiated by accident
 - In SystemVerilog `virtual` is **overloaded**: virtual method, virtual
-  class and virtual interface are three different things
+  class and virtual interface are three different things — and in UVM you are
+  going to write all three
 
 Note:
 It is the unit that unlocks the next half of the course, and it is worth saying so:

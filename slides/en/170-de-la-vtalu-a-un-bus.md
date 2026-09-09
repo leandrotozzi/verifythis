@@ -1,4 +1,4 @@
-<!-- es-sha: e4df2b95cff7 -->
+<!-- es-sha: 4288d7d4dba9 -->
 <!-- .slide: id="apendice-bus" data-machete="res/diagrams/en/sequences_tb_completo.svg,res/diagrams/en/agents_agent.svg" -->
 
 ## Appendix · From the VTALU to a real bus
@@ -140,9 +140,18 @@ starts with the driver writes stimulus nobody is watching, and discovers a
 week later that their monitor does not reconstruct. Whoever starts with the monitor can
 plug it in passively on somebody else's stimulus —or on a test from the designer— and is
 already contributing on the first day.
-If somebody asks where the learning path goes on from here, the
-order that pays off: RAL, then regression with seeds, then the `clocking block`
-and the prefabricated bus properties. SVA is no longer on that list —it is a whole unit of this course— and it is worth saying so, because it is the first question of every interview.
+If somebody asks where the learning path goes on **after this course**, the short
+list, in order: **TLM2** —`uvm_tlm_generic_payload` and the sockets, which is how
+bus VIPs get connected to each other—, the **RAL backdoor** —`docs/verilator.md`
+explains why it is not here—, the **`uvm_sequence_library`** for the stress test
+you do not write, and reading the `dv/` of a real open project: the agents of
+**OpenTitan** and the AXI VIP of **pulp-platform/axi** are production code and
+they read for free. And one that is not UVM and is worth the career: **formal**
+with SymbiYosys, which proves the same properties they wrote today without any
+stimulus.
+What is **not** on that list is what they have already seen: RAL is day 8, the
+regression with seeds is the day 7 warm-up and `make regresion`, and the
+`clocking block` is half a section of unit 2.
 And a last one, which is not technical: in a real project the testbench almost always
 already exists. What gets asked for on the first day is not building one, it is **adding a test
 to it** — which is exactly what they practised in the exercises of days 3 and 6.

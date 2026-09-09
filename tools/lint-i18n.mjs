@@ -26,7 +26,7 @@
 // Y una tercera, que no es divergencia sino traduccion a medias (regla 8):
 // castellano que quedo sin traducir en el arbol EN. Estructuralmente no se ve
 // -- la slide tiene la misma cantidad de bullets -- y el sello es-sha tampoco,
-// porque se sella igual. La unica forma de cacharlo era leer las 436 slides.
+// porque se sella igual. La unica forma de cacharlo era leer las 444 slides.
 // Es LA falla tipica de una traduccion larga: un bullet, una Note: o la celda
 // de una tabla que se saltearon, en el medio de una seccion por lo demas
 // completa. Se buscan palabras funcionales del castellano que no son palabras
@@ -76,7 +76,7 @@ const PARES_MD = [['code/ejercicios', 'README.md', 'README.en.md'],
 // a ser setup.md, que es lo que un anglohablante busca. Por eso van como par
 // suelto y no por regla: el nombre no se puede derivar.
 //
-// Solo estos tres, y no docs/ entero, porque son los tres que estan en el
+// Solo estos cinco, y no docs/ entero, porque son los que estan en el
 // camino del lector en ingles: setup.md es el CRITICO -- el README en ingles lo
 // linkea como el lugar donde estan los cuatro caminos de instalacion, o sea que
 // es donde el lector pasa de "quiero probarlo" a "me corre"; uvm-interview.md es
@@ -94,6 +94,16 @@ const PARES_SUELTOS = [['web/index.html', 'web/en/index.html'],
                        ['docs/instalar.md', 'docs/en/setup.md'],
                        ['docs/uvm-en-la-entrevista.md', 'docs/en/uvm-interview.md'],
                        ['docs/para-docentes.md', 'docs/en/for-teachers.md'],
+                       // Los dos que la etapa 8 puso en ingles: el plan de
+                       // verificacion viaja con el capstone --se entrega, asi
+                       // que el alumno en ingles lo necesita en ingles-- y la
+                       // matriz es lo primero que se mira cuando algo no
+                       // compila. La matriz ademas la GENERA make matrix, o sea
+                       // que su ES se reescribe entero cada vez que se cambia de
+                       // version de Verilator: ahi este sello es justo lo que
+                       // avisa que la traduccion quedo con los numeros viejos.
+                       ['docs/plan-de-verificacion.md', 'docs/en/verification-plan.md'],
+                       ['docs/verilator.md', 'docs/en/verilator.md'],
                        // La carilla imprimible. Es HTML y no .md, asi que de las
                        // reglas de arriba solo le corre el sello: alcanza, que es
                        // lo unico que avisa cuando una se edita y la otra no.

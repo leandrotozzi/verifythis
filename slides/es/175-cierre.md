@@ -11,8 +11,13 @@
 - Podés leer y escribir **OOP en SystemVerilog**: clases, herencia,
   polimorfismo, clases paramétricas, la factory
 - Armaste un testbench **UVM completo** —test, env, componentes, monitores,
-  driver, scoreboard, transactions— pieza por pieza, entendiendo qué reemplaza
-  a qué
+  driver, scoreboard, transactions, agents y sequences— pieza por pieza,
+  entendiendo qué reemplaza a qué
+- Escribiste **assertions**: la otra mitad del plan, la que ningún scoreboard
+  puede cerrar porque no es sobre el resultado sino sobre el protocolo
+- Y lo entregaste: el **capstone** es un DUT que no viste antes, su spec, y el
+  testbench entero desde una hoja en blanco — que es literalmente lo que se pide
+  en el trabajo
 - Y todo eso corre en tu máquina, con **herramientas libres**, sin pedirle
   licencia a nadie
 
@@ -67,13 +72,13 @@ El **`clocking block`** también salió de esta tabla: es media sección de la
 unidad 2, con su ejemplo que corre en `code/u2/clocking/`.
 Los **callbacks** salieron por lo mismo: son media sección de la unidad 7, con
 el `code/u7/callbacks/` que inyecta el error en el driver — el tercer gancho que
-la unidad 1 promete. Y **regresión y seeds** también: el ejercicio `d6-semillas`
+la unidad 1 promete. Y **regresión y seeds** también: el ejercicio `d7-semillas`
 es el ciclo entero, y `make regresion` lo dejó como herramienta, con reporte de
 los bins que quedaron abiertos.
 **SVA salió de esta tabla y ahora es una unidad entera**, y es de lo más propio
-que tiene el curso: ningún libro introductorio de UVM la trae. Las **sequences virtuales**
-también salieron: están al final de las sequences, con un ejemplo que corre en
-`code/u7/sequences/virtual/`.
+que tiene el curso: ningún libro introductorio de UVM la trae. Las **sequences
+virtuales** también salieron: son la primera hora de hoy, con un ejemplo que
+corre en `code/u7/sequences/virtual/`.
 Las tres últimas filas conviene leerlas en voz alta con esta frase adelante: un
 curso introductorio que enumera lo que no cubre vale más que uno que finge
 cubrir todo. `uvm_heartbeat`, la sequence library y las colecciones se entienden

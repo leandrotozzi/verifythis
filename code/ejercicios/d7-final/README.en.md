@@ -63,7 +63,7 @@ plan of `spec.en.md`. The checker asks for **more than 20 points** and **90 %**
 covered with the `random_test`. Rows **8 and 9 come empty**: you write them,
 and the bins are called `back_to_back` and `unaligned` because the checker looks
 them up by name. How a table like this gets filled in, in
-[`docs/plan-de-verificacion.md`](../../../docs/plan-de-verificacion.md) (in Spanish).
+[`docs/en/verification-plan.md`](../../../docs/en/verification-plan.md).
 
 **5 · The properties.** The APB protocol checked **where it happens**, inside
 `apb_if.sv`: SETUP lasts one cycle, the payload does not move until the transfer

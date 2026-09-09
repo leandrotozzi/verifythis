@@ -78,14 +78,17 @@
 </section>
 
 <section id="s1" class="slide">
-<!-- es-sha: 0c9f54ca2da9 -->
+<!-- es-sha: 7e8da2447ee7 -->
 
 
 <h2 id="how-to-use-this-course">How to use this course</h2>
 <h4 id="especially-if-you-are-taking-it-on-your-own"><em>Especially if you are taking it on your own</em></h4>
 <ul>
 <li><strong>What you need to know first:</strong> Verilog or VHDL, and having simulated
-something. Object-oriented programming is <strong>not</strong> required — day 2 is exactly that</li>
+something. Object-oriented programming is <strong>not</strong> required — day 2 is exactly
+that. The only thing the course takes for granted is <strong>SystemVerilog</strong>: if you
+come from VHDL or Verilog-2001, half an hour with
+<strong><code>docs/systemverilog-para-el-que-viene-de-vhdl.md</code></strong> before starting</li>
 <li>It is <strong>seven days of class</strong>, of 4 to 5 and a half hours — <strong>≈ 30 h 30</strong>, and each
 agenda carries its own. Plus an <strong>optional day 8</strong>, after the wrap-up. On your own,
 count double: half of it goes into running the examples, and that is the half that teaches</li>
@@ -133,7 +136,7 @@ things up in rather than to read straight through.</p>
 </section>
 
 <section id="s3" class="slide">
-<!-- es-sha: dc538de84272 -->
+<!-- es-sha: 17ed06d3a38a -->
 
 
 
@@ -154,10 +157,64 @@ things up in rather than to read straight through.</p>
 <li>Interfaces and BFM · the <code>clocking block</code></li>
 </ul>
 <p><strong>Two exercises</strong>, and the second one is solved with the wave viewer</p>
+<p><strong>By the end of the day you can:</strong></p>
+<ul>
+<li><strong>Write</strong> a five-column verification plan for a DUT you have not seen before</li>
+<li><strong>Read</strong> the number a <code>covergroup</code> gives, and say what to look at first when it
+reads 0 %</li>
+<li><strong>Explain</strong> which race a <code>clocking block</code> avoids — and why they are optional
+anyway</li>
+</ul>
+<div class="nota">
+<p>The three verbs below are the contract of the day, and it is worth reading them
+out loud before starting: on video they are the ten seconds in which somebody
+decides whether this is the one they were looking for. They are the first three
+rows of the closing self-assessment, brought to the front; whoever can answer
+them at the end of the day does not need to look at anything else.
+And an honest warning for whoever comes from VHDL or from Verilog-2001, which is
+the declared audience: day 2 levels the OOP, but <strong>nobody levels SystemVerilog</strong>,
+and today <code>interface</code>, <code>logic</code>, <code>enum</code>, <code>package</code>, <code>covergroup</code>, <code>clocking</code> and an
+<code>assert property</code> all show up. It is all on one page in
+<strong><code>docs/systemverilog-para-el-que-viene-de-vhdl.md</code></strong>: half an hour before
+starting, and day 1 stops having two steps at once.</p>
+</div>
 <p class="al-deck"><a href="../index.html#/3">see this slide in the deck &rsaquo;</a></p>
 </section>
 
 <section id="s4" class="slide">
+<!-- es-sha: 494d5a6b24a5 -->
+<h2 id="the-log-says-it-failed">The log says it failed</h2>
+<h4 id="and-the-dut-is-healthy"><em>And the DUT is healthy</em></h4>
+<pre><code class="language-text">$ cd code/ejercicios/d1b &amp;&amp; bash run.sh
+FAILED: A: e5  B: 0  op: mul_op result: fe01 ovf: 0
+</code></pre>
+<ul>
+<li><code>e5 × 00</code> is <code>0</code>, not <code>fe01</code>. The scoreboard is right: <strong>something failed</strong></li>
+<li>The DUT is right too: <strong>it is not broken</strong>. That <code>fe01</code> is the result of
+another operation, which arrived late</li>
+<li>And the log has not one line more. Which operation, in which cycle, who
+overwrote whom: none of that is here</li>
+<li>That gap between <em>&quot;it failed&quot;</em> and <em>&quot;why&quot;</em> is <strong>almost half</strong> of a verification
+engineer&#39;s time, and it is what the week is about</li>
+</ul>
+<div class="nota">
+<p>This is the first slide with something running, and it goes here on purpose:
+before any chart, before the word UVM, the student has to have seen the problem.
+It is the <code>d1b</code> exercise, the second one of today, and in class it is worth
+running it live — it is four seconds, it does not compile UVM.
+The question to throw out and <strong>not</strong> answer: <em>&quot;with that line, where would you
+start?&quot;</em>. The answers that will come are <code>$display</code> and running again, which is
+exactly what the course comes to replace. The answer is in an <code>ondas.vcd</code> the run
+left alongside and nobody has opened yet.
+And the honest close, which is the promise of the whole course: this is not about
+writing testbenches faster, it is about the log saying why when it fails — and it
+will fail. The figure in the bullet below, the 47 %, comes from the survey on the
+next slide.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/4">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s5" class="slide">
 <!-- es-sha: 42c12a76b98e -->
 <h2 id="trends">Trends</h2>
 <h4 id="first-silicon-almost-never-comes-out-right"><em>First silicon almost never comes out right</em></h4>
@@ -170,17 +227,17 @@ Asking who has done a tape-out and how it went hooks people better than the char
 If they ask where the data comes from: <code>res/trends/data.json</code>, and the figures are
 regenerated with <code>make figs</code>.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/4">see this slide in the deck &rsaquo;</a></p>
-</section>
-
-<section id="s5" class="slide">
-<h2 id="trends">Trends</h2>
-<h4 id="why-what-is-inside-a-chip-today"><em>Why: what is inside a chip today</em></h4>
-<p><img src="../../res/print/trends/en/complejidad.svg" alt="Growth in the number of blocks and embedded processors per chip"></p>
 <p class="al-deck"><a href="../index.html#/5">see this slide in the deck &rsaquo;</a></p>
 </section>
 
 <section id="s6" class="slide">
+<h2 id="trends">Trends</h2>
+<h4 id="why-what-is-inside-a-chip-today"><em>Why: what is inside a chip today</em></h4>
+<p><img src="../../res/print/trends/en/complejidad.svg" alt="Growth in the number of blocks and embedded processors per chip"></p>
+<p class="al-deck"><a href="../index.html#/6">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s7" class="slide">
 <h2 id="trends">Trends</h2>
 <h4 id="verification-is-not-a-stage-it-is-half-the-work"><em>Verification is not a stage, it is half the work</em></h4>
 <p><img src="../../res/print/trends/en/esfuerzo.svg" alt="How the verifier&#39;s time is split: almost half of it goes into debug"></p>
@@ -189,17 +246,17 @@ regenerated with <code>make figs</code>.</p>
 already caught up with design. Verifying is not the final step before tape-out: it is
 half the project, with its own team and its own language.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/6">see this slide in the deck &rsaquo;</a></p>
-</section>
-
-<section id="s7" class="slide">
-<h2 id="trends">Trends</h2>
-<h4 id="and-it-is-verified-mostly-with-uvm"><em>And it is verified, mostly, with UVM</em></h4>
-<p><img src="../../res/print/trends/en/metodologia.svg" alt="Adoption of verification methodologies: UVM against the rest"></p>
 <p class="al-deck"><a href="../index.html#/7">see this slide in the deck &rsaquo;</a></p>
 </section>
 
 <section id="s8" class="slide">
+<h2 id="trends">Trends</h2>
+<h4 id="and-it-is-verified-mostly-with-uvm"><em>And it is verified, mostly, with UVM</em></h4>
+<p><img src="../../res/print/trends/en/metodologia.svg" alt="Adoption of verification methodologies: UVM against the rest"></p>
+<p class="al-deck"><a href="../index.html#/8">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s9" class="slide">
 <h2 id="is-systemverilog-the-cobol-of-electronics">Is SystemVerilog the <em>COBOL</em> of electronics?</h2>
 <table>
 <thead>
@@ -248,11 +305,11 @@ thirty. The same thing happens with UVM: the library is enormous and with six or
 classes you put together a complete testbench.
 It is useful for lowering the anxiety of whoever arrives scared by the size of UVM.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/8">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/9">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s9" class="slide">
-<!-- es-sha: b9e6bddac2ec -->
+<section id="s10" class="slide">
+<!-- es-sha: 31496a304ebf -->
 <h2 id="introduction">Introduction</h2>
 <h4 id="what-is-uvm"><em>What is UVM?</em></h4>
 <ul>
@@ -284,10 +341,10 @@ And one clarification that avoids a classic misunderstanding: <em>Open Source</e
 that the <strong>library</strong> is free (Apache 2.0). The <strong>simulator</strong> that runs it almost
 always is not — except in this course, which is what all of this is about.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/9">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/10">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s10" class="slide">
+<section id="s11" class="slide">
 <h2 id="introduction">Introduction</h2>
 <h4 id="where-it-comes-from"><em>Where it comes from</em></h4>
 <p><img src="../../res/print/en/originUVM.svg" alt="From eRM, VMM, AVM and OVM to UVM"></p>
@@ -302,10 +359,10 @@ And the moral that gets used for the rest of the course: when they find code wit
 <code>ovm_component</code> instead of <code>uvm_component</code>, it is not a typo — it is a
 testbench from before 2011 that nobody migrated. It happens more than it seems.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/10">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/11">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s11" class="slide">
+<section id="s12" class="slide">
 <h2 id="introduction">Introduction</h2>
 <h4 id="a-systemverilog-testbench-from-the-inside"><em>A SystemVerilog testbench, from the inside</em></h4>
 <p><img src="../../res/print/en/TB.svg" alt="Anatomy of a SystemVerilog testbench"></p>
@@ -317,10 +374,10 @@ Point at the tester, the driver, the monitor and the scoreboard, and make the po
 none of those names is UVM&#39;s: they are the names anybody gives to the pieces of a
 testbench, in any language. UVM did not invent them; it standardized them.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/11">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/12">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s12" class="slide">
+<section id="s13" class="slide">
 <h2 id="introduction">Introduction</h2>
 <h4 id="the-same-testbench-with-uvm-structure"><em>The same testbench, with UVM structure</em></h4>
 <p><img src="../../res/print/en/TB_UVM.svg" alt="The same testbench with UVM structure"></p>
@@ -334,10 +391,10 @@ the same boxes</strong>. What UVM adds is the tree that contains them, the ports
 they talk through and the phases that build them in order. Nothing else, and that is
 not little.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/12">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/13">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s13" class="slide">
+<section id="s14" class="slide">
 <h2 id="introduction">Introduction</h2>
 <h4 id="the-class-tree"><em>The class tree</em></h4>
 <p><img src="../../res/print/en/uvm_class_diagram.svg" alt="UVM base class tree"></p>
@@ -357,10 +414,10 @@ The question to throw at the group when we get to agents: is a
 It is the same diagram that is in the cheat sheet, top right, to look at again
 when needed.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/13">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/14">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s14" class="slide">
+<section id="s15" class="slide">
 <h2 id="introduction">Introduction</h2>
 <h4 id="run-more-tests-writing-less-code"><em>Run more tests writing less code</em></h4>
 <ul>
@@ -391,12 +448,12 @@ random</em> on day 5, <em>The factory pattern</em> on day 2 and <em>Callbacks</e
 this slide can be put up three more times.
 And the last line is the most underestimated one. A test with a thousand seeds is not
 &quot;the same test a thousand times&quot;: it is a thousand different scenarios for the price of writing
-one. It is literally the <code>d6-semillas</code> exercise of day 6.</p>
+one. It is literally the <code>d7-semillas</code> exercise, the one day 7 starts with.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/14">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/15">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s15" class="slide">
+<section id="s16" class="slide">
 <!-- es-sha: d339e0e31c8e -->
 <h2 id="the-vtalu-spec">The VTALU spec</h2>
 <p><img src="../../res/print/diagrams/en/wave-dut.svg" alt="ALU waveform"></p>
@@ -413,10 +470,10 @@ turns itself off) and a level on add/sub/and/xor, where it is <code>start &amp;&
 the kind of detail that only shows up when the testbench hangs and nobody
 knows why.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/15">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/16">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s16" class="slide">
+<section id="s17" class="slide">
 <h2 id="the-vtalu-spec">The VTALU spec</h2>
 <table>
 <thead>
@@ -499,10 +556,10 @@ And the free opcode: 3&#39;b110 is not there by chance and not by oversight. It 
 this afternoon&#39;s exercise, and it is worth saying now so that nobody reads it as a
 design slip.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/16">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/17">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s17" class="slide">
+<section id="s18" class="slide">
 <h2 id="the-vtalu-spec">The VTALU spec</h2>
 <h4 id="single-cycle-add---sub---and---xor"><em>Single Cycle: Add - Sub - AND - XOR</em></h4>
 <figure class="codigo"><figcaption><code>code/vtalu_dut/vtalu_1c.sv</code> · #the-two-resets</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The two resets are deliberately different: the one on the result is</span>
@@ -589,10 +646,10 @@ of the first slide and pointing at it again.
 The <code>default: ;</code> of the case is what makes <code>no_op</code> and the unused opcodes not
 change the result: the ALU keeps whatever it computed last.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/17">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/18">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s18" class="slide">
+<section id="s19" class="slide">
 <h2 id="the-vtalu-spec">The VTALU spec</h2>
 <h4 id="multi-cycle-multiplication"><em>Multi Cycle: Multiplication</em></h4>
 <figure class="codigo"><figcaption><code>code/vtalu_dut/vtalu_mult.sv</code> · #the-pipeline</figcaption><pre><code class="hljs">         a_int &lt;= A;
@@ -669,10 +726,10 @@ The question that orders the slide: what happens if the testbench sends a
 multiplication and reads the result on the next cycle? It reads the previous result,
 and the scoreboard reports an error that is not in the DUT.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/18">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/19">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s19" class="slide">
+<section id="s20" class="slide">
 <h2 id="the-vtalu-spec">The VTALU spec</h2>
 <h4 id="top-level"><em>Top Level</em></h4>
 <figure class="codigo"><figcaption><code>code/vtalu_dut/vtalu.sv</code> · #the-mux</figcaption><pre><code class="hljs">   <span class="hljs-keyword">assign</span> es_mult = (op == <span class="hljs-number">3&#x27;b101</span>);
@@ -776,10 +833,10 @@ and does not tie the spec down. And along the way, the free opcode 3&#39;b110 fa
 single-cycle side without anybody having to do anything. The DUT does not validate the
 opcode; the one that has to catch it is the verification plan.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/19">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/20">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s20" class="slide">
+<section id="s21" class="slide">
 <h2 id="the-vtalu-spec">The VTALU spec</h2>
 <h4 id="how-to-run-it"><em>How to run it</em></h4>
 <ul>
@@ -811,10 +868,10 @@ installed.
 And the one to stress anyway: Verilator is free — the student takes it
 home and keeps practising without asking anybody for a licence.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/20">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/21">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s21" class="slide">
+<section id="s22" class="slide">
 <h2 id="the-vtalu-spec">The VTALU spec</h2>
 <h4 id="looking-at-the-real-waves"><em>Looking at the real waves</em></h4>
 <ul>
@@ -840,10 +897,10 @@ And say it explicitly: whoever takes the course alone has their safety net here.
 When an exercise does not work out, the answer is almost always in the waves before
 it is in the code.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/21">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/22">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s22" class="slide">
+<section id="s23" class="slide">
 <h2 id="the-vtalu-spec">The VTALU spec</h2>
 <h4 id="summary-of-the-unit"><em>Summary of the unit</em></h4>
 <ul>
@@ -869,10 +926,10 @@ Worth saying why the DUT was not &quot;cleaned up&quot; when it was translated f
 asymmetry of the resets and the unvalidated opcode are <strong>exactly</strong> the kind of
 thing a testbench has to expose. A tidy DUT teaches nothing.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/22">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/23">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s23" class="slide">
+<section id="s24" class="slide">
 <!-- es-sha: f2e4b8bf2793 -->
 <h2 id="the-verification-plan">The verification plan</h2>
 <h4 id="the-most-professional-deliverable-of-the-discipline-and-the-cheapest"><em>The most professional deliverable of the discipline, and the cheapest</em></h4>
@@ -893,10 +950,10 @@ lead asks for when they ask how the block is going.
 The empty template is in <code>docs/plan-de-verificacion.md</code>, and it gets used twice in
 the course: here to read it, and on day 7 to fill it from scratch.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/23">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/24">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s24" class="slide">
+<section id="s25" class="slide">
 <h2 id="the-verification-plan">The verification plan</h2>
 <h4 id="the-five-columns"><em>The five columns</em></h4>
 <table>
@@ -945,10 +1002,10 @@ you are going to count. It is the one that on day 1 still cannot be filled —th
 exist until the next unit— and that is why the plan gets filled as the
 testbench grows.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/24">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/25">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s25" class="slide">
+<section id="s26" class="slide">
 <h2 id="the-verification-plan">The verification plan</h2>
 <h4 id="two-rules-that-come-out-of-the-columns"><em>Two rules that come out of the columns</em></h4>
 <ul>
@@ -971,10 +1028,10 @@ A serious plan has both columns, and the VTALU table —which is seen whole in
 the next unit, already with the bins— has eight scoreboard rows and four
 assertion ones.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/25">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/26">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s26" class="slide">
+<section id="s27" class="slide">
 <!-- es-sha: c1b76b51fba2 -->
 <h2 id="the-conventional-testbench">The conventional testbench</h2>
 <h4 id="coverage-first-methodology"><em>Coverage First Methodology</em></h4>
@@ -989,10 +1046,10 @@ write the TB first, you end up measuring what the TB does instead of what the
 spec asks for. The six bullets on the next slide are the verification plan
 of the whole VTALU: read them one at a time and ask which one is missing.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/26">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/27">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s27" class="slide">
+<section id="s28" class="slide">
 <h2 id="the-conventional-testbench">The conventional testbench</h2>
 <h4 id="the-vtalu-verification-plan"><em>The VTALU verification plan</em></h4>
 <ul>
@@ -1025,10 +1082,10 @@ The last one is the one that brings the topic of the day: the DUT has TWO output
 of the plan that only closes by looking at both. A scoreboard that compares <code>result</code>
 and nothing else passes green with <code>ovf</code> stuck at zero.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/27">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/28">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s28" class="slide">
+<section id="s29" class="slide">
 <h2 id="the-conventional-testbench">The conventional testbench</h2>
 <h4 id="the-stimulus-a-thousand-operations-and-the-protocol-by-hand"><em>The stimulus: a thousand operations, and the protocol by hand</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #stimulus-loop</figcaption><pre><code class="hljs">      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">1000</span>) <span class="hljs-keyword">begin</span>
@@ -1350,10 +1407,10 @@ The bias of <code>get_data()</code> —a quarter at 00, a quarter at FF, half in
 middle— is exactly what the transactions are going to write in one line with <code>dist</code>
 and <code>:/</code>. Worth naming it now so that the saving is visible later.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/28">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/29">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s29" class="slide">
+<section id="s30" class="slide">
 <h2 id="the-conventional-testbench">The conventional testbench</h2>
 <h4 id="the-self-checking-predict-and-compare"><em>The self-checking: predict and compare</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #scoreboard-block</figcaption><pre><code class="hljs">   <span class="hljs-comment">// Sent by the tester, compared by the scoreboard: the final block below</span>
@@ -1663,10 +1720,10 @@ the analysis ports it will be replaced by a queue of commands the monitor sends.
 And the <code>$error</code> here is going to be a <code>`uvm_error</code> from reporting on: same
 concept, with a counter and a severity policy behind it.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/29">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/30">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s30" class="slide">
+<section id="s31" class="slide">
 <h2 id="the-conventional-testbench">The conventional testbench</h2>
 <h4 id="summary-of-the-unit"><em>Summary of the unit</em></h4>
 <ul>
@@ -1691,11 +1748,11 @@ changes both have to be touched.
 That is the whole motivation for interfaces and BFM, and it is worth leaving it as an
 open question instead of answering it here.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/30">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/31">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s31" class="slide">
-<!-- es-sha: a8dbef25c50f -->
+<section id="s32" class="slide">
+<!-- es-sha: 4756ea71ccfa -->
 <h2 id="functional-coverage">Functional coverage</h2>
 <h4 id="when-are-you-done-verifying"><em>When are you done verifying?</em></h4>
 <ul>
@@ -1715,10 +1772,10 @@ If somebody asks why code coverage is not enough: because it measures the
 DUT, not the spec. A DUT that is missing a whole feature can give 100 % of
 lines — the lines nobody wrote do not show up in the report.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/31">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/32">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s32" class="slide">
+<section id="s33" class="slide">
 <h2 id="functional-coverage">Functional coverage</h2>
 <h4 id="from-the-verification-plan-to-the-covergroup"><em>From the verification plan to the covergroup</em></h4>
 <p>The six points of the plan from the previous section, translated:</p>
@@ -1765,10 +1822,10 @@ untranslated.
 The order matters — the plan first, the covergroup after. The other way round you end up
 measuring what the testbench does, not what the spec asks for.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/32">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/33">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s33" class="slide">
+<section id="s34" class="slide">
 <h2 id="functional-coverage">Functional coverage</h2>
 <h4 id="anatomy-it-is-three-steps-not-one"><em>Anatomy: it is three steps, not one</em></h4>
 <pre><code class="language-systemverilog">covergroup op_cov;                     // 1. WHAT gets measured
@@ -1801,10 +1858,10 @@ And the edge is not a whim: sampling on the same <code>negedge</code> the tester
 same way; another simulator may not—. It is the same rule as the day 7
 assertions: you read on the opposite edge to the one that writes.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/33">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/34">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s34" class="slide">
+<section id="s35" class="slide">
 <h2 id="functional-coverage">Functional coverage</h2>
 <h4 id="bins-the-buckets-that-have-to-be-filled"><em>bins: the buckets that have to be filled</em></h4>
 <pre><code class="language-systemverilog">coverpoint op_set;                   // automatic bins: one per value of the enum
@@ -1837,10 +1894,10 @@ cannot be filled is not a tool problem, it is a decision somebody did not write 
 The way to write it down is called <code>ignore_bins</code> and it comes in
 two slides.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/34">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/35">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s35" class="slide">
+<section id="s36" class="slide">
 <h2 id="functional-coverage">Functional coverage</h2>
 <h4 id="the-vtalu-covergroup"><em>The VTALU covergroup</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #op_cov</figcaption><pre><code class="hljs">   <span class="hljs-comment">//op_cov: make sure every operation, and every interaction between them, is covered</span>
@@ -2144,10 +2201,10 @@ a topic of the course, they are written, and today Verilator does not compile th
 <code>docs/verilator.md</code> with the version and the date. A course that covers up what its
 tool does not do is a course that lies.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/35">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/36">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s36" class="slide">
+<section id="s37" class="slide">
 <h2 id="functional-coverage">Functional coverage</h2>
 <h4 id="ignore_bins-saying-out-loud-what-does-not-get-covered"><em>ignore_bins: saying out loud what does not get covered</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #legs-and-ops</figcaption><pre><code class="hljs">   <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
@@ -2440,10 +2497,10 @@ an illegal handshake.
 The rule of thumb: if it cannot be covered, <code>ignore_bins</code>; if it must not happen,
 <code>illegal_bins</code>; if it simply has not happened yet, leave it and write the test.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/36">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/37">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s37" class="slide">
+<section id="s38" class="slide">
 <h2 id="functional-coverage">Functional coverage</h2>
 <h4 id="cross-the-combinations-and-how-not-to-drown"><em>cross: the combinations, and how not to drown</em></h4>
 <pre><code class="language-systemverilog">op_00_FF : cross a_leg, b_leg, all_ops;    // 3 x 3 x 5 = 45 bins, almost all meaningless
@@ -2469,10 +2526,10 @@ coverpoints with automatic bins is thousands of buckets, and a regression never
 fills them. When somebody says &quot;the coverage is not going up&quot;, half the time
 the problem is an unfiltered cross, not a missing test.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/37">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/38">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s38" class="slide">
+<section id="s39" class="slide">
 <h2 id="functional-coverage">Functional coverage</h2>
 <h4 id="the-vtalu-cross"><em>The VTALU cross</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #cross-mul-bins</figcaption><pre><code class="hljs">         <span class="hljs-keyword">bins</span> mul_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
@@ -2777,10 +2834,10 @@ The useful question for the classroom: does that invalidate the exercise? No. Wh
 is identical. The only thing that cannot be done with this tool is signing off on
 coverage closure, and that is not the goal of the course.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/38">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/39">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s39" class="slide">
+<section id="s40" class="slide">
 <h2 id="functional-coverage">Functional coverage</h2>
 <h4 id="transition-bins-when-the-order-matters"><em>Transition bins: when the order matters</em></h4>
 <pre><code class="language-systemverilog">bins opn_rst[] = ([add_op:mul_op] =&gt; rst_op);   // A and then B
@@ -2803,10 +2860,10 @@ simulator, and on Questa or VCS these bins run.
 There are two more cousins worth naming: <code>[-&gt; n]</code> (goto, n times not necessarily
 in a row) and <code>[= n]</code> (non-consecutive). They are in <code>coverage.svh</code> of the analysis ports.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/39">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/40">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s40" class="slide">
+<section id="s41" class="slide">
 <h2 id="functional-coverage">Functional coverage</h2>
 <h4 id="the-knobs-when-a-bin-counts-as-covered"><em>The knobs: when a bin counts as covered</em></h4>
 <pre><code class="language-systemverilog">coverpoint op_set {
@@ -2848,10 +2905,10 @@ this tool does with each one is measured, dated and with a repro in
 <code>code/verilator/repro-cg-options.sv</code>. The <code>at_least</code> one is the worst of the four
 because it is silent: in the covergroup you write it, it compiles, and it does nothing.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/40">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/41">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s41" class="slide">
+<section id="s42" class="slide">
 <h2 id="functional-coverage">Functional coverage</h2>
 <h4 id="reading-the-number"><em>Reading the number</em></h4>
 <pre><code class="language-sh">$ make u2/convencional
@@ -2884,10 +2941,10 @@ the new operation fills the phantom bucket and the coverage goes from 86.8 % to
 same one who wrote the test, and the checker counts bins and not the percentage,
 because we have just seen the percentage cannot read.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/41">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/42">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s42" class="slide">
+<section id="s43" class="slide">
 <h2 id="functional-coverage">Functional coverage</h2>
 <h4 id="the-verification-plan-whole-and-in-one-table"><em>The verification plan, whole and in one table</em></h4>
 <table>
@@ -3016,8 +3073,8 @@ unit showed <strong>loose</strong>. The plan is the table that makes them one th
 The row that gets the most discussion is the maximum-product one, and that is good: <code>FF</code> × <code>FF</code>
 is the only case that does <strong>not</strong> come out of the random in reasonable time, and that is why its
 stimulus column says <em>directed case</em>. There you see that the plan does not only measure,
-it also decides which test has to be written. It is the <code>d6-bins</code> exercise, three days
-later, with this same row.
+it also decides which test has to be written. It is the <code>d5c</code> exercise, the last
+one of the day 5 afternoon, with this same row.
 The three protocol rows are worth naming and moving on: they are the half the
 course does not touch until day 7, and they serve to plant the idea that a scoreboard does not
 check everything. A serious verification plan has both columns.
@@ -3025,10 +3082,10 @@ And what the student takes home: <code>docs/plan-de-verificacion.md</code> is th
 as an artifact, with an empty template. The day 7 capstone is handed in with the
 plan filled — which is exactly what gets handed in on a project.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/42">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/43">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s43" class="slide">
+<section id="s44" class="slide">
 <h2 id="functional-coverage">Functional coverage</h2>
 <h4 id="summary-of-the-unit"><em>Summary of the unit</em></h4>
 <ul>
@@ -3055,10 +3112,10 @@ of the functional coverage nobody wrote.
 And the operational mistake that repeats the most, to leave it burned in: the missing
 <code>sample()</code>. It compiles, it runs, and the report reads zero.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/43">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/44">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s44" class="slide">
+<section id="s45" class="slide">
 <!-- es-sha: d3b5d4c3a279 -->
 <h2 id="interfaces-and-bfm">Interfaces and BFM</h2>
 <h4 id="first-the-signals-stop-being-loose"><em>First: the signals stop being loose</em></h4>
@@ -3189,10 +3246,10 @@ interface know who drives what without opening the RTL. It is not here because t
 to the testbench and drives everything; at work the interface almost always comes with
 two or three modports and what you need to know is which one to ask for.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/44">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/45">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s45" class="slide">
+<section id="s46" class="slide">
 <h2 id="interfaces-and-bfm">Interfaces and BFM</h2>
 <h4 id="then-the-protocol-hides-inside-a-task"><em>Then: the protocol hides inside a task</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/interfaces-bfm/vtalu_bfm.sv</code> · #send_op</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The protocol handling can now be changed in one single place.</span>
@@ -3312,10 +3369,10 @@ And the hook for day 4: the <code>driver</code> of the put and get ports is exac
 but inside a class and fed by a port. The operation —hiding the
 wire— is the same; what changes is where the data comes from.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/45">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/46">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s46" class="slide">
+<section id="s47" class="slide">
 <h2 id="interfaces-and-bfm">Interfaces and BFM</h2>
 <h4 id="the-top-with-the-bfm-in-the-middle"><em>The top, with the BFM in the middle</em></h4>
 <ul>
@@ -3357,10 +3414,10 @@ And the detail that pays for itself the day the DUT grows: adding a signal to th
 protocol means touching the interface, and everyone who uses it sees it appear. In the
 previous version you had to remember to wire it in every instance.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/46">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/47">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s47" class="slide">
+<section id="s48" class="slide">
 <h2 id="interfaces-and-bfm">Interfaces and BFM</h2>
 <h4 id="scoreboard-the-same-check-now-talking-to-the-bfm"><em>Scoreboard: the same check, now talking to the BFM</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/interfaces-bfm/scoreboard.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">module</span> <span class="hljs-title">scoreboard</span> (
@@ -3417,10 +3474,10 @@ The debt that stays open: the scoreboard still watches the signals
 directly. Only in the analysis ports is it going to receive <em>transactions</em> from a monitor and
 stop knowing that a <code>clk</code> exists.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/47">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/48">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s48" class="slide">
+<section id="s49" class="slide">
 <h2 id="interfaces-and-bfm">Interfaces and BFM</h2>
 <h4 id="tester-it-asks-for-operations-it-does-not-move-wires"><em>Tester: it asks for operations, it does not move wires</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/interfaces-bfm/tester.sv</code> · #stimulus-loop</figcaption><pre><code class="hljs">   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
@@ -3505,10 +3562,10 @@ And the hook for day 4: in the put and get ports this same tester is going to be
 a <code>put_port</code>, and the BFM is going to end up on the other side of a driver. The operation is
 the same one we did here —hiding the wire— repeated one level up.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/48">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/49">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s49" class="slide">
+<section id="s50" class="slide">
 <h2 id="interfaces-and-bfm">Interfaces and BFM</h2>
 <h4 id="the-protocol-rule-written-in-the-simulators-language"><em>The protocol rule, written in the simulator&#39;s language</em></h4>
 <pre><code class="language-sv">// IMMEDIATE: a statement. It checks the present, where the thread goes by.
@@ -3540,10 +3597,10 @@ being the same as checking.
 If somebody asks why one says <code>negedge</code> and the other does not, the short answer
 is <em>&quot;because the BFM writes on the negedge, and that is only fully visible in the assertions&quot;</em>. That is the question we want to plant.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/49">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/50">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s50" class="slide">
+<section id="s51" class="slide">
 <h2 id="interfaces-and-bfm">Interfaces and BFM</h2>
 <h4 id="where-each-thing-gets-checked"><em>Where each thing gets checked</em></h4>
 <ul>
@@ -3564,10 +3621,10 @@ There is no need to promise more than that. The assertions come back with the pr
 slide, write it for real, and show why the edge chosen is not a
 detail.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/50">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/51">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s51" class="slide">
+<section id="s52" class="slide">
 <h2 id="interfaces-and-bfm">Interfaces and BFM</h2>
 <h4 id="the-hole-the-bfm-leaves-the-timing"><em>The hole the BFM leaves: the timing</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/clocking/sin_clocking.sv</code> · #three-samples</figcaption><pre><code class="hljs">
@@ -3665,10 +3722,10 @@ And the third is ours. Worth being honest with the group: the course drives on
 <code>negedge</code> and samples on <code>posedge</code> because it is the trick you can understand without having
 seen clocking blocks, not because it is what gets written on a project.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/51">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/52">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s52" class="slide">
+<section id="s53" class="slide">
 <h2 id="interfaces-and-bfm">Interfaces and BFM</h2>
 <h4 id="why-the-edge-alone-is-not-enough-the-regions"><em>Why the edge alone is not enough: the regions</em></h4>
 <p><img src="../../res/print/diagrams/en/interfaces-bfm_regiones.svg" alt="The regions of an edge: Preponed, Active and NBA, and the three samples"></p>
@@ -3693,10 +3750,10 @@ And the hook with day 7: the amber bar on the left is the region where SVA sampl
 It is the same figure that explains why an assertion does not check what happened
 but what it saw, and why the <code>@()</code> you give it changes the result.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/52">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/53">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s53" class="slide">
+<section id="s54" class="slide">
 <h2 id="interfaces-and-bfm">Interfaces and BFM</h2>
 <h4 id="the-clocking-block-the-edge-and-the-delta-declared-once"><em>The clocking block: the edge and the delta, declared once</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/clocking/con_clocking.sv</code> · #reg_bfm</figcaption><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">reg_bfm</span> (<span class="hljs-keyword">input</span> <span class="hljs-type">bit</span> clk);
@@ -3815,10 +3872,10 @@ with the BFM written and the three lines running, does the question make sense.
 Verilator supports it since 5.x and the example ends in <code>$fatal</code> if the
 sampling stops giving 11: it is the net that warns if a release changes the semantics.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/53">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/54">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s54" class="slide">
+<section id="s55" class="slide">
 <h2 id="interfaces-and-bfm">Interfaces and BFM</h2>
 <h4 id="are-they-mandatory-no--and-it-is-worth-knowing-why"><em>Are they mandatory? No — and it is worth knowing why</em></h4>
 <table>
@@ -3865,10 +3922,10 @@ Where they really move the needle, and this is what to retain: <strong>reusable<
 with SDF, and protocols where the spec defines setup/hold. There they stop being style.
 The long material, with the sources, is in <code>docs/clocking-blocks.md</code>.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/54">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/55">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s55" class="slide">
+<section id="s56" class="slide">
 <h2 id="interfaces-and-bfm">Interfaces and BFM</h2>
 <h4 id="the-price-two-names-for-the-same-wire"><em>The price: two names for the same wire</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/clocking/mezcla.sv</code> · #two-reads</figcaption><pre><code class="hljs">
@@ -3962,10 +4019,10 @@ And the moral that hooks into the silent traps appendix, where this one
 is written down: in verification the expensive error is not the one that breaks, it is the one that
 lies. A half-done clocking block lies.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/55">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/56">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s56" class="slide">
+<section id="s57" class="slide">
 <h2 id="interfaces-and-bfm">Interfaces and BFM</h2>
 <h4 id="summary-of-the-unit"><em>Summary of the unit</em></h4>
 <ul>
@@ -3996,10 +4053,10 @@ already taken, without having written a single class.
 If the group comes from RTL, the analogy closes on its own: the BFM is to the testbench what
 a device driver is to the operating system.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/56">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/57">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s57" class="slide quiz">
+<section id="s58" class="slide quiz">
 <!-- es-sha: b07c9ddc47f6 -->
 
 
@@ -4015,10 +4072,10 @@ a device driver is to the operating system.</p>
 <blockquote>
 <p><strong>Into debug</strong> — 47 % of the verifier&#39;s time goes there. That is why the course devotes a whole section to reporting: a scoreboard that only says &quot;failed&quot; leaves you right inside that 47 %.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/57">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/58">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s58" class="slide quiz">
+<section id="s59" class="slide quiz">
 <h2 id="review-·-day-1">Review · Day 1</h2>
 <h4 id="2-of-7-·-the-alu-spec"><em>2 of 7 · The ALU spec</em></h4>
 <p><strong>While the VTALU is running an operation, what do <code>start</code> and the operands have to do?</strong></p>
@@ -4031,10 +4088,10 @@ a device driver is to the operating system.</p>
 <blockquote>
 <p><strong>Stable until <code>done</code></strong> — it is the DUT protocol, and it is exactly the reason the BFM exists: to wrap that rule in a single place so that no test forgets it. The first distractor describes a real protocol —pulse start, latched operands— that this DUT does not have.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/58">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/59">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s59" class="slide quiz">
+<section id="s60" class="slide quiz">
 <h2 id="review-·-day-1">Review · Day 1</h2>
 <h4 id="3-of-7-·-functional-coverage"><em>3 of 7 · Functional coverage</em></h4>
 <p><strong>The test runs 1000 random operations and the <em>code</em> coverage reads 100 %. What does that tell you about the verification?</strong></p>
@@ -4047,10 +4104,10 @@ a device driver is to the operating system.</p>
 <blockquote>
 <p><strong>Very little</strong> — code coverage measures the DUT; functional coverage measures the spec. A feature the designer never wrote gives 100 % of lines and 0 % of what matters, and the report is not going to tell you.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/59">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/60">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s60" class="slide quiz">
+<section id="s61" class="slide quiz">
 <h2 id="review-·-day-1">Review · Day 1</h2>
 <h4 id="4-of-7-·-covergroup"><em>4 of 7 · covergroup</em></h4>
 <p><strong>You declare a <code>covergroup</code>, you <code>new()</code> it, you run a thousand operations and the report reads 0 %. What is the first thing to look at?</strong></p>
@@ -4063,10 +4120,10 @@ a device driver is to the operating system.</p>
 <blockquote>
 <p><strong>The <code>sample()</code></strong> — a covergroup does not sample itself: somebody has to call it, on the edge or when a transaction arrives. Without that call the code compiles, runs, and the report reads 0 without a single warning.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/60">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/61">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s61" class="slide quiz">
+<section id="s62" class="slide quiz">
 <h2 id="review-·-day-1">Review · Day 1</h2>
 <h4 id="5-of-7-·-interfaces-and-bfm"><em>5 of 7 · Interfaces and BFM</em></h4>
 <p><strong>What does the testbench gain when the protocol moves into a BFM?</strong></p>
@@ -4079,10 +4136,10 @@ a device driver is to the operating system.</p>
 <blockquote>
 <p><strong>It stops talking in signals</strong> — the BFM translates <em>one operation</em> into <em>a handshake of signals</em>. The tester, the scoreboard and the coverage never touch a wire again: it is the first step towards UVM.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/61">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/62">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s62" class="slide quiz">
+<section id="s63" class="slide quiz">
 <h2 id="review-·-day-1">Review · Day 1</h2>
 <h4 id="6-of-7-·-the-verification-plan"><em>6 of 7 · The verification plan</em></h4>
 <p><strong>In the verification plan, what goes in the <em>Measure</em> column?</strong></p>
@@ -4095,10 +4152,10 @@ a device driver is to the operating system.</p>
 <blockquote>
 <p><strong>Which bin gets filled</strong> — the five columns are <em>Feature</em>, <em>Scenario</em>, <em>Stimulus</em>, <em>Check</em> and <em>Measure</em>, and this is the one that costs the most: it forces you to decide <strong>beforehand</strong> what is going to be counted. If it is left empty, nobody is going to find out that the scenario never happened — a case the random never touched and that has no bin is indistinguishable from one that happened a thousand times.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/62">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/63">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s63" class="slide quiz">
+<section id="s64" class="slide quiz">
 <h2 id="review-·-day-1">Review · Day 1</h2>
 <h4 id="7-of-7-·-clocking-block"><em>7 of 7 · clocking block</em></h4>
 <p><strong>Are clocking blocks needed to write a UVM testbench without races?</strong></p>
@@ -4111,10 +4168,10 @@ a device driver is to the operating system.</p>
 <blockquote>
 <p><strong>They are not needed, and they are worth using anyway</strong> — they belong to <strong>SystemVerilog</strong>, not to UVM, and no <code>uvm_driver</code> samples for you. What avoids the race is understanding the scheduler: a driver that drives with <code>&lt;=</code> against a DUT that registers with <code>&lt;=</code> is already deterministic. The clocking block does not replace that understanding, it <strong>wraps</strong> it — and that is where it pays off: reusable agents, VIP, gate-level and protocols with setup/hold in the spec.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/63">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/64">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s64" class="slide">
+<section id="s65" class="slide">
 <!-- es-sha: 21796343bcf4 -->
 <h2 id="exercise-·-day-1-·-1-of-2">Exercise · Day 1 · 1 of 2</h2>
 <h4 id="a-new-operation-end-to-end"><em>A new operation, end to end</em></h4>
@@ -4147,10 +4204,10 @@ value the enum did not have — and the shift is precisely <code>3&#39;b110</cod
 along the way. Worth showing both numbers and not only the percentage: that is why
 the <code>run.sh</code> demands the bin count and not 100 %, which a half-done job reaches too.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/64">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/65">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s65" class="slide">
+<section id="s66" class="slide">
 <!-- es-sha: be650bb551ef -->
 <h2 id="exercise-·-day-1-·-2-of-2">Exercise · Day 1 · 2 of 2</h2>
 <h4 id="the-waves-when-the-log-is-not-enough"><em>The waves: when the log is not enough</em></h4>
@@ -4181,7 +4238,7 @@ from four edges to five, which of the two versions of <code>send_op</code> finds
 Neither counts right; only the one that waits for <code>done</code> keeps working. It is literally the
 clue of the APB wait state of day 7.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/65">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/66">see this slide in the deck &rsaquo;</a></p>
 </section>
 </main>
 

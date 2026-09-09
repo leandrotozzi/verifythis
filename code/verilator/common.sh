@@ -157,7 +157,7 @@ uvm_summary_ok() {
 #
 # It runs BEFORE compiling: there is no point in waiting two minutes for UVM to
 # say that the file you were not supposed to touch is the one that moved. And
-# `make ejercicios` runs the eighteen solutions, so a hash that goes stale
+# `make ejercicios` runs the nineteen solutions, so a hash that goes stale
 # because the course code changed shows up on the next run and not months later.
 #
 # shasum comes with perl and is the one macOS has; sha256sum comes with

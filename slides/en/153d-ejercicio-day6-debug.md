@@ -1,5 +1,5 @@
-<!-- es-sha: c17ccfa20d6f -->
-## Exercise · Day 6 · 5 of 5
+<!-- es-sha: 4202b96312eb -->
+## Exercise · Day 6 · 3 of 3
 
 #### *Three planted bugs, and none of them looks like the others*
 

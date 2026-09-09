@@ -160,18 +160,13 @@ los overrides. Lo que hoy es un fernet y un mojito, mañana va a ser un
 
 #### *Resumen de la unidad*
 
-- Un `fernet` **es** un `trago`, así que entra en una variable `trago`. La
-  pregunta es **qué código corre** cuando llamás al método por esa variable
-- **Sin `virtual` manda la variable** (*static binding*): se decide al compilar,
-  y la clase derivada queda ignorada
-- **Con `virtual` manda el objeto**: se resuelve en simulación, mirando qué hay
-  adentro. Es una sola palabra y cambia todo
+- **Sin `virtual` manda la variable**, y se decide al compilar. **Con `virtual`
+  manda el objeto**, y se resuelve en simulación. Una palabra, y cambia todo
 - La idea de fondo, que vuelve en cada sección que sigue: **el que usa el
   objeto deja de ser el que elige el tipo**
-- Una **clase abstracta** (`virtual class`, `pure virtual`) mueve el error de
-  simulación a compilación: no se puede instanciar por accidente
 - En SystemVerilog `virtual` está **sobrecargado**: virtual method, virtual
-  class y virtual interface son tres cosas distintas
+  class y virtual interface son tres cosas distintas — y en UVM vas a escribir
+  las tres
 
 Note:
 Es la unidad que habilita a la siguiente mitad del curso, y conviene decirlo:

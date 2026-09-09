@@ -5,7 +5,10 @@
 #### *Sobre todo si lo estás haciendo solo*
 
 - **Qué hay que saber antes:** Verilog o VHDL, y haber simulado algo. Programar
-  orientado a objetos **no** hace falta — el día 2 es exactamente eso
+  orientado a objetos **no** hace falta — el día 2 es exactamente eso. Lo único
+  que el curso da por sabido es **SystemVerilog**: si venís de VHDL o de
+  Verilog-2001, media hora con
+  **`docs/systemverilog-para-el-que-viene-de-vhdl.md`** antes de empezar
 - Son **siete días de clase**, de 4 a 5 horas y media — **≈ 30 h 30**, y cada
   agenda trae el suyo. Y un **día 8 opcional**, después del cierre. Solo,
   calculá el doble: la mitad se va en correr los ejemplos, y ésa es la que enseña

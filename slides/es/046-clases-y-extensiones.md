@@ -159,31 +159,8 @@ Cerrar con la tabla y no con el ejemplo: el alumno tiene que irse sabiendo que
 esto no era un rodeo de programación, era el vocabulario del resto del curso.
 El último bullet deja la puerta abierta al polimorfismo, que es lo único que
 falta para poder leer una factory.
-
----
-
-## Clases y extensiones
-
-#### *Resumen de la unidad*
-
-- **Módulos = estructura**, se elaboran una vez y viven para siempre.
-  **Clases = datos y comportamiento**, se crean y se tiran en simulación
-- Un estímulo se parece a lo segundo, no a lo primero. Por eso el testbench se
-  muda a clases — y por eso **UVM es una librería de clases**
-- Una `struct` guarda datos y nada más. Una clase junta los datos **con lo que
-  se hace con ellos**, y además se puede extender
-- **Declarar un handle no crea nada.** Hasta el `new()` vale `null`, y usarlo
-  ahí es el error que más se repite en toda la semana
-- No hay `free()`: cuando no queda ningún handle apuntando al objeto, se lo
-  lleva el garbage collector
-- **Extender** una clase es agregarle o redefinirle cosas sin tocar la original.
-  Es la base de todo lo que viene
-
-Note:
-Cierre de la unidad que abre el día más abstracto del curso. Conviene anclar con
-la promesa concreta: todo esto existe para que el testbench del día 1 se pueda
-escribir sin un solo módulo, y para que en el `env` se pueda cambiar el estímulo
-sin tocar el env.
-El `null` merece una vuelta más porque vuelve tres veces: acá, en los tests
-con la virtual interface que no se leyó del `config_db`, y en las jerarquías de clases cuando
-`obj1_h = obj2_h` copia el handle y no el objeto.
+Y una sola cosa más antes de pasar: **declarar un handle no crea nada**. Hasta el
+`new()` vale `null`, y usarlo ahí es el error que más se repite en toda la
+semana. Vuelve tres veces —acá, en los tests con la virtual interface que no se
+leyó del `config_db`, y en las jerarquías cuando `obj1_h = obj2_h` copia el
+handle y no el objeto—, así que conviene nombrarlo las tres.

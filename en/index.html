@@ -89,7 +89,7 @@
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 0c9f54ca2da9 -->
+<!-- es-sha: 7e8da2447ee7 -->
 <!-- .slide: id="como-usar" -->
 
 ## How to use this course
@@ -97,7 +97,10 @@
 #### *Especially if you are taking it on your own*
 
 - **What you need to know first:** Verilog or VHDL, and having simulated
-  something. Object-oriented programming is **not** required — day 2 is exactly that
+  something. Object-oriented programming is **not** required — day 2 is exactly
+  that. The only thing the course takes for granted is **SystemVerilog**: if you
+  come from VHDL or Verilog-2001, half an hour with
+  **`docs/systemverilog-para-el-que-viene-de-vhdl.md`** before starting
 - It is **seven days of class**, of 4 to 5 and a half hours — **≈ 30 h 30**, and each
   agenda carries its own. Plus an **optional day 8**, after the wrap-up. On your own,
   count double: half of it goes into running the examples, and that is the half that teaches
@@ -147,7 +150,7 @@ things up in rather than to read straight through.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: dc538de84272 -->
+<!-- es-sha: 17ed06d3a38a -->
 <!-- .slide: id="day1" data-machete="res/diagrams/en/wave-dut.svg,res/en/TB.svg" -->
 
 <!-- .slide: data-transition="concave" -->
@@ -170,9 +173,67 @@ things up in rather than to read straight through.
 - Interfaces and BFM · the `clocking block`
 
 **Two exercises**, and the second one is solved with the wave viewer
+
+**By the end of the day you can:**
+
+- **Write** a five-column verification plan for a DUT you have not seen before
+- **Read** the number a `covergroup` gives, and say what to look at first when it
+  reads 0 %
+- **Explain** which race a `clocking block` avoids — and why they are optional
+  anyway
+
+Note:
+The three verbs below are the contract of the day, and it is worth reading them
+out loud before starting: on video they are the ten seconds in which somebody
+decides whether this is the one they were looking for. They are the first three
+rows of the closing self-assessment, brought to the front; whoever can answer
+them at the end of the day does not need to look at anything else.
+And an honest warning for whoever comes from VHDL or from Verilog-2001, which is
+the declared audience: day 2 levels the OOP, but **nobody levels SystemVerilog**,
+and today `interface`, `logic`, `enum`, `package`, `covergroup`, `clocking` and an
+`assert property` all show up. It is all on one page in
+**`docs/systemverilog-para-el-que-viene-de-vhdl.md`**: half an hour before
+starting, and day 1 stops having two steps at once.
         </textarea>
       </section>
       <!-- 005-agenda-day1.md -->
+
+      <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
+        <textarea data-template>
+<!-- es-sha: 494d5a6b24a5 -->
+## The log says it failed
+
+#### *And the DUT is healthy*
+
+```text
+$ cd code/ejercicios/d1b && bash run.sh
+FAILED: A: e5  B: 0  op: mul_op result: fe01 ovf: 0
+```
+
+- `e5 × 00` is `0`, not `fe01`. The scoreboard is right: **something failed**
+- The DUT is right too: **it is not broken**. That `fe01` is the result of
+  another operation, which arrived late
+- And the log has not one line more. Which operation, in which cycle, who
+  overwrote whom: none of that is here
+- That gap between *"it failed"* and *"why"* is **almost half** of a verification
+  engineer's time, and it is what the week is about
+
+Note:
+This is the first slide with something running, and it goes here on purpose:
+before any chart, before the word UVM, the student has to have seen the problem.
+It is the `d1b` exercise, the second one of today, and in class it is worth
+running it live — it is four seconds, it does not compile UVM.
+The question to throw out and **not** answer: *"with that line, where would you
+start?"*. The answers that will come are `$display` and running again, which is
+exactly what the course comes to replace. The answer is in an `ondas.vcd` the run
+left alongside and nobody has opened yet.
+And the honest close, which is the promise of the whole course: this is not about
+writing testbenches faster, it is about the log saying why when it fails — and it
+will fail. The figure in the bullet below, the 47 %, comes from the survey on the
+next slide.
+        </textarea>
+      </section>
+      <!-- 007-el-gancho.md -->
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
@@ -253,7 +314,7 @@ It is useful for lowering the anxiety of whoever arrives scared by the size of U
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: b9e6bddac2ec -->
+<!-- es-sha: 31496a304ebf -->
 ## Introduction
 
 #### *What is UVM?*
@@ -399,7 +460,7 @@ random* on day 5, *The factory pattern* on day 2 and *Callbacks* on day 6—, so
 this slide can be put up three more times.
 And the last line is the most underestimated one. A test with a thousand seeds is not
 "the same test a thousand times": it is a thousand different scenarios for the price of writing
-one. It is literally the `d6-semillas` exercise of day 6.
+one. It is literally the `d7-semillas` exercise, the one day 7 starts with.
         </textarea>
       </section>
       <!-- 015-introduccion.md -->
@@ -960,7 +1021,7 @@ open question instead of answering it here.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: a8dbef25c50f -->
+<!-- es-sha: 4756ea71ccfa -->
 ## Functional coverage
 
 #### *When are you done verifying?*
@@ -1403,8 +1464,8 @@ unit showed **loose**. The plan is the table that makes them one thing.
 The row that gets the most discussion is the maximum-product one, and that is good: `FF` × `FF`
 is the only case that does **not** come out of the random in reasonable time, and that is why its
 stimulus column says *directed case*. There you see that the plan does not only measure,
-it also decides which test has to be written. It is the `d6-bins` exercise, three days
-later, with this same row.
+it also decides which test has to be written. It is the `d5c` exercise, the last
+one of the day 5 afternoon, with this same row.
 The three protocol rows are worth naming and moving on: they are the half the
 course does not touch until day 7, and they serve to plant the idea that a scoreboard does not
 check everything. A serious verification plan has both columns.
@@ -2233,8 +2294,35 @@ clue of the APB wait state of day 7.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: d3669c37297d -->
-<!-- .slide: id="day2" data-machete="res/diagrams/en/uml-poli.svg,res/diagrams/en/factory_diagram.svg" -->
+<!-- es-sha: b9a97b1bd38f -->
+<!-- .slide: id="day2" -->
+
+## Yesterday we left…
+
+#### *Where the testbench stands*
+
+- A testbench that **works**: it sends stimulus, checks the result and measures
+  functional coverage. The verification plan says which row each thing closes
+- The BFM took the signals inside an `interface`, and the testbench went on to
+  call `send_op()` instead of moving wires
+- And one problem was left open: **changing the stimulus means editing the
+  file**. A tester that only multiplies is copying the one that is there and
+  deleting five lines
+
+Note:
+Thirty seconds, and they are not filler: day 2 is the most abstract of the course
+and it starts without touching the VTALU all morning. The student has to walk in
+knowing this is the answer to something that already happened to them yesterday.
+The bullet to underline is the third one, because it is the problem the whole
+unit solves. If the group comes from a previous class, it is enough to ask *"how
+did you make a tester that only multiplies yesterday?"* and wait for the answer
+—copy and delete— before moving on to the agenda.
+If it is taught on video, this is the slide that replaces the week of distance
+between one chapter and the next.
+
+---
+
+<!-- .slide: data-machete="res/diagrams/en/uml-poli.svg,res/diagrams/en/factory_diagram.svg" -->
 
 <!-- .slide: data-transition="concave" -->
 
@@ -2248,13 +2336,28 @@ clue of the APB wait state of day 7.
 - Parameterized classes
 - The factory pattern
 - A testbench without a single module
+
+**By the end of the day you can:**
+
+- **Extend** a class and change its behaviour **without copying it**, and say
+  what `super` does
+- **Change** the class a testbench uses **without touching** the code that uses
+  it, with a factory
+- **Write** the day 1 testbench without a single module
+
+Note:
+Day 2 is the only one that does not touch the VTALU all morning, and that is why
+it is worth putting the three verbs up front: they are the answer to *"what is
+this for?"*, which is the question that shows up half an hour in.
+The third one is the one that closes the day and the one practised in the
+exercise. The first two are rows 6 and 7 of the closing self-assessment.
         </textarea>
       </section>
       <!-- 045-agenda-day2.md -->
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 192b13f2e709 -->
+<!-- es-sha: 038f21a96f50 -->
 ## Classes and extensions
 
 #### *Why OOP in a testbench?*
@@ -2487,41 +2590,19 @@ Close with the table and not with the example: the student has to leave knowing 
 this was not a programming detour, it was the vocabulary of the rest of the course.
 The last bullet leaves the door open to polymorphism, which is the only thing
 missing before a factory can be read.
-
----
-
-## Classes and extensions
-
-#### *Summary of the unit*
-
-- **Modules = structure**, they get elaborated once and live forever.
-  **Classes = data and behaviour**, they get created and thrown away during simulation
-- A stimulus looks like the second, not the first. That is why the testbench
-  moves to classes — and that is why **UVM is a class library**
-- A `struct` holds data and nothing else. A class puts the data together **with what
-  gets done with it**, and on top of that it can be extended
-- **Declaring a handle creates nothing.** Until the `new()` it is `null`, and using it
-  there is the mistake that repeats the most in the whole week
-- There is no `free()`: when no handle is left pointing at the object, the garbage
-  collector takes it away
-- **Extending** a class is adding to it or redefining things without touching the
-  original. It is the base of everything that comes
-
-Note:
-Closing of the unit that opens the most abstract day of the course. It is worth anchoring
-it with the concrete promise: all of this exists so that the day 1 testbench can be
-written without a single module, and so that in the `env` the stimulus can be changed
-without touching the env.
-The `null` deserves one more pass because it comes back three times: here, in the tests
-with the virtual interface that was not read from the `config_db`, and in the class
-hierarchies when `obj1_h = obj2_h` copies the handle and not the object.
+And one single thing more before moving on: **declaring a handle creates
+nothing**. Until the `new()` it is `null`, and using it there is the mistake that
+repeats the most in the whole week. It comes back three times —here, in the tests
+with the virtual interface that was not read from the `config_db`, and in the
+hierarchies when `obj1_h = obj2_h` copies the handle and not the object— so it is
+worth naming it all three.
         </textarea>
       </section>
       <!-- 046-clases-y-extensiones.md -->
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 04f915233349 -->
+<!-- es-sha: 85efb3009aa8 -->
 ## Polymorphism
 
 #### *A `trago` variable, a `fernet` object: which `servir()` runs?*
@@ -2742,18 +2823,14 @@ overrides. What today is a fernet and a mojito, tomorrow is going to be a
 
 #### *Summary of the unit*
 
-- A `fernet` **is** a `trago`, so it fits in a `trago` variable. The
-  question is **what code runs** when you call the method through that variable
-- **Without `virtual` the variable rules** (*static binding*): it is decided at compile
-  time, and the derived class is left ignored
-- **With `virtual` the object rules**: it gets resolved during simulation, looking at what
-  is inside. It is a single word and it changes everything
+- **Without `virtual` the variable rules**, and it is decided at compile time.
+  **With `virtual` the object rules**, and it gets resolved during simulation.
+  One word, and it changes everything
 - The underlying idea, the one that comes back in every section that follows: **whoever
   uses the object stops being the one who picks the type**
-- An **abstract class** (`virtual class`, `pure virtual`) moves the error from
-  simulation to compile time: it cannot be instantiated by accident
 - In SystemVerilog `virtual` is **overloaded**: virtual method, virtual
-  class and virtual interface are three different things
+  class and virtual interface are three different things — and in UVM you are
+  going to write all three
 
 Note:
 It is the unit that unlocks the next half of the course, and it is worth saying so:
@@ -2768,7 +2845,7 @@ do not give it away: it is understood much better by suffering it.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 0f407d1d644c -->
+<!-- es-sha: dc26f4b3f9bd -->
 ## Static variables
 
 #### *The global variable you can actually defend*
@@ -2964,16 +3041,12 @@ structure.
 
 #### *Summary of the unit*
 
-- `static` is **the global variable you can actually defend**: it lives in the class, not
-  in the object, and to touch it you have to name the class with `::`
-- That `::` is the whole argument. The day the value looks odd, a `grep` tells you
-  exactly who put it there
-- There is **a single copy** no matter how many objects you instantiate, and **it exists
-  even if you instantiate none**: it does not wait for the `new()`
-- `static` solves *where it lives*, not *who touches it*. That one is solved by
-  **`protected` plus static access methods**
-- A public `static` is a global variable with a longer prefix
-- And it is not a loose OOP topic: the **factory** and the **`uvm_config_db`** are the
+- **A single copy** no matter how many objects you instantiate, **it exists even
+  if you instantiate none**, and to touch it you have to name the class with `::`
+- That `::` is the whole argument: the day the value looks odd, a `grep` tells you
+  who put it there. But `static` solves *where it lives*, not *who touches it* —
+  that one is `protected` plus static access methods
+- Where it comes back: `uvm_config_db#(T)::set(...)` and `type_id::create()`, the
   two most important static variables of a UVM testbench
 
 Note:
@@ -2990,7 +3063,7 @@ All of that is `static`, and not by accident.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 69ec0e5df874 -->
+<!-- es-sha: de91d595f7d4 -->
 ## Parameterized classes
 
 #### *It is not a class: it is a mould*
@@ -3199,18 +3272,13 @@ monitor has its own. The student already has the criterion to read both.
 
 #### *Summary of the unit*
 
-- It is the `parameter` of RTL you already know, but the parameter can be a
-  **type**: `bandeja #(fernet)` instead of `#(.dwidth(16))`
-- A parameterized class **is not a class**: it is the recipe for manufacturing classes.
-  The class appears when you write the `#(...)`
-- And every different `#(...)` is a **different class**, generated at compile time.
-  They share nothing — **not even the `static`**
-- The criterion you take to work: **`static` when there really is only one,
-  instantiated when there can be more than one**. When in doubt, instantiated
+- A parameterized class **is not a class**: it is the recipe. And every different
+  `#(...)` is a **different class**, which shares nothing with the others —
+  **not even the `static`**
 - The limit: it gets resolved **at compile time**, so the type has to be known
-  there. Picking at runtime is the unit that follows
-- Every `#(...)` in the rest of the course is this: `uvm_analysis_port #(T)`,
-  `uvm_subscriber #(T)`, `uvm_sequence #(T)`
+  there. Picking at runtime is the section that follows
+- Where it comes back: `uvm_analysis_port #(T)`, `uvm_subscriber #(T)`,
+  `uvm_sequence #(T)` — every `#(...)` in the rest of the course is this
 
 Note:
 The bullet about the different classes is the one to leave nailed down, because it is
@@ -3226,7 +3294,7 @@ each monitor has its own. With that they can already read both.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 356adbed7c4a -->
+<!-- es-sha: b23240cf9ba2 -->
 ## The factory pattern
 
 #### *Who decides the type?*
@@ -3450,19 +3518,15 @@ programming, and you can go and read about it outside the EDA world.
 
 #### *Summary of the unit*
 
-- Every `new()` you write is a **hardcoded decision**: that line always
-  builds that class, and changing it means editing and recompiling
-- Parameterized classes are not enough: the `#(...)` gets resolved **at compile time**, and
-  here the decision has to happen **at runtime**
-- The factory inverts who is in charge: instead of building, you **ask** for the object from
-  somebody who knows which type to hand over
-- **It does not work without polymorphism**: both halves are needed —
-  somebody who manufactures and a base variable to store it in
-- **`$cast` checks at runtime and returns 0**, it does not abort. That is why it never goes
-  alone: always inside an `if` with its `$fatal`
-- The annoyance that is left —the `case` you have to edit to add a type— is exactly
-  the one UVM solves: `` `uvm_component_utils `` **registers the class
-  on its own**
+- Every `new()` is a **hardcoded decision**. The factory moves it to runtime:
+  instead of building, you **ask** for the object from somebody who knows which
+  type to hand over
+- **It does not work without polymorphism** —somebody who manufactures and a base
+  variable to store it in are both needed— and the **`$cast` returns 0** instead
+  of aborting, so it never goes alone: always inside an `if` with its `$fatal`
+- Where it comes back: `` `uvm_component_utils `` **registers the class on its
+  own** —the `case` you have just written by hand— and `+UVM_TESTNAME` picks it
+  from the command line
 
 Note:
 Closing of the most abstract section of day 2, and it is worth landing it with what
@@ -3479,7 +3543,7 @@ Python it takes ten lines. We invented nothing, and that is good news.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 4e44963e3099 -->
+<!-- es-sha: 454b20650c1d -->
 ## A testbench without a single module
 
 #### *The same testbench, without a single module*
@@ -3865,18 +3929,15 @@ the right-hand column straight through. That is where the day closes on its own.
 
 #### *Summary of the unit*
 
-- This section **adds no functionality**: it is the day 1 testbench, with the
-  same three pieces, written without a single module
-- The class that binds them appears —`testbench`— which instantiates them and starts them.
-  It is the direct ancestor of the `uvm_env`
-- The `top` is still a **module**, and it will be until the end: somebody
-  has to instantiate the DUT and the BFM, and that gets elaborated
-- The BFM arrives through a **virtual interface**, that is, a variable. It is the only
-  way a class has of touching signals
-- The `initial` turns into a method, `execute()`, that somebody calls. That
-  somebody is going to be the `run_phase` in the tests
-- It is the **last version without UVM**. From here on, every piece we
-  write by hand has a class of the library that replaces it
+- The day 1 testbench **without a single module**: the same three pieces, plus
+  the class that binds them —`testbench`—, which is the direct ancestor of the
+  `uvm_env`
+- The `top` is still a **module** and it will be until the end, and the BFM
+  arrives through a **virtual interface**: it is the only way a class has of
+  touching signals
+- It is the **last version without UVM**. From here on, every piece we write by
+  hand has a class of the library that replaces it — `execute()` is going to be
+  the `run_phase`
 
 Note:
 The slide to close the whole of day 2 with, because it leaves the bridge
@@ -4057,8 +4118,32 @@ with the factory, and only then do you see what the factory is for.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 95edf94ae33d -->
-<!-- .slide: id="day3" data-machete="res/en/TB_UVM.svg,res/diagrams/en/env_uvm_incantation.svg,res/diagrams/en/UVM-hierarchy.svg,res/en/machete-debug.svg" -->
+<!-- es-sha: 5f9fe43550a7 -->
+<!-- .slide: id="day3" -->
+
+## Yesterday we left…
+
+#### *Where the testbench stands*
+
+- The day 1 testbench **without a single module**: three classes, one that binds
+  them, and a `top` that only instantiates the DUT and the BFM
+- The BFM gets into the classes through a **virtual interface**, which is the
+  only way a class has of touching signals
+- And the factory is already written **by hand**: a `case` that has to be edited
+  every time a new type shows up. Today the one you do not edit shows up
+
+Note:
+Day 3 is where UVM walks in, so the recap has an extra job: making it clear that
+what is coming **replaces** pieces the student already wrote, and is not a pile
+of new pieces to learn from scratch. The whole unit can be read as "this thing
+you did by hand, the library brings it done".
+The third bullet is the hook: the `case` of `060` is exactly what
+`` `uvm_component_utils `` does on its own, and saying it here stops the macro
+from being a magic formula.
+
+---
+
+<!-- .slide: data-machete="res/en/TB_UVM.svg,res/diagrams/en/env_uvm_incantation.svg,res/diagrams/en/UVM-hierarchy.svg,res/en/machete-debug.svg" -->
 
 <!-- .slide: data-transition="convex" -->
 
@@ -4070,6 +4155,22 @@ with the factory, and only then do you see what the factory is for.
 - Components and phases
 - The env: structure and stimulus
 - Reporting: verbosity and *actions*
+
+**By the end of the day you can:**
+
+- **Explain** why a UVM simulation ends at `t=0` if nobody raises an objection
+- **Say** why `build_phase` runs top-down and `connect_phase` the other way round
+- **Make** a scoreboard that fails say **something more** than "it failed"
+
+Note:
+The third one is the one that pays off the most in the long run and the one most
+underestimated: it is row 10 of the closing self-assessment and the one aiming at
+the 47 % of day 1. A `uvm_error` that prints *"FAIL"* leaves whoever is debugging
+where they were; one that prints the transaction, the prediction and the time
+saves them half a morning.
+The first two are library mechanics and they are the ones most often answered
+with an *"it rings a bell"*. The second exercise of the day exists so that they
+stop ringing and start having been suffered.
         </textarea>
       </section>
       <!-- 070-agenda-day3.md -->
@@ -6160,8 +6261,8 @@ the verbosity.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 5e56ebbad51e -->
-## Exercise · Day 3
+<!-- es-sha: 25b9c04216ce -->
+## Exercise · Day 3 · 1 of 2
 
 #### *A new test without touching the structure*
 
@@ -6189,8 +6290,70 @@ the reason adding one has to be cheap.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 07a49dcd16c3 -->
-<!-- .slide: id="day4" data-machete="res/diagrams/en/analysis-ports_fig102.svg,res/diagrams/en/threads_fig124.svg" -->
+<!-- es-sha: 631437948cb3 -->
+## Exercise · Day 3 · 2 of 2
+
+#### *The `uvm_error` that says nothing*
+
+`cd code/ejercicios/d3b && bash run.sh`
+<!-- .element: class="comando" -->
+
+- The scoreboard is **right** —it catches every mismatch— and when it fails it
+  says `FAILED` and nothing else. It is the line day 1 started with
+- Make the `uvm_error` say **which one** failed: `A`, `B`, the operation, the
+  DUT's result and the one you predicted
+- And make the one that **passes** get printed too, at `UVM_HIGH`, so that it
+  does not show up in the everyday log
+- The checker watches the same bus you do and knows which was the first that
+  failed
+
+Note:
+It is the short exercise of day 3 and it closes the arc the first slide of the
+course opened: there the student was the one reading the `FAILED`, here they are
+the one writing it. Ten minutes of typing, and the point is not the `$sformatf`.
+The point is the second request, which is the one that surprises: the `PASS`
+**also** gets written. The typical reaction is *"what do I want a thousand PASS
+lines for?"*, and the answer is that you do not want them today: you want them
+the day operation 700 fails and you need to know what happened in 699. That is
+why it gets written **and** hidden behind `UVM_HIGH`. That is the difference
+between severity and verbosity, told with your hands.
+The checker runs the same testbench three times, and it is worth telling because
+it is how a log gets tested: one with the DUT broken —`+VTALU_BUG`— so the error
+fires and can be read, one with the usual verbosity to demand that the `PASS` is
+**not** there, and one with `+UVM_VERBOSITY=UVM_HIGH` to demand that it is there
+once per comparison. A message that was not tested all three ways is a message
+that is going to lie in the nightly regression.
+        </textarea>
+      </section>
+      <!-- 093b-ejercicio-day3b.md -->
+
+      <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
+        <textarea data-template>
+<!-- es-sha: 4e5dc0a70131 -->
+<!-- .slide: id="day4" -->
+
+## Yesterday we left…
+
+#### *Where the testbench stands*
+
+- UVM walked in: `run_test()`, the test, the phases, the `env` and the
+  scoreboard, and the `+UVM_TESTNAME` that picks the class from the command line
+- The **objection** is what keeps the simulation alive, and the reporting already
+  tells verbosity from *action*
+- And one bottleneck was left: the scoreboard is **one** and it is wired to the
+  monitor. The day there are two listeners, the one that publishes has to be
+  edited
+
+Note:
+The day 4 recap has to leave the observer problem served, because the whole unit
+is that: a producer that does not know its listeners.
+It is worth asking the question and waiting: *"if tomorrow they want to measure
+coverage as well as compare, where do they touch?"*. The natural answer —"I add a
+call in the monitor"— is exactly the one the unit comes to take apart.
+
+---
+
+<!-- .slide: data-machete="res/diagrams/en/analysis-ports_fig102.svg,res/diagrams/en/threads_fig124.svg" -->
 
 ## Agenda
 
@@ -6200,6 +6363,23 @@ the reason adding one has to be cheap.
 - A single place that watches the wire
 - When somebody has to wait
 - Who waits for whom
+
+**By the end of the day you can:**
+
+- **Hang** a new subscriber off an analysis port **without touching the one that
+  publishes**
+- **Choose** between an analysis port and a TLM FIFO, and say which of the two
+  blocks
+- **Remove** the `#500` at the end of a test and replace it with the objection
+  that belongs there
+
+Note:
+The first one is row 11 of the closing self-assessment and it is what defines the
+unit: the observer exists so that adding a listener does not touch the one that
+publishes.
+The third one is the second exercise of the day and it stands as an objective on
+its own: the `#500` is the patch everybody writes the first time, and taking it
+out forces you to understand what keeps the simulation alive.
         </textarea>
       </section>
       <!-- 095-agenda-day4.md -->
@@ -8409,16 +8589,56 @@ test never ends — which is the other failure mode of the debug appendix table.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 91f8640a07af -->
-<!-- .slide: id="day5" data-machete="res/en/machete-debug.svg,res/en/uvm_class_diagram.svg" -->
+<!-- es-sha: c06c1cebd8c5 -->
+<!-- .slide: id="day5" -->
+
+## Yesterday we left…
+
+#### *Where the testbench stands*
+
+- The monitor **publishes** and knows nobody: the scoreboard and the coverage
+  hang off it, and adding a third does not touch the one that publishes
+- The TLM FIFOs settled who waits for whom, and `fork`/`join` who runs with whom
+- But the data is still **three loose fields**: `A`, `B` and `op` travel
+  separately, they get copied by hand, and comparing them means writing the whole
+  comparison
+
+Note:
+The day 5 recap has to install the discomfort of the loose data, because that is
+what justifies a whole unit about objects that do nothing but carry data.
+The third bullet is literal: in yesterday's testbench, copying a command is three
+assignments, and comparing it is three `==`. With two more fields it is five and
+five. Today that becomes `copy()` and `compare()`, written once.
+
+---
+
+<!-- .slide: data-machete="res/en/machete-debug.svg,res/en/uvm_class_diagram.svg" -->
 
 ## Agenda
 
-#### *Day 5 · ≈ 4 h · unit 6 · the data*
+#### *Day 5 · ≈ 4 h 30 · unit 6 · the data*
 
 - Copying an object that contains another
 - Transactions
 - Constrained random
+
+**By the end of the day you can:**
+
+- **Write** a constraint that reaches a corner case, and **measure** whether the
+  `dist` does what it says
+- **Close** a bin that was left open, with a directed case asked for through
+  `randomize() with {}`
+- **Explain** the difference between copying the handle and copying the object,
+  and what happens when the object contains another
+
+Note:
+The second one is the novelty of the day and the one that pays off the most at
+work: measuring is half of it, closing is the other half. The three exercises of
+the afternoon are that whole cycle —measure the `dist`, close the bin— and day 7
+finishes it by accumulating seeds.
+Row 12 of the self-assessment says **measure**, not **write**, and that is on
+purpose: a `dist` with the weights right can give a histogram that lies, and
+whoever never measured it has no way of knowing.
         </textarea>
       </section>
       <!-- 120-agenda-day5.md -->
@@ -10225,7 +10445,7 @@ resolves `randomize()` by returning 0 **in silence**. It is in
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 347fbfb3851b -->
+<!-- es-sha: 15f1821ac679 -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 5
@@ -10324,7 +10544,7 @@ resolves `randomize()` by returning 0 **in silence**. It is in
 - [ ] Raise the weight of the `8'hFF` bin in the `dist` of the class
 - [ ] `rand_mode(0)` on the field: it takes the `dist` out and lets the `with` rule
 
-> **Switch off the constraint that gets in the way** — Verilator solves the `dist` by **picking a value first** and only then checking the rest, so the probability of success is the probability of the bin: measured, `with {A == 8'hFF}` solves 25 % of the time. `constraint_mode(0)` switches it off for that object alone and touches nobody else. It is exactly the line the `d6-bins` exercise asks for.
+> **Switch off the constraint that gets in the way** — Verilator solves the `dist` by **picking a value first** and only then checking the rest, so the probability of success is the probability of the bin: measured, `with {A == 8'hFF}` solves 25 % of the time. `constraint_mode(0)` switches it off for that object alone and touches nobody else. It is exactly the line the `d5c` exercise asks for.
 
 ---
 
@@ -10365,8 +10585,8 @@ resolves `randomize()` by returning 0 **in silence**. It is in
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 17ddbff43551 -->
-## Exercise · Day 5 · 1 of 2
+<!-- es-sha: eba912d06327 -->
+## Exercise · Day 5 · 1 of 3
 
 #### *The scoreboard screams and the DUT is healthy*
 
@@ -10394,8 +10614,8 @@ the two operands wrong.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: bfb6f34da82c -->
-## Exercise · Day 5 · 2 of 2
+<!-- es-sha: 0ffe5105000d -->
+## Exercise · Day 5 · 2 of 3
 
 #### *Measure your `dist`*
 
@@ -10429,16 +10649,98 @@ bucket gives zero — another one that does not break, it lies.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 1b749cd7611a -->
-<!-- .slide: id="day6" data-machete="res/en/machete-debug.svg,res/diagrams/en/agents_agent.svg,res/diagrams/en/sequences_tb_completo.svg" -->
+<!-- es-sha: e94e666cfee8 -->
+## Exercise · Day 5 · 3 of 3
+
+#### *Closing a bin*
+
+`cd code/ejercicios/d5c && bash run.sh`
+<!-- .element: class="comando" -->
+
+- The test sends a reset and **60 random operations**, and the report shows the bin
+  *"both legs at `FF`, multiplying"* empty
+- Write the directed case that closes it. But **ask for it with
+  `randomize() with {}`**, not by assigning the fields, which is what this
+  section's `tester` does three lines above
+- It is graded by comparing the coverage before and after: it has to go up
+- It is **row 3** of the verification plan of day 1: the only one of the twelve whose
+  stimulus column says *directed case*
+
+Note:
+It is the exercise the course was missing, because *coverage closure* shows up twice
+as a noun and never as a verb. Here the student does the whole cycle:
+run, look at which bin was left empty, write three lines, run again.
+The trap is set on purpose and it is the one from constrained random: `command_transaction`
+has a `dist` on `A` and on `B`, and Verilator resolves the `dist` by choosing
+a value **before** looking at the `with`. With the distribution active, `with {A == 8'hFF}`
+resolves one out of every four times and the rest returns 0. Whoever does not read the hint
+is going to see an exercise that sometimes passes and sometimes does not — which is exactly the
+symptom the section describes.
+The way around it is `constraint_mode(0)`, and it is worth defending it as a design decision and
+not as a patch for the simulator: a **directed** case does not want a distribution of
+probabilities, it wants a value.
+The seed of the `run.sh` is fixed. Without fixing it, some runs would fill the
+bin on their own with the 60 random ones — and that is the exercise day 7 starts
+with.
+        </textarea>
+      </section>
+      <!-- 139b-ejercicio-day5c.md -->
+
+      <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
+        <textarea data-template>
+<!-- es-sha: 246c56e3b625 -->
+<!-- .slide: id="day6" -->
+
+## Yesterday we left…
+
+#### *Where the testbench stands*
+
+- The data is an **object**: `command_transaction` with `do_copy`, `do_compare`
+  and `convert2string`, and the scoreboard compares objects, not fields
+- The stimulus is asked for instead of written: `randomize()`, `constraint`,
+  `dist`, and the histogram that says whether the distribution does what it
+  promises
+- And **two** things are left stuck together that do not belong together: the
+  `tester` is structure and stimulus at once, and the `env` names the monitor and
+  the driver one by one
+
+Note:
+The day 6 recap has to name the two separations the unit makes, because there are
+two and they get confused: the **agent** separates the structure and the
+**sequence** separates the stimulus. Both are the same operation —taking
+something out of the component tree— applied to different things.
+The third bullet is the one to leave said in the student's own words: today, to
+test three stimuli and their combinations, six test classes are needed. That
+grows factorially, and it is the reason the unit exists.
+
+---
+
+<!-- .slide: data-machete="res/en/machete-debug.svg,res/diagrams/en/agents_agent.svg,res/diagrams/en/sequences_tb_completo.svg" -->
 
 ## Agenda
 
-#### *Day 6 · ≈ 5 h 15 · unit 7 · the reusable testbench*
+#### *Day 6 · ≈ 4 h 15 · unit 7 · the reusable testbench*
 
 - Agents
 - Callbacks
 - Sequences
+
+**By the end of the day you can:**
+
+- **Say** what an agent with `is_active = UVM_PASSIVE` builds and what it does
+  **not**
+- **Explain** why a `uvm_sequence` does **not** show up in `print_topology()`
+- **Remove** the last hard-wired line of a test, with `default_sequence` through
+  `uvm_config_db`
+
+Note:
+The first two are rows 13 and 14 of the closing self-assessment. The 14th is the
+question thrown on day 3, when the UVM class diagram showed up, and it gets
+answered today: `uvm_object` is the **data** and `uvm_component` is the
+**structure**.
+The third one is what closes the unit and the day: when that line goes, no line
+of the test names a component from inside the `env`, and only then is the
+testbench truly reusable.
         </textarea>
       </section>
       <!-- 140-agenda-day6.md -->
@@ -11526,7 +11828,7 @@ the DUT, not the stimulus — which is exactly what the `+BUG=1` of the capstone
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 8630eaf320e4 -->
+<!-- es-sha: fd3d44b98f43 -->
 ## Sequences
 
 #### *The only thing left hard-wired*
@@ -12220,217 +12522,6 @@ where it can be seen running: the factory picks the TYPE, the constraints only a
 
 ## Sequences
 
-#### *Virtual sequences: the problem*
-
-- A **virtual sequence** is a sequence that does not send items of its own: it only
-  starts other sequences, on **several sequencers**
-- It shows up when the DUT has more than one interface —a configuration bus and a
-  data stream, for example— and the test needs to coordinate them: *configure
-  first, then send traffic*
-- It is called "virtual" because it is not tied to a type of item nor to a sequencer
-- The `u7/agents` already left us the scenario built: **two VTALU**. There the second agent
-  was passive; with both active there are **two sequencers**, and something to coordinate
-- `full_sequence` is already half a virtual sequence: it sends no items of its own, it only
-  starts others. The only thing it lacks is the second sequencer
-
-Note:
-It is worth starting from the problem and not from the syntax, because the syntax is
-half a screen: what is hard to understand is why a new class is needed
-when `full_sequence` already composes sequences.
-The answer is the one in the last bullet, and it is geometric: a normal sequence
-knows **one** sequencer, the one `start()` handed it. Anything that wants to talk to
-two interfaces needs two handles, and those handles have to come from
-somewhere.
-The example runs and it is in `code/u7/sequences/virtual/`: it is the testbench of this
-section with **two lines** changed in the `env`, and everything else by
-reference. It is worth saying before showing the code, because it is half of the
-argument: a virtual sequence does not change the structure of the testbench.
-
----
-
-## Sequences
-
-#### *The virtual sequencer: handles, not items*
-
-```sv
-class virtual_sequencer extends uvm_sequencer;
-   `uvm_component_utils(virtual_sequencer)
-
-   sequencer clase_sequencer_h;
-   sequencer modulo_sequencer_h;
-
-   function new(string name, uvm_component parent);
-      super.new(name, parent);
-   endfunction : new
-
-endclass : virtual_sequencer
-```
-
-```sv
-      // not compile instead of returning null at simulation time.
-      virtual_sequencer_h.clase_sequencer_h  = clase_agent_h.sequencer_h;
-      virtual_sequencer_h.modulo_sequencer_h = modulo_agent_h.sequencer_h;
-```
-
-- It has no queue, it does not arbitrate, it does not talk to any driver. It is a `uvm_component`
-  that exists in order to **hold the handles** and to live in the tree with a name
-- It extends `uvm_sequencer` **without parameterizing it**: the default item is
-  `uvm_sequence_item` and none ever gets sent
-- The handles get assigned in the `connect_phase`, where the agents already exist
-
-Note:
-The question that comes up on its own: and why a component, if it is only two pointers?
-For two reasons. One, so the sequence reaches it with `p_sequencer` instead
-of looking it up by string. Two, because it has to be in the tree so the test
-can start a sequence on top of it: `seq.start(env_h.virtual_sequencer_h)`.
-The book resolves the handles with `uvm_top.find("*.env_h.sequencer_h")`. It still
-works —`uvm_top` is there for compatibility, the current form is
-`uvm_root::get()`— but looking components up by string is fragile: the day
-somebody renames the `env_h`, the `find()` returns `null` and the fatal shows up
-far from the change. Assigning them in the `connect_phase` **does not compile** if the name
-changed, which is exactly what one wants.
-
----
-
-## Sequences
-
-#### *The virtual sequence: `p_sequencer` and two branches*
-
-```sv
-class coordinada_sequence extends uvm_sequence;
-   `uvm_object_utils(coordinada_sequence)
-   `uvm_declare_p_sequencer(virtual_sequencer)
-```
-
-```sv
-      fork
-         reset_a.start(p_sequencer.clase_sequencer_h);
-         reset_b.start(p_sequencer.modulo_sequencer_h);
-      join
-
-      // --- 2. Parallel traffic, different on each interface -------------------
-      // A does the directed overflow case while B sends at random.
-      fork
-         maxmult.start(p_sequencer.clase_sequencer_h);
-         random_b.start(p_sequencer.modulo_sequencer_h);
-      join
-```
-
-- `` `uvm_declare_p_sequencer `` declares `p_sequencer` **with the type of the
-  virtual sequencer** and casts it on its own. Without it, `get_sequencer()` returns a
-  `uvm_sequencer_base` and you have to cast by hand at every use
-- The `fork`/`join` is over **two sequencers**: each branch blocks on its driver and
-  the `join` waits for both
-- That cannot be written inside a normal sequence, which knows a single
-  sequencer
-
-Note:
-The `uvm_declare_p_sequencer` is sugar, and it is worth saying so: the only thing it does is
-declare the variable and redefine `m_set_p_sequencer()` with the `$cast`. If the
-sequencer it gets started on is not of that type, the fatal fires there and not
-twenty lines later.
-The detail that gets overlooked: the two branches of the `fork` start **different**
-sequences on **different** sequencers. If they were two sequences on the
-same sequencer, they would compete for the arbitration and the items would come out
-interleaved — which is a legitimate scenario, but it is another one.
-And a warning from the field: a virtual sequence with a single sequencer is a
-normal sequence with more ceremony. The class is justified when there are two.
-
----
-
-## Sequences
-
-#### *What no sequence on its own can do*
-
-```sv
-      primera.A  = 8'h0F;
-      primera.B  = 8'h07;
-      primera.op = mul_op;
-      primera.start(p_sequencer.clase_sequencer_h);
-
-      `uvm_info("COORDINADA", $sformatf(
-                "A returned %0d: it goes as an operand into B", primera.result), UVM_LOW)
-
-      segunda.A  = primera.result[7:0];
-      segunda.B  = 8'h01;
-      segunda.op = add_op;
-      segunda.start(p_sequencer.modulo_sequencer_h);
-```
-
-- The result of VTALU **A** goes in as an operand of **B**: a dependency
-  **between interfaces**, and in series. The second one cannot even be assembled until the
-  first has answered
-- The `result` comes back inside the item, which is the way back of this unit
-- `0F × 07 = 105`, and B answers `106`. Run it: `code/u7/sequences/virtual/run.sh`
-
-Note:
-This is the slide that justifies the class. The two `fork` of the previous slide
-could be imitated with two tests running in parallel; this one cannot, because there is a piece of data
-that crosses from one interface to the other in the middle of the scenario.
-It is exactly the shape of the real case the bus appendix promises:
-configure over APB, read the status, and only then send traffic over AXI with
-what the configuration returned. The protocol changes, not the structure.
-And the honest close: the example runs on two VTALU because it is the DUT we
-have. With two different interfaces —two transactions, two drivers— the
-virtual sequence is written **the same**: the handles would be of two types of
-sequencer, and nothing more.
----
-
-## Sequences
-
-#### *And if branch B has to wait for A?*
-
-```systemverilog
-// uvm_event: a notice, from one to many. It comes from the global pool, nobody builds it
-uvm_event listo = uvm_event_pool::get_global("dut_configurado");
-
-listo.trigger();          // the branch that configured gives notice
-listo.wait_trigger();     // the one waiting blocks here
-listo.wait_ptrigger();    // the same, but if it already happened, it walks on
-
-// uvm_barrier: a meeting point between N branches
-uvm_barrier arranque = uvm_barrier_pool::get_global("arranque");
-arranque.set_threshold(2);
-arranque.wait_for();      // neither of the two goes on until both have arrived
-```
-
-- The `join` synchronizes **at the end**. When branch B has to wait for A
-  **in the middle**, a synchronization object is needed
-- `uvm_event` is **one to many**: one gives notice, those waiting move on. And
-  `trigger(data)` can carry a `uvm_object` attached
-- `uvm_barrier` is **symmetric**: nobody goes on until everybody has arrived. It is the
-  "start together" of two agents that have to begin on the same cycle
-- A shared `bit` with `wait(flag)` is not enough: it **loses the pulse** if the one
-  waiting arrived late, and it carries no data
-
-Note:
-This is the question that shows up on its own as soon as the `fork` of the previous
-slide is drawn, and it is worth answering right there: *"and if branch B cannot start
-until A configured the DUT?"*.
-The distinction to make clear is **one to many versus symmetric**. The
-`uvm_event` has a side that gives notice and another that waits, and the roles do not
-change: it is for "the reset finished", "the DUT is configured", "the interrupt
-arrived". The `uvm_barrier` has no sides: the N branches execute the same
-line and none goes on until all are there. It is for "start together" and for
-"everybody wait until the configuration phase ends".
-The `wait_ptrigger()` deserves its own second, because it is the classic race: if
-branch A triggers before B reaches the `wait_trigger()`, B waits
-forever. The `p` is for *persistent*: it asks whether the event **already** happened at some point.
-The practical rule: if you cannot guarantee the order, `wait_ptrigger()`.
-And why not a shared `bit`, which is the first thing anybody tries: a `bit` does not
-keep history, does not carry attached data, and cannot be reset between phases without
-somebody swallowing a pulse. The two UVM objects exist precisely because
-that homemade version fails once every hundred runs.
-Its own failure mode: a barrier with the threshold set wrong does not give an error —
-it hangs. The symptom is a test that ends on `+UVM_TIMEOUT` without a single
-`UVM_ERROR`, and `+UVM_OBJECTION_TRACE` shows the objection up and nobody
-moving on.
-
-
----
-
-## Sequences
-
 #### *Two sequences on the same sequencer: the arbitration*
 
 - Up to here every sequencer has had **one** sequence at a time. In a real testbench
@@ -12577,14 +12668,13 @@ the unit catches up here.
 #### *Summary of the unit · how they compose*
 
 - Sequences compose: one calls others, in series or with `fork`/`join`
-- And when there is **more than one sequencer**, the one that composes is a **virtual
-  sequence**: it sends no items of its own, it takes the handles out of a `virtual_sequencer` and
-  coordinates the two interfaces — `code/u7/sequences/virtual/`
+- And when there is **more than one sequencer**, the one that composes is a
+  **virtual sequence**, which is first thing tomorrow ↪ day 7
 - With **two sequences on the same sequencer** the one who hands out is the sequencer:
   priority and `set_arbitration(...)`, and `lock()`/`grab()` for the scenario that cannot
   be interleaved
-- With this the testbench of the course is complete, and it is the way it is written
-  today in the industry
+- With this the testbench of the course is complete —it is missing one single
+  piece, tomorrow's— and it is the way it is written today in the industry
 
 Note:
 Close of day 6. None of the pieces we did see is magic: we built them all by hand —the
@@ -12594,6 +12684,10 @@ handed them to us done. That is the reason the course goes in this order and doe
 with the `uvm_agent`.
 And the best place to go on reading is `code/.uvm/src/`: by this point
 `uvm_sequence_base.svh` can be opened and understood.
+What is left for tomorrow is the **virtual sequence**, and it is left out of today
+on purpose: it is only understood with this unit's testbench closed, and the
+morning of day 7 is where the student looks at a new DUT and has to decide which
+structure it deserves.
         </textarea>
       </section>
       <!-- 150-sequences.md -->
@@ -12774,8 +12868,8 @@ And the best place to go on reading is `code/.uvm/src/`: by this point
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: e27c0e858b3f -->
-## Exercise · Day 6 · 1 of 5
+<!-- es-sha: 28daa17b8fa6 -->
+## Exercise · Day 6 · 1 of 3
 
 #### *The agent that only watches*
 
@@ -12805,8 +12899,8 @@ the checker demands that `clase_agent_h` still have a driver.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 5be927e405ff -->
-## Exercise · Day 6 · 2 of 5
+<!-- es-sha: 9e452bd53946 -->
+## Exercise · Day 6 · 2 of 3
 
 #### *A sequence that only multiplies*
 
@@ -12834,80 +12928,8 @@ a `+UVM_TIMEOUT` set so that finishes with a message instead of hanging.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 49c1cc9dfc27 -->
-## Exercise · Day 6 · 3 of 5
-
-#### *Closing a bin*
-
-`cd code/ejercicios/d6-bins && bash run.sh`
-<!-- .element: class="comando" -->
-
-- The test sends a reset and **60 random operations**, and the report shows the bin
-  *"both legs at `FF`, multiplying"* empty
-- Write the one-item sequence that closes it. But **ask for it with
-  `randomize() with {}`**, not by assigning the fields
-- It is graded by comparing the coverage before and after: it has to go up
-- It is **row 3** of the verification plan of day 1: the only one of the twelve whose
-  stimulus column says *directed case*
-
-Note:
-It is the exercise the course was missing, because *coverage closure* shows up twice
-as a noun and never as a verb. Here the student does the whole cycle:
-run, look at which bin was left empty, write three lines, run again.
-The trap is set on purpose and it is the one from constrained random: `command_transaction`
-has a `dist` on `A` and on `B`, and Verilator resolves the `dist` by choosing
-a value **before** looking at the `with`. With the distribution active, `with {A == 8'hFF}`
-resolves one out of every four times and the rest returns 0. Whoever does not read the hint
-is going to see an exercise that sometimes passes and sometimes does not — which is exactly the
-symptom the section describes.
-The way around it is `constraint_mode(0)`, and it is worth defending it as a design decision and
-not as a patch for the simulator: a **directed** case does not want a distribution of
-probabilities, it wants a value.
-The seed of the `run.sh` is fixed. Without fixing it, some runs would fill the
-bin on their own with the 60 random ones — and that is the next exercise.
-        </textarea>
-      </section>
-      <!-- 153b-ejercicio-day6-bins.md -->
-
-      <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
-        <textarea data-template>
-<!-- es-sha: a4527060f67f -->
-## Exercise · Day 6 · 4 of 5
-
-#### *The same sequence, another seed*
-
-`cd code/ejercicios/d6-semillas && bash run.sh`
-<!-- .element: class="comando" -->
-
-- The only exercise of the course without SystemVerilog: what gets written is the
-  **regression**, six lines of shell
-- Run the same test with seeds 1 to 5 and **merge** the five coverages
-  with `verilator_coverage --write`
-- It is graded by checking that the merge covers more than the best of the five on its own
-
-Note:
-It is the last row of the *coverage closure* table, done. And it closes the arc with
-the previous exercise: one is the directed case, the other is the regression, and they are
-the two tools that do not replace each other.
-The detail to underline is why the test sends **25** operations and not
-a thousand: with a thousand this does not work. It is measured and it is on the slide *"another seed, and
-again"* — `u2/convencional` and `u7/sequences` give 66 out of 76 with any seed, and the merge
-too. With 25 the stimulus has not saturated yet and there each seed does cover a
-different piece: 41 to 47 bins each, 62 for the five merged.
-The rule they take away, in one line: another seed **accumulates** while the
-stimulus has not saturated, and **reproduces** an intermittent failure. It does not fill a bin the
-stimulus cannot reach.
-And the merge command is worth naming for what it is in the industry:
-`verilator_coverage --write` is here what the `ucdb` merge is in Questa. A real
-regression is a hundred seeds overnight and one single number in the morning.
-        </textarea>
-      </section>
-      <!-- 153c-ejercicio-day6-semillas.md -->
-
-      <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
-        <textarea data-template>
-<!-- es-sha: c17ccfa20d6f -->
-## Exercise · Day 6 · 5 of 5
+<!-- es-sha: 4202b96312eb -->
+## Exercise · Day 6 · 3 of 3
 
 #### *Three planted bugs, and none of them looks like the others*
 
@@ -12945,24 +12967,332 @@ to look at what went out on the bus.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: b4adeb05e4da -->
-<!-- .slide: id="day7" data-machete="res/diagrams/en/assertions_property.svg,res/en/machete-debug.svg" -->
+<!-- es-sha: a45c9dc8b40d -->
+<!-- .slide: id="day7" -->
+
+## Yesterday we left…
+
+#### *Where the testbench stands*
+
+- The testbench was left **complete and reusable**: agents with `is_active`, the
+  analysis in the `env`, and the stimulus outside the tree, in sequences
+- No line of the test names a component from inside the `env`: the last one went
+  with the `default_sequence` through `uvm_config_db`
+- And the other half of the verification plan is missing: the rows **no
+  scoreboard can close**, because they are not about the result but about the
+  protocol
+
+Note:
+The day 7 recap works as a hinge, and it is worth saying the two things it is
+made of: this morning UVM gets closed —the virtual sequence is the last piece,
+and with it the testbench of the course is whole— and this afternoon opens what
+UVM does not solve, which is the other half of the plan.
+The third bullet is the arc planted on day 1 with the verification plan and left
+open on purpose: the scoreboard checks **what**, the assertion checks **how**.
+Today it closes.
+
+---
+
+<!-- .slide: data-machete="res/diagrams/en/assertions_property.svg,res/en/machete-debug.svg" -->
 
 ## Agenda
 
-#### *Day 7 · ≈ 4 h 45 · unit 8 · the other half*
+#### *Day 7 · ≈ 5 h 15 · unit 8 · the other half*
 
+- Warm-up: five seeds and a merge, with `make regresion`
+- Virtual sequences: the last piece of the reusable testbench
 - Assertions (SVA)
 - The capstone: an APB testbench, from scratch
 - From the VTALU to a real bus
-- The debug toolbox
-- The 21 silent traps
+- The debug toolbox · The 21 silent traps
 - Glossary, references and wrap-up
 
 *And afterwards, **day 8**: optional, and for whoever has already handed in the capstone*
+
+**By the end of the day you can:**
+
+- **Write** a property that sees a protocol violation, and say why `--assert` is
+  not optional
+- **Coordinate** two interfaces from a single virtual sequence
+- **Hand in** a whole testbench for a DUT you have not seen before
+
+Note:
+The morning has three pieces and the order matters: the seed warm-up is ten
+minutes without SystemVerilog and it hooks into the `make regresion` the capstone
+is going to ask for; the virtual sequences close UVM; and SVA opens the other
+half of the plan. The afternoon is the capstone.
+The third objective is the one the course is worth, and it is honest to put it as
+an objective of the day even if the hand-in comes later: in a company format the
+capstone is handed in the next day, and in a term it goes to the exam period.
+What gets done this afternoon is starting it with the instructor next to you,
+which is when it pays off the most.
         </textarea>
       </section>
       <!-- 159-agenda-day7.md -->
+
+      <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
+        <textarea data-template>
+<!-- es-sha: 9e5e63a051db -->
+## Exercise · Day 7 · 1 of 2
+
+#### *The same sequence, another seed*
+
+`cd code/ejercicios/d7-semillas && bash run.sh`
+<!-- .element: class="comando" -->
+
+- The only exercise of the course without SystemVerilog: what gets written is the
+  **regression**, six lines of shell
+- Run the same test with seeds 1 to 5 and **merge** the five coverages
+  with `verilator_coverage --write`
+- It is graded by checking that the merge covers more than the best of the five on its own
+
+Note:
+It is the last row of the *coverage closure* table, done, and it is the warm-up
+of day 7: ten minutes, zero SystemVerilog, and it leaves in place the
+`make regresion` this afternoon's capstone is going to ask for. It also closes the
+arc day 5 opened with the directed case: one fills the bin random cannot reach,
+the other accumulates what random does reach, and they do not replace each other.
+The detail to underline is why the test sends **25** operations and not
+a thousand: with a thousand this does not work. It is measured and it is on the slide *"another seed, and
+again"* — `u2/convencional` and `u7/sequences` give 66 out of 76 with any seed, and the merge
+too. With 25 the stimulus has not saturated yet and there each seed does cover a
+different piece: 41 to 47 bins each, 62 for the five merged.
+The rule they take away, in one line: another seed **accumulates** while the
+stimulus has not saturated, and **reproduces** an intermittent failure. It does not fill a bin the
+stimulus cannot reach.
+And the merge command is worth naming for what it is in the industry:
+`verilator_coverage --write` is here what the `ucdb` merge is in Questa. A real
+regression is a hundred seeds overnight and one single number in the morning.
+        </textarea>
+      </section>
+      <!-- 159a-ejercicio-day7-semillas.md -->
+
+      <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
+        <textarea data-template>
+<!-- es-sha: a692208e3f2e -->
+## Virtual sequences
+
+#### *The problem: two interfaces and a single `start()`*
+
+- A **virtual sequence** is a sequence that does not send items of its own: it only
+  starts other sequences, on **several sequencers**
+- It shows up when the DUT has more than one interface —a configuration bus and a
+  data stream, for example— and the test needs to coordinate them: *configure
+  first, then send traffic*
+- It is called "virtual" because it is not tied to a type of item nor to a sequencer
+- The `u7/agents` already left us the scenario built: **two VTALU**. There the second agent
+  was passive; with both active there are **two sequencers**, and something to coordinate
+- `full_sequence` is already half a virtual sequence: it sends no items of its own, it only
+  starts others. The only thing it lacks is the second sequencer
+
+Note:
+First hour of day 7, and that is on purpose. It is the last piece of the reusable
+testbench, and it arrives on capstone day because it is the day the student looks
+at a new DUT and decides which structure it deserves. The capstone has **two**
+APB slaves, each with its own interface —one driven by the testbench, the other
+by a module— and that is the shape of the agents section: one active and one
+passive, a single sequencer, and no virtual sequence. This hour is what gives the
+student the criterion to decide that instead of guessing it, and what leaves them
+the answer written down for the day the second slave is theirs too.
+It is worth starting from the problem and not from the syntax, because the syntax is
+half a screen: what is hard to understand is why a new class is needed
+when `full_sequence` already composes sequences.
+The answer is the one in the last bullet, and it is geometric: a normal sequence
+knows **one** sequencer, the one `start()` handed it. Anything that wants to talk to
+two interfaces needs two handles, and those handles have to come from
+somewhere.
+The example runs and it is in `code/u7/sequences/virtual/`: it is the testbench of this
+section with **two lines** changed in the `env`, and everything else by
+reference. It is worth saying before showing the code, because it is half of the
+argument: a virtual sequence does not change the structure of the testbench.
+
+---
+
+## Virtual sequences
+
+#### *The virtual sequencer: handles, not items*
+
+```sv
+class virtual_sequencer extends uvm_sequencer;
+   `uvm_component_utils(virtual_sequencer)
+
+   sequencer clase_sequencer_h;
+   sequencer modulo_sequencer_h;
+
+   function new(string name, uvm_component parent);
+      super.new(name, parent);
+   endfunction : new
+
+endclass : virtual_sequencer
+```
+
+```sv
+      // not compile instead of returning null at simulation time.
+      virtual_sequencer_h.clase_sequencer_h  = clase_agent_h.sequencer_h;
+      virtual_sequencer_h.modulo_sequencer_h = modulo_agent_h.sequencer_h;
+```
+
+- It has no queue, it does not arbitrate, it does not talk to any driver. It is a `uvm_component`
+  that exists in order to **hold the handles** and to live in the tree with a name
+- It extends `uvm_sequencer` **without parameterizing it**: the default item is
+  `uvm_sequence_item` and none ever gets sent
+- The handles get assigned in the `connect_phase`, where the agents already exist
+
+Note:
+The question that comes up on its own: and why a component, if it is only two pointers?
+For two reasons. One, so the sequence reaches it with `p_sequencer` instead
+of looking it up by string. Two, because it has to be in the tree so the test
+can start a sequence on top of it: `seq.start(env_h.virtual_sequencer_h)`.
+The book resolves the handles with `uvm_top.find("*.env_h.sequencer_h")`. It still
+works —`uvm_top` is there for compatibility, the current form is
+`uvm_root::get()`— but looking components up by string is fragile: the day
+somebody renames the `env_h`, the `find()` returns `null` and the fatal shows up
+far from the change. Assigning them in the `connect_phase` **does not compile** if the name
+changed, which is exactly what one wants.
+
+---
+
+## Virtual sequences
+
+#### *The virtual sequence: `p_sequencer` and two branches*
+
+```sv
+class coordinada_sequence extends uvm_sequence;
+   `uvm_object_utils(coordinada_sequence)
+   `uvm_declare_p_sequencer(virtual_sequencer)
+```
+
+```sv
+      fork
+         reset_a.start(p_sequencer.clase_sequencer_h);
+         reset_b.start(p_sequencer.modulo_sequencer_h);
+      join
+
+      // --- 2. Parallel traffic, different on each interface -------------------
+      // A does the directed overflow case while B sends at random.
+      fork
+         maxmult.start(p_sequencer.clase_sequencer_h);
+         random_b.start(p_sequencer.modulo_sequencer_h);
+      join
+```
+
+- `` `uvm_declare_p_sequencer `` declares `p_sequencer` **with the type of the
+  virtual sequencer** and casts it on its own. Without it, `get_sequencer()` returns a
+  `uvm_sequencer_base` and you have to cast by hand at every use
+- The `fork`/`join` is over **two sequencers**: each branch blocks on its driver and
+  the `join` waits for both
+- That cannot be written inside a normal sequence, which knows a single
+  sequencer
+
+Note:
+The `uvm_declare_p_sequencer` is sugar, and it is worth saying so: the only thing it does is
+declare the variable and redefine `m_set_p_sequencer()` with the `$cast`. If the
+sequencer it gets started on is not of that type, the fatal fires there and not
+twenty lines later.
+The detail that gets overlooked: the two branches of the `fork` start **different**
+sequences on **different** sequencers. If they were two sequences on the
+same sequencer, they would compete for the arbitration and the items would come out
+interleaved — which is a legitimate scenario, but it is another one.
+And a warning from the field: a virtual sequence with a single sequencer is a
+normal sequence with more ceremony. The class is justified when there are two.
+
+---
+
+## Virtual sequences
+
+#### *What no sequence on its own can do*
+
+```sv
+      primera.A  = 8'h0F;
+      primera.B  = 8'h07;
+      primera.op = mul_op;
+      primera.start(p_sequencer.clase_sequencer_h);
+
+      `uvm_info("COORDINADA", $sformatf(
+                "A returned %0d: it goes as an operand into B", primera.result), UVM_LOW)
+
+      segunda.A  = primera.result[7:0];
+      segunda.B  = 8'h01;
+      segunda.op = add_op;
+      segunda.start(p_sequencer.modulo_sequencer_h);
+```
+
+- The result of VTALU **A** goes in as an operand of **B**: a dependency
+  **between interfaces**, and in series. The second one cannot even be assembled until the
+  first has answered
+- The `result` comes back inside the item, which is the way back of this unit
+- `0F × 07 = 105`, and B answers `106`. Run it: `code/u7/sequences/virtual/run.sh`
+
+Note:
+This is the slide that justifies the class. The two `fork` of the previous slide
+could be imitated with two tests running in parallel; this one cannot, because there is a piece of data
+that crosses from one interface to the other in the middle of the scenario.
+It is exactly the shape of the real case the bus appendix promises:
+configure over APB, read the status, and only then send traffic over AXI with
+what the configuration returned. The protocol changes, not the structure.
+And the honest close: the example runs on two VTALU because it is the DUT we
+have. With two different interfaces —two transactions, two drivers— the
+virtual sequence is written **the same**: the handles would be of two types of
+sequencer, and nothing more.
+And the criterion for the afternoon: in the capstone the second slave is driven
+by a module, so there is **one** sequencer and this is not needed. The virtual
+sequence comes in the day both interfaces belong to the testbench and one depends
+on the other — and then it is written just like here.
+
+---
+
+## Virtual sequences
+
+#### *And if branch B has to wait for A?*
+
+```systemverilog
+// uvm_event: a notice, from one to many. It comes from the global pool, nobody builds it
+uvm_event listo = uvm_event_pool::get_global("dut_configurado");
+
+listo.trigger();          // the branch that configured gives notice
+listo.wait_trigger();     // the one waiting blocks here
+listo.wait_ptrigger();    // the same, but if it already happened, it walks on
+
+// uvm_barrier: a meeting point between N branches
+uvm_barrier arranque = uvm_barrier_pool::get_global("arranque");
+arranque.set_threshold(2);
+arranque.wait_for();      // neither of the two goes on until both have arrived
+```
+
+- The `join` synchronizes **at the end**. When branch B has to wait for A
+  **in the middle**, a synchronization object is needed
+- `uvm_event` is **one to many**: one gives notice, those waiting move on. And
+  `trigger(data)` can carry a `uvm_object` attached
+- `uvm_barrier` is **symmetric**: nobody goes on until everybody has arrived. It is the
+  "start together" of two agents that have to begin on the same cycle
+- A shared `bit` with `wait(flag)` is not enough: it **loses the pulse** if the one
+  waiting arrived late, and it carries no data
+
+Note:
+This is the question that shows up on its own as soon as the `fork` of the previous
+slide is drawn, and it is worth answering right there: *"and if branch B cannot start
+until A configured the DUT?"*.
+The distinction to make clear is **one to many versus symmetric**. The
+`uvm_event` has a side that gives notice and another that waits, and the roles do not
+change: it is for "the reset finished", "the DUT is configured", "the interrupt
+arrived". The `uvm_barrier` has no sides: the N branches execute the same
+line and none goes on until all are there. It is for "start together" and for
+"everybody wait until the configuration phase ends".
+The `wait_ptrigger()` deserves its own second, because it is the classic race: if
+branch A triggers before B reaches the `wait_trigger()`, B waits
+forever. The `p` is for *persistent*: it asks whether the event **already** happened at some point.
+The practical rule: if you cannot guarantee the order, `wait_ptrigger()`.
+And why not a shared `bit`, which is the first thing anybody tries: a `bit` does not
+keep history, does not carry attached data, and cannot be reset between phases without
+somebody swallowing a pulse. The two UVM objects exist precisely because
+that homemade version fails once every hundred runs.
+Its own failure mode: a barrier with the threshold set wrong does not give an error —
+it hangs. The symptom is a test that ends on `+UVM_TIMEOUT` without a single
+`UVM_ERROR`, and `+UVM_OBJECTION_TRACE` shows the objection up and nobody
+moving on.
+        </textarea>
+      </section>
+      <!-- 159b-sequences-virtuales.md -->
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
@@ -13690,8 +14020,8 @@ commercial VIP. With what is in this section they can be read without help.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 5e7fbf141734 -->
-## Exercise · Day 7
+<!-- es-sha: 4229d49fb795 -->
+## Exercise · Day 7 · 2 of 2
 
 #### *The legacy module violates the protocol and nobody knew*
 
@@ -13981,7 +14311,7 @@ assertion it fires on the healthy DUT. That rule is a `cover`, not an `assert`.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: e4df2b95cff7 -->
+<!-- es-sha: 4288d7d4dba9 -->
 <!-- .slide: id="apendice-bus" data-machete="res/diagrams/en/sequences_tb_completo.svg,res/diagrams/en/agents_agent.svg" -->
 
 ## Appendix · From the VTALU to a real bus
@@ -14123,9 +14453,18 @@ starts with the driver writes stimulus nobody is watching, and discovers a
 week later that their monitor does not reconstruct. Whoever starts with the monitor can
 plug it in passively on somebody else's stimulus —or on a test from the designer— and is
 already contributing on the first day.
-If somebody asks where the learning path goes on from here, the
-order that pays off: RAL, then regression with seeds, then the `clocking block`
-and the prefabricated bus properties. SVA is no longer on that list —it is a whole unit of this course— and it is worth saying so, because it is the first question of every interview.
+If somebody asks where the learning path goes on **after this course**, the short
+list, in order: **TLM2** —`uvm_tlm_generic_payload` and the sockets, which is how
+bus VIPs get connected to each other—, the **RAL backdoor** —`docs/verilator.md`
+explains why it is not here—, the **`uvm_sequence_library`** for the stress test
+you do not write, and reading the `dv/` of a real open project: the agents of
+**OpenTitan** and the AXI VIP of **pulp-platform/axi** are production code and
+they read for free. And one that is not UVM and is worth the career: **formal**
+with SymbiYosys, which proves the same properties they wrote today without any
+stimulus.
+What is **not** on that list is what they have already seen: RAL is day 8, the
+regression with seeds is the day 7 warm-up and `make regresion`, and the
+`clocking block` is half a section of unit 2.
 And a last one, which is not technical: in a real project the testbench almost always
 already exists. What gets asked for on the first day is not building one, it is **adding a test
 to it** — which is exactly what they practised in the exercises of days 3 and 6.
@@ -14603,7 +14942,7 @@ tools are software and MIT is what anybody copying them expects.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 052564f70afd -->
+<!-- es-sha: 2f21e65454e9 -->
 <!-- .slide: id="cierre" -->
 
 ## This is as far as we got
@@ -14617,8 +14956,13 @@ tools are software and MIT is what anybody copying them expects.
 - You can read and write **OOP in SystemVerilog**: classes, inheritance,
   polymorphism, parameterized classes, the factory
 - You built a **complete UVM testbench** —test, env, components, monitors,
-  driver, scoreboard, transactions— piece by piece, understanding what replaces
-  what
+  driver, scoreboard, transactions, agents and sequences— piece by piece,
+  understanding what replaces what
+- You wrote **assertions**: the other half of the plan, the one no scoreboard can
+  close because it is not about the result but about the protocol
+- And you handed it in: the **capstone** is a DUT you had not seen before, its
+  spec, and the whole testbench from a blank sheet — which is literally what gets
+  asked for at work
 - And all of that runs on your machine, with **free tools**, without asking
   anybody for a licence
 
@@ -14673,12 +15017,12 @@ The **`clocking block`** also came out of this table: it is half a section of
 unit 2, with its example that runs in `code/u2/clocking/`.
 The **callbacks** came out for the same reason: they are half a section of unit 7, with
 the `code/u7/callbacks/` that injects the error in the driver — the third hook
-unit 1 promises. And **regression and seeds** as well: the exercise `d6-semillas`
+unit 1 promises. And **regression and seeds** as well: the exercise `d7-semillas`
 is the whole cycle, and `make regresion` left it as a tool, with a report of
 the bins that were left open.
 **SVA came out of this table and is now a whole unit**, and it is one of the most original things
 the course has: no introductory UVM book brings it. The **virtual sequences**
-came out too: they are at the end of the sequences, with an example that runs in
+came out too: they are the first hour of today, with an example that runs in
 `code/u7/sequences/virtual/`.
 The last three rows are worth reading out loud with this sentence in front: an
 introductory course that lists what it does not cover is worth more than one that pretends
@@ -14783,8 +15127,35 @@ fifteen and does not finish it did not finish the course.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: d2a64b8fc1b9 -->
-<!-- .slide: id="day8" data-machete="res/en/uvm_class_diagram.svg,res/diagrams/en/sequences_tb_completo.svg" -->
+<!-- es-sha: 21fce0178178 -->
+<!-- .slide: id="day8" -->
+
+## Yesterday we left…
+
+#### *Where the testbench stands*
+
+- The capstone handed in: an APB slave, its spec, and a whole testbench written
+  from a blank sheet — monitor, driver, scoreboard, coverage and properties
+- The scoreboard of that testbench **predicts by hand** the value of every
+  register, and the coverage of the bus was written row by row
+- And that is done the same way at work… until the DUT has sixty registers. That
+  is when both things get modelled, and that is the whole of day 8
+
+Note:
+This day is **optional and it goes after the wrap-up**, and both things are on
+purpose. The course ends on day 7: whoever got that far wrote a complete UVM
+testbench from a blank sheet and lacks nothing to go to work. What is here is
+what gets added once that has happened.
+The recap has a concrete job on day 8: the three pieces of today are only
+understood as a replacement for something the student has **just written by
+hand**. RAL replaces the register-by-register prediction, the golden model in C
+replaces the whole prediction, and the second capstone shows where the pattern of
+the first stops working. Without the capstone done, all three are abstractions
+without a problem.
+
+---
+
+<!-- .slide: data-machete="res/en/uvm_class_diagram.svg,res/diagrams/en/sequences_tb_completo.svg" -->
 
 ## Agenda
 
@@ -14794,20 +15165,22 @@ fifteen and does not finish it did not finish the course.
 - The reference model in C, through DPI
 - The second capstone: a FIFO with backpressure
 
+**By the end of the day you can:**
+
+- **Read and write** a register by name, without writing a single `PADDR`, and
+  say what the adapter and the predictor do
+- **Plug in** a reference model written in C, and prove it with a mutation
+- **Write** a scoreboard for a DUT where a table is not enough
+
 Note:
-This day is **optional and it goes after the wrap-up**, and both things are on
-purpose. The course ends on day 7: whoever got that far wrote a
-complete UVM testbench from a blank sheet and lacks nothing to
-work. What is here is what gets added once that has happened.
-Why these three and not others: all three need the capstone to be already
-done. RAL replaces the scoreboard the student has just written —and it is not
-understood before having written it—; the golden model in C replaces the prediction
-of the scoreboard, the same thing; and the second capstone only makes sense for whoever
-has already handed in the first one, because what it teaches is **where the pattern of the
-first one stops being any use**.
-For whoever is teaching: in a company this is another half day, and it usually gets given
-when the group has real registers in the project. In a semester it is
-the optional unit, or the final project for those who want a high mark.
+For whoever teaches it: in a company this is another half day, and it usually
+gets taught when the group has real registers in the project. In a term it is the
+optional unit, or the final assignment for those who want a high mark.
+The three objectives are deliberately concrete and not "understand RAL": day 8
+has no self-assessment of its own, so these three verbs are the only rubric the
+student takes away. The third is the one that pays off the most of the three and
+the least expected — a FIFO has order and occupancy, and that does not fit in a
+four-row table.
         </textarea>
       </section>
       <!-- 179-agenda-day8.md -->
@@ -15757,8 +16130,46 @@ showing up where nobody expected it.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: ec27c3c28158 -->
-## The end
+<!-- es-sha: 3349848f92ec -->
+<!-- .slide: id="fin" -->
+
+## On Monday
+
+#### *What to do with this once the screen goes off*
+
+- **First thing: a testbench of your own, running.** The capstone is the
+  minimum. If it is already handed in, the next one is a DUT of yours — the one
+  at work, the one from your thesis, whichever. A finished course proves nothing;
+  a testbench does
+- **Keep two pages and throw away the rest:** the one-page cheat sheet and *The
+  21 silent traps*. They are the two you open with the simulator running
+- **If you get stuck, ask here:**
+  [Discussions](https://github.com/leandrotozzi/verifythis/discussions) has one
+  category per day. An example that does not run is a **course issue**
+- **And if something confused you, fix it.** It is CC BY 4.0 and the whole repo
+  is there: the slides, the examples, the graders and the linters. A PR that
+  clears up a slide is worth as much as one that adds a section
+
+*Thanks for getting this far.*
+
+Note:
+The last slide of the course, and it is worth it being short and in the
+imperative: after seven days nobody takes away one more new idea, but they do
+take away one instruction.
+The instruction is the first line, and it is worth saying it looking at the
+camera or at the group: **the only thing that proves somebody can do this is a
+testbench of their own, running**. Not the capstone marked, not the fifteen rows
+of the self-assessment in green: one of their own, on a DUT nobody prepared to be
+easy.
+The second bullet is the most practical advice on the slide and the one most
+thanked six months later. Of everything that got printed this week, what gets
+opened again is two pages: the cheat sheet —`docs/en/uvm-cheatsheet.pdf`, one
+page, A4— and the silent-traps table, which is written to be searched by symptom
+and not to be read.
+And the invitation in the fourth is not courtesy. The course improves where
+somebody trips: half the presenter notes exist because somebody asked the same
+thing twice. If it is taught in class, close by explicitly asking for the three
+things that were not understood — and writing them down before the group leaves.
         </textarea>
       </section>
       <!-- 190-the-end.md -->
@@ -15788,98 +16199,101 @@ showing up where nobody expected it.
         <h3 class="ind-grupo">Day 1</h3>
         <ul>
           <li><a href="#/3" data-h="3"><span>Agenda</span><span class="ind-n">4</span></a></li>
-          <li><a href="#/4" data-h="4"><span>Trends</span><span class="ind-n">5</span></a></li>
-          <li><a href="#/9" data-h="9"><span>Introduction</span><span class="ind-n">10</span></a></li>
-          <li><a href="#/15" data-h="15"><span>The VTALU spec</span><span class="ind-n">16</span></a></li>
-          <li><a href="#/23" data-h="23"><span>The verification plan</span><span class="ind-n">24</span></a></li>
-          <li><a href="#/26" data-h="26"><span>The conventional testbench</span><span class="ind-n">27</span></a></li>
-          <li><a href="#/31" data-h="31"><span>Functional coverage</span><span class="ind-n">32</span></a></li>
-          <li><a href="#/44" data-h="44"><span>Interfaces and BFM</span><span class="ind-n">45</span></a></li>
-          <li><a href="#/57" data-h="57"><span>Review · Day 1</span><span class="ind-n">58</span></a></li>
-          <li><a href="#/64" data-h="64"><span>Exercise · Day 1 · 1 of 2</span><span class="ind-n">65</span></a></li>
-          <li><a href="#/65" data-h="65"><span>Exercise · Day 1 · 2 of 2</span><span class="ind-n">66</span></a></li>
+          <li><a href="#/4" data-h="4"><span>The log says it failed</span><span class="ind-n">5</span></a></li>
+          <li><a href="#/5" data-h="5"><span>Trends</span><span class="ind-n">6</span></a></li>
+          <li><a href="#/10" data-h="10"><span>Introduction</span><span class="ind-n">11</span></a></li>
+          <li><a href="#/16" data-h="16"><span>The VTALU spec</span><span class="ind-n">17</span></a></li>
+          <li><a href="#/24" data-h="24"><span>The verification plan</span><span class="ind-n">25</span></a></li>
+          <li><a href="#/27" data-h="27"><span>The conventional testbench</span><span class="ind-n">28</span></a></li>
+          <li><a href="#/32" data-h="32"><span>Functional coverage</span><span class="ind-n">33</span></a></li>
+          <li><a href="#/45" data-h="45"><span>Interfaces and BFM</span><span class="ind-n">46</span></a></li>
+          <li><a href="#/58" data-h="58"><span>Review · Day 1</span><span class="ind-n">59</span></a></li>
+          <li><a href="#/65" data-h="65"><span>Exercise · Day 1 · 1 of 2</span><span class="ind-n">66</span></a></li>
+          <li><a href="#/66" data-h="66"><span>Exercise · Day 1 · 2 of 2</span><span class="ind-n">67</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 2</h3>
         <ul>
-          <li><a href="#/66" data-h="66"><span>Agenda</span><span class="ind-n">67</span></a></li>
-          <li><a href="#/67" data-h="67"><span>Classes and extensions</span><span class="ind-n">68</span></a></li>
-          <li><a href="#/74" data-h="74"><span>Polymorphism</span><span class="ind-n">75</span></a></li>
-          <li><a href="#/81" data-h="81"><span>Static variables</span><span class="ind-n">82</span></a></li>
-          <li><a href="#/86" data-h="86"><span>Parameterized classes</span><span class="ind-n">87</span></a></li>
-          <li><a href="#/91" data-h="91"><span>The factory pattern</span><span class="ind-n">92</span></a></li>
-          <li><a href="#/97" data-h="97"><span>A testbench without a single module</span><span class="ind-n">98</span></a></li>
-          <li><a href="#/106" data-h="106"><span>Review · Day 2</span><span class="ind-n">107</span></a></li>
-          <li><a href="#/114" data-h="114"><span>Exercise · Day 2</span><span class="ind-n">115</span></a></li>
+          <li><a href="#/67" data-h="67"><span>Yesterday we left…</span><span class="ind-n">68</span></a></li>
+          <li><a href="#/69" data-h="69"><span>Classes and extensions</span><span class="ind-n">70</span></a></li>
+          <li><a href="#/75" data-h="75"><span>Polymorphism</span><span class="ind-n">76</span></a></li>
+          <li><a href="#/82" data-h="82"><span>Static variables</span><span class="ind-n">83</span></a></li>
+          <li><a href="#/87" data-h="87"><span>Parameterized classes</span><span class="ind-n">88</span></a></li>
+          <li><a href="#/92" data-h="92"><span>The factory pattern</span><span class="ind-n">93</span></a></li>
+          <li><a href="#/98" data-h="98"><span>A testbench without a single module</span><span class="ind-n">99</span></a></li>
+          <li><a href="#/107" data-h="107"><span>Review · Day 2</span><span class="ind-n">108</span></a></li>
+          <li><a href="#/115" data-h="115"><span>Exercise · Day 2</span><span class="ind-n">116</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 3</h3>
         <ul>
-          <li><a href="#/115" data-h="115"><span>Agenda</span><span class="ind-n">116</span></a></li>
-          <li><a href="#/116" data-h="116"><span>Tests</span><span class="ind-n">117</span></a></li>
-          <li><a href="#/128" data-h="128"><span>Components and phases</span><span class="ind-n">129</span></a></li>
-          <li><a href="#/138" data-h="138"><span>The env: structure and stimulus</span><span class="ind-n">139</span></a></li>
-          <li><a href="#/155" data-h="155"><span>Reporting</span><span class="ind-n">156</span></a></li>
-          <li><a href="#/169" data-h="169"><span>Review · Day 3</span><span class="ind-n">170</span></a></li>
-          <li><a href="#/176" data-h="176"><span>Exercise · Day 3</span><span class="ind-n">177</span></a></li>
+          <li><a href="#/116" data-h="116"><span>Yesterday we left…</span><span class="ind-n">117</span></a></li>
+          <li><a href="#/118" data-h="118"><span>Tests</span><span class="ind-n">119</span></a></li>
+          <li><a href="#/130" data-h="130"><span>Components and phases</span><span class="ind-n">131</span></a></li>
+          <li><a href="#/140" data-h="140"><span>The env: structure and stimulus</span><span class="ind-n">141</span></a></li>
+          <li><a href="#/157" data-h="157"><span>Reporting</span><span class="ind-n">158</span></a></li>
+          <li><a href="#/171" data-h="171"><span>Review · Day 3</span><span class="ind-n">172</span></a></li>
+          <li><a href="#/178" data-h="178"><span>Exercise · Day 3 · 1 of 2</span><span class="ind-n">179</span></a></li>
+          <li><a href="#/179" data-h="179"><span>Exercise · Day 3 · 2 of 2</span><span class="ind-n">180</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 4</h3>
         <ul>
-          <li><a href="#/177" data-h="177"><span>Agenda</span><span class="ind-n">178</span></a></li>
-          <li><a href="#/178" data-h="178"><span>One producer, many listeners</span><span class="ind-n">179</span></a></li>
-          <li><a href="#/194" data-h="194"><span>A single place that watches the wire</span><span class="ind-n">195</span></a></li>
-          <li><a href="#/207" data-h="207"><span>When somebody has to wait</span><span class="ind-n">208</span></a></li>
-          <li><a href="#/220" data-h="220"><span>Who waits for whom</span><span class="ind-n">221</span></a></li>
-          <li><a href="#/227" data-h="227"><span>Review · Day 4</span><span class="ind-n">228</span></a></li>
-          <li><a href="#/232" data-h="232"><span>Exercise · Day 4 · 1 of 2</span><span class="ind-n">233</span></a></li>
-          <li><a href="#/233" data-h="233"><span>Exercise · Day 4 · 2 of 2</span><span class="ind-n">234</span></a></li>
+          <li><a href="#/180" data-h="180"><span>Yesterday we left…</span><span class="ind-n">181</span></a></li>
+          <li><a href="#/182" data-h="182"><span>One producer, many listeners</span><span class="ind-n">183</span></a></li>
+          <li><a href="#/198" data-h="198"><span>A single place that watches the wire</span><span class="ind-n">199</span></a></li>
+          <li><a href="#/211" data-h="211"><span>When somebody has to wait</span><span class="ind-n">212</span></a></li>
+          <li><a href="#/224" data-h="224"><span>Who waits for whom</span><span class="ind-n">225</span></a></li>
+          <li><a href="#/231" data-h="231"><span>Review · Day 4</span><span class="ind-n">232</span></a></li>
+          <li><a href="#/236" data-h="236"><span>Exercise · Day 4 · 1 of 2</span><span class="ind-n">237</span></a></li>
+          <li><a href="#/237" data-h="237"><span>Exercise · Day 4 · 2 of 2</span><span class="ind-n">238</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 5</h3>
         <ul>
-          <li><a href="#/234" data-h="234"><span>Agenda</span><span class="ind-n">235</span></a></li>
-          <li><a href="#/235" data-h="235"><span>Copying an object that contains another</span><span class="ind-n">236</span></a></li>
-          <li><a href="#/245" data-h="245"><span>Transactions</span><span class="ind-n">246</span></a></li>
-          <li><a href="#/265" data-h="265"><span>Constrained random</span><span class="ind-n">266</span></a></li>
-          <li><a href="#/279" data-h="279"><span>Review · Day 5</span><span class="ind-n">280</span></a></li>
-          <li><a href="#/287" data-h="287"><span>Exercise · Day 5 · 1 of 2</span><span class="ind-n">288</span></a></li>
-          <li><a href="#/288" data-h="288"><span>Exercise · Day 5 · 2 of 2</span><span class="ind-n">289</span></a></li>
+          <li><a href="#/238" data-h="238"><span>Yesterday we left…</span><span class="ind-n">239</span></a></li>
+          <li><a href="#/240" data-h="240"><span>Copying an object that contains another</span><span class="ind-n">241</span></a></li>
+          <li><a href="#/250" data-h="250"><span>Transactions</span><span class="ind-n">251</span></a></li>
+          <li><a href="#/270" data-h="270"><span>Constrained random</span><span class="ind-n">271</span></a></li>
+          <li><a href="#/284" data-h="284"><span>Review · Day 5</span><span class="ind-n">285</span></a></li>
+          <li><a href="#/292" data-h="292"><span>Exercise · Day 5 · 1 of 3</span><span class="ind-n">293</span></a></li>
+          <li><a href="#/293" data-h="293"><span>Exercise · Day 5 · 2 of 3</span><span class="ind-n">294</span></a></li>
+          <li><a href="#/294" data-h="294"><span>Exercise · Day 5 · 3 of 3</span><span class="ind-n">295</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 6</h3>
         <ul>
-          <li><a href="#/289" data-h="289"><span>Agenda</span><span class="ind-n">290</span></a></li>
-          <li><a href="#/290" data-h="290"><span>Agents</span><span class="ind-n">291</span></a></li>
-          <li><a href="#/309" data-h="309"><span>Callbacks</span><span class="ind-n">310</span></a></li>
-          <li><a href="#/314" data-h="314"><span>Sequences</span><span class="ind-n">315</span></a></li>
-          <li><a href="#/340" data-h="340"><span>Review · Day 6</span><span class="ind-n">341</span></a></li>
-          <li><a href="#/350" data-h="350"><span>Exercise · Day 6 · 1 of 5</span><span class="ind-n">351</span></a></li>
-          <li><a href="#/351" data-h="351"><span>Exercise · Day 6 · 2 of 5</span><span class="ind-n">352</span></a></li>
-          <li><a href="#/352" data-h="352"><span>Exercise · Day 6 · 3 of 5</span><span class="ind-n">353</span></a></li>
-          <li><a href="#/353" data-h="353"><span>Exercise · Day 6 · 4 of 5</span><span class="ind-n">354</span></a></li>
-          <li><a href="#/354" data-h="354"><span>Exercise · Day 6 · 5 of 5</span><span class="ind-n">355</span></a></li>
+          <li><a href="#/295" data-h="295"><span>Yesterday we left…</span><span class="ind-n">296</span></a></li>
+          <li><a href="#/297" data-h="297"><span>Agents</span><span class="ind-n">298</span></a></li>
+          <li><a href="#/316" data-h="316"><span>Callbacks</span><span class="ind-n">317</span></a></li>
+          <li><a href="#/321" data-h="321"><span>Sequences</span><span class="ind-n">322</span></a></li>
+          <li><a href="#/342" data-h="342"><span>Review · Day 6</span><span class="ind-n">343</span></a></li>
+          <li><a href="#/352" data-h="352"><span>Exercise · Day 6 · 1 of 3</span><span class="ind-n">353</span></a></li>
+          <li><a href="#/353" data-h="353"><span>Exercise · Day 6 · 2 of 3</span><span class="ind-n">354</span></a></li>
+          <li><a href="#/354" data-h="354"><span>Exercise · Day 6 · 3 of 3</span><span class="ind-n">355</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 7</h3>
         <ul>
-          <li><a href="#/355" data-h="355"><span>Agenda</span><span class="ind-n">356</span></a></li>
-          <li><a href="#/356" data-h="356"><span>Assertions (SVA)</span><span class="ind-n">357</span></a></li>
-          <li><a href="#/375" data-h="375"><span>Exercise · Day 7</span><span class="ind-n">376</span></a></li>
-          <li><a href="#/376" data-h="376"><span>Review · Day 7</span><span class="ind-n">377</span></a></li>
-          <li><a href="#/381" data-h="381"><span>Capstone · Day 7</span><span class="ind-n">382</span></a></li>
-          <li><a href="#/385" data-h="385"><span>Appendix · From the VTALU to a real bus</span><span class="ind-n">386</span></a></li>
-          <li><a href="#/389" data-h="389"><span>Appendix · The debug toolbox</span><span class="ind-n">390</span></a></li>
-          <li><a href="#/391" data-h="391"><span>Appendix · The 21 silent traps</span><span class="ind-n">392</span></a></li>
-          <li><a href="#/396" data-h="396"><span>Glossary · the words of the trade</span><span class="ind-n">397</span></a></li>
-          <li><a href="#/399" data-h="399"><span>References</span><span class="ind-n">400</span></a></li>
-          <li><a href="#/402" data-h="402"><span>This is as far as we got</span><span class="ind-n">403</span></a></li>
-          <li><a href="#/404" data-h="404"><span>Self-assessment</span><span class="ind-n">405</span></a></li>
+          <li><a href="#/355" data-h="355"><span>Yesterday we left…</span><span class="ind-n">356</span></a></li>
+          <li><a href="#/357" data-h="357"><span>Exercise · Day 7 · 1 of 2</span><span class="ind-n">358</span></a></li>
+          <li><a href="#/358" data-h="358"><span>Virtual sequences</span><span class="ind-n">359</span></a></li>
+          <li><a href="#/363" data-h="363"><span>Assertions (SVA)</span><span class="ind-n">364</span></a></li>
+          <li><a href="#/382" data-h="382"><span>Exercise · Day 7 · 2 of 2</span><span class="ind-n">383</span></a></li>
+          <li><a href="#/383" data-h="383"><span>Review · Day 7</span><span class="ind-n">384</span></a></li>
+          <li><a href="#/388" data-h="388"><span>Capstone · Day 7</span><span class="ind-n">389</span></a></li>
+          <li><a href="#/392" data-h="392"><span>Appendix · From the VTALU to a real bus</span><span class="ind-n">393</span></a></li>
+          <li><a href="#/396" data-h="396"><span>Appendix · The debug toolbox</span><span class="ind-n">397</span></a></li>
+          <li><a href="#/398" data-h="398"><span>Appendix · The 21 silent traps</span><span class="ind-n">399</span></a></li>
+          <li><a href="#/403" data-h="403"><span>Glossary · the words of the trade</span><span class="ind-n">404</span></a></li>
+          <li><a href="#/406" data-h="406"><span>References</span><span class="ind-n">407</span></a></li>
+          <li><a href="#/409" data-h="409"><span>This is as far as we got</span><span class="ind-n">410</span></a></li>
+          <li><a href="#/411" data-h="411"><span>Self-assessment</span><span class="ind-n">412</span></a></li>
         </ul>
         <h3 class="ind-grupo">Day 8 · optional</h3>
         <ul>
-          <li><a href="#/407" data-h="407"><span>Agenda</span><span class="ind-n">408</span></a></li>
-          <li><a href="#/408" data-h="408"><span>RAL</span><span class="ind-n">409</span></a></li>
-          <li><a href="#/420" data-h="420"><span>Exercise · Day 8 · 1 of 2</span><span class="ind-n">421</span></a></li>
-          <li><a href="#/421" data-h="421"><span>The reference model in C</span><span class="ind-n">422</span></a></li>
-          <li><a href="#/425" data-h="425"><span>Review · Day 8</span><span class="ind-n">426</span></a></li>
-          <li><a href="#/433" data-h="433"><span>Exercise · Day 8 · 2 of 2</span><span class="ind-n">434</span></a></li>
-          <li><a href="#/434" data-h="434"><span>Capstone 2 · Day 8</span><span class="ind-n">435</span></a></li>
-          <li><a href="#/435" data-h="435"><span>The end</span><span class="ind-n">436</span></a></li>
+          <li><a href="#/414" data-h="414"><span>Yesterday we left…</span><span class="ind-n">415</span></a></li>
+          <li><a href="#/416" data-h="416"><span>RAL</span><span class="ind-n">417</span></a></li>
+          <li><a href="#/428" data-h="428"><span>Exercise · Day 8 · 1 of 2</span><span class="ind-n">429</span></a></li>
+          <li><a href="#/429" data-h="429"><span>The reference model in C</span><span class="ind-n">430</span></a></li>
+          <li><a href="#/433" data-h="433"><span>Review · Day 8</span><span class="ind-n">434</span></a></li>
+          <li><a href="#/441" data-h="441"><span>Exercise · Day 8 · 2 of 2</span><span class="ind-n">442</span></a></li>
+          <li><a href="#/442" data-h="442"><span>Capstone 2 · Day 8</span><span class="ind-n">443</span></a></li>
+          <li><a href="#/443" data-h="443"><span>On Monday</span><span class="ind-n">444</span></a></li>
         </ul>
     </nav>
   </dialog>
@@ -16023,7 +16437,7 @@ showing up where nobody expected it.
       // escribe esa coordenada en la URL y el de llegada la resuelve con SU
       // propio mapa: si todavia no tradujo esa seccion, avisa y arranca de
       // cero en vez de aterrizar en cualquier lado.
-      const SECCIONES = [["000-verify-this",1],["002-como-usar",2],["005-agenda-day1",1],["010-tendencias",5],["015-introduccion",6],["020-spec-vtalu",8],["021-plan-de-verificacion",3],["025-testbench-convencional",5],["026-cobertura-funcional",13],["030-interfaces-bfm",13],["042-quiz-day1",7],["043-ejercicio-day1",1],["044-ejercicio-day1b",1],["045-agenda-day2",1],["046-clases-y-extensiones",7],["047-polimorfismo",7],["050-variables-estaticas",5],["055-clases-parametricas",5],["060-factory",6],["065-tb-en-objetos",9],["067-quiz-day2",8],["068-ejercicio-day2",1],["070-agenda-day3",1],["075-tests",12],["080-components",10],["085-env",17],["088-reporting",14],["092-quiz-day3",7],["093-ejercicio-day3",1],["095-agenda-day4",1],["100-varios-objetos",16],["105-analysis-ports",13],["110-threads",13],["115-put-get",7],["117-quiz-day4",5],["118-ejercicio-day4",1],["118b-ejercicio-day4b",1],["120-agenda-day5",1],["130-jerarquias",10],["135-transactions",20],["136-constrained-random",14],["137-quiz-day5",8],["138-ejercicio-day5",1],["139-ejercicio-day5b",1],["140-agenda-day6",1],["145-agents",19],["146-callbacks",5],["150-sequences",26],["151-quiz-day6",10],["152-ejercicio-day6-agents",1],["153-ejercicio-day6-sequences",1],["153b-ejercicio-day6-bins",1],["153c-ejercicio-day6-semillas",1],["153d-ejercicio-day6-debug",1],["159-agenda-day7",1],["160-assertions",19],["161-ejercicio-day7-sva",1],["162-quiz-day7",5],["163-ejercicio-day7-capstone",4],["170-de-la-vtalu-a-un-bus",4],["171-apendice-debug",2],["172-apendice-trampas",5],["173-glosario",3],["174-referencias",3],["175-cierre",2],["175b-autoevaluacion",3],["179-agenda-day8",1],["180-ral",12],["181-ejercicio-day8-ral",1],["182-dpi",4],["182b-quiz-day8",8],["182c-ejercicio-day8-dpi",1],["183-ejercicio-day8-fifo",1],["190-the-end",1]];
+      const SECCIONES = [["000-verify-this",1],["002-como-usar",2],["005-agenda-day1",1],["007-el-gancho",1],["010-tendencias",5],["015-introduccion",6],["020-spec-vtalu",8],["021-plan-de-verificacion",3],["025-testbench-convencional",5],["026-cobertura-funcional",13],["030-interfaces-bfm",13],["042-quiz-day1",7],["043-ejercicio-day1",1],["044-ejercicio-day1b",1],["045-agenda-day2",2],["046-clases-y-extensiones",6],["047-polimorfismo",7],["050-variables-estaticas",5],["055-clases-parametricas",5],["060-factory",6],["065-tb-en-objetos",9],["067-quiz-day2",8],["068-ejercicio-day2",1],["070-agenda-day3",2],["075-tests",12],["080-components",10],["085-env",17],["088-reporting",14],["092-quiz-day3",7],["093-ejercicio-day3",1],["093b-ejercicio-day3b",1],["095-agenda-day4",2],["100-varios-objetos",16],["105-analysis-ports",13],["110-threads",13],["115-put-get",7],["117-quiz-day4",5],["118-ejercicio-day4",1],["118b-ejercicio-day4b",1],["120-agenda-day5",2],["130-jerarquias",10],["135-transactions",20],["136-constrained-random",14],["137-quiz-day5",8],["138-ejercicio-day5",1],["139-ejercicio-day5b",1],["139b-ejercicio-day5c",1],["140-agenda-day6",2],["145-agents",19],["146-callbacks",5],["150-sequences",21],["151-quiz-day6",10],["152-ejercicio-day6-agents",1],["153-ejercicio-day6-sequences",1],["153d-ejercicio-day6-debug",1],["159-agenda-day7",2],["159a-ejercicio-day7-semillas",1],["159b-sequences-virtuales",5],["160-assertions",19],["161-ejercicio-day7-sva",1],["162-quiz-day7",5],["163-ejercicio-day7-capstone",4],["170-de-la-vtalu-a-un-bus",4],["171-apendice-debug",2],["172-apendice-trampas",5],["173-glosario",3],["174-referencias",3],["175-cierre",2],["175b-autoevaluacion",3],["179-agenda-day8",2],["180-ral",12],["181-ejercicio-day8-ral",1],["182-dpi",4],["182b-quiz-day8",8],["182c-ejercicio-day8-dpi",1],["183-ejercicio-day8-fifo",1],["190-the-end",1]];
       const coordDe = h => {
         let base = 0;
         for (const [f, n] of SECCIONES) {

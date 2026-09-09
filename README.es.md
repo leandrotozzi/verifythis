@@ -8,7 +8,7 @@
 
 *Universal Verification Methodology · IEEE 1800.2 · SystemVerilog*
 
-8 unidades en 7 días —más un día 8 opcional— · 436 slides · **38 ejemplos que se ejecutan de verdad**,
+8 unidades en 7 días —más un día 8 opcional— · 444 slides · **38 ejemplos que se ejecutan de verdad**,
 con cobertura funcional, sobre el DUT **VTALU**
 
 [![build](https://github.com/leandrotozzi/verifythis/actions/workflows/build.yml/badge.svg)](https://github.com/leandrotozzi/verifythis/actions/workflows/build.yml)
@@ -39,7 +39,7 @@ o cloná el repo y abrí `index.html` con doble clic
 
 > ## También está entero en inglés — traducido, no pasado por una máquina
 >
-> Las mismas 436 slides, el mismo libro, los mismos 38 ejemplos y los mismos 15
+> Las mismas 444 slides, el mismo libro, los mismos 38 ejemplos y los mismos 15
 > ejercicios. `tools/lint-i18n.mjs` compara los dos árboles sección por sección y
 > falla si uno se movió y el otro no, así que las dos versiones son el mismo
 > curso y no dos cursos parecidos.
@@ -67,7 +67,37 @@ Casi todo el material de UVM que hay dando vueltas asume Questa, VCS o Xcelium
 
 ---
 
-**Índice** · [Empezá en 60 segundos](#empezá-en-60-segundos) · [Qué trae](#qué-trae) · [Correr los ejemplos](#correr-los-ejemplos) · [Los ejercicios](#los-ejercicios) · [Si lo dictás](#si-lo-dictás) · [Editarlo](#editarlo) · [Los docs](#los-docs) · [Referencias](#referencias) · [Licencia](#licencia)
+**Índice** · [Para quién es](#para-quién-es) · [Empezá en 60 segundos](#empezá-en-60-segundos) · [Qué trae](#qué-trae) · [Correr los ejemplos](#correr-los-ejemplos) · [Los ejercicios](#los-ejercicios) · [Si lo dictás](#si-lo-dictás) · [Editarlo](#editarlo) · [Los docs](#los-docs) · [Referencias](#referencias) · [Licencia](#licencia)
+
+---
+
+## Para quién es
+
+Para el que **diseña o verifica RTL** y todavía no escribió un testbench de UVM:
+el que viene de un testbench de Verilog con `$display`, el estudiante de una
+materia de verificación, el que va a una entrevista donde le van a preguntar qué
+hace `uvm_config_db`.
+
+**Qué hay que saber antes:** **Verilog o VHDL**, y haber simulado algo — saber
+qué es un `always`, un flanco y un testbench. **Programar orientado a objetos no
+hace falta**: el día 2 es exactamente eso, desde cero.
+
+Lo único que el curso da por sabido y no enseña es **SystemVerilog** más allá de
+Verilog-2001: el día 1 usa `interface`, `logic`, `enum`, `package`, `covergroup`
+y `clocking`. Si venís de VHDL o de Verilog-2001, media hora con
+[`docs/systemverilog-para-el-que-viene-de-vhdl.md`](docs/systemverilog-para-el-que-viene-de-vhdl.md)
+antes de empezar te ahorra el escalón.
+
+**Qué te llevás:** no "saber UVM" —eso no se aprende en una semana— sino poder
+**leer un testbench ajeno, escribir uno propio, y entender la próxima cosa que
+aprendas sin que te suene a chino**. La prueba es el capstone: un DUT que no
+viste antes, su spec, y el testbench entero desde una hoja en blanco.
+
+Y lo que **no** es: no es una referencia por tema —para eso están
+[Verification Academy](https://verificationacademy.com) y el *UVM User Guide*—,
+no es un curso de diseño de RTL, y no cubre TLM2, phase jumping ni flujos de
+firma. Lo que queda afuera está listado en el cierre, con el link de dónde
+seguir.
 
 ---
 
@@ -87,7 +117,7 @@ Para sólo **leerlo** no hace falta nada: abrí `index.html` con doble clic para
 deck, o `libro/dia1.html` para el libro. Los dos se commitean ya generados, así
 que un clon fresco anda sin build y sin internet.
 
-Los ejemplos no los corro yo a mano: el CI corre los 38 ejemplos y las 18
+Los ejemplos no los corro yo a mano: el CI corre los 38 ejemplos y las 19
 soluciones todas las noches, y el badge `ejemplos` de arriba dice si están en
 verde **ahora**.
 
@@ -96,9 +126,9 @@ verde **ahora**.
 
 | Tecla | Acción |
 |:--|:--|
-| <kbd>i</kbd> | índice del curso: 74 secciones —charlas, repasos, ejercicios y apéndices— agrupadas por día, o el botón ☰ de la esquina superior izquierda |
+| <kbd>i</kbd> | índice del curso: 77 secciones —charlas, repasos, ejercicios y apéndices— agrupadas por día, o el botón ☰ de la esquina superior izquierda |
 | <kbd>0</kbd>–<kbd>8</kbd> | ir a la portada / al Día 1–8 (la portada tiene los mismos saltos clickeables, y quedan en la URL: `index.html#/day3`) |
-| <kbd>Esc</kbd> | vista general de las 436 slides |
+| <kbd>Esc</kbd> | vista general de las 444 slides |
 | <kbd>s</kbd> | notas del presentador, en una ventana aparte |
 | <kbd>n</kbd> | las mismas notas, abajo de la slide y sin salir de la página (queda recordado) |
 | <kbd>v</kbd> | en las slides de repaso, revelar la respuesta sin clickear |
@@ -128,9 +158,9 @@ que el capstone del día 7 ya esté hecho.
 | **2** | **3 ·** La OOP que UVM da por sabida | Clases y extensiones · Polimorfismo · Variables y métodos estáticos · Clases paramétricas · El patrón factory · Un testbench sin un solo módulo | ≈ 4 h |
 | **3** | **4 ·** Entra UVM | Tests · Components y fases · El env: estructura y estímulo · Reporting | ≈ 4 h 30 |
 | **4** | **5 ·** Cómo hablan los componentes | Un productor, muchos oyentes · Un solo lugar que mira el cable · Cuando alguien tiene que esperar · Quién espera a quién | ≈ 4 h |
-| **5** | **6 ·** El dato | Copiar un objeto que contiene otro · Transactions · Constrained random | ≈ 4 h |
-| **6** | **7 ·** El testbench reutilizable | Agents · Callbacks · Sequences · Sequences virtuales | ≈ 5 h 15 |
-| **7** | **8 ·** La otra mitad | Assertions (SVA) · el capstone · los cuatro apéndices · glosario, referencias y cierre | ≈ 4 h 45 |
+| **5** | **6 ·** El dato | Copiar un objeto que contiene otro · Transactions · Constrained random | ≈ 4 h 30 |
+| **6** | **7 ·** El testbench reutilizable | Agents · Callbacks · Sequences | ≈ 4 h 15 |
+| **7** | **8 ·** La otra mitad | Sequences virtuales · Assertions (SVA) · el capstone · los cuatro apéndices · glosario, referencias y cierre | ≈ 5 h 15 |
 | **8** *(opc.)* | **9 ·** RAL · y lo que sigue | El modelo de registros sobre el APB del capstone · el modelo de referencia en C por DPI · el segundo capstone: una FIFO con backpressure | ≈ 4 h |
 
 **≈ 34 h 30 de clase**, de las cuales **30 h 30 son los siete días** y el resto el
@@ -186,11 +216,11 @@ con versión, fecha y el número de cobertura de cada ejemplo:
 
 ### Los ejercicios
 
-**Quince**, en [`code/ejercicios/`](code/ejercicios/): el `run.sh` **falla hasta
+**Diecinueve**, en [`code/ejercicios/`](code/ejercicios/): el `run.sh` **falla hasta
 que lo resolvés**, y la solución está al lado (`SOLUCION=1 bash run.sh`). Cada
 enunciado tiene su versión en inglés (`README.en.md`).
 
-Tres de ellos —`d5b`, `d6-bins` y `d6-semillas`— son el ciclo de *coverage
+Tres de ellos —`d5b`, `d5c` y `d7-semillas`— son el ciclo de *coverage
 closure* hecho con las manos. `d7-final` es el **capstone**: un esclavo APB de
 cuatro registros, su especificación, y nada más; el corrector va por etapas, un
 `STAGE N OK` cada una. Se entrega con su **plan de verificación** lleno — la
@@ -262,8 +292,9 @@ suyo.
 Todo lo que no entra en una slide, indexado en
 **[`docs/README.md`](docs/README.md)**: la matriz de Verilator, el machete, la
 guía para docentes, el plan de verificación, el banco de examen, las trampas
-mudas, las preguntas de entrevista, y los dos textos largos de fondo (clocking
-blocks, y en qué se diferencia del *UVM Primer*).
+mudas, las preguntas de entrevista, la nivelación de SystemVerilog para el que
+viene de VHDL, qué cambia el día que te sentás frente a Questa, y los dos textos
+largos de fondo (clocking blocks, y en qué se diferencia del *UVM Primer*).
 
 ## Referencias
 

@@ -55,7 +55,28 @@
   instructor adentro del texto</strong> y el código completo. Si estás haciendo
   el curso solo, empezá por acá y tené el deck al lado para los repasos.</p>
 
-<section id="s177" class="slide">
+<section id="s180" class="slide">
+<h2 id="ayer-quedó">Ayer quedó…</h2>
+<h4 id="dónde-dejamos-el-testbench"><em>Dónde dejamos el testbench</em></h4>
+<ul>
+<li>Entró UVM: <code>run_test()</code>, el test, las fases, el <code>env</code> y el scoreboard, y el
+<code>+UVM_TESTNAME</code> que elige la clase desde la línea de comandos</li>
+<li>El <strong>objection</strong> es lo que mantiene viva la simulación, y el reporting ya
+distingue verbosidad de <em>action</em></li>
+<li>Y quedó un cuello: el scoreboard es <strong>uno solo</strong> y está cableado al monitor.
+El día que haya dos oyentes hay que editar al que publica</li>
+</ul>
+<div class="nota">
+<p>La recap del día 4 tiene que dejar servido el problema del observer, porque la
+unidad entera es eso: un productor que no conoce a sus oyentes.
+Vale hacer la pregunta y esperar: <em>&quot;si mañana quieren medir cobertura además de
+comparar, ¿dónde tocan?&quot;</em>. La respuesta natural —&quot;agrego una llamada en el
+monitor&quot;— es exactamente la que la unidad viene a desarmar.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/180">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s181" class="slide">
 <h2 id="agenda">Agenda</h2>
 <h4 id="día-4-·-≈-4-h-·-unidad-5-·-cómo-hablan-los-componentes"><em>Día 4 · ≈ 4 h · unidad 5 · cómo hablan los componentes</em></h4>
 <ul>
@@ -64,10 +85,25 @@
 <li>Cuando alguien tiene que esperar</li>
 <li>Quién espera a quién</li>
 </ul>
-<p class="al-deck"><a href="../index.html#/177">ver esta slide en el deck &rsaquo;</a></p>
+<p><strong>Al final del día podés:</strong></p>
+<ul>
+<li><strong>Colgar</strong> un subscriber nuevo de un analysis port <strong>sin tocar al que publica</strong></li>
+<li><strong>Elegir</strong> entre un analysis port y una FIFO de TLM, y decir cuál de los dos
+bloquea</li>
+<li><strong>Sacar</strong> el <code>#500</code> del final de un test y reemplazarlo por el objection que
+corresponde</li>
+</ul>
+<div class="nota">
+<p>El primero es la fila 11 de la autoevaluación del cierre y es el que define la
+unidad: el observer existe para que agregar un oyente no toque al que publica.
+El tercero es el segundo ejercicio del día y vale como objetivo por sí solo: el
+<code>#500</code> es el parche que todo el mundo escribe la primera vez, y sacarlo obliga a
+entender qué mantiene viva la simulación.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/181">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s178" class="slide">
+<section id="s182" class="slide">
 <h2 id="un-productor-muchos-oyentes">Un productor, muchos oyentes</h2>
 <h4 id="dos-formas-de-hablar-entre-objetos"><em>Dos formas de hablar entre objetos</em></h4>
 <ul>
@@ -94,10 +130,10 @@ mi thread, no; si corre en otro, sí, y entonces tiene que ser una <code>task</c
 <code>function</code> —no consume tiempo—, <code>put()</code> y <code>get()</code> son <code>task</code>. La firma te dice de
 qué lado de la división estás antes de leer una línea de la implementación.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/178">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/182">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s179" class="slide">
+<section id="s183" class="slide">
 <h2 id="un-productor-muchos-oyentes">Un productor, muchos oyentes</h2>
 <h4 id="el-que-publica-no-sabe-quién-lo-lee"><em>El que publica no sabe quién lo lee</em></h4>
 <ul>
@@ -126,10 +162,10 @@ dentro de <strong>un solo thread</strong>. <code>write()</code> es una <code>fun
 corre en el thread del que publica. Para hablar entre threads hace falta otra
 cosa.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/179">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/183">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s180" class="slide">
+<section id="s184" class="slide">
 <h2 id="un-productor-muchos-oyentes">Un productor, muchos oyentes</h2>
 <h4 id="el-problema-dos-dados-tres-cosas-que-hay-que-contar"><em>El problema: dos dados, tres cosas que hay que contar</em></h4>
 <ul>
@@ -151,10 +187,10 @@ final, y por eso los tres van a necesitar dos métodos, no uno.
 Y una pregunta rápida para el aula, que después se cobra: si mañana piden un
 cuarto informe —la tirada más repetida, digamos—, ¿qué archivos hay que tocar?</p>
 </div>
-<p class="al-deck"><a href="../index.html#/180">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/184">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s181" class="slide">
+<section id="s185" class="slide">
 <h2 id="un-productor-muchos-oyentes">Un productor, muchos oyentes</h2>
 <h4 id="los-tres-observadores-la-misma-forma-tres-cuerpos"><em>Los tres observadores: la misma forma, tres cuerpos</em></h4>
 <figure class="codigo"><figcaption><code>code/u5/varios-objetos/01-sin-analysis-port/average.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">average</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
@@ -196,10 +232,10 @@ tocarlos, sólo llamar a <code>write()</code>.
 Cuando esto sea el VTALU, en los analysis ports, <code>average</code> va a ser el scoreboard y el
 <code>report_phase</code> el veredicto de la corrida. Misma forma.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/181">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/185">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s182" class="slide">
+<section id="s186" class="slide">
 <h2 id="un-productor-muchos-oyentes">Un productor, muchos oyentes</h2>
 <h4 id="los-otros-dos-cambia-el-cuerpo-no-la-forma"><em>Los otros dos: cambia el cuerpo, no la forma</em></h4>
 <figure class="codigo"><figcaption><code>code/u5/varios-objetos/01-sin-analysis-port/histogram.svh</code> · #write</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">write</span>(<span class="hljs-type">int</span> t);
@@ -280,10 +316,10 @@ el <code>coverage</code> de todos los testbenches del curso de acá en adelante.
 El archivo entero de cada uno está en <code>code/u5/varios-objetos/01-sin-analysis-port/</code>: lo que
 no se muestra es el <code>report_phase</code>, que sólo formatea.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/182">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/186">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s183" class="slide">
+<section id="s187" class="slide">
 <h2 id="un-productor-muchos-oyentes">Un productor, muchos oyentes</h2>
 <h4 id="el-productor-tira-los-dados-y-devuelve-un-número"><em>El productor: tira los dados y devuelve un número</em></h4>
 <figure class="codigo"><figcaption><code>code/u5/varios-objetos/01-sin-analysis-port/dice_roller.svh</code> · #dice_roller</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">dice_roller</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
@@ -353,10 +389,10 @@ costumbre —un <code>randomize()</code> que falla y nadie se entera— y cómo 
 La pregunta para dejar picando: si el productor no tiene la lista, ¿quién la
 tiene? La slide que sigue.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/183">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/187">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s184" class="slide">
+<section id="s188" class="slide">
 <h2 id="un-productor-muchos-oyentes">Un productor, muchos oyentes</h2>
 <h4 id="el-que-reparte-el-test-y-no-debería"><em>El que reparte: el test, y no debería</em></h4>
 <ul>
@@ -430,10 +466,10 @@ La pregunta para tirar antes de pasar a la siguiente: si esto fuera el VTALU,
 scoreboard más la cobertura. Los analysis ports son literalmente esta slide con otros
 nombres.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/184">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/188">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s185" class="slide">
+<section id="s189" class="slide">
 <h2 id="un-productor-muchos-oyentes">Un productor, muchos oyentes</h2>
 <h4 id="observer-design-pattern"><em>Observer Design Pattern</em></h4>
 <ul>
@@ -454,10 +490,10 @@ del que produce</li>
 El ejemplo de los dados es a propósito ajeno al hardware: se ve el patrón sin el
 ruido del protocolo.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/185">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/189">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s186" class="slide">
+<section id="s190" class="slide">
 <h2 id="un-productor-muchos-oyentes">Un productor, muchos oyentes</h2>
 <h4 id="el-patrón-ya-hecho-las-dos-puntas-del-cable"><em>El patrón, ya hecho: las dos puntas del cable</em></h4>
 <ul>
@@ -480,10 +516,10 @@ scoreboard que nunca reporta nada.
 <code>#(command_transaction)</code> en los analysis ports. La conexión queda <strong>tipada</strong> por el
 compilador, no por un string.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/186">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/190">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s187" class="slide">
+<section id="s191" class="slide">
 <h2 id="un-productor-muchos-oyentes">Un productor, muchos oyentes</h2>
 <h4 id="uvm_analysis_port"><em>uvm_analysis_port</em></h4>
 <ul>
@@ -506,10 +542,10 @@ conecta en connect_phase.
 El detalle que sorprende: los ports no se crean con la factory, se instancian
 con new().</p>
 </div>
-<p class="al-deck"><a href="../index.html#/187">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/191">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s188" class="slide">
+<section id="s192" class="slide">
 <h2 id="un-productor-muchos-oyentes">Un productor, muchos oyentes</h2>
 <h4 id="uvm_subscriber"><em>uvm_subscriber</em></h4>
 <ul>
@@ -564,10 +600,10 @@ Y un detalle que aparece en la salida: acá la cobertura se lee con
 <code>get_inst_coverage()</code>, no con <code>get_coverage()</code>. Es una limitación de Verilator
 —la type-wide devuelve siempre 0— y está en <code>docs/verilator.md</code>.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/188">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/192">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s189" class="slide">
+<section id="s193" class="slide">
 <h2 id="un-productor-muchos-oyentes">Un productor, muchos oyentes</h2>
 <h4 id="el-productor-ahora-publicando"><em>El productor, ahora publicando</em></h4>
 <figure class="codigo"><figcaption><code>code/u5/varios-objetos/02-con-analysis-port/dice_roller.svh</code> · #port-and-run</figcaption><pre><code class="hljs">   <span class="hljs-comment">// 1) declare the port, with the data type it will carry</span>
@@ -650,10 +686,10 @@ Y el <code>write()</code> de acá conviene mirarlo con la comunicación entre th
 <code>function</code>, así que <strong>no consume tiempo</strong> y corre en el thread del productor.
 Cuando el que consume necesite hacer esperar al que produce, esto no alcanza.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/189">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/193">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s190" class="slide">
+<section id="s194" class="slide">
 <h2 id="un-productor-muchos-oyentes">Un productor, muchos oyentes</h2>
 <h4 id="connect_phase-dónde-se-arma-el-cableado"><em>connect_phase(): dónde se arma el cableado</em></h4>
 <ul>
@@ -679,10 +715,10 @@ El <code>analysis_export</code> que aparece solo es de las pocas cosas de UVM qu
 gratis: viene con la clase, y olvidarse de instanciarlo no es un error porque no
 hay nada que instanciar.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/190">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/194">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s191" class="slide">
+<section id="s195" class="slide">
 <h2 id="un-productor-muchos-oyentes">Un productor, muchos oyentes</h2>
 <h4 id="connect_phase-dónde-se-arma-el-cableado"><em>connect_phase(): dónde se arma el cableado</em></h4>
 <ul>
@@ -749,10 +785,10 @@ sección.
 Y la prueba de fuego de la sección: para agregar un cuarto observador hay que
 escribir la clase y <strong>una</strong> línea acá. Ni una en <code>dice_roller</code>.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/191">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/195">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s192" class="slide">
+<section id="s196" class="slide">
 <h2 id="un-productor-muchos-oyentes">Un productor, muchos oyentes</h2>
 <h4 id="la-solución-cableada"><em>La solución, cableada</em></h4>
 <ul>
@@ -774,10 +810,10 @@ un solo thread. <code>write()</code> es una <code>function</code>, no puede tene
 volvió antes de que avanzara el tiempo. Cuando el que produce y el que consume
 tengan que esperarse, esto no alcanza — y eso es la comunicación entre threads.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/192">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/196">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s193" class="slide">
+<section id="s197" class="slide">
 <h2 id="un-productor-muchos-oyentes">Un productor, muchos oyentes</h2>
 <h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
 <ul>
@@ -802,10 +838,10 @@ Y el criterio que ordena el vocabulario entero: <code>write()</code> es una <cod
 consume tiempo—, <code>put()</code> y <code>get()</code> son <code>task</code>. En SystemVerilog eso no es una
 convención de nombres, es el lenguaje diciéndote de qué lado estás.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/193">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/197">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s194" class="slide">
+<section id="s198" class="slide">
 <h2 id="un-solo-lugar-que-mira-el-cable">Un solo lugar que mira el cable</h2>
 <h4 id="un-solo-lugar-que-mira-el-cable-1"><em>Un solo lugar que mira el cable</em></h4>
 <ul>
@@ -833,10 +869,10 @@ Y la que se ve recién en los agents: si todo lo que sabe hablar el protocolo es
 junto —BFM, monitores, driver—, esa caja se puede instanciar dos veces. Eso es
 el agent, y esta sección es el que junta las piezas.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/194">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/198">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s195" class="slide">
+<section id="s199" class="slide">
 <h2 id="un-solo-lugar-que-mira-el-cable">Un solo lugar que mira el cable</h2>
 <h4 id="qué-piezas-aparecen"><em>Qué piezas aparecen</em></h4>
 <ul>
@@ -862,17 +898,17 @@ del lado del análisis, y el lado del estímulo ni se entera. Es la primera vez 
 el curso separa las dos mitades del testbench, y en la sección siguiente se hace
 la otra.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/195">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/199">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s196" class="slide">
+<section id="s200" class="slide">
 <h2 id="un-solo-lugar-que-mira-el-cable">Un solo lugar que mira el cable</h2>
 <h4 id="diagrama-del-testbench"><em>Diagrama del Testbench</em></h4>
 <p><img src="../res/print/diagrams/analysis-ports_fig102.svg" alt="TB del VTALU con analysis ports"></p>
-<p class="al-deck"><a href="../index.html#/196">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/200">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s197" class="slide">
+<section id="s201" class="slide">
 <h2 id="un-solo-lugar-que-mira-el-cable">Un solo lugar que mira el cable</h2>
 <h4 id="los-handles-que-la-bfm-guarda"><em>Los handles que la BFM guarda</em></h4>
 <ul>
@@ -1058,10 +1094,10 @@ Detalle que ayuda: el handle es de la clase, no <code>virtual</code>. Por eso el
 puede llamar directo a <code>write_to_monitor()</code> sin el agujero de Verilator que
 afecta a las tasks — acá el que declara la task es la clase, no la interface.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/197">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/201">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s198" class="slide">
+<section id="s202" class="slide">
 <h2 id="un-solo-lugar-que-mira-el-cable">Un solo lugar que mira el cable</h2>
 <h4 id="monitoreando-los-comandos-del-vtalu"><em>Monitoreando los comandos del VTALU</em></h4>
 <ul>
@@ -1248,10 +1284,10 @@ quién está ahí.
 Y el detalle que se cobra en las transactions: lo que viaja todavía es una <code>struct</code>.
 El día que sea una transaction, esta misma línea va a ser un <code>create()</code>.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/198">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/202">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s199" class="slide">
+<section id="s203" class="slide">
 <h2 id="un-solo-lugar-que-mira-el-cable">Un solo lugar que mira el cable</h2>
 <h4 id="vtalu-coverage-class-como-subscriber"><em>VTALU Coverage Class como Subscriber</em></h4>
 <ul>
@@ -1408,10 +1444,10 @@ La pregunta para el grupo: si el DUT quedara diez ciclos sin hacer nada, ¿cuán
 muestras tomaba la versión vieja y cuántas ésta? Diez y cero. La vieja estaba
 llenando bins con la nada.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/199">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/203">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s200" class="slide">
+<section id="s204" class="slide">
 <h2 id="un-solo-lugar-que-mira-el-cable">Un solo lugar que mira el cable</h2>
 <h4 id="suscribiéndose-a-múltiples-analysis-ports"><em>Suscribiéndose a múltiples analysis ports</em></h4>
 <ul>
@@ -1431,10 +1467,10 @@ uvm_subscriber puede escuchar una sola. La FIFO convierte &quot;me avisan cuando
 llega&quot; en &quot;lo busco cuando quiero&quot;, que es lo que necesita para comparar de a
 pares.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/200">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/204">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s201" class="slide">
+<section id="s205" class="slide">
 <h2 id="un-solo-lugar-que-mira-el-cable">Un solo lugar que mira el cable</h2>
 <h4 id="suscribiéndose-a-múltiples-analysis-ports"><em>Suscribiéndose a múltiples analysis ports</em></h4>
 <ul>
@@ -1549,10 +1585,10 @@ Y el <code>uvm_fatal</code> del <code>try_get()</code> no es paranoia: si hay un
 comando, el que está roto es el testbench, no el DUT. Mejor morir ahí que
 reportar mil errores falsos.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/201">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/205">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s202" class="slide">
+<section id="s206" class="slide">
 <h2 id="un-solo-lugar-que-mira-el-cable">Un solo lugar que mira el cable</h2>
 <h4 id="la-otra-forma-uvm_analysis_imp_decl"><em>La otra forma: <code>`uvm_analysis_imp_decl</code></em></h4>
 <pre><code class="language-systemverilog">`uvm_analysis_imp_decl(_cmd)        // fabrica la clase uvm_analysis_imp_cmd
@@ -1593,10 +1629,10 @@ la FIFO queda una línea más largo y el orden lo decide él. Para un scoreboard
 empareja de a pares, la FIFO gana. Para un componente que sólo cuenta cosas de dos
 puertos, la macro es mejor.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/202">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/206">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s203" class="slide">
+<section id="s207" class="slide">
 <h2 id="un-solo-lugar-que-mira-el-cable">Un solo lugar que mira el cable</h2>
 <h4 id="suscribiendo-los-monitores"><em>Suscribiendo los monitores</em></h4>
 <ul>
@@ -1644,10 +1680,10 @@ Y el detalle que se olvida y no avisa: <code>cmd_f</code> se instancia con <code
 la factory. Las FIFOs y los ports no están registrados. Si te olvidás del <code>new()</code>
 el <code>connect()</code> explota con un null, y ese al menos es un error honesto.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/203">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/207">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s204" class="slide">
+<section id="s208" class="slide">
 <h2 id="un-solo-lugar-que-mira-el-cable">Un solo lugar que mira el cable</h2>
 <h4 id="cuando-el-dut-no-contesta-en-orden"><em>Cuando el DUT no contesta en orden</em></h4>
 <ul>
@@ -1693,10 +1729,10 @@ Y la variante que aparece cuando no hay ID: aparear por contenido. Se guarda una
 cola de esperados y se busca el que matchea, en vez del primero. Es más caro y
 tiene una trampa propia —dos transacciones idénticas—, y por eso el ID existe.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/204">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/208">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s205" class="slide">
+<section id="s209" class="slide">
 <h2 id="un-solo-lugar-que-mira-el-cable">Un solo lugar que mira el cable</h2>
 <h4 id="de-un-lado-del-monitor-se-habla-en-señales-del-otro-en-transactions"><em>De un lado del monitor se habla en señales, del otro en transactions</em></h4>
 <ul>
@@ -1722,10 +1758,10 @@ Vale hacer la pregunta antes de pasar: ¿qué pasaría si el <code>write()</code
 subscriber tuviera un <code>@(posedge clk)</code> adentro? No compila. Una <code>function</code> no
 puede consumir tiempo, y ésa es la limitación entera.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/205">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/209">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s206" class="slide">
+<section id="s210" class="slide">
 <h2 id="un-solo-lugar-que-mira-el-cable">Un solo lugar que mira el cable</h2>
 <h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
 <ul>
@@ -1752,10 +1788,10 @@ nuevo —una cobertura más, un checker más— la respuesta va a ser siempre la
 Es literalmente el ejercicio del día, y es también lo que va a quedar afuera del
 agent en los agents.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/206">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/210">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s207" class="slide">
+<section id="s211" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="esto-ya-lo-hacías-con-módulos"><em>Esto ya lo hacías, con módulos</em></h4>
 <ul>
@@ -1854,10 +1890,10 @@ La pregunta para dejar picando, que es exactamente la de la slide siguiente:
 compartida, un semáforo, un mailbox— son todas correctas, y ése es justamente el
 problema que UVM viene a resolver.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/207">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/211">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s208" class="slide">
+<section id="s212" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="un-objeto-no-tiene-port-list"><em>Un objeto no tiene port list</em></h4>
 <ul>
@@ -1883,10 +1919,10 @@ El tamaño 1 es el que sincroniza: bloquea al productor hasta que el consumidor
 saca, y eso reemplaza al semáforo y a la bandera que cada uno se escribía a
 mano. Es el mismo handshake del <code>start</code>/<code>done</code> del BFM, pero entre objetos.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/208">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/212">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s209" class="slide">
+<section id="s213" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="productor-como-un-objeto"><em>Productor como un objeto</em></h4>
 <ul>
@@ -1940,10 +1976,10 @@ en el get port y en la FIFO. Si no coinciden no compila, que es la buena noticia
 —es de los pocos errores de conexión de UVM que se ven en compilación y no a las
 tres de la mañana—.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/209">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/213">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s210" class="slide">
+<section id="s214" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="consumidor-como-un-objeto"><em>Consumidor como un objeto</em></h4>
 <ul>
@@ -1986,10 +2022,10 @@ thread colgado para siempre. No hay error ni warning — la simulación termina
 cuando se baja el objection y ese consumidor simplemente nunca corrió. Es
 hermano del <code>item_done()</code> olvidado del día 6.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/210">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/214">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s211" class="slide">
+<section id="s215" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="instanciar-los-tres-dos-componentes-y-una-fifo"><em>Instanciar los tres: dos componentes y una FIFO</em></h4>
 <ul>
@@ -2044,10 +2080,10 @@ del <strong>test</strong>, no de un env. Es a propósito, porque la sección es 
 mecanismo. En el testbench real esto va adentro del agent, con el sequencer de un
 lado y el driver del otro.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/211">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/215">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s212" class="slide">
+<section id="s216" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="conectarlos-put_export-y-get_export"><em>Conectarlos: <code>put_export</code> y <code>get_export</code></em></h4>
 <ul>
@@ -2095,10 +2131,10 @@ sincronización de los dos threads no la da el reloj: la da la FIFO de un solo
 elemento. En el ejemplo que sigue aparecen los relojes y los números dejan de
 ser 0.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/212">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/216">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s213" class="slide">
+<section id="s217" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="comunicación-no-bloqueante"><em>Comunicación NO bloqueante</em></h4>
 <ul>
@@ -2167,10 +2203,10 @@ El tiempo de cada línea no lo imprime el mensaje: lo pone UVM en el <code>@</co
 eso acá se puede leer la carrera entre los dos relojes sin haber escrito una
 sola línea de formateo.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/213">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/217">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s214" class="slide">
+<section id="s218" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="comunicación-no-bloqueante-la-línea-de-tiempo"><em>Comunicación NO bloqueante: la línea de tiempo</em></h4>
 <p><img src="../res/print/diagrams/threads_nonblocking.svg" alt="try_get() devuelve 0 cuando la FIFO está vacía"></p>
@@ -2187,10 +2223,10 @@ El flanco que hay que hacer ver es el de 49 ns. El dato 3 recién se pone a los
 vuelve 14 ns después. Con <code>get()</code> ese thread quedaba bloqueado justo ahí, y en
 un testbench con reloj eso es un flanco perdido.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/214">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/218">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s215" class="slide">
+<section id="s219" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="cómo-se-leen-los-diagramas-tlm"><em>Cómo se leen los diagramas TLM</em></h4>
 <p><img src="../res/print/diagrams/threads_fig124.svg" alt="Put port, TLM FIFO y get port entre dos threads"></p>
@@ -2214,10 +2250,10 @@ El rombo es el caso especial que ya vieron: un analysis port puede apuntar a
 muchos círculos a la vez, y por eso se dibuja distinto. Los otros dos son uno a
 uno.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/215">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/219">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s216" class="slide">
+<section id="s220" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="fork-las-tres-formas-de-arrancar-en-paralelo"><em><code>fork</code>: las tres formas de arrancar en paralelo</em></h4>
 <pre><code class="language-systemverilog">fork  esperar_done();  contar_ciclos();  join        // sigue cuando terminaron LAS DOS
@@ -2275,10 +2311,10 @@ escrita a mano usaba <code>fork ... join_none</code> para arrancar los tres obje
 una casualidad ni un truco — es exactamente lo que hace UVM cuando corre la
 <code>run_phase</code> de cien componentes a la vez.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/216">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/220">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s217" class="slide">
+<section id="s221" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="disable-fork-y-wait-fork-apagar-lo-que-quedó-prendido"><em><code>disable fork</code> y <code>wait fork</code>: apagar lo que quedó prendido</em></h4>
 <pre><code class="language-systemverilog">// El idiom de la respuesta contra el timeout. El fork de afuera AÍSLA
@@ -2320,10 +2356,10 @@ con <code>join_none</code> y no quiere que la fase termine con la mitad del est�
 aire. En UVM el mismo problema se resuelve con objections — pero adentro de una
 task, <code>wait fork</code> es la respuesta.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/217">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/221">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s218" class="slide">
+<section id="s222" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="⚠-la-trampa-el-índice-del-for-adentro-del-fork"><em>⚠ La trampa: el índice del <code>for</code> adentro del <code>fork</code></em></h4>
 <pre><code class="language-systemverilog">int i;                                  // declarado AFUERA del for: uno solo
@@ -2367,10 +2403,10 @@ Ahí no hay copia por vuelta y hay que hacerla a mano. La regla práctica para
 llevarse: <strong>si un thread lanzado con <code>join_none</code> lee una variable de afuera,
 copiala en un <code>automatic</code> en su primera línea.</strong></p>
 </div>
-<p class="al-deck"><a href="../index.html#/218">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/222">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s219" class="slide">
+<section id="s223" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
 <ul>
@@ -2399,10 +2435,10 @@ La forma corta de distinguirlas, y es la pregunta 3 del repaso: <strong>si es un
 que no puede esperar a nadie. La palabra <code>task</code> es la que delata que hay dos
 threads.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/219">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/223">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s220" class="slide">
+<section id="s224" class="slide">
 <h2 id="quién-espera-a-quién">Quién espera a quién</h2>
 <h4 id="qué-mandar-y-cómo-mandarlo"><em>Qué mandar y cómo mandarlo</em></h4>
 <ul>
@@ -2430,10 +2466,10 @@ Y el aviso de hacia dónde va: en los agents este par put/get se llama sequencer
 y viene puesto, y el tester se llama sequence. Lo que estamos armando a mano acá
 es exactamente lo que UVM da hecho — por eso primero se arma a mano.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/220">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/224">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s221" class="slide">
+<section id="s225" class="slide">
 <h2 id="quién-espera-a-quién">Quién espera a quién</h2>
 <h4 id="el-tester-hace-dos-trabajos-y-uno-no-es-suyo"><em>El tester hace dos trabajos, y uno no es suyo</em></h4>
 <ul>
@@ -2511,10 +2547,10 @@ que la palabra no aparezca por primera vez en el día 6. Un driver es lo que
 convierte un dato en señales. Nada más que eso, y por eso es la única clase del
 testbench que tiene derecho a escribir un <code>@(negedge clk)</code>.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/221">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/225">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s222" class="slide">
+<section id="s226" class="slide">
 <h2 id="quién-espera-a-quién">Quién espera a quién</h2>
 <h4 id="cómo-queda-partido"><em>Cómo queda partido</em></h4>
 <ul>
@@ -2535,10 +2571,10 @@ del repaso: aquello era <strong>intra</strong>-thread —<code>write()</code> es
 nadie—, esto es <strong>inter</strong>-thread. Acá el que pone puede quedarse esperando, y ésa
 es justamente la sincronización que antes había que escribir a mano.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/222">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/226">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s223" class="slide">
+<section id="s227" class="slide">
 <h2 id="quién-espera-a-quién">Quién espera a quién</h2>
 <h4 id="el-env-siete-objetos-y-cinco-connect"><em>El <code>env</code>: siete objetos y cinco <code>connect()</code></em></h4>
 <ul>
@@ -2617,10 +2653,10 @@ mensaje del compilador es de los peores de UVM.
 Y el detalle que se olvida: <code>command_f = new(...)</code>, no <code>create()</code>. Las FIFOs no
 están en la factory.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/223">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/227">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s224" class="slide">
+<section id="s228" class="slide">
 <h2 id="quién-espera-a-quién">Quién espera a quién</h2>
 <h4 id="el-base_tester-sin-una-sola-señal"><em>El <code>base_tester</code>, sin una sola señal</em></h4>
 <ul>
@@ -2723,10 +2759,10 @@ operación todavía viaja. En las sequences desaparece, porque <code>finish_item
 recién cuando la operación terminó de verdad. Un <code>#500</code> a ojo en un testbench es
 siempre una pregunta sin responder.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/224">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/228">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s225" class="slide">
+<section id="s229" class="slide">
 <h2 id="quién-espera-a-quién">Quién espera a quién</h2>
 <h4 id="el-driver-el-único-que-toca-el-cable"><em>El driver: el único que toca el cable</em></h4>
 <ul>
@@ -2788,10 +2824,10 @@ En un agent de verdad el tester se va a llamar sequence y este put/get se va a
 llamar get_next_item / item_done. Anticiparlo acá hace que el día 6 arranque
 cuesta abajo.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/225">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/229">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s226" class="slide">
+<section id="s230" class="slide">
 <h2 id="quién-espera-a-quién">Quién espera a quién</h2>
 <h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
 <ul>
@@ -2815,10 +2851,10 @@ viajan <code>command_s</code>, que son structs. Andan, pero no se randomizan sol
 comparan solas y no se imprimen solas — y eso es exactamente lo que el día 5 va a
 arreglar convirtiéndolas en transactions.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/226">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/230">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s227" class="slide quiz">
+<section id="s231" class="slide quiz">
 <h2 id="repaso-·-día-4">Repaso · Día 4</h2>
 <h4 id="1-de-5-·-observer-pattern"><em>1 de 5 · Observer Pattern</em></h4>
 <p><strong>En el patrón Observer, ¿qué sabe el objeto observado sobre sus observadores?</strong></p>
@@ -2831,10 +2867,10 @@ arreglar convirtiéndolas en transactions.</p>
 <blockquote>
 <p><strong>No sabe nada</strong> — y esa ignorancia es la gracia. Agregar un cuarto subscriber no obliga a tocar una línea del que publica.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/227">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/231">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s228" class="slide quiz">
+<section id="s232" class="slide quiz">
 <h2 id="repaso-·-día-4">Repaso · Día 4</h2>
 <h4 id="2-de-5-·-analysis-ports"><em>2 de 5 · Analysis Ports</em></h4>
 <p><strong>Un <code>uvm_subscriber</code> necesita datos de dos analysis ports distintos. ¿Cómo se resuelve?</strong></p>
@@ -2847,10 +2883,10 @@ arreglar convirtiéndolas en transactions.</p>
 <blockquote>
 <p><strong>Con una <code>uvm_tlm_analysis_fifo</code></strong> — un <code>uvm_subscriber</code> tiene un solo <code>write()</code>, así que sólo puede escuchar un puerto. La FIFO da un <code>analysis_export</code> de un lado y un <code>try_get()</code> del otro. Es lo que hace el scoreboard del VTALU.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/228">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/232">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s229" class="slide quiz">
+<section id="s233" class="slide quiz">
 <h2 id="repaso-·-día-4">Repaso · Día 4</h2>
 <h4 id="3-de-5-·-intra-vs-inter-thread"><em>3 de 5 · Intra vs. inter thread</em></h4>
 <p><strong>Cuando el monitor publica y se ejecutan los <code>write()</code> de los subscribers, ¿cuántos threads intervienen?</strong></p>
@@ -2863,10 +2899,10 @@ arreglar convirtiéndolas en transactions.</p>
 <blockquote>
 <p><strong>Uno solo, y es comunicación intra-thread</strong> — <code>write()</code> es una <code>function</code>, no una <code>task</code>: no consume tiempo y corre en el thread del que publica. Justamente por eso hace falta <strong>otro</strong> mecanismo (put/get + FIFO) para hablar entre threads.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/229">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/233">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s230" class="slide quiz">
+<section id="s234" class="slide quiz">
 <h2 id="repaso-·-día-4">Repaso · Día 4</h2>
 <h4 id="4-de-5-·-put-y-get-ports"><em>4 de 5 · Put y get ports</em></h4>
 <p><strong>El consumidor llama a <code>get()</code> y la <code>uvm_tlm_fifo</code> está vacía. ¿Qué pasa?</strong></p>
@@ -2879,10 +2915,10 @@ arreglar convirtiéndolas en transactions.</p>
 <blockquote>
 <p><strong>Se bloquea</strong> — <code>get()</code> es bloqueante, y por eso se declara <code>task</code> y no <code>function</code>. Esa es toda la sincronización: no hace falta un handshake de señales a mano.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/230">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/234">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s231" class="slide quiz">
+<section id="s235" class="slide quiz">
 <h2 id="repaso-·-día-4">Repaso · Día 4</h2>
 <h4 id="5-de-5-·-try_get"><em>5 de 5 · try_get()</em></h4>
 <p><strong>¿Y <code>try_get()</code> con la FIFO vacía?</strong></p>
@@ -2895,10 +2931,10 @@ arreglar convirtiéndolas en transactions.</p>
 <blockquote>
 <p><strong>Devuelve 0 y sigue</strong> — es la versión no bloqueante, y por eso puede ser una <code>function</code>. Fijate que el scoreboard la usa en un <code>do ... while</code> para saltear los <code>no_op</code> y los <code>rst_op</code>.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/231">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/235">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s232" class="slide">
+<section id="s236" class="slide">
 <h2 id="ejercicio-·-día-4-·-1-de-2">Ejercicio · Día 4 · 1 de 2</h2>
 <h4 id="un-observador-más-sin-tocar-a-los-que-ya-miran"><em>Un observador más, sin tocar a los que ya miran</em></h4>
 <p><code>cd code/ejercicios/d4 &amp;&amp; bash run.sh</code></p>
@@ -2915,10 +2951,10 @@ Por eso la corrección es cruzada contra las líneas que imprime el
 <code>command_monitor</code>: no alcanza con que el número exista, tiene que coincidir con
 lo que otro componente vio.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/232">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/236">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s233" class="slide">
+<section id="s237" class="slide">
 <h2 id="ejercicio-·-día-4-·-2-de-2">Ejercicio · Día 4 · 2 de 2</h2>
 <h4 id="el-500-es-un-parche"><em>El <code>#500</code> es un parche</em></h4>
 <p><code>cd code/ejercicios/d4b &amp;&amp; bash run.sh</code></p>
@@ -2948,7 +2984,7 @@ Y el detalle que decide si el ejercicio anda, que también es de campo: el par
 sostiene una objection esperando trabajo que no va a llegar, y el test no termina
 nunca — que es el otro modo de falla de la tabla del apéndice de debug.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/233">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/237">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 </main>
 

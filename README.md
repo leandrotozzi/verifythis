@@ -1,4 +1,4 @@
-<!-- es-sha: dc8c7ee816f9 -->
+<!-- es-sha: 0aa603a3cded -->
 **English** · [Castellano](README.es.md)
 
 <div align="center">
@@ -9,7 +9,7 @@
 
 *Universal Verification Methodology · IEEE 1800.2 · SystemVerilog · open source EDA*
 
-8 units over 7 days —plus an optional day 8— · 436 slides · **38 examples that really run**,
+8 units over 7 days —plus an optional day 8— · 444 slides · **38 examples that really run**,
 with functional coverage, on the **VTALU** DUT
 
 [![build](https://github.com/leandrotozzi/verifythis/actions/workflows/build.yml/badge.svg)](https://github.com/leandrotozzi/verifythis/actions/workflows/build.yml)
@@ -40,8 +40,8 @@ or clone the repo and open `en/index.html` with a double click
 
 > ## Also available in Spanish — the complete course, not a summary
 >
-> The whole thing exists twice: the same 436 slides, the same book, the same 38
-> examples and the same 18 exercises, written in Spanish rather than
+> The whole thing exists twice: the same 444 slides, the same book, the same 38
+> examples and the same 19 exercises, written in Spanish rather than
 > machine-translated. Almost every other UVM course is English-only, so if you
 > read Spanish this is very likely the only complete one there is.
 >
@@ -54,7 +54,7 @@ does not have. This course:
 
 - **Runs on free tools.** Verilator ≥ 5.050 measures functional coverage
   (covergroups), which the course teaches. What works and what does not, example
-  by example, in [`docs/verilator.md`](docs/verilator.md). There is no Questa flow.
+  by example, in [`docs/en/verilator.md`](docs/en/verilator.md). There is no Questa flow.
 - **Is a course, not a reference.** Seven days of class, in order, with an
   exercise at the end of each one.
 - **Opens with a double click.** The deck is one file: no server, no internet.
@@ -69,7 +69,40 @@ does not have. This course:
 
 ---
 
-**Index** · [Start in 60 seconds](#start-in-60-seconds) · [What is in it](#what-is-in-it) · [Run the examples](#run-the-examples) · [The exercises](#the-exercises) · [Teaching it](#teaching-it) · [Editing it](#editing-it) · [Docs](#docs) · [References](#references) · [Licence](#licence)
+**Index** · [Who it is for](#who-it-is-for) · [Start in 60 seconds](#start-in-60-seconds) · [What is in it](#what-is-in-it) · [Run the examples](#run-the-examples) · [The exercises](#the-exercises) · [Teaching it](#teaching-it) · [Editing it](#editing-it) · [Docs](#docs) · [References](#references) · [Licence](#licence)
+
+---
+
+## Who it is for
+
+For whoever **designs or verifies RTL** and has not written a UVM testbench yet:
+whoever comes from a Verilog testbench with `$display`, the student on a
+verification course, whoever is going to an interview where they will be asked
+what `uvm_config_db` does.
+
+**What you have to know beforehand:** **Verilog or VHDL**, and having simulated
+something — knowing what an `always`, an edge and a testbench are.
+**Object-oriented programming is not needed**: day 2 is exactly that, from
+scratch.
+
+The only thing the course takes for granted and does not teach is
+**SystemVerilog** beyond Verilog-2001: day 1 uses `interface`, `logic`, `enum`,
+`package`, `covergroup` and `clocking`. If you come from VHDL or Verilog-2001,
+half an hour with
+[`docs/systemverilog-para-el-que-viene-de-vhdl.md`](docs/systemverilog-para-el-que-viene-de-vhdl.md)
+(in Spanish) before starting saves you the step.
+
+**What you take away:** not "knowing UVM" —that is not learned in a week— but
+being able to **read somebody else's testbench, write one of your own, and
+understand the next thing you learn without it sounding like gibberish**. The
+proof is the capstone: a DUT you have not seen before, its spec, and the whole
+testbench from a blank sheet.
+
+And what it is **not**: it is not a per-topic reference —that is what
+[Verification Academy](https://verificationacademy.com) and the *UVM User Guide*
+are for—, it is not an RTL design course, and it does not cover TLM2, phase
+jumping or sign-off flows. What is left out is listed in the wrap-up, with the
+link to where to go next.
 
 ---
 
@@ -89,7 +122,7 @@ To just **read** the course, nothing is needed at all: open `en/index.html` with
 double click for the deck, or `en/libro/day1.html` for the book. Both are
 committed already built, so a fresh clone works offline.
 
-The examples are not run by hand: CI runs the 38 examples and the 18 solutions
+The examples are not run by hand: CI runs the 38 examples and the 19 solutions
 every night, and the `examples` badge above says whether they are green **now**.
 
 <details>
@@ -97,9 +130,9 @@ every night, and the `examples` badge above says whether they are green **now**.
 
 | Key | Action |
 |:--|:--|
-| <kbd>i</kbd> | course index: 74 sections —talks, quizzes, exercises and appendices— grouped by day, or the ☰ button in the top left corner |
+| <kbd>i</kbd> | course index: 77 sections —talks, quizzes, exercises and appendices— grouped by day, or the ☰ button in the top left corner |
 | <kbd>0</kbd>–<kbd>8</kbd> | jump to the cover / to Day 1–8 (the cover has the same clickable jumps, and they end up in the URL: `en/index.html#/day3`) |
-| <kbd>Esc</kbd> | overview of all 436 slides |
+| <kbd>Esc</kbd> | overview of all 444 slides |
 | <kbd>s</kbd> | speaker notes, in a separate window |
 | <kbd>n</kbd> | the same notes, below the slide and without leaving the page (remembered) |
 | <kbd>v</kbd> | on quiz slides, reveal the answer without clicking |
@@ -128,9 +161,9 @@ closing** because all three need the day 7 capstone to be done already.
 | **2** | **3 ·** The OOP that UVM takes for granted | Classes and extensions · Polymorphism · Static variables and methods · Parameterised classes · The factory pattern · A testbench without a single module | ≈ 4 h |
 | **3** | **4 ·** Enter UVM | Tests · Components and phases · The env: structure and stimulus · Reporting | ≈ 4 h 30 |
 | **4** | **5 ·** How components talk | One producer, many listeners · One single place that watches the wire · When somebody has to wait · Who waits for whom | ≈ 4 h |
-| **5** | **6 ·** The data | Copying an object that contains another · Transactions · Constrained random | ≈ 4 h |
-| **6** | **7 ·** The reusable testbench | Agents · Callbacks · Sequences · Virtual sequences | ≈ 5 h 15 |
-| **7** | **8 ·** The other half | Assertions (SVA) · the capstone · the four appendices · glossary, references and closing | ≈ 4 h 45 |
+| **5** | **6 ·** The data | Copying an object that contains another · Transactions · Constrained random | ≈ 4 h 30 |
+| **6** | **7 ·** The reusable testbench | Agents · Callbacks · Sequences | ≈ 4 h 15 |
+| **7** | **8 ·** The other half | Virtual sequences · Assertions (SVA) · the capstone · the four appendices · glossary, references and closing | ≈ 5 h 15 |
 | **8** *(opt.)* | **9 ·** RAL · and what comes next | The register model over the capstone's APB · the C reference model over DPI · the second capstone: a FIFO with backpressure | ≈ 4 h |
 
 **≈ 34 h 30 of class**, of which **30 h 30 are the seven days** and the rest is the
@@ -181,20 +214,19 @@ Four ways to get a working setup — Codespaces (the default), Docker, building
 Verilator from source, and WSL 2 on Windows — plus waveforms, seeds and the
 macOS recipe: **[`docs/en/setup.md`](docs/en/setup.md)**. What runs and what
 does not, with version, date and the coverage number of each example:
-[`docs/verilator.md`](docs/verilator.md) *(in Spanish)*.
+[`docs/en/verilator.md`](docs/en/verilator.md).
 
 ### The exercises
 
-**Fifteen**, in [`code/ejercicios/`](code/ejercicios/): `run.sh` **fails until you
+**Nineteen**, in [`code/ejercicios/`](code/ejercicios/): `run.sh` **fails until you
 solve it**, and the solution sits next to it (`SOLUCION=1 bash run.sh`). Every
 statement has an English version (`README.en.md`).
 
-Three of them —`d5b`, `d6-bins` and `d6-semillas`— are the *coverage closure*
+Three of them —`d5b`, `d5c` and `d7-semillas`— are the *coverage closure*
 loop done by hand. `d7-final` is the **capstone**: a four-register APB slave, its
 spec, and nothing else; the marker goes in stages, one `STAGE N OK` each. It is
 handed in with its **verification plan** filled out — the template and the VTALU
-plan are in [`docs/plan-de-verificacion.md`](docs/plan-de-verificacion.md)
-*(in Spanish)*. The last two belong to the optional unit: `d8-ral`, the same DUT
+plan are in [`docs/en/verification-plan.md`](docs/en/verification-plan.md). The last two belong to the optional unit: `d8-ral`, the same DUT
 with the spec's register map written as a UVM model, and `d8-fifo`, a second
 capstone on a FIFO with backpressure.
 
@@ -259,11 +291,12 @@ material, not in them.
 Everything that does not fit on a slide, indexed in
 **[`docs/README.md`](docs/README.md)**: the Verilator matrix, the cheat sheet, the
 teaching guide, the verification plan, the exam bank, the silent traps, the
-interview questions, and the two long background pieces (clocking blocks, and how
-this differs from the *UVM Primer*). Five of them exist in English and are
+interview questions, the SystemVerilog primer for whoever comes from VHDL, what
+changes the day you sit down in front of Questa, and the two long background
+pieces (clocking blocks, and how this differs from the *UVM Primer*). Seven of them exist in English and are
 indexed in [`docs/en/`](docs/en/README.md) — setup, the interview questions, the
-teaching guide, and the two generated appendices. The rest is in Spanish, and
-every link to one says so.
+teaching guide, the verification plan, the Verilator matrix, and the two
+generated appendices. The rest is in Spanish, and every link to one says so.
 
 ## References
 

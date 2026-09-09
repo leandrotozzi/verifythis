@@ -44,7 +44,7 @@ qué se copió.
 
 **Constrained random y sequences virtuales.** Dos temas que el libro no cubre.
 
-**Se evalúa.** 58 preguntas de repaso con explicación, 18 ejercicios con solución
+**Se evalúa.** 58 preguntas de repaso con explicación, 19 ejercicios con solución
 que compilan y corren, y un apéndice de **21 trampas mudas** —todo lo que
 compila, corre y miente— que sale de haber corregido esos ejercicios.
 

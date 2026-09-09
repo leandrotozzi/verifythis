@@ -96,7 +96,7 @@
 - [ ] Subir el peso del bin `8'hFF` en el `dist` de la clase
 - [ ] `rand_mode(0)` sobre el campo: saca el `dist` de la ecuación y deja mandar al `with`
 
-> **Apagar la constraint que estorba** — Verilator resuelve el `dist` **eligiendo un valor primero** y recién después chequea el resto, así que la probabilidad de éxito es la del bin: medido, `with {A == 8'hFF}` resuelve el 25 % de las veces. `constraint_mode(0)` la apaga sólo para ese objeto y no toca a nadie más. Es exactamente la línea que pide el ejercicio `d6-bins`.
+> **Apagar la constraint que estorba** — Verilator resuelve el `dist` **eligiendo un valor primero** y recién después chequea el resto, así que la probabilidad de éxito es la del bin: medido, `with {A == 8'hFF}` resuelve el 25 % de las veces. `constraint_mode(0)` la apaga sólo para ese objeto y no toca a nadie más. Es exactamente la línea que pide el ejercicio `d5c`.
 
 ---
 

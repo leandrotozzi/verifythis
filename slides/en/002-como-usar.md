@@ -1,4 +1,4 @@
-<!-- es-sha: 0c9f54ca2da9 -->
+<!-- es-sha: 7e8da2447ee7 -->
 <!-- .slide: id="como-usar" -->
 
 ## How to use this course
@@ -6,7 +6,10 @@
 #### *Especially if you are taking it on your own*
 
 - **What you need to know first:** Verilog or VHDL, and having simulated
-  something. Object-oriented programming is **not** required — day 2 is exactly that
+  something. Object-oriented programming is **not** required — day 2 is exactly
+  that. The only thing the course takes for granted is **SystemVerilog**: if you
+  come from VHDL or Verilog-2001, half an hour with
+  **`docs/systemverilog-para-el-que-viene-de-vhdl.md`** before starting
 - It is **seven days of class**, of 4 to 5 and a half hours — **≈ 30 h 30**, and each
   agenda carries its own. Plus an **optional day 8**, after the wrap-up. On your own,
   count double: half of it goes into running the examples, and that is the half that teaches

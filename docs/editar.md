@@ -179,7 +179,7 @@ npm run inventario  # cuántos ejemplos, slides, secciones… hay ahora
 
 ### Los números del curso no se escriben a mano
 
-*"436 slides"*, *"38 ejemplos"*, *"18 ejercicios"* aparecen repartidos en **más
+*"444 slides"*, *"38 ejemplos"*, *"19 ejercicios"* aparecen repartidos en **más
 de veinticinco lugares** —el README, la landing, el `CITATION.cff`, el
 `Makefile`, los workflows, los docs y las propias slides—, y agregar una slide
 los desactualizaba todos en silencio.
@@ -188,7 +188,7 @@ los desactualizaba todos en silencio.
 números del filesystem, así que un ejemplo, una slide o una pregunta nuevos se
 cuentan solos. `npm run check` compara **cada número escrito en el repo** contra
 ese inventario y falla si alguno miente — en dígitos (`38 ejemplos`) y en letras
-(`dieciocho soluciones`), incluso partido por un salto de línea.
+(`diecinueve soluciones`), incluso partido por un salto de línea.
 
 No están centralizados con plantillas a propósito. El README, la landing y el
 `CITATION.cff` **no son archivos generados**, y volverlos generados para no
@@ -207,7 +207,7 @@ sigue siendo prosa, y el que miente falla en CI.
 > hace que el deck y el libro funcionen sin build. `npm run check` falla si te lo
 > olvidaste, y corre en CI.
 
-`npm run overflow` recorre las 436 slides en Chrome headless y falla si alguna no
+`npm run overflow` recorre las 444 slides en Chrome headless y falla si alguna no
 entra en el canvas de 1100×700, tanto en pantalla como en la maquetación del PDF.
 Es la red que garantiza que ninguna diapositiva salga cortada.
 

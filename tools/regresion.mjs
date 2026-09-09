@@ -5,7 +5,7 @@
 //   node tools/regresion.mjs <dir> <ejemplo>
 //
 // <dir> tiene que tener regresion.dat (el merge) y un seed.<N>.dat por semilla,
-// que es exactamente lo que deja el ejercicio d6-semillas -- este archivo es ese
+// que es exactamente lo que deja el ejercicio d7-semillas -- este archivo es ese
 // ejercicio convertido en herramienta.
 //
 // El .dat de Verilator es una linea por punto de cobertura:
@@ -87,7 +87,7 @@ ${mejor === cubiertos && filasSemilla.length > 1 ? `<p class="nota"><strong>Las 
 No está roto: el estímulo al azar ya llegó a su techo, y a partir de ahí una
 semilla más no agrega un bin. Lo que falta es un caso <em>dirigido</em>, o un
 <code>ignore_bins</code> para lo que nunca se va a poder llenar. Es la lección
-del ejercicio <code>d6-semillas</code>, medida acá.</p>` : ''}
+del ejercicio <code>d7-semillas</code>, medida acá.</p>` : ''}
 
 <h2>Bins abiertos · ${abiertos.length}</h2>
 ${abiertos.length === 0

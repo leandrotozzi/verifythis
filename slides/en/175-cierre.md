@@ -1,4 +1,4 @@
-<!-- es-sha: 052564f70afd -->
+<!-- es-sha: 2f21e65454e9 -->
 <!-- .slide: id="cierre" -->
 
 ## This is as far as we got
@@ -12,8 +12,13 @@
 - You can read and write **OOP in SystemVerilog**: classes, inheritance,
   polymorphism, parameterized classes, the factory
 - You built a **complete UVM testbench** —test, env, components, monitors,
-  driver, scoreboard, transactions— piece by piece, understanding what replaces
-  what
+  driver, scoreboard, transactions, agents and sequences— piece by piece,
+  understanding what replaces what
+- You wrote **assertions**: the other half of the plan, the one no scoreboard can
+  close because it is not about the result but about the protocol
+- And you handed it in: the **capstone** is a DUT you had not seen before, its
+  spec, and the whole testbench from a blank sheet — which is literally what gets
+  asked for at work
 - And all of that runs on your machine, with **free tools**, without asking
   anybody for a licence
 
@@ -68,12 +73,12 @@ The **`clocking block`** also came out of this table: it is half a section of
 unit 2, with its example that runs in `code/u2/clocking/`.
 The **callbacks** came out for the same reason: they are half a section of unit 7, with
 the `code/u7/callbacks/` that injects the error in the driver — the third hook
-unit 1 promises. And **regression and seeds** as well: the exercise `d6-semillas`
+unit 1 promises. And **regression and seeds** as well: the exercise `d7-semillas`
 is the whole cycle, and `make regresion` left it as a tool, with a report of
 the bins that were left open.
 **SVA came out of this table and is now a whole unit**, and it is one of the most original things
 the course has: no introductory UVM book brings it. The **virtual sequences**
-came out too: they are at the end of the sequences, with an example that runs in
+came out too: they are the first hour of today, with an example that runs in
 `code/u7/sequences/virtual/`.
 The last three rows are worth reading out loud with this sentence in front: an
 introductory course that lists what it does not cover is worth more than one that pretends

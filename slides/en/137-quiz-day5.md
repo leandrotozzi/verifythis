@@ -1,4 +1,4 @@
-<!-- es-sha: 347fbfb3851b -->
+<!-- es-sha: 15f1821ac679 -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 5
@@ -97,7 +97,7 @@
 - [ ] Raise the weight of the `8'hFF` bin in the `dist` of the class
 - [ ] `rand_mode(0)` on the field: it takes the `dist` out and lets the `with` rule
 
-> **Switch off the constraint that gets in the way** — Verilator solves the `dist` by **picking a value first** and only then checking the rest, so the probability of success is the probability of the bin: measured, `with {A == 8'hFF}` solves 25 % of the time. `constraint_mode(0)` switches it off for that object alone and touches nobody else. It is exactly the line the `d6-bins` exercise asks for.
+> **Switch off the constraint that gets in the way** — Verilator solves the `dist` by **picking a value first** and only then checking the rest, so the probability of success is the probability of the bin: measured, `with {A == 8'hFF}` solves 25 % of the time. `constraint_mode(0)` switches it off for that object alone and touches nobody else. It is exactly the line the `d5c` exercise asks for.
 
 ---
 

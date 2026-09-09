@@ -139,9 +139,18 @@ arranca por el driver escribe estímulo que nadie está mirando, y descubre a la
 semana que su monitor no reconstruye. El que arranca por el monitor puede
 enchufarlo pasivo sobre el estímulo de otro —o sobre un test del diseñador— y ya
 está aportando el primer día.
-Si alguien pregunta por dónde sigue el camino de aprendizaje después de acá, el
-orden que rinde: RAL, después regresión con semillas, después el `clocking block`
-y las properties de bus prefabricadas. SVA ya no está en esa lista —es una unidad entera de este curso— y conviene decirlo, porque es la primera pregunta de toda entrevista.
+Si alguien pregunta por dónde sigue el camino de aprendizaje **después de este
+curso**, la lista corta y en orden: **TLM2** —`uvm_tlm_generic_payload` y los
+sockets, que es como se conectan los VIP de bus entre sí—, el **backdoor de RAL**
+—`docs/verilator.md` explica por qué acá no está—, la **`uvm_sequence_library`**
+para el test de estrés que no se escribe, y leer el `dv/` de un proyecto abierto
+de verdad: los agents de **OpenTitan** y el VIP de AXI de **pulp-platform/axi**
+son código de producción y se leen gratis. Y una que no es de UVM y vale la
+carrera: **formal** con SymbiYosys, que prueba las mismas properties que
+escribieron hoy sin ningún estímulo.
+Lo que **no** va en esa lista es lo que ya vieron: RAL es el día 8, la regresión
+con semillas es el calentamiento del día 7 y `make regresion`, y el `clocking
+block` es media sección de la unidad 2.
 Y una última, que no es técnica: en un proyecto real el testbench casi siempre ya
 existe. Lo que se pide el primer día no es armar uno, es **agregarle un test** —
 que es exactamente lo que practicaron en los ejercicios de los días 3 y 6.

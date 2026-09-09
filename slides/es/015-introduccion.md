@@ -144,4 +144,4 @@ random* el día 5, *El patrón factory* el día 2 y *Callbacks* el día 6—, as
 esta slide se puede volver a poner tres veces.
 Y la última línea es la que más se subestima. Un test con mil semillas no es
 "el mismo test mil veces": es mil escenarios distintos por el precio de escribir
-uno. Es literalmente el ejercicio `d6-semillas` del día 6.
+uno. Es literalmente el ejercicio `d7-semillas`, con el que arranca el día 7.

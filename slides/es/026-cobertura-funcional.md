@@ -386,8 +386,8 @@ anterior mostró **sueltas**. El plan es la tabla que las hace una sola cosa.
 La fila que más discusión da es la del producto máximo, y está buena: `FF` × `FF`
 es el único caso que **no** sale del random en un tiempo razonable, y por eso su
 columna de estímulo dice *caso dirigido*. Ahí se ve que el plan no sólo mide, y
-también decide qué test hay que escribir. Es el ejercicio `d6-bins`, tres días
-después, con esta misma fila.
+también decide qué test hay que escribir. Es el ejercicio `d5c`, el último de la
+tarde del día 5, con esta misma fila.
 Las tres filas de protocolo conviene nombrarlas y seguir: son la mitad que el
 curso no toca hasta el día 7, y sirven para dejar sembrado que un scoreboard no
 chequea todo. Un plan de verificación serio tiene las dos columnas.

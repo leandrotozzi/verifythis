@@ -1,5 +1,5 @@
-<!-- es-sha: e27c0e858b3f -->
-## Exercise · Day 6 · 1 of 5
+<!-- es-sha: 28daa17b8fa6 -->
+## Exercise · Day 6 · 1 of 3
 
 #### *The agent that only watches*
 

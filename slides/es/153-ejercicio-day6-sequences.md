@@ -1,4 +1,4 @@
-## Ejercicio · Día 6 · 2 de 5
+## Ejercicio · Día 6 · 2 de 3
 
 #### *Una sequence que sólo multiplica*
 

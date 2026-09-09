@@ -56,24 +56,625 @@
   your own, start here and keep the deck alongside for the reviews.</p>
 
 <section id="s355" class="slide">
-<!-- es-sha: b4adeb05e4da -->
+<!-- es-sha: a45c9dc8b40d -->
 
 
-<h2 id="agenda">Agenda</h2>
-<h4 id="day-7-·-≈-4-h-45-·-unit-8-·-the-other-half"><em>Day 7 · ≈ 4 h 45 · unit 8 · the other half</em></h4>
+<h2 id="yesterday-we-left">Yesterday we left…</h2>
+<h4 id="where-the-testbench-stands"><em>Where the testbench stands</em></h4>
 <ul>
-<li>Assertions (SVA)</li>
-<li>The capstone: an APB testbench, from scratch</li>
-<li>From the VTALU to a real bus</li>
-<li>The debug toolbox</li>
-<li>The 21 silent traps</li>
-<li>Glossary, references and wrap-up</li>
+<li>The testbench was left <strong>complete and reusable</strong>: agents with <code>is_active</code>, the
+analysis in the <code>env</code>, and the stimulus outside the tree, in sequences</li>
+<li>No line of the test names a component from inside the <code>env</code>: the last one went
+with the <code>default_sequence</code> through <code>uvm_config_db</code></li>
+<li>And the other half of the verification plan is missing: the rows <strong>no
+scoreboard can close</strong>, because they are not about the result but about the
+protocol</li>
 </ul>
-<p><em>And afterwards, <strong>day 8</strong>: optional, and for whoever has already handed in the capstone</em></p>
+<div class="nota">
+<p>The day 7 recap works as a hinge, and it is worth saying the two things it is
+made of: this morning UVM gets closed —the virtual sequence is the last piece,
+and with it the testbench of the course is whole— and this afternoon opens what
+UVM does not solve, which is the other half of the plan.
+The third bullet is the arc planted on day 1 with the verification plan and left
+open on purpose: the scoreboard checks <strong>what</strong>, the assertion checks <strong>how</strong>.
+Today it closes.</p>
+</div>
 <p class="al-deck"><a href="../index.html#/355">see this slide in the deck &rsaquo;</a></p>
 </section>
 
 <section id="s356" class="slide">
+<h2 id="agenda">Agenda</h2>
+<h4 id="day-7-·-≈-5-h-15-·-unit-8-·-the-other-half"><em>Day 7 · ≈ 5 h 15 · unit 8 · the other half</em></h4>
+<ul>
+<li>Warm-up: five seeds and a merge, with <code>make regresion</code></li>
+<li>Virtual sequences: the last piece of the reusable testbench</li>
+<li>Assertions (SVA)</li>
+<li>The capstone: an APB testbench, from scratch</li>
+<li>From the VTALU to a real bus</li>
+<li>The debug toolbox · The 21 silent traps</li>
+<li>Glossary, references and wrap-up</li>
+</ul>
+<p><em>And afterwards, <strong>day 8</strong>: optional, and for whoever has already handed in the capstone</em></p>
+<p><strong>By the end of the day you can:</strong></p>
+<ul>
+<li><strong>Write</strong> a property that sees a protocol violation, and say why <code>--assert</code> is
+not optional</li>
+<li><strong>Coordinate</strong> two interfaces from a single virtual sequence</li>
+<li><strong>Hand in</strong> a whole testbench for a DUT you have not seen before</li>
+</ul>
+<div class="nota">
+<p>The morning has three pieces and the order matters: the seed warm-up is ten
+minutes without SystemVerilog and it hooks into the <code>make regresion</code> the capstone
+is going to ask for; the virtual sequences close UVM; and SVA opens the other
+half of the plan. The afternoon is the capstone.
+The third objective is the one the course is worth, and it is honest to put it as
+an objective of the day even if the hand-in comes later: in a company format the
+capstone is handed in the next day, and in a term it goes to the exam period.
+What gets done this afternoon is starting it with the instructor next to you,
+which is when it pays off the most.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/356">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s357" class="slide">
+<!-- es-sha: 9e5e63a051db -->
+<h2 id="exercise-·-day-7-·-1-of-2">Exercise · Day 7 · 1 of 2</h2>
+<h4 id="the-same-sequence-another-seed"><em>The same sequence, another seed</em></h4>
+<p><code>cd code/ejercicios/d7-semillas &amp;&amp; bash run.sh</code></p>
+<ul>
+<li>The only exercise of the course without SystemVerilog: what gets written is the
+<strong>regression</strong>, six lines of shell</li>
+<li>Run the same test with seeds 1 to 5 and <strong>merge</strong> the five coverages
+with <code>verilator_coverage --write</code></li>
+<li>It is graded by checking that the merge covers more than the best of the five on its own</li>
+</ul>
+<div class="nota">
+<p>It is the last row of the <em>coverage closure</em> table, done, and it is the warm-up
+of day 7: ten minutes, zero SystemVerilog, and it leaves in place the
+<code>make regresion</code> this afternoon&#39;s capstone is going to ask for. It also closes the
+arc day 5 opened with the directed case: one fills the bin random cannot reach,
+the other accumulates what random does reach, and they do not replace each other.
+The detail to underline is why the test sends <strong>25</strong> operations and not
+a thousand: with a thousand this does not work. It is measured and it is on the slide <em>&quot;another seed, and
+again&quot;</em> — <code>u2/convencional</code> and <code>u7/sequences</code> give 66 out of 76 with any seed, and the merge
+too. With 25 the stimulus has not saturated yet and there each seed does cover a
+different piece: 41 to 47 bins each, 62 for the five merged.
+The rule they take away, in one line: another seed <strong>accumulates</strong> while the
+stimulus has not saturated, and <strong>reproduces</strong> an intermittent failure. It does not fill a bin the
+stimulus cannot reach.
+And the merge command is worth naming for what it is in the industry:
+<code>verilator_coverage --write</code> is here what the <code>ucdb</code> merge is in Questa. A real
+regression is a hundred seeds overnight and one single number in the morning.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/357">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s358" class="slide">
+<!-- es-sha: a692208e3f2e -->
+<h2 id="virtual-sequences">Virtual sequences</h2>
+<h4 id="the-problem-two-interfaces-and-a-single-start"><em>The problem: two interfaces and a single <code>start()</code></em></h4>
+<ul>
+<li>A <strong>virtual sequence</strong> is a sequence that does not send items of its own: it only
+starts other sequences, on <strong>several sequencers</strong></li>
+<li>It shows up when the DUT has more than one interface —a configuration bus and a
+data stream, for example— and the test needs to coordinate them: <em>configure
+first, then send traffic</em></li>
+<li>It is called &quot;virtual&quot; because it is not tied to a type of item nor to a sequencer</li>
+<li>The <code>u7/agents</code> already left us the scenario built: <strong>two VTALU</strong>. There the second agent
+was passive; with both active there are <strong>two sequencers</strong>, and something to coordinate</li>
+<li><code>full_sequence</code> is already half a virtual sequence: it sends no items of its own, it only
+starts others. The only thing it lacks is the second sequencer</li>
+</ul>
+<div class="nota">
+<p>First hour of day 7, and that is on purpose. It is the last piece of the reusable
+testbench, and it arrives on capstone day because it is the day the student looks
+at a new DUT and decides which structure it deserves. The capstone has <strong>two</strong>
+APB slaves, each with its own interface —one driven by the testbench, the other
+by a module— and that is the shape of the agents section: one active and one
+passive, a single sequencer, and no virtual sequence. This hour is what gives the
+student the criterion to decide that instead of guessing it, and what leaves them
+the answer written down for the day the second slave is theirs too.
+It is worth starting from the problem and not from the syntax, because the syntax is
+half a screen: what is hard to understand is why a new class is needed
+when <code>full_sequence</code> already composes sequences.
+The answer is the one in the last bullet, and it is geometric: a normal sequence
+knows <strong>one</strong> sequencer, the one <code>start()</code> handed it. Anything that wants to talk to
+two interfaces needs two handles, and those handles have to come from
+somewhere.
+The example runs and it is in <code>code/u7/sequences/virtual/</code>: it is the testbench of this
+section with <strong>two lines</strong> changed in the <code>env</code>, and everything else by
+reference. It is worth saying before showing the code, because it is half of the
+argument: a virtual sequence does not change the structure of the testbench.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/358">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s359" class="slide">
+<h2 id="virtual-sequences">Virtual sequences</h2>
+<h4 id="the-virtual-sequencer-handles-not-items"><em>The virtual sequencer: handles, not items</em></h4>
+<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/virtual_sequencer.svh</code> · #the-handles</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">virtual_sequencer</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequencer</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(virtual_sequencer)
+
+   sequencer clase_sequencer_h;
+   sequencer modulo_sequencer_h;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+<span class="hljs-keyword">endclass</span> : virtual_sequencer</code></pre><details><summary>el archivo entero, 20 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The virtual sequencer: it has no queue, it arbitrates no items, it talks to no</span>
+<span class="hljs-comment">// driver. It is a component that exists for two things:</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">//   1. to hold the HANDLES to the real sequencers, somewhere the sequence can</span>
+<span class="hljs-comment">//      reach without looking up by string;</span>
+<span class="hljs-comment">//   2. to be a uvm_component, that is, to live in the tree and have a name.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// That is why it extends uvm_sequencer WITHOUT parameters: the default item is</span>
+<span class="hljs-comment">// uvm_sequence_item, and none is ever sent.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">virtual_sequencer</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequencer</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(virtual_sequencer)
+
+   sequencer clase_sequencer_h;
+   sequencer modulo_sequencer_h;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+<span class="hljs-keyword">endclass</span> : virtual_sequencer</code></pre></details></figure>
+
+<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/env.svh</code> · #wiring-the-sequencers</figcaption><pre><code class="hljs">      <span class="hljs-comment">// not compile instead of returning null at simulation time.</span>
+      virtual_sequencer_h.clase_sequencer_h  = clase_agent_h.sequencer_h;
+      virtual_sequencer_h.modulo_sequencer_h = modulo_agent_h.sequencer_h;</code></pre><details><summary>el archivo entero, 65 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The env of the Sequences section with TWO changes, and no more:</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">//   1. the second agent is UVM_ACTIVE instead of UVM_PASSIVE;</span>
+<span class="hljs-comment">//   2. there is a virtual_sequencer, and connect_phase hands it the handles of</span>
+<span class="hljs-comment">//      the two real sequencers.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// The rest --agents, scoreboards, coverage, the config_db scope-- is</span>
+<span class="hljs-comment">// identical. That is the point: a virtual sequence does not change the structure</span>
+<span class="hljs-comment">// of the testbench, it only adds who coordinates it.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">env</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_env</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(env);
+
+   vtalu_agent        clase_agent_h, modulo_agent_h;
+   vtalu_agent_config clase_cfg_h, modulo_cfg_h;
+
+   scoreboard clase_scoreboard_h, modulo_scoreboard_h;
+   coverage   clase_coverage_h, modulo_coverage_h;
+
+   virtual_sequencer virtual_sequencer_h;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      env_config env_config_h;
+
+      <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-type">env_config</span>)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;config&quot;</span>, env_config_h))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;ENV&quot;</span>, <span class="hljs-string">&quot;Failed to get env config&quot;</span>)
+
+      <span class="hljs-comment">// Both active: each with its own sequencer and driver.</span>
+      clase_cfg_h  = <span class="hljs-keyword">new</span>(.bfm(env_config_h.clase_bfm),  .is_active(<span class="hljs-uvm-const">UVM_ACTIVE</span>));
+      modulo_cfg_h = <span class="hljs-keyword">new</span>(.bfm(env_config_h.modulo_bfm), .is_active(<span class="hljs-uvm-const">UVM_ACTIVE</span>));
+
+      <span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-type">vtalu_agent_config</span>)::set(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;clase_agent_h*&quot;</span>, <span class="hljs-string">&quot;config&quot;</span>, clase_cfg_h);
+      <span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-type">vtalu_agent_config</span>)::set(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;modulo_agent_h*&quot;</span>, <span class="hljs-string">&quot;config&quot;</span>, modulo_cfg_h);
+
+      clase_agent_h  = vtalu_agent::type_id::create(<span class="hljs-string">&quot;clase_agent_h&quot;</span>, <span class="hljs-keyword">this</span>);
+      modulo_agent_h = vtalu_agent::type_id::create(<span class="hljs-string">&quot;modulo_agent_h&quot;</span>, <span class="hljs-keyword">this</span>);
+
+      virtual_sequencer_h = virtual_sequencer::type_id::create(<span class="hljs-string">&quot;virtual_sequencer_h&quot;</span>, <span class="hljs-keyword">this</span>);
+
+      clase_scoreboard_h  = scoreboard::type_id::create(<span class="hljs-string">&quot;clase_scoreboard_h&quot;</span>, <span class="hljs-keyword">this</span>);
+      modulo_scoreboard_h = scoreboard::type_id::create(<span class="hljs-string">&quot;modulo_scoreboard_h&quot;</span>, <span class="hljs-keyword">this</span>);
+      clase_coverage_h    = coverage::type_id::create(<span class="hljs-string">&quot;clase_coverage_h&quot;</span>, <span class="hljs-keyword">this</span>);
+      modulo_coverage_h   = coverage::type_id::create(<span class="hljs-string">&quot;modulo_coverage_h&quot;</span>, <span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">connect_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-comment">// The handles are passed HERE and not looked up by string: in connect_phase</span>
+      <span class="hljs-comment">// both agents already exist, and if somebody renames a component this does</span>
+      <span class="hljs-comment">// not compile instead of returning null at simulation time.</span>
+      virtual_sequencer_h.clase_sequencer_h  = clase_agent_h.sequencer_h;
+      virtual_sequencer_h.modulo_sequencer_h = modulo_agent_h.sequencer_h;
+
+      clase_agent_h.command_ap.connect(clase_scoreboard_h.cmd_f.analysis_export);
+      clase_agent_h.command_ap.connect(clase_coverage_h.analysis_export);
+      clase_agent_h.result_ap.connect(clase_scoreboard_h.analysis_export);
+
+      modulo_agent_h.command_ap.connect(modulo_scoreboard_h.cmd_f.analysis_export);
+      modulo_agent_h.command_ap.connect(modulo_coverage_h.analysis_export);
+      modulo_agent_h.result_ap.connect(modulo_scoreboard_h.analysis_export);
+   <span class="hljs-keyword">endfunction</span> : connect_phase
+
+<span class="hljs-keyword">endclass</span> : env</code></pre></details></figure>
+
+<ul>
+<li>It has no queue, it does not arbitrate, it does not talk to any driver. It is a <code>uvm_component</code>
+that exists in order to <strong>hold the handles</strong> and to live in the tree with a name</li>
+<li>It extends <code>uvm_sequencer</code> <strong>without parameterizing it</strong>: the default item is
+<code>uvm_sequence_item</code> and none ever gets sent</li>
+<li>The handles get assigned in the <code>connect_phase</code>, where the agents already exist</li>
+</ul>
+<div class="nota">
+<p>The question that comes up on its own: and why a component, if it is only two pointers?
+For two reasons. One, so the sequence reaches it with <code>p_sequencer</code> instead
+of looking it up by string. Two, because it has to be in the tree so the test
+can start a sequence on top of it: <code>seq.start(env_h.virtual_sequencer_h)</code>.
+The book resolves the handles with <code>uvm_top.find(&quot;*.env_h.sequencer_h&quot;)</code>. It still
+works —<code>uvm_top</code> is there for compatibility, the current form is
+<code>uvm_root::get()</code>— but looking components up by string is fragile: the day
+somebody renames the <code>env_h</code>, the <code>find()</code> returns <code>null</code> and the fatal shows up
+far from the change. Assigning them in the <code>connect_phase</code> <strong>does not compile</strong> if the name
+changed, which is exactly what one wants.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/359">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s360" class="slide">
+<h2 id="virtual-sequences">Virtual sequences</h2>
+<h4 id="the-virtual-sequence-p_sequencer-and-two-branches"><em>The virtual sequence: <code>p_sequencer</code> and two branches</em></h4>
+<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · #p-sequencer</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">coordinada_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(coordinada_sequence)
+   <span class="hljs-uvm-macro">`uvm_declare_p_sequencer</span>(virtual_sequencer)</code></pre><details><summary>el archivo entero, 76 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// THE virtual sequence.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// Two things set it apart from every sequence in the Sequences section:</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">//   1. It has NO items of its own. It extends uvm_sequence without parameters</span>
+<span class="hljs-comment">//      and never calls start_item(): all it does is start OTHER sequences.</span>
+<span class="hljs-comment">//      Hence &quot;virtual&quot; -- it is tied to no item type and no sequencer.</span>
+<span class="hljs-comment">//   2. It runs on more than one sequencer, and that is where the one thing no</span>
+<span class="hljs-comment">//      single sequence can do comes from: coordinating two interfaces.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// `uvm_declare_p_sequencer declares `p_sequencer` with the type above and casts</span>
+<span class="hljs-comment">// it on its own inside m_set_p_sequencer. Without it, get_sequencer() returns a</span>
+<span class="hljs-comment">// uvm_sequencer_base and every use would need a cast by hand.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">coordinada_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(coordinada_sequence)
+   <span class="hljs-uvm-macro">`uvm_declare_p_sequencer</span>(virtual_sequencer)
+
+   <span class="hljs-type">int</span> <span class="hljs-type">unsigned</span> count = <span class="hljs-number">1000</span>;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;coordinada_sequence&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">body</span>();
+      reset_sequence   reset_a, reset_b;
+      maxmult_sequence maxmult;
+      random_sequence  random_b;
+      un_op_sequence   primera, segunda;
+
+      reset_a  = reset_sequence::type_id::create(<span class="hljs-string">&quot;reset_a&quot;</span>);
+      reset_b  = reset_sequence::type_id::create(<span class="hljs-string">&quot;reset_b&quot;</span>);
+      maxmult  = maxmult_sequence::type_id::create(<span class="hljs-string">&quot;maxmult&quot;</span>);
+      random_b = random_sequence::type_id::create(<span class="hljs-string">&quot;random_b&quot;</span>);
+      primera  = un_op_sequence::type_id::create(<span class="hljs-string">&quot;primera&quot;</span>);
+      segunda  = un_op_sequence::type_id::create(<span class="hljs-string">&quot;segunda&quot;</span>);
+
+      random_b.count = count;
+
+      <span class="hljs-comment">// --- 1. Both ALUs get reset at the same time -----------------------------</span>
+      <span class="hljs-comment">// fork/join over TWO sequencers. Each branch blocks on its own driver, and</span>
+      <span class="hljs-comment">// the join waits for both: that cannot be written inside a normal</span>
+      <span class="hljs-comment">// sequence, which only knows the sequencer that started it.</span>
+      <span class="hljs-keyword">fork</span>
+         reset_a.start(p_sequencer.clase_sequencer_h);
+         reset_b.start(p_sequencer.modulo_sequencer_h);
+      <span class="hljs-keyword">join</span>
+
+      <span class="hljs-comment">// --- 2. Parallel traffic, different on each interface -------------------</span>
+      <span class="hljs-comment">// A does the directed overflow case while B sends at random.</span>
+      <span class="hljs-keyword">fork</span>
+         maxmult.start(p_sequencer.clase_sequencer_h);
+         random_b.start(p_sequencer.modulo_sequencer_h);
+      <span class="hljs-keyword">join</span>
+
+      <span class="hljs-comment">// --- 3. What no single sequence can do ----------------------------------</span>
+      <span class="hljs-comment">// The result of VTALU A is the operand of B. It is a dependency BETWEEN</span>
+      <span class="hljs-comment">// interfaces: the second one cannot even start being built until the</span>
+      <span class="hljs-comment">// first one answered.</span>
+      primera.A  = <span class="hljs-number">8&#x27;h0F</span>;
+      primera.B  = <span class="hljs-number">8&#x27;h07</span>;
+      primera.op = mul_op;
+      primera.start(p_sequencer.clase_sequencer_h);
+
+      <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;COORDINADA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
+                <span class="hljs-string">&quot;A returned %0d: it goes as an operand into B&quot;</span>, primera.result), <span class="hljs-uvm-const">UVM_LOW</span>)
+
+      segunda.A  = primera.result[<span class="hljs-number">7</span>:<span class="hljs-number">0</span>];
+      segunda.B  = <span class="hljs-number">8&#x27;h01</span>;
+      segunda.op = add_op;
+      segunda.start(p_sequencer.modulo_sequencer_h);
+
+      <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;COORDINADA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
+                <span class="hljs-string">&quot;B returned %0d&quot;</span>, segunda.result), <span class="hljs-uvm-const">UVM_LOW</span>)
+   <span class="hljs-keyword">endtask</span> : body
+
+<span class="hljs-keyword">endclass</span> : coordinada_sequence</code></pre></details></figure>
+
+<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · #the-fork</figcaption><pre><code class="hljs">      <span class="hljs-keyword">fork</span>
+         reset_a.start(p_sequencer.clase_sequencer_h);
+         reset_b.start(p_sequencer.modulo_sequencer_h);
+      <span class="hljs-keyword">join</span>
+
+      <span class="hljs-comment">// --- 2. Parallel traffic, different on each interface -------------------</span>
+      <span class="hljs-comment">// A does the directed overflow case while B sends at random.</span>
+      <span class="hljs-keyword">fork</span>
+         maxmult.start(p_sequencer.clase_sequencer_h);
+         random_b.start(p_sequencer.modulo_sequencer_h);
+      <span class="hljs-keyword">join</span></code></pre><details><summary>el archivo entero, 76 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// THE virtual sequence.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// Two things set it apart from every sequence in the Sequences section:</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">//   1. It has NO items of its own. It extends uvm_sequence without parameters</span>
+<span class="hljs-comment">//      and never calls start_item(): all it does is start OTHER sequences.</span>
+<span class="hljs-comment">//      Hence &quot;virtual&quot; -- it is tied to no item type and no sequencer.</span>
+<span class="hljs-comment">//   2. It runs on more than one sequencer, and that is where the one thing no</span>
+<span class="hljs-comment">//      single sequence can do comes from: coordinating two interfaces.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// `uvm_declare_p_sequencer declares `p_sequencer` with the type above and casts</span>
+<span class="hljs-comment">// it on its own inside m_set_p_sequencer. Without it, get_sequencer() returns a</span>
+<span class="hljs-comment">// uvm_sequencer_base and every use would need a cast by hand.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">coordinada_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(coordinada_sequence)
+   <span class="hljs-uvm-macro">`uvm_declare_p_sequencer</span>(virtual_sequencer)
+
+   <span class="hljs-type">int</span> <span class="hljs-type">unsigned</span> count = <span class="hljs-number">1000</span>;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;coordinada_sequence&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">body</span>();
+      reset_sequence   reset_a, reset_b;
+      maxmult_sequence maxmult;
+      random_sequence  random_b;
+      un_op_sequence   primera, segunda;
+
+      reset_a  = reset_sequence::type_id::create(<span class="hljs-string">&quot;reset_a&quot;</span>);
+      reset_b  = reset_sequence::type_id::create(<span class="hljs-string">&quot;reset_b&quot;</span>);
+      maxmult  = maxmult_sequence::type_id::create(<span class="hljs-string">&quot;maxmult&quot;</span>);
+      random_b = random_sequence::type_id::create(<span class="hljs-string">&quot;random_b&quot;</span>);
+      primera  = un_op_sequence::type_id::create(<span class="hljs-string">&quot;primera&quot;</span>);
+      segunda  = un_op_sequence::type_id::create(<span class="hljs-string">&quot;segunda&quot;</span>);
+
+      random_b.count = count;
+
+      <span class="hljs-comment">// --- 1. Both ALUs get reset at the same time -----------------------------</span>
+      <span class="hljs-comment">// fork/join over TWO sequencers. Each branch blocks on its own driver, and</span>
+      <span class="hljs-comment">// the join waits for both: that cannot be written inside a normal</span>
+      <span class="hljs-comment">// sequence, which only knows the sequencer that started it.</span>
+      <span class="hljs-keyword">fork</span>
+         reset_a.start(p_sequencer.clase_sequencer_h);
+         reset_b.start(p_sequencer.modulo_sequencer_h);
+      <span class="hljs-keyword">join</span>
+
+      <span class="hljs-comment">// --- 2. Parallel traffic, different on each interface -------------------</span>
+      <span class="hljs-comment">// A does the directed overflow case while B sends at random.</span>
+      <span class="hljs-keyword">fork</span>
+         maxmult.start(p_sequencer.clase_sequencer_h);
+         random_b.start(p_sequencer.modulo_sequencer_h);
+      <span class="hljs-keyword">join</span>
+
+      <span class="hljs-comment">// --- 3. What no single sequence can do ----------------------------------</span>
+      <span class="hljs-comment">// The result of VTALU A is the operand of B. It is a dependency BETWEEN</span>
+      <span class="hljs-comment">// interfaces: the second one cannot even start being built until the</span>
+      <span class="hljs-comment">// first one answered.</span>
+      primera.A  = <span class="hljs-number">8&#x27;h0F</span>;
+      primera.B  = <span class="hljs-number">8&#x27;h07</span>;
+      primera.op = mul_op;
+      primera.start(p_sequencer.clase_sequencer_h);
+
+      <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;COORDINADA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
+                <span class="hljs-string">&quot;A returned %0d: it goes as an operand into B&quot;</span>, primera.result), <span class="hljs-uvm-const">UVM_LOW</span>)
+
+      segunda.A  = primera.result[<span class="hljs-number">7</span>:<span class="hljs-number">0</span>];
+      segunda.B  = <span class="hljs-number">8&#x27;h01</span>;
+      segunda.op = add_op;
+      segunda.start(p_sequencer.modulo_sequencer_h);
+
+      <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;COORDINADA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
+                <span class="hljs-string">&quot;B returned %0d&quot;</span>, segunda.result), <span class="hljs-uvm-const">UVM_LOW</span>)
+   <span class="hljs-keyword">endtask</span> : body
+
+<span class="hljs-keyword">endclass</span> : coordinada_sequence</code></pre></details></figure>
+
+<ul>
+<li><code>`uvm_declare_p_sequencer</code> declares <code>p_sequencer</code> **with the type of the
+virtual sequencer** and casts it on its own. Without it, <code>get_sequencer()</code> returns a
+<code>uvm_sequencer_base</code> and you have to cast by hand at every use</li>
+<li>The <code>fork</code>/<code>join</code> is over <strong>two sequencers</strong>: each branch blocks on its driver and
+the <code>join</code> waits for both</li>
+<li>That cannot be written inside a normal sequence, which knows a single
+sequencer</li>
+</ul>
+<div class="nota">
+<p>The <code>uvm_declare_p_sequencer</code> is sugar, and it is worth saying so: the only thing it does is
+declare the variable and redefine <code>m_set_p_sequencer()</code> with the <code>$cast</code>. If the
+sequencer it gets started on is not of that type, the fatal fires there and not
+twenty lines later.
+The detail that gets overlooked: the two branches of the <code>fork</code> start <strong>different</strong>
+sequences on <strong>different</strong> sequencers. If they were two sequences on the
+same sequencer, they would compete for the arbitration and the items would come out
+interleaved — which is a legitimate scenario, but it is another one.
+And a warning from the field: a virtual sequence with a single sequencer is a
+normal sequence with more ceremony. The class is justified when there are two.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/360">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s361" class="slide">
+<h2 id="virtual-sequences">Virtual sequences</h2>
+<h4 id="what-no-sequence-on-its-own-can-do"><em>What no sequence on its own can do</em></h4>
+<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · #the-ordered-pair</figcaption><pre><code class="hljs">      primera.A  = <span class="hljs-number">8&#x27;h0F</span>;
+      primera.B  = <span class="hljs-number">8&#x27;h07</span>;
+      primera.op = mul_op;
+      primera.start(p_sequencer.clase_sequencer_h);
+
+      <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;COORDINADA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
+                <span class="hljs-string">&quot;A returned %0d: it goes as an operand into B&quot;</span>, primera.result), <span class="hljs-uvm-const">UVM_LOW</span>)
+
+      segunda.A  = primera.result[<span class="hljs-number">7</span>:<span class="hljs-number">0</span>];
+      segunda.B  = <span class="hljs-number">8&#x27;h01</span>;
+      segunda.op = add_op;
+      segunda.start(p_sequencer.modulo_sequencer_h);</code></pre><details><summary>el archivo entero, 76 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// THE virtual sequence.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// Two things set it apart from every sequence in the Sequences section:</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">//   1. It has NO items of its own. It extends uvm_sequence without parameters</span>
+<span class="hljs-comment">//      and never calls start_item(): all it does is start OTHER sequences.</span>
+<span class="hljs-comment">//      Hence &quot;virtual&quot; -- it is tied to no item type and no sequencer.</span>
+<span class="hljs-comment">//   2. It runs on more than one sequencer, and that is where the one thing no</span>
+<span class="hljs-comment">//      single sequence can do comes from: coordinating two interfaces.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// `uvm_declare_p_sequencer declares `p_sequencer` with the type above and casts</span>
+<span class="hljs-comment">// it on its own inside m_set_p_sequencer. Without it, get_sequencer() returns a</span>
+<span class="hljs-comment">// uvm_sequencer_base and every use would need a cast by hand.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">coordinada_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(coordinada_sequence)
+   <span class="hljs-uvm-macro">`uvm_declare_p_sequencer</span>(virtual_sequencer)
+
+   <span class="hljs-type">int</span> <span class="hljs-type">unsigned</span> count = <span class="hljs-number">1000</span>;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;coordinada_sequence&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">body</span>();
+      reset_sequence   reset_a, reset_b;
+      maxmult_sequence maxmult;
+      random_sequence  random_b;
+      un_op_sequence   primera, segunda;
+
+      reset_a  = reset_sequence::type_id::create(<span class="hljs-string">&quot;reset_a&quot;</span>);
+      reset_b  = reset_sequence::type_id::create(<span class="hljs-string">&quot;reset_b&quot;</span>);
+      maxmult  = maxmult_sequence::type_id::create(<span class="hljs-string">&quot;maxmult&quot;</span>);
+      random_b = random_sequence::type_id::create(<span class="hljs-string">&quot;random_b&quot;</span>);
+      primera  = un_op_sequence::type_id::create(<span class="hljs-string">&quot;primera&quot;</span>);
+      segunda  = un_op_sequence::type_id::create(<span class="hljs-string">&quot;segunda&quot;</span>);
+
+      random_b.count = count;
+
+      <span class="hljs-comment">// --- 1. Both ALUs get reset at the same time -----------------------------</span>
+      <span class="hljs-comment">// fork/join over TWO sequencers. Each branch blocks on its own driver, and</span>
+      <span class="hljs-comment">// the join waits for both: that cannot be written inside a normal</span>
+      <span class="hljs-comment">// sequence, which only knows the sequencer that started it.</span>
+      <span class="hljs-keyword">fork</span>
+         reset_a.start(p_sequencer.clase_sequencer_h);
+         reset_b.start(p_sequencer.modulo_sequencer_h);
+      <span class="hljs-keyword">join</span>
+
+      <span class="hljs-comment">// --- 2. Parallel traffic, different on each interface -------------------</span>
+      <span class="hljs-comment">// A does the directed overflow case while B sends at random.</span>
+      <span class="hljs-keyword">fork</span>
+         maxmult.start(p_sequencer.clase_sequencer_h);
+         random_b.start(p_sequencer.modulo_sequencer_h);
+      <span class="hljs-keyword">join</span>
+
+      <span class="hljs-comment">// --- 3. What no single sequence can do ----------------------------------</span>
+      <span class="hljs-comment">// The result of VTALU A is the operand of B. It is a dependency BETWEEN</span>
+      <span class="hljs-comment">// interfaces: the second one cannot even start being built until the</span>
+      <span class="hljs-comment">// first one answered.</span>
+      primera.A  = <span class="hljs-number">8&#x27;h0F</span>;
+      primera.B  = <span class="hljs-number">8&#x27;h07</span>;
+      primera.op = mul_op;
+      primera.start(p_sequencer.clase_sequencer_h);
+
+      <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;COORDINADA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
+                <span class="hljs-string">&quot;A returned %0d: it goes as an operand into B&quot;</span>, primera.result), <span class="hljs-uvm-const">UVM_LOW</span>)
+
+      segunda.A  = primera.result[<span class="hljs-number">7</span>:<span class="hljs-number">0</span>];
+      segunda.B  = <span class="hljs-number">8&#x27;h01</span>;
+      segunda.op = add_op;
+      segunda.start(p_sequencer.modulo_sequencer_h);
+
+      <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;COORDINADA&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
+                <span class="hljs-string">&quot;B returned %0d&quot;</span>, segunda.result), <span class="hljs-uvm-const">UVM_LOW</span>)
+   <span class="hljs-keyword">endtask</span> : body
+
+<span class="hljs-keyword">endclass</span> : coordinada_sequence</code></pre></details></figure>
+
+<ul>
+<li>The result of VTALU <strong>A</strong> goes in as an operand of <strong>B</strong>: a dependency
+<strong>between interfaces</strong>, and in series. The second one cannot even be assembled until the
+first has answered</li>
+<li>The <code>result</code> comes back inside the item, which is the way back of this unit</li>
+<li><code>0F × 07 = 105</code>, and B answers <code>106</code>. Run it: <code>code/u7/sequences/virtual/run.sh</code></li>
+</ul>
+<div class="nota">
+<p>This is the slide that justifies the class. The two <code>fork</code> of the previous slide
+could be imitated with two tests running in parallel; this one cannot, because there is a piece of data
+that crosses from one interface to the other in the middle of the scenario.
+It is exactly the shape of the real case the bus appendix promises:
+configure over APB, read the status, and only then send traffic over AXI with
+what the configuration returned. The protocol changes, not the structure.
+And the honest close: the example runs on two VTALU because it is the DUT we
+have. With two different interfaces —two transactions, two drivers— the
+virtual sequence is written <strong>the same</strong>: the handles would be of two types of
+sequencer, and nothing more.
+And the criterion for the afternoon: in the capstone the second slave is driven
+by a module, so there is <strong>one</strong> sequencer and this is not needed. The virtual
+sequence comes in the day both interfaces belong to the testbench and one depends
+on the other — and then it is written just like here.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/361">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s362" class="slide">
+<h2 id="virtual-sequences">Virtual sequences</h2>
+<h4 id="and-if-branch-b-has-to-wait-for-a"><em>And if branch B has to wait for A?</em></h4>
+<pre><code class="language-systemverilog">// uvm_event: a notice, from one to many. It comes from the global pool, nobody builds it
+uvm_event listo = uvm_event_pool::get_global(&quot;dut_configurado&quot;);
+
+listo.trigger();          // the branch that configured gives notice
+listo.wait_trigger();     // the one waiting blocks here
+listo.wait_ptrigger();    // the same, but if it already happened, it walks on
+
+// uvm_barrier: a meeting point between N branches
+uvm_barrier arranque = uvm_barrier_pool::get_global(&quot;arranque&quot;);
+arranque.set_threshold(2);
+arranque.wait_for();      // neither of the two goes on until both have arrived
+</code></pre>
+<ul>
+<li>The <code>join</code> synchronizes <strong>at the end</strong>. When branch B has to wait for A
+<strong>in the middle</strong>, a synchronization object is needed</li>
+<li><code>uvm_event</code> is <strong>one to many</strong>: one gives notice, those waiting move on. And
+<code>trigger(data)</code> can carry a <code>uvm_object</code> attached</li>
+<li><code>uvm_barrier</code> is <strong>symmetric</strong>: nobody goes on until everybody has arrived. It is the
+&quot;start together&quot; of two agents that have to begin on the same cycle</li>
+<li>A shared <code>bit</code> with <code>wait(flag)</code> is not enough: it <strong>loses the pulse</strong> if the one
+waiting arrived late, and it carries no data</li>
+</ul>
+<div class="nota">
+<p>This is the question that shows up on its own as soon as the <code>fork</code> of the previous
+slide is drawn, and it is worth answering right there: <em>&quot;and if branch B cannot start
+until A configured the DUT?&quot;</em>.
+The distinction to make clear is <strong>one to many versus symmetric</strong>. The
+<code>uvm_event</code> has a side that gives notice and another that waits, and the roles do not
+change: it is for &quot;the reset finished&quot;, &quot;the DUT is configured&quot;, &quot;the interrupt
+arrived&quot;. The <code>uvm_barrier</code> has no sides: the N branches execute the same
+line and none goes on until all are there. It is for &quot;start together&quot; and for
+&quot;everybody wait until the configuration phase ends&quot;.
+The <code>wait_ptrigger()</code> deserves its own second, because it is the classic race: if
+branch A triggers before B reaches the <code>wait_trigger()</code>, B waits
+forever. The <code>p</code> is for <em>persistent</em>: it asks whether the event <strong>already</strong> happened at some point.
+The practical rule: if you cannot guarantee the order, <code>wait_ptrigger()</code>.
+And why not a shared <code>bit</code>, which is the first thing anybody tries: a <code>bit</code> does not
+keep history, does not carry attached data, and cannot be reset between phases without
+somebody swallowing a pulse. The two UVM objects exist precisely because
+that homemade version fails once every hundred runs.
+Its own failure mode: a barrier with the threshold set wrong does not give an error —
+it hangs. The symptom is a test that ends on <code>+UVM_TIMEOUT</code> without a single
+<code>UVM_ERROR</code>, and <code>+UVM_OBJECTION_TRACE</code> shows the objection up and nobody
+moving on.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/362">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s363" class="slide">
 <!-- es-sha: 5c2088d92c4e -->
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-hole-the-scoreboard-left"><em>The hole the scoreboard left</em></h4>
@@ -103,10 +704,10 @@ This is also the answer to <em>&quot;why is SVA the other half of
 verification?&quot;</em>: it is not another technique for doing the same thing, it is the half this
 testbench does not cover.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/356">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/363">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s357" class="slide">
+<section id="s364" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="immediate-and-concurrent-the-one-you-know-and-the-new-one"><em>Immediate and concurrent: the one you know and the new one</em></h4>
 <pre><code class="language-sv">// IMMEDIATE: it is a STATEMENT. It runs when the thread goes past it,
@@ -140,10 +741,10 @@ is the silent trap of that section —<code>assert</code> is a simulation direct
 with asserts switched off the argument does not get executed. Here you see why: they are the
 same keyword for two different things.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/357">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/364">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s358" class="slide">
+<section id="s365" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="anatomy-of-a-property"><em>Anatomy of a property</em></h4>
 <pre><code class="language-sv">a_done_llega :                      // &lt;- the label: NOT optional
@@ -176,10 +777,10 @@ The <code>disable iff</code> is looked at in detail further on, but it is worth 
 so high up in the template: it is the part that gets forgotten most and the one that generates the most false
 positives.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/358">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/365">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s359" class="slide">
+<section id="s366" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="--against--mistake-number-one"><em><code>|-&gt;</code> against <code>|=&gt;</code>, mistake number one</em></h4>
 <pre><code class="language-sv">// |-&gt;  overlapping: the consequent starts on THE SAME edge
@@ -214,10 +815,10 @@ satisfied. That second case is the one the final report takes as good, and it is
 reason why the <code>cover property</code> slide is not an extra: it is the only check of the
 check.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/359">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/366">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s360" class="slide">
+<section id="s367" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="looking-at-the-past-rose-fell-stable-past"><em>Looking at the past: <code>$rose</code>, <code>$fell</code>, <code>$stable</code>, <code>$past</code></em></h4>
 <pre><code class="language-sv">$rose(start)      // 0 -&gt; 1 between the previous edge and this one
@@ -248,10 +849,10 @@ that is where they infer the clock from. What they always need is <strong>a</str
 <code>$past</code> with the explicit clock argument is not supported by Verilator (<em>Unsupported:
 $past expr2 and/or clock arguments</em>).</p>
 </div>
-<p class="al-deck"><a href="../index.html#/360">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/367">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s361" class="slide">
+<section id="s368" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-property-that-is-worth-the-section"><em>The property that is worth the section</em></h4>
 <figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #stable-operands</figcaption><pre><code class="hljs">   <span class="hljs-comment">// --- El estimulo ---</span>
@@ -504,10 +1105,10 @@ illegal for the DUT and transparent for the scoreboard.
 It is worth showing the <code>@(negedge clk)</code> and <strong>not</strong> explaining it yet: leave it as a
 curiosity that gets cleared up on the next slide. Somebody is going to ask first.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/361">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/368">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s362" class="slide">
+<section id="s369" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="⚠-two-clocks-an-assertion-is-worth-what-its-sampling-is-worth"><em>⚠ Two clocks: an assertion is worth what its sampling is worth</em></h4>
 <figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #two-clocks</figcaption><pre><code class="hljs">   <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
@@ -783,10 +1384,10 @@ once for the whole interface instead of repeating it property by property. It is
 day 1 —<code>030-interfaces-bfm.md</code> and <code>docs/clocking-blocks.md</code>— and it is worth naming
 again here, because only now is the full problem it solves in view.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/362">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/369">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s363" class="slide">
+<section id="s370" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-pulse-the-sampling-does-not-see"><em>The pulse the sampling does not see</em></h4>
 <p><img src="../../res/print/diagrams/en/assertions_dos_relojes.svg" alt="Two no_op in a row: start goes down at 111 and up at 120, between two posedge"></p>
@@ -812,10 +1413,10 @@ exactly at <code>t=120</code>, that is, inside the transaction the <code>posedge
 it is watching. That is why the 145 errors talk about operand stability and not
 about something else.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/363">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/370">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s364" class="slide">
+<section id="s371" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="variable-latency-in-one-line"><em>Variable latency, in one line</em></h4>
 <figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #done-arrives</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
@@ -1078,10 +1679,10 @@ turns it into a source of false positives when somebody changes the pipeline.
 The <code>p_no_op_sin_done</code> below is the complement and it uses <code>|=&gt;</code> precisely because of what
 the previous slide said: <code>done</code> comes out of an <code>always_ff</code>.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/364">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/371">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s365" class="slide">
+<section id="s372" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="disable-iff-and-the-reset"><em><code>disable iff</code> and the reset</em></h4>
 <pre><code class="language-sv">default disable iff (!reset_n);   // once, for the whole interface
@@ -1114,10 +1715,10 @@ a long transaction. In this DUT it is one cycle; on a real bus, with
 transactions of dozens, it is the difference between a usable property and one that
 has to be switched off.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/365">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/372">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s366" class="slide">
+<section id="s373" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="where-they-live-inside-the-interface"><em>Where they live: inside the interface</em></h4>
 <ul>
@@ -1143,10 +1744,10 @@ And the twist from the agents is worth saying slowly: the legacy module
 —the &quot;boss&#39;s tester&quot;, without one line of UVM— is also being checked. Nobody
 asked its permission. That is the exercise of the day.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/366">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/373">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s367" class="slide">
+<section id="s374" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="bind-when-the-interface-is-not-yours"><em><code>bind</code>: when the interface is not yours</em></h4>
 <pre><code class="language-systemverilog">// The checker lives outside. The RTL is not touched -- often it cannot be.
@@ -1185,10 +1786,10 @@ And the warning: a badly written <code>bind</code> does not fail, connects nothi
 left not running. As always, the antidote is the <code>cover property</code> — if the cover
 is at zero, the <code>bind</code> did not arrive.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/367">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/374">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s368" class="slide">
+<section id="s375" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-integration-with-uvm-the-else-that-makes-it-count"><em>The integration with UVM: the <code>else</code> that makes it count</em></h4>
 <pre><code class="language-sv">// The SystemVerilog default: it KILLS the simulation on the first failure
@@ -1222,10 +1823,10 @@ a message without <code>%m</code> does not say which of the two ALUs broke. It i
 <code>get_full_name()</code> solved in reporting, with the tool of the language
 instead of the one of the library.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/368">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/375">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s369" class="slide">
+<section id="s376" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="every-assertion-goes-with-its-cover-property"><em>Every assertion goes with its <code>cover property</code></em></h4>
 <figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #the-covers</figcaption><pre><code class="hljs">   <span class="hljs-comment">// And the cover that goes with it: without this, a regression where the random</span>
@@ -1480,10 +2081,10 @@ The rule to take away: for every <code>assert property</code> you write, write t
 <code>cover property</code> of the antecedent. It is two lines and it is the difference between a
 testbench that checks and one that says it checks.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/369">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/376">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s370" class="slide">
+<section id="s377" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="assertion-or-scoreboard-the-same-rule-two-places"><em>Assertion or scoreboard: the same rule, two places</em></h4>
 <table>
@@ -1535,10 +2136,10 @@ The other half of the rule matters too: SVA does not replace the scoreboard. Nob
 wants to read a reference model written in properties, and whoever tried it tells it
 as an anecdote.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/370">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/377">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s371" class="slide">
+<section id="s378" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-example-of-the-section-the-bug-the-scoreboard-does-not-see"><em>The example of the section: the bug the scoreboard does not see</em></h4>
 <figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #the-planted-bug</figcaption><pre><code class="hljs">            <span class="hljs-comment">// +BUG=1: changes B halfway through the multiplication. The</span>
@@ -1802,10 +2403,10 @@ And the punchline: this bug is not hypothetical. It is exactly what the legacy
 module of the exercise does, and it is exactly the kind of thing that survives for years in a
 block that &quot;works&quot;.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/371">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/378">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s372" class="slide">
+<section id="s379" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-traps-of-this-section"><em>The traps of this section</em></h4>
 <table>
@@ -1853,10 +2454,10 @@ would have said that everything is fine.
 These four are added to the appendix of the silent traps, which from this
 section on are twenty.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/372">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/379">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s373" class="slide">
+<section id="s380" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="summary-of-the-unit"><em>Summary of the unit</em></h4>
 <ul>
@@ -1885,10 +2486,10 @@ And it is worth closing with the location on the map: this is the half that was 
 scoreboard checks what the DUT computes; the assertions, how you talk to it. A
 serious verification plan has both columns.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/373">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/380">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s374" class="slide">
+<section id="s381" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="what-this-section-does-differently"><em>What this section does differently</em></h4>
 <ul>
@@ -1914,12 +2515,12 @@ What is left out and is worth naming so nobody discovers it late:
 formal assertions, <code>expect</code>, and the prefabricated bus properties that come with
 commercial VIP. With what is in this section they can be read without help.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/374">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/381">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s375" class="slide">
-<!-- es-sha: 5e7fbf141734 -->
-<h2 id="exercise-·-day-7">Exercise · Day 7</h2>
+<section id="s382" class="slide">
+<!-- es-sha: 4229d49fb795 -->
+<h2 id="exercise-·-day-7-·-2-of-2">Exercise · Day 7 · 2 of 2</h2>
 <h4 id="the-legacy-module-violates-the-protocol-and-nobody-knew"><em>The legacy module violates the protocol and nobody knew</em></h4>
 <p><code>cd code/ejercicios/d7-sva &amp;&amp; bash run.sh</code></p>
 <ul>
@@ -1946,10 +2547,10 @@ thinking about the boss&#39;s module. It lives in the interface, and that is why
 everybody who uses it — including code that was written five years before
 this testbench existed.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/375">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/382">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s376" class="slide quiz">
+<section id="s383" class="slide quiz">
 <!-- es-sha: 4ea9bbd6d978 -->
 
 
@@ -1965,10 +2566,10 @@ this testbench existed.</p>
 <blockquote>
 <p><strong>Statement against declaration</strong> — the immediate one runs when the thread goes past it; the concurrent one gets evaluated on its own, on every edge of its clock. It is to an <code>if</code> what the concurrent one is to an <code>always_ff</code>: one executes, the other gets instantiated. That is why only the concurrent one can describe something that lasts several cycles.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/376">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/383">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s377" class="slide quiz">
+<section id="s384" class="slide quiz">
 <h2 id="review-·-day-7">Review · Day 7</h2>
 <h4 id="2-of-5-·---against-"><em>2 of 5 · <code>|-&gt;</code> against <code>|=&gt;</code></em></h4>
 <p><strong>The <code>done</code> of the VTALU comes out of an <code>always_ff</code>. Which implication goes in <code>start |?? done</code>?</strong></p>
@@ -1981,10 +2582,10 @@ this testbench existed.</p>
 <blockquote>
 <p><strong><code>|=&gt;</code> when the consequent comes out of a <code>&lt;=</code></strong> — because <code>|=&gt;</code> <em>is</em> <code>|-&gt; ##1</code>, and the question to ask is how many edges later the spec promises it. With <code>|-&gt;</code> against a registered signal the property does not pass vacuously: it <strong>fails on every transaction</strong>, because it compares against the old <code>done</code>. The one that passes quietly is the one whose antecedent never occurs — which is why it always goes with its <code>cover property</code>.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/377">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/384">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s378" class="slide quiz">
+<section id="s385" class="slide quiz">
 <h2 id="review-·-day-7">Review · Day 7</h2>
 <h4 id="3-of-5-·-the-sampling-edge"><em>3 of 5 · The sampling edge</em></h4>
 <p><strong>All the properties of the VTALU sampled on <code>@(posedge clk)</code> give 145 errors over 1000 operations, and the DUT is healthy. Why?</strong></p>
@@ -1997,10 +2598,10 @@ this testbench existed.</p>
 <blockquote>
 <p><strong>An assertion is worth what its sampling is worth</strong> — the BFM writes the stimulus on the <code>negedge</code>, and on two consecutive <code>no_op</code> <code>start</code> goes down and comes back up between two <code>posedge</code>: the sampling does not see it go down. The stimulus gets sampled where the stimulus gets written. Stimulus on <code>negedge</code>, response of the DUT on <code>posedge</code>: zero errors. With a single clock there is no way.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/378">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/385">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s379" class="slide quiz">
+<section id="s386" class="slide quiz">
 <h2 id="review-·-day-7">Review · Day 7</h2>
 <h4 id="4-of-5-·-the-assertion-that-checks-nothing"><em>4 of 5 · The assertion that checks nothing</em></h4>
 <p><strong>An <code>assert</code> property reports 0 failures during the whole regression. What do you know?</strong></p>
@@ -2013,10 +2614,10 @@ this testbench existed.</p>
 <blockquote>
 <p><strong>Zero failures and zero evaluations look the same</strong> — its antecedent may never have occurred, or <code>--assert</code> may be missing and it is not even being evaluated. That is why every assertion goes with its <code>cover property</code>: it is the only check of the check. In the section, <code>c_mult_3ciclos</code> stays at 0 and gives away that the real latency is four edges, not three.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/379">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/386">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s380" class="slide quiz">
+<section id="s387" class="slide quiz">
 <h2 id="review-·-day-7">Review · Day 7</h2>
 <h4 id="5-of-5-·-assertion-or-scoreboard"><em>5 of 5 · Assertion or scoreboard</em></h4>
 <p><strong>The DUT gives back the right <code>result</code> but drops <code>done</code> one cycle earlier than the specification says. Who catches it?</strong></p>
@@ -2029,10 +2630,10 @@ this testbench existed.</p>
 <blockquote>
 <p><strong>Protocol → assertion. Data → scoreboard</strong> — and it is not a preference: by the time the transaction reaches the scoreboard, the protocol is no longer there. Writing the check there would be rebuilding by hand the time the monitor has just erased.</p>
 </blockquote>
-<p class="al-deck"><a href="../index.html#/380">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/387">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s381" class="slide">
+<section id="s388" class="slide">
 <!-- es-sha: 58d61a3aa27d -->
 <h2 id="capstone-·-day-7">Capstone · Day 7</h2>
 <h4 id="the-whole-testbench-from-a-blank-sheet"><em>The whole testbench, from a blank sheet</em></h4>
@@ -2060,10 +2661,10 @@ The other use, for whoever is studying alone: it is the exercise that can be sho
 an interview. A UVM testbench on an APB, written from scratch, with its
 coverage plan, is exactly the example they ask for.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/381">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/388">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s382" class="slide">
+<section id="s389" class="slide">
 <h2 id="capstone-·-day-7">Capstone · Day 7</h2>
 <h4 id="the-dut-four-registers-and-the-small-print"><em>The DUT: four registers and the small print</em></h4>
 <table>
@@ -2223,10 +2824,10 @@ write does not wait and the read does, and out of that comes the <code>do @(pose
 <code>PRDATA</code> one cycle too early — and it does not fail every time, which is the worst that
 can happen.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/382">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/389">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s383" class="slide">
+<section id="s390" class="slide">
 <h2 id="capstone-·-day-7">Capstone · Day 7</h2>
 <h4 id="the-order-monitor-driver-scoreboard-coverage"><em>The order: monitor, driver, scoreboard, coverage</em></h4>
 <ul>
@@ -2263,10 +2864,10 @@ And stage 4 closes the circle of day 6: the covergroup does not get invented, it
 from the table of the verification plan. If a bin is left at zero, there is a row of the
 plan that was not verified — no matter how green the scoreboard is.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/383">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/390">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s384" class="slide">
+<section id="s391" class="slide">
 <h2 id="capstone-·-day-7">Capstone · Day 7</h2>
 <h4 id="stage-5-the-bug-the-scoreboard-cannot-see"><em>Stage 5: the bug the scoreboard cannot see</em></h4>
 <pre><code class="language-systemverilog">// In apb_if.sv, with the signals. The payload does not move until it ends
@@ -2310,11 +2911,11 @@ obvious reading of <em>&quot;<code>PSLVERR</code> is valid together with <code>P
 on an unmapped read it is already high during the wait state. Written as an
 assertion it fires on the healthy DUT. That rule is a <code>cover</code>, not an <code>assert</code>.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/384">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/391">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s385" class="slide">
-<!-- es-sha: e4df2b95cff7 -->
+<section id="s392" class="slide">
+<!-- es-sha: 4288d7d4dba9 -->
 
 
 <h2 id="appendix-·-from-the-vtalu-to-a-real-bus">Appendix · From the VTALU to a real bus</h2>
@@ -2343,10 +2944,10 @@ knows about the protocol is shut away in one place. Changing protocol touches th
 place and nothing else. If the student had to rewrite the env, it would be a sign that the
 agent was badly built.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/385">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/392">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s386" class="slide">
+<section id="s393" class="slide">
 <h2 id="appendix-·-from-the-vtalu-to-a-real-bus">Appendix · From the VTALU to a real bus</h2>
 <h4 id="what-does-change"><em>What does change</em></h4>
 <ul>
@@ -2380,10 +2981,10 @@ a new topic: they are the same pieces as threads and as put and get.
 And about the second bullet, to bring the anxiety down: the monitor of a known
 protocol almost never gets written. It gets bought or downloaded.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/386">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/393">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s387" class="slide">
+<section id="s394" class="slide">
 <h2 id="appendix-·-from-the-vtalu-to-a-real-bus">Appendix · From the VTALU to a real bus</h2>
 <h4 id="vertical-reuse-the-block-env-inside-the-system-env"><em>Vertical reuse: the block env inside the system env</em></h4>
 <pre><code class="language-systemverilog">class soc_env extends uvm_env;
@@ -2428,10 +3029,10 @@ And the fact that closes the capstone: the env they wrote in <code>d7-final</cod
 reusable, because its config comes from outside and so does its interface. It was not
 a coincidence; it was the <code>apb_env_config</code>.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/387">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/394">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s388" class="slide">
+<section id="s395" class="slide">
 <h2 id="appendix-·-from-the-vtalu-to-a-real-bus">Appendix · From the VTALU to a real bus</h2>
 <h4 id="where-to-start"><em>Where to start</em></h4>
 <ul>
@@ -2455,17 +3056,26 @@ starts with the driver writes stimulus nobody is watching, and discovers a
 week later that their monitor does not reconstruct. Whoever starts with the monitor can
 plug it in passively on somebody else&#39;s stimulus —or on a test from the designer— and is
 already contributing on the first day.
-If somebody asks where the learning path goes on from here, the
-order that pays off: RAL, then regression with seeds, then the <code>clocking block</code>
-and the prefabricated bus properties. SVA is no longer on that list —it is a whole unit of this course— and it is worth saying so, because it is the first question of every interview.
+If somebody asks where the learning path goes on <strong>after this course</strong>, the short
+list, in order: <strong>TLM2</strong> —<code>uvm_tlm_generic_payload</code> and the sockets, which is how
+bus VIPs get connected to each other—, the <strong>RAL backdoor</strong> —<code>docs/verilator.md</code>
+explains why it is not here—, the <strong><code>uvm_sequence_library</code></strong> for the stress test
+you do not write, and reading the <code>dv/</code> of a real open project: the agents of
+<strong>OpenTitan</strong> and the AXI VIP of <strong>pulp-platform/axi</strong> are production code and
+they read for free. And one that is not UVM and is worth the career: <strong>formal</strong>
+with SymbiYosys, which proves the same properties they wrote today without any
+stimulus.
+What is <strong>not</strong> on that list is what they have already seen: RAL is day 8, the
+regression with seeds is the day 7 warm-up and <code>make regresion</code>, and the
+<code>clocking block</code> is half a section of unit 2.
 And a last one, which is not technical: in a real project the testbench almost always
 already exists. What gets asked for on the first day is not building one, it is <strong>adding a test
 to it</strong> — which is exactly what they practised in the exercises of days 3 and 6.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/388">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/395">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s389" class="slide">
+<section id="s396" class="slide">
 <!-- es-sha: d485ca9d682c -->
 
 
@@ -2543,10 +3153,10 @@ And one that is not in the table because it is not a tool but a habit:
 running with <code>SEED=N</code>. A bug that shows up once every ten runs does not get debugged
 until you can repeat it at will.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/389">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/396">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s390" class="slide">
+<section id="s397" class="slide">
 <h2 id="appendix-·-the-debug-toolbox">Appendix · The debug toolbox</h2>
 <h4 id="which-one-to-use-according-to-the-symptom"><em>Which one to use, according to the symptom</em></h4>
 <table>
@@ -2611,10 +3221,10 @@ And to close: the last column is all there is. If the symptom is not here,
 the next step is the waveforms, which is the tool that does
 47 % of the work.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/390">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/397">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s391" class="slide">
+<section id="s398" class="slide">
 <!-- es-sha: c17f3821f756 -->
 
 
@@ -2678,10 +3288,10 @@ the <code>create()</code>, and the stimulus changes without anybody touching the
 That is why the <code>+TOPOLOGY</code> of the agents is so cheap: it is ten seconds of reading
 the tree UVM actually built, against the one you drew in your head.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/391">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/398">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s392" class="slide">
+<section id="s399" class="slide">
 <h2 id="appendix-·-the-21-silent-traps">Appendix · The 21 silent traps</h2>
 <h4 id="the-one-publishing-and-the-one-listening"><em>The one publishing and the one listening</em></h4>
 <table>
@@ -2736,10 +3346,10 @@ pointing out the asymmetry: <code>do_copy()</code> without <code>super</code> lo
 <code>do_compare()</code> without <code>&amp;&amp;</code> compares too few of them, and gives back <em>equal</em> for two objects
 that are not. The second is worse, because it switches off the whole scoreboard without switching it off.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/392">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/399">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s393" class="slide">
+<section id="s400" class="slide">
 <h2 id="appendix-·-the-21-silent-traps">Appendix · The 21 silent traps</h2>
 <h4 id="stimulus-scope-and-objections"><em>Stimulus, scope and objections</em></h4>
 <table>
@@ -2812,10 +3422,10 @@ And a closing recommendation for whoever is studying alone: read this appendix n
 again on the day something does not work. The first time you understand none of them; the
 second you understand exactly the one that is happening to you.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/393">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/400">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s394" class="slide">
+<section id="s401" class="slide">
 <h2 id="appendix-·-the-21-silent-traps">Appendix · The 21 silent traps</h2>
 <h4 id="the-four-from-the-assertions"><em>The four from the assertions</em></h4>
 <table>
@@ -2871,10 +3481,10 @@ loosen the property until it shuts up: there you are left without a check and wi
 feeling of having fixed it. The right reflex is to ask on which edge
 the one driving the stimulus writes.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/394">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/401">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s395" class="slide">
+<section id="s402" class="slide">
 <h2 id="appendix-·-the-21-silent-traps">Appendix · The 21 silent traps</h2>
 <h4 id="and-the-one-the-clocking-block-brings"><em>And the one the clocking block brings</em></h4>
 <table>
@@ -2914,10 +3524,10 @@ The rule in one line, which is Dave Rich&#39;s: if a signal belongs to the
 timing contract of a clocking block, it is always accessed through that contract. The
 long material is in <code>docs/clocking-blocks.md</code>.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/395">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/402">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s396" class="slide">
+<section id="s403" class="slide">
 <!-- es-sha: 4a71e1803167 -->
 
 
@@ -2995,10 +3605,10 @@ A rule of thumb for work: the technical nouns are fixed and do not get paraphras
 &quot;Randomize the transaction&quot;, &quot;run the regression&quot;, &quot;this does not close coverage&quot;. It sounds like
 jargon and it is how the trade talks.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/396">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/403">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s397" class="slide">
+<section id="s404" class="slide">
 <h2 id="glossary-·-the-pieces">Glossary · The pieces</h2>
 <h4 id="one-line-each-to-have-them-together"><em>One line each, to have them together</em></h4>
 <table>
@@ -3095,10 +3705,10 @@ meanings: the UVM one is an object that generates stimulus; the SVA one
 edges later that&quot;*— and has nothing to do with it. The context always tells them
 apart, but the first time it confuses.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/397">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/404">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s398" class="slide">
+<section id="s405" class="slide">
 <h2 id="glossary-·-three-words-that-mislead">Glossary · Three words that mislead</h2>
 <ul>
 <li><strong><code>virtual</code></strong> — in SystemVerilog it is <strong>three unrelated things</strong>: a <em>virtual
@@ -3129,10 +3739,10 @@ And the last row looks obvious until the first project meeting, where
 &quot;how many tests do you have&quot; and &quot;how many tests did you run last night&quot; are two different
 questions with two very different numbers.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/398">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/405">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s399" class="slide">
+<section id="s406" class="slide">
 <!-- es-sha: 42b61a50657d -->
 
 
@@ -3175,10 +3785,10 @@ verify: the percentages of unit 1 are from the Wilson Research
 Group study; the charts are our own and get regenerated with <code>make figs</code> from a JSON that
 is in the repo. Nothing in unit 1 is an image downloaded from the internet.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/399">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/406">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s400" class="slide">
+<section id="s407" class="slide">
 <h2 id="if-you-want-to-keep-reading">If you want to keep reading</h2>
 <div class="creditos creditos-ref">
 <a class="libro" href="https://www.amazon.com/UVM-Primer-Step-Step-Introduction/dp/0974164933" target="_blank" rel="noopener">
@@ -3195,10 +3805,10 @@ is in the repo. Nothing in unit 1 is an image downloaded from the internet.</p>
 written and it is still the best way to start in English. If the course was of any
 use to somebody, let them buy it.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/400">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/407">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s401" class="slide">
+<section id="s408" class="slide">
 <h2 id="credits">Credits</h2>
 <ul>
 <li>Part of the examples in <code>code/</code> derives from those of the <strong>UVM Primer</strong>, published
@@ -3224,11 +3834,11 @@ things. The code derives from Apache-2.0 code and has to go on being that; the
 slides are original work and CC BY is the one an academic setting understands; the
 tools are software and MIT is what anybody copying them expects.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/401">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/408">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s402" class="slide">
-<!-- es-sha: 052564f70afd -->
+<section id="s409" class="slide">
+<!-- es-sha: 2f21e65454e9 -->
 
 
 <h2 id="this-is-as-far-as-we-got">This is as far as we got</h2>
@@ -3241,8 +3851,13 @@ you know how to read the number that comes out</li>
 <li>You can read and write <strong>OOP in SystemVerilog</strong>: classes, inheritance,
 polymorphism, parameterized classes, the factory</li>
 <li>You built a <strong>complete UVM testbench</strong> —test, env, components, monitors,
-driver, scoreboard, transactions— piece by piece, understanding what replaces
-what</li>
+driver, scoreboard, transactions, agents and sequences— piece by piece,
+understanding what replaces what</li>
+<li>You wrote <strong>assertions</strong>: the other half of the plan, the one no scoreboard can
+close because it is not about the result but about the protocol</li>
+<li>And you handed it in: the <strong>capstone</strong> is a DUT you had not seen before, its
+spec, and the whole testbench from a blank sheet — which is literally what gets
+asked for at work</li>
 <li>And all of that runs on your machine, with <strong>free tools</strong>, without asking
 anybody for a licence</li>
 </ul>
@@ -3261,10 +3876,10 @@ follows is a list of what was not covered. Finishing it is not knowing UVM — i
 read somebody else&#39;s testbench, write one of your own, and understand the next thing you
 learn without it sounding like gibberish.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/402">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/409">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s403" class="slide">
+<section id="s410" class="slide">
 <h2 id="what-was-left-out">What was left out</h2>
 <h4 id="and-where-to-go-on"><em>and where to go on</em></h4>
 <table>
@@ -3321,12 +3936,12 @@ The <strong><code>clocking block</code></strong> also came out of this table: it
 unit 2, with its example that runs in <code>code/u2/clocking/</code>.
 The <strong>callbacks</strong> came out for the same reason: they are half a section of unit 7, with
 the <code>code/u7/callbacks/</code> that injects the error in the driver — the third hook
-unit 1 promises. And <strong>regression and seeds</strong> as well: the exercise <code>d6-semillas</code>
+unit 1 promises. And <strong>regression and seeds</strong> as well: the exercise <code>d7-semillas</code>
 is the whole cycle, and <code>make regresion</code> left it as a tool, with a report of
 the bins that were left open.
 <strong>SVA came out of this table and is now a whole unit</strong>, and it is one of the most original things
 the course has: no introductory UVM book brings it. The <strong>virtual sequences</strong>
-came out too: they are at the end of the sequences, with an example that runs in
+came out too: they are the first hour of today, with an example that runs in
 <code>code/u7/sequences/virtual/</code>.
 The last three rows are worth reading out loud with this sentence in front: an
 introductory course that lists what it does not cover is worth more than one that pretends
@@ -3339,10 +3954,10 @@ If there is time, open it live and look together for the <code>m_set_full_name()
 the config_db find things. It is the best way to close the course: the
 library stops being magic.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/403">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/410">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s404" class="slide">
+<section id="s411" class="slide">
 <!-- es-sha: d97533d950af -->
 <h2 id="self-assessment">Self-assessment</h2>
 <h4 id="fifteen-things-you-should-be-able-to-do-by-now-·-1-of-3"><em>Fifteen things you should be able to do by now · 1 of 3</em></h4>
@@ -3387,10 +4002,10 @@ If it is being taught in class, project the three slides and ask for hands per r
 that get the most hands are the ones to review, and that measurement is worth more than
 the complete review.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/404">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/411">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s405" class="slide">
+<section id="s412" class="slide">
 <h2 id="self-assessment">Self-assessment</h2>
 <h4 id="fifteen-things-you-should-be-able-to-do-by-now-·-2-of-3"><em>Fifteen things you should be able to do by now · 2 of 3</em></h4>
 <table>
@@ -3432,10 +4047,10 @@ debugging exactly where they were, and one that prints the transaction, the
 prediction and the time saves them half a morning. It is the difference between a
 testbench that works and one you can work with.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/405">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/412">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s406" class="slide">
+<section id="s413" class="slide">
 <h2 id="self-assessment">Self-assessment</h2>
 <h4 id="fifteen-things-you-should-be-able-to-do-by-now-·-3-of-3"><em>Fifteen things you should be able to do by now · 3 of 3</em></h4>
 <table>
@@ -3484,7 +4099,7 @@ a necessary condition, not a sufficient one. What proves somebody knows how to d
 a testbench of their own working, and that is the capstone. A student who ticks all
 fifteen and does not finish it did not finish the course.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/406">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/413">see this slide in the deck &rsaquo;</a></p>
 </section>
 </main>
 

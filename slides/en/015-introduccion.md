@@ -1,4 +1,4 @@
-<!-- es-sha: b9e6bddac2ec -->
+<!-- es-sha: 31496a304ebf -->
 ## Introduction
 
 #### *What is UVM?*
@@ -144,4 +144,4 @@ random* on day 5, *The factory pattern* on day 2 and *Callbacks* on day 6—, so
 this slide can be put up three more times.
 And the last line is the most underestimated one. A test with a thousand seeds is not
 "the same test a thousand times": it is a thousand different scenarios for the price of writing
-one. It is literally the `d6-semillas` exercise of day 6.
+one. It is literally the `d7-semillas` exercise, the one day 7 starts with.

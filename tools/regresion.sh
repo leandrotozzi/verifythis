@@ -5,7 +5,7 @@
 #   make regresion EJEMPLO=u6/transactions N=20
 #   sh tools/regresion.sh u7/sequences 10       # idem, sin make
 #
-# Es el ejercicio code/ejercicios/d6-semillas convertido en herramienta: ahi el
+# Es el ejercicio code/ejercicios/d7-semillas convertido en herramienta: ahi el
 # alumno escribe este bucle a mano para entender que una regresion no son cinco
 # tests distintos, sino el mismo test cinco veces con otra semilla.
 #

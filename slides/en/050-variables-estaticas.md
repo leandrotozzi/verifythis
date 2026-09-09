@@ -1,4 +1,4 @@
-<!-- es-sha: 0f407d1d644c -->
+<!-- es-sha: dc26f4b3f9bd -->
 ## Static variables
 
 #### *The global variable you can actually defend*
@@ -105,16 +105,12 @@ structure.
 
 #### *Summary of the unit*
 
-- `static` is **the global variable you can actually defend**: it lives in the class, not
-  in the object, and to touch it you have to name the class with `::`
-- That `::` is the whole argument. The day the value looks odd, a `grep` tells you
-  exactly who put it there
-- There is **a single copy** no matter how many objects you instantiate, and **it exists
-  even if you instantiate none**: it does not wait for the `new()`
-- `static` solves *where it lives*, not *who touches it*. That one is solved by
-  **`protected` plus static access methods**
-- A public `static` is a global variable with a longer prefix
-- And it is not a loose OOP topic: the **factory** and the **`uvm_config_db`** are the
+- **A single copy** no matter how many objects you instantiate, **it exists even
+  if you instantiate none**, and to touch it you have to name the class with `::`
+- That `::` is the whole argument: the day the value looks odd, a `grep` tells you
+  who put it there. But `static` solves *where it lives*, not *who touches it* —
+  that one is `protected` plus static access methods
+- Where it comes back: `uvm_config_db#(T)::set(...)` and `type_id::create()`, the
   two most important static variables of a UVM testbench
 
 Note:

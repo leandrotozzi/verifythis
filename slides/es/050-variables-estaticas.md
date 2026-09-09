@@ -104,17 +104,13 @@ estructura estática.
 
 #### *Resumen de la unidad*
 
-- `static` es **la variable global que sí podés defender**: vive en la clase, no
-  en el objeto, y para tocarla hay que nombrar la clase con `::`
-- Ese `::` es todo el argumento. El día que el valor sea raro, un `grep` te dice
-  exactamente quién lo puso
-- Hay **una sola copia** por más objetos que instancies, y **existe aunque no
-  instancies ninguno**: no espera al `new()`
-- `static` resuelve *dónde vive*, no *quién lo toca*. Eso lo resuelve
-  **`protected` más métodos de acceso estáticos**
-- Una `static` pública es una variable global con un prefijo más largo
-- Y no es un tema suelto de OOP: la **factory** y el **`uvm_config_db`** son las
-  dos variables estáticas más importantes de un testbench UVM
+- **Una sola copia** por más objetos que instancies, **existe aunque no
+  instancies ninguno**, y para tocarla hay que nombrar la clase con `::`
+- Ese `::` es todo el argumento: el día que el valor sea raro, un `grep` te dice
+  quién lo puso. Pero `static` resuelve *dónde vive*, no *quién lo toca* — eso
+  es `protected` más métodos de acceso estáticos
+- Dónde reaparece: `uvm_config_db#(T)::set(...)` y `type_id::create()`, las dos
+  estáticas más importantes de un testbench UVM
 
 Note:
 El enganche que conviene dejar servido: `uvm_config_db#(T)::set(...)` se escribe

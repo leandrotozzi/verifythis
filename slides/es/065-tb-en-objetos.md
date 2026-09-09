@@ -242,18 +242,14 @@ la columna de la derecha de corrido. Ahí el día cierra solo.
 
 #### *Resumen de la unidad*
 
-- Esta sección **no agrega funcionalidad**: es el testbench del día 1, con las
-  mismas tres piezas, escrito sin un solo módulo
-- Aparece la clase que las une —`testbench`— que las instancia y las arranca.
-  Es el antepasado directo del `uvm_env`
-- El `top` sigue siendo un **módulo**, y lo va a ser hasta el final: alguien
-  tiene que instanciar el DUT y la BFM, y eso se elabora
-- La BFM llega por una **virtual interface**, o sea una variable. Es la única
-  forma que tiene una clase de tocar señales
-- El `initial` se transforma en un método, `execute()`, que alguien llama. Ese
-  alguien va a ser el `run_phase` en los tests
+- El testbench del día 1 **sin un solo módulo**: las mismas tres piezas, más la
+  clase que las une —`testbench`—, que es el antepasado directo del `uvm_env`
+- El `top` sigue siendo un **módulo** y lo va a ser hasta el final, y la BFM
+  llega por una **virtual interface**: es la única forma que tiene una clase de
+  tocar señales
 - Es la **última versión sin UVM**. De acá en adelante, cada pieza que
-  escribimos a mano tiene una clase de la librería que la reemplaza
+  escribimos a mano tiene una clase de la librería que la reemplaza —
+  `execute()` va a ser el `run_phase`
 
 Note:
 La slide con la que conviene cerrar el día 2 entero, porque deja el puente

@@ -1,5 +1,5 @@
-<!-- es-sha: bfb6f34da82c -->
-## Exercise · Day 5 · 2 of 2
+<!-- es-sha: 0ffe5105000d -->
+## Exercise · Day 5 · 2 of 3
 
 #### *Measure your `dist`*
 

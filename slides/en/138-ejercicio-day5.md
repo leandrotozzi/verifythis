@@ -1,5 +1,5 @@
-<!-- es-sha: 17ddbff43551 -->
-## Exercise · Day 5 · 1 of 2
+<!-- es-sha: eba912d06327 -->
+## Exercise · Day 5 · 1 of 3
 
 #### *The scoreboard screams and the DUT is healthy*
 

@@ -1,4 +1,4 @@
-## Ejercicio · Día 7
+## Ejercicio · Día 7 · 2 de 2
 
 #### *El módulo heredado viola el protocolo y nadie lo sabía*
 

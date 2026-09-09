@@ -143,19 +143,14 @@ programación, y se puede ir a leer sobre el tema afuera del mundo EDA.
 
 #### *Resumen de la unidad*
 
-- Cada `new()` que escribís es una **decisión hardcodeada**: esa línea siempre
-  construye esa clase, y cambiarla es editar y recompilar
-- Las clases paramétricas no alcanzan: el `#(...)` se resuelve **al compilar**, y
-  acá hay que decidir **en runtime**
-- La factory invierte quién manda: en vez de construir, **pedís** el objeto a
-  alguien que sabe qué tipo entregar
-- **No funciona sin polimorfismo**: hacen falta las dos
-  mitades — alguien que fabrique y una variable base donde guardarlo
-- **`$cast` chequea en runtime y devuelve 0**, no aborta. Por eso nunca va
-  solo: siempre adentro de un `if` con su `$fatal`
-- La molestia que queda —el `case` que hay que editar para agregar un tipo— es
-  justo la que UVM resuelve: `` `uvm_component_utils `` **registra la clase
-  sola**
+- Cada `new()` es una **decisión hardcodeada**. La factory la mueve a runtime:
+  en vez de construir, **pedís** el objeto a alguien que sabe qué tipo entregar
+- **No funciona sin polimorfismo** —hacen falta alguien que fabrique y una
+  variable base donde guardarlo— y el **`$cast` devuelve 0** en vez de abortar,
+  así que nunca va solo: siempre adentro de un `if` con su `$fatal`
+- Dónde reaparece: `` `uvm_component_utils `` **registra la clase sola** —el
+  `case` que acabás de escribir a mano— y `+UVM_TESTNAME` la elige desde la
+  línea de comandos
 
 Note:
 Cierre de la sección más abstracta del día 2, y conviene aterrizarlo con lo que

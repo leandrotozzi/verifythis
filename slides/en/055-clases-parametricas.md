@@ -1,4 +1,4 @@
-<!-- es-sha: 69ec0e5df874 -->
+<!-- es-sha: de91d595f7d4 -->
 ## Parameterized classes
 
 #### *It is not a class: it is a mould*
@@ -103,18 +103,13 @@ monitor has its own. The student already has the criterion to read both.
 
 #### *Summary of the unit*
 
-- It is the `parameter` of RTL you already know, but the parameter can be a
-  **type**: `bandeja #(fernet)` instead of `#(.dwidth(16))`
-- A parameterized class **is not a class**: it is the recipe for manufacturing classes.
-  The class appears when you write the `#(...)`
-- And every different `#(...)` is a **different class**, generated at compile time.
-  They share nothing — **not even the `static`**
-- The criterion you take to work: **`static` when there really is only one,
-  instantiated when there can be more than one**. When in doubt, instantiated
+- A parameterized class **is not a class**: it is the recipe. And every different
+  `#(...)` is a **different class**, which shares nothing with the others —
+  **not even the `static`**
 - The limit: it gets resolved **at compile time**, so the type has to be known
-  there. Picking at runtime is the unit that follows
-- Every `#(...)` in the rest of the course is this: `uvm_analysis_port #(T)`,
-  `uvm_subscriber #(T)`, `uvm_sequence #(T)`
+  there. Picking at runtime is the section that follows
+- Where it comes back: `uvm_analysis_port #(T)`, `uvm_subscriber #(T)`,
+  `uvm_sequence #(T)` — every `#(...)` in the rest of the course is this
 
 Note:
 The bullet about the different classes is the one to leave nailed down, because it is

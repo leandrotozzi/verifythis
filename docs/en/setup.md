@@ -1,4 +1,4 @@
-<!-- es-sha: 278682c53d8d -->
+<!-- es-sha: 15775f3ccc0a -->
 # Setting up and running the examples
 
 The four ways to get the course running on a machine, from least to most work,
@@ -23,7 +23,7 @@ make doctor          # can this machine run the course? what is missing and how 
 make u3/tb-en-objetos            # one section
 make                 # the 38 examples (UVM included)
 make matrix          # the same, and regenerates docs/verilator.md
-make ejercicios      # the 18 solutions: checks that they are still solvable
+make ejercicios      # the 19 solutions: checks that they are still solvable
 ```
 
 **Start with `make doctor`.** It compiles nothing: it checks that Verilator ≥
@@ -84,13 +84,13 @@ which breaks the scoreboard on purpose so that reporting can be taught.
 
 ### Exercises
 
-**Fifteen** of them, in [`code/ejercicios/`](../../code/ejercicios/): `run.sh`
+**Nineteen** of them, in [`code/ejercicios/`](../../code/ejercicios/): `run.sh`
 **fails until you solve it**, and the solution sits next to it
 (`SOLUCION=1 bash run.sh`). Every directory holds only the files you touch; the
 rest of the testbench comes from the section, by reference. Every statement has
 an English version (`README.en.md`).
 
-Three of them —`d5b`, `d6-bins` and `d6-semillas`— are the *coverage closure*
+Three of them —`d5b`, `d5c` and `d7-semillas`— are the *coverage closure*
 loop done by hand: measure a distribution, write the directed case that fills
 the missing bin, and accumulate coverage with a regression of five seeds.
 
@@ -110,12 +110,12 @@ backpressure, where the scoreboard cannot be a four-row table.
 
 The examples **are run by the CI**, not only by me: every push that touches
 `code/` runs the ones that do not use UVM (seconds) plus `u4/tests`, and every
-night the 38 run, plus the 18 exercise solutions. The `ejemplos` badge in the
+night the 38 run, plus the 19 exercise solutions. The `ejemplos` badge in the
 README says whether they are green *now*, not on the day somebody ran them by
 hand.
 
 What works and what does not —with version, date and the coverage number of each
-example— is in **[`docs/verilator.md`](../verilator.md)** *(in Spanish)*. The two
+example— is in **[`docs/en/verilator.md`](verilator.md)**. The two
 gaps that remain: *transition bins* (`=>`) still do not compile, and `binsof` /
 `intersect` inside a cross are ignored.
 

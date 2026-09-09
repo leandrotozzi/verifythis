@@ -1,4 +1,4 @@
-<!-- es-sha: a8dbef25c50f -->
+<!-- es-sha: 4756ea71ccfa -->
 ## Functional coverage
 
 #### *When are you done verifying?*
@@ -387,8 +387,8 @@ unit showed **loose**. The plan is the table that makes them one thing.
 The row that gets the most discussion is the maximum-product one, and that is good: `FF` × `FF`
 is the only case that does **not** come out of the random in reasonable time, and that is why its
 stimulus column says *directed case*. There you see that the plan does not only measure,
-it also decides which test has to be written. It is the `d6-bins` exercise, three days
-later, with this same row.
+it also decides which test has to be written. It is the `d5c` exercise, the last
+one of the day 5 afternoon, with this same row.
 The three protocol rows are worth naming and moving on: they are the half the
 course does not touch until day 7, and they serve to plant the idea that a scoreboard does not
 check everything. A serious verification plan has both columns.

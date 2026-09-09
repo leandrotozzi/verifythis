@@ -1,4 +1,4 @@
-## Ejercicio · Día 5 · 1 de 2
+## Ejercicio · Día 5 · 1 de 3
 
 #### *El scoreboard grita y el DUT está sano*
 

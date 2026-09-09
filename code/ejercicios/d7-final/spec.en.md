@@ -102,7 +102,7 @@ spec they are not going to be together nor in one single place:
 
 What has to be covered, which is what the `covergroup` has to measure. The five
 columns are the usual ones — they are explained, with the plan of the VTALU as an
-example, in [`docs/plan-de-verificacion.md`](../../../docs/plan-de-verificacion.md) (in Spanish):
+example, in [`docs/en/verification-plan.md`](../../../docs/en/verification-plan.md):
 
 | # | Feature | Scenario | Stimulus | Check | Measure |
 |:--:|---|---|---|---|---|
