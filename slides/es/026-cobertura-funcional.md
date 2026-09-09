@@ -125,7 +125,7 @@ dos slides.
 
 #### *El covergroup del VTALU*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=44-66}}
+{{code:code/u2/convencional/vtalu_tb.sv#op_cov}}
 
 - `single_cycle[]` genera seis bins —uno por operación—, `multi_cycle` uno solo
 - Lo que está entre `` `ifndef VERILATOR `` son los bins de transición: dos
@@ -152,7 +152,7 @@ herramienta no hace es un curso que miente.
 
 #### *ignore_bins: decir en voz alta lo que no se cubre*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=69-84}}
+{{code:code/u2/convencional/vtalu_tb.sv#legs-and-ops}}
 
 - `all_ops` **ignora** `rst_op` y `no_op`: no tiene sentido pedir "una suma con
   los operandos en 0x00" cuando la operación es un reset
@@ -205,9 +205,9 @@ el problema es un cross sin filtrar, no un test que falta.
 
 #### *El cross del VTALU*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=94-99}}
+{{code:code/u2/convencional/vtalu_tb.sv#cross-add-bins}}
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=119-130}}
+{{code:code/u2/convencional/vtalu_tb.sv#cross-mul-bins}}
 
 - `add_00` se lee de corrido: *una suma en la que A **o** B valgan 0x00*
 - `mul_max` es el único con `&&`: pide las **dos** patas en 0xFF: el **producto

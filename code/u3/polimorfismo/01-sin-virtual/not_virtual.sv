@@ -1,4 +1,5 @@
 // Basic polymorphism, WITHOUT virtual: the case that fails. See unit 6.
+// cb: three-classes
 class trago;
    int hielos = -1;
 
@@ -23,6 +24,7 @@ class fernet extends trago;
    endfunction : servir
 
 endclass : fernet
+// cb: end
 
 class mojito extends trago;
 
@@ -44,6 +46,7 @@ module top;
       mojito mojito_h;
       trago  trago_h;
 
+      // cb: the-calls
       fernet_h = new(15);
       fernet_h.servir();
       $display("The fernet has %0d ice cubes", fernet_h.hielos);
@@ -60,6 +63,7 @@ module top;
       trago_h = mojito_h;
       trago_h.servir();
       $display("The trago has %0d ice cubes", trago_h.hielos);
+      // cb: end
 
    end  // initial begin
 

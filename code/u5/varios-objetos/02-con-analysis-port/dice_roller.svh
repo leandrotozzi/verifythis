@@ -17,6 +17,7 @@ class dice_roller extends uvm_component;
       super.new(name, parent);
    endfunction : new
 
+   // cb: port-and-run
    // 1) declare the port, with the data type it will carry
    uvm_analysis_port #(int) roll_ap;
 
@@ -37,5 +38,6 @@ class dice_roller extends uvm_component;
       end
       phase.drop_objection(this);
    endtask : run_phase
+   // cb: end
 
 endclass : dice_roller

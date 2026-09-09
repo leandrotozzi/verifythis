@@ -11,6 +11,7 @@ class tester extends uvm_component;
       command_port = new("command_port", this);
    endfunction : build_phase
 
+   // cb: the-loop
    task run_phase(uvm_phase phase);
       command_transaction command;
 
@@ -32,6 +33,7 @@ class tester extends uvm_component;
          if (!command.randomize()) `uvm_fatal("TESTER", "randomize() failed")
          command_port.put(command);
       end : random_loop
+   // cb: end
 
       // Directed: the multiplier overflow case, which 1000 random operations
       // might never touch. It comes out of the factory like the others, but

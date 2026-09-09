@@ -31,19 +31,44 @@ El código **no se pega** en la slide: se referencia el archivo real de `code/`.
 - SV interface agrupa signals y permite modelar BFMs
 
 {{code:code/u2/interfaces-bfm/vtalu_bfm.sv}}
-{{code:code/u2/interfaces-bfm/top.sv|lines=12-24}}
-{{code:code/u2/interfaces-bfm/vtalu_bfm.sv|from=task send_op|to=endtask : send_op}}
+{{code:code/u2/interfaces-bfm/vtalu_bfm.sv#send_op}}
+{{code:code/u2/clocking/mezcla.sv#two-reads}}
 ```
 
-`tools/build.mjs` expande la directiva leyendo el archivo, así que las slides
-nunca se desincronizan de los ejemplos. **Si la ruta no existe, el build falla**
-en vez de emitir una slide vacía.
+`tools/codigo.mjs` expande la directiva leyendo el archivo —el deck y el libro
+usan **la misma** implementación—, así que las slides nunca se desincronizan de
+los ejemplos. **Si la ruta no existe, el build falla** en vez de emitir una slide
+vacía.
 
-Para recortar hay dos formas y **conviene la segunda**: `lines=12-24` se pudre en
-silencio —cuando el ejemplo crece arriba del bloque, el rango no se mueve y la
-slide muestra otro código—, mientras que `from=…|to=…` recorta entre la primera
-línea que contiene cada ancla y sigue al bloque. Si el ancla desaparece o queda
-duplicada, el build muere en vez de mentir.
+### Recortar: por nombre, no por número
+
+Un `|lines=12-24` se pudre en silencio: cuando el ejemplo crece arriba del
+bloque, el rango no se mueve y la slide muestra otro código. Los cuatro lints
+pasan en verde y nadie se entera hasta que alguien lo ve en cámara. Por eso el
+recorte va **por nombre**, y el nombre sale de dos lados:
+
+1. **Del propio SystemVerilog.** `#write`, `#scoreboard`, `#cmd_monitor`: la
+   declaración y su `end*`, con los comentarios pegados arriba. No hay nada que
+   agregar al fuente — el bloque ya está delimitado y ya tiene nombre. Si el
+   nombre está dos veces en el archivo, el build lo dice y se desambigua con
+   `#clase.metodo`.
+2. **De un marcador**, para el trozo que el lenguaje no nombra —medio `initial`,
+   un `fork`/`join`, tres líneas sueltas:
+
+   ```systemverilog
+   // cb: two-reads
+   por_cb  = bfm.cb.d_out;
+   por_mod = bfm.d_out;
+   // cb: end
+   ```
+
+   Los marcadores se borran de todo bloque emitido, así que anidan sin problema y
+   la slide nunca muestra metadata del build.
+
+Si el nombre no está, está dos veces o no cierra, **el build muere y dice qué
+slide**. Nunca miente. `npm run lint` avisa de cualquier `lines=` que quede, con
+una excepción: las salidas capturadas (`.txt`, `.log`), que `tools/regen-outputs.sh`
+reescribe enteras y no pueden llevar un marcador adentro.
 
 <div align="center">
 <img src="slide-codigo.png" width="760" height="484" alt="Slide con bloque de código: resaltado propio de SystemVerilog y UVM">
@@ -89,7 +114,8 @@ engancha, la trampa clásica.
 Van en las slides que cargan el concepto, no en las 400. `npm run check` corre
 `tools/lint-slides.mjs`, que **falla** si una slide con `{{code:}}` no tiene ni un
 bullet ni una `Note:` —una slide de código muda sólo se entiende con el
-instructor al lado—, y avisa si un `{{code:}}` sin `lines=` trae más de 35 líneas.
+instructor al lado—, y avisa si un `{{code:}}` sin recortar trae más de 35 líneas
+o si quedó un recorte por número de línea.
 
 ### Ajustes de presentación
 
@@ -264,9 +290,10 @@ tools/
                   + docs/banco-de-examen.md y docs/trampas-mudas.md
   template.html   shell de reveal.js (config, atajos, machete)
   libro.mjs       slides/<idioma>/ + code/  ->  libro/diaN.html (las notas, inline)
+  codigo.mjs      la directiva {{code:}}: una implementacion para el deck y el libro
   overflow.mjs    verifica que ninguna slide se recorte
-  lint-slides.mjs slides mudas, includes largos sin lines=, y el estilo de los
-                  titulos (### y subtitulos sin italica)
+  lint-slides.mjs slides mudas, includes largos, recortes por numero de linea,
+                  y el estilo de los titulos (### y subtitulos sin italica)
   lint-refs.mjs   comandos, capitulos y links que ya no existen, y cada numero
                   del inventario contra el filesystem
   regresion.sh    N semillas + merge de cobertura

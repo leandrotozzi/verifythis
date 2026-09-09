@@ -2,7 +2,7 @@
 
 #### *Primero: las señales dejan de estar sueltas*
 
-{{code:code/u2/interfaces-bfm/vtalu_bfm.sv|lines=1-29}}
+{{code:code/u2/interfaces-bfm/vtalu_bfm.sv#signals-and-clock}}
 
 - Una `interface` es un **bundle** de señales con nombre propio. Nueve cables que
   antes estaban declarados en el `top` ahora viven juntos
@@ -27,7 +27,7 @@ dos mundos.
 
 #### *Después: el protocolo se esconde en una task*
 
-{{code:code/u2/interfaces-bfm/vtalu_bfm.sv|lines=40-69}}
+{{code:code/u2/interfaces-bfm/vtalu_bfm.sv#send_op}}
 
 - `send_op(A, B, op, result)` traduce *"hacé una suma"* al meneo de señales que
   el DUT espera. Eso es un **Bus Functional Model**
@@ -102,7 +102,7 @@ dejar de saber que existe un `clk`.
 
 #### *Tester: pide operaciones, no mueve cables*
 
-{{code:code/u2/interfaces-bfm/tester.sv|lines=31-46}}
+{{code:code/u2/interfaces-bfm/tester.sv#stimulus-loop}}
 
 - El tester ya no toca `start` ni espera `done`: llama a `bfm.send_op(...)` y se
   olvida del protocolo
@@ -188,7 +188,7 @@ detalle.
 
 #### *El agujero que deja la BFM: el temporizado*
 
-{{code:code/u2/clocking/sin_clocking.sv|lines=22-39}}
+{{code:code/u2/clocking/sin_clocking.sv#three-samples}}
 
 - La BFM encapsuló **el protocolo**. Lo que **no** encapsuló es *cuándo* se
   maneja y *cuándo* se muestrea: eso sigue decidido task por task
@@ -222,7 +222,7 @@ visto clocking blocks, no porque sea lo que se escribe en un proyecto.
 
 #### *El clocking block: el flanco y el delta, declarados una vez*
 
-{{code:code/u2/clocking/con_clocking.sv|lines=9-24}}
+{{code:code/u2/clocking/con_clocking.sv#reg_bfm}}
 
 - `input #1step` — muestreá el valor **estable justo antes** del flanco, que es
   el que ve el hardware. Nunca el que la no bloqueante acaba de escribir
@@ -293,7 +293,7 @@ El material largo, con las fuentes, está en `docs/clocking-blocks.md`.
 
 #### *El precio: dos nombres para el mismo cable*
 
-{{code:code/u2/clocking/mezcla.sv|lines=36-46}}
+{{code:code/u2/clocking/mezcla.sv#two-reads}}
 
 - Con la señal adentro de un clocking block hay **dos** formas de leerla:
   `bfm.d_out` es el cable en vivo, `bfm.cb.d_out` es lo que se muestreó

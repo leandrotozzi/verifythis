@@ -7,6 +7,7 @@ class dual_test extends uvm_test;
       super.new(name, parent);
    endfunction : new
 
+   // cb: build-and-run
    function void build_phase(uvm_phase phase);
       virtual vtalu_bfm clase_bfm, modulo_bfm;
       env_config env_config_h;
@@ -42,5 +43,6 @@ class dual_test extends uvm_test;
       #500;
       phase.drop_objection(this);
    endtask : run_phase
+   // cb: end
 
 endclass : dual_test

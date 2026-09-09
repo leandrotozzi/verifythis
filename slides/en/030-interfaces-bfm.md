@@ -1,9 +1,9 @@
-<!-- es-sha: 6a0f3c15074d -->
+<!-- es-sha: e2605d0f1ce7 -->
 ## Interfaces and BFM
 
 #### *First: the signals stop being loose*
 
-{{code:code/u2/interfaces-bfm/vtalu_bfm.sv|lines=1-29}}
+{{code:code/u2/interfaces-bfm/vtalu_bfm.sv#signals-and-clock}}
 
 - An `interface` is a **bundle** of signals with a name of its own. Nine wires that
   used to be declared in the `top` now live together
@@ -28,7 +28,7 @@ two worlds is visible.
 
 #### *Then: the protocol hides inside a task*
 
-{{code:code/u2/interfaces-bfm/vtalu_bfm.sv|lines=40-69}}
+{{code:code/u2/interfaces-bfm/vtalu_bfm.sv#send_op}}
 
 - `send_op(A, B, op, result)` translates *"do an addition"* into the signal wiggling
   the DUT expects. That is a **Bus Functional Model**
@@ -103,7 +103,7 @@ stop knowing that a `clk` exists.
 
 #### *Tester: it asks for operations, it does not move wires*
 
-{{code:code/u2/interfaces-bfm/tester.sv|lines=31-46}}
+{{code:code/u2/interfaces-bfm/tester.sv#stimulus-loop}}
 
 - The tester no longer touches `start` or waits for `done`: it calls `bfm.send_op(...)` and
   forgets about the protocol
@@ -189,7 +189,7 @@ detail.
 
 #### *The hole the BFM leaves: the timing*
 
-{{code:code/u2/clocking/sin_clocking.sv|lines=22-39}}
+{{code:code/u2/clocking/sin_clocking.sv#three-samples}}
 
 - The BFM wrapped **the protocol**. What it did **not** wrap is *when* it
   drives and *when* it samples: that is still decided task by task
@@ -223,7 +223,7 @@ seen clocking blocks, not because it is what gets written on a project.
 
 #### *The clocking block: the edge and the delta, declared once*
 
-{{code:code/u2/clocking/con_clocking.sv|lines=9-24}}
+{{code:code/u2/clocking/con_clocking.sv#reg_bfm}}
 
 - `input #1step` — sample the value **stable just before** the edge, which is
   the one the hardware sees. Never the one the nonblocking assignment just wrote
@@ -294,7 +294,7 @@ The long material, with the sources, is in `docs/clocking-blocks.md`.
 
 #### *The price: two names for the same wire*
 
-{{code:code/u2/clocking/mezcla.sv|lines=36-46}}
+{{code:code/u2/clocking/mezcla.sv#two-reads}}
 
 - With the signal inside a clocking block there are **two** ways of reading it:
   `bfm.d_out` is the live wire, `bfm.cb.d_out` is what got sampled

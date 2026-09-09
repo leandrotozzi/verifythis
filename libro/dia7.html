@@ -252,7 +252,7 @@ flujo: <code>$past</code> con el argumento de reloj explícito no lo soporta Ver
 <section id="s341" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="la-property-que-vale-la-sección"><em>La property que vale la sección</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 154-166 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// --- El estimulo ---</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #stable-operands</figcaption><pre><code class="hljs">   <span class="hljs-comment">// --- El estimulo ---</span>
 
    <span class="hljs-comment">// The rule from slide 1 of day 1, executable at last: while start is up, the</span>
    <span class="hljs-comment">// operands and the operation are not touched.</span>
@@ -508,7 +508,7 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.</p>
 <section id="s342" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="⚠-dos-relojes-una-assertion-vale-lo-que-vale-su-muestreo"><em>⚠ Dos relojes: una assertion vale lo que vale su muestreo</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 140-152 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #two-clocks</figcaption><pre><code class="hljs">   <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
    <span class="hljs-comment">// negedge and the DUT registers on posedge. An assertion samples in the</span>
    <span class="hljs-comment">// preponed region of the edge it is given, so a signal written ON the negedge</span>
    <span class="hljs-comment">// is not seen on that negedge: it is seen on the next one. With everything on</span>
@@ -787,7 +787,7 @@ nombrarlo acá, porque recién ahora se ve el problema completo que resuelve.</p
 <section id="s343" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="la-latencia-variable-en-una-línea"><em>La latencia variable, en una línea</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 170-187 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #done-arrives</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
    <span class="hljs-comment">// one-cycle ops, four edges for the multiplication.</span>
    <span class="hljs-keyword">property</span> p_done_llega;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set != no_op) |-&gt; ##[<span class="hljs-number">1</span>:<span class="hljs-number">5</span>] done;
@@ -1155,7 +1155,7 @@ en vez de la de la librería.</p>
 <section id="s347" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="toda-assertion-va-con-su-cover-property"><em>Toda assertion va con su <code>cover property</code></em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 208-215 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// And the cover that goes with it: without this, a regression where the random</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #the-covers</figcaption><pre><code class="hljs">   <span class="hljs-comment">// And the cover that goes with it: without this, a regression where the random</span>
    <span class="hljs-comment">// never subtracted too much leaves the assertion green having checked nothing.</span>
    c_ovf : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; ovf);
    c_sub_sin_borrow : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; (op_set == sub_op) &amp;&amp; !ovf);
@@ -1468,7 +1468,7 @@ cuenta como anécdota.</p>
 <section id="s349" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="el-ejemplo-de-la-sección-el-bug-que-el-scoreboard-no-ve"><em>El ejemplo de la sección: el bug que el scoreboard no ve</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 114-126 de 217</figcaption><pre><code class="hljs">         <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #the-planted-bug</figcaption><pre><code class="hljs">         <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
             <span class="hljs-comment">// +BUG=1: changes B halfway through the multiplication. The</span>
             <span class="hljs-comment">// multiplier already latched A and B on the first edge, so the</span>
             <span class="hljs-comment">// RESULT DOES NOT CHANGE: the scoreboard stays green. The only</span>
@@ -2015,7 +2015,7 @@ de cobertura, es exactamente el ejemplo que piden.</p>
 <td>bit 0 = <code>EN</code> · bit 1 = <code>OVF</code>, pegajoso</td>
 </tr>
 </tbody></table>
-<figure class="codigo"><figcaption><code>code/ejercicios/d7-final/rtl/apb_regs.sv</code> · líneas 35-46 de 95</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The handshake: the write does not wait, the read inserts ONE wait state.</span>
+<figure class="codigo"><figcaption><code>code/ejercicios/d7-final/rtl/apb_regs.sv</code> · #handshake</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The handshake: the write does not wait, the read inserts ONE wait state.</span>
    <span class="hljs-comment">// rd_wait re-arms as soon as PENABLE drops, that is between one transfer and</span>
    <span class="hljs-comment">// the next, with no need to count cycles.</span>
    <span class="hljs-type">logic</span> rd_wait;

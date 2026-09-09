@@ -1,4 +1,4 @@
-<!-- es-sha: 06ec3ce2e16d -->
+<!-- es-sha: 781d3c5389f0 -->
 ## Constrained random
 
 #### *The other half of the pincer*
@@ -102,7 +102,7 @@ you write a `dist`, run a histogram before believing it.
 
 #### *Do not assume it: measure it*
 
-{{code:code/u6/transactions/constraints/01_dist.sv|lines=8-19}}
+{{code:code/u6/transactions/constraints/01_dist.sv#both-spellings}}
 
 ```sh
 $ cd code/u6/transactions/constraints && bash run.sh
@@ -131,9 +131,9 @@ the difference between believing and knowing.
 
 #### *`inside` and `randomize() with {}`*
 
-{{code:code/u6/transactions/constraints/02_with.sv|lines=16-29}}
+{{code:code/u6/transactions/constraints/02_with.sv#comando}}
 
-{{code:code/u6/transactions/constraints/02_with.sv|from=c.data.constraint_mode(0);|to=with with: 1 try}}
+{{code:code/u6/transactions/constraints/02_with.sv#workaround}}
 
 - `inside {a, b, c}` is the set of legal values: without it, the random also asks
   for `no_op` and `rst_op`, which compute nothing
@@ -211,7 +211,7 @@ time, so it goes where it is needed and not out of habit.
 
 #### *Measured, with the way round that Verilator does honour*
 
-{{code:code/u6/transactions/constraints/03_solve.sv|lines=10-25}}
+{{code:code/u6/transactions/constraints/03_solve.sv#both-classes}}
 
 ```sh
 2000 randomizations of each version
@@ -243,7 +243,7 @@ out even. Measure it.
 
 #### *When there is no solution*
 
-{{code:code/u6/transactions/constraints/04_falla.sv|lines=8-32}}
+{{code:code/u6/transactions/constraints/04_falla.sv#the-unsolvable}}
 
 ```sh
 1. randomize() returned 0: the constraints do not close

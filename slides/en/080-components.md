@@ -1,4 +1,4 @@
-<!-- es-sha: d4c925520e1b -->
+<!-- es-sha: f7bb28940a64 -->
 ## Components and phases
 
 #### *A component is what is in the tree, and the tree is walked by UVM*
@@ -183,7 +183,7 @@ having had to write a `uvm_event` or a shared flag.
 
 #### *The scoreboard, now as a component*
 
-{{code:code/u4/components/tb_classes/scoreboard.svh|lines=1-18}}
+{{code:code/u4/components/tb_classes/scoreboard.svh#class-and-build}}
 
 - The four steps, in order: it extends `uvm_component`, it registers itself, constructor
   `(name, parent)`, and an override of `build_phase`

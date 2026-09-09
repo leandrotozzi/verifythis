@@ -97,6 +97,7 @@ module top;
       mojito mojito_h;
       bit cast_ok;
 
+      // cb: casting
       // Using the factory!
       trago_h = cantina::hacer_trago("fernet", 15, "the one at the bar");
       trago_h.servir();
@@ -111,6 +112,7 @@ module top;
 
       if (!$cast(fernet_h, cantina::hacer_trago("fernet", 2, "the one at table 4")))
          $fatal(1, "Could not cast the cantina drink to fernet_h");
+      // cb: end
 
       bandeja#(fernet)::bandeja_trago(fernet_h);
 

@@ -112,7 +112,7 @@ pero el monitor sí? Porque manejar es opcional, mirar no.
   la simulación se queda sin avanzar sin un solo mensaje de error
 - El par siempre va completo, y en ese orden
 
-{{code:code/u7/agents/tb_classes/driver.svh|lines=18-24}}
+{{code:code/u7/agents/tb_classes/driver.svh#run_phase}}
 
 Note:
 El olvido de `item_done()` es el error número uno de la primera semana, y el
@@ -204,7 +204,7 @@ un lugar donde poner lógica.
 - Ésta es la traducción directa del `tester` de las transactions, y nada más que
   eso — la sección de sequences es sobre lo que se puede hacer acá adentro
 
-{{code:code/u7/agents/tb_classes/command_sequence.svh|lines=6-43}}
+{{code:code/u7/agents/tb_classes/command_sequence.svh#class-and-body}}
 
 Note:
 Dos cosas que conviene marcar en el código, porque son las que se copian mal.
@@ -339,7 +339,7 @@ agent no reparte handles a mano.
   analysis ports, siempre
 - Los analysis ports son ports: se instancian con `new()`, no con la factory
 
-{{code:code/u7/agents/tb_classes/vtalu_agent.svh|lines=1-33}}
+{{code:code/u7/agents/tb_classes/vtalu_agent.svh#class-and-build}}
 
 Note:
 Un detalle que vale oro y que nadie cuenta: el `build_phase` de `uvm_agent` que
@@ -404,7 +404,7 @@ medio y no implementa nada, sólo reenvía.
 - El scoreboard y la cobertura quedan igual que en los analysis ports: son
   subscribers, y no se enteran de nada
 
-{{code:code/u7/agents/env_un_agent.svh|lines=3-34}}
+{{code:code/u7/agents/env_un_agent.svh#class-and-build}}
 
 - Ese es el `env` de una sola VTALU. Con dos, cambia menos de lo que parece
 
@@ -503,7 +503,7 @@ clásico —la simulación que no termina porque alguien no bajó su objection�
 - Dos scoreboards y **dos coberturas**: eso es lo que responde cuál de los dos
   estímulos cubre más
 
-{{code:code/u7/agents/top.sv|lines=1-35}}
+{{code:code/u7/agents/top.sv#top}}
 
 - El módulo llama **a la misma `bfm.send_op()`** que el driver: recibe la
   interface por su **puerto** en vez de por una virtual interface, pero el
@@ -546,7 +546,7 @@ seq.start(env_h.clase_agent_h.sequencer_h);
 - La sección de sequences lo arregla: la sequence se le pasa al sequencer **por
   `config_db`**, y el test deja de saber dónde está
 
-{{code:code/u7/agents/tb_classes/dual_test.svh|lines=10-44}}
+{{code:code/u7/agents/tb_classes/dual_test.svh#build-and-run}}
 
 Note:
 Ésta es la slide con la que conviene cerrar el día si el tiempo no da para el

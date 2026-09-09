@@ -157,7 +157,7 @@ conviene que la pregunta quede planteada.
 
 *do_copy():* Cada clase en la jerarquía, debe llamar a su clase superior, por lo tanto, todos los métodos do_copy() necesitan el mismo tipo de argumento. Pero tenemos clases distintas... Usamos *polimorfismo*
 
-{{code:code/u6/jerarquias/pre_copy2.sv|lines=24-45}}
+{{code:code/u6/jerarquias/pre_copy2.sv#fernet_con_hielo}}
 
 Note:
 Acá está el detalle que parece burocrático y no lo es: **todos** los `do_copy()`
@@ -181,7 +181,7 @@ esta slide.
 
 #### *Resumen: la solución pésima*
 
-{{code:code/u6/jerarquias/wrong.sv|lines=69-79}}
+{{code:code/u6/jerarquias/wrong.sv#fernet_con_hielo.convert2string}}
 
 - Es el `convert2string()` de `fernet_con_hielo`, la clase de más abajo: imprime
   **los cuatro campos a mano**, incluidos los tres que heredó
@@ -207,7 +207,7 @@ polimorfismo que valga.
 
 #### *Resumen: la solución deep*
 
-{{code:code/u6/jerarquias/deep.sv|lines=47-58}}
+{{code:code/u6/jerarquias/deep.sv#convert-and-copy}}
 
 - Los mismos dos métodos, escritos como corresponde: cada uno llama a `super` y
   después toca **un solo campo**, el suyo

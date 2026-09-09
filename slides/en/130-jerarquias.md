@@ -1,4 +1,4 @@
-<!-- es-sha: 7fc54aff9a17 -->
+<!-- es-sha: ff2e67a23c5a -->
 ## Copying an object that contains another
 
 #### *The handle is not the object*
@@ -162,7 +162,7 @@ is worth leaving the question on the table.
 
 *do_copy():* Every class in the hierarchy has to call its parent class, and therefore every do_copy() method needs the same type of argument. But we have different classes... We use *polymorphism*
 
-{{code:code/u6/jerarquias/pre_copy2.sv|lines=24-45}}
+{{code:code/u6/jerarquias/pre_copy2.sv#fernet_con_hielo}}
 
 Note:
 Here is the detail that looks bureaucratic and is not: **every** `do_copy()` of
@@ -185,7 +185,7 @@ this?" is this slide.
 
 #### *Summary: the terrible solution*
 
-{{code:code/u6/jerarquias/wrong.sv|lines=69-79}}
+{{code:code/u6/jerarquias/wrong.sv#fernet_con_hielo.convert2string}}
 
 - It is the `convert2string()` of `fernet_con_hielo`, the bottom-most class: it
   prints **all four fields by hand**, including the three it inherited
@@ -211,7 +211,7 @@ class, and there no polymorphism can help.
 
 #### *Summary: the deep solution*
 
-{{code:code/u6/jerarquias/deep.sv|lines=47-58}}
+{{code:code/u6/jerarquias/deep.sv#convert-and-copy}}
 
 - The same two methods, written the way they should be: each one calls `super` and
   then touches **a single field**, its own

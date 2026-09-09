@@ -1,5 +1,6 @@
 // The Agents driver with the hook added. Diff against ../agents/tb_classes:
 // two lines -- `uvm_register_cb and `uvm_do_callbacks. Nothing else moves.
+// cb: register-cb
 class driver extends uvm_driver #(command_transaction);
    `uvm_component_utils(driver)
    // Declares "this component accepts callbacks of this type". Without it the
@@ -8,6 +9,7 @@ class driver extends uvm_driver #(command_transaction);
    `uvm_register_cb(driver, driver_callback)
 
    virtual vtalu_bfm bfm;
+// cb: end
 
    function new(string name, uvm_component parent);
       super.new(name, parent);

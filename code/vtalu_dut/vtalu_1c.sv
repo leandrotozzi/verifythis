@@ -17,6 +17,7 @@ module vtalu_1c (
     output logic [15:0] result_1c
 );
 
+   // cb: the-two-resets
    // The two resets are deliberately different: the one on the result is
    // SYNCHRONOUS and the one on done is ASYNCHRONOUS. Not an oversight: the spec.
    always_ff @(posedge clk) begin
@@ -40,5 +41,6 @@ module vtalu_1c (
       if (!reset_n) done_1c <= 1'b0;
       else done_1c <= start && (op != 3'b000);
    end
+   // cb: end
 
 endmodule : vtalu_1c

@@ -2,6 +2,7 @@
 // Since add_tester and random_tester inherit from this one
 // and the connection is untouched, those classes get new behaviour
 // just by changing this base class
+// cb: class-and-run
 virtual class base_tester extends uvm_component;
 
    `uvm_component_utils(base_tester)
@@ -36,6 +37,7 @@ virtual class base_tester extends uvm_component;
       #500;
       phase.drop_objection(this);
    endtask : run_phase
+// cb: end
 
    function new(string name, uvm_component parent);
       super.new(name, parent);

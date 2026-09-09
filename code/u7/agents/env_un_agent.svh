@@ -1,5 +1,6 @@
 // ILLUSTRATION -- not compiled. The env of a SINGLE VTALU, to compare against
 // the env.svh of the Transactions section.
+// cb: class-and-build
 class env extends uvm_env;
    `uvm_component_utils(env)
 
@@ -32,5 +33,6 @@ class env extends uvm_env;
       agent_h.command_ap.connect(coverage_h.analysis_export);
       agent_h.result_ap.connect(scoreboard_h.analysis_export);
    endfunction : connect_phase
+// cb: end
 
 endclass : env

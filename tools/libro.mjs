@@ -20,6 +20,7 @@ import vm from 'node:vm';
 import hljs from './hljs-slim.mjs';
 import { UI, idiomaDeArgv, SALIDAS } from './i18n.mjs';
 import { seo } from './sitio.mjs';
+import { RE_CODE, recortar } from './codigo.mjs';
 
 const IDIOMA = idiomaDeArgv();
 const OUT = SALIDAS[IDIOMA];
@@ -30,14 +31,6 @@ const OUT_DIR = OUT.libro;
 // esta dos. css/ y res/ no se duplican, asi que el prefijo cambia y nada mas.
 const UP = OUT.base ? '../..' : '..';
 const CHECK = process.argv.includes('--check');
-
-// La misma tabla que build.mjs: extension -> lenguaje de hljs.
-const LANG = {
-  '.sv': 'sv', '.svh': 'sv', '.vhd': 'vhdl', '.vhdl': 'vhdl',
-  '.do': 'tcl', '.py': 'python',
-  '.f': 'plaintext', '.txt': 'plaintext', '.questa': 'plaintext', '.log': 'plaintext',
-};
-const RE_CODE = /^[ \t]*\{\{code:([^}|]+?)(?:\|lines=(\d+)-(\d+))?\}\}[ \t]*$/gm;
 
 // marked sale del bundle de reveal que ya esta vendorizado. Es EXACTAMENTE el
 // mismo renderer que usa el deck, asi que el libro no puede divergir del deck en
@@ -111,19 +104,15 @@ for (const s of slides) {
 const RE_SLIDE_ATTR = /<!--\s*\.slide:([^>]*?)-->/g;
 const RE_ELEM_ATTR = /^[ \t]*<!--\s*\.element:[^>]*?-->[ \t]*$\n?/gm;
 
-async function bloqueDeCodigo(rel, from, to) {
-  const texto = await readFile(rel, 'utf8');
-  const lineas = texto.replace(/\s+$/, '').split('\n');
-  const lang = LANG[path.extname(rel).toLowerCase()] ?? 'plaintext';
-  const recorte = from ? lineas.slice(+from - 1, +to) : lineas;
+async function bloqueDeCodigo(rel, simbolo, from, to) {
+  const { lineas, recorte, recortado, donde, lang } = await recortar(rel, simbolo, from, to);
 
   const pre = ls => `<pre><code class="hljs">${pintar(ls.join('\n'), lang)}</code></pre>`;
   // El <details> solo tiene sentido cuando hubo recorte: si la slide ya mostraba
   // el archivo entero, repetirlo abajo es ruido.
-  const completo = from
+  const completo = recortado
     ? `<details><summary>el archivo entero, ${lineas.length} líneas</summary>${pre(lineas)}</details>`
     : '';
-  const donde = from ? ` · líneas ${from}-${to} de ${lineas.length}` : '';
   return `<figure class="codigo"><figcaption><code>${esc(rel)}</code>${donde}</figcaption>`
        + pre(recorte) + completo + '</figure>';
 }
@@ -153,8 +142,8 @@ async function renderSlide(s) {
   // marked deja pasar el HTML crudo, asi que el placeholder sobrevive intacto.
   const bloques = [];
   const jobs = [...md.matchAll(RE_CODE)];
-  for (const [, rel, from, to] of jobs) {
-    bloques.push(await bloqueDeCodigo(rel.trim(), from, to));
+  for (const [, , rel, simbolo, from, to] of jobs) {
+    bloques.push(await bloqueDeCodigo(rel.trim(), simbolo, from, to));
   }
   let i = 0;
   md = md.replace(RE_CODE, () => `<!--CODIGO:${i++}-->`);

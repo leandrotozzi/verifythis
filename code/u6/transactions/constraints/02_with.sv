@@ -60,6 +60,7 @@ module top_with;
 
       // The portable workaround meanwhile: turn off the split, which for a
       // directed case makes no sense anyway.
+      // cb: workaround
       c.data.constraint_mode(0);
       if (!c.randomize() with {
             op == mul_op;
@@ -68,6 +69,7 @@ module top_with;
           })
          $fatal(1, "randomize() with failed even with the constraint turned off");
       $display("with with: 1 try,      A=%2h %s B=%2h", c.A, c.op.name(), c.B);
+      // cb: end
       $finish;
    end
 

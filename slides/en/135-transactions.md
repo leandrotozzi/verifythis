@@ -1,4 +1,4 @@
-<!-- es-sha: 8e4a8bd3bf72 -->
+<!-- es-sha: 44a782ad2aef -->
 ## Transactions
 
 #### *The testbench is well divided up, and the data is not*
@@ -121,7 +121,7 @@ and there is no need to write a single `$urandom`.
 - `get_data()` too, and it gets replaced by a `constraint` with `dist`, which is
   where the bias to the edges gets declared
 
-{{code:code/u6/transactions/tb_classes/command_transaction.svh|lines=1-24}}
+{{code:code/u6/transactions/tb_classes/command_transaction.svh#fields-and-constraints}}
 
 Note:
 Three things about this code, in the order in which they get forgotten.
@@ -397,7 +397,7 @@ case 1 of the Constrained random experiment.
 
 #### *Step 3 · two testers become one*
 
-{{code:code/u6/transactions/tb_classes/tester.svh|lines=14-34}}
+{{code:code/u6/transactions/tb_classes/tester.svh#the-loop}}
 
 - The testbench of the env had `base_tester` and `add_tester`: two classes for two
   kinds of stimulus
@@ -432,7 +432,7 @@ There is a whole slide on that further on.
 - The comparison comes down to one line —`predicted.compare(t)`— and the error
   message builds itself out of the `convert2string()` of the three transactions
 
-{{code:code/u6/transactions/tb_classes/scoreboard.svh|from=function void write(result_transaction t);|to=endfunction : write}}
+{{code:code/u6/transactions/tb_classes/scoreboard.svh#write}}
 
 Note:
 Comparing this `write()` with the one from the analysis ports is the best way to

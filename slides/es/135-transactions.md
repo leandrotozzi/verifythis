@@ -118,7 +118,7 @@ falta escribir ni un `$urandom`.
 - `get_data()` también, y lo reemplaza una `constraint` con `dist`, que es donde
   se declara el sesgo a los bordes
 
-{{code:code/u6/transactions/tb_classes/command_transaction.svh|lines=1-24}}
+{{code:code/u6/transactions/tb_classes/command_transaction.svh#fields-and-constraints}}
 
 Note:
 Tres cosas de este código, en orden de lo que se olvida.
@@ -382,7 +382,7 @@ experimento de Constrained Random.
 
 #### *Paso 3 · dos testers se vuelven uno*
 
-{{code:code/u6/transactions/tb_classes/tester.svh|lines=14-34}}
+{{code:code/u6/transactions/tb_classes/tester.svh#the-loop}}
 
 - El testbench del env tenía `base_tester` y `add_tester`: dos clases
   para dos tipos de estímulo
@@ -416,7 +416,7 @@ Hay una slide entera sobre eso más adelante.
 - La comparación queda en una línea —`predicted.compare(t)`— y el mensaje de
   error se arma solo con los `convert2string()` de las tres transactions
 
-{{code:code/u6/transactions/tb_classes/scoreboard.svh|from=function void write(result_transaction t);|to=endfunction : write}}
+{{code:code/u6/transactions/tb_classes/scoreboard.svh#write}}
 
 Note:
 Comparar el `write()` con el de los analysis ports es la mejor forma de cerrar la

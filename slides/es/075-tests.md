@@ -33,7 +33,7 @@ el test hace `new()` y pasan a ser components del árbol.
 
 #### *El top: instanciar, publicar la interface, arrancar*
 
-{{code:code/u4/tests/top.sv|lines=21-28}}
+{{code:code/u4/tests/top.sv#run-test}}
 
 - El `top` sigue siendo un **módulo**: instancia el BFM y el DUT igual que
   antes. Lo único nuevo son estas dos líneas
@@ -84,7 +84,7 @@ miente. Es de esos errores que se pagan tres meses después.
 
 #### *Un test en tres partes: 1 · registrarlo*
 
-{{code:code/u4/tests/tb_classes/random_test.svh|lines=4-7}}
+{{code:code/u4/tests/tb_classes/random_test.svh#class-head}}
 
 - `random_test` extiende `uvm_test`, que extiende `uvm_component`: es un nodo
   del árbol, no un objeto suelto
@@ -107,7 +107,7 @@ pregunta: no hace falta.
 
 #### *2 · el constructor y el `build_phase`*
 
-{{code:code/u4/tests/tb_classes/random_test.svh|lines=9-18}}
+{{code:code/u4/tests/tb_classes/random_test.svh#constructor-and-build}}
 
 - El constructor de un `uvm_component` tiene **firma fija**: `name` y `parent`,
   en ese orden, y `super.new(name, parent)` como primera línea
@@ -134,7 +134,7 @@ errores.
 
 #### *3 · el `run_phase`: acá pasa la simulación*
 
-{{code:code/u4/tests/tb_classes/random_test.svh|lines=20-39}}
+{{code:code/u4/tests/tb_classes/random_test.svh#run_phase}}
 
 - Es el mismo cuerpo que el `execute()` del testbench en objetos: tester, coverage y
   scoreboard, con los dos observadores en `fork ... join_none`
@@ -243,7 +243,7 @@ exactamente el caso de esta slide, y el capstone lo pisa de nuevo.
 
 #### *El segundo test: lo mismo, con otro tester*
 
-{{code:code/u4/tests/tb_classes/add_test.svh|lines=17-35}}
+{{code:code/u4/tests/tb_classes/add_test.svh#run_phase}}
 
 - `add_test` es `random_test` con **una línea distinta**: `add_tester` en lugar
   de `random_tester`. Todo lo demás se repite tal cual
@@ -267,7 +267,7 @@ método virtual para elegir el tester: está bien, y es más o menos lo que hace
 
 #### *Cómo se corre, y qué imprime*
 
-{{code:code/u4/tests/run.sh|lines=9-14}}
+{{code:code/u4/tests/run.sh#the-run}}
 
 {{code:code/u4/tests/output.txt|lines=1-13}}
 

@@ -127,7 +127,7 @@ los tests eso pasa a ser un objection, que es la forma prolija de lo mismo.
     port list
   - el `initial` es ahora un método, `execute()`, que alguien tiene que llamar
 
-{{code:code/u3/tb-en-objetos/tb_classes/tester.svh|lines=32-56}}
+{{code:code/u3/tb-en-objetos/tb_classes/tester.svh#execute}}
 
 Note:
 Acá hay una trampa **puesta a propósito** y conviene no delatarla ahora: mirá la
@@ -158,7 +158,7 @@ de verificación del testbench convencional que al random no le conviene esperar
   `forever` con la espera adentro — misma semántica, escrita como código
   secuencial
 
-{{code:code/u3/tb-en-objetos/tb_classes/scoreboard.svh|lines=8-39}}
+{{code:code/u3/tb-en-objetos/tb_classes/scoreboard.svh#execute}}
 
 Note:
 La traducción que hay que señalar: el `always @(posedge done)` del testbench
@@ -182,7 +182,7 @@ escala.
 
 #### *La clase `coverage`: el covergroup adentro de un objeto*
 
-{{code:code/u3/tb-en-objetos/tb_classes/coverage.svh|from=// In a class, we don't need to declare variables|to=endtask : execute}}
+{{code:code/u3/tb-en-objetos/tb_classes/coverage.svh#sampling}}
 
 - El covergroup es **el mismo** del testbench convencional, línea por línea. Lo que cambió es
   dónde vive

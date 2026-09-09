@@ -28,6 +28,7 @@ module tester (
       else return $random;
    endfunction : get_data
 
+   // cb: stimulus-loop
    initial begin
       byte unsigned iA;
       byte unsigned iB;
@@ -44,3 +45,4 @@ module tester (
       $finish;
    end  // initial begin
 endmodule : tester
+   // cb: end

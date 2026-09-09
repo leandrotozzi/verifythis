@@ -133,7 +133,7 @@ necesita: entre operación y operación las señales se pueden quedar quietas.
 
 #### *Lo que pasa entre `start_item()` y `finish_item()`*
 
-{{code:code/u7/sequences/tb_classes/random_sequence.svh|lines=12-29}}
+{{code:code/u7/sequences/tb_classes/random_sequence.svh#body}}
 
 - Cuando `start_item()` vuelve, la sequence **ya tiene el turno** del sequencer:
   nadie más le va a ganar el driver
@@ -208,7 +208,7 @@ de `finish_item()`: no hay que acordarse de volver a prenderla.
 
 #### *El item vuelve con el resultado adentro*
 
-{{code:code/u7/sequences/tb_classes/driver.svh|lines=18-27}}
+{{code:code/u7/sequences/tb_classes/driver.svh#run_phase}}
 
 - El driver escribe `command.result` **antes** de llamar a `item_done()`
 - La sequence todavía tiene el handle a ese mismo objeto: cuando `finish_item()`
@@ -238,7 +238,7 @@ operación siguiente.
 
 #### *Fibonacci: cuando el estímulo depende del resultado*
 
-{{code:code/u7/sequences/tb_classes/fibonacci_sequence.svh|lines=11-39}}
+{{code:code/u7/sequences/tb_classes/fibonacci_sequence.svh#body}}
 
 - Cada suma necesita el resultado de la anterior: sin camino de vuelta esto no se
   puede escribir
@@ -297,7 +297,7 @@ sobre un solo sequencer, el orden es el que dice el `body()`.
 
 #### *`full_sequence`: tres piezas, un solo sequencer*
 
-{{code:code/u7/sequences/tb_classes/full_sequence.svh|lines=13-30}}
+{{code:code/u7/sequences/tb_classes/full_sequence.svh#body}}
 
 - `get_sequencer()` devuelve el sequencer que le pasó `start()` a **esta**
   sequence: las hijas corren sobre el mismo
@@ -332,7 +332,7 @@ sequencer, y hay seis modos, incluido uno con pesos.
 
 #### *Arrancar una sequence, forma 1: `start()`*
 
-{{code:code/u7/sequences/tb_classes/full_test.svh|lines=9-18}}
+{{code:code/u7/sequences/tb_classes/full_test.svh#run_phase}}
 
 - `start(sequencer)` le pasa a la sequence el sequencer sobre el que va a correr
   y **no vuelve hasta que `body()` terminó**
@@ -362,7 +362,7 @@ sequencer. Es la misma razón por la que las conexiones van en `connect_phase`.
 
 #### *Forma 2: `default_sequence` por `uvm_config_db`*
 
-{{code:code/u7/sequences/tb_classes/default_seq_test.svh|lines=10-30}}
+{{code:code/u7/sequences/tb_classes/default_seq_test.svh#build_phase}}
 
 - El test **no tiene `run_phase`**: el sequencer arranca la sequence solo, al
   empezar la fase
@@ -519,9 +519,9 @@ argumento: una sequence virtual no cambia la estructura del testbench.
 
 #### *El virtual sequencer: handles, no items*
 
-{{code:code/u7/sequences/virtual/tb_classes/virtual_sequencer.svh|lines=10-20}}
+{{code:code/u7/sequences/virtual/tb_classes/virtual_sequencer.svh#the-handles}}
 
-{{code:code/u7/sequences/virtual/tb_classes/env.svh|lines=52-54}}
+{{code:code/u7/sequences/virtual/tb_classes/env.svh#wiring-the-sequencers}}
 
 - No tiene cola, no arbitra, no habla con ningún driver. Es un `uvm_component`
   que existe para **tener los handles** y para vivir en el árbol con un nombre
@@ -547,9 +547,9 @@ cambió, que es exactamente lo que uno quiere.
 
 #### *La sequence virtual: `p_sequencer` y dos ramas*
 
-{{code:code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh|lines=14-16}}
+{{code:code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh#p-sequencer}}
 
-{{code:code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh|lines=43-53}}
+{{code:code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh#the-fork}}
 
 - `` `uvm_declare_p_sequencer `` declara `p_sequencer` **con el tipo del
   sequencer virtual** y lo castea solo. Sin él, `get_sequencer()` devuelve un
@@ -577,7 +577,7 @@ sequence normal con más ceremonia. La clase se justifica cuando hay dos.
 
 #### *Lo que ninguna sequence sola puede*
 
-{{code:code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh|lines=59-70}}
+{{code:code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh#the-ordered-pair}}
 
 - El resultado de la VTALU **A** entra como operando de la **B**: una dependencia
   **entre interfaces**, y en serie. La segunda no puede ni armarse hasta que la

@@ -32,6 +32,7 @@ module apb_regs (
    wire mapped = (PADDR < 8'h10);
    wire access = PSEL && PENABLE;
 
+   // cb: handshake
    // The handshake: the write does not wait, the read inserts ONE wait state.
    // rd_wait re-arms as soon as PENABLE drops, that is between one transfer and
    // the next, with no need to count cycles.
@@ -44,6 +45,7 @@ module apb_regs (
 
    assign PREADY  = !PSEL ? 1'b1 : (PWRITE ? 1'b1 : !rd_wait);
    assign PSLVERR = access && !mapped;
+   // cb: end
 
    // The cycle where the transfer actually happens: it is the only edge that
    // matters to the monitor, and the only one where the DUT changes state.

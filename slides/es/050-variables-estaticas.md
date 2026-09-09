@@ -34,7 +34,7 @@ con un prefijo más largo.
 - Y ahí está la ventaja sobre la global: `bandeja_de_fernet::vasos` dice dónde está
   declarada. Un `vasos` suelto, no
 
-{{code:code/u3/estaticas/01-variables/static_variables.sv|lines=45-72}}
+{{code:code/u3/estaticas/01-variables/static_variables.sv#tray-and-top}}
 
 Note:
 Traducción rápida: static es la variable global que sí podés defender en un code
@@ -81,7 +81,7 @@ hace que la slide siguiente tenga sentido.
 - Es lo mismo que hace UVM con la factory: nadie toca el diccionario de tipos, se
   le pide con `type_id::create()`
 
-{{code:code/u3/estaticas/02-metodos/static_methods.sv|lines=41-69}}
+{{code:code/u3/estaticas/02-metodos/static_methods.sv#tray-and-top}}
 
 Note:
 La diferencia entre las dos versiones es de dos palabras —`protected` adelante

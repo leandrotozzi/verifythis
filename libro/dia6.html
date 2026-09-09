@@ -179,13 +179,14 @@ avisando <em>&quot;ya está, mandame el próximo&quot;</em></li>
 la simulación se queda sin avanzar sin un solo mensaje de error</li>
 <li>El par siempre va completo, y en ese orden</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u7/agents/tb_classes/driver.svh</code> · líneas 18-24 de 27</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+<figure class="codigo"><figcaption><code>code/u7/agents/tb_classes/driver.svh</code> · #run_phase</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       command_transaction command;
       <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span> : command_loop
          seq_item_port.get_next_item(command);
          bfm.send_op(command.A, command.B, command.op);
          seq_item_port.item_done();
-      <span class="hljs-keyword">end</span> : command_loop</code></pre><details><summary>el archivo entero, 27 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">driver</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_driver</span> #(<span class="hljs-type">command_transaction</span>);
+      <span class="hljs-keyword">end</span> : command_loop
+   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 27 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">driver</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_driver</span> #(<span class="hljs-type">command_transaction</span>);
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(driver)
 
    <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
@@ -327,7 +328,7 @@ momento en que el item se va a entregar, no antes</li>
 <li>Ésta es la traducción directa del <code>tester</code> de las transactions, y nada más que
 eso — la sección de sequences es sobre lo que se puede hacer acá adentro</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u7/agents/tb_classes/command_sequence.svh</code> · líneas 6-43 de 45</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">command_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span> #(<span class="hljs-type">command_transaction</span>);
+<figure class="codigo"><figcaption><code>code/u7/agents/tb_classes/command_sequence.svh</code> · #class-and-body</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">command_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span> #(<span class="hljs-type">command_transaction</span>);
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(command_sequence)
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;command_sequence&quot;</span>);
@@ -560,7 +561,7 @@ agent no reparte handles a mano.</p>
 analysis ports, siempre</li>
 <li>Los analysis ports son ports: se instancian con <code>new()</code>, no con la factory</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u7/agents/tb_classes/vtalu_agent.svh</code> · líneas 1-33 de 43</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">vtalu_agent</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_agent</span>;
+<figure class="codigo"><figcaption><code>code/u7/agents/tb_classes/vtalu_agent.svh</code> · #class-and-build</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">vtalu_agent</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_agent</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(vtalu_agent)
 
    vtalu_agent_config cfg;
@@ -699,7 +700,7 @@ que hay un agent y que tiene dos analysis ports</li>
 <li>El scoreboard y la cobertura quedan igual que en los analysis ports: son
 subscribers, y no se enteran de nada</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u7/agents/env_un_agent.svh</code> · líneas 3-34 de 36</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">env</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_env</span>;
+<figure class="codigo"><figcaption><code>code/u7/agents/env_un_agent.svh</code> · #class-and-build</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">env</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_env</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(env)
 
    vtalu_agent        agent_h;
@@ -864,7 +865,7 @@ de UVM, y le colgamos un agent en <code>UVM_PASSIVE</code> para mirarlo</li>
 <li>Dos scoreboards y <strong>dos coberturas</strong>: eso es lo que responde cuál de los dos
 estímulos cubre más</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u7/agents/top.sv</code> · líneas 1-35 de 35</figcaption><pre><code class="hljs"><span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+<figure class="codigo"><figcaption><code>code/u7/agents/top.sv</code> · #top</figcaption><pre><code class="hljs"><span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
    <span class="hljs-keyword">import</span> <span class="hljs-uvm-type">uvm_pkg</span>::*;
    <span class="hljs-keyword">import</span> vtalu_pkg::*;
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;vtalu_macros.svh&quot;</span>
@@ -976,7 +977,7 @@ para llegar al sequencer, y con eso vuelve a conocer el interior del env</li>
 <li>La sección de sequences lo arregla: la sequence se le pasa al sequencer <strong>por
 <code>config_db</code></strong>, y el test deja de saber dónde está</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u7/agents/tb_classes/dual_test.svh</code> · líneas 10-44 de 46</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+<figure class="codigo"><figcaption><code>code/u7/agents/tb_classes/dual_test.svh</code> · #build-and-run</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-keyword">virtual</span> vtalu_bfm clase_bfm, modulo_bfm;
       env_config env_config_h;
 
@@ -1162,7 +1163,7 @@ distintas en el mismo driver sin pisarse. Con overrides, el segundo gana.</p>
 <section id="s293" class="slide">
 <h2 id="callbacks">Callbacks</h2>
 <h4 id="el-gancho-una-clase-un-método-virtual-vacío"><em>El gancho: una clase, un método virtual vacío</em></h4>
-<figure class="codigo"><figcaption><code>code/u7/callbacks/tb_classes/driver_callback.svh</code> · líneas 9-22 de 68</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">driver_callback</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_callback</span>;
+<figure class="codigo"><figcaption><code>code/u7/callbacks/tb_classes/driver_callback.svh</code> · #driver_callback</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">driver_callback</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_callback</span>;
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(driver_callback)
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;driver_callback&quot;</span>);
@@ -1271,7 +1272,7 @@ normal y no una excepción.</p>
 <section id="s294" class="slide">
 <h2 id="callbacks">Callbacks</h2>
 <h4 id="dos-líneas-en-el-driver-y-ninguna-más"><em>Dos líneas en el driver, y ninguna más</em></h4>
-<figure class="codigo"><figcaption><code>code/u7/callbacks/tb_classes/driver.svh</code> · líneas 3-10 de 35</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">driver</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_driver</span> #(<span class="hljs-type">command_transaction</span>);
+<figure class="codigo"><figcaption><code>code/u7/callbacks/tb_classes/driver.svh</code> · #register-cb</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">driver</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_driver</span> #(<span class="hljs-type">command_transaction</span>);
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(driver)
    <span class="hljs-comment">// Declares &quot;this component accepts callbacks of this type&quot;. Without it the</span>
    <span class="hljs-comment">// add() below still hooks up and the callback still runs, but with a CBUNREG</span>
@@ -1314,7 +1315,7 @@ normal y no una excepción.</p>
 
 <span class="hljs-keyword">endclass</span> : driver</code></pre></details></figure>
 
-<figure class="codigo"><figcaption><code>code/u7/callbacks/tb_classes/driver.svh</code> · líneas 23-33 de 35</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+<figure class="codigo"><figcaption><code>code/u7/callbacks/tb_classes/driver.svh</code> · #run_phase</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       command_transaction command;
       <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span> : command_loop
          seq_item_port.get_next_item(command);
@@ -1392,7 +1393,7 @@ compatibilidad hacia adelante. Por eso los VIP tienen tres o cuatro, no treinta.
 <section id="s295" class="slide">
 <h2 id="callbacks">Callbacks</h2>
 <h4 id="ponerlos-el-test-y-nada-más-que-el-test"><em>Ponerlos: el test, y nada más que el test</em></h4>
-<figure class="codigo"><figcaption><code>code/u7/callbacks/tb_classes/inject_test.svh</code> · líneas 20-31 de 36</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">end_of_elaboration_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+<figure class="codigo"><figcaption><code>code/u7/callbacks/tb_classes/inject_test.svh</code> · #hooking-the-cb</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">end_of_elaboration_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-keyword">super</span>.end_of_elaboration_phase(phase);
 
       flip_h   = flip_bit_cb::type_id::create(<span class="hljs-string">&quot;flip_h&quot;</span>);
@@ -1680,7 +1681,7 @@ necesita: entre operación y operación las señales se pueden quedar quietas.</
 <section id="s301" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="lo-que-pasa-entre-start_item-y-finish_item"><em>Lo que pasa entre <code>start_item()</code> y <code>finish_item()</code></em></h4>
-<figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/random_sequence.svh</code> · líneas 12-29 de 31</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">body</span>();
+<figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/random_sequence.svh</code> · #body</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">body</span>();
       command_transaction command;
 
       <span class="hljs-keyword">repeat</span> (count) <span class="hljs-keyword">begin</span> : random_loop
@@ -1801,7 +1802,7 @@ de <code>finish_item()</code>: no hay que acordarse de volver a prenderla.</p>
 <section id="s303" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="el-item-vuelve-con-el-resultado-adentro"><em>El item vuelve con el resultado adentro</em></h4>
-<figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/driver.svh</code> · líneas 18-27 de 29</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+<figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/driver.svh</code> · #run_phase</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       command_transaction command;
       <span class="hljs-type">shortint</span> <span class="hljs-type">unsigned</span>   alu_result;
       <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span> : command_loop
@@ -1869,7 +1870,7 @@ operación siguiente.</p>
 <section id="s304" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="fibonacci-cuando-el-estímulo-depende-del-resultado"><em>Fibonacci: cuando el estímulo depende del resultado</em></h4>
-<figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/fibonacci_sequence.svh</code> · líneas 11-39 de 41</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">body</span>();
+<figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/fibonacci_sequence.svh</code> · #body</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">body</span>();
       <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> n_menos_2 = <span class="hljs-number">0</span>;
       <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> n_menos_1 = <span class="hljs-number">1</span>;
       command_transaction command;
@@ -1996,7 +1997,7 @@ sobre un solo sequencer, el orden es el que dice el <code>body()</code>.</p>
 <section id="s306" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="full_sequence-tres-piezas-un-solo-sequencer"><em><code>full_sequence</code>: tres piezas, un solo sequencer</em></h4>
-<figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/full_sequence.svh</code> · líneas 13-30 de 32</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">body</span>();
+<figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/full_sequence.svh</code> · #body</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">body</span>();
       reset_sequence   reset_seq;
       random_sequence  random_seq;
       maxmult_sequence maxmult_seq;
@@ -2080,7 +2081,7 @@ sequencer, y hay seis modos, incluido uno con pesos.</p>
 <section id="s307" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="arrancar-una-sequence-forma-1-start"><em>Arrancar una sequence, forma 1: <code>start()</code></em></h4>
-<figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/full_test.svh</code> · líneas 9-18 de 20</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+<figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/full_test.svh</code> · #run_phase</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       full_sequence full_seq;
       full_seq = full_sequence::type_id::create(<span class="hljs-string">&quot;full_seq&quot;</span>);
 
@@ -2139,7 +2140,7 @@ sequencer. Es la misma razón por la que las conexiones van en <code>connect_pha
 <section id="s308" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="forma-2-default_sequence-por-uvm_config_db"><em>Forma 2: <code>default_sequence</code> por <code>uvm_config_db</code></em></h4>
-<figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/default_seq_test.svh</code> · líneas 10-30 de 32</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+<figure class="codigo"><figcaption><code>code/u7/sequences/tb_classes/default_seq_test.svh</code> · #build_phase</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       full_sequence full_seq;
 
       <span class="hljs-comment">// super.build_phase() of base_test, which is a class of OURS: it builds the</span>
@@ -2399,7 +2400,7 @@ argumento: una sequence virtual no cambia la estructura del testbench.</p>
 <section id="s313" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="el-virtual-sequencer-handles-no-items"><em>El virtual sequencer: handles, no items</em></h4>
-<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/virtual_sequencer.svh</code> · líneas 10-20 de 20</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">virtual_sequencer</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequencer</span>;
+<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/virtual_sequencer.svh</code> · #the-handles</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">virtual_sequencer</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequencer</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(virtual_sequencer)
 
    sequencer clase_sequencer_h;
@@ -2430,7 +2431,7 @@ argumento: una sequence virtual no cambia la estructura del testbench.</p>
 
 <span class="hljs-keyword">endclass</span> : virtual_sequencer</code></pre></details></figure>
 
-<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/env.svh</code> · líneas 52-54 de 65</figcaption><pre><code class="hljs">      <span class="hljs-comment">// not compile instead of returning null at simulation time.</span>
+<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/env.svh</code> · #wiring-the-sequencers</figcaption><pre><code class="hljs">      <span class="hljs-comment">// not compile instead of returning null at simulation time.</span>
       virtual_sequencer_h.clase_sequencer_h  = clase_agent_h.sequencer_h;
       virtual_sequencer_h.modulo_sequencer_h = modulo_agent_h.sequencer_h;</code></pre><details><summary>el archivo entero, 65 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The env of the Sequences section with TWO changes, and no more:</span>
 <span class="hljs-comment">//</span>
@@ -2523,7 +2524,7 @@ cambió, que es exactamente lo que uno quiere.</p>
 <section id="s314" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="la-sequence-virtual-p_sequencer-y-dos-ramas"><em>La sequence virtual: <code>p_sequencer</code> y dos ramas</em></h4>
-<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · líneas 14-16 de 76</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">coordinada_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span>;
+<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · #p-sequencer</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">coordinada_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span>;
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(coordinada_sequence)
    <span class="hljs-uvm-macro">`uvm_declare_p_sequencer</span>(virtual_sequencer)</code></pre><details><summary>el archivo entero, 76 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// THE virtual sequence.</span>
 <span class="hljs-comment">//</span>
@@ -2602,7 +2603,7 @@ cambió, que es exactamente lo que uno quiere.</p>
 
 <span class="hljs-keyword">endclass</span> : coordinada_sequence</code></pre></details></figure>
 
-<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · líneas 43-53 de 76</figcaption><pre><code class="hljs">      <span class="hljs-keyword">fork</span>
+<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · #the-fork</figcaption><pre><code class="hljs">      <span class="hljs-keyword">fork</span>
          reset_a.start(p_sequencer.clase_sequencer_h);
          reset_b.start(p_sequencer.modulo_sequencer_h);
       <span class="hljs-keyword">join</span>
@@ -2716,7 +2717,7 @@ sequence normal con más ceremonia. La clase se justifica cuando hay dos.</p>
 <section id="s315" class="slide">
 <h2 id="sequences">Sequences</h2>
 <h4 id="lo-que-ninguna-sequence-sola-puede"><em>Lo que ninguna sequence sola puede</em></h4>
-<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · líneas 59-70 de 76</figcaption><pre><code class="hljs">      primera.A  = <span class="hljs-number">8&#x27;h0F</span>;
+<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · #the-ordered-pair</figcaption><pre><code class="hljs">      primera.A  = <span class="hljs-number">8&#x27;h0F</span>;
       primera.B  = <span class="hljs-number">8&#x27;h07</span>;
       primera.op = mul_op;
       primera.start(p_sequencer.clase_sequencer_h);

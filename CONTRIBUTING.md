@@ -96,9 +96,10 @@ Codespaces del README los trae adentro y no hay que instalar nada.
   voz alta. Es la mitad del curso para el que estudia solo, y `npm run check` te
   dice cuántas slides quedaron sin nota.
 - El código **no se pega**: se incluye desde `code/` con `{{code:ruta}}`. Así el
-  ejemplo de la slide es literalmente el que corre. Para recortar, `|from=…|to=…`
-  antes que `|lines=12-24`: las anclas siguen al bloque cuando el archivo crece,
-  los números no.
+  ejemplo de la slide es literalmente el que corre. Para recortar se usa el
+  **nombre** del bloque —`{{code:ruta#write}}`—, o un marcador `// cb: id` …
+  `// cb: end` para el trozo que SystemVerilog no nombra. Los números de línea
+  (`|lines=12-24`) se pudren cuando el archivo crece: el lint avisa.
 - El **título** va en `## Nombre de la sección` y el subtítulo en
   `#### *en itálica*`. Un `###` hace fallar el lint: se dibuja más grande y
   parte la voz del deck en dos.

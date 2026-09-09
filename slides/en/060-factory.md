@@ -1,4 +1,4 @@
-<!-- es-sha: 6978771daf5e -->
+<!-- es-sha: 356adbed7c4a -->
 ## The factory pattern
 
 #### *Who decides the type?*
@@ -85,12 +85,12 @@ this one.
 - It checks **at runtime** and returns 0 if it does not work, so it never goes alone: always
   inside an `if` with its `$fatal`
 
-{{code:code/u3/factory/factory.sv|lines=50-73}}
+{{code:code/u3/factory/factory.sv#cantina}}
 
 - And `$cast` in use, in the `top`: the factory always returns a `trago`, and
   to reach `sin_hielo` you have to bring it down to `fernet`
 
-{{code:code/u3/factory/factory.sv|from=// Using the factory!|to=cantina drink to fernet_h}}
+{{code:code/u3/factory/factory.sv#casting}}
 
 Note:
 Two things about this code, and both come back in UVM.
@@ -113,7 +113,7 @@ Both annoyances of this slide disappear in the env.
 
 #### *Python Style*
 
-{{code:code/u3/factory/factory.py|lines=5-19}}
+{{code:code/u3/factory/factory.py#factory-class}}
 
 - The same factory, in a language that has nothing to do with hardware: a
   static method with an `if` per type and a `raise` for what does not exist

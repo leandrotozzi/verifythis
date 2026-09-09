@@ -71,7 +71,7 @@
 </section>
 
 <section id="s173" class="slide">
-<!-- es-sha: 500a83e2f70b -->
+<!-- es-sha: 3eb7ead07ccc -->
 <h2 id="one-producer-many-listeners">One producer, many listeners</h2>
 <h4 id="two-ways-of-talking-between-objects"><em>Two ways of talking between objects</em></h4>
 <ul>
@@ -209,7 +209,7 @@ scoreboard and the <code>report_phase</code> the verdict of the run. Same shape.
 <section id="s177" class="slide">
 <h2 id="one-producer-many-listeners">One producer, many listeners</h2>
 <h4 id="the-other-two-the-body-changes-not-the-shape"><em>The other two: the body changes, not the shape</em></h4>
-<figure class="codigo"><figcaption><code>code/u5/varios-objetos/01-sin-analysis-port/histogram.svh</code> · líneas 11-13 de 29</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">write</span>(<span class="hljs-type">int</span> t);
+<figure class="codigo"><figcaption><code>code/u5/varios-objetos/01-sin-analysis-port/histogram.svh</code> · #write</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">write</span>(<span class="hljs-type">int</span> t);
       rolls[t]++;
    <span class="hljs-keyword">endfunction</span> : write</code></pre><details><summary>el archivo entero, 29 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">histogram</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(histogram);
@@ -241,7 +241,7 @@ scoreboard and the <code>report_phase</code> the verdict of the run. Same shape.
    <span class="hljs-keyword">endfunction</span> : report_phase
 <span class="hljs-keyword">endclass</span> : histogram</code></pre></details></figure>
 
-<figure class="codigo"><figcaption><code>code/u5/varios-objetos/01-sin-analysis-port/coverage.svh</code> · líneas 14-17 de 24</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">write</span>(<span class="hljs-type">int</span> t);
+<figure class="codigo"><figcaption><code>code/u5/varios-objetos/01-sin-analysis-port/coverage.svh</code> · #write</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">write</span>(<span class="hljs-type">int</span> t);
       the_roll = t;
       dice_cg.sample();
    <span class="hljs-keyword">endfunction</span> : write</code></pre><details><summary>el archivo entero, 24 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">coverage</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
@@ -297,7 +297,7 @@ The whole file of each one is in
 <section id="s178" class="slide">
 <h2 id="one-producer-many-listeners">One producer, many listeners</h2>
 <h4 id="the-producer-it-rolls-the-dice-and-returns-a-number"><em>The producer: it rolls the dice and returns a number</em></h4>
-<figure class="codigo"><figcaption><code>code/u5/varios-objetos/01-sin-analysis-port/dice_roller.svh</code> · líneas 1-23 de 25</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">dice_roller</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
+<figure class="codigo"><figcaption><code>code/u5/varios-objetos/01-sin-analysis-port/dice_roller.svh</code> · #dice_roller</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">dice_roller</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(dice_roller);
 
    <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> die1;
@@ -319,7 +319,9 @@ The whole file of each one is in
       <span class="hljs-type">void</span>&#x27;(<span class="hljs-keyword">randomize</span>());
       the_roll = die1 + die2;
       <span class="hljs-keyword">return</span> the_roll;
-   <span class="hljs-keyword">endfunction</span> : two_dice</code></pre><details><summary>el archivo entero, 25 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">dice_roller</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
+   <span class="hljs-keyword">endfunction</span> : two_dice
+
+<span class="hljs-keyword">endclass</span> : dice_roller</code></pre><details><summary>el archivo entero, 25 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">dice_roller</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(dice_roller);
 
    <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> die1;
@@ -376,7 +378,7 @@ The slide that follows.</p>
 <li>It works. But look at the <code>run_phase</code>, and in particular at what is inside the
 <code>repeat (20)</code></li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u5/varios-objetos/01-sin-analysis-port/dice_test.svh</code> · líneas 16-32 de 38</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+<figure class="codigo"><figcaption><code>code/u5/varios-objetos/01-sin-analysis-port/dice_test.svh</code> · #run_phase</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-type">int</span> the_roll;
       phase.raise_objection(<span class="hljs-keyword">this</span>);
       <span class="hljs-comment">// This part needs attention.</span>
@@ -583,7 +585,7 @@ And a detail that shows up in the output: here the coverage is read with
 <section id="s184" class="slide">
 <h2 id="one-producer-many-listeners">One producer, many listeners</h2>
 <h4 id="the-producer-publishing-now"><em>The producer, publishing now</em></h4>
-<figure class="codigo"><figcaption><code>code/u5/varios-objetos/02-con-analysis-port/dice_roller.svh</code> · líneas 20-39 de 41</figcaption><pre><code class="hljs">   <span class="hljs-comment">// 1) declare the port, with the data type it will carry</span>
+<figure class="codigo"><figcaption><code>code/u5/varios-objetos/02-con-analysis-port/dice_roller.svh</code> · #port-and-run</figcaption><pre><code class="hljs">   <span class="hljs-comment">// 1) declare the port, with the data type it will carry</span>
    <span class="hljs-uvm-type">uvm_analysis_port</span> #(<span class="hljs-type">int</span>) roll_ap;
 
    <span class="hljs-comment">// 2) instantiate it in build_phase, with new(): ports do not go through the factory</span>
@@ -702,7 +704,7 @@ a mistake because there is nothing to instantiate.</p>
 <li>A single line of <code>connect_phase()</code> hooks the subscriber up to the analysis
 port: <code>ap.connect(sub_h.analysis_export)</code></li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u5/varios-objetos/02-con-analysis-port/dice_test.svh</code> · líneas 15-28 de 30</figcaption><pre><code class="hljs">   <span class="hljs-comment">// build_phase: UVM calls it TOP-DOWN, the parent first.</span>
+<figure class="codigo"><figcaption><code>code/u5/varios-objetos/02-con-analysis-port/dice_test.svh</code> · #build-and-connect</figcaption><pre><code class="hljs">   <span class="hljs-comment">// build_phase: UVM calls it TOP-DOWN, the parent first.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       dice_roller_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;dice_roller_h&quot;</span>, <span class="hljs-keyword">this</span>);
       coverage_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;coverage_h&quot;</span>, <span class="hljs-keyword">this</span>);
@@ -821,7 +823,7 @@ naming convention, it is the language telling you which side you are on.</p>
 </section>
 
 <section id="s189" class="slide">
-<!-- es-sha: d1a0eb738104 -->
+<!-- es-sha: ceed568d8fe9 -->
 <h2 id="a-single-place-that-watches-the-wire">A single place that watches the wire</h2>
 <h4 id="a-single-place-that-watches-the-wire-1"><em>A single place that watches the wire</em></h4>
 <ul>
@@ -898,12 +900,114 @@ the section that follows the other one gets done.</p>
 <li>Up to now the class read the interface. Here it flips around: <strong>the interface
 keeps a handle to the class</strong> and it is the interface that calls the method</li>
 </ul>
-<p>{{code:code/u5/analysis-ports/vtalu_bfm.sv|from=interface vtalu_bfm;|to=op_set;}}</p>
+<figure class="codigo"><figcaption><code>code/u5/analysis-ports/vtalu_bfm.sv</code> · #handles</figcaption><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
+   <span class="hljs-keyword">import</span> vtalu_pkg::*;
+
+   <span class="hljs-comment">// These handles get assigned in the build_phases of the classes</span>
+   command_monitor        command_monitor_h;
+   result_monitor         result_monitor_h;
+
+   <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>          A;
+   <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>          B;
+   <span class="hljs-type">bit</span>                    clk;
+   <span class="hljs-type">bit</span>                    reset_n;
+   <span class="hljs-type">bit</span>                    start;
+   <span class="hljs-type">wire</span>                   done;
+   <span class="hljs-type">wire</span>            [<span class="hljs-number">15</span>:<span class="hljs-number">0</span>] result;
+   <span class="hljs-type">wire</span>                   ovf;
+   operation_t            op_set;</code></pre><details><summary>el archivo entero, 87 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
+   <span class="hljs-keyword">import</span> vtalu_pkg::*;
+
+   <span class="hljs-comment">// These handles get assigned in the build_phases of the classes</span>
+   command_monitor        command_monitor_h;
+   result_monitor         result_monitor_h;
+
+   <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>          A;
+   <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>          B;
+   <span class="hljs-type">bit</span>                    clk;
+   <span class="hljs-type">bit</span>                    reset_n;
+   <span class="hljs-type">bit</span>                    start;
+   <span class="hljs-type">wire</span>                   done;
+   <span class="hljs-type">wire</span>            [<span class="hljs-number">15</span>:<span class="hljs-number">0</span>] result;
+   <span class="hljs-type">wire</span>                   ovf;
+   operation_t            op_set;
+
+   <span class="hljs-comment">// Here is the first monitor (commands)</span>
+   <span class="hljs-comment">// A very simple FSM. If start is up, check whether this is a new command</span>
+   <span class="hljs-comment">// If it is, send it to the TB with commands_monitor.write_to_monitor()</span>
+   <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span> : cmd_monitor
+      <span class="hljs-type">bit</span> new_command;
+      <span class="hljs-keyword">if</span> (!start) new_command = <span class="hljs-number">1</span>;
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (new_command) <span class="hljs-keyword">begin</span>
+         command_monitor_h.write_to_monitor(A, B, op_set);
+         new_command = (op_set == <span class="hljs-number">3&#x27;b000</span>);  <span class="hljs-comment">// handle no_op</span>
+      <span class="hljs-keyword">end</span>
+   <span class="hljs-keyword">end</span> : cmd_monitor
+
+   <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">negedge</span> reset_n) <span class="hljs-keyword">begin</span> : rst_monitor
+      <span class="hljs-keyword">if</span> (command_monitor_h != <span class="hljs-keyword">null</span>)  <span class="hljs-comment">//guard against VCS time 0 negedge</span>
+         command_monitor_h.write_to_monitor(A, B, rst_op);
+   <span class="hljs-keyword">end</span> : rst_monitor
+
+   <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span> : rslt_monitor
+      <span class="hljs-keyword">if</span> (done) result_monitor_h.write_to_monitor(result);
+   <span class="hljs-keyword">end</span> : rslt_monitor
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      clk = <span class="hljs-number">0</span>;
+      <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span>
+         #<span class="hljs-number">10</span>;
+         clk = ~clk;
+      <span class="hljs-keyword">end</span>
+   <span class="hljs-keyword">end</span>
+
+
+   <span class="hljs-comment">// --- the protocol, in the BFM ---</span>
+   <span class="hljs-comment">// Everything that knows HOW the DUT is talked to lives here, in one place:</span>
+   <span class="hljs-comment">// the rest of the testbench asks for an operation and never touches a wire.</span>
+   <span class="hljs-comment">// That is the idea of unit 3, and it holds to the end of the course.</span>
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">reset_alu</span>();
+      reset_n = <span class="hljs-number">1&#x27;b0</span>;
+      @(<span class="hljs-keyword">negedge</span> clk);
+      @(<span class="hljs-keyword">negedge</span> clk);
+      reset_n = <span class="hljs-number">1&#x27;b1</span>;
+      start = <span class="hljs-number">1&#x27;b0</span>;
+   <span class="hljs-keyword">endtask</span> : reset_alu
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">send_op</span>(<span class="hljs-keyword">input</span> <span class="hljs-type">byte</span> iA, <span class="hljs-keyword">input</span> <span class="hljs-type">byte</span> iB, <span class="hljs-keyword">input</span> operation_t iop);
+      <span class="hljs-keyword">if</span> (iop == rst_op) <span class="hljs-keyword">begin</span>
+         @(<span class="hljs-keyword">posedge</span> clk);
+         reset_n = <span class="hljs-number">1&#x27;b0</span>;
+         start = <span class="hljs-number">1&#x27;b0</span>;
+         @(<span class="hljs-keyword">posedge</span> clk);
+         #<span class="hljs-number">1</span>;
+         reset_n = <span class="hljs-number">1&#x27;b1</span>;
+      <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
+         @(<span class="hljs-keyword">negedge</span> clk);
+         op_set = iop;
+         A = iA;
+         B = iB;
+         start = <span class="hljs-number">1&#x27;b1</span>;
+         <span class="hljs-keyword">if</span> (iop == no_op) <span class="hljs-keyword">begin</span>
+            @(<span class="hljs-keyword">posedge</span> clk);
+            #<span class="hljs-number">1</span>;
+            start = <span class="hljs-number">1&#x27;b0</span>;
+         <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
+            <span class="hljs-keyword">do</span> @(<span class="hljs-keyword">negedge</span> clk); <span class="hljs-keyword">while</span> (done == <span class="hljs-number">0</span>);
+            start = <span class="hljs-number">1&#x27;b0</span>;
+         <span class="hljs-keyword">end</span>
+      <span class="hljs-keyword">end</span>  <span class="hljs-comment">// else: !if(iop == rst_op)</span>
+
+   <span class="hljs-keyword">endtask</span> : send_op
+
+<span class="hljs-keyword">endinterface</span> : vtalu_bfm</code></pre></details></figure>
+
 <ul>
 <li>These handles are set by each monitor in its <code>build_phase</code>, right after pulling
 the BFM out of the config_db</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u5/analysis-ports/tb_classes/command_monitor.svh</code> · líneas 6-16 de 46</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+<figure class="codigo"><figcaption><code>code/u5/analysis-ports/tb_classes/command_monitor.svh</code> · #build_phase</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
 
       <span class="hljs-keyword">if</span> (!<span class="hljs-uvm-type">uvm_config_db</span>#(<span class="hljs-keyword">virtual</span> vtalu_bfm)::get(<span class="hljs-keyword">this</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;bfm&quot;</span>, bfm))
@@ -986,12 +1090,118 @@ affects tasks — here the one declaring the task is the class, not the interfac
 reset one on the falling edge of <code>reset_n</code>, and the result one when the DUT
 raises <code>done</code></li>
 </ul>
-<p>{{code:code/u5/analysis-ports/vtalu_bfm.sv|from=// Here is the first monitor|to=end : rslt_monitor}}</p>
+<figure class="codigo"><figcaption><code>code/u5/analysis-ports/vtalu_bfm.sv</code> · #monitors</figcaption><pre><code class="hljs">   <span class="hljs-comment">// Here is the first monitor (commands)</span>
+   <span class="hljs-comment">// A very simple FSM. If start is up, check whether this is a new command</span>
+   <span class="hljs-comment">// If it is, send it to the TB with commands_monitor.write_to_monitor()</span>
+   <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span> : cmd_monitor
+      <span class="hljs-type">bit</span> new_command;
+      <span class="hljs-keyword">if</span> (!start) new_command = <span class="hljs-number">1</span>;
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (new_command) <span class="hljs-keyword">begin</span>
+         command_monitor_h.write_to_monitor(A, B, op_set);
+         new_command = (op_set == <span class="hljs-number">3&#x27;b000</span>);  <span class="hljs-comment">// handle no_op</span>
+      <span class="hljs-keyword">end</span>
+   <span class="hljs-keyword">end</span> : cmd_monitor
+
+   <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">negedge</span> reset_n) <span class="hljs-keyword">begin</span> : rst_monitor
+      <span class="hljs-keyword">if</span> (command_monitor_h != <span class="hljs-keyword">null</span>)  <span class="hljs-comment">//guard against VCS time 0 negedge</span>
+         command_monitor_h.write_to_monitor(A, B, rst_op);
+   <span class="hljs-keyword">end</span> : rst_monitor
+
+   <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span> : rslt_monitor
+      <span class="hljs-keyword">if</span> (done) result_monitor_h.write_to_monitor(result);
+   <span class="hljs-keyword">end</span> : rslt_monitor</code></pre><details><summary>el archivo entero, 87 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
+   <span class="hljs-keyword">import</span> vtalu_pkg::*;
+
+   <span class="hljs-comment">// These handles get assigned in the build_phases of the classes</span>
+   command_monitor        command_monitor_h;
+   result_monitor         result_monitor_h;
+
+   <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>          A;
+   <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span>          B;
+   <span class="hljs-type">bit</span>                    clk;
+   <span class="hljs-type">bit</span>                    reset_n;
+   <span class="hljs-type">bit</span>                    start;
+   <span class="hljs-type">wire</span>                   done;
+   <span class="hljs-type">wire</span>            [<span class="hljs-number">15</span>:<span class="hljs-number">0</span>] result;
+   <span class="hljs-type">wire</span>                   ovf;
+   operation_t            op_set;
+
+   <span class="hljs-comment">// Here is the first monitor (commands)</span>
+   <span class="hljs-comment">// A very simple FSM. If start is up, check whether this is a new command</span>
+   <span class="hljs-comment">// If it is, send it to the TB with commands_monitor.write_to_monitor()</span>
+   <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span> : cmd_monitor
+      <span class="hljs-type">bit</span> new_command;
+      <span class="hljs-keyword">if</span> (!start) new_command = <span class="hljs-number">1</span>;
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (new_command) <span class="hljs-keyword">begin</span>
+         command_monitor_h.write_to_monitor(A, B, op_set);
+         new_command = (op_set == <span class="hljs-number">3&#x27;b000</span>);  <span class="hljs-comment">// handle no_op</span>
+      <span class="hljs-keyword">end</span>
+   <span class="hljs-keyword">end</span> : cmd_monitor
+
+   <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">negedge</span> reset_n) <span class="hljs-keyword">begin</span> : rst_monitor
+      <span class="hljs-keyword">if</span> (command_monitor_h != <span class="hljs-keyword">null</span>)  <span class="hljs-comment">//guard against VCS time 0 negedge</span>
+         command_monitor_h.write_to_monitor(A, B, rst_op);
+   <span class="hljs-keyword">end</span> : rst_monitor
+
+   <span class="hljs-keyword">always</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span> : rslt_monitor
+      <span class="hljs-keyword">if</span> (done) result_monitor_h.write_to_monitor(result);
+   <span class="hljs-keyword">end</span> : rslt_monitor
+
+   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+      clk = <span class="hljs-number">0</span>;
+      <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span>
+         #<span class="hljs-number">10</span>;
+         clk = ~clk;
+      <span class="hljs-keyword">end</span>
+   <span class="hljs-keyword">end</span>
+
+
+   <span class="hljs-comment">// --- the protocol, in the BFM ---</span>
+   <span class="hljs-comment">// Everything that knows HOW the DUT is talked to lives here, in one place:</span>
+   <span class="hljs-comment">// the rest of the testbench asks for an operation and never touches a wire.</span>
+   <span class="hljs-comment">// That is the idea of unit 3, and it holds to the end of the course.</span>
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">reset_alu</span>();
+      reset_n = <span class="hljs-number">1&#x27;b0</span>;
+      @(<span class="hljs-keyword">negedge</span> clk);
+      @(<span class="hljs-keyword">negedge</span> clk);
+      reset_n = <span class="hljs-number">1&#x27;b1</span>;
+      start = <span class="hljs-number">1&#x27;b0</span>;
+   <span class="hljs-keyword">endtask</span> : reset_alu
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">send_op</span>(<span class="hljs-keyword">input</span> <span class="hljs-type">byte</span> iA, <span class="hljs-keyword">input</span> <span class="hljs-type">byte</span> iB, <span class="hljs-keyword">input</span> operation_t iop);
+      <span class="hljs-keyword">if</span> (iop == rst_op) <span class="hljs-keyword">begin</span>
+         @(<span class="hljs-keyword">posedge</span> clk);
+         reset_n = <span class="hljs-number">1&#x27;b0</span>;
+         start = <span class="hljs-number">1&#x27;b0</span>;
+         @(<span class="hljs-keyword">posedge</span> clk);
+         #<span class="hljs-number">1</span>;
+         reset_n = <span class="hljs-number">1&#x27;b1</span>;
+      <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
+         @(<span class="hljs-keyword">negedge</span> clk);
+         op_set = iop;
+         A = iA;
+         B = iB;
+         start = <span class="hljs-number">1&#x27;b1</span>;
+         <span class="hljs-keyword">if</span> (iop == no_op) <span class="hljs-keyword">begin</span>
+            @(<span class="hljs-keyword">posedge</span> clk);
+            #<span class="hljs-number">1</span>;
+            start = <span class="hljs-number">1&#x27;b0</span>;
+         <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
+            <span class="hljs-keyword">do</span> @(<span class="hljs-keyword">negedge</span> clk); <span class="hljs-keyword">while</span> (done == <span class="hljs-number">0</span>);
+            start = <span class="hljs-number">1&#x27;b0</span>;
+         <span class="hljs-keyword">end</span>
+      <span class="hljs-keyword">end</span>  <span class="hljs-comment">// else: !if(iop == rst_op)</span>
+
+   <span class="hljs-keyword">endtask</span> : send_op
+
+<span class="hljs-keyword">endinterface</span> : vtalu_bfm</code></pre></details></figure>
+
 <ul>
 <li>And on the other side, the method they give notice to: it packs the <code>command_s</code>
 up and publishes it on the analysis port</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u5/analysis-ports/tb_classes/command_monitor.svh</code> · líneas 18-26 de 46</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">write_to_monitor</span>(<span class="hljs-type">byte</span> A, <span class="hljs-type">byte</span> B, <span class="hljs-type">bit</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] op);
+<figure class="codigo"><figcaption><code>code/u5/analysis-ports/tb_classes/command_monitor.svh</code> · #write_to_monitor</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">write_to_monitor</span>(<span class="hljs-type">byte</span> A, <span class="hljs-type">byte</span> B, <span class="hljs-type">bit</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] op);
       command_s cmd;
       cmd.A = A;
       cmd.B = B;
@@ -1072,8 +1282,143 @@ that knows what a command looks like on the wire</li>
 <li>Whoever needs to know which operation ran subscribes to its analysis port and
 implements <code>write()</code>. They never look at a signal again</li>
 </ul>
-<p>{{code:code/u5/analysis-ports/tb_classes/coverage.svh|from=// With the analysis port this is far simpler|to=endfunction : write}}</p>
-<div class="nota">
+<figure class="codigo"><figcaption><code>code/u5/analysis-ports/tb_classes/coverage.svh</code> · #write</figcaption><pre><code class="hljs">   <span class="hljs-comment">// With the analysis port this is far simpler,</span>
+   <span class="hljs-comment">// because nothing here has to know about the ALU signals:</span>
+   <span class="hljs-comment">// what arrives is a command_s struct that wraps the command</span>
+   <span class="hljs-comment">//</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">write</span>(command_s t);
+         A = t.A;
+         B = t.B;
+         op_set = t.op;
+         op_cov.sample();
+         zeros_or_ones_on_ops.sample();
+   <span class="hljs-keyword">endfunction</span> : write</code></pre><details><summary>el archivo entero, 127 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">coverage</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_subscriber</span> #(<span class="hljs-type">command_s</span>);
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(coverage)
+
+   <span class="hljs-type">byte</span>         <span class="hljs-type">unsigned</span>        A;
+   <span class="hljs-type">byte</span>         <span class="hljs-type">unsigned</span>        B;
+   operation_t  op_set;
+
+   <span class="hljs-keyword">covergroup</span> op_cov;
+
+      <span class="hljs-keyword">coverpoint</span> op_set {
+         <span class="hljs-keyword">bins</span> single_cycle[] = {[add_op : xor_op], rst_op,no_op};
+         <span class="hljs-keyword">bins</span> multi_cycle = {mul_op};
+
+         <span class="hljs-comment">// Transition bins. Verilator 5.052 does NOT implement them yet: any form</span>
+         <span class="hljs-comment">// with &quot;=&gt;&quot; or &quot;[* n]&quot; aborts with an Internal Error. Minimal repro in</span>
+         <span class="hljs-comment">// code/verilator/repro-cg-transition.sv. They stay because they are part</span>
+         <span class="hljs-comment">// of the topic; when Verilator supports them, drop the ifndef, nothing else.</span>
+<span class="hljs-meta">`ifndef</span> VERILATOR
+         <span class="hljs-keyword">bins</span> opn_rst[] = ([add_op:mul_op] =&gt; rst_op);
+         <span class="hljs-keyword">bins</span> rst_opn[] = (rst_op =&gt; [add_op:mul_op]);
+
+         <span class="hljs-keyword">bins</span> sngl_mul[] = ([add_op:xor_op],no_op =&gt; mul_op);
+         <span class="hljs-keyword">bins</span> mul_sngl[] = (mul_op =&gt; [add_op:xor_op], no_op);
+
+         <span class="hljs-keyword">bins</span> twoops[] = ([add_op:mul_op] [* <span class="hljs-number">2</span>]);
+         <span class="hljs-keyword">bins</span> manymult = (mul_op [* <span class="hljs-number">3</span>:<span class="hljs-number">5</span>]);
+
+         <span class="hljs-keyword">bins</span> rstmulrst   = (rst_op =&gt; mul_op [=  <span class="hljs-number">2</span>] =&gt; rst_op);
+         <span class="hljs-keyword">bins</span> rstmulrstim = (rst_op =&gt; mul_op [-&gt; <span class="hljs-number">2</span>] =&gt; rst_op);
+<span class="hljs-meta">`endif</span>
+
+      }
+
+   <span class="hljs-keyword">endgroup</span>
+
+   <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
+
+      all_ops : <span class="hljs-keyword">coverpoint</span> op_set {
+         <span class="hljs-keyword">ignore_bins</span> null_ops = {rst_op, no_op};}
+
+      a_leg: <span class="hljs-keyword">coverpoint</span> A {
+         <span class="hljs-keyword">bins</span> zeros = {<span class="hljs-number">&#x27;h00</span>};
+         <span class="hljs-keyword">bins</span> others= {[<span class="hljs-number">&#x27;h01</span>:<span class="hljs-number">&#x27;hFE</span>]};
+         <span class="hljs-keyword">bins</span> ones  = {<span class="hljs-number">&#x27;hFF</span>};
+      }
+
+      b_leg: <span class="hljs-keyword">coverpoint</span> B {
+         <span class="hljs-keyword">bins</span> zeros = {<span class="hljs-number">&#x27;h00</span>};
+         <span class="hljs-keyword">bins</span> others= {[<span class="hljs-number">&#x27;h01</span>:<span class="hljs-number">&#x27;hFE</span>]};
+         <span class="hljs-keyword">bins</span> ones  = {<span class="hljs-number">&#x27;hFF</span>};
+      }
+      <span class="hljs-comment">// VTALU rev2: the borrow of the subtraction, the row of the plan that the</span>
+      <span class="hljs-comment">// scoreboard can only close by looking at TWO outputs. Without this bin, a</span>
+      <span class="hljs-comment">// subtraction that never went negative looks exactly like one that did.</span>
+      borrow: <span class="hljs-keyword">coverpoint</span> ((op_set == sub_op) &amp;&amp; (A &lt; B)) {
+         <span class="hljs-keyword">bins</span> hubo_borrow = {<span class="hljs-number">1</span>};
+         <span class="hljs-keyword">ignore_bins</span> resto = {<span class="hljs-number">0</span>};
+      }
+
+
+      op_00_FF:  <span class="hljs-keyword">cross</span> a_leg, b_leg, all_ops {
+         <span class="hljs-keyword">bins</span> add_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {add_op} &amp;&amp;
+                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
+
+         <span class="hljs-keyword">bins</span> add_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {add_op} &amp;&amp;
+                       (binsof (a_leg.ones) || binsof (b_leg.ones));
+
+         <span class="hljs-keyword">bins</span> sub_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {sub_op} &amp;&amp;
+                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
+
+         <span class="hljs-keyword">bins</span> sub_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {sub_op} &amp;&amp;
+                       (binsof (a_leg.ones) || binsof (b_leg.ones));
+
+         <span class="hljs-keyword">bins</span> and_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {and_op} &amp;&amp;
+                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
+
+         <span class="hljs-keyword">bins</span> and_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {and_op} &amp;&amp;
+                       (binsof (a_leg.ones) || binsof (b_leg.ones));
+
+         <span class="hljs-keyword">bins</span> xor_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {xor_op} &amp;&amp;
+                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
+
+         <span class="hljs-keyword">bins</span> xor_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {xor_op} &amp;&amp;
+                       (binsof (a_leg.ones) || binsof (b_leg.ones));
+
+         <span class="hljs-keyword">bins</span> mul_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
+                       (binsof (a_leg.zeros) || binsof (b_leg.zeros));
+
+         <span class="hljs-keyword">bins</span> mul_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
+                       (binsof (a_leg.ones) || binsof (b_leg.ones));
+
+         <span class="hljs-keyword">bins</span> mul_max = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
+                        (binsof (a_leg.ones) &amp;&amp; binsof (b_leg.ones));
+
+         <span class="hljs-keyword">ignore_bins</span> others_only =
+                                  binsof(a_leg.others) &amp;&amp; binsof(b_leg.others);
+
+      }
+
+<span class="hljs-keyword">endgroup</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span> (<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+      op_cov = <span class="hljs-keyword">new</span>();
+      zeros_or_ones_on_ops = <span class="hljs-keyword">new</span>();
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// With the analysis port this is far simpler,</span>
+   <span class="hljs-comment">// because nothing here has to know about the ALU signals:</span>
+   <span class="hljs-comment">// what arrives is a command_s struct that wraps the command</span>
+   <span class="hljs-comment">//</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">write</span>(command_s t);
+         A = t.A;
+         B = t.B;
+         op_set = t.op;
+         op_cov.sample();
+         zeros_or_ones_on_ops.sample();
+   <span class="hljs-keyword">endfunction</span> : write
+
+   <span class="hljs-comment">// typedef enum bit[2:0] {no_op  = 3&#x27;b000,</span>
+   <span class="hljs-comment">//                     add_op = 3&#x27;b001,</span>
+   <span class="hljs-comment">//                     and_op = 3&#x27;b011,</span>
+   <span class="hljs-comment">//                     xor_op = 3&#x27;b100,</span>
+   <span class="hljs-comment">//                     mul_op = 3&#x27;b101,</span>
+   <span class="hljs-comment">//                     rst_op = 3&#x27;b111} operation_t;</span>
+
+<span class="hljs-keyword">endclass</span> : coverage</code></pre></details></figure><div class="nota">
 <p>It is worth opening the <code>coverage</code> class of the object-based testbench alongside
 and comparing: over there was a <code>forever</code> waiting for edges; here there is a
 <code>write()</code> and nothing else. The coverage stopped having any notion of time.
@@ -1118,8 +1463,100 @@ compare in pairs.</p>
 <ul>
 <li>Scoreboard class:</li>
 </ul>
-<p>{{code:code/u5/analysis-ports/tb_classes/scoreboard.svh|from=uvm_tlm_analysis_fifo #(command_s) cmd_f;|to=endfunction : write}}</p>
-<div class="nota">
+<figure class="codigo"><figcaption><code>code/u5/analysis-ports/tb_classes/scoreboard.svh</code> · #two-ports</figcaption><pre><code class="hljs">   <span class="hljs-uvm-type">uvm_tlm_analysis_fifo</span> #(<span class="hljs-type">command_s</span>) cmd_f;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      cmd_f = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;cmd_f&quot;</span>, <span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-comment">// Every time the DUT hands a result to the analysis port, this method</span>
+   <span class="hljs-comment">// gets triggered</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">write</span>(<span class="hljs-type">shortint</span> t);
+      <span class="hljs-type">shortint</span>  predicted_result;
+      command_s cmd;
+      cmd.op = no_op;
+
+      <span class="hljs-comment">// Here is where the prediction happens: look in our FIFO for the command</span>
+      <span class="hljs-comment">// that was sent, skipping the resets and the no_ops with the</span>
+      <span class="hljs-comment">// do....while</span>
+      <span class="hljs-comment">// since whenever there is a result there must be an operation,</span>
+      <span class="hljs-comment">// a result with no operation behind it is an error</span>
+      <span class="hljs-keyword">do</span>
+      <span class="hljs-keyword">if</span> (!cmd_f.try_get(cmd)) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;SCOREBOARD&quot;</span>, <span class="hljs-string">&quot;No command in self checker&quot;</span>)
+      <span class="hljs-keyword">while</span> ((cmd.op == no_op) || (cmd.op == rst_op));
+
+      <span class="hljs-keyword">case</span> (cmd.op)
+         add_op: predicted_result = cmd.A + cmd.B;
+         sub_op: predicted_result = cmd.A - cmd.B;
+         and_op: predicted_result = cmd.A &amp; cmd.B;
+         xor_op: predicted_result = cmd.A ^ cmd.B;
+         mul_op: predicted_result = cmd.A * cmd.B;
+      <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (op_set)</span>
+
+      <span class="hljs-keyword">if</span> (predicted_result != t)
+         <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SCOREBOARD&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
+                    <span class="hljs-string">&quot;FAILED: A: %2h  B: %2h  op: %s actual result: %4h   expected: %4h&quot;</span>,
+                    cmd.A,
+                    cmd.B,
+                    cmd.op.name(),
+                    t,
+                    predicted_result
+                    ))
+   <span class="hljs-keyword">endfunction</span> : write</code></pre><details><summary>el archivo entero, 55 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The basic UVM analysis port mechanism lets a uvm_subscriber watch 1 port</span>
+<span class="hljs-comment">// To analyze 2 ports, the simplest way is to instantiate another subscriber</span>
+<span class="hljs-comment">// inside our class that listens to that port</span>
+<span class="hljs-comment">// For that, UVM provides a class called uvm_tlm_analysis_fifo</span>
+<span class="hljs-comment">//	that class gives us an analysis_export and the try_get() method</span>
+
+<span class="hljs-keyword">class</span> <span class="hljs-title">scoreboard</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_subscriber</span> #(<span class="hljs-type">shortint</span>);
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(scoreboard);
+
+   <span class="hljs-uvm-type">uvm_tlm_analysis_fifo</span> #(<span class="hljs-type">command_s</span>) cmd_f;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      cmd_f = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;cmd_f&quot;</span>, <span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-comment">// Every time the DUT hands a result to the analysis port, this method</span>
+   <span class="hljs-comment">// gets triggered</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">write</span>(<span class="hljs-type">shortint</span> t);
+      <span class="hljs-type">shortint</span>  predicted_result;
+      command_s cmd;
+      cmd.op = no_op;
+
+      <span class="hljs-comment">// Here is where the prediction happens: look in our FIFO for the command</span>
+      <span class="hljs-comment">// that was sent, skipping the resets and the no_ops with the</span>
+      <span class="hljs-comment">// do....while</span>
+      <span class="hljs-comment">// since whenever there is a result there must be an operation,</span>
+      <span class="hljs-comment">// a result with no operation behind it is an error</span>
+      <span class="hljs-keyword">do</span>
+      <span class="hljs-keyword">if</span> (!cmd_f.try_get(cmd)) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;SCOREBOARD&quot;</span>, <span class="hljs-string">&quot;No command in self checker&quot;</span>)
+      <span class="hljs-keyword">while</span> ((cmd.op == no_op) || (cmd.op == rst_op));
+
+      <span class="hljs-keyword">case</span> (cmd.op)
+         add_op: predicted_result = cmd.A + cmd.B;
+         sub_op: predicted_result = cmd.A - cmd.B;
+         and_op: predicted_result = cmd.A &amp; cmd.B;
+         xor_op: predicted_result = cmd.A ^ cmd.B;
+         mul_op: predicted_result = cmd.A * cmd.B;
+      <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (op_set)</span>
+
+      <span class="hljs-keyword">if</span> (predicted_result != t)
+         <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;SCOREBOARD&quot;</span>, <span class="hljs-built_in">$sformatf</span>(
+                    <span class="hljs-string">&quot;FAILED: A: %2h  B: %2h  op: %s actual result: %4h   expected: %4h&quot;</span>,
+                    cmd.A,
+                    cmd.B,
+                    cmd.op.name(),
+                    t,
+                    predicted_result
+                    ))
+   <span class="hljs-keyword">endfunction</span> : write
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+<span class="hljs-keyword">endclass</span> : scoreboard</code></pre></details></figure><div class="nota">
 <p>The scoreboard is asymmetric and that is where the whole point is: the <strong>result</strong>
 reaches it through <code>write()</code> —it gets pushed— and the <strong>command</strong> it goes and
 fetches itself with <code>try_get()</code> from the FIFO. One is push, the other is pull.
@@ -1351,14 +1788,14 @@ outside the agent in the agents.</p>
 </section>
 
 <section id="s202" class="slide">
-<!-- es-sha: 06d2d3f6198a -->
+<!-- es-sha: 3e69f0f60646 -->
 <h2 id="when-somebody-has-to-wait">When somebody has to wait</h2>
 <h4 id="you-were-already-doing-this-with-modules"><em>You were already doing this, with modules</em></h4>
 <ul>
 <li>The name is scary and you have been using the mechanism forever: two modules
 with ports, each one with its <code>always</code>, passing data to each other</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u5/threads/01-modulos/modules.sv</code> · líneas 6-33 de 47</figcaption><pre><code class="hljs"><span class="hljs-keyword">module</span> <span class="hljs-title">producer</span> (
+<figure class="codigo"><figcaption><code>code/u5/threads/01-modulos/modules.sv</code> · #producer-and-consumer</figcaption><pre><code class="hljs"><span class="hljs-keyword">module</span> <span class="hljs-title">producer</span> (
     <span class="hljs-keyword">output</span> <span class="hljs-type">byte</span> shared,
     <span class="hljs-keyword">input</span>  <span class="hljs-type">bit</span>  put_it,
     <span class="hljs-keyword">output</span> <span class="hljs-type">bit</span>  get_it
@@ -1856,7 +2293,7 @@ are two threads.</p>
 </section>
 
 <section id="s212" class="slide">
-<!-- es-sha: 3415a20700e5 -->
+<!-- es-sha: fa5fc25e4e3f -->
 <h2 id="who-waits-for-whom">Who waits for whom</h2>
 <h4 id="what-to-send-and-how-to-send-it"><em>What to send and how to send it</em></h4>
 <ul>
@@ -1905,7 +2342,7 @@ protocol does not change when the test changes</li>
 <li>The class that takes that job away is called a <strong>driver</strong>: it takes a piece of
 data from the testbench and turns it into signals</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u5/analysis-ports/tb_classes/base_tester.svh</code> · líneas 14-29 de 35</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+<figure class="codigo"><figcaption><code>code/u5/analysis-ports/tb_classes/base_tester.svh</code> · #run_phase</figcaption><pre><code class="hljs">   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> iA;
       <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> iB;
       operation_t   op_set;
@@ -2005,7 +2442,7 @@ to have to be written by hand.</p>
 <ul>
 <li>Mantra: &quot;Ports connect to exports&quot;</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u5/put-get/tb_classes/env.svh</code> · líneas 14-34 de 40</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+<figure class="codigo"><figcaption><code>code/u5/put-get/tb_classes/env.svh</code> · #build-and-connect</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       command_f = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;command_f&quot;</span>, <span class="hljs-keyword">this</span>);
       random_tester_h = random_tester::type_id::create(<span class="hljs-string">&quot;random_tester_h&quot;</span>, <span class="hljs-keyword">this</span>);
       driver_h = driver::type_id::create(<span class="hljs-string">&quot;driver_h&quot;</span>, <span class="hljs-keyword">this</span>);
@@ -2096,7 +2533,7 @@ applied</li>
 <li>That is the return on having separated things properly in the env: the change
 stopped at the base class</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u5/put-get/tb_classes/base_tester.svh</code> · líneas 5-38 de 44</figcaption><pre><code class="hljs"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">base_tester</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
+<figure class="codigo"><figcaption><code>code/u5/put-get/tb_classes/base_tester.svh</code> · #class-and-run</figcaption><pre><code class="hljs"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">base_tester</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
 
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(base_tester)
    <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
@@ -2199,7 +2636,7 @@ eyeballed <code>#500</code> in a testbench is always an unanswered question.</p>
 <li>A <code>forever</code> with two lines: <code>get()</code> a command —which blocks until there is one—
 and apply it with <code>send_op()</code>. The whole protocol lives here</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u5/put-get/tb_classes/driver.svh</code> · líneas 1-22 de 28</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">driver</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
+<figure class="codigo"><figcaption><code>code/u5/put-get/tb_classes/driver.svh</code> · #class-and-run</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">driver</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(driver)
 
    <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;

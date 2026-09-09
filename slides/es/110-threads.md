@@ -5,7 +5,7 @@
 - El nombre asusta y el mecanismo lo venís usando desde siempre: dos módulos con
   puertos, cada uno con su `always`, pasándose datos
 
-{{code:code/u5/threads/01-modulos/modules.sv|lines=6-33}}
+{{code:code/u5/threads/01-modulos/modules.sv#producer-and-consumer}}
 
 - Eso **es** comunicación entre threads. Lo único que falta es hacerlo entre
   objetos, que no tienen puertos

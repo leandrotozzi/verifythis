@@ -111,7 +111,7 @@ se leyó del config_db queda en null.
 
 #### *Extender: `extends` y `super`*
 
-{{code:code/u3/clases/classes.sv|lines=6-29}}
+{{code:code/u3/clases/classes.sv#rectangle-and-square}}
 
 - `square extends rectangle` hereda `length`, `width` y `area()` **sin copiar
   una línea**. Un cuadrado es un rectángulo con una restricción, y el código lo

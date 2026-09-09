@@ -1,4 +1,4 @@
-<!-- es-sha: 06d2d3f6198a -->
+<!-- es-sha: 3e69f0f60646 -->
 ## When somebody has to wait
 
 #### *You were already doing this, with modules*
@@ -6,7 +6,7 @@
 - The name is scary and you have been using the mechanism forever: two modules
   with ports, each one with its `always`, passing data to each other
 
-{{code:code/u5/threads/01-modulos/modules.sv|lines=6-33}}
+{{code:code/u5/threads/01-modulos/modules.sv#producer-and-consumer}}
 
 - That **is** communication between threads. The only thing missing is doing it
   between objects, which have no ports

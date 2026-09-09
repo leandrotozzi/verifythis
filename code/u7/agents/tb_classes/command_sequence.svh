@@ -3,6 +3,7 @@
 //
 // What changed: it is no longer a uvm_component, it is not in the tree, it
 // connects to nothing and it does not raise the objection -- the test that starts it does.
+// cb: class-and-body
 class command_sequence extends uvm_sequence #(command_transaction);
    `uvm_object_utils(command_sequence)
 
@@ -41,5 +42,6 @@ class command_sequence extends uvm_sequence #(command_transaction);
       command.B  = 8'hFF;
       finish_item(command);
    endtask : body
+// cb: end
 
 endclass : command_sequence

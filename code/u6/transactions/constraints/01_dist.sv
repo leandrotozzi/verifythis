@@ -5,6 +5,7 @@
 // measures the bias of both spellings instead of trusting intuition.
 module top_dist;
 
+   // cb: both-spellings
    // The weight goes to EVERY value of the range: the middle takes 254 of 256.
    class por_valor;
       rand byte unsigned A;
@@ -17,6 +18,7 @@ module top_dist;
       rand byte unsigned A;
       constraint data {A dist {8'h00 :/ 1, [8'h01 : 8'hFE] :/ 2, 8'hFF :/ 1};}
    endclass
+   // cb: end
 
    localparam int N = 400;
 

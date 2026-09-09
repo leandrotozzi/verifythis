@@ -1,4 +1,4 @@
-<!-- es-sha: 93977ef24e35 -->
+<!-- es-sha: 6867b357cfd7 -->
 ## Sequences
 
 #### *The only thing left hard-wired*
@@ -134,7 +134,7 @@ need it: between one operation and the next the signals can stay still.
 
 #### *What happens between `start_item()` and `finish_item()`*
 
-{{code:code/u7/sequences/tb_classes/random_sequence.svh|lines=12-29}}
+{{code:code/u7/sequences/tb_classes/random_sequence.svh#body}}
 
 - When `start_item()` comes back, the sequence **already has the turn** of the sequencer:
   nobody else is going to beat it to the driver
@@ -209,7 +209,7 @@ edges; if you already know which value you want, it has nothing to contribute.
 
 #### *The item comes back with the result inside*
 
-{{code:code/u7/sequences/tb_classes/driver.svh|lines=18-27}}
+{{code:code/u7/sequences/tb_classes/driver.svh#run_phase}}
 
 - The driver writes `command.result` **before** calling `item_done()`
 - The sequence still holds the handle to that same object: when `finish_item()`
@@ -239,7 +239,7 @@ next operation.
 
 #### *Fibonacci: when the stimulus depends on the result*
 
-{{code:code/u7/sequences/tb_classes/fibonacci_sequence.svh|lines=11-39}}
+{{code:code/u7/sequences/tb_classes/fibonacci_sequence.svh#body}}
 
 - Every addition needs the result of the previous one: without a way back this cannot
   be written
@@ -298,7 +298,7 @@ on a single sequencer, the order is the one the `body()` says.
 
 #### *`full_sequence`: three pieces, one single sequencer*
 
-{{code:code/u7/sequences/tb_classes/full_sequence.svh|lines=13-30}}
+{{code:code/u7/sequences/tb_classes/full_sequence.svh#body}}
 
 - `get_sequencer()` returns the sequencer that `start()` handed to **this**
   sequence: the daughters run on the same one
@@ -333,7 +333,7 @@ sequencer, and there are six modes, one of them with weights.
 
 #### *Starting a sequence, form 1: `start()`*
 
-{{code:code/u7/sequences/tb_classes/full_test.svh|lines=9-18}}
+{{code:code/u7/sequences/tb_classes/full_test.svh#run_phase}}
 
 - `start(sequencer)` hands the sequence the sequencer it is going to run on
   and **does not come back until `body()` has finished**
@@ -363,7 +363,7 @@ sequencer yet. It is the same reason why the connections go in `connect_phase`.
 
 #### *Form 2: `default_sequence` through `uvm_config_db`*
 
-{{code:code/u7/sequences/tb_classes/default_seq_test.svh|lines=10-30}}
+{{code:code/u7/sequences/tb_classes/default_seq_test.svh#build_phase}}
 
 - The test **has no `run_phase`**: the sequencer starts the sequence on its own, when
   the phase begins
@@ -520,9 +520,9 @@ argument: a virtual sequence does not change the structure of the testbench.
 
 #### *The virtual sequencer: handles, not items*
 
-{{code:code/u7/sequences/virtual/tb_classes/virtual_sequencer.svh|lines=10-20}}
+{{code:code/u7/sequences/virtual/tb_classes/virtual_sequencer.svh#the-handles}}
 
-{{code:code/u7/sequences/virtual/tb_classes/env.svh|lines=52-54}}
+{{code:code/u7/sequences/virtual/tb_classes/env.svh#wiring-the-sequencers}}
 
 - It has no queue, it does not arbitrate, it does not talk to any driver. It is a `uvm_component`
   that exists in order to **hold the handles** and to live in the tree with a name
@@ -548,9 +548,9 @@ changed, which is exactly what one wants.
 
 #### *The virtual sequence: `p_sequencer` and two branches*
 
-{{code:code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh|lines=14-16}}
+{{code:code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh#p-sequencer}}
 
-{{code:code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh|lines=43-53}}
+{{code:code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh#the-fork}}
 
 - `` `uvm_declare_p_sequencer `` declares `p_sequencer` **with the type of the
   virtual sequencer** and casts it on its own. Without it, `get_sequencer()` returns a
@@ -578,7 +578,7 @@ normal sequence with more ceremony. The class is justified when there are two.
 
 #### *What no sequence on its own can do*
 
-{{code:code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh|lines=59-70}}
+{{code:code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh#the-ordered-pair}}
 
 - The result of VTALU **A** goes in as an operand of **B**: a dependency
   **between interfaces**, and in series. The second one cannot even be assembled until the

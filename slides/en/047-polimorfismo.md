@@ -1,4 +1,4 @@
-<!-- es-sha: 696c507b7d26 -->
+<!-- es-sha: 04f915233349 -->
 ## Polymorphism
 
 #### *A `trago` variable, a `fernet` object: which `servir()` runs?*
@@ -29,7 +29,7 @@ things. Here it is the first one.
 
 #### *The three classes: a `trago` that does not know how to serve itself*
 
-{{code:code/u3/polimorfismo/01-sin-virtual/not_virtual.sv|lines=2-25}}
+{{code:code/u3/polimorfismo/01-sin-virtual/not_virtual.sv#three-classes}}
 
 - `trago` defines `servir()` with a `$fatal`: the base class does not know what it
   gets served with, and it says so loudly
@@ -53,7 +53,7 @@ The whole file is in `code/u3/polimorfismo/01-sin-virtual/not_virtual.sv`.
 
 #### *Without `virtual` the variable rules, and that breaks*
 
-{{code:code/u3/polimorfismo/01-sin-virtual/not_virtual.sv|lines=47-62}}
+{{code:code/u3/polimorfismo/01-sin-virtual/not_virtual.sv#the-calls}}
 
 - The first two calls work: the variable `fernet_h` is of type `fernet` and so is
   the object
@@ -78,7 +78,7 @@ object, and only if you ask for it.
 
 #### *Virtual methods: one word, and now the object rules*
 
-{{code:code/u3/polimorfismo/02-virtual/virtual.sv|lines=11-13}}
+{{code:code/u3/polimorfismo/02-virtual/virtual.sv#trago.servir}}
 
 - It is the **only** difference between `01-sin-virtual` and `02-virtual`: the keyword
   `virtual` on the method of the base class
@@ -136,7 +136,7 @@ And in the day 2 exercise, the base class of the testbench.
 
 #### *`pure virtual`: the same example, with no `$fatal` possible*
 
-{{code:code/u3/polimorfismo/03-virtual-pura/pure_virtual.sv|lines=1-12}}
+{{code:code/u3/polimorfismo/03-virtual-pura/pure_virtual.sv#trago}}
 
 - `virtual class trago` no longer has a `servir()` that explodes: **it has no
   body**, and that is why there is nothing that can run wrong

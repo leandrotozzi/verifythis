@@ -63,7 +63,7 @@ descuido del diseño.
 
 #### *Single Cycle: Add - Sub - AND - XOR*
 
-{{code:code/vtalu_dut/vtalu_1c.sv|lines=20-42}}
+{{code:code/vtalu_dut/vtalu_1c.sv#the-two-resets}}
 
 - Dos `always_ff` y nada más: uno registra `A op B`, el otro levanta `done`
 - Los resets **no son iguales**: el del resultado es **síncrono** —sólo `clk` en
@@ -87,7 +87,7 @@ cambien el resultado: la ALU se queda con lo último que calculó.
 
 #### *Multi Cycle: Multiplicación*
 
-{{code:code/vtalu_dut/vtalu_mult.sv|lines=33-43}}
+{{code:code/vtalu_dut/vtalu_mult.sv#the-pipeline}}
 
 - Es un pipeline: los operandos se registran, se multiplican, y el producto
   atraviesa dos registros más antes de salir por `result_mult`: cuatro flancos
@@ -113,7 +113,7 @@ y el scoreboard reporta un error que no está en el DUT.
 
 #### *Top Level*
 
-{{code:code/vtalu_dut/vtalu.sv|lines=30-35}}
+{{code:code/vtalu_dut/vtalu.sv#the-mux}}
 
 - El top no calcula nada: instancia los dos bloques y **decodifica** el opcode
 - `es_mult = (op == mul_op)`. El `start` se rutea a uno solo, y `result`,

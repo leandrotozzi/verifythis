@@ -44,6 +44,7 @@ class fernet extends con_alcohol;
       this.con_coca = con_coca;
    endfunction : new
 
+   // cb: convert-and-copy
    function string convert2string();
       string coca_s;
       coca_s = (con_coca) ? "si" : "no";
@@ -56,6 +57,7 @@ class fernet extends con_alcohol;
       $cast(copia_fernet, copia);
       this.con_coca = copia_fernet.con_coca;
    endfunction : do_copy
+   // cb: end
 
 endclass : fernet
 

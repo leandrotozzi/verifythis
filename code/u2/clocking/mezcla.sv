@@ -33,6 +33,7 @@ module top_mezcla;
 
    initial begin
       repeat (4) @(bfm.cb);
+// cb: two-reads
 
       // The two reads, at the SAME instant, on the SAME wire.
       por_cb = bfm.cb.d_out;
@@ -44,6 +45,7 @@ module top_mezcla;
       $display("");
       $display("They differ by one cycle, and no warning says so. A monitor that");
       $display("reads through the clocking block and a scoreboard that reads the");
+// cb: end
       $display("raw wire do not fail every time: they fail when the data changes.");
 
       if (por_cb == crudo)

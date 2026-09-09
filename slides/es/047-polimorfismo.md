@@ -29,7 +29,7 @@ distintas. Acá es la primera.
 
 #### *Las tres clases: un `trago` que no se sabe servir*
 
-{{code:code/u3/polimorfismo/01-sin-virtual/not_virtual.sv|lines=2-25}}
+{{code:code/u3/polimorfismo/01-sin-virtual/not_virtual.sv#three-classes}}
 
 - `trago` define `servir()` con un `$fatal`: la clase base no sabe con qué
   se sirve, y lo dice fuerte
@@ -52,7 +52,7 @@ El archivo entero está en `code/u3/polimorfismo/01-sin-virtual/not_virtual.sv`.
 
 #### *Sin `virtual` manda la variable, y eso rompe*
 
-{{code:code/u3/polimorfismo/01-sin-virtual/not_virtual.sv|lines=47-62}}
+{{code:code/u3/polimorfismo/01-sin-virtual/not_virtual.sv#the-calls}}
 
 - Las dos primeras llamadas andan: la variable `fernet_h` es de tipo `fernet` y el
   objeto también
@@ -77,7 +77,7 @@ objeto, y sólo si se lo pedís.
 
 #### *Métodos virtuales: una palabra, y ahora manda el objeto*
 
-{{code:code/u3/polimorfismo/02-virtual/virtual.sv|lines=11-13}}
+{{code:code/u3/polimorfismo/02-virtual/virtual.sv#trago.servir}}
 
 - Es la **única** diferencia entre `01-sin-virtual` y `02-virtual`: la keyword
   `virtual` en el método de la clase base
@@ -135,7 +135,7 @@ en el día 4. Y en el ejercicio del día 2, la clase base del testbench.
 
 #### *`pure virtual`: el mismo ejemplo, sin `$fatal` posible*
 
-{{code:code/u3/polimorfismo/03-virtual-pura/pure_virtual.sv|lines=1-12}}
+{{code:code/u3/polimorfismo/03-virtual-pura/pure_virtual.sv#trago}}
 
 - `virtual class trago` ya no tiene un `servir()` que explote: **no tiene
   cuerpo**, y por eso no hay nada que pueda correr mal

@@ -5,6 +5,7 @@
 // unrandomized transaction and the bug shows up three components later.
 module top_falla;
 
+   // cb: the-unsolvable
    class comando;
       rand byte unsigned A;
       constraint chico {A < 8'h10;}
@@ -30,6 +31,7 @@ module top_falla;
       else $display("3. with A out of the draw: A=%2h, the same as before", c.A);
 
       $finish;
+   // cb: end
    end
 
 endmodule : top_falla

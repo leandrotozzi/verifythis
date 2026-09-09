@@ -19,6 +19,7 @@ module top_sin;
 
    initial begin
       d_in = 8'd10;
+// cb: three-samples
 
       // 1. Sample AT the edge. The DUT always_ff updates d_out with a
       //    nonblocking assignment, which lands after this initial already ran:
@@ -37,6 +38,7 @@ module top_sin;
       //    but it asks whoever reads it to know why.
       @(negedge clk);
       en_el_flanco_opuesto = d_out;
+// cb: end
 
       $display("d_in = %0d, and the DUT computes d_in + 1 = %0d", 8'd10, 8'd11);
       $display("  sampled AT the posedge        : %0d", en_el_flanco);

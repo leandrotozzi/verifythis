@@ -74,7 +74,7 @@
 </section>
 
 <section id="s336" class="slide">
-<!-- es-sha: 010fb47425b4 -->
+<!-- es-sha: 610a02511bdc -->
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-hole-the-scoreboard-left"><em>The hole the scoreboard left</em></h4>
 <ul>
@@ -254,7 +254,7 @@ $past expr2 and/or clock arguments</em>).</p>
 <section id="s341" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-property-that-is-worth-the-section"><em>The property that is worth the section</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 154-166 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// --- El estimulo ---</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #stable-operands</figcaption><pre><code class="hljs">   <span class="hljs-comment">// --- El estimulo ---</span>
 
    <span class="hljs-comment">// The rule from slide 1 of day 1, executable at last: while start is up, the</span>
    <span class="hljs-comment">// operands and the operation are not touched.</span>
@@ -510,7 +510,7 @@ curiosity that gets cleared up on the next slide. Somebody is going to ask first
 <section id="s342" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="⚠-two-clocks-an-assertion-is-worth-what-its-sampling-is-worth"><em>⚠ Two clocks: an assertion is worth what its sampling is worth</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 140-152 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #two-clocks</figcaption><pre><code class="hljs">   <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
    <span class="hljs-comment">// negedge and the DUT registers on posedge. An assertion samples in the</span>
    <span class="hljs-comment">// preponed region of the edge it is given, so a signal written ON the negedge</span>
    <span class="hljs-comment">// is not seen on that negedge: it is seen on the next one. With everything on</span>
@@ -789,7 +789,7 @@ again here, because only now is the full problem it solves in view.</p>
 <section id="s343" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="variable-latency-in-one-line"><em>Variable latency, in one line</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 170-187 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #done-arrives</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
    <span class="hljs-comment">// one-cycle ops, four edges for the multiplication.</span>
    <span class="hljs-keyword">property</span> p_done_llega;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set != no_op) |-&gt; ##[<span class="hljs-number">1</span>:<span class="hljs-number">5</span>] done;
@@ -1157,7 +1157,7 @@ instead of the one of the library.</p>
 <section id="s347" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="every-assertion-goes-with-its-cover-property"><em>Every assertion goes with its <code>cover property</code></em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 208-215 de 217</figcaption><pre><code class="hljs">   <span class="hljs-comment">// And the cover that goes with it: without this, a regression where the random</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #the-covers</figcaption><pre><code class="hljs">   <span class="hljs-comment">// And the cover that goes with it: without this, a regression where the random</span>
    <span class="hljs-comment">// never subtracted too much leaves the assertion green having checked nothing.</span>
    c_ovf : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; ovf);
    c_sub_sin_borrow : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) done &amp;&amp; (op_set == sub_op) &amp;&amp; !ovf);
@@ -1470,7 +1470,7 @@ as an anecdote.</p>
 <section id="s349" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-example-of-the-section-the-bug-the-scoreboard-does-not-see"><em>The example of the section: the bug the scoreboard does not see</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · líneas 114-126 de 217</figcaption><pre><code class="hljs">         <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #the-planted-bug</figcaption><pre><code class="hljs">         <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
             <span class="hljs-comment">// +BUG=1: changes B halfway through the multiplication. The</span>
             <span class="hljs-comment">// multiplier already latched A and B on the first edge, so the</span>
             <span class="hljs-comment">// RESULT DOES NOT CHANGE: the scoreboard stays green. The only</span>
@@ -1955,7 +1955,7 @@ this testbench existed.</p>
 </section>
 
 <section id="s359" class="slide">
-<!-- es-sha: c527ad9441c9 -->
+<!-- es-sha: 3876ea100ad4 -->
 <h2 id="capstone-·-day-7">Capstone · Day 7</h2>
 <h4 id="the-whole-testbench-from-a-blank-sheet"><em>The whole testbench, from a blank sheet</em></h4>
 <p><code>cd code/ejercicios/d7-final &amp;&amp; cat spec.en.md</code></p>
@@ -2022,7 +2022,7 @@ coverage plan, is exactly the example they ask for.</p>
 <td>bit 0 = <code>EN</code> · bit 1 = <code>OVF</code>, sticky</td>
 </tr>
 </tbody></table>
-<figure class="codigo"><figcaption><code>code/ejercicios/d7-final/rtl/apb_regs.sv</code> · líneas 35-46 de 95</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The handshake: the write does not wait, the read inserts ONE wait state.</span>
+<figure class="codigo"><figcaption><code>code/ejercicios/d7-final/rtl/apb_regs.sv</code> · #handshake</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The handshake: the write does not wait, the read inserts ONE wait state.</span>
    <span class="hljs-comment">// rd_wait re-arms as soon as PENABLE drops, that is between one transfer and</span>
    <span class="hljs-comment">// the next, with no need to count cycles.</span>
    <span class="hljs-type">logic</span> rd_wait;

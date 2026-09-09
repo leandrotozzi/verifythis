@@ -138,9 +138,11 @@ class apb_reg_block extends uvm_reg_block;
       // and for these two that sentence is false, so mirror(UVM_CHECK) is turned
       // off on them. Reads still update the mirror -- a read is a prediction --
       // and the accumulator itself stays where it was in the capstone: in the
+      // cb: no-check
       // scoreboard, which is the thing that does know how to add.
       ACC.VALUE.set_compare(UVM_NO_CHECK);
       STATUS.EN.set_compare(UVM_NO_CHECK);
+      // cb: end
       STATUS.OVF.set_compare(UVM_NO_CHECK);
 
       lock_model();

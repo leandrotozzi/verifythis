@@ -40,7 +40,7 @@ es exactamente lo que UVM da hecho — por eso primero se arma a mano.
 - La clase que se lleva ese trabajo se llama **driver**: toma un dato del
   testbench y lo convierte en señales
 
-{{code:code/u5/analysis-ports/tb_classes/base_tester.svh|lines=14-29}}
+{{code:code/u5/analysis-ports/tb_classes/base_tester.svh#run_phase}}
 
 Note:
 Conviene leer el código señalando con el dedo dónde termina un trabajo y empieza
@@ -90,7 +90,7 @@ es justamente la sincronización que antes había que escribir a mano.
 
 - Mantra: "Ports connect to exports"
 
-{{code:code/u5/put-get/tb_classes/env.svh|lines=14-34}}
+{{code:code/u5/put-get/tb_classes/env.svh#build-and-connect}}
 
 Note:
 Contá los objetos de este `build_phase`: son **siete**, más cinco `connect()`. Ese
@@ -119,7 +119,7 @@ están en la factory.
 - Ése es el retorno de haber separado bien en el env: el cambio se detuvo en
   la clase base
 
-{{code:code/u5/put-get/tb_classes/base_tester.svh|lines=5-38}}
+{{code:code/u5/put-get/tb_classes/base_tester.svh#class-and-run}}
 
 Note:
 Lo importante de esta clase es lo que **desapareció**: no hay un solo `@(negedge
@@ -147,7 +147,7 @@ siempre una pregunta sin responder.
 - Un `forever` con dos líneas: `get()` un comando —que bloquea hasta que haya— y
   aplicarlo con `send_op()`. Todo el protocolo vive acá
 
-{{code:code/u5/put-get/tb_classes/driver.svh|lines=1-22}}
+{{code:code/u5/put-get/tb_classes/driver.svh#class-and-run}}
 
 Note:
 Esta división es la que UVM formaliza en los agents: el tester decide QUÉ

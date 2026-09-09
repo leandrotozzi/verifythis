@@ -3,6 +3,7 @@
 //                    The simulator treats a class differently from a struct
 //                    It allocates the memory of a struct as soon as it sees it,
 //                    while for classes that has to be done with new()
+// cb: rectangle-and-square
 class rectangle;
    // Data members
    int length;
@@ -27,6 +28,7 @@ class square extends rectangle;
    endfunction
 
 endclass
+// cb: end
 
 module top_class;
    //Handle: like a pointer, but arithmetic on it is not allowed

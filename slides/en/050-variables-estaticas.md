@@ -1,4 +1,4 @@
-<!-- es-sha: a230459d5a3e -->
+<!-- es-sha: 0f407d1d644c -->
 ## Static variables
 
 #### *The global variable you can actually defend*
@@ -35,7 +35,7 @@ with a longer prefix.
 - And there is the advantage over the global: `bandeja_de_fernet::vasos` says where it is
   declared. A loose `vasos` does not
 
-{{code:code/u3/estaticas/01-variables/static_variables.sv|lines=45-72}}
+{{code:code/u3/estaticas/01-variables/static_variables.sv#tray-and-top}}
 
 Note:
 Quick translation: static is the global variable you can actually defend in a code
@@ -82,7 +82,7 @@ makes the next slide make sense.
 - It is the same thing UVM does with the factory: nobody touches the type dictionary, you
   ask it with `type_id::create()`
 
-{{code:code/u3/estaticas/02-metodos/static_methods.sv|lines=41-69}}
+{{code:code/u3/estaticas/02-metodos/static_methods.sv#tray-and-top}}
 
 Note:
 The difference between the two versions is two words —`protected` in front

@@ -40,7 +40,7 @@ de cobertura, es exactamente el ejemplo que piden.
 | `0x08` | `ACC` | RO | el acumulador |
 | `0x0C` | `STATUS` | RO | bit 0 = `EN` · bit 1 = `OVF`, pegajoso |
 
-{{code:code/ejercicios/d7-final/rtl/apb_regs.sv|lines=35-46}}
+{{code:code/ejercicios/d7-final/rtl/apb_regs.sv#handshake}}
 
 - La lectura mete **un wait state**: el driver espera el handshake, no cuenta ciclos
 - De `0x10` para arriba, `PSLVERR`. Escribir un RO, en cambio, **no** es error

@@ -35,7 +35,7 @@ distintas en el mismo driver sin pisarse. Con overrides, el segundo gana.
 
 #### *El gancho: una clase, un método virtual vacío*
 
-{{code:code/u7/callbacks/tb_classes/driver_callback.svh|lines=9-22}}
+{{code:code/u7/callbacks/tb_classes/driver_callback.svh#driver_callback}}
 
 - Un `uvm_callback` **no es un component**: no está en el árbol, no tiene fases y
   no aparece en `print_topology()` — igual que una sequence
@@ -63,9 +63,9 @@ normal y no una excepción.
 
 #### *Dos líneas en el driver, y ninguna más*
 
-{{code:code/u7/callbacks/tb_classes/driver.svh|lines=3-10}}
+{{code:code/u7/callbacks/tb_classes/driver.svh#register-cb}}
 
-{{code:code/u7/callbacks/tb_classes/driver.svh|lines=23-33}}
+{{code:code/u7/callbacks/tb_classes/driver.svh#run_phase}}
 
 - `` `uvm_register_cb `` declara el par tipo/callback. Sin él el `add()` engancha
   igual y el callback **corre** — con un `UVM_WARNING CBUNREG` perdido en el log,
@@ -99,7 +99,7 @@ compatibilidad hacia adelante. Por eso los VIP tienen tres o cuatro, no treinta.
 
 #### *Ponerlos: el test, y nada más que el test*
 
-{{code:code/u7/callbacks/tb_classes/inject_test.svh|lines=20-31}}
+{{code:code/u7/callbacks/tb_classes/inject_test.svh#hooking-the-cb}}
 
 - El test **no toca** el env, ni el agent, ni el driver, ni la sequence. Igual
   que el override, un nivel más abajo

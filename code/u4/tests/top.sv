@@ -18,6 +18,7 @@ module top;
        .ovf(bfm.ovf),
        .result(bfm.result)
    );
+// cb: run-test
 
    initial begin
       // null and "*": from the root and visible to the whole tree. See the
@@ -26,6 +27,7 @@ module top;
 
       // UVM reads +UVM_TESTNAME, and builds THAT test with the factory.
       run_test();
+// cb: end
    end
 
 endmodule : top

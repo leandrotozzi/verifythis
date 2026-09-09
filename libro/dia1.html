@@ -492,7 +492,7 @@ descuido del diseño.</p>
 <section id="s17" class="slide">
 <h2 id="la-spec-del-vtalu">La spec del VTALU</h2>
 <h4 id="single-cycle-add---sub---and---xor"><em>Single Cycle: Add - Sub - AND - XOR</em></h4>
-<figure class="codigo"><figcaption><code>code/vtalu_dut/vtalu_1c.sv</code> · líneas 20-42 de 44</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The two resets are deliberately different: the one on the result is</span>
+<figure class="codigo"><figcaption><code>code/vtalu_dut/vtalu_1c.sv</code> · #the-two-resets</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The two resets are deliberately different: the one on the result is</span>
    <span class="hljs-comment">// SYNCHRONOUS and the one on done is ASYNCHRONOUS. Not an oversight: the spec.</span>
    <span class="hljs-keyword">always_ff</span> @(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-keyword">begin</span>
       <span class="hljs-keyword">if</span> (!reset_n) <span class="hljs-keyword">begin</span>
@@ -582,7 +582,7 @@ cambien el resultado: la ALU se queda con lo último que calculó.</p>
 <section id="s18" class="slide">
 <h2 id="la-spec-del-vtalu">La spec del VTALU</h2>
 <h4 id="multi-cycle-multiplicación"><em>Multi Cycle: Multiplicación</em></h4>
-<figure class="codigo"><figcaption><code>code/vtalu_dut/vtalu_mult.sv</code> · líneas 33-43 de 46</figcaption><pre><code class="hljs">      <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
+<figure class="codigo"><figcaption><code>code/vtalu_dut/vtalu_mult.sv</code> · #the-pipeline</figcaption><pre><code class="hljs">      <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
          a_int &lt;= A;
          b_int &lt;= B;
          mult1 &lt;= a_int * b_int;
@@ -664,7 +664,7 @@ y el scoreboard reporta un error que no está en el DUT.</p>
 <section id="s19" class="slide">
 <h2 id="la-spec-del-vtalu">La spec del VTALU</h2>
 <h4 id="top-level"><em>Top Level</em></h4>
-<figure class="codigo"><figcaption><code>code/vtalu_dut/vtalu.sv</code> · líneas 30-35 de 75</figcaption><pre><code class="hljs">   <span class="hljs-keyword">assign</span> es_mult = (op == <span class="hljs-number">3&#x27;b101</span>);
+<figure class="codigo"><figcaption><code>code/vtalu_dut/vtalu.sv</code> · #the-mux</figcaption><pre><code class="hljs">   <span class="hljs-keyword">assign</span> es_mult = (op == <span class="hljs-number">3&#x27;b101</span>);
 
    <span class="hljs-keyword">assign</span> start_1c = es_mult ? <span class="hljs-number">1&#x27;b0</span> : start;
    <span class="hljs-keyword">assign</span> start_mult = es_mult ? start : <span class="hljs-number">1&#x27;b0</span>;
@@ -1018,7 +1018,7 @@ y nada más pasa en verde con el <code>ovf</code> clavado en cero.</p>
 <section id="s28" class="slide">
 <h2 id="el-testbench-convencional">El testbench convencional</h2>
 <h4 id="el-estímulo-mil-operaciones-y-el-protocolo-a-mano"><em>El estímulo: mil operaciones, y el protocolo a mano</em></h4>
-<figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · líneas 219-247 de 258</figcaption><pre><code class="hljs">      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">1000</span>) <span class="hljs-keyword">begin</span>
+<figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #stimulus-loop</figcaption><pre><code class="hljs">      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">1000</span>) <span class="hljs-keyword">begin</span>
          @(<span class="hljs-keyword">negedge</span> clk);
          op_set = get_op();
          A = get_data();
@@ -1343,7 +1343,7 @@ y <code>:/</code>. Conviene nombrarlo ahora para que después se vea el ahorro.<
 <section id="s29" class="slide">
 <h2 id="el-testbench-convencional">El testbench convencional</h2>
 <h4 id="el-self-checking-predecir-y-comparar"><em>El self-checking: predecir y comparar</em></h4>
-<figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · líneas 181-208 de 258</figcaption><pre><code class="hljs">   <span class="hljs-comment">// Sent by the tester, compared by the scoreboard: the final block below</span>
+<figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #scoreboard-block</figcaption><pre><code class="hljs">   <span class="hljs-comment">// Sent by the tester, compared by the scoreboard: the final block below</span>
    <span class="hljs-comment">// demands that the two match.</span>
    <span class="hljs-type">int</span> enviadas, chequeadas;
 
@@ -1829,7 +1829,7 @@ dos slides.</p>
 <section id="s35" class="slide">
 <h2 id="cobertura-funcional">Cobertura funcional</h2>
 <h4 id="el-covergroup-del-vtalu"><em>El covergroup del VTALU</em></h4>
-<figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · líneas 44-66 de 258</figcaption><pre><code class="hljs">   <span class="hljs-comment">//op_cov: make sure every operation, and every interaction between them, is covered</span>
+<figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #op_cov</figcaption><pre><code class="hljs">   <span class="hljs-comment">//op_cov: make sure every operation, and every interaction between them, is covered</span>
    <span class="hljs-keyword">covergroup</span> op_cov;
       <span class="hljs-keyword">coverpoint</span> op_set {
          <span class="hljs-keyword">bins</span> single_cycle[] = {[add_op : xor_op], rst_op,no_op};
@@ -2136,7 +2136,7 @@ herramienta no hace es un curso que miente.</p>
 <section id="s36" class="slide">
 <h2 id="cobertura-funcional">Cobertura funcional</h2>
 <h4 id="ignore_bins-decir-en-voz-alta-lo-que-no-se-cubre"><em>ignore_bins: decir en voz alta lo que no se cubre</em></h4>
-<figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · líneas 69-84 de 258</figcaption><pre><code class="hljs">   <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
+<figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #legs-and-ops</figcaption><pre><code class="hljs">   <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
 
       all_ops : <span class="hljs-keyword">coverpoint</span> op_set {
          <span class="hljs-keyword">ignore_bins</span> null_ops = {rst_op, no_op};}
@@ -2461,7 +2461,7 @@ el problema es un cross sin filtrar, no un test que falta.</p>
 <section id="s38" class="slide">
 <h2 id="cobertura-funcional">Cobertura funcional</h2>
 <h4 id="el-cross-del-vtalu"><em>El cross del VTALU</em></h4>
-<figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · líneas 94-99 de 258</figcaption><pre><code class="hljs">      op_00_FF:  <span class="hljs-keyword">cross</span> a_leg, b_leg, all_ops {
+<figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #cross-add-bins</figcaption><pre><code class="hljs">      op_00_FF:  <span class="hljs-keyword">cross</span> a_leg, b_leg, all_ops {
          <span class="hljs-keyword">bins</span> add_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {add_op} &amp;&amp;
                        (binsof (a_leg.zeros) || binsof (b_leg.zeros));
 
@@ -2725,7 +2725,7 @@ el problema es un cross sin filtrar, no un test que falta.</p>
    <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure>
 
-<figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · líneas 119-130 de 258</figcaption><pre><code class="hljs">         <span class="hljs-keyword">bins</span> mul_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
+<figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #cross-mul-bins</figcaption><pre><code class="hljs">         <span class="hljs-keyword">bins</span> mul_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
                        (binsof (a_leg.zeros) || binsof (b_leg.zeros));
 
          <span class="hljs-keyword">bins</span> mul_FF = binsof (all_ops) <span class="hljs-keyword">intersect</span> {mul_op} &amp;&amp;
@@ -3308,7 +3308,7 @@ falta. Compila, corre, y el reporte da cero.</p>
 <section id="s44" class="slide">
 <h2 id="interfaces-y-bfm">Interfaces y BFM</h2>
 <h4 id="primero-las-señales-dejan-de-estar-sueltas"><em>Primero: las señales dejan de estar sueltas</em></h4>
-<figure class="codigo"><figcaption><code>code/u2/interfaces-bfm/vtalu_bfm.sv</code> · líneas 1-29 de 71</figcaption><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
+<figure class="codigo"><figcaption><code>code/u2/interfaces-bfm/vtalu_bfm.sv</code> · #signals-and-clock</figcaption><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
    <span class="hljs-comment">// brings in operation_t. e.g. (no_op  = 3&#x27;b000)</span>
    <span class="hljs-keyword">import</span> vtalu_pkg::*;
 
@@ -3432,7 +3432,7 @@ dos mundos.</p>
 <section id="s45" class="slide">
 <h2 id="interfaces-y-bfm">Interfaces y BFM</h2>
 <h4 id="después-el-protocolo-se-esconde-en-una-task"><em>Después: el protocolo se esconde en una task</em></h4>
-<figure class="codigo"><figcaption><code>code/u2/interfaces-bfm/vtalu_bfm.sv</code> · líneas 40-69 de 71</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The protocol handling can now be changed in one single place.</span>
+<figure class="codigo"><figcaption><code>code/u2/interfaces-bfm/vtalu_bfm.sv</code> · #send_op</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The protocol handling can now be changed in one single place.</span>
    <span class="hljs-comment">// Fix it here once, and the fix propagates through the rest of the code</span>
    <span class="hljs-keyword">task</span> <span class="hljs-title">send_op</span>(<span class="hljs-keyword">input</span> <span class="hljs-type">byte</span> iA, <span class="hljs-keyword">input</span> <span class="hljs-type">byte</span> iB, <span class="hljs-keyword">input</span> operation_t iop,
                 <span class="hljs-keyword">output</span> <span class="hljs-type">shortint</span> alu_result);
@@ -3660,7 +3660,7 @@ dejar de saber que existe un <code>clk</code>.</p>
 <section id="s48" class="slide">
 <h2 id="interfaces-y-bfm">Interfaces y BFM</h2>
 <h4 id="tester-pide-operaciones-no-mueve-cables"><em>Tester: pide operaciones, no mueve cables</em></h4>
-<figure class="codigo"><figcaption><code>code/u2/interfaces-bfm/tester.sv</code> · líneas 31-46 de 46</figcaption><pre><code class="hljs">   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+<figure class="codigo"><figcaption><code>code/u2/interfaces-bfm/tester.sv</code> · #stimulus-loop</figcaption><pre><code class="hljs">   <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> iA;
       <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> iB;
       operation_t   op_set;
@@ -3807,7 +3807,7 @@ detalle.</p>
 <section id="s51" class="slide">
 <h2 id="interfaces-y-bfm">Interfaces y BFM</h2>
 <h4 id="el-agujero-que-deja-la-bfm-el-temporizado"><em>El agujero que deja la BFM: el temporizado</em></h4>
-<figure class="codigo"><figcaption><code>code/u2/clocking/sin_clocking.sv</code> · líneas 22-39 de 50</figcaption><pre><code class="hljs">
+<figure class="codigo"><figcaption><code>code/u2/clocking/sin_clocking.sv</code> · #three-samples</figcaption><pre><code class="hljs">
       <span class="hljs-comment">// 1. Sample AT the edge. The DUT always_ff updates d_out with a</span>
       <span class="hljs-comment">//    nonblocking assignment, which lands after this initial already ran:</span>
       <span class="hljs-comment">//    you read the OLD value.</span>
@@ -3908,7 +3908,7 @@ visto clocking blocks, no porque sea lo que se escribe en un proyecto.</p>
 <section id="s52" class="slide">
 <h2 id="interfaces-y-bfm">Interfaces y BFM</h2>
 <h4 id="el-clocking-block-el-flanco-y-el-delta-declarados-una-vez"><em>El clocking block: el flanco y el delta, declarados una vez</em></h4>
-<figure class="codigo"><figcaption><code>code/u2/clocking/con_clocking.sv</code> · líneas 9-24 de 73</figcaption><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">reg_bfm</span> (<span class="hljs-keyword">input</span> <span class="hljs-type">bit</span> clk);
+<figure class="codigo"><figcaption><code>code/u2/clocking/con_clocking.sv</code> · #reg_bfm</figcaption><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">reg_bfm</span> (<span class="hljs-keyword">input</span> <span class="hljs-type">bit</span> clk);
    <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> d_in, d_out;
 
    <span class="hljs-comment">// The only two timing lines in the testbench:</span>
@@ -3923,7 +3923,8 @@ visto clocking blocks, no porque sea lo que se escribe en un proyecto.</p>
       <span class="hljs-keyword">input</span>  d_out;
    <span class="hljs-keyword">endclocking</span>
 
-   <span class="hljs-keyword">modport</span> tb (<span class="hljs-keyword">clocking</span> cb);</code></pre><details><summary>el archivo entero, 73 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The same DUT, with a clocking block: the edge and the delta are declared ONCE,</span>
+   <span class="hljs-keyword">modport</span> tb (<span class="hljs-keyword">clocking</span> cb);
+<span class="hljs-keyword">endinterface</span> : reg_bfm</code></pre><details><summary>el archivo entero, 73 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The same DUT, with a clocking block: the edge and the delta are declared ONCE,</span>
 <span class="hljs-comment">// inside the interface, and no task ever picks them again.</span>
 <span class="hljs-comment">//</span>
 <span class="hljs-comment">//   bash run.sh</span>
@@ -4079,7 +4080,7 @@ El material largo, con las fuentes, está en <code>docs/clocking-blocks.md</code
 <section id="s54" class="slide">
 <h2 id="interfaces-y-bfm">Interfaces y BFM</h2>
 <h4 id="el-precio-dos-nombres-para-el-mismo-cable"><em>El precio: dos nombres para el mismo cable</em></h4>
-<figure class="codigo"><figcaption><code>code/u2/clocking/mezcla.sv</code> · líneas 36-46 de 53</figcaption><pre><code class="hljs">
+<figure class="codigo"><figcaption><code>code/u2/clocking/mezcla.sv</code> · #two-reads</figcaption><pre><code class="hljs">
       <span class="hljs-comment">// The two reads, at the SAME instant, on the SAME wire.</span>
       por_cb = bfm.cb.d_out;
       crudo  = bfm.d_out;

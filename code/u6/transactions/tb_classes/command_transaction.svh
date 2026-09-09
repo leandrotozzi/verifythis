@@ -1,3 +1,4 @@
+// cb: fields-and-constraints
 class command_transaction extends uvm_sequence_item;
    `uvm_object_utils(command_transaction)
    rand byte unsigned A;
@@ -22,6 +23,7 @@ class command_transaction extends uvm_sequence_item;
          8'hFF :/ 1
       };
    }
+// cb: end
 
    function void do_copy(uvm_object rhs);
       command_transaction copied_transaction_h;

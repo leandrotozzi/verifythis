@@ -27,12 +27,14 @@ module vtalu (
    logic start_1c, start_mult;
    logic es_mult;
 
+   // cb: the-mux
    assign es_mult = (op == 3'b101);
 
    assign start_1c = es_mult ? 1'b0 : start;
    assign start_mult = es_mult ? start : 1'b0;
    assign result_mux = es_mult ? result_mult : result_1c;
    assign done = es_mult ? done_mult : done_1c;
+   // cb: end
 
    // The multiplication cannot overflow: 8 x 8 fits exactly in 16 bits.
    assign ovf = es_mult ? 1'b0 : ovf_1c;

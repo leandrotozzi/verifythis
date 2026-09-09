@@ -185,7 +185,7 @@ flujo: `$past` con el argumento de reloj explícito no lo soporta Verilator
 
 #### *La property que vale la sección*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=154-166}}
+{{code:code/u8/assertions/vtalu_bfm.sv#stable-operands}}
 
 - Es **la regla de la slide 1 del día 1**: mientras `start` está arriba, los
   operandos no se tocan. Estuvo escrita en prosa seis días
@@ -212,7 +212,7 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.
 
 #### *⚠ Dos relojes: una assertion vale lo que vale su muestreo*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=140-152}}
+{{code:code/u8/assertions/vtalu_bfm.sv#two-clocks}}
 
 | Con un solo reloj | Sobre 1000 operaciones |
 | --- | --- |
@@ -248,7 +248,7 @@ nombrarlo acá, porque recién ahora se ve el problema completo que resuelve.
 
 #### *La latencia variable, en una línea*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=170-187}}
+{{code:code/u8/assertions/vtalu_bfm.sv#done-arrives}}
 
 - `##[1:5] done` dice *"entre uno y cinco flancos después"*. La VTALU tarda **uno**
   en `add`/`and`/`xor` y **cuatro** en la multiplicación: una property las cubre a
@@ -383,7 +383,7 @@ en vez de la de la librería.
 
 #### *Toda assertion va con su `cover property`*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=208-215}}
+{{code:code/u8/assertions/vtalu_bfm.sv#the-covers}}
 
 ```text
 covergroup : 86.8% (66/76)
@@ -451,7 +451,7 @@ cuenta como anécdota.
 
 #### *El ejemplo de la sección: el bug que el scoreboard no ve*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=114-126}}
+{{code:code/u8/assertions/vtalu_bfm.sv#the-planted-bug}}
 
 ```text
 ** Report counts by severity        ** Report counts by id

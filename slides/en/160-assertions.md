@@ -1,4 +1,4 @@
-<!-- es-sha: 010fb47425b4 -->
+<!-- es-sha: 610a02511bdc -->
 ## Assertions (SVA)
 
 #### *The hole the scoreboard left*
@@ -185,7 +185,7 @@ $past expr2 and/or clock arguments*).
 
 #### *The property that is worth the section*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=154-166}}
+{{code:code/u8/assertions/vtalu_bfm.sv#stable-operands}}
 
 - It is **the rule of slide 1 of day 1**: while `start` is up, the
   operands are not touched. It sat written in prose for six days
@@ -212,7 +212,7 @@ curiosity that gets cleared up on the next slide. Somebody is going to ask first
 
 #### *⚠ Two clocks: an assertion is worth what its sampling is worth*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=140-152}}
+{{code:code/u8/assertions/vtalu_bfm.sv#two-clocks}}
 
 | With a single clock | Over 1000 operations |
 | --- | --- |
@@ -248,7 +248,7 @@ again here, because only now is the full problem it solves in view.
 
 #### *Variable latency, in one line*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=170-187}}
+{{code:code/u8/assertions/vtalu_bfm.sv#done-arrives}}
 
 - `##[1:5] done` says *"between one and five edges later"*. The VTALU takes **one**
   on `add`/`and`/`xor` and **four** on the multiplication: one property covers
@@ -383,7 +383,7 @@ instead of the one of the library.
 
 #### *Every assertion goes with its `cover property`*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=208-215}}
+{{code:code/u8/assertions/vtalu_bfm.sv#the-covers}}
 
 ```text
 covergroup : 86.8% (66/76)
@@ -451,7 +451,7 @@ as an anecdote.
 
 #### *The example of the section: the bug the scoreboard does not see*
 
-{{code:code/u8/assertions/vtalu_bfm.sv|lines=114-126}}
+{{code:code/u8/assertions/vtalu_bfm.sv#the-planted-bug}}
 
 ```text
 ** Report counts by severity        ** Report counts by id

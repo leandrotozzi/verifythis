@@ -1,4 +1,4 @@
-<!-- es-sha: c527ad9441c9 -->
+<!-- es-sha: 3876ea100ad4 -->
 ## Capstone · Day 7
 
 #### *The whole testbench, from a blank sheet*
@@ -41,7 +41,7 @@ coverage plan, is exactly the example they ask for.
 | `0x08` | `ACC` | RO | the accumulator |
 | `0x0C` | `STATUS` | RO | bit 0 = `EN` · bit 1 = `OVF`, sticky |
 
-{{code:code/ejercicios/d7-final/rtl/apb_regs.sv|lines=35-46}}
+{{code:code/ejercicios/d7-final/rtl/apb_regs.sv#handshake}}
 
 - The read puts in **one wait state**: the driver waits for the handshake, it does not count cycles
 - From `0x10` upwards, `PSLVERR`. Writing an RO, on the other hand, is **not** an error

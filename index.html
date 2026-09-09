@@ -1842,6 +1842,7 @@ interface reg_bfm (input bit clk);
    endclocking
 
    modport tb (clocking cb);
+endinterface : reg_bfm
 ```
 
 - `input #1step` — muestreá el valor **estable justo antes** del flanco, que es
@@ -3271,6 +3272,9 @@ Eso es la slide que sigue, y es la razón de que la factory de UVM sea mejor que
   adentro de un `if` con su `$fatal`
 
 ```sv
+//*********************************************************************
+// Part of the factory Class!
+//*********************************************************************
 class cantina;
 
    // Static method that builds the drinks
@@ -6202,6 +6206,8 @@ class dice_roller extends uvm_component;
       the_roll = die1 + die2;
       return the_roll;
    endfunction : two_dice
+
+endclass : dice_roller
 ```
 
 - `dice_roller` randomiza dos bytes con un `constraint` que los deja entre 1 y 6,
@@ -8215,6 +8221,8 @@ class fernet_con_hielo extends fernet_doble;
       $cast(copia_fernet_con_hielo, copia);
       this.medidas = copia_fernet_con_hielo.medidas;
    endfunction : do_copy
+
+endclass : fernet_con_hielo
 ```
 
 Note:
@@ -9232,7 +9240,6 @@ diez minutos y es la diferencia entre creer y saber.
 #### *`inside` y `randomize() with {}`*
 
 ```sv
-
    class comando;
       rand byte unsigned A;
       rand byte unsigned B;
@@ -9246,6 +9253,7 @@ diez minutos y es la diferencia entre creer y saber.
       // inside is a set of legal values. Without it the random also asks for
       // no_op and rst_op, which compute nothing.
       constraint utiles {op inside {add_op, and_op, xor_op, mul_op};}
+   endclass
 ```
 
 ```sv
@@ -9804,6 +9812,7 @@ pero el monitor sí? Porque manejar es opcional, mirar no.
          bfm.send_op(command.A, command.B, command.op);
          seq_item_port.item_done();
       end : command_loop
+   endtask : run_phase
 ```
 
 Note:
@@ -13775,6 +13784,8 @@ herramientas. El frontdoor —el que usa el bus de verdad— es el que hay que s
 #### *El modelo: la tabla de la spec, en código*
 
 ```sv
+// 0x00 -- CTRL. EN is an ordinary bit. CLR is not: writing a 1 clears ACC and
+// OVF, and the bit always reads back 0.
 class ctrl_reg extends uvm_reg;
    `uvm_object_utils(ctrl_reg)
 
@@ -13799,6 +13810,8 @@ class ctrl_reg extends uvm_reg;
       CLR = uvm_reg_field::type_id::create("CLR");
       CLR.configure(this, 1, 1, $test$plusargs("MAL") ? "RW" : "WC", 0, 'h0, 1, 1, 0);
    endfunction : build
+
+endclass : ctrl_reg
 ```
 
 - Un campo se declara con `configure()`, y el argumento que importa es el

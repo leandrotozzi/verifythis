@@ -38,6 +38,7 @@ class fernet extends trago;
 
 endclass : fernet
 
+// cb: tray-and-top
 class bandeja_de_fernet;
 
    protected static fernet vasos[$];
@@ -67,3 +68,4 @@ module top;
    end
 
 endmodule : top
+// cb: end

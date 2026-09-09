@@ -2,6 +2,7 @@
 import random
 
 
+# cb: factory-class
 class Trago:
     """Factory class that builds a Trago."""
 
@@ -17,6 +18,7 @@ class Trago:
         if kind == "Whiscola":
             return Whiscola()
         raise ValueError("No such trago: " + kind)
+# cb: end
 
 
 class CubaLibre(Trago):

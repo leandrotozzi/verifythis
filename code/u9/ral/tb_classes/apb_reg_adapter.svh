@@ -13,6 +13,7 @@ class apb_reg_adapter extends uvm_reg_adapter;
 
    // Downstream: the model asks for a register access, this builds the bus item
    // the sequencer will hand to the driver.
+   // cb: reg2bus-and-bus2reg
    virtual function uvm_sequence_item reg2bus(const ref uvm_reg_bus_op rw);
       apb_transaction t = apb_transaction::type_id::create("t");
       t.write = (rw.kind == UVM_WRITE);
@@ -35,5 +36,6 @@ class apb_reg_adapter extends uvm_reg_adapter;
       rw.data   = t.write ? t.wdata : t.rdata;
       rw.status = t.slverr ? UVM_NOT_OK : UVM_IS_OK;
    endfunction : bus2reg
+   // cb: end
 
 endclass : apb_reg_adapter

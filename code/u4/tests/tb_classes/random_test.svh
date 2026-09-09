@@ -1,11 +1,14 @@
 // The first UVM test of the course. The five steps this class puts together
 // --registration, constructor, build_phase, run_phase and objections-- are
 // explained one by one in the slides of unit 11.
+// cb: class-head
 class random_test extends uvm_test;
    `uvm_component_utils(random_test);
 
    virtual vtalu_bfm bfm;
+// cb: end
 
+   // cb: constructor-and-build
    function new(string name, uvm_component parent);
       super.new(name, parent);
    endfunction : new
@@ -16,6 +19,7 @@ class random_test extends uvm_test;
       if (!uvm_config_db#(virtual vtalu_bfm)::get(this, "", "bfm", bfm))
          `uvm_fatal("RANDOM TEST", "Failed to get BFM")
    endfunction : build_phase
+   // cb: end
 
    task run_phase(uvm_phase phase);
       random_tester random_tester_h;

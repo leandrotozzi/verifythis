@@ -1,4 +1,4 @@
-<!-- es-sha: f2010d1f5797 -->
+<!-- es-sha: 192b13f2e709 -->
 ## Classes and extensions
 
 #### *Why OOP in a testbench?*
@@ -112,7 +112,7 @@ not read from the config_db is left at null.
 
 #### *Extending: `extends` and `super`*
 
-{{code:code/u3/clases/classes.sv|lines=6-29}}
+{{code:code/u3/clases/classes.sv#rectangle-and-square}}
 
 - `square extends rectangle` inherits `length`, `width` and `area()` **without copying
   a single line**. A square is a rectangle with a constraint, and the code says it

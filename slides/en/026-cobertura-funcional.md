@@ -1,4 +1,4 @@
-<!-- es-sha: 88519380b99e -->
+<!-- es-sha: c768fd19f644 -->
 ## Functional coverage
 
 #### *When are you done verifying?*
@@ -126,7 +126,7 @@ two slides.
 
 #### *The VTALU covergroup*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=44-66}}
+{{code:code/u2/convencional/vtalu_tb.sv#op_cov}}
 
 - `single_cycle[]` generates six bins —one per operation—, `multi_cycle` a single one
 - What is inside `` `ifndef VERILATOR `` are the transition bins: two
@@ -153,7 +153,7 @@ tool does not do is a course that lies.
 
 #### *ignore_bins: saying out loud what does not get covered*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=69-84}}
+{{code:code/u2/convencional/vtalu_tb.sv#legs-and-ops}}
 
 - `all_ops` **ignores** `rst_op` and `no_op`: it makes no sense to ask for "an addition with
   the operands at 0x00" when the operation is a reset
@@ -206,9 +206,9 @@ the problem is an unfiltered cross, not a missing test.
 
 #### *The VTALU cross*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=94-99}}
+{{code:code/u2/convencional/vtalu_tb.sv#cross-add-bins}}
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=119-130}}
+{{code:code/u2/convencional/vtalu_tb.sv#cross-mul-bins}}
 
 - `add_00` reads straight through: *an addition where A **or** B is 0x00*
 - `mul_max` is the only one with `&&`: it asks for **both** legs at 0xFF: the

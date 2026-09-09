@@ -97,6 +97,7 @@ class coverage;
 
 endgroup
 
+  // cb: sampling
   // In a class, we don't need to declare variables to hold the covergroups, but we do need
   // to call a constructor to create them.
    function new (virtual vtalu_bfm b);
@@ -115,5 +116,6 @@ endgroup
          zeros_or_ones_on_ops.sample();
       end : sampling_block
    endtask : execute
+  // cb: end
 
 endclass : coverage

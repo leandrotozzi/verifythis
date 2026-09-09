@@ -1,3 +1,4 @@
+// cb: class-and-build
 // The scoreboard of unit 10, now as a uvm_component. The four steps
 // --extend, register, constructor, phases-- are in the slides of unit 12.
 class scoreboard extends uvm_component;
@@ -16,6 +17,7 @@ class scoreboard extends uvm_component;
       if (!uvm_config_db#(virtual vtalu_bfm)::get(this, "", "bfm", bfm))
          `uvm_fatal("SCOREBOARD", "Failed to get BFM")
    endfunction : build_phase
+// cb: end
 
    // run_phase is the only phase that is a task: the only one that consumes
    // time. UVM launches it in its own thread.

@@ -1,3 +1,4 @@
+// cb: class-and-run
 class driver extends uvm_component;
    `uvm_component_utils(driver)
 
@@ -20,6 +21,7 @@ class driver extends uvm_component;
          bfm.send_op(command.A, command.B, command.op);
       end : command_loop
    endtask : run_phase
+// cb: end
 
    function new(string name, uvm_component parent);
       super.new(name, parent);

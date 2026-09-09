@@ -26,6 +26,7 @@ class builtin_test extends ral_base_test;
       phase.raise_objection(this);
       reset_model();
 
+      // cb: the-two-seqs
       rst_seq = uvm_reg_hw_reset_seq::type_id::create("rst_seq");
       rst_seq.model = model;
       rst_seq.start(null);
@@ -33,6 +34,7 @@ class builtin_test extends ral_base_test;
       bash_seq = uvm_reg_bit_bash_seq::type_id::create("bash_seq");
       bash_seq.model = model;
       bash_seq.start(null);
+      // cb: end
 
       phase.drop_objection(this);
    endtask : run_phase

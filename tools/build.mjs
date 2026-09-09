@@ -11,6 +11,7 @@ import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { UI, grupos as gruposDelIndice, idiomaDeArgv, SALIDAS } from './i18n.mjs';
 import { seo } from './sitio.mjs';
+import { RE_CODE, recortar } from './codigo.mjs';
 
 // El idioma del curso. code/ y res/ NO se duplican: estan en ingles y los
 // comparten las dos versiones. Lo unico que cambia de idioma es slides/.
@@ -35,54 +36,27 @@ const OUT_TRAMPAS = OUT.trampas;
 // para-docentes.md vive en docs/; el banco del ingles esta en docs/en/.
 const DOCENTES = path.relative(path.dirname(OUT_BANCO), 'docs/para-docentes.md');
 
-const LANG = {
-  '.sv': 'sv', '.svh': 'sv', '.vhd': 'vhdl', '.vhdl': 'vhdl',
-  '.do': 'tcl', '.py': 'python',
-  '.f': 'plaintext', '.txt': 'plaintext', '.questa': 'plaintext', '.log': 'plaintext',
-};
-
 const errors = [];
 const fail = (file, msg) => errors.push(`${file}: ${msg}`);
 // Contadores para el resumen del final: los numeros del README y de la landing
 // salen de aca, para no volver a desactualizarlos a mano.
 const stats = { includes: 0, recortados: 0 };
 
-// {{code:ruta}}, {{code:ruta|lines=12-24}} o {{code:ruta|from=texto|to=texto}}.
-//
-// La forma con numeros se pudre en silencio: cuando el ejemplo crece arriba del
-// bloque, el rango no se mueve y la slide muestra otro codigo. La forma con
-// anclas recorta entre la primera linea que contiene `from` y la primera que
-// contiene `to` a partir de ahi, asi que sigue al bloque -- y si el ancla
-// desaparece o se duplica, el build muere en vez de mentir.
-const RE_CODE = /^([ \t]*)\{\{code:([^}|]+?)(?:\|lines=(\d+)-(\d+)|\|from=([^}|]+)\|to=([^}|]+))?\}\}[ \t]*$/gm;
-
 async function expand(md, src) {
   const jobs = [];
   md.replace(RE_CODE, (...m) => { jobs.push(m); return ''; });
 
   const done = new Map();
-  for (const [full, , file, from, to, desde, hasta] of jobs) {
+  for (const [full, , file, simbolo, from, to] of jobs) {
     const rel = file.trim();
-    let text;
+    let corte;
     try {
-      text = await readFile(rel, 'utf8');
-    } catch {
-      fail(src, `{{code:${rel}}} -> el archivo no existe`);
+      corte = await recortar(rel, simbolo, from, to);
+    } catch (e) {
+      fail(src, e.code === 'ENOENT' ? `{{code:${rel}}} -> el archivo no existe` : e.message);
       continue;
     }
-    if (from) {
-      const lines = text.split('\n');
-      if (+to > lines.length) fail(src, `{{code:${rel}|lines=${from}-${to}}} -> solo tiene ${lines.length} lineas`);
-      text = lines.slice(+from - 1, +to).join('\n');
-    } else if (desde) {
-      const lines = text.split('\n');
-      const abre = lines.map((l, n) => l.includes(desde) ? n : -1).filter(n => n >= 0);
-      const cierra = abre.length === 1 ? lines.findIndex((l, n) => n >= abre[0] && l.includes(hasta)) : -1;
-      if (abre.length !== 1) fail(src, `{{code:${rel}|from=${desde}}} -> el ancla aparece ${abre.length} veces, tiene que aparecer una sola`);
-      else if (cierra < 0) fail(src, `{{code:${rel}|to=${hasta}}} -> no hay ninguna linea con el ancla despues de "${desde}"`);
-      else text = lines.slice(abre[0], cierra + 1).join('\n');
-    }
-    text = text.replace(/\s+$/, '');
+    const text = corte.recorte.join('\n').replace(/\s+$/, '');
     // Un ``` o un --- suelto dentro del codigo romperia el fence o el separador
     // de slides. Mejor romper el build que emitir un deck corrupto en silencio.
     if (/^\s*```/m.test(text)) fail(src, `${rel} contiene \`\`\` — rompe el bloque de codigo`);
@@ -90,11 +64,14 @@ async function expand(md, src) {
     if (/<\/textarea/i.test(text)) fail(src, `${rel} contiene </textarea — rompe el inline en index.html`);
 
     stats.includes++;
-    if (from || desde) stats.recortados++;
-    const lang = LANG[path.extname(rel).toLowerCase()] ?? 'plaintext';
-    done.set(full, '```' + lang + '\n' + text + '\n```');
+    if (corte.recortado) stats.recortados++;
+    done.set(full, '```' + corte.lang + '\n' + text + '\n```');
   }
-  return md.replace(RE_CODE, (full) => done.get(full) ?? full);
+  const out = md.replace(RE_CODE, (full) => done.get(full) ?? full);
+  // Una directiva mal escrita no matchea RE_CODE y hasta aca se colaba entera en
+  // la slide, muda. Mejor morir: es el mismo trato que la ruta que no existe.
+  for (const m of out.matchAll(/\{\{code:[^}]*\}\}/g)) fail(src, `${m[0]} -> no es una directiva valida`);
+  return out;
 }
 
 const files = (await readdir(SLIDES_DIR).catch(() => [])).filter(f => f.endsWith('.md')).sort();

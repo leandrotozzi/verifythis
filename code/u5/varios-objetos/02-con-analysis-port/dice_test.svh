@@ -12,6 +12,7 @@ class dice_test extends uvm_test;
       super.new(name, parent);
    endfunction : new
 
+   // cb: build-and-connect
    // build_phase: UVM calls it TOP-DOWN, the parent first.
    function void build_phase(uvm_phase phase);
       dice_roller_h = new("dice_roller_h", this);
@@ -26,5 +27,6 @@ class dice_test extends uvm_test;
       dice_roller_h.roll_ap.connect(histogram_h.analysis_export);
       dice_roller_h.roll_ap.connect(average_h.analysis_export);
    endfunction : connect_phase
+   // cb: end
 
 endclass : dice_test

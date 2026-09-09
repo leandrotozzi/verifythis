@@ -7,6 +7,7 @@
 //
 // That is why it extends uvm_sequencer WITHOUT parameters: the default item is
 // uvm_sequence_item, and none is ever sent.
+// cb: the-handles
 class virtual_sequencer extends uvm_sequencer;
    `uvm_component_utils(virtual_sequencer)
 
@@ -18,3 +19,4 @@ class virtual_sequencer extends uvm_sequencer;
    endfunction : new
 
 endclass : virtual_sequencer
+// cb: end

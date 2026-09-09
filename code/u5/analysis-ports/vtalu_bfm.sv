@@ -1,3 +1,4 @@
+// cb: handles
 interface vtalu_bfm;
    import vtalu_pkg::*;
 
@@ -14,7 +15,9 @@ interface vtalu_bfm;
    wire            [15:0] result;
    wire                   ovf;
    operation_t            op_set;
+// cb: end
 
+   // cb: monitors
    // Here is the first monitor (commands)
    // A very simple FSM. If start is up, check whether this is a new command
    // If it is, send it to the TB with commands_monitor.write_to_monitor()
@@ -35,6 +38,7 @@ interface vtalu_bfm;
    always @(posedge clk) begin : rslt_monitor
       if (done) result_monitor_h.write_to_monitor(result);
    end : rslt_monitor
+   // cb: end
 
    initial begin
       clk = 0;

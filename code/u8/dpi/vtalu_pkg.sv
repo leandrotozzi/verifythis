@@ -2,6 +2,7 @@ package vtalu_pkg;
    import uvm_pkg::*;
    `include "uvm_macros.svh"
 
+   // cb: the-imports
    // The reference model lives in vtalu_golden.c and is called from here. This
    // is all that is needed on the SystemVerilog side: one declaration per
    // function, with the LRM types that cross the boundary.
@@ -14,6 +15,7 @@ package vtalu_pkg;
    import "DPI-C" function int  vtalu_golden(input int op, input int a,
                                              input int b, output int ovf);
    import "DPI-C" function void vtalu_golden_bug(input int on);
+   // cb: end
 
    typedef enum bit [2:0] {
       no_op  = 3'b000,

@@ -1,3 +1,4 @@
+// cb: class-and-build
 class vtalu_agent extends uvm_agent;
    `uvm_component_utils(vtalu_agent)
 
@@ -31,6 +32,7 @@ class vtalu_agent extends uvm_agent;
       command_ap = new("command_ap", this);
       result_ap  = new("result_ap", this);
    endfunction : build_phase
+// cb: end
 
    function void connect_phase(uvm_phase phase);
       if (get_is_active() == UVM_ACTIVE)

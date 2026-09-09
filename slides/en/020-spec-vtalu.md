@@ -1,4 +1,4 @@
-<!-- es-sha: 684bb5800f79 -->
+<!-- es-sha: d339e0e31c8e -->
 ## The VTALU spec
 
 ![ALU waveform](res/diagrams/wave-dut.svg)
@@ -64,7 +64,7 @@ design slip.
 
 #### *Single Cycle: Add - Sub - AND - XOR*
 
-{{code:code/vtalu_dut/vtalu_1c.sv|lines=20-42}}
+{{code:code/vtalu_dut/vtalu_1c.sv#the-two-resets}}
 
 - Two `always_ff` and nothing else: one registers `A op B`, the other raises `done`
 - The resets **are not the same**: the one on the result is **synchronous** —only `clk` in
@@ -88,7 +88,7 @@ change the result: the ALU keeps whatever it computed last.
 
 #### *Multi Cycle: Multiplication*
 
-{{code:code/vtalu_dut/vtalu_mult.sv|lines=33-43}}
+{{code:code/vtalu_dut/vtalu_mult.sv#the-pipeline}}
 
 - It is a pipeline: the operands get registered, they get multiplied, and the product
   goes through two more registers before coming out on `result_mult`: four edges
@@ -114,7 +114,7 @@ and the scoreboard reports an error that is not in the DUT.
 
 #### *Top Level*
 
-{{code:code/vtalu_dut/vtalu.sv|lines=30-35}}
+{{code:code/vtalu_dut/vtalu.sv#the-mux}}
 
 - The top computes nothing: it instantiates the two blocks and **decodes** the opcode
 - `es_mult = (op == mul_op)`. The `start` is routed to only one of them, and `result`,

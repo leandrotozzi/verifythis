@@ -1,4 +1,4 @@
-<!-- es-sha: 1cd59220cd73 -->
+<!-- es-sha: c1b76b51fba2 -->
 ## The conventional testbench
 
 #### *Coverage First Methodology*
@@ -49,7 +49,7 @@ and nothing else passes green with `ovf` stuck at zero.
 
 #### *The stimulus: a thousand operations, and the protocol by hand*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=219-247}}
+{{code:code/u2/convencional/vtalu_tb.sv#stimulus-loop}}
 
 - A thousand rounds: pick the operation, pick the operands, raise `start`, wait for
   **an edge with `done` up**, lower `start`
@@ -88,7 +88,7 @@ and `:/`. Worth naming it now so that the saving is visible later.
 
 #### *The self-checking: predict and compare*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=181-208}}
+{{code:code/u2/convencional/vtalu_tb.sv#scoreboard-block}}
 
 - An `always @(posedge done)`: every time the DUT says it finished, the
   scoreboard predicts the result and compares it

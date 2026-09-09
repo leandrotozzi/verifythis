@@ -1,4 +1,4 @@
-<!-- es-sha: 946e0fd3d423 -->
+<!-- es-sha: e63443305ef6 -->
 ## A testbench without a single module
 
 #### *The same testbench, without a single module*
@@ -128,7 +128,7 @@ the tests that becomes an objection, which is the tidy form of the same thing.
     port list
   - the `initial` is now a method, `execute()`, that somebody has to call
 
-{{code:code/u3/tb-en-objetos/tb_classes/tester.svh|lines=32-56}}
+{{code:code/u3/tb-en-objetos/tb_classes/tester.svh#execute}}
 
 Note:
 There is a trap here **put in on purpose** and it is worth not giving it away now: look at the
@@ -159,7 +159,7 @@ verification plan of the conventional testbench that the random should not be le
   `forever` with the wait inside — same semantics, written as sequential
   code
 
-{{code:code/u3/tb-en-objetos/tb_classes/scoreboard.svh|lines=8-39}}
+{{code:code/u3/tb-en-objetos/tb_classes/scoreboard.svh#execute}}
 
 Note:
 The translation to point out: the `always @(posedge done)` of the modular
@@ -183,7 +183,7 @@ scale.
 
 #### *The `coverage` class: the covergroup inside an object*
 
-{{code:code/u3/tb-en-objetos/tb_classes/coverage.svh|from=// In a class, we don't need to declare variables|to=endtask : execute}}
+{{code:code/u3/tb-en-objetos/tb_classes/coverage.svh#sampling}}
 
 - The covergroup is **the same** as the conventional testbench's, line by line. What changed is
   where it lives

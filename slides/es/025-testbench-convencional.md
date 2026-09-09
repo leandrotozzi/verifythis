@@ -48,7 +48,7 @@ y nada más pasa en verde con el `ovf` clavado en cero.
 
 #### *El estímulo: mil operaciones, y el protocolo a mano*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=219-247}}
+{{code:code/u2/convencional/vtalu_tb.sv#stimulus-loop}}
 
 - Mil vueltas: elegir operación, elegir operandos, levantar `start`, esperar
   **un flanco con `done` arriba**, bajar `start`
@@ -87,7 +87,7 @@ y `:/`. Conviene nombrarlo ahora para que después se vea el ahorro.
 
 #### *El self-checking: predecir y comparar*
 
-{{code:code/u2/convencional/vtalu_tb.sv|lines=181-208}}
+{{code:code/u2/convencional/vtalu_tb.sv#scoreboard-block}}
 
 - Un `always @(posedge done)`: cada vez que el DUT dice que terminó, el
   scoreboard predice el resultado y lo compara

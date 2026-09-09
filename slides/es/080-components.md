@@ -181,7 +181,7 @@ haya tenido que escribir un `uvm_event` ni una bandera compartida.
 
 #### *El scoreboard, ahora como component*
 
-{{code:code/u4/components/tb_classes/scoreboard.svh|lines=1-18}}
+{{code:code/u4/components/tb_classes/scoreboard.svh#class-and-build}}
 
 - Los cuatro pasos, en orden: extiende `uvm_component`, se registra, constructor
   `(name, parent)`, y override de `build_phase`

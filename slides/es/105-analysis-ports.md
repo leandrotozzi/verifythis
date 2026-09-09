@@ -72,12 +72,12 @@ la otra.
 - Hasta ahora la clase leía la interface. Acá se da vuelta: **la interface guarda
   un handle a la clase** y es ella la que llama al método
 
-{{code:code/u5/analysis-ports/vtalu_bfm.sv|from=interface vtalu_bfm;|to=op_set;}}
+{{code:code/u5/analysis-ports/vtalu_bfm.sv#handles}}
 
 - Estos handles los setea cada monitor en su `build_phase`, justo después de
   sacar la BFM del config_db
 
-{{code:code/u5/analysis-ports/tb_classes/command_monitor.svh|lines=6-16}}
+{{code:code/u5/analysis-ports/tb_classes/command_monitor.svh#build_phase}}
 
 Note:
 Esta slide tiene la inversión que más cuesta de la sección y conviene decirla
@@ -106,12 +106,12 @@ afecta a las tasks — acá el que declara la task es la clase, no la interface.
   el del reset en el flanco de bajada de `reset_n`, y el del resultado cuando el
   DUT levanta `done`
 
-{{code:code/u5/analysis-ports/vtalu_bfm.sv|from=// Here is the first monitor|to=end : rslt_monitor}}
+{{code:code/u5/analysis-ports/vtalu_bfm.sv#monitors}}
 
 - Y del otro lado, el método al que le avisan: empaqueta la `command_s` y la
   publica en el analysis port
 
-{{code:code/u5/analysis-ports/tb_classes/command_monitor.svh|lines=18-26}}
+{{code:code/u5/analysis-ports/tb_classes/command_monitor.svh#write_to_monitor}}
 
 Note:
 Los tres `always` son la costura entre el hardware y las clases, y conviene leer
@@ -139,7 +139,7 @@ El día que sea una transaction, esta misma línea va a ser un `create()`.
 - El que necesite saber qué operación se ejecutó se suscribe a su analysis port e
   implementa `write()`. No vuelve a mirar una señal
 
-{{code:code/u5/analysis-ports/tb_classes/coverage.svh|from=// With the analysis port this is far simpler|to=endfunction : write}}
+{{code:code/u5/analysis-ports/tb_classes/coverage.svh#write}}
 
 Note:
 Vale abrir al lado la clase `coverage` del testbench en objetos y comparar: allá había un
@@ -183,7 +183,7 @@ pares.
 
 - Clase Scoreboard:
 
-{{code:code/u5/analysis-ports/tb_classes/scoreboard.svh|from=uvm_tlm_analysis_fifo #(command_s) cmd_f;|to=endfunction : write}}
+{{code:code/u5/analysis-ports/tb_classes/scoreboard.svh#two-ports}}
 
 Note:
 El scoreboard es asimétrico y ahí está toda la gracia: el **resultado** le llega

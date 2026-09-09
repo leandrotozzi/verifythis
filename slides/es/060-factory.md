@@ -85,12 +85,12 @@ Eso es la slide que sigue, y es la razón de que la factory de UVM sea mejor que
 - Chequea **en runtime** y devuelve 0 si no da, así que nunca va solo: siempre
   adentro de un `if` con su `$fatal`
 
-{{code:code/u3/factory/factory.sv|lines=50-73}}
+{{code:code/u3/factory/factory.sv#cantina}}
 
 - Y el `$cast` en uso, en el `top`: la factory siempre devuelve un `trago`, y
   para llegar a `sin_hielo` hay que bajarlo a `fernet`
 
-{{code:code/u3/factory/factory.sv|from=// Using the factory!|to=cantina drink to fernet_h}}
+{{code:code/u3/factory/factory.sv#casting}}
 
 Note:
 Dos cosas de este código, y las dos vuelven en UVM.
@@ -113,7 +113,7 @@ Las dos molestias de esta slide desaparecen en el env.
 
 #### *Python Style*
 
-{{code:code/u3/factory/factory.py|lines=5-19}}
+{{code:code/u3/factory/factory.py#factory-class}}
 
 - La misma fábrica, en un lenguaje que no tiene nada que ver con hardware: un
   método estático con un `if` por tipo y un `raise` para lo que no existe

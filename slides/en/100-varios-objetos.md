@@ -1,4 +1,4 @@
-<!-- es-sha: 500a83e2f70b -->
+<!-- es-sha: 3eb7ead07ccc -->
 ## One producer, many listeners
 
 #### *Two ways of talking between objects*
@@ -113,9 +113,9 @@ scoreboard and the `report_phase` the verdict of the run. Same shape.
 
 #### *The other two: the body changes, not the shape*
 
-{{code:code/u5/varios-objetos/01-sin-analysis-port/histogram.svh|lines=11-13}}
+{{code:code/u5/varios-objetos/01-sin-analysis-port/histogram.svh#write}}
 
-{{code:code/u5/varios-objetos/01-sin-analysis-port/coverage.svh|lines=14-17}}
+{{code:code/u5/varios-objetos/01-sin-analysis-port/coverage.svh#write}}
 
 - `histogram` keeps the rolls in an associative array and draws the bars in the
   `report_phase`
@@ -144,7 +144,7 @@ The whole file of each one is in
 
 #### *The producer: it rolls the dice and returns a number*
 
-{{code:code/u5/varios-objetos/01-sin-analysis-port/dice_roller.svh|lines=1-23}}
+{{code:code/u5/varios-objetos/01-sin-analysis-port/dice_roller.svh#dice_roller}}
 
 - `dice_roller` randomizes two bytes with a `constraint` that keeps them between
   1 and 6, and returns the sum
@@ -175,7 +175,7 @@ The slide that follows.
 - It works. But look at the `run_phase`, and in particular at what is inside the
   `repeat (20)`
 
-{{code:code/u5/varios-objetos/01-sin-analysis-port/dice_test.svh|lines=16-32}}
+{{code:code/u5/varios-objetos/01-sin-analysis-port/dice_test.svh#run_phase}}
 
 Note:
 This slide is the "before", and it has to be allowed to look ugly. Look at the
@@ -297,7 +297,7 @@ And a detail that shows up in the output: here the coverage is read with
 
 #### *The producer, publishing now*
 
-{{code:code/u5/varios-objetos/02-con-analysis-port/dice_roller.svh|lines=20-39}}
+{{code:code/u5/varios-objetos/02-con-analysis-port/dice_roller.svh#port-and-run}}
 
 - The three numbered steps are everything that changed with respect to the
   previous version: declare the port, instantiate it in `build_phase`, write with
@@ -352,7 +352,7 @@ a mistake because there is nothing to instantiate.
 - A single line of `connect_phase()` hooks the subscriber up to the analysis
   port: `ap.connect(sub_h.analysis_export)`
 
-{{code:code/u5/varios-objetos/02-con-analysis-port/dice_test.svh|lines=15-28}}
+{{code:code/u5/varios-objetos/02-con-analysis-port/dice_test.svh#build-and-connect}}
 
 Note:
 This is the "after", and it has to be put next to the "before" from five slides

@@ -48,6 +48,7 @@ endclass : mojito
 // Parameterized class
 // the T (type) parameter is what says which
 // kind of queue this is.
+// cb: tray-and-top
 class bandeja #(
     type T
 );
@@ -87,3 +88,4 @@ module top;
    end
 
 endmodule : top
+// cb: end

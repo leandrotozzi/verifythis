@@ -109,9 +109,9 @@ Cuando esto sea el VTALU, en los analysis ports, `average` va a ser el scoreboar
 
 #### *Los otros dos: cambia el cuerpo, no la forma*
 
-{{code:code/u5/varios-objetos/01-sin-analysis-port/histogram.svh|lines=11-13}}
+{{code:code/u5/varios-objetos/01-sin-analysis-port/histogram.svh#write}}
 
-{{code:code/u5/varios-objetos/01-sin-analysis-port/coverage.svh|lines=14-17}}
+{{code:code/u5/varios-objetos/01-sin-analysis-port/coverage.svh#write}}
 
 - `histogram` guarda las tiradas en un array asociativo y dibuja las barras en
   el `report_phase`
@@ -136,7 +136,7 @@ no se muestra es el `report_phase`, que sólo formatea.
 
 #### *El productor: tira los dados y devuelve un número*
 
-{{code:code/u5/varios-objetos/01-sin-analysis-port/dice_roller.svh|lines=1-23}}
+{{code:code/u5/varios-objetos/01-sin-analysis-port/dice_roller.svh#dice_roller}}
 
 - `dice_roller` randomiza dos bytes con un `constraint` que los deja entre 1 y 6,
   y devuelve la suma
@@ -164,7 +164,7 @@ tiene? La slide que sigue.
 - Funciona. Pero mirá el `run_phase`, y en particular qué hay adentro del
   `repeat (20)`
 
-{{code:code/u5/varios-objetos/01-sin-analysis-port/dice_test.svh|lines=16-32}}
+{{code:code/u5/varios-objetos/01-sin-analysis-port/dice_test.svh#run_phase}}
 
 Note:
 Esta slide es el "antes", y hay que dejar que se vea feo. Mirá el `repeat (20)`:
@@ -285,7 +285,7 @@ Y un detalle que aparece en la salida: acá la cobertura se lee con
 
 #### *El productor, ahora publicando*
 
-{{code:code/u5/varios-objetos/02-con-analysis-port/dice_roller.svh|lines=20-39}}
+{{code:code/u5/varios-objetos/02-con-analysis-port/dice_roller.svh#port-and-run}}
 
 - Los tres pasos numerados son todo lo que cambió respecto de la versión
   anterior: declarar el port, instanciarlo en `build_phase`, escribir con
@@ -340,7 +340,7 @@ hay nada que instanciar.
 - Una sola línea de `connect_phase()` engancha al subscriber con el analysis
   port: `ap.connect(sub_h.analysis_export)`
 
-{{code:code/u5/varios-objetos/02-con-analysis-port/dice_test.svh|lines=15-28}}
+{{code:code/u5/varios-objetos/02-con-analysis-port/dice_test.svh#build-and-connect}}
 
 Note:
 Éste es el "después", y hay que ponerlo al lado del "antes" de cinco slides

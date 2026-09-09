@@ -66,6 +66,7 @@ module top;
    endgroup
 
    // Check the corners where the inputs are all 0s or all 1s
+   // cb: legs-and-ops
    covergroup zeros_or_ones_on_ops;
 
       all_ops : coverpoint op_set {
@@ -82,6 +83,7 @@ module top;
          bins others= {[8'h01:8'hFE]};
          bins ones  = {8'hFF};
       }
+   // cb: end
       // VTALU rev2: the borrow of the subtraction, the row of the plan that the
       // scoreboard can only close by looking at TWO outputs. Without this bin, a
       // subtraction that never went negative looks exactly like one that did.
@@ -91,12 +93,14 @@ module top;
       }
 
 
+      // cb: cross-add-bins
       op_00_FF:  cross a_leg, b_leg, all_ops {
          bins add_00 = binsof (all_ops) intersect {add_op} &&
                        (binsof (a_leg.zeros) || binsof (b_leg.zeros));
 
          bins add_FF = binsof (all_ops) intersect {add_op} &&
                        (binsof (a_leg.ones) || binsof (b_leg.ones));
+      // cb: end
 
          bins sub_00 = binsof (all_ops) intersect {sub_op} &&
                        (binsof (a_leg.zeros) || binsof (b_leg.zeros));
@@ -116,6 +120,7 @@ module top;
          bins xor_FF = binsof (all_ops) intersect {xor_op} &&
                        (binsof (a_leg.ones) || binsof (b_leg.ones));
 
+         // cb: cross-mul-bins
          bins mul_00 = binsof (all_ops) intersect {mul_op} &&
                        (binsof (a_leg.zeros) || binsof (b_leg.zeros));
 
@@ -128,6 +133,7 @@ module top;
          ignore_bins others_only =
                          binsof(a_leg.others) && binsof(b_leg.others);
       }
+         // cb: end
    endgroup
 
    initial begin
@@ -178,6 +184,7 @@ module top;
         return $random;
    endfunction : get_data
 
+   // cb: scoreboard-block
    // Sent by the tester, compared by the scoreboard: the final block below
    // demands that the two match.
    int enviadas, chequeadas;
@@ -206,6 +213,7 @@ module top;
                   A, B, op_set.name(), result, ovf);
       end
    end : scoreboard
+   // cb: end
 
    // Randomize the stimulus
    // get_op and get_data are Constrained Random Data
@@ -216,6 +224,7 @@ module top;
       @(negedge clk);
       reset_n = 1'b1;
       start = 1'b0;
+      // cb: stimulus-loop
       repeat (1000) begin
          @(negedge clk);
          op_set = get_op();
@@ -245,6 +254,7 @@ module top;
       end
       $finish;
    end : tester
+      // cb: end
 
    // The testbench checks itself: every operation sent has to come back
    // through the scoreboard. A tester that drops operations -- while the

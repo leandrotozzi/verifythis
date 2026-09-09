@@ -111,6 +111,7 @@ interface vtalu_bfm;
             @(posedge clk);
             #1;
             start = 1'b0;
+         // cb: the-planted-bug
          end else begin
             // +BUG=1: changes B halfway through the multiplication. The
             // multiplier already latched A and B on the first edge, so the
@@ -124,6 +125,7 @@ interface vtalu_bfm;
             do @(negedge clk); while (done == 0);
             oresult   = result;
             start = 1'b0;
+         // cb: end
          end
       end  // else: !if(iop == rst_op)
    endtask : send_op
@@ -137,6 +139,7 @@ interface vtalu_bfm;
    // plug themselves in, nobody connects them, and the passive agent of the Agents
    // section gets them for free. All they need in order to run is --assert.
    //
+   // cb: two-clocks
    // TWO CLOCKS, and it is not an implementation detail: the BFM drives on
    // negedge and the DUT registers on posedge. An assertion samples in the
    // preponed region of the edge it is given, so a signal written ON the negedge
@@ -150,7 +153,9 @@ interface vtalu_bfm;
    //   response (done, result)         -> posedge, where the DUT registers
 
    default disable iff (!reset_n);
+   // cb: end
 
+   // cb: stable-operands
    // --- El estimulo ---
 
    // The rule from slide 1 of day 1, executable at last: while start is up, the
@@ -164,9 +169,11 @@ interface vtalu_bfm;
    else
       `uvm_error("SVA", $sformatf(
                  "%m: operand changed with start up: A=%0d B=%0d op=%s", A, B, op2enum().name()))
+   // cb: end
 
    // --- The DUT's answer ---
 
+   // cb: done-arrives
    // The variable latency of the The VTALU spec section in one line: one cycle for the
    // one-cycle ops, four edges for the multiplication.
    property p_done_llega;
@@ -185,6 +192,7 @@ interface vtalu_bfm;
    a_no_op_sin_done :
    assert property (p_no_op_sin_done)
    else `uvm_error("SVA", $sformatf("%m: done subio para una no_op"))
+   // cb: end
 
    // --- Every assertion comes with its cover property ---
    //
@@ -205,6 +213,7 @@ interface vtalu_bfm;
    assert property (p_ovf_solo_en_sub)
    else `uvm_error("SVA", $sformatf("%m: ovf arriba con op=%s, que no puede desbordar", op2enum().name()))
 
+   // cb: the-covers
    // And the cover that goes with it: without this, a regression where the random
    // never subtracted too much leaves the assertion green having checked nothing.
    c_ovf : cover property (@(posedge clk) done && ovf);
@@ -213,5 +222,6 @@ interface vtalu_bfm;
    c_mult_3ciclos : cover property (@(posedge clk) $rose(start) && (op_set == mul_op) ##3 done);
    c_mult_4ciclos : cover property (@(posedge clk) $rose(start) && (op_set == mul_op) ##4 done);
    c_un_ciclo : cover property (@(posedge clk) $rose(start) && (op_set inside {add_op, and_op, xor_op}) ##1 done);
+   // cb: end
 
 endinterface : vtalu_bfm

@@ -85,7 +85,7 @@ the optional unit, or the final project for those who want a high mark.</p>
 </section>
 
 <section id="s384" class="slide">
-<!-- es-sha: 3dc47006a85e -->
+<!-- es-sha: b042f72c221a -->
 
 
 <h2 id="ral">RAL</h2>
@@ -173,7 +173,9 @@ tools. The frontdoor —the one that uses the real bus— is the one you have to
 <section id="s386" class="slide">
 <h2 id="ral">RAL</h2>
 <h4 id="the-model-the-table-of-the-spec-in-code"><em>The model: the table of the spec, in code</em></h4>
-<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/apb_reg_block.svh</code> · líneas 12-36 de 149</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">ctrl_reg</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_reg</span>;
+<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/apb_reg_block.svh</code> · #ctrl_reg</figcaption><pre><code class="hljs"><span class="hljs-comment">// 0x00 -- CTRL. EN is an ordinary bit. CLR is not: writing a 1 clears ACC and</span>
+<span class="hljs-comment">// OVF, and the bit always reads back 0.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">ctrl_reg</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_reg</span>;
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(ctrl_reg)
 
    <span class="hljs-keyword">rand</span> <span class="hljs-uvm-type">uvm_reg_field</span> EN;
@@ -197,7 +199,8 @@ tools. The frontdoor —the one that uses the real bus— is the one you have to
       CLR = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;CLR&quot;</span>);
       CLR.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;MAL&quot;</span>) ? <span class="hljs-string">&quot;RW&quot;</span> : <span class="hljs-string">&quot;WC&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
    <span class="hljs-keyword">endfunction</span> : build
-</code></pre><details><summary>el archivo entero, 149 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The register map of spec.md, written as a UVM register model.</span>
+
+<span class="hljs-keyword">endclass</span> : ctrl_reg</code></pre><details><summary>el archivo entero, 149 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The register map of spec.md, written as a UVM register model.</span>
 <span class="hljs-comment">//</span>
 <span class="hljs-comment">// The table of the spec maps one to one onto this file, and that is the check</span>
 <span class="hljs-comment">// worth doing out loud: four registers, six fields, four addresses. Nothing here</span>
@@ -383,7 +386,7 @@ you come across are an <code>RW</code> field with patches on top.</p>
 <section id="s387" class="slide">
 <h2 id="ral">RAL</h2>
 <h4 id="the-adapter-the-only-thing-that-knows-there-is-an-apb"><em>The adapter: the only thing that knows there is an APB</em></h4>
-<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/apb_reg_adapter.svh</code> · líneas 16-37 de 39</figcaption><pre><code class="hljs">   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">uvm_sequence_item </span><span class="hljs-title">reg2bus</span>(<span class="hljs-keyword">const</span> <span class="hljs-keyword">ref</span> <span class="hljs-uvm-type">uvm_reg_bus_op</span> rw);
+<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/apb_reg_adapter.svh</code> · #reg2bus-and-bus2reg</figcaption><pre><code class="hljs">   <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">uvm_sequence_item </span><span class="hljs-title">reg2bus</span>(<span class="hljs-keyword">const</span> <span class="hljs-keyword">ref</span> <span class="hljs-uvm-type">uvm_reg_bus_op</span> rw);
       apb_transaction t = apb_transaction::type_id::create(<span class="hljs-string">&quot;t&quot;</span>);
       t.write = (rw.kind == <span class="hljs-uvm-const">UVM_WRITE</span>);
       t.addr  = rw.addr[<span class="hljs-number">7</span>:<span class="hljs-number">0</span>];
@@ -473,7 +476,7 @@ the day you switch to explicit. That is why both functions are pure.</p>
 <section id="s388" class="slide">
 <h2 id="ral">RAL</h2>
 <h4 id="hooking-it-up-three-lines-and-a-connect_phase"><em>Hooking it up: three lines and a <code>connect_phase</code></em></h4>
-<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/ral_base_test.svh</code> · líneas 40-50 de 85</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">connect_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/ral_base_test.svh</code> · #connect_phase</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">connect_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-comment">// The three lines that turn a model into a testbench component: which</span>
       <span class="hljs-comment">// sequencer carries the accesses, which adapter translates them, and where</span>
       <span class="hljs-comment">// the truth about the DUT comes from.</span>
@@ -643,7 +646,7 @@ do that even in principle.</p>
 <section id="s390" class="slide">
 <h2 id="ral">RAL</h2>
 <h4 id="the-stimulus-without-a-single-paddr"><em>The stimulus, without a single <code>PADDR</code></em></h4>
-<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/ral_test.svh</code> · líneas 21-34 de 82</figcaption><pre><code class="hljs">      model.CTRL.write(status, <span class="hljs-number">&#x27;h1</span>);              <span class="hljs-comment">// EN = 1</span>
+<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/ral_test.svh</code> · #the-stimulus</figcaption><pre><code class="hljs">      model.CTRL.write(status, <span class="hljs-number">&#x27;h1</span>);              <span class="hljs-comment">// EN = 1</span>
       model.CTRL.read(status, data);
       <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;RAL&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;CTRL read back 0x%08h (status %s)&quot;</span>, data, status.name()),
                 <span class="hljs-uvm-const">UVM_MEDIUM</span>)
@@ -769,7 +772,7 @@ being convenient and starts genuinely saving simulation time.</p>
 <section id="s391" class="slide">
 <h2 id="ral">RAL</h2>
 <h4 id="the-tests-you-did-not-write"><em>The tests you did not write</em></h4>
-<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/builtin_test.svh</code> · líneas 29-35 de 40</figcaption><pre><code class="hljs">      rst_seq = <span class="hljs-uvm-type">uvm_reg_hw_reset_seq</span>::type_id::create(<span class="hljs-string">&quot;rst_seq&quot;</span>);
+<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/builtin_test.svh</code> · #the-two-seqs</figcaption><pre><code class="hljs">      rst_seq = <span class="hljs-uvm-type">uvm_reg_hw_reset_seq</span>::type_id::create(<span class="hljs-string">&quot;rst_seq&quot;</span>);
       rst_seq.model = model;
       rst_seq.start(<span class="hljs-keyword">null</span>);
 
@@ -883,7 +886,7 @@ stage 1 of the exercise prints the map so it can be compared by hand.</p>
 <section id="s393" class="slide">
 <h2 id="ral">RAL</h2>
 <h4 id="what-ral-does-not-do-and-it-has-to-be-said"><em>What RAL does not do, and it has to be said</em></h4>
-<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/apb_reg_block.svh</code> · líneas 141-143 de 149</figcaption><pre><code class="hljs">      <span class="hljs-comment">// scoreboard, which is the thing that does know how to add.</span>
+<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/apb_reg_block.svh</code> · #no-check</figcaption><pre><code class="hljs">      <span class="hljs-comment">// scoreboard, which is the thing that does know how to add.</span>
       ACC.VALUE.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);
       STATUS.EN.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);</code></pre><details><summary>el archivo entero, 149 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The register map of spec.md, written as a UVM register model.</span>
 <span class="hljs-comment">//</span>
@@ -1133,7 +1136,7 @@ the whole check off.</p>
 </section>
 
 <section id="s396" class="slide">
-<!-- es-sha: 54de0ae12ca2 -->
+<!-- es-sha: 0b0f4099bdcd -->
 
 
 <h2 id="the-reference-model-in-c">The reference model in C</h2>
@@ -1172,7 +1175,7 @@ command line and there is nothing to configure.</p>
 <section id="s397" class="slide">
 <h2 id="the-reference-model-in-c">The reference model in C</h2>
 <h4 id="import-dpi-c-one-declaration-on-each-side"><em><code>import &quot;DPI-C&quot;</code>: one declaration on each side</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/dpi/vtalu_pkg.sv</code> · líneas 5-16 de 63</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The reference model lives in vtalu_golden.c and is called from here. This</span>
+<figure class="codigo"><figcaption><code>code/u8/dpi/vtalu_pkg.sv</code> · #the-imports</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The reference model lives in vtalu_golden.c and is called from here. This</span>
    <span class="hljs-comment">// is all that is needed on the SystemVerilog side: one declaration per</span>
    <span class="hljs-comment">// function, with the LRM types that cross the boundary.</span>
    <span class="hljs-comment">//</span>
@@ -1247,7 +1250,7 @@ command line and there is nothing to configure.</p>
 
 <span class="hljs-keyword">endpackage</span> : vtalu_pkg</code></pre></details></figure>
 
-<figure class="codigo"><figcaption><code>code/u8/dpi/vtalu_golden.c</code> · líneas 39-58 de 62</figcaption><pre><code class="hljs">int vtalu_golden(int op, int a, int b, int *ovf) {
+<figure class="codigo"><figcaption><code>code/u8/dpi/vtalu_golden.c</code> · #the-golden</figcaption><pre><code class="hljs">int vtalu_golden(int op, int a, int b, int *ovf) {
    int r;
 
    a &amp;= 0xff;
@@ -1359,7 +1362,7 @@ data fits in an <code>int</code>, the signature writes itself; if not, you look 
 <section id="s398" class="slide">
 <h2 id="the-reference-model-in-c">The reference model in C</h2>
 <h4 id="the-scoreboard-the-prediction-gets-asked-for-not-written"><em>The scoreboard: the prediction gets asked for, not written</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/dpi/tb_classes/scoreboard.svh</code> · líneas 14-32 de 58</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The ONLY difference with the sequences scoreboard, and it is the whole</span>
+<figure class="codigo"><figcaption><code>code/u8/dpi/tb_classes/scoreboard.svh</code> · #predict_result</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The ONLY difference with the sequences scoreboard, and it is the whole</span>
    <span class="hljs-comment">// section: there is no case with the arithmetic of the spec here. The</span>
    <span class="hljs-comment">// prediction is asked of the C reference model, the one that signed it.</span>
    <span class="hljs-comment">//</span>

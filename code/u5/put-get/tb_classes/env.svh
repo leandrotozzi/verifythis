@@ -11,6 +11,7 @@ class env extends uvm_env;
    command_monitor           command_monitor_h;
    result_monitor            result_monitor_h;
 
+   // cb: build-and-connect
    function void build_phase(uvm_phase phase);
       command_f = new("command_f", this);
       random_tester_h = random_tester::type_id::create("random_tester_h", this);
@@ -32,6 +33,7 @@ class env extends uvm_env;
       command_monitor_h.ap.connect(scoreboard_h.cmd_f.analysis_export);
       command_monitor_h.ap.connect(coverage_h.analysis_export);
    endfunction : connect_phase
+   // cb: end
 
    function new(string name, uvm_component parent);
       super.new(name, parent);

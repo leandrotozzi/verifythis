@@ -3,6 +3,7 @@
 
 // Sends the data through the shared variable and signals it by toggling get_it
 // Then the producer blocks on the put_it signal
+// cb: producer-and-consumer
 module producer (
     output byte shared,
     input  bit  put_it,
@@ -31,6 +32,7 @@ module consumer (
          put_it = ~put_it;
       end
 endmodule : consumer
+// cb: end
 
 module top;
    byte shared;

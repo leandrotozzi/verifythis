@@ -1,4 +1,4 @@
-<!-- es-sha: 0a0dbea4d761 -->
+<!-- es-sha: f9904d3af165 -->
 ## Tests
 
 #### *Compile once, pick the test from the command line*
@@ -34,7 +34,7 @@ the test `new()`s and become components of the tree.
 
 #### *The top: instantiate, publish the interface, start*
 
-{{code:code/u4/tests/top.sv|lines=21-28}}
+{{code:code/u4/tests/top.sv#run-test}}
 
 - The `top` is still a **module**: it instantiates the BFM and the DUT the same as
   before. The only new thing is these two lines
@@ -85,7 +85,7 @@ it lies. It is one of those mistakes that get paid for three months later.
 
 #### *A test in three parts: 1 · register it*
 
-{{code:code/u4/tests/tb_classes/random_test.svh|lines=4-7}}
+{{code:code/u4/tests/tb_classes/random_test.svh#class-head}}
 
 - `random_test` extends `uvm_test`, which extends `uvm_component`: it is a node
   of the tree, not a loose object
@@ -108,7 +108,7 @@ asks: it is not needed.
 
 #### *2 · the constructor and the `build_phase`*
 
-{{code:code/u4/tests/tb_classes/random_test.svh|lines=9-18}}
+{{code:code/u4/tests/tb_classes/random_test.svh#constructor-and-build}}
 
 - The constructor of a `uvm_component` has a **fixed signature**: `name` and `parent`,
   in that order, and `super.new(name, parent)` as the first line
@@ -135,7 +135,7 @@ errors.
 
 #### *3 · the `run_phase`: this is where the simulation happens*
 
-{{code:code/u4/tests/tb_classes/random_test.svh|lines=20-39}}
+{{code:code/u4/tests/tb_classes/random_test.svh#run_phase}}
 
 - It is the same body as the `execute()` of the object-based testbench: tester, coverage and
   scoreboard, with the two observers in `fork ... join_none`
@@ -244,7 +244,7 @@ exactly the case of this slide, and the capstone steps on it again.
 
 #### *The second test: the same thing, with another tester*
 
-{{code:code/u4/tests/tb_classes/add_test.svh|lines=17-35}}
+{{code:code/u4/tests/tb_classes/add_test.svh#run_phase}}
 
 - `add_test` is `random_test` with **one different line**: `add_tester` instead
   of `random_tester`. Everything else repeats exactly as it is
@@ -268,7 +268,7 @@ virtual method to pick the tester: that is fine, and it is more or less what
 
 #### *How it gets run, and what it prints*
 
-{{code:code/u4/tests/run.sh|lines=9-14}}
+{{code:code/u4/tests/run.sh#the-run}}
 
 {{code:code/u4/tests/output.txt|lines=1-13}}
 

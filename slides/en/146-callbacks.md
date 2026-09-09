@@ -1,4 +1,4 @@
-<!-- es-sha: 0a568a3969d2 -->
+<!-- es-sha: 95c0ec3c3c89 -->
 ## Callbacks
 
 #### *The third hook*
@@ -36,7 +36,7 @@ things into the same driver without stepping on each other. With overrides, the 
 
 #### *The hook: one class, one empty virtual method*
 
-{{code:code/u7/callbacks/tb_classes/driver_callback.svh|lines=9-22}}
+{{code:code/u7/callbacks/tb_classes/driver_callback.svh#driver_callback}}
 
 - A `uvm_callback` **is not a component**: it is not in the tree, it has no phases and
   it does not show up in `print_topology()` — just like a sequence
@@ -64,9 +64,9 @@ and not an exception.
 
 #### *Two lines in the driver, and not one more*
 
-{{code:code/u7/callbacks/tb_classes/driver.svh|lines=3-10}}
+{{code:code/u7/callbacks/tb_classes/driver.svh#register-cb}}
 
-{{code:code/u7/callbacks/tb_classes/driver.svh|lines=23-33}}
+{{code:code/u7/callbacks/tb_classes/driver.svh#run_phase}}
 
 - `` `uvm_register_cb `` declares the type/callback pair. Without it the `add()`
   hooks up all the same and the callback **runs** — with a `UVM_WARNING CBUNREG`
@@ -102,7 +102,7 @@ forward compatibility. That is why VIPs have three or four, not thirty.
 
 #### *Putting them in: the test, and nothing but the test*
 
-{{code:code/u7/callbacks/tb_classes/inject_test.svh|lines=20-31}}
+{{code:code/u7/callbacks/tb_classes/inject_test.svh#hooking-the-cb}}
 
 - The test **does not touch** the env, nor the agent, nor the driver, nor the sequence. Just
   like the override, one level further down

@@ -1,4 +1,4 @@
-<!-- es-sha: 3415a20700e5 -->
+<!-- es-sha: fa5fc25e4e3f -->
 ## Who waits for whom
 
 #### *What to send and how to send it*
@@ -45,7 +45,7 @@ ready-made — that is why it gets assembled by hand first.
 - The class that takes that job away is called a **driver**: it takes a piece of
   data from the testbench and turns it into signals
 
-{{code:code/u5/analysis-ports/tb_classes/base_tester.svh|lines=14-29}}
+{{code:code/u5/analysis-ports/tb_classes/base_tester.svh#run_phase}}
 
 Note:
 It is worth reading the code pointing a finger at where one job ends and the
@@ -98,7 +98,7 @@ to have to be written by hand.
 
 - Mantra: "Ports connect to exports"
 
-{{code:code/u5/put-get/tb_classes/env.svh|lines=14-34}}
+{{code:code/u5/put-get/tb_classes/env.svh#build-and-connect}}
 
 Note:
 Count the objects of this `build_phase`: there are **seven**, plus five
@@ -131,7 +131,7 @@ FIFOs are not in the factory.
 - That is the return on having separated things properly in the env: the change
   stopped at the base class
 
-{{code:code/u5/put-get/tb_classes/base_tester.svh|lines=5-38}}
+{{code:code/u5/put-get/tb_classes/base_tester.svh#class-and-run}}
 
 Note:
 What matters about this class is what **disappeared**: there is not a single
@@ -159,7 +159,7 @@ eyeballed `#500` in a testbench is always an unanswered question.
 - A `forever` with two lines: `get()` a command —which blocks until there is one—
   and apply it with `send_op()`. The whole protocol lives here
 
-{{code:code/u5/put-get/tb_classes/driver.svh|lines=1-22}}
+{{code:code/u5/put-get/tb_classes/driver.svh#class-and-run}}
 
 Note:
 This division is the one UVM formalizes in the agents: the tester decides WHAT to

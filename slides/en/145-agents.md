@@ -1,4 +1,4 @@
-<!-- es-sha: 3cb7eb4ec0ed -->
+<!-- es-sha: 9368389b7634 -->
 ## Agents
 
 #### *The problem: a testbench that cannot be copied*
@@ -113,7 +113,7 @@ but the monitor does? Because driving is optional, watching is not.
   the simulation stops advancing without a single error message
 - The pair always goes complete, and in that order
 
-{{code:code/u7/agents/tb_classes/driver.svh|lines=18-24}}
+{{code:code/u7/agents/tb_classes/driver.svh#run_phase}}
 
 Note:
 Forgetting `item_done()` is mistake number one of the first week, and the
@@ -205,7 +205,7 @@ a place to put logic.
 - This is the direct translation of the `tester` of the transactions, and nothing more than
   that — the sequences section is about what can be done in here
 
-{{code:code/u7/agents/tb_classes/command_sequence.svh|lines=6-43}}
+{{code:code/u7/agents/tb_classes/command_sequence.svh#class-and-body}}
 
 Note:
 Two things worth marking in the code, because they are the ones that get copied wrong.
@@ -340,7 +340,7 @@ agent does not hand out handles by hand.
   analysis ports, always
 - The analysis ports are ports: they get instantiated with `new()`, not with the factory
 
-{{code:code/u7/agents/tb_classes/vtalu_agent.svh|lines=1-33}}
+{{code:code/u7/agents/tb_classes/vtalu_agent.svh#class-and-build}}
 
 Note:
 A detail worth gold that nobody tells: the `build_phase` of `uvm_agent` that
@@ -406,7 +406,7 @@ the middle and implements nothing, it only forwards.
 - The scoreboard and the coverage stay just as in the analysis ports: they are
   subscribers, and they find out about nothing
 
-{{code:code/u7/agents/env_un_agent.svh|lines=3-34}}
+{{code:code/u7/agents/env_un_agent.svh#class-and-build}}
 
 - That is the `env` of a single VTALU. With two, it changes less than it looks
 
@@ -505,7 +505,7 @@ hang —the simulation that does not finish because somebody did not drop their 
 - Two scoreboards and **two coverages**: that is what answers which of the two
   stimuli covers more
 
-{{code:code/u7/agents/top.sv|lines=1-35}}
+{{code:code/u7/agents/top.sv#top}}
 
 - The module calls **the very same `bfm.send_op()`** as the driver: it receives the
   interface through its **port** instead of through a virtual interface, but the
@@ -548,7 +548,7 @@ seq.start(env_h.clase_agent_h.sequencer_h);
 - The sequences section fixes it: the sequence is handed to the sequencer **through the
   `config_db`**, and the test stops knowing where it is
 
-{{code:code/u7/agents/tb_classes/dual_test.svh|lines=10-44}}
+{{code:code/u7/agents/tb_classes/dual_test.svh#build-and-run}}
 
 Note:
 This is the slide to close the day with if there is no time for the

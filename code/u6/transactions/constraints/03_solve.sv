@@ -7,6 +7,7 @@
 // operation after a reset" bin of the Functional coverage section plan never fills.
 module top_solve;
 
+   // cb: both-classes
    class sesgada;
       rand bit           es_reset;
       rand byte unsigned A;
@@ -23,6 +24,7 @@ module top_solve;
    class pareja extends sesgada;
       constraint reparto {es_reset dist {1'b0 :/ 1, 1'b1 :/ 1};}
    endclass
+   // cb: end
 
    localparam int N = 2000;
 

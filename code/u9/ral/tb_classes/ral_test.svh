@@ -18,6 +18,7 @@ class ral_test extends ral_base_test;
       // --- the frontdoor -----------------------------------------------------
       // write() puts the value on the wire through the sequencer. There is no
       // second argument for the address: the address is in the map.
+      // cb: the-stimulus
       model.CTRL.write(status, 'h1);              // EN = 1
       model.CTRL.read(status, data);
       `uvm_info("RAL", $sformatf("CTRL read back 0x%08h (status %s)", data, status.name()),
@@ -32,6 +33,7 @@ class ral_test extends ral_base_test;
          `uvm_error("RAL", "the predictor did not update CTRL.EN")
       `uvm_info("RAL", $sformatf("mirrored CTRL.EN = %0d, and nobody assigned it",
                 model.CTRL.EN.get_mirrored_value()), UVM_MEDIUM)
+      // cb: end
 
       // --- mirror(UVM_CHECK): the read that checks itself --------------------
       model.SCRATCH.write(status, 'h1000_0000);

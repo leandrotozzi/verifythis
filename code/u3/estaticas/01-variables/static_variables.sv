@@ -42,6 +42,7 @@ endclass : fernet
 // no matter how many instances of the class exist
 // They are global variables created in a controlled way
 
+// cb: tray-and-top
 class bandeja_de_fernet;
    //Queue static
    static fernet vasos[$];
@@ -70,3 +71,4 @@ module top;
       foreach (bandeja_de_fernet::vasos[i]) $display(bandeja_de_fernet::vasos[i].get_name());
    end
 endmodule : top
+// cb: end

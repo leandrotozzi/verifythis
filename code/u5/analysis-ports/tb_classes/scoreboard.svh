@@ -7,6 +7,7 @@
 class scoreboard extends uvm_subscriber #(shortint);
    `uvm_component_utils(scoreboard);
 
+   // cb: two-ports
    uvm_tlm_analysis_fifo #(command_s) cmd_f;
 
    function void build_phase(uvm_phase phase);
@@ -47,6 +48,7 @@ class scoreboard extends uvm_subscriber #(shortint);
                     predicted_result
                     ))
    endfunction : write
+   // cb: end
 
    function new(string name, uvm_component parent);
       super.new(name, parent);

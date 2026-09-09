@@ -1,3 +1,4 @@
+// cb: signals-and-clock
 interface vtalu_bfm;
    // brings in operation_t. e.g. (no_op  = 3'b000)
    import vtalu_pkg::*;
@@ -27,6 +28,7 @@ interface vtalu_bfm;
          clk = ~clk;
       end
    end
+// cb: end
 
    // DUT reset
    task reset_alu();
