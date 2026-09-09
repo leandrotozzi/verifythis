@@ -15,7 +15,8 @@ El ejercicio junta las tres cosas de la sección que se pueden hacer mal sin que
 compilador diga nada: `is_active`, el ámbito jerárquico del `set()`, y el
 `connect_phase` de los analysis ports.
 La trampa que van a encontrar casi todos es el ámbito: con `"*"` en los dos
-`set()`, el segundo pisa al primero y los dos agents arrancan activos. El
+`set()`, el segundo pisa al primero y los dos agents quedan con el mismo config —
+mismo BFM y mismo `is_active`. El
 corrector lo caza cruzando las cuentas — el módulo manda 200 operaciones y la
 sequence más de mil, así que si los dos agents ven números parecidos es que
 están mirando la misma interface.

@@ -1,4 +1,4 @@
-<!-- es-sha: b4d1f9cb7c30 -->
+<!-- es-sha: b51678e8740d -->
 # For teachers
 
 *Verify This!* is written as **seven days of class** —plus an **optional day
@@ -78,7 +78,7 @@ All three pieces depend on the capstone being done, so they only work
   whoever understood from whoever copied the pattern of the first capstone.
 
 The four **appendices** of day 7 —from the VTALU to a real bus, the debug
-toolbox, the twenty silent traps and the glossary— take no class time: they are
+toolbox, the 21 silent traps and the glossary— take no class time: they are
 given as **reading**, because the course has a book. `en/libro/day7.html` is the
 same material to read straight through, with the instructor's notes inside the
 text. The debug and traps appendices are read before the capstone; you can tell

@@ -642,10 +642,13 @@ O sea que en un testbench que llama a <code>super.build_phase()</code>, un
 <code>uvm_config_db#(int)::set(this, &quot;mi_agent&quot;, &quot;is_active&quot;, UVM_PASSIVE)</code> funciona
 solo, sin config object. Como este <code>vtalu_agent</code> no lo llama, ese mecanismo
 <strong>está apagado</strong>, y por eso lo asignamos a mano.
-Y acá se cobra lo del día 3: <code>uvm_agent</code> es la única clase de la librería,
-además de <code>uvm_component</code>, que implementa <code>build_phase</code>. Es exactamente el caso
-que la regla de afuera cubre — heredaste de una clase intermedia que hace
-trabajo real, y saltearte el <code>super</code> lo apaga sin decir nada. Nosotros podemos
+Y acá se cobra lo del día 3: <code>uvm_agent</code> y <code>uvm_sequencer</code> son las dos clases de
+la librería que hacen trabajo real en su <code>build_phase</code> —<code>uvm_agent</code> lee el
+<code>is_active</code>, y <code>uvm_sequencer_param_base</code> engancha el fifo de respuestas
+(<code>seq/uvm_sequencer_param_base.svh:288</code>)—. Es exactamente el caso que la regla de
+afuera cubre: si extendés una de las dos y escribís <code>build_phase</code>, el <code>super</code> es
+obligatorio. Heredaste de una clase intermedia que hace trabajo real, y
+saltearte el <code>super</code> lo apaga sin decir nada. Nosotros podemos
 saltearlo porque escribimos la línea que reemplaza; el que no la escribe, no.
 Las dos formas son válidas. Lo que no es válido es la mitad de cada una: poner
 <code>is_active</code> en el config_db, no llamar a <code>super.build_phase()</code>, y después
@@ -798,10 +801,13 @@ el driver y los monitores encuentran el mismo config sin que nadie se lo pase</l
 <div class="nota">
 <p>Acá está la trampa clásica de la sección, y es de las que no fallan. Con un solo
 agent, todo el mundo escribe <code>&quot;*&quot;</code> en el ámbito y funciona. El día que aparece el
-segundo, el segundo <code>set()</code> pisa al primero y <strong>los dos agents arrancan
-activos</strong>: dos drivers manejando dos interfaces distintas con la configuración
-equivocada. El error no aparece en <code>build_phase</code>, aparece como un scoreboard
-que falla en la interface que no tocaste.
+segundo, el segundo <code>set()</code> pisa al primero y <strong>los dos agents reciben el mismo
+config</strong>: el mismo BFM y el mismo <code>is_active</code>. Con el orden de <code>env.svh</code> —la clase
+primero y el módulo después— el que queda es el pasivo, así que los dos arrancan
+pasivos, sin driver ni sequencer, y el <code>seq.start()</code> del test cae sobre un
+handle <code>null</code>. Invertido el orden serían dos drivers, pero manejando <strong>la misma</strong>
+interface. Lo invariante, y lo que hay que llevarse: gana el último <code>set()</code>, y los
+dos agents quedan iguales. El error no aparece en <code>build_phase</code>.
 El asterisco importa: <code>&quot;clase_agent_h*&quot;</code> con asterisco alcanza a los hijos;
 <code>&quot;clase_agent_h&quot;</code> sin asterisco, sólo al agent. Si lo escribís sin asterisco, el
 agent encuentra su config y el driver no — <code>uvm_fatal</code> en <code>build_phase</code>, que al
@@ -1268,8 +1274,8 @@ normal y no una excepción.</p>
 <figure class="codigo"><figcaption><code>code/u7/callbacks/tb_classes/driver.svh</code> · líneas 3-10 de 35</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">driver</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_driver</span> #(<span class="hljs-type">command_transaction</span>);
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(driver)
    <span class="hljs-comment">// Declares &quot;this component accepts callbacks of this type&quot;. Without it the</span>
-   <span class="hljs-comment">// add() below compiles and does nothing, which is the usual way to lose an</span>
-   <span class="hljs-comment">// afternoon.</span>
+   <span class="hljs-comment">// add() below still hooks up and the callback still runs, but with a CBUNREG</span>
+   <span class="hljs-comment">// warning and without the type check: outside the contract, and nearly silent.</span>
    <span class="hljs-uvm-macro">`uvm_register_cb</span>(driver, driver_callback)
 
    <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;</code></pre><details><summary>el archivo entero, 35 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The Agents driver with the hook added. Diff against ../agents/tb_classes:</span>
@@ -1277,8 +1283,8 @@ normal y no una excepción.</p>
 <span class="hljs-keyword">class</span> <span class="hljs-title">driver</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_driver</span> #(<span class="hljs-type">command_transaction</span>);
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(driver)
    <span class="hljs-comment">// Declares &quot;this component accepts callbacks of this type&quot;. Without it the</span>
-   <span class="hljs-comment">// add() below compiles and does nothing, which is the usual way to lose an</span>
-   <span class="hljs-comment">// afternoon.</span>
+   <span class="hljs-comment">// add() below still hooks up and the callback still runs, but with a CBUNREG</span>
+   <span class="hljs-comment">// warning and without the type check: outside the contract, and nearly silent.</span>
    <span class="hljs-uvm-macro">`uvm_register_cb</span>(driver, driver_callback)
 
    <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
@@ -1323,8 +1329,8 @@ normal y no una excepción.</p>
 <span class="hljs-keyword">class</span> <span class="hljs-title">driver</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_driver</span> #(<span class="hljs-type">command_transaction</span>);
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(driver)
    <span class="hljs-comment">// Declares &quot;this component accepts callbacks of this type&quot;. Without it the</span>
-   <span class="hljs-comment">// add() below compiles and does nothing, which is the usual way to lose an</span>
-   <span class="hljs-comment">// afternoon.</span>
+   <span class="hljs-comment">// add() below still hooks up and the callback still runs, but with a CBUNREG</span>
+   <span class="hljs-comment">// warning and without the type check: outside the contract, and nearly silent.</span>
    <span class="hljs-uvm-macro">`uvm_register_cb</span>(driver, driver_callback)
 
    <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
@@ -1355,9 +1361,9 @@ normal y no una excepción.</p>
 <span class="hljs-keyword">endclass</span> : driver</code></pre></details></figure>
 
 <ul>
-<li><code>`uvm_register_cb</code> declara el par tipo/callback. **Sin él, el <code>add()</code>
-compila, corre y no engancha nada** — con un <code>CBUNREG</code> en el log que es fácil
-no ver</li>
+<li><code>`uvm_register_cb</code> declara el par tipo/callback. Sin él el <code>add()</code> engancha
+igual y el callback **corre** — con un <code>UVM_WARNING CBUNREG</code> perdido en el log,
+y sin el chequeo de tipos ni el <code>add_by_name</code></li>
 <li><code>`uvm_do_callbacks</code> es el punto de extensión: recorre la cola de <strong>esa
 instancia</strong> de driver, en orden</li>
 </ul>
@@ -1365,11 +1371,17 @@ instancia</strong> de driver, en orden</li>
 <p>El diff contra el driver de la sección Agents es exactamente de dos líneas, y
 conviene mostrarlo con <code>diff</code> en vivo: <code>diff code/u7/agents/tb_classes/driver.svh code/u7/callbacks/tb_classes/driver.svh</code>. Todo lo demás —el <code>get_next_item</code>, el
 <code>send_op</code>, el <code>item_done</code>— está igual.
-El modo de falla del <code>uvm_register_cb</code> que falta es el clásico de esta parte de
-UVM: no hay error de compilación, hay un <code>UVM_ERROR ... CBUNREG</code> perdido en
-medio de mil líneas, y el callback simplemente no corre. Por eso el <code>run.sh</code> del
-ejemplo cuenta cuántas veces se ejecutó y falla si es cero: un ejemplo que
-&quot;pasa&quot; sin haber inyectado nada no prueba nada.
+El modo de falla del <code>uvm_register_cb</code> que falta no es el que uno espera, y vale
+contarlo con la fuente en la mano porque la mitad de los tutoriales lo dice al
+revés: <code>uvm_callback.svh:744</code> reporta un <code>UVM_WARNING CBUNREG</code> y <strong>sigue de
+largo</strong> — el <code>add()</code> mete el callback en <code>m_base_inst.m_pool</code> igual (<code>:777-783</code>),
+y <code>`uvm_do_callbacks</code> lee ese pool sin consultar el registro (<code>:964-1006</code>).
+O sea: sin la macro el callback corre, y lo que perdés es el chequeo de tipos y
+el <code>add_by_name</code> por tipo derivado. Es peor que un error: es un warning entre mil
+líneas, y el testbench queda fuera del contrato sin que se note.
+Por eso el <code>run.sh</code> del ejemplo no chequea la macro sino el efecto: cuenta cuántas
+veces se ejecutó el callback y falla si es cero. Un ejemplo que &quot;pasa&quot; sin haber
+inyectado nada no prueba nada, venga de donde venga el desenganche.
 Dónde poner el <code>`uvm_do_callbacks</code> es la decisión de diseño real, y es la
 misma que toma el que escribe un VIP: cada punto de gancho es una promesa de
 compatibilidad hacia adelante. Por eso los VIP tienen tres o cuatro, no treinta.</p>
@@ -2202,9 +2214,13 @@ PASA sin haber mandado un solo estímulo. Está en <code>code/u7/sequences</code
 <code>no_objection_test</code>, para poder correrlo en clase al lado del bueno.
 Es exactamente el mismo tipo de bug que el <code>new()</code> que se come el override de las transactions: no rompe, <strong>miente</strong>. Y en una regresión de mil tests, un test que pasa
 en cero segundos no lo mira nadie.
-Detalle fino: <code>main_phase</code>, no <code>run_phase</code>. La <code>run_phase</code> corre en paralelo con
-el cronograma reset → configure → main → shutdown; el <code>default_sequence</code> se
-engancha a las de ese cronograma.</p>
+Detalle fino: conviene <code>main_phase</code>, no <code>run_phase</code>, pero no porque <code>run_phase</code> no
+sirva — <code>uvm_task_phase::traverse</code> llama <code>start_phase_sequence()</code> en <strong>toda</strong> fase
+de tarea (<code>base/uvm_task_phase.svh:121</code>), así que
+<code>&quot;…sequencer_h.run_phase&quot;</code> funciona igual. La razón es de convivencia: la
+<code>run_phase</code> corre en paralelo con el cronograma reset → configure → main →
+shutdown, y enganchando en <code>main_phase</code> la sequence entra en ese cronograma en vez
+de por al lado.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/308">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -2895,8 +2911,9 @@ endtask
 <li><strong><code>lock()</code> hace cola</strong>: espera su turno como cualquiera y recién entonces cierra
 la puerta. <strong><code>grab()</code> se cuela</strong>: pasa adelante de todas, incluso de las de más
 prioridad</li>
-<li>Los dos se sueltan con <code>unlock()</code>, y un <code>lock()</code> sin su <code>unlock()</code> <strong>cuelga el
-sequencer para siempre</strong>: mismo síntoma que la objection que no baja, sin error</li>
+<li>Los dos se sueltan con <code>unlock()</code>. Sin el <code>unlock()</code>, si la sequence <strong>sigue
+viva</strong> el sequencer queda cerrado para siempre y sin un solo error; si su
+<code>body()</code> termina, UVM lo saca y grita <code>SEQFINERR</code></li>
 <li>La regla: <code>grab()</code> para reset y recuperación de error —lo que no puede esperar—,
 <code>lock()</code> para todo lo demás, y el <code>unlock()</code> en la misma <code>body()</code></li>
 </ul>
@@ -2909,11 +2926,17 @@ escenario pierde sentido si algo se intercala. Un lee-modifica-escribe sobre un
 registro es el ejemplo canónico —si entre la lectura y la escritura pasa otra
 transacción, el valor que escribís es viejo—. Mandar diez items seguidos no
 necesita un lock: eso ya lo garantiza una sequence.
-El cuelgue del tercer bullet es el que hay que anticipar, porque el síntoma manda
-a buscar al lado equivocado: la simulación no avanza y el <code>+UVM_OBJECTION_TRACE</code>
-no dice nada raro, porque la objection está bien — el que está trabado es el
-driver, esperando un item que nunca va a llegar. La herramienta que lo muestra es
-<code>+UVM_TIMEOUT</code> y después leer quién tiene el lock.
+Los dos finales del <code>unlock()</code> que falta hay que contarlos juntos, porque uno
+avisa y el otro no. Si la sequence que tiene el lock termina su <code>body()</code>,
+<code>uvm_sequencer_base::remove_sequence_from_queues</code>
+(<code>seq/uvm_sequencer_base.svh:1258-1267</code>) le saca el lock y reporta un
+<code>UVM_ERROR SEQFINERR</code> — &quot;should not finish before locks … are removed&quot;: molesto,
+pero con nombre y apellido. El caso mudo es el otro: la sequence sigue viva y
+bloqueada en otra cosa, y ahí el sequencer queda cerrado sin que nadie diga nada.
+Ése es el que manda a buscar al lado equivocado: la simulación no avanza y el
+<code>+UVM_OBJECTION_TRACE</code> no dice nada raro, porque la objection está bien — el que
+está trabado es el driver, esperando un item que nunca va a llegar. La
+herramienta que lo muestra es <code>+UVM_TIMEOUT</code> y después leer quién tiene el lock.
 Y el detalle que salva una tarde: <code>grab()</code> no interrumpe el item que está en
 vuelo. Se cuela en la próxima arbitración, no en el medio de un handshake — que
 es justamente lo que uno quiere.</p>
@@ -2981,11 +3004,7 @@ se puede intercalar</li>
 hoy en la industria</li>
 </ul>
 <div class="nota">
-<p>Cierre del curso. Lo que conviene decir en voz alta es qué quedó afuera y por
-qué, para que nadie se vaya creyendo que ya sabe todo: SVA, RAL, sequences
-virtuales de verdad, regresión con semillas, y el <code>uvm_reg</code> que en un proyecto con
-registros es medio testbench.
-Ninguna de las piezas que sí vimos es magia: las construimos todas a mano —el
+<p>Cierre del día 6. Ninguna de las piezas que sí vimos es magia: las construimos todas a mano —el
 observer de hablar con varios objetos, la FIFO de put y get, el tester de
 transactions— antes de que UVM nos las
 diera hechas. Ese es el motivo de que el curso vaya en este orden y no arranque
@@ -3171,7 +3190,8 @@ sequencer siempre</li>
 compilador diga nada: <code>is_active</code>, el ámbito jerárquico del <code>set()</code>, y el
 <code>connect_phase</code> de los analysis ports.
 La trampa que van a encontrar casi todos es el ámbito: con <code>&quot;*&quot;</code> en los dos
-<code>set()</code>, el segundo pisa al primero y los dos agents arrancan activos. El
+<code>set()</code>, el segundo pisa al primero y los dos agents quedan con el mismo config —
+mismo BFM y mismo <code>is_active</code>. El
 corrector lo caza cruzando las cuentas — el módulo manda 200 operaciones y la
 sequence más de mil, así que si los dos agents ven números parecidos es que
 están mirando la misma interface.

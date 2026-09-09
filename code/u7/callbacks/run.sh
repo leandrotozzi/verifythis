@@ -18,9 +18,11 @@ limpio=$VLT_LOG
 run_sim +UVM_TESTNAME=inject_test "$@"
 inyectado=$VLT_LOG
 
-# Both callbacks really ran. Without this check, a missing `uvm_register_cb
-# leaves everything compiling and the example "passing" without having injected anything
-# -- which is the typical callback failure mode.
+# Both callbacks really ran. This does NOT check the `uvm_register_cb: without that
+# macro the add() still hooks the callback up and it still runs, with a CBUNREG
+# warning (uvm_callback.svh:744, and the add() carries on at :777-783). What it does
+# check is the effect -- an example that "passes" without having injected anything
+# proves nothing, whatever the reason the queue came out empty.
 # The bracket and the "A:" belong to the `uvm_info line; without them, the count
 # by severity of the Report Summary counts itself.
 flips=$(grep -c "\[FLIP_BIT_CB\] A:" "$inyectado" || true)

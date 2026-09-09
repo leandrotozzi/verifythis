@@ -1,6 +1,6 @@
 <!-- .slide: id="apendice-trampas" -->
 
-## Apéndice · Las veinte trampas mudas
+## Apéndice · Las 21 trampas mudas
 
 #### *Compila, corre, y miente*
 
@@ -10,13 +10,14 @@
 | La hija corre el método de **la madre** | sin `virtual`, SV resuelve por el **tipo de la variable**, en compilación | `virtual` en todo método que alguien vaya a extender | Polimorfismo |
 | El component lee **la config de otro** | `get(null, "*", …)` devuelve lo primero que matchee | `get(this, "", …)`, y `+UVM_CONFIG_DB_TRACE` | Tests |
 | El test pasa con **el estímulo equivocado** | el `set_type_override()` llegó **después** del `create()` del env | el override primero, siempre. `+TOPOLOGY` lo delata | El env |
+| El modelo de registros da **verde** y el campo nunca se testeó | el acceso arranca con `WO`: `bit_bash` lo saltea y `do_check` lo saca de la máscara | si el campo se lee, `WC` o `W1C`. `WO*` sólo si de verdad no se lee | RAL · d8 |
 
-- Ninguna de estas cuatro da un warning. Ninguna deja la regresión en rojo. Todas
+- Ninguna de estas cinco da un warning. Ninguna deja la regresión en rojo. Todas
   se descubren semanas después, o no se descubren
 
 Note:
-Este apéndice es el que hay que imprimir y pegar al lado del monitor. Las veinte
-están repartidas en siete secciones porque cada una aparece cuando aparece el
+Este apéndice es el que hay que imprimir y pegar al lado del monitor. Están
+repartidas en siete secciones porque cada una aparece cuando aparece el
 concepto, pero se necesitan juntas — y se necesitan en el peor momento.
 La tesis del apéndice está en el subtítulo, y vale enunciarla como regla general
 del oficio: **en verificación, el error caro no es el que rompe, es el que
@@ -30,7 +31,7 @@ el árbol que UVM armó de verdad, contra el que uno dibujó en la cabeza.
 
 ---
 
-## Apéndice · Las veinte trampas mudas
+## Apéndice · Las 21 trampas mudas
 
 #### *El que publica y el que escucha*
 
@@ -60,7 +61,7 @@ que no lo son. La segunda es peor, porque apaga el scoreboard entero sin apagarl
 
 ---
 
-## Apéndice · Las veinte trampas mudas
+## Apéndice · Las 21 trampas mudas
 
 #### *Estímulo, ámbito y objections*
 
@@ -71,11 +72,11 @@ que no lo son. La segunda es peor, porque apaga el scoreboard entero sin apagarl
 | Bajo el override, **algunas** transactions son del tipo viejo | un `new()` donde iba `type_id::create()` | por la factory pasa lo que se crea con `create()` | Transactions |
 | Los **dos agents** arrancan iguales | dos `set()` con ámbito `"*"`: el segundo pisa al primero | el ámbito es la **ruta** del que lee, con `*` al final | Agents · d6 |
 | El agent arranca **activo** aunque pusiste `is_active` en el `config_db` | falta el `super.build_phase()`: el que lo lee es `uvm_agent` | o config object, o `super` — nunca media de cada una | Agents |
-| La simulación **no termina nunca** | un `item_done()` que no se llamó | `+UVM_TIMEOUT=5ms` primero, el trace después | Agents |
+| La simulación **no termina nunca** | un `item_done()` que no se llamó | `+UVM_TIMEOUT=5000000,NO` primero, el trace después | Agents |
 | Termina en **t=0** y dice PASS | nadie levantó la objection alrededor de la sequence | `+UVM_OBJECTION_TRACE` | Sequences |
 
 Note:
-Las dos últimas son las únicas de las veinte que sí hacen ruido — una cuelga y
+Las dos últimas son las únicas de la lista que sí hacen ruido — una cuelga y
 la otra termina raro — y están acá porque el ruido que hacen no señala al
 culpable. Un cuelgue no dice qué se quedó esperando; un t=0 dice PASS, que es
 peor que un error.
@@ -94,7 +95,7 @@ segunda se entiende justo la que te está pasando.
 
 ---
 
-## Apéndice · Las veinte trampas mudas
+## Apéndice · Las 21 trampas mudas
 
 #### *Las cuatro de las assertions*
 
@@ -105,20 +106,20 @@ segunda se entiende justo la que te está pasando.
 | **185 falsos positivos** y el DUT está sano | la muestreás con el flanco en el que se escribe | estímulo en `negedge`, respuesta del DUT en `posedge` | Assertions · d7 |
 | Falsos positivos **al arrancar** cada test | falta el `disable iff (!reset_n)` | `default disable iff`, una vez, arriba de todo | Assertions |
 
-- Las cuatro son de la misma familia que las quince de arriba, con un agravante:
+- Las cuatro son de la misma familia que las de arriba, con un agravante:
   una assertion rota **se ve exactamente igual** que una que anda. No hay salida
   que mirar
 
 Note:
 Estas cuatro llegaron al apéndice con las assertions y son las únicas de la lista
-donde el chequeo mismo es lo que falla — las otras quince son bugs del
+donde el chequeo mismo es lo que falla — las demás son bugs del
 testbench; éstas son bugs del que chequea el testbench. Por eso el antídoto es
 siempre el mismo y por eso vale repetirlo hasta el cansancio: **un `cover
 property` por cada `assert property`**.
 La primera fila es la más barata de cometer en este flujo y conviene mostrarla en
 vivo: sacar `--assert` del `run.sh` de `code/u8/assertions` deja la corrida con `+BUG=1`
 en 0 `UVM_ERROR`. Las 183 fallas desaparecen sin que nada avise.
-La tercera es la lección de la sección y la única de las veinte que no está en
+La tercera es la lección de la sección y la única de la lista que no está en
 ningún tutorial. El reflejo equivocado, cuando aparecen los falsos positivos, es
 aflojar la property hasta que calle: ahí uno se queda sin chequeo y con la
 sensación de haberlo arreglado. El reflejo correcto es preguntar en qué flanco
@@ -126,7 +127,7 @@ escribe el que estimula.
 
 ---
 
-## Apéndice · Las veinte trampas mudas
+## Apéndice · Las 21 trampas mudas
 
 #### *Y la que trae el clocking block*
 
@@ -134,7 +135,7 @@ escribe el que estimula.
 | --- | --- | --- | :-- |
 | El scoreboard falla **una vez cada veinte** y el waveform se ve bien | media señal se lee por `cb.sig` y la otra media por `sig` | si entró al clocking block, **todo** el protocolo la lee por ahí | Interfaces y BFM |
 
-- Es la única de las veinte que **la agrega una herramienta**: sin clocking
+- Es la única de la lista que **la agrega una herramienta**: sin clocking
   block no existe. Mal usado es peor que no usarlo
 - Dos nombres para el mismo cable, y difieren en un ciclo:
   `code/u2/clocking/mezcla.sv` imprime `3` y `4` en el mismo instante
@@ -143,8 +144,8 @@ escribe el que estimula.
 
 Note:
 Esta trampa cierra el apéndice y es la que mejor resume su tesis, porque el
-síntoma es el peor de todos los de la lista: **intermitente**. Las otras
-dieciocho fallan siempre o no fallan nunca; ésta falla cuando el dato cambia,
+síntoma es el peor de todos los de la lista: **intermitente**. Las demás
+fallan siempre o no fallan nunca; ésta falla cuando el dato cambia,
 que es una de cada tantas corridas y justo la que no estás mirando.
 Y tiene una vuelta que vale marcar en voz alta: es la única de la lista que
 aparece *porque* usaste la herramienta que evita otro problema. El clocking

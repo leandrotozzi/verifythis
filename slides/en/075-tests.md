@@ -1,4 +1,4 @@
-<!-- es-sha: cf7b93df8c60 -->
+<!-- es-sha: 0a0dbea4d761 -->
 ## Tests
 
 #### *Compile once, pick the test from the command line*
@@ -39,7 +39,8 @@ the test `new()`s and become components of the tree.
 - The `top` is still a **module**: it instantiates the BFM and the DUT the same as
   before. The only new thing is these two lines
 - `run_test()` with no argument means *"whichever `+UVM_TESTNAME` says"*. With an
-  argument —`run_test("random_test")`— you go back to hardcoding the test
+  argument —`run_test("random_test")`— that one becomes the **default**, and
+  `+UVM_TESTNAME` still overrides it from the command line
 - Before `run_test()` there is not a single UVM object alive: that is why the `set` goes here
 
 Note:

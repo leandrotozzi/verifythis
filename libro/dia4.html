@@ -489,7 +489,7 @@ compilador, no por un string.</p>
 <li>Instanciamos el analysis port en <em>build_phase</em></li>
 <li>Escribimos datos en el puerto mediante el método <em>.write()</em></li>
 <li>Una vez que escribimos datos en el puerto, este va a todos sus subscribers</li>
-<li>Utilizamos el método <em>connect()</em> para conectar los subscribers al puerto. Este método tiene un único argumento: un analysis_port</li>
+<li>Utilizamos el método <em>connect()</em> para conectar los subscribers al puerto. Este método tiene un único argumento, y es el <strong>export</strong> del subscriber (<code>analysis_export</code>), no otro port</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u5/varios-objetos/02-con-analysis-port/con-analysis-port.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">dice_roller</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(dice_roller);
@@ -738,8 +738,12 @@ La línea que hay que leer despacio es
 <code>dice_roller_h.roll_ap.connect(coverage_h.analysis_export)</code>, y la dirección
 importa: <strong>el port se conecta al export, nunca al revés</strong>. Es el mantra que vuelve
 en threads, en put y get y en agents, y el compilador no siempre te ataja.
-Regla de bolsillo para acordarse de la dirección: conecta el que <strong>produce</strong>. El
-que consume pone la oreja y no hace nada.
+Regla de bolsillo para acordarse de la dirección, y hay que decirla así porque la
+versión fácil se rompe enseguida: llama al <code>connect()</code> <strong>el que tiene el port</strong>,
+y se lo pasa el export del otro. Acá el que tiene el port es el productor; en put
+y get el <code>uvm_get_port</code> lo tiene el <strong>consumidor</strong>, y ahí es el consumidor el que
+conecta. &quot;Conecta el que produce&quot; funciona en esta slide y falla en la siguiente
+sección.
 Y la prueba de fuego de la sección: para agregar un cuarto observador hay que
 escribir la clase y <strong>una</strong> línea acá. Ni una en <code>dice_roller</code>.</p>
 </div>
@@ -1927,9 +1931,12 @@ handshake de señales, ni bandera compartida, ni semáforo</li>
 <code>@(posedge algo)</code>, no hay <code>wait</code>, no hay una variable que diga &quot;listo&quot;. El
 productor pone y sigue; si el otro no sacó todavía, el <code>put()</code> lo frena solo.
 El detalle de forma, que es el que se copia mal: el port se <strong>instancia</strong> en el
-<code>build_phase</code> como cualquier otro componente, con <code>new(&quot;nombre&quot;, this)</code>. Un port
-es un <code>uvm_component</code>, no un campo de datos — por eso lleva padre, y por eso
-aparece en <code>print_topology()</code>.
+<code>build_phase</code> como cualquier otro componente, con <code>new(&quot;nombre&quot;, this)</code>. No es un
+campo de datos: lleva padre, y por eso aparece en <code>print_topology()</code>. Pero
+tampoco es un <code>uvm_component</code> — <code>uvm_put_port</code> extiende <code>uvm_port_base #(IF)</code>, y
+el que se cuelga del árbol es un <code>uvm_port_component</code> interno que el port se
+arma solo (<code>uvm_port_base.svh:137</code>). La FIFO de la slide siguiente sí es un
+component de verdad.
 Y el parámetro: <code>uvm_put_port #(T)</code>. Ese <code>T</code> tiene que ser el mismo en el port,
 en el get port y en la FIFO. Si no coinciden no compila, que es la buena noticia
 —es de los pocos errores de conexión de UVM que se ven en compilación y no a las
@@ -2025,10 +2032,15 @@ arriba</li>
 que existir. Si <code>connect</code> fuera top-down, el test intentaría conectar hijos que
 todavía no se construyeron.
 El error clásico de esta slide, que compila y falla en tiempo de ejecución: crear
-la FIFO en el <code>connect_phase</code> en vez del <code>build_phase</code>. UVM tira un fatal —
-<code>Cannot create a component during connect</code> — y por lo menos avisa. Peor es
-olvidarse del <code>connect()</code>: ahí el port queda sin conectar y el fatal aparece en
-el primer <code>put()</code>, mucho más tarde y sin decir cuál port fue.
+la FIFO en el <code>connect_phase</code> en vez del <code>build_phase</code>. UVM lo ataja con un fatal
+<code>ILLCRT</code> —*&quot;It is illegal to create a component (&#39;x&#39; under &#39;y&#39;) after the build
+phase has ended&quot;* (<code>uvm_component.svh:1721</code>)—, y por lo menos avisa con el nombre.
+Olvidarse del <code>connect()</code> de un port de <code>put</code>/<code>get</code> <strong>también</strong> avisa, y bien:
+<code>resolve_bindings()</code> reporta un <code>UVM_ERROR [Connection Error] connection count of 0 does not meet required minimum of 1</code> con el nombre del port, en
+<code>end_of_elaboration</code> y antes de que corra un solo ciclo (<code>uvm_port_base.svh:886</code>).
+El que se calla es el <strong>analysis port</strong>, porque su mínimo es 0: un <code>write()</code> a un
+port sin conectar es legal y no imprime nada. Es la misma asimetría de la sección
+anterior, y es la que hay que recordar.
 Y una que conviene señalar de paso: acá el productor y el consumidor son hijos
 del <strong>test</strong>, no de un env. Es a propósito, porque la sección es sobre el
 mecanismo. En el testbench real esto va adentro del agent, con el sequencer de un

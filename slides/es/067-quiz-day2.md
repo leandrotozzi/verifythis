@@ -130,4 +130,4 @@
 - [ ] Sólo en tiempo de compilación
 - [x] Sólo si el objeto de `origen` es realmente de la clase de `destino` o de una derivada
 
-> **Sólo si el objeto lo permite** — `$cast` chequea **en runtime** y devuelve 0 si no da. Por eso la factory de UVM es más cómoda que el ejemplo de los animales: devuelve el tipo correcto y te ahorra el casteo.
+> **Sólo si el objeto lo permite** — `$cast` chequea **en runtime** y devuelve 0 si no da. Por eso la factory de UVM es más cómoda que la `cantina` de la sección: el `type_id::create()` devuelve el tipo correcto y te ahorra el casteo.

@@ -71,7 +71,7 @@
 </section>
 
 <section id="s173" class="slide">
-<!-- es-sha: 70f176b32625 -->
+<!-- es-sha: 500a83e2f70b -->
 <h2 id="one-producer-many-listeners">One producer, many listeners</h2>
 <h4 id="two-ways-of-talking-between-objects"><em>Two ways of talking between objects</em></h4>
 <ul>
@@ -504,7 +504,7 @@ by the compiler, not by a string.</p>
 <li>We instantiate the analysis port in <em>build_phase</em></li>
 <li>We write data into the port through the <em>.write()</em> method</li>
 <li>Once we write data into the port, it goes to all of its subscribers</li>
-<li>We use the <em>connect()</em> method to connect the subscribers to the port. This method takes a single argument: an analysis_port</li>
+<li>We use the <em>connect()</em> method to connect the subscribers to the port. This method takes a single argument, and it is the subscriber&#39;s <strong>export</strong> (<code>analysis_export</code>), not another port</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u5/varios-objetos/02-con-analysis-port/con-analysis-port.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">dice_roller</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(dice_roller);
@@ -754,8 +754,12 @@ The line to read slowly is
 matters: <strong>the port connects to the export, never the other way round</strong>. It is
 the mantra that comes back in threads, in put and get and in agents, and the
 compiler does not always catch you.
-Pocket rule to remember the direction: the one that <strong>produces</strong> connects. The
-one that consumes lends an ear and does nothing.
+Pocket rule to remember the direction, and it has to be said this way because the
+easy version breaks straight away: the one that calls <code>connect()</code> is <strong>the one
+that has the port</strong>, and it hands it the other one&#39;s export. Here the one with the
+port is the producer; in put and get the <code>uvm_get_port</code> belongs to the
+<strong>consumer</strong>, and there it is the consumer that connects. &quot;The producer connects&quot;
+works on this slide and fails in the next section.
 And the acid test of the section: to add a fourth observer you have to write the
 class and <strong>one</strong> line here. Not one in <code>dice_roller</code>.</p>
 </div>
@@ -1786,7 +1790,7 @@ outside the agent in the agents.</p>
 </section>
 
 <section id="s202" class="slide">
-<!-- es-sha: 12954fabcd03 -->
+<!-- es-sha: 06d2d3f6198a -->
 <h2 id="when-somebody-has-to-wait">When somebody has to wait</h2>
 <h4 id="you-were-already-doing-this-with-modules"><em>You were already doing this, with modules</em></h4>
 <ul>
@@ -1966,8 +1970,11 @@ The producer puts and carries on; if the other one has not taken it out yet, the
 <code>put()</code> stops it on its own.
 The detail of form, which is the one that gets copied wrong: the port gets
 <strong>instantiated</strong> in the <code>build_phase</code> like any other component, with
-<code>new(&quot;name&quot;, this)</code>. A port is a <code>uvm_component</code>, not a data field — that is why
-it takes a parent, and that is why it shows up in <code>print_topology()</code>.
+<code>new(&quot;name&quot;, this)</code>. It is not a data field: it takes a parent, and that is why it
+shows up in <code>print_topology()</code>. But it is not a <code>uvm_component</code> either —
+<code>uvm_put_port</code> extends <code>uvm_port_base #(IF)</code>, and what hangs off the tree is an
+internal <code>uvm_port_component</code> the port builds for itself
+(<code>uvm_port_base.svh:137</code>). The FIFO on the next slide really is a component.
 And the parameter: <code>uvm_put_port #(T)</code>. That <code>T</code> has to be the same in the port,
 in the get port and in the FIFO. If they do not match it does not compile, which
 is the good news —it is one of the few UVM connection errors you see at compile
@@ -2063,10 +2070,15 @@ is for: the <code>connect_phase</code> connects a port to an export, and for tha
 objects have to exist. If <code>connect</code> were top-down, the test would try to connect
 children that had not been built yet.
 The classic error of this slide, which compiles and fails at run time: creating
-the FIFO in the <code>connect_phase</code> instead of the <code>build_phase</code>. UVM throws a fatal
-— <code>Cannot create a component during connect</code> — and at least it warns you. Worse
-is forgetting the <code>connect()</code>: there the port is left unconnected and the fatal
-shows up on the first <code>put()</code>, much later and without saying which port it was.
+the FIFO in the <code>connect_phase</code> instead of the <code>build_phase</code>. UVM catches it with
+an <code>ILLCRT</code> fatal —*&quot;It is illegal to create a component (&#39;x&#39; under &#39;y&#39;) after the
+build phase has ended&quot;* (<code>uvm_component.svh:1721</code>)—, and at least it warns you with
+the name. Forgetting the <code>connect()</code> of a <code>put</code>/<code>get</code> port <strong>also</strong> warns, and
+well: <code>resolve_bindings()</code> reports a <code>UVM_ERROR [Connection Error] connection count of 0 does not meet required minimum of 1</code> with the name of the port, in
+<code>end_of_elaboration</code> and before a single cycle runs (<code>uvm_port_base.svh:886</code>).
+The one that stays quiet is the <strong>analysis port</strong>, because its minimum is 0: a
+<code>write()</code> into an unconnected port is legal and prints nothing. It is the same
+asymmetry as the previous section, and it is the one to remember.
 And one worth pointing out in passing: here the producer and the consumer are
 children of the <strong>test</strong>, not of an env. It is on purpose, because the section is
 about the mechanism. In the real testbench this goes inside the agent, with the

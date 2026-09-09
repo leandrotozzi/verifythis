@@ -1,4 +1,4 @@
-<!-- es-sha: 647efb74e66a -->
+<!-- es-sha: 7fc54aff9a17 -->
 ## Copying an object that contains another
 
 #### *The handle is not the object*
@@ -175,8 +175,8 @@ somebody tries to copy a `mojito` onto a `fernet`, it returns 0 and it has to be
 caught.
 It is the first time a signature convention shows up that exists only so that
 polymorphism can work. In UVM it is going to be the same and with more rules: the
-argument has to be called `rhs`, `do_compare()` also takes a `uvm_comparer`, and
-so on. When those signatures show up in the transactions, the answer to "why like
+argument has to be a `uvm_object` —and by convention it is called `rhs`—,
+`do_compare()` also takes a `uvm_comparer`, and so on. When those signatures show up in the transactions, the answer to "why like
 this?" is this slide.
 
 ---
@@ -191,8 +191,8 @@ this?" is this slide.
   prints **all four fields by hand**, including the three it inherited
 - It works, and that is why it is dangerous. The day `fernet` gains a field, this
   method goes on compiling and goes on printing — less than it should
-- The whole file is in `code/u6/jerarquias/wrong.sv`, and the `do_copy()`s have
-  the same vice: each one touches fields that are not its own
+- The whole file is in `code/u6/jerarquias/wrong.sv`. The three `do_copy()`s in
+  there do call `super`; the one with the vice is `bad_copy()`, at the very bottom
 
 Note:
 The rule to leave behind: **a class only writes on its own fields.** Everything

@@ -1,4 +1,4 @@
-<!-- es-sha: a2eae5be73ce -->
+<!-- es-sha: 5c0ef74263d6 -->
 ## Constrained random
 
 #### *The other half of the pincer*
@@ -262,7 +262,7 @@ what happens when two constraints contradict each other, and without the `else`
 the testbench goes on sending the previous transaction.
 `constraint_mode` has a relative worth naming even though we do not use it: `soft`
 constraints, which the solver drops on its own when they get in the way instead of
-returning 0. They are in IEEE 1800-2017 and they are the modern way of writing a
+returning 0. They came in with IEEE 1800-2012 and they are the modern way of writing a
 default value that a `with {}` can override.
 
 ---

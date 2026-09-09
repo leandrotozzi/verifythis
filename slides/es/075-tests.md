@@ -38,7 +38,8 @@ el test hace `new()` y pasan a ser components del árbol.
 - El `top` sigue siendo un **módulo**: instancia el BFM y el DUT igual que
   antes. Lo único nuevo son estas dos líneas
 - `run_test()` sin argumento significa *"el que diga `+UVM_TESTNAME`"*. Con un
-  argumento —`run_test("random_test")`— volvés a hardcodear el test
+  argumento —`run_test("random_test")`— ése pasa a ser el **default**, y
+  `+UVM_TESTNAME` lo sigue pisando desde la línea de comandos
 - Antes de `run_test()` no hay ningún objeto de UVM vivo: por eso el `set` va acá
 
 Note:

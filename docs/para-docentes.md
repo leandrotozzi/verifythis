@@ -77,7 +77,7 @@ Las tres piezas dependen de que el capstone esté hecho, así que sólo funciona
   al que entendió del que copió el patrón del primer capstone.
 
 Los cuatro **apéndices** del día 7 —de la VTALU a un bus real, la caja de
-herramientas de debug, las veinte trampas mudas y el glosario— no ocupan hora
+herramientas de debug, las 21 trampas mudas y el glosario— no ocupan hora
 de clase: se dan como **lectura**, porque el curso tiene libro. `libro/dia7.html`
 es el mismo material para leer de corrido, con las notas del instructor adentro
 del texto. Los apéndices de debug y de trampas se leen antes del capstone; se

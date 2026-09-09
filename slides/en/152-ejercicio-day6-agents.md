@@ -1,4 +1,4 @@
-<!-- es-sha: 5bc7ab882067 -->
+<!-- es-sha: 89b0bfae785b -->
 ## Exercise · Day 6 · 1 of 4
 
 #### *The agent that only watches*
@@ -16,7 +16,8 @@ The exercise puts together the three things of the section that can be done wron
 compiler saying anything: `is_active`, the hierarchical scope of the `set()`, and the
 `connect_phase` of the analysis ports.
 The trap almost everybody is going to find is the scope: with `"*"` in both
-`set()`, the second overwrites the first and both agents start up active. The
+`set()`, the second overwrites the first and both agents end up with the same
+config — same BFM and same `is_active`. The
 checker catches it by crossing the counts — the module sends 200 operations and the
 sequence more than a thousand, so if both agents see similar numbers it means they
 are watching the same interface.

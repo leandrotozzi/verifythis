@@ -132,7 +132,7 @@ de la clase base</li>
    <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
       <span class="hljs-type">string</span> coca_s;
       coca_s = (con_coca) ? <span class="hljs-string">&quot;si&quot;</span> : <span class="hljs-string">&quot;no&quot;</span>;
-      <span class="hljs-keyword">return</span> sformat(<span class="hljs-string">&quot;Hielos: %0d  Coca: &quot;</span>,hielos, coca_s);
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;Hielos: %0d  Coca: %s&quot;</span>, hielos, coca_s);
    <span class="hljs-keyword">endfunction</span> : convert2string
 
 <span class="hljs-comment">//class fernet_doble extends fernet;</span>
@@ -338,8 +338,9 @@ campos propios. Y como vimos en la factory, ese <code>$cast</code> chequea en ru
 alguien intenta copiar un <code>mojito</code> sobre un <code>fernet</code>, devuelve 0 y hay que
 atajarlo.
 Es la primera vez que se ve una convención de firma que existe sólo para que el
-polimorfismo funcione. En UVM va a ser lo mismo y con más reglas: el argumento se
-tiene que llamar <code>rhs</code>, <code>do_compare()</code> recibe además un <code>uvm_comparer</code>, y así.
+polimorfismo funcione. En UVM va a ser lo mismo y con más reglas: el argumento
+tiene que ser un <code>uvm_object</code> —y por convención se lo llama <code>rhs</code>—,
+<code>do_compare()</code> recibe además un <code>uvm_comparer</code>, y así.
 Cuando en las transactions aparezcan esas firmas, la respuesta a &quot;¿por qué así?&quot; es
 esta slide.</p>
 </div>
@@ -387,7 +388,7 @@ esta slide.</p>
    <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
       <span class="hljs-type">string</span> coca_s;
       coca_s = (con_coca) ? <span class="hljs-string">&quot;si&quot;</span> : <span class="hljs-string">&quot;no&quot;</span>;
-      <span class="hljs-keyword">return</span> sformat(<span class="hljs-string">&quot;Hielos: %0d  Coca: &quot;</span>, hielos, coca_s);
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;Hielos: %0d  Coca: %s&quot;</span>, hielos, coca_s);
    <span class="hljs-keyword">endfunction</span> : convert2string
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(trago copia);
@@ -473,8 +474,8 @@ esta slide.</p>
 <strong>los cuatro campos a mano</strong>, incluidos los tres que heredó</li>
 <li>Funciona, y por eso es peligroso. El día que <code>fernet</code> gane un campo, este método
 sigue compilando y sigue imprimiendo — de menos</li>
-<li>El archivo entero está en <code>code/u6/jerarquias/wrong.sv</code>, y los <code>do_copy()</code> tienen el
-mismo vicio: cada uno toca campos que no son suyos</li>
+<li>El archivo entero está en <code>code/u6/jerarquias/wrong.sv</code>. Los tres <code>do_copy()</code> de
+ahí sí llaman a <code>super</code>; la que tiene el vicio es <code>bad_copy()</code>, abajo de todo</li>
 </ul>
 <div class="nota">
 <p>La regla que hay que dejar: <strong>una clase sólo escribe sobre sus propios campos.</strong>
@@ -987,7 +988,7 @@ objeto <strong>que ya existe</strong>, y <code>clone()</code>, que además crea 
 copiar, pero no sabe <strong>qué campos</strong> tiene tu transaction</li>
 <li>Es el mismo patrón que el resto de la sección: <code>copy()</code> es el que se llama,
 <code>do_copy()</code> es el que se escribe</li>
-<li>La única diferencia es que UVM requiere que el argumento que le pasamos se llame <em>rhs</em> (Right Hand Side)</li>
+<li>La única diferencia es el argumento: tiene que ser un <code>uvm_object</code> —de ahí el <code>$cast</code>—. UVM lo llama <em>rhs</em> (<em>right hand side</em>) por convención, no por requisito</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction_do_copy.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(<span class="hljs-uvm-type">uvm_object</span> rhs);
    command_transaction copied_transaction_h;
@@ -1006,8 +1007,12 @@ copiar, pero no sabe <strong>qué campos</strong> tiene tu transaction</li>
 
 <span class="hljs-keyword">endfunction</span> : do_copy</code></pre></figure><div class="nota">
 <p>El patrón es el de las jerarquías de clases, con dos reglas de UVM encima.
-La primera, la que hace que compile: el argumento se llama <code>rhs</code> y es de tipo
-<code>uvm_object</code> —la clase base de todo—, así que lo primero que hay que hacer es
+La primera, la que hace que compile: el argumento tiene que ser de tipo
+<code>uvm_object</code> —la clase base de todo—, porque lo que SystemVerilog exige para que
+el override virtual funcione es que coincidan el tipo y la dirección, no el
+nombre. <code>rhs</code> es el identificador que usa la firma de <code>uvm_object::do_copy</code> y por
+eso lo copia todo el mundo, pero podés llamarlo como quieras. Lo primero que hay
+que hacer es
 castear. Y como el <code>$cast</code> chequea en runtime, va con su <code>uvm_fatal</code>: si alguien
 intenta copiar un <code>result_transaction</code> sobre un <code>command_transaction</code>, querés
 enterarte ahí y no tres componentes más adelante.
@@ -1029,14 +1034,14 @@ la parte de abajo, la librería maneja el protocolo.</p>
 <li>Varios componentes pueden ver el mismo dato si tienen handles al mismo objeto.
 Es barato y funciona — mientras nadie lo modifique</li>
 <li>La regla que lo sostiene se llama <strong>MOOCOW</strong> —<em>Manual Obligatory Object Copy On
-Write</em>—, y así la nombra la Verification Academy</li>
+Write</em>—, y así la bautiza <em>The UVM Primer</em>, de Ray Salemi</li>
 <li>Dice esto: compartir un handle está bien <strong>siempre que no toques el objeto</strong>.
 El que quiere modificar, copia primero</li>
 <li>Es una disciplina del equipo, no algo que el lenguaje imponga. UVM sólo pone la
 herramienta: <code>clone()</code>, que devuelve un <code>uvm_object</code> y hay que castear</li>
 </ul>
 <div class="nota">
-<p>El nombre es una joda de Verification Academy, pero la regla es la que evita el
+<p>El nombre es una joda del <em>UVM Primer</em>, pero la regla es la que evita el
 bug más caro de las jerarquías de clases: mandaste la transaction al scoreboard, seguís
 teniendo el handle, la modificás para la siguiente, y el scoreboard termina
 comparando contra datos que cambiaron después de que él los recibió. No falla
@@ -1059,7 +1064,7 @@ partes y es el único lugar del testbench donde se hace.</p>
 <ul>
 <li>Como <code>clone()</code> devuelve un <code>uvm_object</code>, cada componente que lo use termina
 escribiendo su propio <code>$cast</code> — el mismo, repetido</li>
-<li>La convención de la Verification Academy es agregarle a la transaction un
+<li>La convención del <em>UVM Primer</em> es agregarle a la transaction un
 <code>clone_me()</code> que haga las dos cosas y devuelva ya el tipo correcto</li>
 <li>No lo trae UVM: es cuatro líneas escritas una vez en el dato, para que ninguno
 de los que lo usan tenga que acordarse del cast</li>
@@ -1075,8 +1080,8 @@ de los que lo usan tenga que acordarse del cast</li>
 <p>Es un método de tres líneas y existe por una sola razón: <code>clone()</code> devuelve un
 <code>uvm_object</code>, así que todo el que lo use tiene que castear. Escribir el <code>$cast</code>
 una vez adentro de la clase es mejor que escribirlo cincuenta veces afuera.
-El nombre no está en el estándar: <code>clone_me()</code> es una convención de Verification
-Academy. En un proyecto ajeno puede llamarse distinto o no existir — y ahí vas a
+El nombre no está en el estándar: <code>clone_me()</code> es una convención del <em>UVM
+Primer</em>. En un proyecto ajeno puede llamarse distinto o no existir — y ahí vas a
 ver el <code>$cast</code> repetido en cada llamador.
 Y la trampa que hay que nombrar: <code>clone()</code> llama a <code>create()</code> y después a
 <code>copy()</code>, que termina en tu <code>do_copy()</code>. Si <code>do_copy()</code> se olvida un campo, el
@@ -1152,11 +1157,16 @@ mensaje del scoreboard y de los monitores del resto del curso sale de acá.
 El <code>.name()</code> del <code>enum</code> es el detalle que cambia el día: sin él, el log dice
 <code>op: 4</code> y hay que ir a buscar el <code>typedef</code>; con él dice <code>op: mul_op</code>. La regla
 para llevarse: <strong>si un campo es un enum, en el log va su nombre, nunca su valor.</strong>
-Vale nombrar el pariente que UVM trae y el curso no usa: <code>sprint()</code>, que imprime
-la transaction sola si registraste los campos con las macros <code>`uvm_field_*</code>.
-Sale automático, sale feo —tres líneas por campo, con tipo y radix— y no se puede
-adaptar. Un <code>convert2string()</code> de tres líneas escrito a mano entra en un renglón
-del log, y en un archivo de cien mil líneas eso importa.</p>
+Vale nombrar el pariente que UVM trae y el curso no usa: <code>print()</code> y <code>sprint()</code>,
+que imprimen la transaction sola si registraste los campos con las macros
+<code>`uvm_field_*</code> — o si escribís <code>do_print()</code>, que es el equivalente manual de
+<code>convert2string()</code> y no aparece en ninguna slide del curso. Ojo con eso: sin las
+macros y sin <code>do_print()</code>, un <code>t.print()</code> de las transactions de acá imprime sólo
+el encabezado. El formato **sí** se cambia: por defecto es el <code>uvm_table_printer</code>
+—una fila por campo, con tipo y radix— y hay un <code>uvm_line_printer</code> que mete el
+objeto entero en un renglón. La razón para preferir <code>convert2string()</code> es más
+sencilla y hay que decirla así: escrito a mano entra en un renglón que dice lo
+que a vos te importa, y en un archivo de cien mil líneas eso importa.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/246">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -2186,7 +2196,7 @@ precisamente lo que pasa cuando dos constraints se contradicen, y sin el <code>e
 el testbench sigue mandando la transaction anterior.
 <code>constraint_mode</code> tiene un pariente que conviene nombrar aunque no lo usemos: las
 constraints <code>soft</code>, que el solver descarta solas cuando estorban en vez de
-devolver 0. Están en IEEE 1800-2017 y son la forma moderna de escribir un valor
+devolver 0. Entraron en IEEE 1800-2012 y son la forma moderna de escribir un valor
 por defecto que un <code>with {}</code> pueda pisar.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/262">ver esta slide en el deck &rsaquo;</a></p>

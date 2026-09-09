@@ -1,4 +1,4 @@
-<!-- es-sha: 0e951e495f0e -->
+<!-- es-sha: 010fb47425b4 -->
 ## Assertions (SVA)
 
 #### *The hole the scoreboard left*
@@ -121,20 +121,27 @@ b : assert property (@(posedge clk) start |=> !done);
 - Which one goes in? It depends on whether the response is **combinational** (the same edge) or
   **registered** (the next one). In the VTALU, `done` comes out of an `always_ff`:
   it is always the next one
-- The symptom of getting it wrong is the worst of all: the property **always passes**,
-  because the antecedent and the consequent never meet on the edge that was asked for
+- Getting it wrong does not have a single symptom: `start |-> done` with a registered
+  `done` **fails on every transaction** —it sees the old `done`—, and a property whose
+  antecedent never occurs passes vacuously. That is why it always goes with its `cover`
 
 Note:
 This is the first question of every SVA interview and it is worth practising it
 with the DUT in hand: `done_1c <= start && (op != 3'b000)` is an NBA, so
 what gets written on edge *n* is only read on *n+1*. With `|->` the
 property would compare `start` against the **old** `done`.
-The operational rule, which is more useful than the theory: look at the RTL. If the
-consequent comes out of a `<=`, it takes `|=>`. If it comes out of an `assign`, it takes `|->`.
-And the trap to name out loud: getting this wrong almost never gives an
-error. It gives a property that is vacuously satisfied or that is always satisfied, and
-the final report says everything passed. It is the reason why the `cover
-property` slide is not an extra: it is the only check of the check.
+The operational rule, which is more useful than the theory: `|=>` **is** `|-> ##1`, so
+the question is not which of the two operators goes in but **how many edges later** the
+spec promises it. An `assign` answers on the same edge and a `<=` on the next one, but
+that is the easy case: the star property of this very section —`start && op_set !=
+no_op |-> ##[1:5] done`— uses `|->` for a `done` that comes out of an `always_ff`,
+because the spec promises a window of one to five edges and not a single one.
+And the trap to name out loud, without overstating it: getting this wrong sometimes
+shouts —`|->` against a registered signal fails on every transaction— and sometimes
+stays quiet, when the antecedent you wrote never occurs and the property is vacuously
+satisfied. That second case is the one the final report takes as good, and it is the
+reason why the `cover property` slide is not an extra: it is the only check of the
+check.
 
 ---
 
@@ -164,9 +171,13 @@ That is exactly the topic of the slide that follows, and it is worth planting it
 `$past` with the second argument is the one that gets underestimated the most: checking *"the
 result of now corresponds to the operands of four edges ago"* is one
 line, and by hand it is a shift register and three bugs.
-It is worth saying as well what they are NOT: they are not functions one can call from an
-`initial`. They only make sense inside a property or a sequence, because
-they need a clock to know what "previous" means.
+It is worth saying as well where they can be used, because there is a half-truth going
+around: they *can* be called from procedural code —an `always @(posedge clk) if
+($rose(req)) …` is legal (1800-2017 §16.9.3) and Verilator 5.052 accepts it—, because
+that is where they infer the clock from. What they always need is **a** clock: in an
+`initial` with no clock event they mean nothing. And the practical limit of this flow:
+`$past` with the explicit clock argument is not supported by Verilator (*Unsupported:
+$past expr2 and/or clock arguments*).
 
 ---
 
@@ -227,9 +238,9 @@ at you that do not exist. The beginner's reflex is to loosen the property until 
 shuts up —and there they are left without a check. The correct reflex is to look at which edge
 the one driving the stimulus writes on.
 The underlying industrial way out is the **clocking block**, which declares the sampling
-once for the whole interface instead of repeating it property by property. This
-course does not teach it; whoever gets this far has already understood the problem it solves,
-which is the hard part.
+once for the whole interface instead of repeating it property by property. It is in
+day 1 —`030-interfaces-bfm.md` and `docs/clocking-blocks.md`— and it is worth naming
+again here, because only now is the full problem it solves in view.
 
 ---
 
@@ -506,8 +517,8 @@ section on are twenty.
   and checks every edge of the simulation, on its own
 - The anatomy never changes: `label : assert property (@(clock) disable iff
   (reset) antecedent |-> consequent) else action;`
-- `|->` is the same edge, `|=>` the next one. If the consequent comes out of an
-  `always_ff`, it takes `|=>`
+- `|->` is the same edge and `|=>` **is** `|-> ##1`. The question is not which of the
+  two, it is how many edges later the spec promises it
 - The properties live **in the `interface`**, with the signals. They do not get connected, they do not
   get built, and they travel with it
 - In UVM the action is `` `uvm_error ``, so the failure **counts** in the
@@ -553,6 +564,5 @@ tutorials use a DUT where stimulus and response share an edge.
 It is also the answer to *"why one more UVM course?"*. This one runs. And when
 something does not add up, the section tells why it did not add up instead of changing the example.
 What is left out and is worth naming so nobody discovers it late:
-`clocking block`, formal assertions, `expect`, and the prefabricated bus
-properties that come with commercial VIP. With what is in this section they can be read
-without help.
+formal assertions, `expect`, and the prefabricated bus properties that come with
+commercial VIP. With what is in this section they can be read without help.

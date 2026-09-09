@@ -120,20 +120,28 @@ b : assert property (@(posedge clk) start |=> !done);
 - ¿Cuál va? Depende de si la respuesta es **combinacional** (el mismo flanco) o
   **registrada** (el siguiente). En el VTALU, `done` sale de un `always_ff`:
   siempre es el siguiente
-- El síntoma de equivocarse es el peor de todos: la property **pasa siempre**,
-  porque el antecedente y el consecuente nunca coinciden en el flanco que se pidió
+- Equivocarse no da un síntoma solo: `start |-> done` con `done` registrado
+  **falla en cada transacción** —ve el `done` viejo—, y una property cuyo
+  antecedente nunca ocurre pasa en vacío. Por eso va siempre con su `cover`
 
 Note:
 Ésta es la primera pregunta de toda entrevista sobre SVA y conviene practicarla
 con el DUT en la mano: `done_1c <= start && (op != 3'b000)` es un NBA, así que
 lo que se escribe en el flanco *n* recién se lee en el *n+1*. Con `|->` la
 property compararía `start` contra el `done` **viejo**.
-La regla operativa, que es más útil que la teoría: mirá el RTL. Si el
-consecuente sale de un `<=`, va `|=>`. Si sale de un `assign`, va `|->`.
-Y la trampa que hay que nombrar en voz alta: equivocarse acá casi nunca da un
-error. Da una property que se satisface por vacío o que se satisface siempre, y
-el reporte final dice que todo pasó. Es la razón por la que la slide del `cover
-property` no es un extra: es el único chequeo del chequeo.
+La regla operativa, que es más útil que la teoría: `|=>` **es** `|-> ##1`, así que
+la pregunta no es cuál de los dos operadores va sino **cuántos flancos después** lo
+promete la spec. Un `assign` contesta en el mismo flanco y un `<=` en el
+siguiente, pero eso es el caso fácil: la property estrella de esta misma sección
+—`start && op_set != no_op |-> ##[1:5] done`— usa `|->` para un `done` que sale de
+un `always_ff`, porque la spec promete una ventana de uno a cinco flancos y no
+uno solo.
+Y la trampa que hay que nombrar en voz alta, sin exagerarla: equivocarse a veces
+grita —`|->` contra una señal registrada falla en cada transacción— y a veces se
+calla, cuando el antecedente que escribiste no ocurre nunca y la property se
+satisface por vacío. Ese segundo caso es el que el reporte final da por bueno, y
+es la razón por la que la slide del `cover property` no es un extra: es el único
+chequeo del chequeo.
 
 ---
 
@@ -163,9 +171,13 @@ Ese es exactamente el tema de la slide que viene, y conviene sembrarlo acá.
 `$past` con el segundo argumento es la que más se subestima: chequear *"el
 resultado de ahora corresponde a los operandos de hace cuatro flancos"* es una
 línea, y a mano son un shift register y tres bugs.
-Vale también decir lo que NO son: no son funciones que uno pueda llamar desde un
-`initial`. Sólo tienen sentido adentro de una property o de una sequence, porque
-necesitan un reloj para saber qué quiere decir "anterior".
+Vale también decir dónde se pueden usar, porque hay una media verdad que circula:
+sí se pueden llamar desde código procedural —un `always @(posedge clk) if
+($rose(req)) …` es legal (1800-2017 §16.9.3) y Verilator 5.052 lo acepta—, porque
+de ahí infieren el reloj. Lo que necesitan siempre es **un** reloj: en un
+`initial` sin evento de reloj no significan nada. Y el límite práctico de este
+flujo: `$past` con el argumento de reloj explícito no lo soporta Verilator
+(*Unsupported: $past expr2 and/or clock arguments*).
 
 ---
 
@@ -226,9 +238,9 @@ que no existen. El reflejo del principiante es aflojar la property hasta que
 calle —y ahí se quedó sin chequeo. El reflejo correcto es mirar en qué flanco
 escribe el que estimula.
 La salida industrial de fondo es el **clocking block**, que declara el muestreo
-una vez para toda la interface en vez de repetirlo property por property. Este
-curso no lo enseña; el que llega hasta acá ya entendió el problema que resuelve,
-que es lo difícil.
+una vez para toda la interface en vez de repetirlo property por property. Está en
+el día 1 —`030-interfaces-bfm.md` y `docs/clocking-blocks.md`— y vale volver a
+nombrarlo acá, porque recién ahora se ve el problema completo que resuelve.
 
 ---
 
@@ -505,8 +517,8 @@ sección son veinte.
   y chequea cada flanco de la simulación, sola
 - La anatomía no cambia nunca: `label : assert property (@(reloj) disable iff
   (reset) antecedente |-> consecuente) else acción;`
-- `|->` es el mismo flanco, `|=>` el siguiente. Si el consecuente sale de un
-  `always_ff`, va `|=>`
+- `|->` es el mismo flanco y `|=>` **es** `|-> ##1`. La pregunta no es cuál de los
+  dos, es cuántos flancos después lo promete la spec
 - Las properties viven **en la `interface`**, con las señales. No se conectan, no
   se construyen, y viajan con ella
 - En UVM la acción es `` `uvm_error ``, para que la falla **cuente** en el
@@ -552,6 +564,5 @@ tutoriales usan un DUT donde el estímulo y la respuesta comparten flanco.
 Es también la respuesta a *"¿por qué un curso más de UVM?"*. Éste corre. Y cuando
 algo no da, la sección cuenta por qué no daba en vez de cambiar el ejemplo.
 Lo que queda afuera y conviene nombrar para que nadie lo descubra tarde:
-`clocking block`, assertions formales, `expect`, y las properties de bus
-prefabricadas que vienen con los VIP comerciales. Con lo de esta sección se leen
-sin ayuda.
+assertions formales, `expect`, y las properties de bus prefabricadas que vienen
+con los VIP comerciales. Con lo de esta sección se leen sin ayuda.

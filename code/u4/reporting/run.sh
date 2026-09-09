@@ -15,6 +15,12 @@ set -e
 export UVM_ERRORS_OK=1
 vlt_uvm top --coverage-user -Wno-fatal -f dut.f -f tb.f
 run_sim +UVM_TESTNAME=random_test
+
+# The same testbench with one line of difference: add_test overrides the tester
+# through the factory, so every operation is an add. It is the second half of the
+# factory lesson and until now nobody ran it -- a test that does not get run is a
+# test that does not compile.
+run_sim +UVM_TESTNAME=add_test
 unset UVM_ERRORS_OK
 
 # ...but "toleramos los uvm_error" no puede querer decir "no miramos nada". Sin

@@ -1,4 +1,4 @@
-<!-- es-sha: 36c644536e96 -->
+<!-- es-sha: 545c942aa266 -->
 ## Transactions
 
 #### *The testbench is well divided up, and the data is not*
@@ -177,15 +177,18 @@ it is a component. If it travels along an arrow of the diagram, it is an object.
   copy, but it does not know **which fields** your transaction has
 - It is the same pattern as the rest of the section: `copy()` is the one that gets
   called, `do_copy()` is the one that gets written
-- The only difference is that UVM requires the argument we hand it to be called *rhs* (Right Hand Side)
+- The only difference is the argument: it has to be a `uvm_object` —hence the `$cast`—. UVM calls it *rhs* (*right hand side*) by convention, not by requirement
 
 {{code:code/u6/transactions/tb_classes/command_transaction_do_copy.svh}}
 
 Note:
 The pattern is the one from the class hierarchies, with two UVM rules on top.
-The first one, the one that makes it compile: the argument is called `rhs` and it
-is of type `uvm_object` —the base class of everything—, so the first thing to do
-is cast it. And since the `$cast` checks at run time, it goes with its
+The first one, the one that makes it compile: the argument has to be of type
+`uvm_object` —the base class of everything—, because what SystemVerilog demands for
+the virtual override to work is that the type and the direction match, not the
+name. `rhs` is the identifier used in the signature of `uvm_object::do_copy` and
+that is why everybody copies it, but you can call it whatever you like. The first
+thing to do is cast it. And since the `$cast` checks at run time, it goes with its
 `uvm_fatal`: if somebody tries to copy a `result_transaction` onto a
 `command_transaction`, you want to find out right there and not three components
 further on.
@@ -207,14 +210,14 @@ you put in the bottom part, the library handles the protocol.
 - Several components can see the same piece of data if they have handles to the
   same object. It is cheap and it works — as long as nobody modifies it
 - The rule that holds it up is called **MOOCOW** —*Manual Obligatory Object Copy On
-  Write*—, and that is how the Verification Academy names it
+  Write*—, and that is how *The UVM Primer*, by Ray Salemi, christens it
 - It says this: sharing a handle is fine **as long as you do not touch the
   object**. Whoever wants to modify, copies first
 - It is a discipline of the team, not something the language enforces. UVM only
   puts up the tool: `clone()`, which returns a `uvm_object` and has to be cast
 
 Note:
-The name is a joke from the Verification Academy, but the rule is the one that
+The name is a joke from the *UVM Primer*, but the rule is the one that
 avoids the most expensive bug of the class hierarchies: you sent the transaction
 to the scoreboard, you still hold the handle, you modify it for the next one, and
 the scoreboard ends up comparing against data that changed after it received it.
@@ -238,7 +241,7 @@ two parties and it is the only place in the testbench where that gets done.
 
 - Since `clone()` returns a `uvm_object`, every component that uses it ends up
   writing its own `$cast` — the same one, repeated
-- The Verification Academy convention is to add a `clone_me()` to the transaction
+- The *UVM Primer* convention is to add a `clone_me()` to the transaction
   that does both things and returns the right type already
 - UVM does not bring it: it is four lines written once in the data, so that none
   of the ones who use it have to remember the cast
@@ -249,7 +252,7 @@ Note:
 It is a three-line method and it exists for one reason only: `clone()` returns a
 `uvm_object`, so everybody who uses it has to cast. Writing the `$cast` once
 inside the class is better than writing it fifty times outside.
-The name is not in the standard: `clone_me()` is a Verification Academy
+The name is not in the standard: `clone_me()` is a *UVM Primer*
 convention. In somebody else's project it can be called something else or not
 exist at all — and there you are going to see the `$cast` repeated in every
 caller.
@@ -312,12 +315,17 @@ The `.name()` of the `enum` is the detail that changes the day: without it the l
 says `op: 4` and you have to go looking for the `typedef`; with it, it says
 `op: mul_op`. The rule to take home: **if a field is an enum, the log gets its
 name, never its value.**
-Worth naming the relative UVM brings and the course does not use: `sprint()`,
-which prints the transaction on its own if you registered the fields with the
-`` `uvm_field_* `` macros. It comes out automatically, it comes out ugly —three
-lines per field, with type and radix— and it cannot be adapted. A three-line
-`convert2string()` written by hand fits in one line of the log, and in a file of a
-hundred thousand lines that matters.
+Worth naming the relatives UVM brings and the course does not use: `print()` and
+`sprint()`, which print the transaction on their own if you registered the fields
+with the `` `uvm_field_* `` macros — or if you write `do_print()`, the manual
+equivalent of `convert2string()`, which does not show up in a single slide of the
+course. Careful with that: with no macros and no `do_print()`, a `t.print()` on the
+transactions here prints the header and nothing else. The format **can** be
+changed: the default is the `uvm_table_printer` —one row per field, with type and
+radix— and there is a `uvm_line_printer` that puts the whole object on one line.
+The reason to prefer `convert2string()` is simpler and should be said that way:
+written by hand it fits in one line that says what you care about, and in a file of
+a hundred thousand lines that matters.
 
 
 ---

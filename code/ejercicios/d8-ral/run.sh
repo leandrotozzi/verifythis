@@ -38,9 +38,10 @@ falta_campo() {
     itself: +UVM_TESTNAME=mapa_test, and compare it line by line."
 }
 falta_campo 'CTRL +@0x0 +\w+ +\[0\+:1\] +RW'      'CTRL.EN: bit 0, one bit, RW'
-falta_campo 'CTRL +@0x0 +\w+ +\[1\+:1\] +WOC'     'CTRL.CLR: bit 1, one bit, and an access
-    that says "it gets written, and then it reads back zero". It is neither RW nor WO: UVM has one
-    with that exact name'
+falta_campo 'CTRL +@0x0 +\w+ +\[1\+:1\] +(WC|W1C)' 'CTRL.CLR: bit 1, one bit, and an access
+    that says "it gets written, it clears, and then it reads back zero". It is not RW. And it is
+    not WO nor WOC either: any WO* access takes the field out of bit_bash and out of the do_check
+    mask, so both stages would go green without ever looking at the bit'
 falta_campo 'SCRATCH +@0x4 +\w+ +\[0\+:32\] +RW'  'SCRATCH: 32 bits at 0x04, RW'
 falta_campo 'ACC +@0x8 +\w+ +\[0\+:32\] +RO'      'ACC: 32 bits at 0x08, RO'
 falta_campo 'STATUS +@0xc +\w+ +\[0\+:1\] +RO'    'STATUS.EN: bit 0 at 0x0C, RO'

@@ -1,4 +1,4 @@
-<!-- es-sha: 0f3503997186 -->
+<!-- es-sha: 589b6c3c4412 -->
 ## The factory pattern
 
 #### *Who decides the type?*
@@ -108,10 +108,10 @@ Both annoyances of this slide disappear in the env.
 
 #### *Python Style*
 
-{{code:code/u3/factory/factory.py|lines=6-20}}
+{{code:code/u3/factory/factory.py|lines=5-19}}
 
 - The same factory, in a language that has nothing to do with hardware: a
-  static method with an `if` per type and an `assert` for what does not exist
+  static method with an `if` per type and a `raise` for what does not exist
 - And the same annoyance: adding a drink forces you to **edit the factory**
 - The whole file is in `code/u3/factory/factory.py` and it runs with `python3`:
   it generates twenty drinks at random and serves them all the same way

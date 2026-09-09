@@ -1,4 +1,4 @@
-<!-- es-sha: 70f176b32625 -->
+<!-- es-sha: 500a83e2f70b -->
 ## One producer, many listeners
 
 #### *Two ways of talking between objects*
@@ -251,7 +251,7 @@ by the compiler, not by a string.
 - We instantiate the analysis port in *build_phase*
 - We write data into the port through the *.write()* method
 - Once we write data into the port, it goes to all of its subscribers
-- We use the *connect()* method to connect the subscribers to the port. This method takes a single argument: an analysis_port
+- We use the *connect()* method to connect the subscribers to the port. This method takes a single argument, and it is the subscriber's **export** (`analysis_export`), not another port
 
 {{code:code/u5/varios-objetos/02-con-analysis-port/con-analysis-port.sv}}
 
@@ -364,8 +364,12 @@ The line to read slowly is
 matters: **the port connects to the export, never the other way round**. It is
 the mantra that comes back in threads, in put and get and in agents, and the
 compiler does not always catch you.
-Pocket rule to remember the direction: the one that **produces** connects. The
-one that consumes lends an ear and does nothing.
+Pocket rule to remember the direction, and it has to be said this way because the
+easy version breaks straight away: the one that calls `connect()` is **the one
+that has the port**, and it hands it the other one's export. Here the one with the
+port is the producer; in put and get the `uvm_get_port` belongs to the
+**consumer**, and there it is the consumer that connects. "The producer connects"
+works on this slide and fails in the next section.
 And the acid test of the section: to add a fourth observer you have to write the
 class and **one** line here. Not one in `dice_roller`.
 

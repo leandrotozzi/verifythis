@@ -3,8 +3,8 @@
 class driver extends uvm_driver #(command_transaction);
    `uvm_component_utils(driver)
    // Declares "this component accepts callbacks of this type". Without it the
-   // add() below compiles and does nothing, which is the usual way to lose an
-   // afternoon.
+   // add() below still hooks up and the callback still runs, but with a CBUNREG
+   // warning and without the type check: outside the contract, and nearly silent.
    `uvm_register_cb(driver, driver_callback)
 
    virtual vtalu_bfm bfm;

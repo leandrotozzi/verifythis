@@ -28,7 +28,7 @@
 - [ ] Cualquiera de las dos: la diferencia es de estilo
 - [ ] Ninguna: para señales registradas hay que usar `$past()`
 
-> **`|=>` cuando el consecuente sale de un `<=`** — y la regla operativa es mirar el RTL, no la property: si el consecuente sale de un `assign`, va `|->`. Equivocarse acá casi nunca da un error: da una property que pasa siempre.
+> **`|=>` cuando el consecuente sale de un `<=`** — porque `|=>` *es* `|-> ##1`, y lo que hay que preguntarse es cuántos flancos después lo promete la spec. Con `|->` contra una señal registrada la property no pasa en vacío: **falla en cada transacción**, porque compara contra el `done` viejo. La que sí pasa callada es aquella cuyo antecedente nunca ocurre — por eso va siempre con su `cover property`.
 
 ---
 

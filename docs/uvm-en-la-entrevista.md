@@ -264,7 +264,7 @@ el DUT, es el testbench que lo mira.**
 | El síntoma | El primer sospechoso | Con qué se mira |
 | --- | --- | --- |
 | Termina en **t = 0** y dice PASS | nadie levantó la objection | `+UVM_OBJECTION_TRACE` |
-| **No termina nunca** | un `item_done()` que no se llamó | `+UVM_TIMEOUT=5ms`, y después el trace |
+| **No termina nunca** | un `item_done()` que no se llamó | `+UVM_TIMEOUT=5000000,NO`, y después el trace |
 | El scoreboard **grita en todas** | el monitor muestrea mal | `+UVM_VERBOSITY=UVM_HIGH` |
 | El `config_db` **no encuentra** | el ámbito del `set`, no el `get` | `+UVM_CONFIG_DB_TRACE` |
 | La cobertura da **0 %** | falta el `new()` o el `sample()` | `verilator_coverage` sobre el `.dat` |

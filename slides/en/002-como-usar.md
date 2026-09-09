@@ -1,4 +1,4 @@
-<!-- es-sha: d9dfd48c1fc3 -->
+<!-- es-sha: 0c9f54ca2da9 -->
 <!-- .slide: id="como-usar" -->
 
 ## How to use this course
@@ -42,7 +42,7 @@ instructor alongside, and without the presenter notes half the material gets los
   straight through, with the notes already inside the text. Keep the deck alongside for
   the reviews
 - **When something does not work, go to the end:** the appendices *The debug toolbox*
-  —what to look at for each symptom— and *The twenty silent traps* —everything that
+  —what to look at for each symptom— and *The 21 silent traps* —everything that
   compiles, runs and lies—. Those are the two slides to print
 
 Note:

@@ -23,8 +23,6 @@ endclass : trago
 
 class fernet extends trago;
 
-   protected string name;
-
    function new(int hielos, string n);
       super.new(hielos, n);
    endfunction : new

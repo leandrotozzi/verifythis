@@ -385,9 +385,13 @@ PASA sin haber mandado un solo estímulo. Está en `code/u7/sequences` como
 `no_objection_test`, para poder correrlo en clase al lado del bueno.
 Es exactamente el mismo tipo de bug que el `new()` que se come el override de las transactions: no rompe, **miente**. Y en una regresión de mil tests, un test que pasa
 en cero segundos no lo mira nadie.
-Detalle fino: `main_phase`, no `run_phase`. La `run_phase` corre en paralelo con
-el cronograma reset → configure → main → shutdown; el `default_sequence` se
-engancha a las de ese cronograma.
+Detalle fino: conviene `main_phase`, no `run_phase`, pero no porque `run_phase` no
+sirva — `uvm_task_phase::traverse` llama `start_phase_sequence()` en **toda** fase
+de tarea (`base/uvm_task_phase.svh:121`), así que
+`"…sequencer_h.run_phase"` funciona igual. La razón es de convivencia: la
+`run_phase` corre en paralelo con el cronograma reset → configure → main →
+shutdown, y enganchando en `main_phase` la sequence entra en ese cronograma en vez
+de por al lado.
 
 ---
 
@@ -661,8 +665,9 @@ endtask
 - **`lock()` hace cola**: espera su turno como cualquiera y recién entonces cierra
   la puerta. **`grab()` se cuela**: pasa adelante de todas, incluso de las de más
   prioridad
-- Los dos se sueltan con `unlock()`, y un `lock()` sin su `unlock()` **cuelga el
-  sequencer para siempre**: mismo síntoma que la objection que no baja, sin error
+- Los dos se sueltan con `unlock()`. Sin el `unlock()`, si la sequence **sigue
+  viva** el sequencer queda cerrado para siempre y sin un solo error; si su
+  `body()` termina, UVM lo saca y grita `SEQFINERR`
 - La regla: `grab()` para reset y recuperación de error —lo que no puede esperar—,
   `lock()` para todo lo demás, y el `unlock()` en la misma `body()`
 
@@ -675,11 +680,17 @@ escenario pierde sentido si algo se intercala. Un lee-modifica-escribe sobre un
 registro es el ejemplo canónico —si entre la lectura y la escritura pasa otra
 transacción, el valor que escribís es viejo—. Mandar diez items seguidos no
 necesita un lock: eso ya lo garantiza una sequence.
-El cuelgue del tercer bullet es el que hay que anticipar, porque el síntoma manda
-a buscar al lado equivocado: la simulación no avanza y el `+UVM_OBJECTION_TRACE`
-no dice nada raro, porque la objection está bien — el que está trabado es el
-driver, esperando un item que nunca va a llegar. La herramienta que lo muestra es
-`+UVM_TIMEOUT` y después leer quién tiene el lock.
+Los dos finales del `unlock()` que falta hay que contarlos juntos, porque uno
+avisa y el otro no. Si la sequence que tiene el lock termina su `body()`,
+`uvm_sequencer_base::remove_sequence_from_queues`
+(`seq/uvm_sequencer_base.svh:1258-1267`) le saca el lock y reporta un
+`UVM_ERROR SEQFINERR` — "should not finish before locks … are removed": molesto,
+pero con nombre y apellido. El caso mudo es el otro: la sequence sigue viva y
+bloqueada en otra cosa, y ahí el sequencer queda cerrado sin que nadie diga nada.
+Ése es el que manda a buscar al lado equivocado: la simulación no avanza y el
+`+UVM_OBJECTION_TRACE` no dice nada raro, porque la objection está bien — el que
+está trabado es el driver, esperando un item que nunca va a llegar. La
+herramienta que lo muestra es `+UVM_TIMEOUT` y después leer quién tiene el lock.
 Y el detalle que salva una tarde: `grab()` no interrumpe el item que está en
 vuelo. Se cuela en la próxima arbitración, no en el medio de un handshake — que
 es justamente lo que uno quiere.
@@ -745,11 +756,7 @@ la unidad, se recupera acá.
   hoy en la industria
 
 Note:
-Cierre del curso. Lo que conviene decir en voz alta es qué quedó afuera y por
-qué, para que nadie se vaya creyendo que ya sabe todo: SVA, RAL, sequences
-virtuales de verdad, regresión con semillas, y el `uvm_reg` que en un proyecto con
-registros es medio testbench.
-Ninguna de las piezas que sí vimos es magia: las construimos todas a mano —el
+Cierre del día 6. Ninguna de las piezas que sí vimos es magia: las construimos todas a mano —el
 observer de hablar con varios objetos, la FIFO de put y get, el tester de
 transactions— antes de que UVM nos las
 diera hechas. Ese es el motivo de que el curso vaya en este orden y no arranque

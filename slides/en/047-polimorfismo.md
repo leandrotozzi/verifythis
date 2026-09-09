@@ -1,4 +1,4 @@
-<!-- es-sha: 8b77ff6b1052 -->
+<!-- es-sha: 696c507b7d26 -->
 ## Polymorphism
 
 #### *A `trago` variable, a `fernet` object: which `servir()` runs?*
@@ -123,9 +123,12 @@ course: *the sooner it fails, the better*. Compile time better than simulation,
 simulation better than silicon.
 In verification a compile error is **good news**: the overnight regression
 does not get lost, and whoever broke something finds out in a minute.
-Where it is going to show up again: `uvm_object` and `uvm_component` are abstract in
-practice, and the `` `uvm_component_utils `` macros force you to implement similar
-things. And in the day 2 exercise, the base class of the testbench.
+Where it is going to show up again: `uvm_object` and `uvm_component` are declared
+`virtual class` in the library, so they are abstract by right. What `` `uvm_component_utils ``
+does **not** do is force you to implement anything: the other way round, it *provides*
+`get_type_name()` and the registry's `type_id`. The real `pure virtual` in UVM is
+`uvm_subscriber::write()`, which you are going to have to write no matter what on day 4.
+And in the day 2 exercise, the base class of the testbench.
 
 ---
 
@@ -139,8 +142,8 @@ things. And in the day 2 exercise, the base class of the testbench.
   body**, and that is why there is nothing that can run wrong
 - The commented-out line of the `top` —`trago_h = new(3)`— does not compile: an
   abstract class does not get instantiated
-- If you delete `mojito`'s override, the compiler says
-  *"does not override virtual method servir"* and that is the end of it
+- If you delete `mojito`'s override, the compiler says *"Class 'mojito' extends
+  'trago' but is missing implementation for 'servir'"* and that is the end of it
 
 Note:
 The point is not the `$fatal`, it is **when you find out**: without an abstract class it

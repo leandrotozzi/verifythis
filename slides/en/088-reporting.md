@@ -1,4 +1,4 @@
-<!-- es-sha: aa5203a4a3af -->
+<!-- es-sha: dbecab2723da -->
 ## Reporting
 
 #### *47 % of the time goes here*
@@ -62,13 +62,14 @@ the section is configuring that object.
 #### *The reporting macros*
 
 - There are four and they differ by **severity**: `` `uvm_info ``,
-  `` `uvm_warning ``, `` `uvm_error `` and `` `uvm_fatal ``. The last three count
-  in the *Report Summary*; the last one also kills the simulation
+  `` `uvm_warning ``, `` `uvm_error `` and `` `uvm_fatal ``. **All four** are counted
+  in the *Report Summary*; what changes is the default **action** — `` `uvm_error ``
+  comes with `UVM_DISPLAY|UVM_COUNT` and `` `uvm_fatal `` also kills the simulation
 - The **ID** is the first argument: a string that says who is talking. It is what you filter
   with afterwards, so it is worth making it the name of the component and always the
   same one
 - The **message** is the second, and it gets assembled with `$sformatf` when it carries data
-- The **verbosity** is the fourth, and **only** `` `uvm_info `` has it: it is the one
+- The **verbosity** is the third, and **only** `` `uvm_info `` has it: it is the one
   that decides whether the message comes out or not
 
 {{code:code/u4/reporting/reporting.sv}}
@@ -110,7 +111,7 @@ writes the hierarchical path, because they do not know it.
 
 ## Reporting
 
-#### *The five levels, and why the message stays*
+#### *The six levels, and why the message stays*
 
 - The usual cycle: you fill the code with `$display`, you find the bug, you delete
   everything — and next week you write it again
@@ -124,8 +125,10 @@ writes the hierarchical path, because they do not know it.
 {{code:code/u4/reporting/tb_classes/verbosidad.svh}}
 
 Note:
-The five levels, from least to most noisy: `UVM_NONE`, `UVM_LOW`, `UVM_MEDIUM`
-—the default one—, `UVM_HIGH` and `UVM_DEBUG`. A message gets printed if its
+The six levels, from least to most noisy: `UVM_NONE`, `UVM_LOW`, `UVM_MEDIUM`
+—the default one—, `UVM_HIGH`, `UVM_FULL` and `UVM_DEBUG`. `UVM_FULL` is the one
+nobody uses and the one that shows up in the enum on the slide, so it is worth
+naming. A message gets printed if its
 verbosity is **less than or equal to** the ceiling, so `UVM_NONE` always comes out.
 The rule of thumb worth handing down, because otherwise everybody invents their own:
 `UVM_LOW` for what you want to see in a regression —which test ran, how many
@@ -133,7 +136,7 @@ transactions—; `UVM_MEDIUM` for the summary of a component; `UVM_HIGH` for
 every transaction that goes past. The monitors of the course are `UVM_HIGH` precisely for
 that: in a normal run they are not seen, and when something fails they get switched on with a
 plusarg.
-The formal detail that gets copied wrong: the verbosity is the **fourth** argument of the
+The formal detail that gets copied wrong: the verbosity is the **third** argument of the
 `` `uvm_info ``, and if you forget it, it does not compile. The ID —the first one— is a free
 string, but do not pick it at random: it is the key you are going to filter with afterwards.
 Make it the name of the component, in capitals, and always the same one.
@@ -233,9 +236,12 @@ literally this path. A single tree serves both purposes.
 The clarification in the bullet is not a detail: this hierarchy **is not the DUT's**. A
 scoreboard is not inside any module. It is the tree UVM assembles by calling
 `build_phase` from the top down, and it exists only in the testbench.
-Classroom trick: `+UVM_CONFIG_DB_TRACE` or `print_topology()` print this
-tree for real, written by the library. It is the best way of showing that it is not
-a drawing.
+Classroom trick: `uvm_top.print_topology()` prints this tree for real, written by
+the library. It is the best way of showing that it is not a drawing.
+`+UVM_CONFIG_DB_TRACE` is a different thing and it is better not to mix them: it does
+not draw the tree, it traces every `set()` and every `get()` of the `config_db` with
+the scope that was used — which is the knob for the other problem, the scope that
+does not match.
 
 ---
 
@@ -311,10 +317,14 @@ Note:
 The six actions are a bitwise OR, not a list of mutually exclusive options: the
 same message can be printed **and** written to a file **and** counted towards the
 summary. That is why they combine with `|`.
-The one almost nobody knows and that helps enormously is `UVM_COUNT`: it counts the appearances
-of that ID and kills the simulation when it reaches the maximum. It is the answer to the
-four-gigabyte log when a scoreboard fails on every transaction — you find out anyway, and
-in thirty seconds instead of in twenty minutes.
+`UVM_COUNT` is the one most often explained wrong, and it is worth saying it in full:
+it is already switched on by default on every `` `uvm_error ``, and what it increments
+is **a global counter** for the run, not one per ID. On its own it kills nothing,
+because the default maximum is 0, which means "no limit". The one that cuts is
+`+UVM_MAX_QUIT_COUNT=N` —or `set_report_max_quit_count(N)`, `uvm_root.svh:1187`—, and
+that one really is the answer to the four-gigabyte log when a scoreboard fails on
+every transaction: you find out anyway, and in thirty seconds instead of in twenty
+minutes.
 `UVM_NO_ACTION` is the one the next slide uses to switch off the errors, and it has to be
 said out loud what it is **not** for: it is not so that the regression comes out green.
 It is to carry on working while somebody else fixes their class, and it comes out the same day.

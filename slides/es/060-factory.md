@@ -108,10 +108,10 @@ Las dos molestias de esta slide desaparecen en el env.
 
 #### *Python Style*
 
-{{code:code/u3/factory/factory.py|lines=6-20}}
+{{code:code/u3/factory/factory.py|lines=5-19}}
 
 - La misma fábrica, en un lenguaje que no tiene nada que ver con hardware: un
-  método estático con un `if` por tipo y un `assert` para lo que no existe
+  método estático con un `if` por tipo y un `raise` para lo que no existe
 - Y la misma molestia: agregar un trago obliga a **editar la fábrica**
 - El archivo completo está en `code/u3/factory/factory.py` y se corre con `python3`:
   genera veinte tragos al azar y los sirve a todos igual

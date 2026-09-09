@@ -1,4 +1,4 @@
-<!-- es-sha: 6b34f4b84e2d -->
+<!-- es-sha: 889705c27c04 -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 7
@@ -29,7 +29,7 @@
 - [ ] Either of the two: the difference is a matter of style
 - [ ] Neither: for registered signals you have to use `$past()`
 
-> **`|=>` when the consequent comes out of a `<=`** — and the operational rule is to look at the RTL, not at the property: if the consequent comes out of an `assign`, it takes `|->`. Getting this wrong almost never gives an error: it gives a property that always passes.
+> **`|=>` when the consequent comes out of a `<=`** — because `|=>` *is* `|-> ##1`, and the question to ask is how many edges later the spec promises it. With `|->` against a registered signal the property does not pass vacuously: it **fails on every transaction**, because it compares against the old `done`. The one that passes quietly is the one whose antecedent never occurs — which is why it always goes with its `cover property`.
 
 ---
 

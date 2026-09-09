@@ -68,9 +68,14 @@ Compila UVM entera, incluido `uvm-core/src/reg`. Medido con Verilator 5.052:
 ## Pistas, en orden de utilidad
 
 - **`CLR` no es RW.** La spec dice *"escribir un 1 pone `ACC` y `OVF` en cero, y
-  el bit siempre se lee 0"*. UVM tiene un acceso con ese nombre exacto, y no es
-  `WO`. Si le ponés `RW`, la etapa 1 pasa y la **etapa 2** te lo dice con el
-  número del bit — que es exactamente lo que hace bien `bit_bash`.
+  el bit siempre se lee 0"*. El bit **se lee**, así que el acceso es de la familia
+  que borra en la escritura y devuelve ese cero en la lectura. Si le ponés `RW`,
+  la etapa 1 pasa y la **etapa 2** te lo dice con el número del bit — que es
+  exactamente lo que hace bien `bit_bash`.
+- **Y no es `WO` ni `WOC`.** Cualquier acceso que arranque con `WO` saca al campo
+  de `bit_bash` (`uvm_reg_bit_bash_seq.svh:129-135`, *"Ignore Write-only fields"*)
+  y de la máscara de `do_check` (`uvm_reg.svh:2782-2788`). Las dos etapas pasan en
+  verde **sin haber mirado el bit**: es la trampa muda de RAL.
 - El argumento `volatile` de `configure()` no cambia la predicción: es una
   declaración de intención, y UVM la usa para avisarte con un `UVM_WARNING`
   cuando leés el espejo de un campo que cambia por atrás.

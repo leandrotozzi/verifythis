@@ -2,7 +2,7 @@
      NO editar a mano: la fila se corrige en la slide y esto se regenera con
      `npm run build`. `npm run check` falla si quedo viejo. -->
 
-# The 20 silent traps of UVM
+# The 21 silent traps of UVM
 
 Everything that **compiles, runs and lies**: the mistakes of a UVM testbench that
 give no warning, do not leave the regression in red, and get discovered weeks later —
@@ -25,6 +25,7 @@ morning, and a slide cannot be googled.
 | The daughter runs the method of **the mother** | without `virtual`, SV resolves by the **type of the variable**, at compile time | `virtual` on every method somebody is going to extend | Polymorphism |
 | The component reads **somebody else's config** | `get(null, "*", …)` gives back the first thing that matches | `get(this, "", …)`, and `+UVM_CONFIG_DB_TRACE` | Tests |
 | The test passes with **the wrong stimulus** | the `set_type_override()` arrived **after** the `create()` of the env | the override first, always. `+TOPOLOGY` gives it away | The env |
+| The register model goes **green** and the field was never tested | the access starts with `WO`: `bit_bash` skips it and `do_check` drops it from the mask | if the field is readable, `WC` or `W1C`. `WO*` only if it really is not | RAL · d8 |
 
 ## The one publishing and the one listening
 
@@ -44,7 +45,7 @@ morning, and a slide cannot be googled.
 | Under the override, **some** transactions are of the old type | a `new()` where a `type_id::create()` belonged | what goes through the factory is what gets created with `create()` | Transactions |
 | **Both agents** start up the same | two `set()` with scope `"*"`: the second overwrites the first | the scope is the **path** of the one that reads, with `*` at the end | Agents · d6 |
 | The agent starts up **active** even though you set `is_active` in the `config_db` | the missing `super.build_phase()`: the one that reads it is `uvm_agent` | either a config object, or `super` — never half of each | Agents |
-| The simulation **never ends** | an `item_done()` that was not called | `+UVM_TIMEOUT=5ms` first, the trace after | Agents |
+| The simulation **never ends** | an `item_done()` that was not called | `+UVM_TIMEOUT=5000000,NO` first, the trace after | Agents |
 | It ends at **t=0** and says PASS | nobody raised the objection around the sequence | `+UVM_OBJECTION_TRACE` | Sequences |
 
 ## The four from the assertions
@@ -75,7 +76,7 @@ toolbox*: it is read in
 | `+UVM_VERBOSITY=UVM_HIGH` | switch on the debug messages that are already written |
 | `+UVM_CONFIG_DB_TRACE` | who put and who read every entry of the `config_db` |
 | `+UVM_OBJECTION_TRACE` | who raised and who dropped every objection |
-| `+UVM_TIMEOUT=5ms` | cut off a hung simulation and see where it got stuck |
+| `+UVM_TIMEOUT=5000000,NO` | cut off a hung simulation and see where it got stuck |
 | `print_topology()` | the component tree UVM **actually** built |
 | `--assert` | without this flag the concurrent properties do not get evaluated |
 | `--trace` + GTKWave | when none of the six above is enough |

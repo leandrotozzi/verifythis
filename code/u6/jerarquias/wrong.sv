@@ -26,7 +26,7 @@ class fernet extends trago;
    function string convert2string();
       string coca_s;
       coca_s = (con_coca) ? "si" : "no";
-      return sformat("Hielos: %0d  Coca: ", hielos, coca_s);
+      return $sformatf("Hielos: %0d  Coca: %s", hielos, coca_s);
    endfunction : convert2string
 
    function void do_copy(trago copia);

@@ -349,10 +349,13 @@ O sea que en un testbench que llama a `super.build_phase()`, un
 `uvm_config_db#(int)::set(this, "mi_agent", "is_active", UVM_PASSIVE)` funciona
 solo, sin config object. Como este `vtalu_agent` no lo llama, ese mecanismo
 **está apagado**, y por eso lo asignamos a mano.
-Y acá se cobra lo del día 3: `uvm_agent` es la única clase de la librería,
-además de `uvm_component`, que implementa `build_phase`. Es exactamente el caso
-que la regla de afuera cubre — heredaste de una clase intermedia que hace
-trabajo real, y saltearte el `super` lo apaga sin decir nada. Nosotros podemos
+Y acá se cobra lo del día 3: `uvm_agent` y `uvm_sequencer` son las dos clases de
+la librería que hacen trabajo real en su `build_phase` —`uvm_agent` lee el
+`is_active`, y `uvm_sequencer_param_base` engancha el fifo de respuestas
+(`seq/uvm_sequencer_param_base.svh:288`)—. Es exactamente el caso que la regla de
+afuera cubre: si extendés una de las dos y escribís `build_phase`, el `super` es
+obligatorio. Heredaste de una clase intermedia que hace trabajo real, y
+saltearte el `super` lo apaga sin decir nada. Nosotros podemos
 saltearlo porque escribimos la línea que reemplaza; el que no la escribe, no.
 Las dos formas son válidas. Lo que no es válido es la mitad de cada una: poner
 `is_active` en el config_db, no llamar a `super.build_phase()`, y después
@@ -437,10 +440,13 @@ adentro del agent.
 Note:
 Acá está la trampa clásica de la sección, y es de las que no fallan. Con un solo
 agent, todo el mundo escribe `"*"` en el ámbito y funciona. El día que aparece el
-segundo, el segundo `set()` pisa al primero y **los dos agents arrancan
-activos**: dos drivers manejando dos interfaces distintas con la configuración
-equivocada. El error no aparece en `build_phase`, aparece como un scoreboard
-que falla en la interface que no tocaste.
+segundo, el segundo `set()` pisa al primero y **los dos agents reciben el mismo
+config**: el mismo BFM y el mismo `is_active`. Con el orden de `env.svh` —la clase
+primero y el módulo después— el que queda es el pasivo, así que los dos arrancan
+pasivos, sin driver ni sequencer, y el `seq.start()` del test cae sobre un
+handle `null`. Invertido el orden serían dos drivers, pero manejando **la misma**
+interface. Lo invariante, y lo que hay que llevarse: gana el último `set()`, y los
+dos agents quedan iguales. El error no aparece en `build_phase`.
 El asterisco importa: `"clase_agent_h*"` con asterisco alcanza a los hijos;
 `"clase_agent_h"` sin asterisco, sólo al agent. Si lo escribís sin asterisco, el
 agent encuentra su config y el driver no — `uvm_fatal` en `build_phase`, que al

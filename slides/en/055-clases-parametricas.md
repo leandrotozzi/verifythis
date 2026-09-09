@@ -1,4 +1,4 @@
-<!-- es-sha: c0af6402e191 -->
+<!-- es-sha: 36a2d28c326c -->
 ## Parameterized classes
 
 #### *It is not a class: it is a mould*
@@ -56,7 +56,7 @@ that shows up in the rest of the course is this.
 - The queue is `static` and even so there are **two**: `bandeja#(fernet)` and
   `bandeja#(mojito)` are two different classes, each one with its own
 
-{{code:code/u3/parametricas/02-estatica/bandejas.sv|lines=53-91}}
+{{code:code/u3/parametricas/02-estatica/bandejas.sv|lines=51-89}}
 
 Note:
 This is the slide where the mould thing gets demonstrated, and it is worth doing it by
@@ -83,7 +83,7 @@ inside `bandeja`. It is confusing the first time.
   and that is the decision: **`static` when there really is only one, instantiated
   when there can be more than one**
 
-{{code:code/u3/parametricas/03-instanciada/bandejas.sv|lines=48-76}}
+{{code:code/u3/parametricas/03-instanciada/bandejas.sv|lines=46-74}}
 
 Note:
 The two versions do exactly the same thing and the difference is one of design, not of

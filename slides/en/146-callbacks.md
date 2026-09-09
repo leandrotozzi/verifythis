@@ -1,4 +1,4 @@
-<!-- es-sha: b7884bb1cb08 -->
+<!-- es-sha: 0a568a3969d2 -->
 ## Callbacks
 
 #### *The third hook*
@@ -68,9 +68,9 @@ and not an exception.
 
 {{code:code/u7/callbacks/tb_classes/driver.svh|lines=23-33}}
 
-- `` `uvm_register_cb `` declares the type/callback pair. **Without it, the `add()`
-  compiles, runs and hooks nothing** — with a `CBUNREG` in the log that is easy
-  not to see
+- `` `uvm_register_cb `` declares the type/callback pair. Without it the `add()`
+  hooks up all the same and the callback **runs** — with a `UVM_WARNING CBUNREG`
+  lost in the log, and without the type check or `add_by_name`
 - `` `uvm_do_callbacks `` is the extension point: it walks the queue of **that
   instance** of driver, in order
 
@@ -79,11 +79,19 @@ The diff against the driver of the Agents section is exactly two lines, and
 it is worth showing it with a live `diff`: `diff code/u7/agents/tb_classes/driver.svh
 code/u7/callbacks/tb_classes/driver.svh`. Everything else —the `get_next_item`, the
 `send_op`, the `item_done`— is the same.
-The failure mode of the missing `uvm_register_cb` is the classic of this part of
-UVM: there is no compilation error, there is a `UVM_ERROR ... CBUNREG` lost in the
-middle of a thousand lines, and the callback simply does not run. That is why the `run.sh` of the
-example counts how many times it ran and fails if it is zero: an example that
-"passes" without having injected anything proves nothing.
+The failure mode of the missing `uvm_register_cb` is not the one you expect, and it
+is worth telling it with the source in hand because half the tutorials get it
+backwards: `uvm_callback.svh:744` reports a `UVM_WARNING CBUNREG` and **carries
+on** — the `add()` puts the callback into `m_base_inst.m_pool` all the same
+(`:777-783`), and `` `uvm_do_callbacks `` reads that pool without consulting the
+registry (`:964-1006`). Which means: without the macro the callback runs, and what
+you lose is the type check and `add_by_name` by derived type. That is worse than an
+error: it is a warning among a thousand lines, and the testbench ends up outside
+the contract without anyone noticing.
+That is why the `run.sh` of the example does not check the macro but the effect: it
+counts how many times the callback ran and fails if it is zero. An example that
+"passes" without having injected anything proves nothing, whatever the reason it
+came unhooked.
 Where to put the `` `uvm_do_callbacks `` is the real design decision, and it is the
 same one taken by whoever writes a VIP: every hook point is a promise of
 forward compatibility. That is why VIPs have three or four, not thirty.

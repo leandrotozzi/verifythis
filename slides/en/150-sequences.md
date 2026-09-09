@@ -1,4 +1,4 @@
-<!-- es-sha: 47c0ff491e6a -->
+<!-- es-sha: 93977ef24e35 -->
 ## Sequences
 
 #### *The only thing left hard-wired*
@@ -386,9 +386,13 @@ PASSES without having sent a single piece of stimulus. It is in `code/u7/sequenc
 `no_objection_test`, so it can be run in class alongside the good one.
 It is exactly the same kind of bug as the `new()` that eats the override of the transactions: it does not break, it **lies**. And in a regression of a thousand tests, a test that passes
 in zero seconds is one nobody looks at.
-Fine detail: `main_phase`, not `run_phase`. The `run_phase` runs in parallel with
-the schedule reset → configure → main → shutdown; the `default_sequence` hooks
-onto the ones of that schedule.
+Fine detail: `main_phase` is the one to use, not `run_phase`, but not because
+`run_phase` does not work — `uvm_task_phase::traverse` calls
+`start_phase_sequence()` on **every** task phase (`base/uvm_task_phase.svh:121`), so
+`"…sequencer_h.run_phase"` works just as well. The reason is one of coexistence: the
+`run_phase` runs in parallel with the schedule reset → configure → main → shutdown,
+and hooking onto `main_phase` puts the sequence inside that schedule instead of
+alongside it.
 
 ---
 
@@ -662,8 +666,9 @@ endtask
 - **`lock()` queues up**: it waits its turn like anybody else and only then closes
   the door. **`grab()` cuts in**: it goes ahead of everyone, even of the higher
   priority ones
-- Both are released with `unlock()`, and a `lock()` without its `unlock()` **hangs the
-  sequencer forever**: same symptom as the objection that does not get dropped, without an error
+- Both are released with `unlock()`. Without the `unlock()`, if the sequence is
+  **still alive** the sequencer stays closed forever and without a single error; if its
+  `body()` finishes, UVM takes it away and shouts `SEQFINERR`
 - The rule: `grab()` for reset and error recovery —what cannot wait—,
   `lock()` for everything else, and the `unlock()` in the same `body()`
 
@@ -676,11 +681,18 @@ scenario loses its meaning if something gets interleaved. A read-modify-write on
 register is the canonical example —if another transaction goes by between the read and the write,
 the value you write is old—. Sending ten items in a row does not
 need a lock: a sequence already guarantees that.
-The hang of the third bullet is the one to anticipate, because the symptom sends you
-looking on the wrong side: the simulation does not advance and the `+UVM_OBJECTION_TRACE`
-says nothing odd, because the objection is fine — the one that is stuck is the
-driver, waiting for an item that is never going to arrive. The tool that shows it is
-`+UVM_TIMEOUT` and then reading who has the lock.
+The two endings of the missing `unlock()` have to be told together, because one
+warns you and the other does not. If the sequence holding the lock finishes its
+`body()`, `uvm_sequencer_base::remove_sequence_from_queues`
+(`seq/uvm_sequencer_base.svh:1258-1267`) takes the lock away from it and reports a
+`UVM_ERROR SEQFINERR` — "should not finish before locks … are removed": annoying, but
+with a name on it. The silent case is the other one: the sequence is still alive and
+blocked on something else, and there the sequencer stays closed without anybody
+saying a word. That is the one that sends you looking on the wrong side: the
+simulation does not advance and the `+UVM_OBJECTION_TRACE` says nothing odd, because
+the objection is fine — the one that is stuck is the driver, waiting for an item that
+is never going to arrive. The tool that shows it is `+UVM_TIMEOUT` and then reading
+who has the lock.
 And the detail that saves an afternoon: `grab()` does not interrupt the item that is in
 flight. It cuts in at the next arbitration, not in the middle of a handshake — which
 is exactly what one wants.
@@ -746,11 +758,7 @@ the unit catches up here.
   today in the industry
 
 Note:
-Close of the course. What is worth saying out loud is what was left out and
-why, so nobody leaves believing they already know everything: SVA, RAL, real virtual
-sequences, regression with seeds, and the `uvm_reg` that in a project with
-registers is half a testbench.
-None of the pieces we did see is magic: we built them all by hand —the
+Close of day 6. None of the pieces we did see is magic: we built them all by hand —the
 observer of talking to several objects, the FIFO of put and get, the tester of
 transactions— before UVM
 handed them to us done. That is the reason the course goes in this order and does not start

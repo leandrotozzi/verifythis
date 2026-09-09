@@ -10,7 +10,7 @@
 //                          register, one at a time, in both directions
 //
 // Run it with +MAL and the register model declares CTRL.CLR as "RW" instead of
-// "WOC" -- one wrong word in one string. bit_bash catches it without anyone
+// "WC" -- one wrong word in one string. bit_bash catches it without anyone
 // writing a test for CTRL.
 class builtin_test extends ral_base_test;
    `uvm_component_utils(builtin_test)

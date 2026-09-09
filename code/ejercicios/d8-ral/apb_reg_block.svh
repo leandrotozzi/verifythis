@@ -17,7 +17,8 @@
 //             is_rand, individually_accessible)
 //
 // And the UVM access list is in the LRM 1800.2, the uvm_reg_field table.
-// The four you need here are among: RW, RO, WO, WOC, W1C, RC.
+// The four you need here are among: RW, RO, WO, WC, W1C, WOC, RC. Careful with the
+// WO* family: UVM stops checking a field whose access starts with WO.
 
 class ctrl_reg extends uvm_reg;
    `uvm_object_utils(ctrl_reg)

@@ -254,7 +254,7 @@ precisamente lo que pasa cuando dos constraints se contradicen, y sin el `else`
 el testbench sigue mandando la transaction anterior.
 `constraint_mode` tiene un pariente que conviene nombrar aunque no lo usemos: las
 constraints `soft`, que el solver descarta solas cuando estorban en vez de
-devolver 0. Están en IEEE 1800-2017 y son la forma moderna de escribir un valor
+devolver 0. Entraron en IEEE 1800-2012 y son la forma moderna de escribir un valor
 por defecto que un `with {}` pueda pisar.
 
 ---

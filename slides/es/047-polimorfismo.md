@@ -122,9 +122,12 @@ curso: *cuanto antes falle, mejor*. Compilación mejor que simulación,
 simulación mejor que silicio.
 En verificación un error de compilación es una **buena noticia**: la regresión
 de la noche no se pierde, y el que rompió algo se entera en un minuto.
-Dónde se va a volver a ver: `uvm_object` y `uvm_component` son abstractas de
-hecho, y las macros `` `uvm_component_utils `` obligan a implementar cosas
-parecidas. Y en el ejercicio del día 2, la clase base del testbench.
+Dónde se va a volver a ver: `uvm_object` y `uvm_component` están declaradas
+`virtual class` en la librería, así que son abstractas de derecho. Lo que **no**
+hace `` `uvm_component_utils `` es obligarte a implementar nada: al revés, te
+*provee* el `get_type_name()` y el `type_id` del registro. El `pure virtual` de
+verdad en UVM es `uvm_subscriber::write()`, que vas a tener que escribir sí o sí
+en el día 4. Y en el ejercicio del día 2, la clase base del testbench.
 
 ---
 
@@ -138,8 +141,9 @@ parecidas. Y en el ejercicio del día 2, la clase base del testbench.
   cuerpo**, y por eso no hay nada que pueda correr mal
 - La línea comentada del `top` —`trago_h = new(3)`— no compila: una clase
   abstracta no se instancia
-- Si a `mojito` le borrás el override, el compilador dice
-  *"does not override virtual method servir"* y ahí termina el asunto
+- Si a `mojito` le borrás el override, el compilador dice *"Class 'mojito'
+  extends 'trago' but is missing implementation for 'servir'"* y ahí termina el
+  asunto
 
 Note:
 El punto no es el `$fatal`, es **cuándo te enterás**: sin clase abstracta

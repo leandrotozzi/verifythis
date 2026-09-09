@@ -405,7 +405,7 @@ hierarchies when <code>obj1_h = obj2_h</code> copies the handle and not the obje
 </section>
 
 <section id="s72" class="slide">
-<!-- es-sha: 8b77ff6b1052 -->
+<!-- es-sha: 696c507b7d26 -->
 <h2 id="polymorphism">Polymorphism</h2>
 <h4 id="a-trago-variable-a-fernet-object-which-servir-runs"><em>A <code>trago</code> variable, a <code>fernet</code> object: which <code>servir()</code> runs?</em></h4>
 <p><img src="../../res/print/diagrams/uml-poli.svg" alt="UML diagram of the trago classes"></p>
@@ -767,9 +767,12 @@ course: <em>the sooner it fails, the better</em>. Compile time better than simul
 simulation better than silicon.
 In verification a compile error is <strong>good news</strong>: the overnight regression
 does not get lost, and whoever broke something finds out in a minute.
-Where it is going to show up again: <code>uvm_object</code> and <code>uvm_component</code> are abstract in
-practice, and the <code>`uvm_component_utils</code> macros force you to implement similar
-things. And in the day 2 exercise, the base class of the testbench.</p>
+Where it is going to show up again: <code>uvm_object</code> and <code>uvm_component</code> are declared
+<code>virtual class</code> in the library, so they are abstract by right. What <code>`uvm_component_utils</code>
+does **not** do is force you to implement anything: the other way round, it *provides*
+<code>get_type_name()</code> and the registry&#39;s <code>type_id</code>. The real <code>pure virtual</code> in UVM is
+<code>uvm_subscriber::write()</code>, which you are going to have to write no matter what on day 4.
+And in the day 2 exercise, the base class of the testbench.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/76">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -861,8 +864,8 @@ things. And in the day 2 exercise, the base class of the testbench.</p>
 body</strong>, and that is why there is nothing that can run wrong</li>
 <li>The commented-out line of the <code>top</code> —<code>trago_h = new(3)</code>— does not compile: an
 abstract class does not get instantiated</li>
-<li>If you delete <code>mojito</code>&#39;s override, the compiler says
-<em>&quot;does not override virtual method servir&quot;</em> and that is the end of it</li>
+<li>If you delete <code>mojito</code>&#39;s override, the compiler says <em>&quot;Class &#39;mojito&#39; extends
+&#39;trago&#39; but is missing implementation for &#39;servir&#39;&quot;</em> and that is the end of it</li>
 </ul>
 <div class="nota">
 <p>The point is not the <code>$fatal</code>, it is <strong>when you find out</strong>: without an abstract class it
@@ -1258,7 +1261,7 @@ All of that is <code>static</code>, and not by accident.</p>
 </section>
 
 <section id="s84" class="slide">
-<!-- es-sha: c0af6402e191 -->
+<!-- es-sha: 36a2d28c326c -->
 <h2 id="parameterized-classes">Parameterized classes</h2>
 <h4 id="it-is-not-a-class-it-is-a-mould"><em>It is not a class: it is a mould</em></h4>
 <ul>
@@ -1345,7 +1348,7 @@ that shows up in the rest of the course is this.</p>
 <li>The queue is <code>static</code> and even so there are <strong>two</strong>: <code>bandeja#(fernet)</code> and
 <code>bandeja#(mojito)</code> are two different classes, each one with its own</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u3/parametricas/02-estatica/bandejas.sv</code> · líneas 53-91 de 91</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
+<figure class="codigo"><figcaption><code>code/u3/parametricas/02-estatica/bandejas.sv</code> · líneas 51-89 de 89</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
     type T
 );
 
@@ -1383,7 +1386,7 @@ that shows up in the rest of the course is this.</p>
       bandeja#(<span class="hljs-type">mojito</span>)::lista_tragos();
    <span class="hljs-keyword">end</span>
 
-<span class="hljs-keyword">endmodule</span> : top</code></pre><details><summary>el archivo entero, 91 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Static Class version</span>
+<span class="hljs-keyword">endmodule</span> : top</code></pre><details><summary>el archivo entero, 89 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Static Class version</span>
 
 <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
    <span class="hljs-keyword">protected</span> <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
@@ -1407,8 +1410,6 @@ that shows up in the rest of the course is this.</p>
 <span class="hljs-keyword">endclass</span> : trago
 
 <span class="hljs-keyword">class</span> <span class="hljs-title">fernet</span> <span class="hljs-keyword">extends</span> trago;
-
-   <span class="hljs-keyword">protected</span> <span class="hljs-type">string</span> name;
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> n);
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, n);
@@ -1499,7 +1500,7 @@ use it — it stops being visible from the whole testbench</li>
 and that is the decision: <strong><code>static</code> when there really is only one, instantiated
 when there can be more than one</strong></li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u3/parametricas/03-instanciada/bandejas.sv</code> · líneas 48-76 de 98</figcaption><pre><code class="hljs"><span class="hljs-comment">// bandeja is not static any more</span>
+<figure class="codigo"><figcaption><code>code/u3/parametricas/03-instanciada/bandejas.sv</code> · líneas 46-74 de 96</figcaption><pre><code class="hljs"><span class="hljs-comment">// bandeja is not static any more</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
     type T
 );
@@ -1527,7 +1528,7 @@ when there can be more than one</strong></li>
    mojito mojito_h;
 
    bandeja #(<span class="hljs-type">fernet</span>) bandeja_de_fernet;
-   bandeja #(<span class="hljs-type">mojito</span>) bandeja_de_mojito;</code></pre><details><summary>el archivo entero, 98 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
+   bandeja #(<span class="hljs-type">mojito</span>) bandeja_de_mojito;</code></pre><details><summary>el archivo entero, 96 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
    <span class="hljs-keyword">protected</span> <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
    <span class="hljs-keyword">protected</span> <span class="hljs-type">string</span> name;
 
@@ -1549,8 +1550,6 @@ when there can be more than one</strong></li>
 <span class="hljs-keyword">endclass</span> : trago
 
 <span class="hljs-keyword">class</span> <span class="hljs-title">fernet</span> <span class="hljs-keyword">extends</span> trago;
-
-   <span class="hljs-keyword">protected</span> <span class="hljs-type">string</span> name;
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos, <span class="hljs-type">string</span> n);
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(hielos, n);
@@ -1669,7 +1668,7 @@ each monitor has its own. With that they can already read both.</p>
 </section>
 
 <section id="s89" class="slide">
-<!-- es-sha: 0f3503997186 -->
+<!-- es-sha: 589b6c3c4412 -->
 <h2 id="the-factory-pattern">The factory pattern</h2>
 <h4 id="who-decides-the-type"><em>Who decides the type?</em></h4>
 <ul>
@@ -1954,40 +1953,39 @@ Both annoyances of this slide disappear in the env.</p>
 <section id="s93" class="slide">
 <h2 id="the-factory-pattern">The factory pattern</h2>
 <h4 id="python-style"><em>Python Style</em></h4>
-<figure class="codigo"><figcaption><code>code/u3/factory/factory.py</code> · líneas 6-20 de 86</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Trago</span>(<span class="hljs-title class_ inherited__">object</span>):
+<figure class="codigo"><figcaption><code>code/u3/factory/factory.py</code> · líneas 5-19 de 86</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Trago</span>:
     <span class="hljs-string">&quot;&quot;&quot;Factory class that builds a Trago.&quot;&quot;&quot;</span>
 
-    <span class="hljs-keyword">def</span> <span class="hljs-title function_">factory</span>(<span class="hljs-params"><span class="hljs-built_in">type</span></span>):
+<span class="hljs-meta">    @staticmethod</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">factory</span>(<span class="hljs-params">kind</span>):
         <span class="hljs-string">&quot;&quot;&quot;Factory Method.&quot;&quot;&quot;</span>
-        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;CubaLibre&quot;</span>:
+        <span class="hljs-keyword">if</span> kind == <span class="hljs-string">&quot;CubaLibre&quot;</span>:
             <span class="hljs-keyword">return</span> CubaLibre()
-        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Fernet&quot;</span>:
+        <span class="hljs-keyword">if</span> kind == <span class="hljs-string">&quot;Fernet&quot;</span>:
             <span class="hljs-keyword">return</span> Fernet()
-        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Mojito&quot;</span>:
+        <span class="hljs-keyword">if</span> kind == <span class="hljs-string">&quot;Mojito&quot;</span>:
             <span class="hljs-keyword">return</span> Mojito()
-        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Whiscola&quot;</span>:
+        <span class="hljs-keyword">if</span> kind == <span class="hljs-string">&quot;Whiscola&quot;</span>:
             <span class="hljs-keyword">return</span> Whiscola()
-        <span class="hljs-keyword">assert</span> <span class="hljs-number">0</span>, <span class="hljs-string">&quot;No such trago: &quot;</span> + <span class="hljs-built_in">type</span>
-    factory = <span class="hljs-built_in">staticmethod</span>(factory)</code></pre><details><summary>el archivo entero, 86 líneas</summary><pre><code class="hljs"><span class="hljs-string">&quot;&quot;&quot;Factory pattern example, in Python.&quot;&quot;&quot;</span>
-<span class="hljs-keyword">from</span> __future__ <span class="hljs-keyword">import</span> generators
+        <span class="hljs-keyword">raise</span> ValueError(<span class="hljs-string">&quot;No such trago: &quot;</span> + kind)</code></pre><details><summary>el archivo entero, 86 líneas</summary><pre><code class="hljs"><span class="hljs-string">&quot;&quot;&quot;Factory pattern example, in Python.&quot;&quot;&quot;</span>
 <span class="hljs-keyword">import</span> random
 
 
-<span class="hljs-keyword">class</span> <span class="hljs-title class_">Trago</span>(<span class="hljs-title class_ inherited__">object</span>):
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Trago</span>:
     <span class="hljs-string">&quot;&quot;&quot;Factory class that builds a Trago.&quot;&quot;&quot;</span>
 
-    <span class="hljs-keyword">def</span> <span class="hljs-title function_">factory</span>(<span class="hljs-params"><span class="hljs-built_in">type</span></span>):
+<span class="hljs-meta">    @staticmethod</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">factory</span>(<span class="hljs-params">kind</span>):
         <span class="hljs-string">&quot;&quot;&quot;Factory Method.&quot;&quot;&quot;</span>
-        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;CubaLibre&quot;</span>:
+        <span class="hljs-keyword">if</span> kind == <span class="hljs-string">&quot;CubaLibre&quot;</span>:
             <span class="hljs-keyword">return</span> CubaLibre()
-        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Fernet&quot;</span>:
+        <span class="hljs-keyword">if</span> kind == <span class="hljs-string">&quot;Fernet&quot;</span>:
             <span class="hljs-keyword">return</span> Fernet()
-        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Mojito&quot;</span>:
+        <span class="hljs-keyword">if</span> kind == <span class="hljs-string">&quot;Mojito&quot;</span>:
             <span class="hljs-keyword">return</span> Mojito()
-        <span class="hljs-keyword">if</span> <span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;Whiscola&quot;</span>:
+        <span class="hljs-keyword">if</span> kind == <span class="hljs-string">&quot;Whiscola&quot;</span>:
             <span class="hljs-keyword">return</span> Whiscola()
-        <span class="hljs-keyword">assert</span> <span class="hljs-number">0</span>, <span class="hljs-string">&quot;No such trago: &quot;</span> + <span class="hljs-built_in">type</span>
-    factory = <span class="hljs-built_in">staticmethod</span>(factory)
+        <span class="hljs-keyword">raise</span> ValueError(<span class="hljs-string">&quot;No such trago: &quot;</span> + kind)
 
 
 <span class="hljs-keyword">class</span> <span class="hljs-title class_">CubaLibre</span>(<span class="hljs-title class_ inherited__">Trago</span>):
@@ -2044,20 +2042,21 @@ Both annoyances of this slide disappear in the env.</p>
     <span class="hljs-comment"># Ask the language for every subclass that inherits from Trago</span>
     types = Trago.__subclasses__()
     <span class="hljs-comment"># Build a generator</span>
-    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n):
+    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n):
         <span class="hljs-keyword">yield</span> random.choice(types).__name__
 
-Tragos = [Trago.factory(i) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> trago_generator(<span class="hljs-number">20</span>)]
+
+tragos = [Trago.factory(kind) <span class="hljs-keyword">for</span> kind <span class="hljs-keyword">in</span> trago_generator(<span class="hljs-number">20</span>)]
 
 
 <span class="hljs-comment"># It does not matter which trago comes out: they all get served the same</span>
-<span class="hljs-keyword">for</span> Trago <span class="hljs-keyword">in</span> Tragos:
-    Trago.hielo()
-    Trago.graduacion()</code></pre></details></figure>
+<span class="hljs-keyword">for</span> trago <span class="hljs-keyword">in</span> tragos:
+    trago.hielo()
+    trago.graduacion()</code></pre></details></figure>
 
 <ul>
 <li>The same factory, in a language that has nothing to do with hardware: a
-static method with an <code>if</code> per type and an <code>assert</code> for what does not exist</li>
+static method with an <code>if</code> per type and a <code>raise</code> for what does not exist</li>
 <li>And the same annoyance: adding a drink forces you to <strong>edit the factory</strong></li>
 <li>The whole file is in <code>code/u3/factory/factory.py</code> and it runs with <code>python3</code>:
 it generates twenty drinks at random and serves them all the same way</li>
@@ -2748,7 +2747,7 @@ versions live side by side. That is the exercise that follows.</p>
 </section>
 
 <section id="s104" class="slide quiz">
-<!-- es-sha: 5d6b9cd38c53 -->
+<!-- es-sha: de4701d8fe6d -->
 
 
 <h2 id="review-·-day-2">Review · Day 2</h2>
@@ -2873,7 +2872,7 @@ versions live side by side. That is the exercise that follows.</p>
 <li><input checked="" disabled="" type="checkbox"> Only if the object in <code>source</code> really is of the class of <code>destination</code> or of a derived one</li>
 </ul>
 <blockquote>
-<p><strong>Only if the object allows it</strong> — <code>$cast</code> checks <strong>at runtime</strong> and returns 0 if it does not work. That is why UVM&#39;s factory is more comfortable than the animals example: it returns the right type and saves you the cast.</p>
+<p><strong>Only if the object allows it</strong> — <code>$cast</code> checks <strong>at runtime</strong> and returns 0 if it does not work. That is why UVM&#39;s factory is more comfortable than the <code>cantina</code> of the section: <code>type_id::create()</code> returns the right type and saves you the cast.</p>
 </blockquote>
 <p class="al-deck"><a href="../index.html#/111">see this slide in the deck &rsaquo;</a></p>
 </section>

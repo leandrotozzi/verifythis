@@ -1,4 +1,4 @@
-<!-- es-sha: 0ceed7c63a98 -->
+<!-- es-sha: d485ca9d682c -->
 <!-- .slide: id="apendice-debug" data-machete="res/machete-debug.svg" -->
 
 ## Appendix · The debug toolbox
@@ -12,10 +12,10 @@
 | `+UVM_CONFIG_DB_TRACE` | who put what in the `config_db`, and who read it | Agents |
 | `+TOPOLOGY` → `print_topology()` | the tree UVM **actually** built | Agents |
 | `+UVM_OBJECTION_TRACE` | who raised and who dropped the objection | Tests |
-| `+UVM_TIMEOUT=N` | a ceiling for the hang, instead of waiting | Tests |
-| `set_report_severity_action_hier(…, UVM_COUNT)` | kill the run at the Nth error | Reporting |
+| `+UVM_TIMEOUT=N,NO` | a ceiling for the hang, instead of waiting | Tests |
+| `+UVM_MAX_QUIT_COUNT=N` | kill the run at the Nth error | Reporting |
 
-- The five in the middle are **plusargs**: no code gets touched and nothing gets recompiled. On a
+- The bottom six are **plusargs**: no code gets touched and nothing gets recompiled. On a
   testbench with UVM that is minutes of difference per attempt
 
 Note:
@@ -29,6 +29,12 @@ The point to say out loud is the one about the plusargs. A `$display`
 added by hand costs a recompilation of UVM —minutes— and on top of that you have to
 remember to take it out. These seven knobs are already fitted in the binary you
 compiled: they get switched on from the command line and they leave no trace.
+And one detail of `+UVM_TIMEOUT` that bites, because it does not error out: the value
+is an integer in time units, not an expression with a unit. UVM reads it with
+`$sscanf(…, "%d,%s")` (`uvm_root.svh:916`), so `+UVM_TIMEOUT=5ms` does not complain:
+it takes the `5` and cuts the simulation off at 5 ns. You write
+`+UVM_TIMEOUT=5000000,NO`, and the `NO` is so that a `set_timeout()` written in the
+testbench does not overwrite what you asked for on the command line.
 `+TOPOLOGY` is not from UVM: it is from the `base_test` of the course, which reads the plusarg and
 calls `uvm_root::get().print_topology()`. It is worth clarifying so nobody
 looks for it in the LRM. The same for `VLT_TRACE=1`, which is from the `run.sh`.
@@ -45,7 +51,7 @@ until you can repeat it at will.
 | The symptom | The first suspect | What to look at it with |
 | --- | --- | --- |
 | It ends at **t=0** and says PASS | nobody raised the objection | `+UVM_OBJECTION_TRACE` |
-| It **never ends** | an `item_done()` that was not called, or an objection that does not get dropped | `+UVM_TIMEOUT=5ms` and then the trace |
+| It **never ends** | an `item_done()` that was not called, or an objection that does not get dropped | `+UVM_TIMEOUT=5000000,NO` and then the trace |
 | The scoreboard **screams on every one** | the monitor samples badly — the DUT hardly ever is the problem | `+UVM_VERBOSITY=UVM_HIGH` |
 | The `config_db` **does not find** | the scope of the `set()`, not the `get()` | `+UVM_CONFIG_DB_TRACE` |
 | The coverage gives **0 %** | the `new()` or the `sample()` of the covergroup is missing | read the `.dat` with `verilator_coverage` |

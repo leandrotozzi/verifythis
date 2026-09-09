@@ -1,23 +1,22 @@
 """Factory pattern example, in Python."""
-from __future__ import generators
 import random
 
 
-class Trago(object):
+class Trago:
     """Factory class that builds a Trago."""
 
-    def factory(type):
+    @staticmethod
+    def factory(kind):
         """Factory Method."""
-        if type == "CubaLibre":
+        if kind == "CubaLibre":
             return CubaLibre()
-        if type == "Fernet":
+        if kind == "Fernet":
             return Fernet()
-        if type == "Mojito":
+        if kind == "Mojito":
             return Mojito()
-        if type == "Whiscola":
+        if kind == "Whiscola":
             return Whiscola()
-        assert 0, "No such trago: " + type
-    factory = staticmethod(factory)
+        raise ValueError("No such trago: " + kind)
 
 
 class CubaLibre(Trago):
@@ -74,13 +73,14 @@ def trago_generator(n):
     # Ask the language for every subclass that inherits from Trago
     types = Trago.__subclasses__()
     # Build a generator
-    for i in range(n):
+    for _ in range(n):
         yield random.choice(types).__name__
 
-Tragos = [Trago.factory(i) for i in trago_generator(20)]
+
+tragos = [Trago.factory(kind) for kind in trago_generator(20)]
 
 
 # It does not matter which trago comes out: they all get served the same
-for Trago in Tragos:
-    Trago.hielo()
-    Trago.graduacion()
+for trago in tragos:
+    trago.hielo()
+    trago.graduacion()

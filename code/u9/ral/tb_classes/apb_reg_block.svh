@@ -25,12 +25,13 @@ class ctrl_reg extends uvm_reg;
       EN = uvm_reg_field::type_id::create("EN");
       EN.configure(this, 1, 0, "RW", 0, 'h0, 1, 1, 0);
 
-      // "WOC" is the name UVM has for exactly this: the write goes through, the
-      // mirror drops to zero, and the read side of the field is not used to
-      // predict anything. Modelling it as "RW" is the classic mistake, and it is
-      // what +MAL does.
+      // "WC" is the name UVM has for exactly this: the write clears the field,
+      // the mirror drops to zero, and the read returns that zero. Modelling it as
+      // "RW" is the classic mistake, and it is what +MAL does. "WOC" also passes,
+      // for the wrong reason: any WO* access takes the field out of bit_bash and
+      // out of do_check, so nobody looks at it. See slides/es/180-ral.md.
       CLR = uvm_reg_field::type_id::create("CLR");
-      CLR.configure(this, 1, 1, $test$plusargs("MAL") ? "RW" : "WOC", 0, 'h0, 1, 1, 0);
+      CLR.configure(this, 1, 1, $test$plusargs("MAL") ? "RW" : "WC", 0, 'h0, 1, 1, 0);
    endfunction : build
 
 endclass : ctrl_reg

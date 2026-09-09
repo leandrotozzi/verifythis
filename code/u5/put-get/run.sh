@@ -10,4 +10,9 @@ set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
 vlt_uvm top --coverage-user -Wno-fatal -f dut.f -f tb.f
 run_sim +UVM_TESTNAME=random_test
+
+# The same testbench with one line of difference: add_test overrides the tester
+# through the factory, so every operation is an add. A test that does not get run
+# is a test that does not compile.
+run_sim +UVM_TESTNAME=add_test
 cov_report

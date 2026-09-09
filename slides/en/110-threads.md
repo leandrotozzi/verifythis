@@ -1,4 +1,4 @@
-<!-- es-sha: 12954fabcd03 -->
+<!-- es-sha: 06d2d3f6198a -->
 ## When somebody has to wait
 
 #### *You were already doing this, with modules*
@@ -72,8 +72,11 @@ The producer puts and carries on; if the other one has not taken it out yet, the
 `put()` stops it on its own.
 The detail of form, which is the one that gets copied wrong: the port gets
 **instantiated** in the `build_phase` like any other component, with
-`new("name", this)`. A port is a `uvm_component`, not a data field — that is why
-it takes a parent, and that is why it shows up in `print_topology()`.
+`new("name", this)`. It is not a data field: it takes a parent, and that is why it
+shows up in `print_topology()`. But it is not a `uvm_component` either —
+`uvm_put_port` extends `uvm_port_base #(IF)`, and what hangs off the tree is an
+internal `uvm_port_component` the port builds for itself
+(`uvm_port_base.svh:137`). The FIFO on the next slide really is a component.
 And the parameter: `uvm_put_port #(T)`. That `T` has to be the same in the port,
 in the get port and in the FIFO. If they do not match it does not compile, which
 is the good news —it is one of the few UVM connection errors you see at compile
@@ -127,10 +130,16 @@ is for: the `connect_phase` connects a port to an export, and for that both
 objects have to exist. If `connect` were top-down, the test would try to connect
 children that had not been built yet.
 The classic error of this slide, which compiles and fails at run time: creating
-the FIFO in the `connect_phase` instead of the `build_phase`. UVM throws a fatal
-— `Cannot create a component during connect` — and at least it warns you. Worse
-is forgetting the `connect()`: there the port is left unconnected and the fatal
-shows up on the first `put()`, much later and without saying which port it was.
+the FIFO in the `connect_phase` instead of the `build_phase`. UVM catches it with
+an `ILLCRT` fatal —*"It is illegal to create a component ('x' under 'y') after the
+build phase has ended"* (`uvm_component.svh:1721`)—, and at least it warns you with
+the name. Forgetting the `connect()` of a `put`/`get` port **also** warns, and
+well: `resolve_bindings()` reports a `UVM_ERROR [Connection Error] connection count
+of 0 does not meet required minimum of 1` with the name of the port, in
+`end_of_elaboration` and before a single cycle runs (`uvm_port_base.svh:886`).
+The one that stays quiet is the **analysis port**, because its minimum is 0: a
+`write()` into an unconnected port is legal and prints nothing. It is the same
+asymmetry as the previous section, and it is the one to remember.
 And one worth pointing out in passing: here the producer and the consumer are
 children of the **test**, not of an env. It is on purpose, because the section is
 about the mechanism. In the real testbench this goes inside the agent, with the

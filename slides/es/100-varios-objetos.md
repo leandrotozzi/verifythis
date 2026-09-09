@@ -239,7 +239,7 @@ compilador, no por un string.
 - Instanciamos el analysis port en *build_phase*
 - Escribimos datos en el puerto mediante el método *.write()*
 - Una vez que escribimos datos en el puerto, este va a todos sus subscribers
-- Utilizamos el método *connect()* para conectar los subscribers al puerto. Este método tiene un único argumento: un analysis_port
+- Utilizamos el método *connect()* para conectar los subscribers al puerto. Este método tiene un único argumento, y es el **export** del subscriber (`analysis_export`), no otro port
 
 {{code:code/u5/varios-objetos/02-con-analysis-port/con-analysis-port.sv}}
 
@@ -351,8 +351,12 @@ La línea que hay que leer despacio es
 `dice_roller_h.roll_ap.connect(coverage_h.analysis_export)`, y la dirección
 importa: **el port se conecta al export, nunca al revés**. Es el mantra que vuelve
 en threads, en put y get y en agents, y el compilador no siempre te ataja.
-Regla de bolsillo para acordarse de la dirección: conecta el que **produce**. El
-que consume pone la oreja y no hace nada.
+Regla de bolsillo para acordarse de la dirección, y hay que decirla así porque la
+versión fácil se rompe enseguida: llama al `connect()` **el que tiene el port**,
+y se lo pasa el export del otro. Acá el que tiene el port es el productor; en put
+y get el `uvm_get_port` lo tiene el **consumidor**, y ahí es el consumidor el que
+conecta. "Conecta el que produce" funciona en esta slide y falla en la siguiente
+sección.
 Y la prueba de fuego de la sección: para agregar un cuarto observador hay que
 escribir la clase y **una** línea acá. Ni una en `dice_roller`.
 

@@ -1,4 +1,4 @@
-<!-- es-sha: 5d6b9cd38c53 -->
+<!-- es-sha: de4701d8fe6d -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 2
@@ -131,4 +131,4 @@
 - [ ] Only at compile time
 - [x] Only if the object in `source` really is of the class of `destination` or of a derived one
 
-> **Only if the object allows it** — `$cast` checks **at runtime** and returns 0 if it does not work. That is why UVM's factory is more comfortable than the animals example: it returns the right type and saves you the cast.
+> **Only if the object allows it** — `$cast` checks **at runtime** and returns 0 if it does not work. That is why UVM's factory is more comfortable than the `cantina` of the section: `type_id::create()` returns the right type and saves you the cast.

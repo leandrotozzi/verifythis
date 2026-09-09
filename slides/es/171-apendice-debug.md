@@ -11,10 +11,10 @@
 | `+UVM_CONFIG_DB_TRACE` | quién puso qué en el `config_db`, y quién lo leyó | Agents |
 | `+TOPOLOGY` → `print_topology()` | el árbol que UVM armó **de verdad** | Agents |
 | `+UVM_OBJECTION_TRACE` | quién levantó y quién bajó la objection | Tests |
-| `+UVM_TIMEOUT=N` | un techo para el cuelgue, en vez de esperar | Tests |
-| `set_report_severity_action_hier(…, UVM_COUNT)` | matar la corrida al N-ésimo error | Reporting |
+| `+UVM_TIMEOUT=N,NO` | un techo para el cuelgue, en vez de esperar | Tests |
+| `+UVM_MAX_QUIT_COUNT=N` | matar la corrida al N-ésimo error | Reporting |
 
-- Los cinco del medio son **plusargs**: no se toca código y no se recompila. En un
+- Los seis de abajo son **plusargs**: no se toca código y no se recompila. En un
   testbench con UVM eso son minutos de diferencia por intento
 
 Note:
@@ -28,6 +28,12 @@ El punto que hay que decir en voz alta es el de los plusargs. Un `$display`
 agregado a mano cuesta una recompilación de UVM —minutos— y encima hay que
 acordarse de sacarlo. Estas siete perillas ya están puestas en el binario que
 compilaste: se prenden en la línea de comandos y no dejan rastro.
+Y un detalle del `+UVM_TIMEOUT` que muerde, porque no da error: el valor es un
+entero en unidades de tiempo, no una expresión con unidad. UVM lo lee con
+`$sscanf(…, "%d,%s")` (`uvm_root.svh:916`), así que `+UVM_TIMEOUT=5ms` no se
+queja: agarra el `5` y corta la simulación a los 5 ns. Se escribe
+`+UVM_TIMEOUT=5000000,NO`, y el `NO` es para que un `set_timeout()` escrito en el
+testbench no pise lo que pediste en la línea de comandos.
 `+TOPOLOGY` no es de UVM: es del `base_test` del curso, que lee el plusarg y
 llama a `uvm_root::get().print_topology()`. Vale aclararlo para que nadie lo
 busque en el LRM. Lo mismo `VLT_TRACE=1`, que es del `run.sh`.
@@ -44,7 +50,7 @@ hasta que no lo podés repetir a voluntad.
 | El síntoma | El primer sospechoso | Con qué se mira |
 | --- | --- | --- |
 | Termina en **t=0** y dice PASS | nadie levantó la objection | `+UVM_OBJECTION_TRACE` |
-| **No termina nunca** | un `item_done()` que no se llamó, o una objection que no baja | `+UVM_TIMEOUT=5ms` y después el trace |
+| **No termina nunca** | un `item_done()` que no se llamó, o una objection que no baja | `+UVM_TIMEOUT=5000000,NO` y después el trace |
 | El scoreboard **grita en todas** | el monitor muestrea mal — el DUT casi nunca es | `+UVM_VERBOSITY=UVM_HIGH` |
 | El `config_db` **no encuentra** | el ámbito del `set()`, no el `get()` | `+UVM_CONFIG_DB_TRACE` |
 | La cobertura da **0 %** | falta el `new()` o el `sample()` del covergroup | leer el `.dat` con `verilator_coverage` |

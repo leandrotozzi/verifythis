@@ -144,7 +144,8 @@ el test hace <code>new()</code> y pasan a ser components del árbol.</p>
 <li>El <code>top</code> sigue siendo un <strong>módulo</strong>: instancia el BFM y el DUT igual que
 antes. Lo único nuevo son estas dos líneas</li>
 <li><code>run_test()</code> sin argumento significa <em>&quot;el que diga <code>+UVM_TESTNAME</code>&quot;</em>. Con un
-argumento —<code>run_test(&quot;random_test&quot;)</code>— volvés a hardcodear el test</li>
+argumento —<code>run_test(&quot;random_test&quot;)</code>— ése pasa a ser el <strong>default</strong>, y
+<code>+UVM_TESTNAME</code> lo sigue pisando desde la línea de comandos</li>
 <li>Antes de <code>run_test()</code> no hay ningún objeto de UVM vivo: por eso el <code>set</code> va acá</li>
 </ul>
 <div class="nota">
@@ -1742,13 +1743,14 @@ la sección es configurar ese objeto.</p>
 <h4 id="las-macros-de-reporting"><em>Las macros de reporting</em></h4>
 <ul>
 <li>Son cuatro y se diferencian por la <strong>severidad</strong>: <code>`uvm_info</code>,
-<code>`uvm_warning</code>, <code>`uvm_error</code> y <code>`uvm_fatal</code>. Los tres últimos cuentan
-en el <em>Report Summary</em>; el último además mata la simulación</li>
+<code>`uvm_warning</code>, <code>`uvm_error</code> y <code>`uvm_fatal</code>. <strong>Las cuatro</strong> se cuentan
+en el <em>Report Summary</em>; lo que cambia es la <strong>acción</strong> por defecto — <code>`uvm_error</code>
+trae <code>UVM_DISPLAY|UVM_COUNT</code> y <code>`uvm_fatal</code> además mata la simulación</li>
 <li>El <strong>ID</strong> es el primer argumento: un string que dice quién habla. Con él se
 filtra después, así que conviene que sea el nombre del componente y siempre el
 mismo</li>
 <li>El <strong>mensaje</strong> es el segundo, y se arma con <code>$sformatf</code> cuando lleva datos</li>
-<li>La <strong>verbosidad</strong> es el cuarto, y la tiene <strong>sólo</strong> <code>`uvm_info</code>: es la que
+<li>La <strong>verbosidad</strong> es el tercero, y la tiene <strong>sólo</strong> <code>`uvm_info</code>: es la que
 decide si el mensaje sale o no</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u4/reporting/reporting.sv</code></figcaption><pre><code class="hljs"><span class="hljs-uvm-macro">`uvm_info</span>   (Message ID String, Message String, Verbosity)
@@ -1797,7 +1799,7 @@ escribe la ruta jerárquica, porque no la sabe.</p>
 
 <section id="s154" class="slide">
 <h2 id="reporting">Reporting</h2>
-<h4 id="los-cinco-niveles-y-por-qué-el-mensaje-se-queda"><em>Los cinco niveles, y por qué el mensaje se queda</em></h4>
+<h4 id="los-seis-niveles-y-por-qué-el-mensaje-se-queda"><em>Los seis niveles, y por qué el mensaje se queda</em></h4>
 <ul>
 <li>El ciclo de siempre: llenás el código de <code>$display</code>, encontrás el bug, borrás
 todo — y la semana que viene lo escribís de nuevo</li>
@@ -1821,8 +1823,10 @@ y el segundo no toca el código:<ul>
 } <span class="hljs-uvm-type">uvm_verbosity</span>
 
 <span class="hljs-comment">// Any message above the verbosity that was set does not get printed</span></code></pre></figure><div class="nota">
-<p>Los cinco niveles, de menos a más ruidoso: <code>UVM_NONE</code>, <code>UVM_LOW</code>, <code>UVM_MEDIUM</code>
-—el que está por defecto—, <code>UVM_HIGH</code> y <code>UVM_DEBUG</code>. Un mensaje se imprime si su
+<p>Los seis niveles, de menos a más ruidoso: <code>UVM_NONE</code>, <code>UVM_LOW</code>, <code>UVM_MEDIUM</code>
+—el que está por defecto—, <code>UVM_HIGH</code>, <code>UVM_FULL</code> y <code>UVM_DEBUG</code>. <code>UVM_FULL</code> es el
+que nadie usa y el que aparece en el enum de la slide, así que vale nombrarlo. Un
+mensaje se imprime si su
 verbosidad es <strong>menor o igual</strong> al techo, así que <code>UVM_NONE</code> sale siempre.
 La regla práctica que conviene bajar, porque si no cada uno inventa la suya:
 <code>UVM_LOW</code> para lo que querés ver en una regresión —qué test corrió, cuántas
@@ -1830,7 +1834,7 @@ transacciones—; <code>UVM_MEDIUM</code> para el resumen de un componente; <cod
 cada transacción que pasa. Los monitores del curso son <code>UVM_HIGH</code> justamente por
 eso: en una corrida normal no se ven, y cuando algo falla se prenden con un
 plusarg.
-El detalle de forma que se copia mal: la verbosidad es el <strong>cuarto</strong> argumento del
+El detalle de forma que se copia mal: la verbosidad es el <strong>tercer</strong> argumento del
 <code>`uvm_info</code>, y si te la olvidás no compila. El ID —el primero— es un string
 libre, pero no lo elijas al azar: es la llave con la que después vas a filtrar.
 Que sea el nombre del componente, en mayúsculas, y siempre el mismo.</p>
@@ -1929,9 +1933,11 @@ literalmente esta ruta. Un solo árbol sirve para las dos cosas.
 La aclaración del bullet no es un detalle: esta jerarquía <strong>no es la del DUT</strong>. Un
 scoreboard no está adentro de ningún módulo. Es el árbol que UVM arma llamando
 <code>build_phase</code> de arriba hacia abajo, y existe sólo en el testbench.
-Truco para el aula: <code>+UVM_CONFIG_DB_TRACE</code> o <code>print_topology()</code> imprimen este
-árbol de verdad, escrito por la librería. Es la mejor forma de mostrar que no es
-un dibujo.</p>
+Truco para el aula: <code>uvm_top.print_topology()</code> imprime este árbol de verdad,
+escrito por la librería. Es la mejor forma de mostrar que no es un dibujo.
+<code>+UVM_CONFIG_DB_TRACE</code> es otra cosa y conviene no mezclarlas: no dibuja el árbol,
+traza cada <code>set()</code> y cada <code>get()</code> del <code>config_db</code> con el ámbito que se usó — que
+es la perilla del otro problema, el del ámbito que no matchea.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/157">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -2032,12 +2038,15 @@ no <em>&quot;¿se imprime?&quot;</em> sino <em>&quot;¿qué se hace con este men
 <p>Las seis acciones son un OR de bits, no una lista de opciones excluyentes: un
 mismo mensaje puede imprimirse <strong>y</strong> escribirse a un archivo <strong>y</strong> contar para el
 resumen. Por eso se combinan con <code>|</code>.
-La que casi nadie conoce y sirve muchísimo es <code>UVM_COUNT</code>: cuenta las apariciones
-de ese ID y mata la simulación cuando llega al máximo. Es la respuesta al log de
-cuatro gigas cuando un scoreboard falla en cada transacción — te enterás igual, y
-en treinta segundos en vez de en veinte minutos.
+<code>UVM_COUNT</code> es la que más se explica mal, y conviene decirla completa: ya está
+puesta por defecto en todo <code>`uvm_error</code>, y lo que incrementa es **un contador
+global** de la corrida, no uno por ID. Sola no mata nada, porque el máximo por
+defecto es 0, que quiere decir &quot;sin límite&quot;. La que corta es
+<code>+UVM_MAX_QUIT_COUNT=N</code> —o <code>set_report_max_quit_count(N)</code>, <code>uvm_root.svh:1187</code>—, y
+ésa sí es la respuesta al log de cuatro gigas cuando un scoreboard falla en cada
+transacción: te enterás igual, y en treinta segundos en vez de en veinte minutos.
 <code>UVM_NO_ACTION</code> es la que usa la slide siguiente para apagar los errores, y hay
-que decir en voz alta para qué <strong>no</strong> sirve: no es para que la regresión dé verde.
+que decir en voz alta para qué **no** sirve: no es para que la regresión dé verde.
 Es para seguir trabajando mientras otro arregla su clase, y se saca el mismo día.
 Un <code>UVM_NO_ACTION</code> que sobrevive a un commit es un bug esperando.
 Y el par que conviene nombrar: <code>set_report_severity_action</code> es por severidad,

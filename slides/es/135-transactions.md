@@ -170,14 +170,18 @@ testbench, es un component. Si viaja por una flecha del diagrama, es un object.
   copiar, pero no sabe **qué campos** tiene tu transaction
 - Es el mismo patrón que el resto de la sección: `copy()` es el que se llama,
   `do_copy()` es el que se escribe
-- La única diferencia es que UVM requiere que el argumento que le pasamos se llame *rhs* (Right Hand Side)
+- La única diferencia es el argumento: tiene que ser un `uvm_object` —de ahí el `$cast`—. UVM lo llama *rhs* (*right hand side*) por convención, no por requisito
 
 {{code:code/u6/transactions/tb_classes/command_transaction_do_copy.svh}}
 
 Note:
 El patrón es el de las jerarquías de clases, con dos reglas de UVM encima.
-La primera, la que hace que compile: el argumento se llama `rhs` y es de tipo
-`uvm_object` —la clase base de todo—, así que lo primero que hay que hacer es
+La primera, la que hace que compile: el argumento tiene que ser de tipo
+`uvm_object` —la clase base de todo—, porque lo que SystemVerilog exige para que
+el override virtual funcione es que coincidan el tipo y la dirección, no el
+nombre. `rhs` es el identificador que usa la firma de `uvm_object::do_copy` y por
+eso lo copia todo el mundo, pero podés llamarlo como quieras. Lo primero que hay
+que hacer es
 castear. Y como el `$cast` chequea en runtime, va con su `uvm_fatal`: si alguien
 intenta copiar un `result_transaction` sobre un `command_transaction`, querés
 enterarte ahí y no tres componentes más adelante.
@@ -199,14 +203,14 @@ la parte de abajo, la librería maneja el protocolo.
 - Varios componentes pueden ver el mismo dato si tienen handles al mismo objeto.
   Es barato y funciona — mientras nadie lo modifique
 - La regla que lo sostiene se llama **MOOCOW** —*Manual Obligatory Object Copy On
-  Write*—, y así la nombra la Verification Academy
+  Write*—, y así la bautiza *The UVM Primer*, de Ray Salemi
 - Dice esto: compartir un handle está bien **siempre que no toques el objeto**.
   El que quiere modificar, copia primero
 - Es una disciplina del equipo, no algo que el lenguaje imponga. UVM sólo pone la
   herramienta: `clone()`, que devuelve un `uvm_object` y hay que castear
 
 Note:
-El nombre es una joda de Verification Academy, pero la regla es la que evita el
+El nombre es una joda del *UVM Primer*, pero la regla es la que evita el
 bug más caro de las jerarquías de clases: mandaste la transaction al scoreboard, seguís
 teniendo el handle, la modificás para la siguiente, y el scoreboard termina
 comparando contra datos que cambiaron después de que él los recibió. No falla
@@ -229,7 +233,7 @@ partes y es el único lugar del testbench donde se hace.
 
 - Como `clone()` devuelve un `uvm_object`, cada componente que lo use termina
   escribiendo su propio `$cast` — el mismo, repetido
-- La convención de la Verification Academy es agregarle a la transaction un
+- La convención del *UVM Primer* es agregarle a la transaction un
   `clone_me()` que haga las dos cosas y devuelva ya el tipo correcto
 - No lo trae UVM: es cuatro líneas escritas una vez en el dato, para que ninguno
   de los que lo usan tenga que acordarse del cast
@@ -240,8 +244,8 @@ Note:
 Es un método de tres líneas y existe por una sola razón: `clone()` devuelve un
 `uvm_object`, así que todo el que lo use tiene que castear. Escribir el `$cast`
 una vez adentro de la clase es mejor que escribirlo cincuenta veces afuera.
-El nombre no está en el estándar: `clone_me()` es una convención de Verification
-Academy. En un proyecto ajeno puede llamarse distinto o no existir — y ahí vas a
+El nombre no está en el estándar: `clone_me()` es una convención del *UVM
+Primer*. En un proyecto ajeno puede llamarse distinto o no existir — y ahí vas a
 ver el `$cast` repetido en cada llamador.
 Y la trampa que hay que nombrar: `clone()` llama a `create()` y después a
 `copy()`, que termina en tu `do_copy()`. Si `do_copy()` se olvida un campo, el
@@ -298,11 +302,16 @@ mensaje del scoreboard y de los monitores del resto del curso sale de acá.
 El `.name()` del `enum` es el detalle que cambia el día: sin él, el log dice
 `op: 4` y hay que ir a buscar el `typedef`; con él dice `op: mul_op`. La regla
 para llevarse: **si un campo es un enum, en el log va su nombre, nunca su valor.**
-Vale nombrar el pariente que UVM trae y el curso no usa: `sprint()`, que imprime
-la transaction sola si registraste los campos con las macros `` `uvm_field_* ``.
-Sale automático, sale feo —tres líneas por campo, con tipo y radix— y no se puede
-adaptar. Un `convert2string()` de tres líneas escrito a mano entra en un renglón
-del log, y en un archivo de cien mil líneas eso importa.
+Vale nombrar el pariente que UVM trae y el curso no usa: `print()` y `sprint()`,
+que imprimen la transaction sola si registraste los campos con las macros
+`` `uvm_field_* `` — o si escribís `do_print()`, que es el equivalente manual de
+`convert2string()` y no aparece en ninguna slide del curso. Ojo con eso: sin las
+macros y sin `do_print()`, un `t.print()` de las transactions de acá imprime sólo
+el encabezado. El formato **sí** se cambia: por defecto es el `uvm_table_printer`
+—una fila por campo, con tipo y radix— y hay un `uvm_line_printer` que mete el
+objeto entero en un renglón. La razón para preferir `convert2string()` es más
+sencilla y hay que decirla así: escrito a mano entra en un renglón que dice lo
+que a vos te importa, y en un archivo de cien mil líneas eso importa.
 
 
 ---

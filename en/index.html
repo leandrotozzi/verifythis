@@ -89,7 +89,7 @@
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: d9dfd48c1fc3 -->
+<!-- es-sha: 0c9f54ca2da9 -->
 <!-- .slide: id="como-usar" -->
 
 ## How to use this course
@@ -133,7 +133,7 @@ instructor alongside, and without the presenter notes half the material gets los
   straight through, with the notes already inside the text. Keep the deck alongside for
   the reviews
 - **When something does not work, go to the end:** the appendices *The debug toolbox*
-  —what to look at for each symptom— and *The twenty silent traps* —everything that
+  —what to look at for each symptom— and *The 21 silent traps* —everything that
   compiles, runs and lies—. Those are the two slides to print
 
 Note:
@@ -2473,7 +2473,7 @@ hierarchies when `obj1_h = obj2_h` copies the handle and not the object.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 8b77ff6b1052 -->
+<!-- es-sha: 696c507b7d26 -->
 ## Polymorphism
 
 #### *A `trago` variable, a `fernet` object: which `servir()` runs?*
@@ -2644,9 +2644,12 @@ course: *the sooner it fails, the better*. Compile time better than simulation,
 simulation better than silicon.
 In verification a compile error is **good news**: the overnight regression
 does not get lost, and whoever broke something finds out in a minute.
-Where it is going to show up again: `uvm_object` and `uvm_component` are abstract in
-practice, and the `` `uvm_component_utils `` macros force you to implement similar
-things. And in the day 2 exercise, the base class of the testbench.
+Where it is going to show up again: `uvm_object` and `uvm_component` are declared
+`virtual class` in the library, so they are abstract by right. What `` `uvm_component_utils ``
+does **not** do is force you to implement anything: the other way round, it *provides*
+`get_type_name()` and the registry's `type_id`. The real `pure virtual` in UVM is
+`uvm_subscriber::write()`, which you are going to have to write no matter what on day 4.
+And in the day 2 exercise, the base class of the testbench.
 
 ---
 
@@ -2673,8 +2676,8 @@ endclass : trago
   body**, and that is why there is nothing that can run wrong
 - The commented-out line of the `top` —`trago_h = new(3)`— does not compile: an
   abstract class does not get instantiated
-- If you delete `mojito`'s override, the compiler says
-  *"does not override virtual method servir"* and that is the end of it
+- If you delete `mojito`'s override, the compiler says *"Class 'mojito' extends
+  'trago' but is missing implementation for 'servir'"* and that is the end of it
 
 Note:
 The point is not the `$fatal`, it is **when you find out**: without an abstract class it
@@ -2939,7 +2942,7 @@ All of that is `static`, and not by accident.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: c0af6402e191 -->
+<!-- es-sha: 36a2d28c326c -->
 ## Parameterized classes
 
 #### *It is not a class: it is a mould*
@@ -3171,7 +3174,7 @@ each monitor has its own. With that they can already read both.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 0f3503997186 -->
+<!-- es-sha: 589b6c3c4412 -->
 ## The factory pattern
 
 #### *Who decides the type?*
@@ -3327,25 +3330,25 @@ Both annoyances of this slide disappear in the env.
 #### *Python Style*
 
 ```python
-class Trago(object):
+class Trago:
     """Factory class that builds a Trago."""
 
-    def factory(type):
+    @staticmethod
+    def factory(kind):
         """Factory Method."""
-        if type == "CubaLibre":
+        if kind == "CubaLibre":
             return CubaLibre()
-        if type == "Fernet":
+        if kind == "Fernet":
             return Fernet()
-        if type == "Mojito":
+        if kind == "Mojito":
             return Mojito()
-        if type == "Whiscola":
+        if kind == "Whiscola":
             return Whiscola()
-        assert 0, "No such trago: " + type
-    factory = staticmethod(factory)
+        raise ValueError("No such trago: " + kind)
 ```
 
 - The same factory, in a language that has nothing to do with hardware: a
-  static method with an `if` per type and an `assert` for what does not exist
+  static method with an `if` per type and a `raise` for what does not exist
 - And the same annoyance: adding a drink forces you to **edit the factory**
 - The whole file is in `code/u3/factory/factory.py` and it runs with `python3`:
   it generates twenty drinks at random and serves them all the same way
@@ -3810,7 +3813,7 @@ versions live side by side. That is the exercise that follows.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 5d6b9cd38c53 -->
+<!-- es-sha: de4701d8fe6d -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 2
@@ -3943,7 +3946,7 @@ versions live side by side. That is the exercise that follows.
 - [ ] Only at compile time
 - [x] Only if the object in `source` really is of the class of `destination` or of a derived one
 
-> **Only if the object allows it** — `$cast` checks **at runtime** and returns 0 if it does not work. That is why UVM's factory is more comfortable than the animals example: it returns the right type and saves you the cast.
+> **Only if the object allows it** — `$cast` checks **at runtime** and returns 0 if it does not work. That is why UVM's factory is more comfortable than the `cantina` of the section: `type_id::create()` returns the right type and saves you the cast.
         </textarea>
       </section>
       <!-- 067-quiz-day2.md -->
@@ -3994,7 +3997,7 @@ with the factory, and only then do you see what the factory is for.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: cf7b93df8c60 -->
+<!-- es-sha: 0a0dbea4d761 -->
 ## Tests
 
 #### *Compile once, pick the test from the command line*
@@ -4044,7 +4047,8 @@ the test `new()`s and become components of the tree.
 - The `top` is still a **module**: it instantiates the BFM and the DUT the same as
   before. The only new thing is these two lines
 - `run_test()` with no argument means *"whichever `+UVM_TESTNAME` says"*. With an
-  argument —`run_test("random_test")`— you go back to hardcoding the test
+  argument —`run_test("random_test")`— that one becomes the **default**, and
+  `+UVM_TESTNAME` still overrides it from the command line
 - Before `run_test()` there is not a single UVM object alive: that is why the `set` goes here
 
 Note:
@@ -5312,7 +5316,7 @@ always it is duplicated structure.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: aa5203a4a3af -->
+<!-- es-sha: dbecab2723da -->
 ## Reporting
 
 #### *47 % of the time goes here*
@@ -5376,13 +5380,14 @@ the section is configuring that object.
 #### *The reporting macros*
 
 - There are four and they differ by **severity**: `` `uvm_info ``,
-  `` `uvm_warning ``, `` `uvm_error `` and `` `uvm_fatal ``. The last three count
-  in the *Report Summary*; the last one also kills the simulation
+  `` `uvm_warning ``, `` `uvm_error `` and `` `uvm_fatal ``. **All four** are counted
+  in the *Report Summary*; what changes is the default **action** — `` `uvm_error ``
+  comes with `UVM_DISPLAY|UVM_COUNT` and `` `uvm_fatal `` also kills the simulation
 - The **ID** is the first argument: a string that says who is talking. It is what you filter
   with afterwards, so it is worth making it the name of the component and always the
   same one
 - The **message** is the second, and it gets assembled with `$sformatf` when it carries data
-- The **verbosity** is the fourth, and **only** `` `uvm_info `` has it: it is the one
+- The **verbosity** is the third, and **only** `` `uvm_info `` has it: it is the one
   that decides whether the message comes out or not
 
 ```sv
@@ -5439,7 +5444,7 @@ writes the hierarchical path, because they do not know it.
 
 ## Reporting
 
-#### *The five levels, and why the message stays*
+#### *The six levels, and why the message stays*
 
 - The usual cycle: you fill the code with `$display`, you find the bug, you delete
   everything — and next week you write it again
@@ -5465,8 +5470,10 @@ typedef enum
 ```
 
 Note:
-The five levels, from least to most noisy: `UVM_NONE`, `UVM_LOW`, `UVM_MEDIUM`
-—the default one—, `UVM_HIGH` and `UVM_DEBUG`. A message gets printed if its
+The six levels, from least to most noisy: `UVM_NONE`, `UVM_LOW`, `UVM_MEDIUM`
+—the default one—, `UVM_HIGH`, `UVM_FULL` and `UVM_DEBUG`. `UVM_FULL` is the one
+nobody uses and the one that shows up in the enum on the slide, so it is worth
+naming. A message gets printed if its
 verbosity is **less than or equal to** the ceiling, so `UVM_NONE` always comes out.
 The rule of thumb worth handing down, because otherwise everybody invents their own:
 `UVM_LOW` for what you want to see in a regression —which test ran, how many
@@ -5474,7 +5481,7 @@ transactions—; `UVM_MEDIUM` for the summary of a component; `UVM_HIGH` for
 every transaction that goes past. The monitors of the course are `UVM_HIGH` precisely for
 that: in a normal run they are not seen, and when something fails they get switched on with a
 plusarg.
-The formal detail that gets copied wrong: the verbosity is the **fourth** argument of the
+The formal detail that gets copied wrong: the verbosity is the **third** argument of the
 `` `uvm_info ``, and if you forget it, it does not compile. The ID —the first one— is a free
 string, but do not pick it at random: it is the key you are going to filter with afterwards.
 Make it the name of the component, in capitals, and always the same one.
@@ -5576,9 +5583,12 @@ literally this path. A single tree serves both purposes.
 The clarification in the bullet is not a detail: this hierarchy **is not the DUT's**. A
 scoreboard is not inside any module. It is the tree UVM assembles by calling
 `build_phase` from the top down, and it exists only in the testbench.
-Classroom trick: `+UVM_CONFIG_DB_TRACE` or `print_topology()` print this
-tree for real, written by the library. It is the best way of showing that it is not
-a drawing.
+Classroom trick: `uvm_top.print_topology()` prints this tree for real, written by
+the library. It is the best way of showing that it is not a drawing.
+`+UVM_CONFIG_DB_TRACE` is a different thing and it is better not to mix them: it does
+not draw the tree, it traces every `set()` and every `get()` of the `config_db` with
+the scope that was used — which is the knob for the other problem, the scope that
+does not match.
 
 ---
 
@@ -5688,10 +5698,14 @@ Note:
 The six actions are a bitwise OR, not a list of mutually exclusive options: the
 same message can be printed **and** written to a file **and** counted towards the
 summary. That is why they combine with `|`.
-The one almost nobody knows and that helps enormously is `UVM_COUNT`: it counts the appearances
-of that ID and kills the simulation when it reaches the maximum. It is the answer to the
-four-gigabyte log when a scoreboard fails on every transaction — you find out anyway, and
-in thirty seconds instead of in twenty minutes.
+`UVM_COUNT` is the one most often explained wrong, and it is worth saying it in full:
+it is already switched on by default on every `` `uvm_error ``, and what it increments
+is **a global counter** for the run, not one per ID. On its own it kills nothing,
+because the default maximum is 0, which means "no limit". The one that cuts is
+`+UVM_MAX_QUIT_COUNT=N` —or `set_report_max_quit_count(N)`, `uvm_root.svh:1187`—, and
+that one really is the answer to the four-gigabyte log when a scoreboard fails on
+every transaction: you find out anyway, and in thirty seconds instead of in twenty
+minutes.
 `UVM_NO_ACTION` is the one the next slide uses to switch off the errors, and it has to be
 said out loud what it is **not** for: it is not so that the regression comes out green.
 It is to carry on working while somebody else fixes their class, and it comes out the same day.
@@ -5999,7 +6013,7 @@ the reason adding one has to be cheap.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 70f176b32625 -->
+<!-- es-sha: 500a83e2f70b -->
 ## One producer, many listeners
 
 #### *Two ways of talking between objects*
@@ -6326,7 +6340,7 @@ by the compiler, not by a string.
 - We instantiate the analysis port in *build_phase*
 - We write data into the port through the *.write()* method
 - Once we write data into the port, it goes to all of its subscribers
-- We use the *connect()* method to connect the subscribers to the port. This method takes a single argument: an analysis_port
+- We use the *connect()* method to connect the subscribers to the port. This method takes a single argument, and it is the subscriber's **export** (`analysis_export`), not another port
 
 ```sv
 class dice_roller extends uvm_component;
@@ -6515,8 +6529,12 @@ The line to read slowly is
 matters: **the port connects to the export, never the other way round**. It is
 the mantra that comes back in threads, in put and get and in agents, and the
 compiler does not always catch you.
-Pocket rule to remember the direction: the one that **produces** connects. The
-one that consumes lends an ear and does nothing.
+Pocket rule to remember the direction, and it has to be said this way because the
+easy version breaks straight away: the one that calls `connect()` is **the one
+that has the port**, and it hands it the other one's export. Here the one with the
+port is the producer; in put and get the `uvm_get_port` belongs to the
+**consumer**, and there it is the consumer that connects. "The producer connects"
+works on this slide and fails in the next section.
 And the acid test of the section: to add a fourth observer you have to write the
 class and **one** line here. Not one in `dice_roller`.
 
@@ -7124,7 +7142,7 @@ outside the agent in the agents.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 12954fabcd03 -->
+<!-- es-sha: 06d2d3f6198a -->
 ## When somebody has to wait
 
 #### *You were already doing this, with modules*
@@ -7260,8 +7278,11 @@ The producer puts and carries on; if the other one has not taken it out yet, the
 `put()` stops it on its own.
 The detail of form, which is the one that gets copied wrong: the port gets
 **instantiated** in the `build_phase` like any other component, with
-`new("name", this)`. A port is a `uvm_component`, not a data field — that is why
-it takes a parent, and that is why it shows up in `print_topology()`.
+`new("name", this)`. It is not a data field: it takes a parent, and that is why it
+shows up in `print_topology()`. But it is not a `uvm_component` either —
+`uvm_put_port` extends `uvm_port_base #(IF)`, and what hangs off the tree is an
+internal `uvm_port_component` the port builds for itself
+(`uvm_port_base.svh:137`). The FIFO on the next slide really is a component.
 And the parameter: `uvm_put_port #(T)`. That `T` has to be the same in the port,
 in the get port and in the FIFO. If they do not match it does not compile, which
 is the good news —it is one of the few UVM connection errors you see at compile
@@ -7363,10 +7384,16 @@ is for: the `connect_phase` connects a port to an export, and for that both
 objects have to exist. If `connect` were top-down, the test would try to connect
 children that had not been built yet.
 The classic error of this slide, which compiles and fails at run time: creating
-the FIFO in the `connect_phase` instead of the `build_phase`. UVM throws a fatal
-— `Cannot create a component during connect` — and at least it warns you. Worse
-is forgetting the `connect()`: there the port is left unconnected and the fatal
-shows up on the first `put()`, much later and without saying which port it was.
+the FIFO in the `connect_phase` instead of the `build_phase`. UVM catches it with
+an `ILLCRT` fatal —*"It is illegal to create a component ('x' under 'y') after the
+build phase has ended"* (`uvm_component.svh:1721`)—, and at least it warns you with
+the name. Forgetting the `connect()` of a `put`/`get` port **also** warns, and
+well: `resolve_bindings()` reports a `UVM_ERROR [Connection Error] connection count
+of 0 does not meet required minimum of 1` with the name of the port, in
+`end_of_elaboration` and before a single cycle runs (`uvm_port_base.svh:886`).
+The one that stays quiet is the **analysis port**, because its minimum is 0: a
+`write()` into an unconnected port is legal and prints nothing. It is the same
+asymmetry as the previous section, and it is the one to remember.
 And one worth pointing out in passing: here the producer and the consumer are
 children of the **test**, not of an env. It is on purpose, because the section is
 about the mechanism. In the real testbench this goes inside the agent, with the
@@ -8023,7 +8050,7 @@ match what another component saw.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 647efb74e66a -->
+<!-- es-sha: 7fc54aff9a17 -->
 ## Copying an object that contains another
 
 #### *The handle is not the object*
@@ -8096,7 +8123,7 @@ In OOP, instead of copying code...
    function string convert2string();
       string coca_s;
       coca_s = (con_coca) ? "si" : "no";
-      return sformat("Hielos: %0d  Coca: ",hielos, coca_s);
+      return $sformatf("Hielos: %0d  Coca: %s", hielos, coca_s);
    endfunction : convert2string
 
 //class fernet_doble extends fernet;
@@ -8274,8 +8301,8 @@ somebody tries to copy a `mojito` onto a `fernet`, it returns 0 and it has to be
 caught.
 It is the first time a signature convention shows up that exists only so that
 polymorphism can work. In UVM it is going to be the same and with more rules: the
-argument has to be called `rhs`, `do_compare()` also takes a `uvm_comparer`, and
-so on. When those signatures show up in the transactions, the answer to "why like
+argument has to be a `uvm_object` —and by convention it is called `rhs`—,
+`do_compare()` also takes a `uvm_comparer`, and so on. When those signatures show up in the transactions, the answer to "why like
 this?" is this slide.
 
 ---
@@ -8302,8 +8329,8 @@ this?" is this slide.
   prints **all four fields by hand**, including the three it inherited
 - It works, and that is why it is dangerous. The day `fernet` gains a field, this
   method goes on compiling and goes on printing — less than it should
-- The whole file is in `code/u6/jerarquias/wrong.sv`, and the `do_copy()`s have
-  the same vice: each one touches fields that are not its own
+- The whole file is in `code/u6/jerarquias/wrong.sv`. The three `do_copy()`s in
+  there do call `super`; the one with the vice is `bad_copy()`, at the very bottom
 
 Note:
 The rule to leave behind: **a class only writes on its own fields.** Everything
@@ -8393,7 +8420,7 @@ ready-made — which is exactly the unit that follows.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 36c644536e96 -->
+<!-- es-sha: 545c942aa266 -->
 ## Transactions
 
 #### *The testbench is well divided up, and the data is not*
@@ -8641,7 +8668,7 @@ it is a component. If it travels along an arrow of the diagram, it is an object.
   copy, but it does not know **which fields** your transaction has
 - It is the same pattern as the rest of the section: `copy()` is the one that gets
   called, `do_copy()` is the one that gets written
-- The only difference is that UVM requires the argument we hand it to be called *rhs* (Right Hand Side)
+- The only difference is the argument: it has to be a `uvm_object` —hence the `$cast`—. UVM calls it *rhs* (*right hand side*) by convention, not by requirement
 
 ```sv
 function void do_copy(uvm_object rhs);
@@ -8664,9 +8691,12 @@ endfunction : do_copy
 
 Note:
 The pattern is the one from the class hierarchies, with two UVM rules on top.
-The first one, the one that makes it compile: the argument is called `rhs` and it
-is of type `uvm_object` —the base class of everything—, so the first thing to do
-is cast it. And since the `$cast` checks at run time, it goes with its
+The first one, the one that makes it compile: the argument has to be of type
+`uvm_object` —the base class of everything—, because what SystemVerilog demands for
+the virtual override to work is that the type and the direction match, not the
+name. `rhs` is the identifier used in the signature of `uvm_object::do_copy` and
+that is why everybody copies it, but you can call it whatever you like. The first
+thing to do is cast it. And since the `$cast` checks at run time, it goes with its
 `uvm_fatal`: if somebody tries to copy a `result_transaction` onto a
 `command_transaction`, you want to find out right there and not three components
 further on.
@@ -8688,14 +8718,14 @@ you put in the bottom part, the library handles the protocol.
 - Several components can see the same piece of data if they have handles to the
   same object. It is cheap and it works — as long as nobody modifies it
 - The rule that holds it up is called **MOOCOW** —*Manual Obligatory Object Copy On
-  Write*—, and that is how the Verification Academy names it
+  Write*—, and that is how *The UVM Primer*, by Ray Salemi, christens it
 - It says this: sharing a handle is fine **as long as you do not touch the
   object**. Whoever wants to modify, copies first
 - It is a discipline of the team, not something the language enforces. UVM only
   puts up the tool: `clone()`, which returns a `uvm_object` and has to be cast
 
 Note:
-The name is a joke from the Verification Academy, but the rule is the one that
+The name is a joke from the *UVM Primer*, but the rule is the one that
 avoids the most expensive bug of the class hierarchies: you sent the transaction
 to the scoreboard, you still hold the handle, you modify it for the next one, and
 the scoreboard ends up comparing against data that changed after it received it.
@@ -8719,7 +8749,7 @@ two parties and it is the only place in the testbench where that gets done.
 
 - Since `clone()` returns a `uvm_object`, every component that uses it ends up
   writing its own `$cast` — the same one, repeated
-- The Verification Academy convention is to add a `clone_me()` to the transaction
+- The *UVM Primer* convention is to add a `clone_me()` to the transaction
   that does both things and returns the right type already
 - UVM does not bring it: it is four lines written once in the data, so that none
   of the ones who use it have to remember the cast
@@ -8739,7 +8769,7 @@ Note:
 It is a three-line method and it exists for one reason only: `clone()` returns a
 `uvm_object`, so everybody who uses it has to cast. Writing the `$cast` once
 inside the class is better than writing it fifty times outside.
-The name is not in the standard: `clone_me()` is a Verification Academy
+The name is not in the standard: `clone_me()` is a *UVM Primer*
 convention. In somebody else's project it can be called something else or not
 exist at all — and there you are going to see the `$cast` repeated in every
 caller.
@@ -8828,12 +8858,17 @@ The `.name()` of the `enum` is the detail that changes the day: without it the l
 says `op: 4` and you have to go looking for the `typedef`; with it, it says
 `op: mul_op`. The rule to take home: **if a field is an enum, the log gets its
 name, never its value.**
-Worth naming the relative UVM brings and the course does not use: `sprint()`,
-which prints the transaction on its own if you registered the fields with the
-`` `uvm_field_* `` macros. It comes out automatically, it comes out ugly —three
-lines per field, with type and radix— and it cannot be adapted. A three-line
-`convert2string()` written by hand fits in one line of the log, and in a file of a
-hundred thousand lines that matters.
+Worth naming the relatives UVM brings and the course does not use: `print()` and
+`sprint()`, which print the transaction on their own if you registered the fields
+with the `` `uvm_field_* `` macros — or if you write `do_print()`, the manual
+equivalent of `convert2string()`, which does not show up in a single slide of the
+course. Careful with that: with no macros and no `do_print()`, a `t.print()` on the
+transactions here prints the header and nothing else. The format **can** be
+changed: the default is the `uvm_table_printer` —one row per field, with type and
+radix— and there is a `uvm_line_printer` that puts the whole object on one line.
+The reason to prefer `convert2string()` is simpler and should be said that way:
+written by hand it fits in one line that says what you care about, and in a file of
+a hundred thousand lines that matters.
 
 
 ---
@@ -9153,7 +9188,7 @@ an agent. That is day 6.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: a2eae5be73ce -->
+<!-- es-sha: 5c0ef74263d6 -->
 ## Constrained random
 
 #### *The other half of the pincer*
@@ -9495,7 +9530,7 @@ what happens when two constraints contradict each other, and without the `else`
 the testbench goes on sending the previous transaction.
 `constraint_mode` has a relative worth naming even though we do not use it: `soft`
 constraints, which the solver drops on its own when they get in the way instead of
-returning 0. They are in IEEE 1800-2017 and they are the modern way of writing a
+returning 0. They came in with IEEE 1800-2012 and they are the modern way of writing a
 default value that a `with {}` can override.
 
 ---
@@ -9760,7 +9795,7 @@ bucket gives zero — another one that does not break, it lies.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 9fffe39eea59 -->
+<!-- es-sha: 3cb7eb4ec0ed -->
 ## Agents
 
 #### *The problem: a testbench that cannot be copied*
@@ -10243,10 +10278,13 @@ Which means that in a testbench that calls `super.build_phase()`, a
 `uvm_config_db#(int)::set(this, "mi_agent", "is_active", UVM_PASSIVE)` works
 on its own, without a config object. Since this `vtalu_agent` does not call it,
 that mechanism **is switched off**, and that is why we assign it by hand.
-And here is where day 3 gets paid: `uvm_agent` is the only class in the library,
-besides `uvm_component`, that implements `build_phase`. It is exactly the case
-the rule for out there covers — you inherited from an intermediate class that
-does real work, and skipping the `super` switches it off without a word. We can
+And here is where day 3 gets paid: `uvm_agent` and `uvm_sequencer` are the two
+classes in the library that do real work in their `build_phase` —`uvm_agent` reads
+`is_active`, and `uvm_sequencer_param_base` hooks up the response fifo
+(`seq/uvm_sequencer_param_base.svh:288`)—. It is exactly the case the rule for out
+there covers: if you extend either of the two and you write a `build_phase`, the
+`super` is mandatory. You inherited from an intermediate class that does real
+work, and skipping the `super` switches it off without a word. We can
 skip it because we wrote the line that replaces it; whoever does not write that
 line, cannot.
 Both ways are valid. What is not valid is half of each one: putting
@@ -10365,10 +10403,13 @@ inside the agent.
 Note:
 Here is the classic trap of the section, and it is one of the ones that never fail. With a single
 agent, everybody writes `"*"` in the scope and it works. The day the
-second one shows up, the second `set()` overwrites the first and **both agents start up
-active**: two drivers driving two different interfaces with the wrong
-configuration. The error does not show up in `build_phase`, it shows up as a scoreboard
-failing on the interface you did not touch.
+second one shows up, the second `set()` overwrites the first and **both agents get the
+same config**: the same BFM and the same `is_active`. With the order in `env.svh` —the
+class first and the module after— the one left standing is the passive one, so both
+start up passive, with no driver and no sequencer, and the test's `seq.start()` lands
+on a `null` handle. With the order reversed they would be two drivers, but driving
+**the same** interface. What is invariant, and what to take away: the last `set()`
+wins, and both agents end up identical. The error does not show up in `build_phase`.
 The asterisk matters: `"clase_agent_h*"` with an asterisk reaches the children;
 `"clase_agent_h"` without an asterisk, only the agent. If you write it without an asterisk, the
 agent finds its config and the driver does not — `uvm_fatal` in `build_phase`, which at
@@ -10612,7 +10653,7 @@ inside.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: b7884bb1cb08 -->
+<!-- es-sha: 0a568a3969d2 -->
 ## Callbacks
 
 #### *The third hook*
@@ -10697,8 +10738,8 @@ and not an exception.
 class driver extends uvm_driver #(command_transaction);
    `uvm_component_utils(driver)
    // Declares "this component accepts callbacks of this type". Without it the
-   // add() below compiles and does nothing, which is the usual way to lose an
-   // afternoon.
+   // add() below still hooks up and the callback still runs, but with a CBUNREG
+   // warning and without the type check: outside the contract, and nearly silent.
    `uvm_register_cb(driver, driver_callback)
 
    virtual vtalu_bfm bfm;
@@ -10718,9 +10759,9 @@ class driver extends uvm_driver #(command_transaction);
    endtask : run_phase
 ```
 
-- `` `uvm_register_cb `` declares the type/callback pair. **Without it, the `add()`
-  compiles, runs and hooks nothing** — with a `CBUNREG` in the log that is easy
-  not to see
+- `` `uvm_register_cb `` declares the type/callback pair. Without it the `add()`
+  hooks up all the same and the callback **runs** — with a `UVM_WARNING CBUNREG`
+  lost in the log, and without the type check or `add_by_name`
 - `` `uvm_do_callbacks `` is the extension point: it walks the queue of **that
   instance** of driver, in order
 
@@ -10729,11 +10770,19 @@ The diff against the driver of the Agents section is exactly two lines, and
 it is worth showing it with a live `diff`: `diff code/u7/agents/tb_classes/driver.svh
 code/u7/callbacks/tb_classes/driver.svh`. Everything else —the `get_next_item`, the
 `send_op`, the `item_done`— is the same.
-The failure mode of the missing `uvm_register_cb` is the classic of this part of
-UVM: there is no compilation error, there is a `UVM_ERROR ... CBUNREG` lost in the
-middle of a thousand lines, and the callback simply does not run. That is why the `run.sh` of the
-example counts how many times it ran and fails if it is zero: an example that
-"passes" without having injected anything proves nothing.
+The failure mode of the missing `uvm_register_cb` is not the one you expect, and it
+is worth telling it with the source in hand because half the tutorials get it
+backwards: `uvm_callback.svh:744` reports a `UVM_WARNING CBUNREG` and **carries
+on** — the `add()` puts the callback into `m_base_inst.m_pool` all the same
+(`:777-783`), and `` `uvm_do_callbacks `` reads that pool without consulting the
+registry (`:964-1006`). Which means: without the macro the callback runs, and what
+you lose is the type check and `add_by_name` by derived type. That is worse than an
+error: it is a warning among a thousand lines, and the testbench ends up outside
+the contract without anyone noticing.
+That is why the `run.sh` of the example does not check the macro but the effect: it
+counts how many times the callback ran and fails if it is zero. An example that
+"passes" without having injected anything proves nothing, whatever the reason it
+came unhooked.
 Where to put the `` `uvm_do_callbacks `` is the real design decision, and it is the
 same one taken by whoever writes a VIP: every hook point is a promise of
 forward compatibility. That is why VIPs have three or four, not thirty.
@@ -10826,7 +10875,7 @@ the DUT, not the stimulus — which is exactly what the `+BUG=1` of the capstone
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 47c0ff491e6a -->
+<!-- es-sha: 93977ef24e35 -->
 ## Sequences
 
 #### *The only thing left hard-wired*
@@ -11351,9 +11400,13 @@ PASSES without having sent a single piece of stimulus. It is in `code/u7/sequenc
 `no_objection_test`, so it can be run in class alongside the good one.
 It is exactly the same kind of bug as the `new()` that eats the override of the transactions: it does not break, it **lies**. And in a regression of a thousand tests, a test that passes
 in zero seconds is one nobody looks at.
-Fine detail: `main_phase`, not `run_phase`. The `run_phase` runs in parallel with
-the schedule reset → configure → main → shutdown; the `default_sequence` hooks
-onto the ones of that schedule.
+Fine detail: `main_phase` is the one to use, not `run_phase`, but not because
+`run_phase` does not work — `uvm_task_phase::traverse` calls
+`start_phase_sequence()` on **every** task phase (`base/uvm_task_phase.svh:121`), so
+`"…sequencer_h.run_phase"` works just as well. The reason is one of coexistence: the
+`run_phase` runs in parallel with the schedule reset → configure → main → shutdown,
+and hooking onto `main_phase` puts the sequence inside that schedule instead of
+alongside it.
 
 ---
 
@@ -11689,8 +11742,9 @@ endtask
 - **`lock()` queues up**: it waits its turn like anybody else and only then closes
   the door. **`grab()` cuts in**: it goes ahead of everyone, even of the higher
   priority ones
-- Both are released with `unlock()`, and a `lock()` without its `unlock()` **hangs the
-  sequencer forever**: same symptom as the objection that does not get dropped, without an error
+- Both are released with `unlock()`. Without the `unlock()`, if the sequence is
+  **still alive** the sequencer stays closed forever and without a single error; if its
+  `body()` finishes, UVM takes it away and shouts `SEQFINERR`
 - The rule: `grab()` for reset and error recovery —what cannot wait—,
   `lock()` for everything else, and the `unlock()` in the same `body()`
 
@@ -11703,11 +11757,18 @@ scenario loses its meaning if something gets interleaved. A read-modify-write on
 register is the canonical example —if another transaction goes by between the read and the write,
 the value you write is old—. Sending ten items in a row does not
 need a lock: a sequence already guarantees that.
-The hang of the third bullet is the one to anticipate, because the symptom sends you
-looking on the wrong side: the simulation does not advance and the `+UVM_OBJECTION_TRACE`
-says nothing odd, because the objection is fine — the one that is stuck is the
-driver, waiting for an item that is never going to arrive. The tool that shows it is
-`+UVM_TIMEOUT` and then reading who has the lock.
+The two endings of the missing `unlock()` have to be told together, because one
+warns you and the other does not. If the sequence holding the lock finishes its
+`body()`, `uvm_sequencer_base::remove_sequence_from_queues`
+(`seq/uvm_sequencer_base.svh:1258-1267`) takes the lock away from it and reports a
+`UVM_ERROR SEQFINERR` — "should not finish before locks … are removed": annoying, but
+with a name on it. The silent case is the other one: the sequence is still alive and
+blocked on something else, and there the sequencer stays closed without anybody
+saying a word. That is the one that sends you looking on the wrong side: the
+simulation does not advance and the `+UVM_OBJECTION_TRACE` says nothing odd, because
+the objection is fine — the one that is stuck is the driver, waiting for an item that
+is never going to arrive. The tool that shows it is `+UVM_TIMEOUT` and then reading
+who has the lock.
 And the detail that saves an afternoon: `grab()` does not interrupt the item that is in
 flight. It cuts in at the next arbitration, not in the middle of a handshake — which
 is exactly what one wants.
@@ -11773,11 +11834,7 @@ the unit catches up here.
   today in the industry
 
 Note:
-Close of the course. What is worth saying out loud is what was left out and
-why, so nobody leaves believing they already know everything: SVA, RAL, real virtual
-sequences, regression with seeds, and the `uvm_reg` that in a project with
-registers is half a testbench.
-None of the pieces we did see is magic: we built them all by hand —the
+Close of day 6. None of the pieces we did see is magic: we built them all by hand —the
 observer of talking to several objects, the FIFO of put and get, the tester of
 transactions— before UVM
 handed them to us done. That is the reason the course goes in this order and does not start
@@ -11964,7 +12021,7 @@ And the best place to go on reading is `code/.uvm/src/`: by this point
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 5bc7ab882067 -->
+<!-- es-sha: 89b0bfae785b -->
 ## Exercise · Day 6 · 1 of 4
 
 #### *The agent that only watches*
@@ -11982,7 +12039,8 @@ The exercise puts together the three things of the section that can be done wron
 compiler saying anything: `is_active`, the hierarchical scope of the `set()`, and the
 `connect_phase` of the analysis ports.
 The trap almost everybody is going to find is the scope: with `"*"` in both
-`set()`, the second overwrites the first and both agents start up active. The
+`set()`, the second overwrites the first and both agents end up with the same
+config — same BFM and same `is_active`. The
 checker catches it by crossing the counts — the module sends 200 operations and the
 sequence more than a thousand, so if both agents see similar numbers it means they
 are watching the same interface.
@@ -12095,7 +12153,7 @@ regression is a hundred seeds overnight and one single number in the morning.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: fc3bb54c447f -->
+<!-- es-sha: b4adeb05e4da -->
 <!-- .slide: id="day7" data-machete="res/diagrams/assertions_property.svg,res/machete-debug.svg" -->
 
 ## Agenda
@@ -12106,7 +12164,7 @@ regression is a hundred seeds overnight and one single number in the morning.
 - The capstone: an APB testbench, from scratch
 - From the VTALU to a real bus
 - The debug toolbox
-- The twenty silent traps
+- The 21 silent traps
 - Glossary, references and wrap-up
 
 *And afterwards, **day 8**: optional, and for whoever has already handed in the capstone*
@@ -12116,7 +12174,7 @@ regression is a hundred seeds overnight and one single number in the morning.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 0e951e495f0e -->
+<!-- es-sha: 010fb47425b4 -->
 ## Assertions (SVA)
 
 #### *The hole the scoreboard left*
@@ -12239,20 +12297,27 @@ b : assert property (@(posedge clk) start |=> !done);
 - Which one goes in? It depends on whether the response is **combinational** (the same edge) or
   **registered** (the next one). In the VTALU, `done` comes out of an `always_ff`:
   it is always the next one
-- The symptom of getting it wrong is the worst of all: the property **always passes**,
-  because the antecedent and the consequent never meet on the edge that was asked for
+- Getting it wrong does not have a single symptom: `start |-> done` with a registered
+  `done` **fails on every transaction** —it sees the old `done`—, and a property whose
+  antecedent never occurs passes vacuously. That is why it always goes with its `cover`
 
 Note:
 This is the first question of every SVA interview and it is worth practising it
 with the DUT in hand: `done_1c <= start && (op != 3'b000)` is an NBA, so
 what gets written on edge *n* is only read on *n+1*. With `|->` the
 property would compare `start` against the **old** `done`.
-The operational rule, which is more useful than the theory: look at the RTL. If the
-consequent comes out of a `<=`, it takes `|=>`. If it comes out of an `assign`, it takes `|->`.
-And the trap to name out loud: getting this wrong almost never gives an
-error. It gives a property that is vacuously satisfied or that is always satisfied, and
-the final report says everything passed. It is the reason why the `cover
-property` slide is not an extra: it is the only check of the check.
+The operational rule, which is more useful than the theory: `|=>` **is** `|-> ##1`, so
+the question is not which of the two operators goes in but **how many edges later** the
+spec promises it. An `assign` answers on the same edge and a `<=` on the next one, but
+that is the easy case: the star property of this very section —`start && op_set !=
+no_op |-> ##[1:5] done`— uses `|->` for a `done` that comes out of an `always_ff`,
+because the spec promises a window of one to five edges and not a single one.
+And the trap to name out loud, without overstating it: getting this wrong sometimes
+shouts —`|->` against a registered signal fails on every transaction— and sometimes
+stays quiet, when the antecedent you wrote never occurs and the property is vacuously
+satisfied. That second case is the one the final report takes as good, and it is the
+reason why the `cover property` slide is not an extra: it is the only check of the
+check.
 
 ---
 
@@ -12282,9 +12347,13 @@ That is exactly the topic of the slide that follows, and it is worth planting it
 `$past` with the second argument is the one that gets underestimated the most: checking *"the
 result of now corresponds to the operands of four edges ago"* is one
 line, and by hand it is a shift register and three bugs.
-It is worth saying as well what they are NOT: they are not functions one can call from an
-`initial`. They only make sense inside a property or a sequence, because
-they need a clock to know what "previous" means.
+It is worth saying as well where they can be used, because there is a half-truth going
+around: they *can* be called from procedural code —an `always @(posedge clk) if
+($rose(req)) …` is legal (1800-2017 §16.9.3) and Verilator 5.052 accepts it—, because
+that is where they infer the clock from. What they always need is **a** clock: in an
+`initial` with no clock event they mean nothing. And the practical limit of this flow:
+`$past` with the explicit clock argument is not supported by Verilator (*Unsupported:
+$past expr2 and/or clock arguments*).
 
 ---
 
@@ -12373,9 +12442,9 @@ at you that do not exist. The beginner's reflex is to loosen the property until 
 shuts up —and there they are left without a check. The correct reflex is to look at which edge
 the one driving the stimulus writes on.
 The underlying industrial way out is the **clocking block**, which declares the sampling
-once for the whole interface instead of repeating it property by property. This
-course does not teach it; whoever gets this far has already understood the problem it solves,
-which is the hard part.
+once for the whole interface instead of repeating it property by property. It is in
+day 1 —`030-interfaces-bfm.md` and `docs/clocking-blocks.md`— and it is worth naming
+again here, because only now is the full problem it solves in view.
 
 ---
 
@@ -12694,8 +12763,8 @@ section on are twenty.
   and checks every edge of the simulation, on its own
 - The anatomy never changes: `label : assert property (@(clock) disable iff
   (reset) antecedent |-> consequent) else action;`
-- `|->` is the same edge, `|=>` the next one. If the consequent comes out of an
-  `always_ff`, it takes `|=>`
+- `|->` is the same edge and `|=>` **is** `|-> ##1`. The question is not which of the
+  two, it is how many edges later the spec promises it
 - The properties live **in the `interface`**, with the signals. They do not get connected, they do not
   get built, and they travel with it
 - In UVM the action is `` `uvm_error ``, so the failure **counts** in the
@@ -12741,9 +12810,8 @@ tutorials use a DUT where stimulus and response share an edge.
 It is also the answer to *"why one more UVM course?"*. This one runs. And when
 something does not add up, the section tells why it did not add up instead of changing the example.
 What is left out and is worth naming so nobody discovers it late:
-`clocking block`, formal assertions, `expect`, and the prefabricated bus
-properties that come with commercial VIP. With what is in this section they can be read
-without help.
+formal assertions, `expect`, and the prefabricated bus properties that come with
+commercial VIP. With what is in this section they can be read without help.
         </textarea>
       </section>
       <!-- 160-assertions.md -->
@@ -12786,7 +12854,7 @@ this testbench existed.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 6b34f4b84e2d -->
+<!-- es-sha: 889705c27c04 -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 7
@@ -12817,7 +12885,7 @@ this testbench existed.
 - [ ] Either of the two: the difference is a matter of style
 - [ ] Neither: for registered signals you have to use `$past()`
 
-> **`|=>` when the consequent comes out of a `<=`** — and the operational rule is to look at the RTL, not at the property: if the consequent comes out of an `assign`, it takes `|->`. Getting this wrong almost never gives an error: it gives a property that always passes.
+> **`|=>` when the consequent comes out of a `<=`** — because `|=>` *is* `|-> ##1`, and the question to ask is how many edges later the spec promises it. With `|->` against a registered signal the property does not pass vacuously: it **fails on every transaction**, because it compares against the old `done`. The one that passes quietly is the one whose antecedent never occurs — which is why it always goes with its `cover property`.
 
 ---
 
@@ -13095,7 +13163,7 @@ to it** — which is exactly what they practised in the exercises of days 3 and 
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 0ceed7c63a98 -->
+<!-- es-sha: d485ca9d682c -->
 <!-- .slide: id="apendice-debug" data-machete="res/machete-debug.svg" -->
 
 ## Appendix · The debug toolbox
@@ -13109,10 +13177,10 @@ to it** — which is exactly what they practised in the exercises of days 3 and 
 | `+UVM_CONFIG_DB_TRACE` | who put what in the `config_db`, and who read it | Agents |
 | `+TOPOLOGY` → `print_topology()` | the tree UVM **actually** built | Agents |
 | `+UVM_OBJECTION_TRACE` | who raised and who dropped the objection | Tests |
-| `+UVM_TIMEOUT=N` | a ceiling for the hang, instead of waiting | Tests |
-| `set_report_severity_action_hier(…, UVM_COUNT)` | kill the run at the Nth error | Reporting |
+| `+UVM_TIMEOUT=N,NO` | a ceiling for the hang, instead of waiting | Tests |
+| `+UVM_MAX_QUIT_COUNT=N` | kill the run at the Nth error | Reporting |
 
-- The five in the middle are **plusargs**: no code gets touched and nothing gets recompiled. On a
+- The bottom six are **plusargs**: no code gets touched and nothing gets recompiled. On a
   testbench with UVM that is minutes of difference per attempt
 
 Note:
@@ -13126,6 +13194,12 @@ The point to say out loud is the one about the plusargs. A `$display`
 added by hand costs a recompilation of UVM —minutes— and on top of that you have to
 remember to take it out. These seven knobs are already fitted in the binary you
 compiled: they get switched on from the command line and they leave no trace.
+And one detail of `+UVM_TIMEOUT` that bites, because it does not error out: the value
+is an integer in time units, not an expression with a unit. UVM reads it with
+`$sscanf(…, "%d,%s")` (`uvm_root.svh:916`), so `+UVM_TIMEOUT=5ms` does not complain:
+it takes the `5` and cuts the simulation off at 5 ns. You write
+`+UVM_TIMEOUT=5000000,NO`, and the `NO` is so that a `set_timeout()` written in the
+testbench does not overwrite what you asked for on the command line.
 `+TOPOLOGY` is not from UVM: it is from the `base_test` of the course, which reads the plusarg and
 calls `uvm_root::get().print_topology()`. It is worth clarifying so nobody
 looks for it in the LRM. The same for `VLT_TRACE=1`, which is from the `run.sh`.
@@ -13142,7 +13216,7 @@ until you can repeat it at will.
 | The symptom | The first suspect | What to look at it with |
 | --- | --- | --- |
 | It ends at **t=0** and says PASS | nobody raised the objection | `+UVM_OBJECTION_TRACE` |
-| It **never ends** | an `item_done()` that was not called, or an objection that does not get dropped | `+UVM_TIMEOUT=5ms` and then the trace |
+| It **never ends** | an `item_done()` that was not called, or an objection that does not get dropped | `+UVM_TIMEOUT=5000000,NO` and then the trace |
 | The scoreboard **screams on every one** | the monitor samples badly — the DUT hardly ever is the problem | `+UVM_VERBOSITY=UVM_HIGH` |
 | The `config_db` **does not find** | the scope of the `set()`, not the `get()` | `+UVM_CONFIG_DB_TRACE` |
 | The coverage gives **0 %** | the `new()` or the `sample()` of the covergroup is missing | read the `.dat` with `verilator_coverage` |
@@ -13175,10 +13249,10 @@ the next step is the waveforms, which is the tool that does
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: fcc3e7d65258 -->
+<!-- es-sha: 1c4d1358c427 -->
 <!-- .slide: id="apendice-trampas" -->
 
-## Appendix · The twenty silent traps
+## Appendix · The 21 silent traps
 
 #### *It compiles, it runs, and it lies*
 
@@ -13188,12 +13262,13 @@ the next step is the waveforms, which is the tool that does
 | The daughter runs the method of **the mother** | without `virtual`, SV resolves by the **type of the variable**, at compile time | `virtual` on every method somebody is going to extend | Polymorphism |
 | The component reads **somebody else's config** | `get(null, "*", …)` gives back the first thing that matches | `get(this, "", …)`, and `+UVM_CONFIG_DB_TRACE` | Tests |
 | The test passes with **the wrong stimulus** | the `set_type_override()` arrived **after** the `create()` of the env | the override first, always. `+TOPOLOGY` gives it away | The env |
+| The register model goes **green** and the field was never tested | the access starts with `WO`: `bit_bash` skips it and `do_check` drops it from the mask | if the field is readable, `WC` or `W1C`. `WO*` only if it really is not | RAL · d8 |
 
-- None of these four gives a warning. None leaves the regression in red. All of them
+- None of these five gives a warning. None leaves the regression in red. All of them
   get discovered weeks later, or do not get discovered
 
 Note:
-This appendix is the one to print out and stick next to the monitor. The twenty
+This appendix is the one to print out and stick next to the monitor. They
 are spread over seven sections because each one shows up when the
 concept shows up, but they are needed together — and they are needed at the worst moment.
 The thesis of the appendix is in the subtitle, and it is worth stating it as a general rule
@@ -13208,7 +13283,7 @@ the tree UVM actually built, against the one you drew in your head.
 
 ---
 
-## Appendix · The twenty silent traps
+## Appendix · The 21 silent traps
 
 #### *The one publishing and the one listening*
 
@@ -13238,7 +13313,7 @@ that are not. The second is worse, because it switches off the whole scoreboard 
 
 ---
 
-## Appendix · The twenty silent traps
+## Appendix · The 21 silent traps
 
 #### *Stimulus, scope and objections*
 
@@ -13249,11 +13324,11 @@ that are not. The second is worse, because it switches off the whole scoreboard 
 | Under the override, **some** transactions are of the old type | a `new()` where a `type_id::create()` belonged | what goes through the factory is what gets created with `create()` | Transactions |
 | **Both agents** start up the same | two `set()` with scope `"*"`: the second overwrites the first | the scope is the **path** of the one that reads, with `*` at the end | Agents · d6 |
 | The agent starts up **active** even though you set `is_active` in the `config_db` | the missing `super.build_phase()`: the one that reads it is `uvm_agent` | either a config object, or `super` — never half of each | Agents |
-| The simulation **never ends** | an `item_done()` that was not called | `+UVM_TIMEOUT=5ms` first, the trace after | Agents |
+| The simulation **never ends** | an `item_done()` that was not called | `+UVM_TIMEOUT=5000000,NO` first, the trace after | Agents |
 | It ends at **t=0** and says PASS | nobody raised the objection around the sequence | `+UVM_OBJECTION_TRACE` | Sequences |
 
 Note:
-The last two are the only ones of the twenty that do make noise — one hangs and
+The last two are the only ones on the list that do make noise — one hangs and
 the other ends oddly — and they are here because the noise they make does not point at the
 culprit. A hang does not say what was left waiting; a t=0 says PASS, which is
 worse than an error.
@@ -13272,7 +13347,7 @@ second you understand exactly the one that is happening to you.
 
 ---
 
-## Appendix · The twenty silent traps
+## Appendix · The 21 silent traps
 
 #### *The four from the assertions*
 
@@ -13283,20 +13358,20 @@ second you understand exactly the one that is happening to you.
 | **185 false positives** and the DUT is healthy | you sample it with the edge it is written on | stimulus on `negedge`, response of the DUT on `posedge` | Assertions · d7 |
 | False positives **at the start** of every test | the `disable iff (!reset_n)` is missing | `default disable iff`, once, at the very top | Assertions |
 
-- The four are of the same family as the fifteen above, with one aggravating factor:
+- The four are of the same family as the ones above, with one aggravating factor:
   a broken assertion **looks exactly the same** as one that works. There is no output
   to look at
 
 Note:
 These four reached the appendix with the assertions and they are the only ones on the list
-where the check itself is what fails — the other fifteen are bugs of the
+where the check itself is what fails — the rest are bugs of the
 testbench; these are bugs of the one checking the testbench. That is why the antidote is
 always the same and that is why it is worth repeating it until you are sick of it: **one `cover
 property` per `assert property`**.
 The first row is the cheapest to commit in this flow and it is worth showing it
 live: taking `--assert` out of the `run.sh` of `code/u8/assertions` leaves the run with `+BUG=1`
 at 0 `UVM_ERROR`. The 183 failures disappear without anything warning you.
-The third is the lesson of the section and the only one of the twenty that is not in
+The third is the lesson of the section and the only one on the list that is not in
 any tutorial. The wrong reflex, when the false positives show up, is to
 loosen the property until it shuts up: there you are left without a check and with the
 feeling of having fixed it. The right reflex is to ask on which edge
@@ -13304,7 +13379,7 @@ the one driving the stimulus writes.
 
 ---
 
-## Appendix · The twenty silent traps
+## Appendix · The 21 silent traps
 
 #### *And the one the clocking block brings*
 
@@ -13312,7 +13387,7 @@ the one driving the stimulus writes.
 | --- | --- | --- | :-- |
 | The scoreboard fails **once every twenty** and the waveform looks fine | half the signals get read through `cb.sig` and the other half through `sig` | if it went into the clocking block, **the whole** protocol reads it through there | Interfaces and BFM |
 
-- It is the only one of the twenty that **a tool adds**: without a clocking
+- It is the only one on the list that **a tool adds**: without a clocking
   block it does not exist. Badly used it is worse than not using it
 - Two names for the same wire, and they differ by one cycle:
   `code/u2/clocking/mezcla.sv` prints `3` and `4` at the same instant
@@ -13321,8 +13396,8 @@ the one driving the stimulus writes.
 
 Note:
 This trap closes the appendix and it is the one that best sums up its thesis, because the
-symptom is the worst of all the ones on the list: **intermittent**. The other
-eighteen fail always or never fail; this one fails when the data changes,
+symptom is the worst of all the ones on the list: **intermittent**. The rest
+fail always or never fail; this one fails when the data changes,
 which is one run in however many and precisely the one you are not watching.
 And it has a twist worth marking out loud: it is the only one on the list that
 shows up *because* you used the tool that avoids another problem. The clocking
@@ -13767,7 +13842,7 @@ the optional unit, or the final project for those who want a high mark.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: e95b12e71b50 -->
+<!-- es-sha: 3dc47006a85e -->
 <!-- .slide: id="ral" -->
 
 ## RAL
@@ -13854,19 +13929,18 @@ class ctrl_reg extends uvm_reg;
       EN = uvm_reg_field::type_id::create("EN");
       EN.configure(this, 1, 0, "RW", 0, 'h0, 1, 1, 0);
 
-      // "WOC" is the name UVM has for exactly this: the write goes through, the
-      // mirror drops to zero, and the read side of the field is not used to
-      // predict anything. Modelling it as "RW" is the classic mistake, and it is
-      // what +MAL does.
+      // "WC" is the name UVM has for exactly this: the write clears the field,
+      // the mirror drops to zero, and the read returns that zero. Modelling it as
+      // "RW" is the classic mistake, and it is what +MAL does. "WOC" also passes,
+      // for the wrong reason: any WO* access takes the field out of bit_bash and
+      // out of do_check, so nobody looks at it. See slides/es/180-ral.md.
       CLR = uvm_reg_field::type_id::create("CLR");
-      CLR.configure(this, 1, 1, $test$plusargs("MAL") ? "RW" : "WOC", 0, 'h0, 1, 1, 0);
+      CLR.configure(this, 1, 1, $test$plusargs("MAL") ? "RW" : "WC", 0, 'h0, 1, 1, 0);
    endfunction : build
-
-endclass : ctrl_reg
 ```
 
 - A field gets declared with `configure()`, and the argument that matters is the
-  **access string**: `"RW"`, `"RO"`, `"WOC"`…
+  **access string**: `"RW"`, `"RO"`, `"WC"`…
 - That string **is the specification**. It is not documentation: it is what UVM uses
   to predict, and to generate the tests of the last slide
 
@@ -13877,9 +13951,19 @@ in UVM. It is worth writing it on the blackboard once; afterwards the student co
 example, which is what everybody does.
 `CLR` is the field that justifies the slide. The spec of the capstone says *"writing a
 1 puts `ACC` and `OVF` at zero, and the bit always reads 0"*, and that is trap 2
-of the small print — the one that makes the hand-written scoreboard fail. UVM has an
-access that says exactly that and it is called **`WOC`**: on the write the mirror
-goes down to zero, and the read side of the field is not used to predict anything.
+of the small print — the one that makes the hand-written scoreboard fail. The access
+that says exactly that is **`WC`**: the write clears the field, the mirror goes down
+to zero, and the read returns that zero. `W1C` works just as well here.
+And here is RAL's silent trap, which is worth more than the slide. `WOC` —the name
+you write first, because it sounds like "write-only, clears"— **also** gives zero
+errors, but it gives them for the wrong reason: `uvm_reg_bit_bash_seq.svh:129-135`
+skips every field whose access starts with `WO` (Accellera's own comment says
+*"Ignore Write-only fields because you are not supposed to read them"*), and
+`do_check` takes it out of the comparison mask (`uvm_reg.svh:2782-2788`), so the
+`mirror(UVM_CHECK)` does not look at it either. With `WOC` bit 1 of `CTRL` is never
+tested and nobody prints anything; the only trace is in the timing, because the
+bashing of `CTRL` takes four transfers less. Green is not checked, and a `WO*`
+access is the cheapest way there is to switch off a check without noticing.
 The complete list of accesses is in the LRM 1800.2, and there are twenty-five. You do not have to
 know them by heart: you have to know that **the list exists**, and look there before
 inventing a `set_compare` or a callback. Half of the bad register models
@@ -14090,10 +14174,13 @@ the frontdoor and reads through the backdoor, and the other way round), `uvm_reg
 registers in more than one map, and `uvm_mem_walk_seq` for memories. The ones that
 need a backdoor stay out of the course for what was said before.
 The implementation detail worth telling, because it explains why the
-model has to be right: `bit_bash` **skips** the read-only fields and
-the ones that are not individually accessible, and it uses the access string to know
-what to expect back. Which means the quality of the test they give you is
-exactly the quality of the model you wrote.
+model has to be right: `bit_bash` **does not skip** the read-only fields — it writes
+the bit and demands that they read back as they were —, and it does the same with the
+reserved bits, which it treats as `RO` (`uvm_reg_bit_bash_seq.svh:137-139, 149-152`).
+What it really skips is the `WO*` family, `NOACCESS` and the fields with
+`set_compare(UVM_NO_CHECK)`; `individually_accessible` it does not even look at. And
+it uses the access string to know what to expect back. Which means the quality of the
+test they give you is exactly the quality of the model you wrote.
 
 ---
 
@@ -14102,7 +14189,7 @@ exactly the quality of the model you wrote.
 #### *And that is why the model is the spec*
 
 ```
-    CTRL.CLR as "WOC"  0 UVM_ERROR
+    CTRL.CLR as "WC"   0 UVM_ERROR, and bit_bash did write bit 1
     CTRL.CLR as "RW"   2 UVM_ERROR, from uvm_reg_bit_bash_seq
     > Writing a 1 in bit #1 of register "model.CTRL" ... yielded 'h0
       instead of 'h2
@@ -14141,9 +14228,9 @@ stage 1 of the exercise prints the map so it can be compared by hand.
 #### *What RAL does not do, and it has to be said*
 
 ```sv
+      // scoreboard, which is the thing that does know how to add.
       ACC.VALUE.set_compare(UVM_NO_CHECK);
       STATUS.EN.set_compare(UVM_NO_CHECK);
-      STATUS.OVF.set_compare(UVM_NO_CHECK);
 ```
 
 - `ACC` and `STATUS` have an address, but **they are not registers**: their value gets
@@ -14247,7 +14334,7 @@ the whole check off.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: b1cb43b22098 -->
+<!-- es-sha: 54de0ae12ca2 -->
 <!-- .slide: id="dpi" -->
 
 ## The reference model in C
@@ -14274,10 +14361,12 @@ The question worth throwing at the group before showing the code: *"if the
 C model and the scoreboard differ, who is right?"*. The uncomfortable answer
 is that you do not know, and finding out costs days. With DPI the question does not
 exist because there is only one model.
-And the reason why this section can exist in this course and not in another:
-DPI is part of the LRM, but getting to use it in a commercial flow asks for the
-licence that enables it. Here the simulator compiles to C++ by design, so the
-bridge is one more file on the command line.
+And the reason why this section is so cheap in this course: DPI is part of the LRM
+and the commercial simulators ship it as a base feature —what leaves it out are the
+free student editions—; what costs you in a commercial flow is the *toolchain*:
+`-sv_lib`, compiling the `.c` separately, and remembering the library on every run.
+Here the simulator compiles to C++ by design, so the bridge is one more file on the
+command line and there is nothing to configure.
 
 ---
 
@@ -14326,7 +14415,8 @@ int vtalu_golden(int op, int a, int b, int *ovf) {
 - The name after `"DPI-C"` is **the symbol the linker looks for**: it has to
   match letter by letter with the one in the `.c`
 - An `input int` travels as an `int`; an `output int` arrives as an `int *`. A
-  `function` cannot consume time; a DPI `task` can
+  `function` cannot consume time; a DPI `task` can, but only declared `context` and
+  calling back into an `export "DPI-C" task`
 - The `.c` goes on the `verilator` line as one more source. **There is no DPI flag**
 
 Note:
@@ -14422,10 +14512,12 @@ first one on the right: the duplicated `enum`. It is real and it has no elegant 
 look at when **all** the comparisons fail at once. If one in every
 six fails, it is the DUT; if all of them fail, it is the mapping.
 The third row on the right is the one that surprises and is worth getting ahead of: a DPI
-`function` runs in zero time, so the C model cannot
-synchronize with the clock. That is what `import "DPI-C" task` is for, which can
-consume time — and there it is no longer a golden model, it is a bus model, which is
-another topic.
+`function` runs in zero time, so the C model cannot synchronize with the clock. That
+is what `import "DPI-C" task` is for — with one clarification almost every tutorial
+skips: C cannot block by itself. A DPI task consumes time **only** if it is declared
+`context` and the C calls back into an `export "DPI-C" task` of SystemVerilog, which
+is the one that waits for the edge. And there it is no longer a golden model, it is a
+bus model, which is another topic.
 The rule of the second-to-last bullet is the one to take away, because the risk of
 this section is that somebody comes out wanting to do everything through DPI. The VTALU does **not**
 justify DPI: five eight-bit operations get written in a `case` and read
@@ -14587,7 +14679,7 @@ showing up where nobody expected it.
           <li><a href="#/359" data-h="359"><span>Capstone · Day 7</span><span class="ind-n">360</span></a></li>
           <li><a href="#/362" data-h="362"><span>Appendix · From the VTALU to a real bus</span><span class="ind-n">363</span></a></li>
           <li><a href="#/365" data-h="365"><span>Appendix · The debug toolbox</span><span class="ind-n">366</span></a></li>
-          <li><a href="#/367" data-h="367"><span>Appendix · The twenty silent traps</span><span class="ind-n">368</span></a></li>
+          <li><a href="#/367" data-h="367"><span>Appendix · The 21 silent traps</span><span class="ind-n">368</span></a></li>
           <li><a href="#/372" data-h="372"><span>Glossary · the words of the trade</span><span class="ind-n">373</span></a></li>
           <li><a href="#/375" data-h="375"><span>References</span><span class="ind-n">376</span></a></li>
           <li><a href="#/378" data-h="378"><span>This is as far as we got</span><span class="ind-n">379</span></a></li>

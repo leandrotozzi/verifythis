@@ -56,7 +56,7 @@
   your own, start here and keep the deck alongside for the reviews.</p>
 
 <section id="s335" class="slide">
-<!-- es-sha: fc3bb54c447f -->
+<!-- es-sha: b4adeb05e4da -->
 
 
 <h2 id="agenda">Agenda</h2>
@@ -66,7 +66,7 @@
 <li>The capstone: an APB testbench, from scratch</li>
 <li>From the VTALU to a real bus</li>
 <li>The debug toolbox</li>
-<li>The twenty silent traps</li>
+<li>The 21 silent traps</li>
 <li>Glossary, references and wrap-up</li>
 </ul>
 <p><em>And afterwards, <strong>day 8</strong>: optional, and for whoever has already handed in the capstone</em></p>
@@ -74,7 +74,7 @@
 </section>
 
 <section id="s336" class="slide">
-<!-- es-sha: 0e951e495f0e -->
+<!-- es-sha: 010fb47425b4 -->
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-hole-the-scoreboard-left"><em>The hole the scoreboard left</em></h4>
 <ul>
@@ -193,19 +193,26 @@ b : assert property (@(posedge clk) start |=&gt; !done);
 <li>Which one goes in? It depends on whether the response is <strong>combinational</strong> (the same edge) or
 <strong>registered</strong> (the next one). In the VTALU, <code>done</code> comes out of an <code>always_ff</code>:
 it is always the next one</li>
-<li>The symptom of getting it wrong is the worst of all: the property <strong>always passes</strong>,
-because the antecedent and the consequent never meet on the edge that was asked for</li>
+<li>Getting it wrong does not have a single symptom: <code>start |-&gt; done</code> with a registered
+<code>done</code> <strong>fails on every transaction</strong> —it sees the old <code>done</code>—, and a property whose
+antecedent never occurs passes vacuously. That is why it always goes with its <code>cover</code></li>
 </ul>
 <div class="nota">
 <p>This is the first question of every SVA interview and it is worth practising it
 with the DUT in hand: <code>done_1c &lt;= start &amp;&amp; (op != 3&#39;b000)</code> is an NBA, so
 what gets written on edge <em>n</em> is only read on <em>n+1</em>. With <code>|-&gt;</code> the
 property would compare <code>start</code> against the <strong>old</strong> <code>done</code>.
-The operational rule, which is more useful than the theory: look at the RTL. If the
-consequent comes out of a <code>&lt;=</code>, it takes <code>|=&gt;</code>. If it comes out of an <code>assign</code>, it takes <code>|-&gt;</code>.
-And the trap to name out loud: getting this wrong almost never gives an
-error. It gives a property that is vacuously satisfied or that is always satisfied, and
-the final report says everything passed. It is the reason why the <code>cover property</code> slide is not an extra: it is the only check of the check.</p>
+The operational rule, which is more useful than the theory: <code>|=&gt;</code> <strong>is</strong> <code>|-&gt; ##1</code>, so
+the question is not which of the two operators goes in but <strong>how many edges later</strong> the
+spec promises it. An <code>assign</code> answers on the same edge and a <code>&lt;=</code> on the next one, but
+that is the easy case: the star property of this very section —<code>start &amp;&amp; op_set != no_op |-&gt; ##[1:5] done</code>— uses <code>|-&gt;</code> for a <code>done</code> that comes out of an <code>always_ff</code>,
+because the spec promises a window of one to five edges and not a single one.
+And the trap to name out loud, without overstating it: getting this wrong sometimes
+shouts —<code>|-&gt;</code> against a registered signal fails on every transaction— and sometimes
+stays quiet, when the antecedent you wrote never occurs and the property is vacuously
+satisfied. That second case is the one the final report takes as good, and it is the
+reason why the <code>cover property</code> slide is not an extra: it is the only check of the
+check.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/339">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -234,9 +241,12 @@ That is exactly the topic of the slide that follows, and it is worth planting it
 <code>$past</code> with the second argument is the one that gets underestimated the most: checking <em>&quot;the
 result of now corresponds to the operands of four edges ago&quot;</em> is one
 line, and by hand it is a shift register and three bugs.
-It is worth saying as well what they are NOT: they are not functions one can call from an
-<code>initial</code>. They only make sense inside a property or a sequence, because
-they need a clock to know what &quot;previous&quot; means.</p>
+It is worth saying as well where they can be used, because there is a half-truth going
+around: they <em>can</em> be called from procedural code —an <code>always @(posedge clk) if ($rose(req)) …</code> is legal (1800-2017 §16.9.3) and Verilator 5.052 accepts it—, because
+that is where they infer the clock from. What they always need is <strong>a</strong> clock: in an
+<code>initial</code> with no clock event they mean nothing. And the practical limit of this flow:
+<code>$past</code> with the explicit clock argument is not supported by Verilator (<em>Unsupported:
+$past expr2 and/or clock arguments</em>).</p>
 </div>
 <p class="al-deck"><a href="../index.html#/340">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -769,9 +779,9 @@ at you that do not exist. The beginner&#39;s reflex is to loosen the property un
 shuts up —and there they are left without a check. The correct reflex is to look at which edge
 the one driving the stimulus writes on.
 The underlying industrial way out is the <strong>clocking block</strong>, which declares the sampling
-once for the whole interface instead of repeating it property by property. This
-course does not teach it; whoever gets this far has already understood the problem it solves,
-which is the hard part.</p>
+once for the whole interface instead of repeating it property by property. It is in
+day 1 —<code>030-interfaces-bfm.md</code> and <code>docs/clocking-blocks.md</code>— and it is worth naming
+again here, because only now is the full problem it solves in view.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/342">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -1775,8 +1785,8 @@ section on are twenty.</p>
 <li>A <strong>concurrent assertion</strong> is a declaration with a clock: it gets written once
 and checks every edge of the simulation, on its own</li>
 <li>The anatomy never changes: <code>label : assert property (@(clock) disable iff (reset) antecedent |-&gt; consequent) else action;</code></li>
-<li><code>|-&gt;</code> is the same edge, <code>|=&gt;</code> the next one. If the consequent comes out of an
-<code>always_ff</code>, it takes <code>|=&gt;</code></li>
+<li><code>|-&gt;</code> is the same edge and <code>|=&gt;</code> <strong>is</strong> <code>|-&gt; ##1</code>. The question is not which of the
+two, it is how many edges later the spec promises it</li>
 <li>The properties live <strong>in the <code>interface</code></strong>, with the signals. They do not get connected, they do not
 get built, and they travel with it</li>
 <li>In UVM the action is <code>`uvm_error</code>, so the failure <strong>counts</strong> in the
@@ -1823,9 +1833,8 @@ tutorials use a DUT where stimulus and response share an edge.
 It is also the answer to <em>&quot;why one more UVM course?&quot;</em>. This one runs. And when
 something does not add up, the section tells why it did not add up instead of changing the example.
 What is left out and is worth naming so nobody discovers it late:
-<code>clocking block</code>, formal assertions, <code>expect</code>, and the prefabricated bus
-properties that come with commercial VIP. With what is in this section they can be read
-without help.</p>
+formal assertions, <code>expect</code>, and the prefabricated bus properties that come with
+commercial VIP. With what is in this section they can be read without help.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/352">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -1863,7 +1872,7 @@ this testbench existed.</p>
 </section>
 
 <section id="s354" class="slide quiz">
-<!-- es-sha: 6b34f4b84e2d -->
+<!-- es-sha: 889705c27c04 -->
 
 
 <h2 id="review-·-day-7">Review · Day 7</h2>
@@ -1892,7 +1901,7 @@ this testbench existed.</p>
 <li><input disabled="" type="checkbox"> Neither: for registered signals you have to use <code>$past()</code></li>
 </ul>
 <blockquote>
-<p><strong><code>|=&gt;</code> when the consequent comes out of a <code>&lt;=</code></strong> — and the operational rule is to look at the RTL, not at the property: if the consequent comes out of an <code>assign</code>, it takes <code>|-&gt;</code>. Getting this wrong almost never gives an error: it gives a property that always passes.</p>
+<p><strong><code>|=&gt;</code> when the consequent comes out of a <code>&lt;=</code></strong> — because <code>|=&gt;</code> <em>is</em> <code>|-&gt; ##1</code>, and the question to ask is how many edges later the spec promises it. With <code>|-&gt;</code> against a registered signal the property does not pass vacuously: it <strong>fails on every transaction</strong>, because it compares against the old <code>done</code>. The one that passes quietly is the one whose antecedent never occurs — which is why it always goes with its <code>cover property</code>.</p>
 </blockquote>
 <p class="al-deck"><a href="../index.html#/355">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -2282,7 +2291,7 @@ to it</strong> — which is exactly what they practised in the exercises of days
 </section>
 
 <section id="s365" class="slide">
-<!-- es-sha: 0ceed7c63a98 -->
+<!-- es-sha: d485ca9d682c -->
 
 
 <h2 id="appendix-·-the-debug-toolbox">Appendix · The debug toolbox</h2>
@@ -2321,18 +2330,18 @@ to it</strong> — which is exactly what they practised in the exercises of days
 <td align="left">Tests</td>
 </tr>
 <tr>
-<td><code>+UVM_TIMEOUT=N</code></td>
+<td><code>+UVM_TIMEOUT=N,NO</code></td>
 <td>a ceiling for the hang, instead of waiting</td>
 <td align="left">Tests</td>
 </tr>
 <tr>
-<td><code>set_report_severity_action_hier(…, UVM_COUNT)</code></td>
+<td><code>+UVM_MAX_QUIT_COUNT=N</code></td>
 <td>kill the run at the Nth error</td>
 <td align="left">Reporting</td>
 </tr>
 </tbody></table>
 <ul>
-<li>The five in the middle are <strong>plusargs</strong>: no code gets touched and nothing gets recompiled. On a
+<li>The bottom six are <strong>plusargs</strong>: no code gets touched and nothing gets recompiled. On a
 testbench with UVM that is minutes of difference per attempt</li>
 </ul>
 <div class="nota">
@@ -2346,6 +2355,12 @@ The point to say out loud is the one about the plusargs. A <code>$display</code>
 added by hand costs a recompilation of UVM —minutes— and on top of that you have to
 remember to take it out. These seven knobs are already fitted in the binary you
 compiled: they get switched on from the command line and they leave no trace.
+And one detail of <code>+UVM_TIMEOUT</code> that bites, because it does not error out: the value
+is an integer in time units, not an expression with a unit. UVM reads it with
+<code>$sscanf(…, &quot;%d,%s&quot;)</code> (<code>uvm_root.svh:916</code>), so <code>+UVM_TIMEOUT=5ms</code> does not complain:
+it takes the <code>5</code> and cuts the simulation off at 5 ns. You write
+<code>+UVM_TIMEOUT=5000000,NO</code>, and the <code>NO</code> is so that a <code>set_timeout()</code> written in the
+testbench does not overwrite what you asked for on the command line.
 <code>+TOPOLOGY</code> is not from UVM: it is from the <code>base_test</code> of the course, which reads the plusarg and
 calls <code>uvm_root::get().print_topology()</code>. It is worth clarifying so nobody
 looks for it in the LRM. The same for <code>VLT_TRACE=1</code>, which is from the <code>run.sh</code>.
@@ -2375,7 +2390,7 @@ until you can repeat it at will.</p>
 <tr>
 <td>It <strong>never ends</strong></td>
 <td>an <code>item_done()</code> that was not called, or an objection that does not get dropped</td>
-<td><code>+UVM_TIMEOUT=5ms</code> and then the trace</td>
+<td><code>+UVM_TIMEOUT=5000000,NO</code> and then the trace</td>
 </tr>
 <tr>
 <td>The scoreboard <strong>screams on every one</strong></td>
@@ -2425,10 +2440,10 @@ the next step is the waveforms, which is the tool that does
 </section>
 
 <section id="s367" class="slide">
-<!-- es-sha: fcc3e7d65258 -->
+<!-- es-sha: 1c4d1358c427 -->
 
 
-<h2 id="appendix-·-the-twenty-silent-traps">Appendix · The twenty silent traps</h2>
+<h2 id="appendix-·-the-21-silent-traps">Appendix · The 21 silent traps</h2>
 <h4 id="it-compiles-it-runs-and-it-lies"><em>It compiles, it runs, and it lies</em></h4>
 <table>
 <thead>
@@ -2463,13 +2478,19 @@ the next step is the waveforms, which is the tool that does
 <td>the override first, always. <code>+TOPOLOGY</code> gives it away</td>
 <td align="left">The env</td>
 </tr>
+<tr>
+<td>The register model goes <strong>green</strong> and the field was never tested</td>
+<td>the access starts with <code>WO</code>: <code>bit_bash</code> skips it and <code>do_check</code> drops it from the mask</td>
+<td>if the field is readable, <code>WC</code> or <code>W1C</code>. <code>WO*</code> only if it really is not</td>
+<td align="left">RAL · d8</td>
+</tr>
 </tbody></table>
 <ul>
-<li>None of these four gives a warning. None leaves the regression in red. All of them
+<li>None of these five gives a warning. None leaves the regression in red. All of them
 get discovered weeks later, or do not get discovered</li>
 </ul>
 <div class="nota">
-<p>This appendix is the one to print out and stick next to the monitor. The twenty
+<p>This appendix is the one to print out and stick next to the monitor. They
 are spread over seven sections because each one shows up when the
 concept shows up, but they are needed together — and they are needed at the worst moment.
 The thesis of the appendix is in the subtitle, and it is worth stating it as a general rule
@@ -2486,7 +2507,7 @@ the tree UVM actually built, against the one you drew in your head.</p>
 </section>
 
 <section id="s368" class="slide">
-<h2 id="appendix-·-the-twenty-silent-traps">Appendix · The twenty silent traps</h2>
+<h2 id="appendix-·-the-21-silent-traps">Appendix · The 21 silent traps</h2>
 <h4 id="the-one-publishing-and-the-one-listening"><em>The one publishing and the one listening</em></h4>
 <table>
 <thead>
@@ -2544,7 +2565,7 @@ that are not. The second is worse, because it switches off the whole scoreboard 
 </section>
 
 <section id="s369" class="slide">
-<h2 id="appendix-·-the-twenty-silent-traps">Appendix · The twenty silent traps</h2>
+<h2 id="appendix-·-the-21-silent-traps">Appendix · The 21 silent traps</h2>
 <h4 id="stimulus-scope-and-objections"><em>Stimulus, scope and objections</em></h4>
 <table>
 <thead>
@@ -2588,7 +2609,7 @@ that are not. The second is worse, because it switches off the whole scoreboard 
 <tr>
 <td>The simulation <strong>never ends</strong></td>
 <td>an <code>item_done()</code> that was not called</td>
-<td><code>+UVM_TIMEOUT=5ms</code> first, the trace after</td>
+<td><code>+UVM_TIMEOUT=5000000,NO</code> first, the trace after</td>
 <td align="left">Agents</td>
 </tr>
 <tr>
@@ -2599,7 +2620,7 @@ that are not. The second is worse, because it switches off the whole scoreboard 
 </tr>
 </tbody></table>
 <div class="nota">
-<p>The last two are the only ones of the twenty that do make noise — one hangs and
+<p>The last two are the only ones on the list that do make noise — one hangs and
 the other ends oddly — and they are here because the noise they make does not point at the
 culprit. A hang does not say what was left waiting; a t=0 says PASS, which is
 worse than an error.
@@ -2620,7 +2641,7 @@ second you understand exactly the one that is happening to you.</p>
 </section>
 
 <section id="s370" class="slide">
-<h2 id="appendix-·-the-twenty-silent-traps">Appendix · The twenty silent traps</h2>
+<h2 id="appendix-·-the-21-silent-traps">Appendix · The 21 silent traps</h2>
 <h4 id="the-four-from-the-assertions"><em>The four from the assertions</em></h4>
 <table>
 <thead>
@@ -2657,19 +2678,19 @@ second you understand exactly the one that is happening to you.</p>
 </tr>
 </tbody></table>
 <ul>
-<li>The four are of the same family as the fifteen above, with one aggravating factor:
+<li>The four are of the same family as the ones above, with one aggravating factor:
 a broken assertion <strong>looks exactly the same</strong> as one that works. There is no output
 to look at</li>
 </ul>
 <div class="nota">
 <p>These four reached the appendix with the assertions and they are the only ones on the list
-where the check itself is what fails — the other fifteen are bugs of the
+where the check itself is what fails — the rest are bugs of the
 testbench; these are bugs of the one checking the testbench. That is why the antidote is
 always the same and that is why it is worth repeating it until you are sick of it: <strong>one <code>cover property</code> per <code>assert property</code></strong>.
 The first row is the cheapest to commit in this flow and it is worth showing it
 live: taking <code>--assert</code> out of the <code>run.sh</code> of <code>code/u8/assertions</code> leaves the run with <code>+BUG=1</code>
 at 0 <code>UVM_ERROR</code>. The 183 failures disappear without anything warning you.
-The third is the lesson of the section and the only one of the twenty that is not in
+The third is the lesson of the section and the only one on the list that is not in
 any tutorial. The wrong reflex, when the false positives show up, is to
 loosen the property until it shuts up: there you are left without a check and with the
 feeling of having fixed it. The right reflex is to ask on which edge
@@ -2679,7 +2700,7 @@ the one driving the stimulus writes.</p>
 </section>
 
 <section id="s371" class="slide">
-<h2 id="appendix-·-the-twenty-silent-traps">Appendix · The twenty silent traps</h2>
+<h2 id="appendix-·-the-21-silent-traps">Appendix · The 21 silent traps</h2>
 <h4 id="and-the-one-the-clocking-block-brings"><em>And the one the clocking block brings</em></h4>
 <table>
 <thead>
@@ -2698,7 +2719,7 @@ the one driving the stimulus writes.</p>
 </tr>
 </tbody></table>
 <ul>
-<li>It is the only one of the twenty that <strong>a tool adds</strong>: without a clocking
+<li>It is the only one on the list that <strong>a tool adds</strong>: without a clocking
 block it does not exist. Badly used it is worse than not using it</li>
 <li>Two names for the same wire, and they differ by one cycle:
 <code>code/u2/clocking/mezcla.sv</code> prints <code>3</code> and <code>4</code> at the same instant</li>
@@ -2707,8 +2728,8 @@ If you adopt the clocking block, you adopt <strong>its event too</strong></li>
 </ul>
 <div class="nota">
 <p>This trap closes the appendix and it is the one that best sums up its thesis, because the
-symptom is the worst of all the ones on the list: <strong>intermittent</strong>. The other
-eighteen fail always or never fail; this one fails when the data changes,
+symptom is the worst of all the ones on the list: <strong>intermittent</strong>. The rest
+fail always or never fail; this one fails when the data changes,
 which is one run in however many and precisely the one you are not watching.
 And it has a twist worth marking out loud: it is the only one on the list that
 shows up <em>because</em> you used the tool that avoids another problem. The clocking

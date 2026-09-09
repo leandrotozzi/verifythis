@@ -1,4 +1,4 @@
-<!-- es-sha: f86e4de9cb62 -->
+<!-- es-sha: b6345eb6c4f9 -->
 # Day 8 · RAL — modelling the register map
 
 It is the first thing you get asked for in a project with registers, and it is literally this:
@@ -69,9 +69,14 @@ It compiles the whole of UVM, including `uvm-core/src/reg`. Measured with Verila
 ## Hints, in order of usefulness
 
 - **`CLR` is not RW.** The spec says *"writing a 1 puts `ACC` and `OVF` at zero, and
-  the bit always reads 0"*. UVM has an access with that exact name, and it is not
-  `WO`. If you put `RW` on it, stage 1 passes and **stage 2** tells you so with the
-  number of the bit — which is exactly what `bit_bash` does well.
+  the bit always reads 0"*. The bit **is readable**, so the access belongs to the
+  family that clears on the write and returns that zero on the read. If you put
+  `RW` on it, stage 1 passes and **stage 2** tells you so with the number of the
+  bit — which is exactly what `bit_bash` does well.
+- **And it is not `WO` nor `WOC`.** Any access starting with `WO` takes the field
+  out of `bit_bash` (`uvm_reg_bit_bash_seq.svh:129-135`, *"Ignore Write-only
+  fields"*) and out of the `do_check` mask (`uvm_reg.svh:2782-2788`). Both stages
+  go green **without anyone having looked at the bit**: that is RAL's silent trap.
 - The `volatile` argument of `configure()` does not change the prediction: it is a
   declaration of intent, and UVM uses it to warn you with a `UVM_WARNING`
   when you read the mirror of a field that changes behind your back.

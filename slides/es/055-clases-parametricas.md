@@ -56,7 +56,7 @@ que aparezca en el resto del curso es esto.
 - La cola es `static` y aun así hay **dos**: `bandeja#(fernet)` y
   `bandeja#(mojito)` son dos clases distintas, cada una con la suya
 
-{{code:code/u3/parametricas/02-estatica/bandejas.sv|lines=53-91}}
+{{code:code/u3/parametricas/02-estatica/bandejas.sv|lines=51-89}}
 
 Note:
 Esta es la slide donde se demuestra lo del molde, y conviene hacerlo corriendo
@@ -83,7 +83,7 @@ adentro de `bandeja`. Es confuso la primera vez.
   y ésa es la decisión: **`static` cuando de verdad hay uno solo, instanciado
   cuando puede haber más de uno**
 
-{{code:code/u3/parametricas/03-instanciada/bandejas.sv|lines=48-76}}
+{{code:code/u3/parametricas/03-instanciada/bandejas.sv|lines=46-74}}
 
 Note:
 Las dos versiones hacen exactamente lo mismo y la diferencia es de diseño, no de

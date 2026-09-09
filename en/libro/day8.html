@@ -85,7 +85,7 @@ the optional unit, or the final project for those who want a high mark.</p>
 </section>
 
 <section id="s384" class="slide">
-<!-- es-sha: e95b12e71b50 -->
+<!-- es-sha: 3dc47006a85e -->
 
 
 <h2 id="ral">RAL</h2>
@@ -173,7 +173,7 @@ tools. The frontdoor —the one that uses the real bus— is the one you have to
 <section id="s386" class="slide">
 <h2 id="ral">RAL</h2>
 <h4 id="the-model-the-table-of-the-spec-in-code"><em>The model: the table of the spec, in code</em></h4>
-<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/apb_reg_block.svh</code> · líneas 12-36 de 148</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">ctrl_reg</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_reg</span>;
+<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/apb_reg_block.svh</code> · líneas 12-36 de 149</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">ctrl_reg</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_reg</span>;
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(ctrl_reg)
 
    <span class="hljs-keyword">rand</span> <span class="hljs-uvm-type">uvm_reg_field</span> EN;
@@ -189,15 +189,15 @@ tools. The frontdoor —the one that uses the real bus— is the one you have to
       EN = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;EN&quot;</span>);
       EN.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&quot;RW&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
 
-      <span class="hljs-comment">// &quot;WOC&quot; is the name UVM has for exactly this: the write goes through, the</span>
-      <span class="hljs-comment">// mirror drops to zero, and the read side of the field is not used to</span>
-      <span class="hljs-comment">// predict anything. Modelling it as &quot;RW&quot; is the classic mistake, and it is</span>
-      <span class="hljs-comment">// what +MAL does.</span>
+      <span class="hljs-comment">// &quot;WC&quot; is the name UVM has for exactly this: the write clears the field,</span>
+      <span class="hljs-comment">// the mirror drops to zero, and the read returns that zero. Modelling it as</span>
+      <span class="hljs-comment">// &quot;RW&quot; is the classic mistake, and it is what +MAL does. &quot;WOC&quot; also passes,</span>
+      <span class="hljs-comment">// for the wrong reason: any WO* access takes the field out of bit_bash and</span>
+      <span class="hljs-comment">// out of do_check, so nobody looks at it. See slides/es/180-ral.md.</span>
       CLR = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;CLR&quot;</span>);
-      CLR.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;MAL&quot;</span>) ? <span class="hljs-string">&quot;RW&quot;</span> : <span class="hljs-string">&quot;WOC&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
+      CLR.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;MAL&quot;</span>) ? <span class="hljs-string">&quot;RW&quot;</span> : <span class="hljs-string">&quot;WC&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
    <span class="hljs-keyword">endfunction</span> : build
-
-<span class="hljs-keyword">endclass</span> : ctrl_reg</code></pre><details><summary>el archivo entero, 148 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The register map of spec.md, written as a UVM register model.</span>
+</code></pre><details><summary>el archivo entero, 149 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The register map of spec.md, written as a UVM register model.</span>
 <span class="hljs-comment">//</span>
 <span class="hljs-comment">// The table of the spec maps one to one onto this file, and that is the check</span>
 <span class="hljs-comment">// worth doing out loud: four registers, six fields, four addresses. Nothing here</span>
@@ -224,12 +224,13 @@ tools. The frontdoor —the one that uses the real bus— is the one you have to
       EN = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;EN&quot;</span>);
       EN.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&quot;RW&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
 
-      <span class="hljs-comment">// &quot;WOC&quot; is the name UVM has for exactly this: the write goes through, the</span>
-      <span class="hljs-comment">// mirror drops to zero, and the read side of the field is not used to</span>
-      <span class="hljs-comment">// predict anything. Modelling it as &quot;RW&quot; is the classic mistake, and it is</span>
-      <span class="hljs-comment">// what +MAL does.</span>
+      <span class="hljs-comment">// &quot;WC&quot; is the name UVM has for exactly this: the write clears the field,</span>
+      <span class="hljs-comment">// the mirror drops to zero, and the read returns that zero. Modelling it as</span>
+      <span class="hljs-comment">// &quot;RW&quot; is the classic mistake, and it is what +MAL does. &quot;WOC&quot; also passes,</span>
+      <span class="hljs-comment">// for the wrong reason: any WO* access takes the field out of bit_bash and</span>
+      <span class="hljs-comment">// out of do_check, so nobody looks at it. See slides/es/180-ral.md.</span>
       CLR = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;CLR&quot;</span>);
-      CLR.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;MAL&quot;</span>) ? <span class="hljs-string">&quot;RW&quot;</span> : <span class="hljs-string">&quot;WOC&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
+      CLR.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;MAL&quot;</span>) ? <span class="hljs-string">&quot;RW&quot;</span> : <span class="hljs-string">&quot;WC&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
    <span class="hljs-keyword">endfunction</span> : build
 
 <span class="hljs-keyword">endclass</span> : ctrl_reg
@@ -348,7 +349,7 @@ tools. The frontdoor —the one that uses the real bus— is the one you have to
 
 <ul>
 <li>A field gets declared with <code>configure()</code>, and the argument that matters is the
-<strong>access string</strong>: <code>&quot;RW&quot;</code>, <code>&quot;RO&quot;</code>, <code>&quot;WOC&quot;</code>…</li>
+<strong>access string</strong>: <code>&quot;RW&quot;</code>, <code>&quot;RO&quot;</code>, <code>&quot;WC&quot;</code>…</li>
 <li>That string <strong>is the specification</strong>. It is not documentation: it is what UVM uses
 to predict, and to generate the tests of the last slide</li>
 </ul>
@@ -358,9 +359,19 @@ in UVM. It is worth writing it on the blackboard once; afterwards the student co
 example, which is what everybody does.
 <code>CLR</code> is the field that justifies the slide. The spec of the capstone says <em>&quot;writing a
 1 puts <code>ACC</code> and <code>OVF</code> at zero, and the bit always reads 0&quot;</em>, and that is trap 2
-of the small print — the one that makes the hand-written scoreboard fail. UVM has an
-access that says exactly that and it is called <strong><code>WOC</code></strong>: on the write the mirror
-goes down to zero, and the read side of the field is not used to predict anything.
+of the small print — the one that makes the hand-written scoreboard fail. The access
+that says exactly that is <strong><code>WC</code></strong>: the write clears the field, the mirror goes down
+to zero, and the read returns that zero. <code>W1C</code> works just as well here.
+And here is RAL&#39;s silent trap, which is worth more than the slide. <code>WOC</code> —the name
+you write first, because it sounds like &quot;write-only, clears&quot;— <strong>also</strong> gives zero
+errors, but it gives them for the wrong reason: <code>uvm_reg_bit_bash_seq.svh:129-135</code>
+skips every field whose access starts with <code>WO</code> (Accellera&#39;s own comment says
+<em>&quot;Ignore Write-only fields because you are not supposed to read them&quot;</em>), and
+<code>do_check</code> takes it out of the comparison mask (<code>uvm_reg.svh:2782-2788</code>), so the
+<code>mirror(UVM_CHECK)</code> does not look at it either. With <code>WOC</code> bit 1 of <code>CTRL</code> is never
+tested and nobody prints anything; the only trace is in the timing, because the
+bashing of <code>CTRL</code> takes four transfers less. Green is not checked, and a <code>WO*</code>
+access is the cheapest way there is to switch off a check without noticing.
 The complete list of accesses is in the LRM 1800.2, and there are twenty-five. You do not have to
 know them by heart: you have to know that <strong>the list exists</strong>, and look there before
 inventing a <code>set_compare</code> or a callback. Half of the bad register models
@@ -695,9 +706,9 @@ do that even in principle.</p>
       <span class="hljs-keyword">if</span> (data != <span class="hljs-number">&#x27;h1000_0000</span>)
          <span class="hljs-uvm-macro">`uvm_error</span>(<span class="hljs-string">&quot;RAL&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;ACC read 0x%08h, expected 0x10000000&quot;</span>, data))
 
-      <span class="hljs-comment">// CLR is &quot;WOC&quot;: the write clears the accumulator and the bit reads 0. A</span>
-      <span class="hljs-comment">// mirror(UVM_CHECK) right after would pass -- which is the point of</span>
-      <span class="hljs-comment">// getting the access policy right.</span>
+      <span class="hljs-comment">// CLR is &quot;WC&quot;: the write clears the accumulator, the mirror drops to zero</span>
+      <span class="hljs-comment">// and the bit reads 0, so the mirror(UVM_CHECK) right after really compares</span>
+      <span class="hljs-comment">// it -- which is the point of getting the access policy right.</span>
       model.CTRL.write(status, <span class="hljs-number">&#x27;h3</span>);             <span class="hljs-comment">// EN = 1, CLR = 1</span>
       model.CTRL.mirror(status, <span class="hljs-uvm-const">UVM_CHECK</span>);
       model.ACC.read(status, data);
@@ -776,7 +787,7 @@ being convenient and starts genuinely saving simulation time.</p>
 <span class="hljs-comment">//                          register, one at a time, in both directions</span>
 <span class="hljs-comment">//</span>
 <span class="hljs-comment">// Run it with +MAL and the register model declares CTRL.CLR as &quot;RW&quot; instead of</span>
-<span class="hljs-comment">// &quot;WOC&quot; -- one wrong word in one string. bit_bash catches it without anyone</span>
+<span class="hljs-comment">// &quot;WC&quot; -- one wrong word in one string. bit_bash catches it without anyone</span>
 <span class="hljs-comment">// writing a test for CTRL.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">builtin_test</span> <span class="hljs-keyword">extends</span> ral_base_test;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(builtin_test)
@@ -822,10 +833,13 @@ the frontdoor and reads through the backdoor, and the other way round), <code>uv
 registers in more than one map, and <code>uvm_mem_walk_seq</code> for memories. The ones that
 need a backdoor stay out of the course for what was said before.
 The implementation detail worth telling, because it explains why the
-model has to be right: <code>bit_bash</code> <strong>skips</strong> the read-only fields and
-the ones that are not individually accessible, and it uses the access string to know
-what to expect back. Which means the quality of the test they give you is
-exactly the quality of the model you wrote.</p>
+model has to be right: <code>bit_bash</code> <strong>does not skip</strong> the read-only fields — it writes
+the bit and demands that they read back as they were —, and it does the same with the
+reserved bits, which it treats as <code>RO</code> (<code>uvm_reg_bit_bash_seq.svh:137-139, 149-152</code>).
+What it really skips is the <code>WO*</code> family, <code>NOACCESS</code> and the fields with
+<code>set_compare(UVM_NO_CHECK)</code>; <code>individually_accessible</code> it does not even look at. And
+it uses the access string to know what to expect back. Which means the quality of the
+test they give you is exactly the quality of the model you wrote.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/391">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -833,7 +847,7 @@ exactly the quality of the model you wrote.</p>
 <section id="s392" class="slide">
 <h2 id="ral">RAL</h2>
 <h4 id="and-that-is-why-the-model-is-the-spec"><em>And that is why the model is the spec</em></h4>
-<pre><code>    CTRL.CLR as &quot;WOC&quot;  0 UVM_ERROR
+<pre><code>    CTRL.CLR as &quot;WC&quot;   0 UVM_ERROR, and bit_bash did write bit 1
     CTRL.CLR as &quot;RW&quot;   2 UVM_ERROR, from uvm_reg_bit_bash_seq
     &gt; Writing a 1 in bit #1 of register &quot;model.CTRL&quot; ... yielded &#39;h0
       instead of &#39;h2
@@ -869,9 +883,9 @@ stage 1 of the exercise prints the map so it can be compared by hand.</p>
 <section id="s393" class="slide">
 <h2 id="ral">RAL</h2>
 <h4 id="what-ral-does-not-do-and-it-has-to-be-said"><em>What RAL does not do, and it has to be said</em></h4>
-<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/apb_reg_block.svh</code> · líneas 141-143 de 148</figcaption><pre><code class="hljs">      ACC.VALUE.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);
-      STATUS.EN.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);
-      STATUS.OVF.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);</code></pre><details><summary>el archivo entero, 148 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The register map of spec.md, written as a UVM register model.</span>
+<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/apb_reg_block.svh</code> · líneas 141-143 de 149</figcaption><pre><code class="hljs">      <span class="hljs-comment">// scoreboard, which is the thing that does know how to add.</span>
+      ACC.VALUE.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);
+      STATUS.EN.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);</code></pre><details><summary>el archivo entero, 149 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The register map of spec.md, written as a UVM register model.</span>
 <span class="hljs-comment">//</span>
 <span class="hljs-comment">// The table of the spec maps one to one onto this file, and that is the check</span>
 <span class="hljs-comment">// worth doing out loud: four registers, six fields, four addresses. Nothing here</span>
@@ -898,12 +912,13 @@ stage 1 of the exercise prints the map so it can be compared by hand.</p>
       EN = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;EN&quot;</span>);
       EN.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-string">&quot;RW&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
 
-      <span class="hljs-comment">// &quot;WOC&quot; is the name UVM has for exactly this: the write goes through, the</span>
-      <span class="hljs-comment">// mirror drops to zero, and the read side of the field is not used to</span>
-      <span class="hljs-comment">// predict anything. Modelling it as &quot;RW&quot; is the classic mistake, and it is</span>
-      <span class="hljs-comment">// what +MAL does.</span>
+      <span class="hljs-comment">// &quot;WC&quot; is the name UVM has for exactly this: the write clears the field,</span>
+      <span class="hljs-comment">// the mirror drops to zero, and the read returns that zero. Modelling it as</span>
+      <span class="hljs-comment">// &quot;RW&quot; is the classic mistake, and it is what +MAL does. &quot;WOC&quot; also passes,</span>
+      <span class="hljs-comment">// for the wrong reason: any WO* access takes the field out of bit_bash and</span>
+      <span class="hljs-comment">// out of do_check, so nobody looks at it. See slides/es/180-ral.md.</span>
       CLR = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;CLR&quot;</span>);
-      CLR.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;MAL&quot;</span>) ? <span class="hljs-string">&quot;RW&quot;</span> : <span class="hljs-string">&quot;WOC&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
+      CLR.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;MAL&quot;</span>) ? <span class="hljs-string">&quot;RW&quot;</span> : <span class="hljs-string">&quot;WC&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
    <span class="hljs-keyword">endfunction</span> : build
 
 <span class="hljs-keyword">endclass</span> : ctrl_reg
@@ -1118,7 +1133,7 @@ the whole check off.</p>
 </section>
 
 <section id="s396" class="slide">
-<!-- es-sha: b1cb43b22098 -->
+<!-- es-sha: 54de0ae12ca2 -->
 
 
 <h2 id="the-reference-model-in-c">The reference model in C</h2>
@@ -1144,10 +1159,12 @@ The question worth throwing at the group before showing the code: <em>&quot;if t
 C model and the scoreboard differ, who is right?&quot;</em>. The uncomfortable answer
 is that you do not know, and finding out costs days. With DPI the question does not
 exist because there is only one model.
-And the reason why this section can exist in this course and not in another:
-DPI is part of the LRM, but getting to use it in a commercial flow asks for the
-licence that enables it. Here the simulator compiles to C++ by design, so the
-bridge is one more file on the command line.</p>
+And the reason why this section is so cheap in this course: DPI is part of the LRM
+and the commercial simulators ship it as a base feature —what leaves it out are the
+free student editions—; what costs you in a commercial flow is the <em>toolchain</em>:
+<code>-sv_lib</code>, compiling the <code>.c</code> separately, and remembering the library on every run.
+Here the simulator compiles to C++ by design, so the bridge is one more file on the
+command line and there is nothing to configure.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/396">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -1316,7 +1333,8 @@ int vtalu_golden(int op, int a, int b, int *ovf) {
 <li>The name after <code>&quot;DPI-C&quot;</code> is <strong>the symbol the linker looks for</strong>: it has to
 match letter by letter with the one in the <code>.c</code></li>
 <li>An <code>input int</code> travels as an <code>int</code>; an <code>output int</code> arrives as an <code>int *</code>. A
-<code>function</code> cannot consume time; a DPI <code>task</code> can</li>
+<code>function</code> cannot consume time; a DPI <code>task</code> can, but only declared <code>context</code> and
+calling back into an <code>export &quot;DPI-C&quot; task</code></li>
 <li>The <code>.c</code> goes on the <code>verilator</code> line as one more source. <strong>There is no DPI flag</strong></li>
 </ul>
 <div class="nota">
@@ -1486,10 +1504,12 @@ first one on the right: the duplicated <code>enum</code>. It is real and it has 
 look at when <strong>all</strong> the comparisons fail at once. If one in every
 six fails, it is the DUT; if all of them fail, it is the mapping.
 The third row on the right is the one that surprises and is worth getting ahead of: a DPI
-<code>function</code> runs in zero time, so the C model cannot
-synchronize with the clock. That is what <code>import &quot;DPI-C&quot; task</code> is for, which can
-consume time — and there it is no longer a golden model, it is a bus model, which is
-another topic.
+<code>function</code> runs in zero time, so the C model cannot synchronize with the clock. That
+is what <code>import &quot;DPI-C&quot; task</code> is for — with one clarification almost every tutorial
+skips: C cannot block by itself. A DPI task consumes time <strong>only</strong> if it is declared
+<code>context</code> and the C calls back into an <code>export &quot;DPI-C&quot; task</code> of SystemVerilog, which
+is the one that waits for the edge. And there it is no longer a golden model, it is a
+bus model, which is another topic.
 The rule of the second-to-last bullet is the one to take away, because the risk of
 this section is that somebody comes out wanting to do everything through DPI. The VTALU does <strong>not</strong>
 justify DPI: five eight-bit operations get written in a <code>case</code> and read

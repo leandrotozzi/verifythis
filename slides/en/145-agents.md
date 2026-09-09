@@ -1,4 +1,4 @@
-<!-- es-sha: 9fffe39eea59 -->
+<!-- es-sha: 3cb7eb4ec0ed -->
 ## Agents
 
 #### *The problem: a testbench that cannot be copied*
@@ -350,10 +350,13 @@ Which means that in a testbench that calls `super.build_phase()`, a
 `uvm_config_db#(int)::set(this, "mi_agent", "is_active", UVM_PASSIVE)` works
 on its own, without a config object. Since this `vtalu_agent` does not call it,
 that mechanism **is switched off**, and that is why we assign it by hand.
-And here is where day 3 gets paid: `uvm_agent` is the only class in the library,
-besides `uvm_component`, that implements `build_phase`. It is exactly the case
-the rule for out there covers — you inherited from an intermediate class that
-does real work, and skipping the `super` switches it off without a word. We can
+And here is where day 3 gets paid: `uvm_agent` and `uvm_sequencer` are the two
+classes in the library that do real work in their `build_phase` —`uvm_agent` reads
+`is_active`, and `uvm_sequencer_param_base` hooks up the response fifo
+(`seq/uvm_sequencer_param_base.svh:288`)—. It is exactly the case the rule for out
+there covers: if you extend either of the two and you write a `build_phase`, the
+`super` is mandatory. You inherited from an intermediate class that does real
+work, and skipping the `super` switches it off without a word. We can
 skip it because we wrote the line that replaces it; whoever does not write that
 line, cannot.
 Both ways are valid. What is not valid is half of each one: putting
@@ -439,10 +442,13 @@ inside the agent.
 Note:
 Here is the classic trap of the section, and it is one of the ones that never fail. With a single
 agent, everybody writes `"*"` in the scope and it works. The day the
-second one shows up, the second `set()` overwrites the first and **both agents start up
-active**: two drivers driving two different interfaces with the wrong
-configuration. The error does not show up in `build_phase`, it shows up as a scoreboard
-failing on the interface you did not touch.
+second one shows up, the second `set()` overwrites the first and **both agents get the
+same config**: the same BFM and the same `is_active`. With the order in `env.svh` —the
+class first and the module after— the one left standing is the passive one, so both
+start up passive, with no driver and no sequencer, and the test's `seq.start()` lands
+on a `null` handle. With the order reversed they would be two drivers, but driving
+**the same** interface. What is invariant, and what to take away: the last `set()`
+wins, and both agents end up identical. The error does not show up in `build_phase`.
 The asterisk matters: `"clase_agent_h*"` with an asterisk reaches the children;
 `"clase_agent_h"` without an asterisk, only the agent. If you write it without an asterisk, the
 agent finds its config and the driver does not — `uvm_fatal` in `build_phase`, which at

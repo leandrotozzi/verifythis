@@ -1,7 +1,7 @@
-<!-- es-sha: 6dfe98909f41 -->
+<!-- es-sha: ecee5ce5b4dc -->
 # Day 2 — a tester that only multiplies, without touching the one already there
 
-The testbench is the object-oriented one from the object-based testbench. Today `tester` sends
+The testbench is the one from *A testbench without a single module*, in classes. Today `tester` sends
 random operations; we want one that sends only multiplications, **without copying
 and pasting the whole class**.
 

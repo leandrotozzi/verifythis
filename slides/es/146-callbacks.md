@@ -67,9 +67,9 @@ normal y no una excepción.
 
 {{code:code/u7/callbacks/tb_classes/driver.svh|lines=23-33}}
 
-- `` `uvm_register_cb `` declara el par tipo/callback. **Sin él, el `add()`
-  compila, corre y no engancha nada** — con un `CBUNREG` en el log que es fácil
-  no ver
+- `` `uvm_register_cb `` declara el par tipo/callback. Sin él el `add()` engancha
+  igual y el callback **corre** — con un `UVM_WARNING CBUNREG` perdido en el log,
+  y sin el chequeo de tipos ni el `add_by_name`
 - `` `uvm_do_callbacks `` es el punto de extensión: recorre la cola de **esa
   instancia** de driver, en orden
 
@@ -78,11 +78,17 @@ El diff contra el driver de la sección Agents es exactamente de dos líneas, y
 conviene mostrarlo con `diff` en vivo: `diff code/u7/agents/tb_classes/driver.svh
 code/u7/callbacks/tb_classes/driver.svh`. Todo lo demás —el `get_next_item`, el
 `send_op`, el `item_done`— está igual.
-El modo de falla del `uvm_register_cb` que falta es el clásico de esta parte de
-UVM: no hay error de compilación, hay un `UVM_ERROR ... CBUNREG` perdido en
-medio de mil líneas, y el callback simplemente no corre. Por eso el `run.sh` del
-ejemplo cuenta cuántas veces se ejecutó y falla si es cero: un ejemplo que
-"pasa" sin haber inyectado nada no prueba nada.
+El modo de falla del `uvm_register_cb` que falta no es el que uno espera, y vale
+contarlo con la fuente en la mano porque la mitad de los tutoriales lo dice al
+revés: `uvm_callback.svh:744` reporta un `UVM_WARNING CBUNREG` y **sigue de
+largo** — el `add()` mete el callback en `m_base_inst.m_pool` igual (`:777-783`),
+y `` `uvm_do_callbacks `` lee ese pool sin consultar el registro (`:964-1006`).
+O sea: sin la macro el callback corre, y lo que perdés es el chequeo de tipos y
+el `add_by_name` por tipo derivado. Es peor que un error: es un warning entre mil
+líneas, y el testbench queda fuera del contrato sin que se note.
+Por eso el `run.sh` del ejemplo no chequea la macro sino el efecto: cuenta cuántas
+veces se ejecutó el callback y falla si es cero. Un ejemplo que "pasa" sin haber
+inyectado nada no prueba nada, venga de donde venga el desenganche.
 Dónde poner el `` `uvm_do_callbacks `` es la decisión de diseño real, y es la
 misma que toma el que escribe un VIP: cada punto de gancho es una promesa de
 compatibilidad hacia adelante. Por eso los VIP tienen tres o cuatro, no treinta.

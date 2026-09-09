@@ -48,9 +48,9 @@ class ral_test extends ral_base_test;
       if (data != 'h1000_0000)
          `uvm_error("RAL", $sformatf("ACC read 0x%08h, expected 0x10000000", data))
 
-      // CLR is "WOC": the write clears the accumulator and the bit reads 0. A
-      // mirror(UVM_CHECK) right after would pass -- which is the point of
-      // getting the access policy right.
+      // CLR is "WC": the write clears the accumulator, the mirror drops to zero
+      // and the bit reads 0, so the mirror(UVM_CHECK) right after really compares
+      // it -- which is the point of getting the access policy right.
       model.CTRL.write(status, 'h3);             // EN = 1, CLR = 1
       model.CTRL.mirror(status, UVM_CHECK);
       model.ACC.read(status, data);

@@ -131,7 +131,7 @@ herramientas de debug*: se lee en
 | \`+UVM_VERBOSITY=UVM_HIGH\` | prender los mensajes de debug que ya están escritos |
 | \`+UVM_CONFIG_DB_TRACE\` | quién puso y quién leyó cada entrada del \`config_db\` |
 | \`+UVM_OBJECTION_TRACE\` | quién levantó y quién bajó cada objection |
-| \`+UVM_TIMEOUT=5ms\` | cortar una simulación colgada y ver dónde quedó |
+| \`+UVM_TIMEOUT=5000000,NO\` | cortar una simulación colgada y ver dónde quedó |
 | \`print_topology()\` | el árbol de componentes que UVM armó **de verdad** |
 | \`--assert\` | sin este flag las properties concurrentes no se evalúan |
 | \`--trace\` + GTKWave | cuando ninguna de las seis anteriores alcanza |`,
@@ -216,7 +216,7 @@ toolbox*: it is read in
 | \`+UVM_VERBOSITY=UVM_HIGH\` | switch on the debug messages that are already written |
 | \`+UVM_CONFIG_DB_TRACE\` | who put and who read every entry of the \`config_db\` |
 | \`+UVM_OBJECTION_TRACE\` | who raised and who dropped every objection |
-| \`+UVM_TIMEOUT=5ms\` | cut off a hung simulation and see where it got stuck |
+| \`+UVM_TIMEOUT=5000000,NO\` | cut off a hung simulation and see where it got stuck |
 | \`print_topology()\` | the component tree UVM **actually** built |
 | \`--assert\` | without this flag the concurrent properties do not get evaluated |
 | \`--trace\` + GTKWave | when none of the six above is enough |`,

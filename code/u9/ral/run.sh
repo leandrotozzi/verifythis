@@ -7,7 +7,7 @@
 #
 #   ral_test            write/read/mirror through the model, with explicit prediction
 #   builtin_test        uvm_reg_hw_reset_seq and uvm_reg_bit_bash_seq
-#   builtin_test +MAL   the same, with CTRL.CLR modelled as "RW" instead of "WOC"
+#   builtin_test +MAL   the same, with CTRL.CLR modelled as "RW" instead of "WC"
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
 
@@ -45,8 +45,8 @@ fi
 
 echo
 echo "=== the model is the spec ==="
-echo "    CTRL.CLR as   \"WOC\"  0 UVM_ERROR"
-echo "    CTRL.CLR as \"RW\"    $errores UVM_ERROR, from uvm_reg_bit_bash_seq"
+echo "    CTRL.CLR as \"WC\"   0 UVM_ERROR, and bit_bash did write bit 1"
+echo "    CTRL.CLR as \"RW\"   $errores UVM_ERROR, from uvm_reg_bit_bash_seq"
 grep -m1 'UVM_ERROR.*uvm_reg_bit_bash_seq' "$VLT_LOG" | sed 's/.*\] //; s/^/    > /'
 echo
 echo "    Nobody wrote a test for CTRL. The sequence generated it from the model, and"

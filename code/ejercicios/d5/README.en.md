@@ -1,4 +1,4 @@
-<!-- es-sha: c7e0c385834e -->
+<!-- es-sha: efde1ea5e853 -->
 # Day 5 — the scoreboard screams and the DUT is healthy
 
 The testbench already uses transactions. Run:
@@ -55,7 +55,7 @@ The two appendices at the end of the deck are written for this exercise:
 - **The debug toolbox** — the *"which one to use according to the symptom"* table
   has the row `the scoreboard screams on every one`, and it says what to look at
   it with.
-- **The twenty silent traps** — the catalogue of everything that compiles, runs
+- **The 21 silent traps** — the catalogue of everything that compiles, runs
   and lies. The cause of this bug is one of the nineteen.
 
 The exercise can be done without having seen reporting: it is enough to have the

@@ -143,7 +143,7 @@ El **día 7** es el cierre: a la mañana *Assertions*, y a la tarde el **capston
 un esclavo APB con su especificación y nada más, donde el testbench se escribe
 entero desde una hoja en blanco. Y después los cuatro apéndices: **de la VTALU a
 un bus real**, **la caja de herramientas de debug** —las siete perillas, y cuál
-usar según el síntoma—, **las veinte trampas mudas** —todo lo que compila,
+usar según el síntoma—, **las 21 trampas mudas** —todo lo que compila,
 corre y miente— y un **glosario ES ↔ EN**, porque todo lo que el alumno lea
 después de este curso va a estar en inglés.
 
@@ -210,7 +210,7 @@ El curso está escrito como **siete días**, que es como se dicta en una empresa
 |---|---|
 | [`docs/para-docentes.md`](docs/para-docentes.md) | El mismo curso como **cuatrimestre de 15 semanas** —2 h de teoría y 2 h de laboratorio por semana—, qué se puede saltear y qué cuesta cada recorte, los dos parciales, y cómo corregir el capstone por etapas |
 | [`docs/banco-de-examen.md`](docs/banco-de-examen.md) | Las **45 preguntas sin la respuesta marcada**, con la clave al final. Lo genera `npm run build` desde las mismas slides, así que no se desincroniza |
-| [`docs/trampas-mudas.md`](docs/trampas-mudas.md) | Las **20 trampas mudas** —todo lo que compila, corre y miente— y las siete perillas de debug, como página suelta para repartir. También generada |
+| [`docs/trampas-mudas.md`](docs/trampas-mudas.md) | Las **21 trampas mudas** —todo lo que compila, corre y miente— y las siete perillas de debug, como página suelta para repartir. También generada |
 | [**`docs/machete-uvm.pdf`**](docs/machete-uvm.pdf) | **El machete de una carilla**: la jerarquía de clases, las nueve fases, el handshake del driver y las siete perillas de debug. Para imprimir y pegar al lado del monitor. La fuente es [`res/machete.html`](res/machete.html); `make machete` regenera el PDF |
 | [`docs/uvm-en-la-entrevista.md`](docs/uvm-en-la-entrevista.md) | Las preguntas de una entrevista de verificación, cada una con la respuesta corta, el link a la sección y **el ejemplo que corre** |
 | [`CITATION.cff`](CITATION.cff) | El botón *Cite this repository* de GitHub, en APA o BibTeX |

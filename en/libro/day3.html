@@ -73,7 +73,7 @@
 </section>
 
 <section id="s114" class="slide">
-<!-- es-sha: cf7b93df8c60 -->
+<!-- es-sha: 0a0dbea4d761 -->
 <h2 id="tests">Tests</h2>
 <h4 id="compile-once-pick-the-test-from-the-command-line"><em>Compile once, pick the test from the command line</em></h4>
 <ul>
@@ -150,7 +150,8 @@ the test <code>new()</code>s and become components of the tree.</p>
 <li>The <code>top</code> is still a <strong>module</strong>: it instantiates the BFM and the DUT the same as
 before. The only new thing is these two lines</li>
 <li><code>run_test()</code> with no argument means <em>&quot;whichever <code>+UVM_TESTNAME</code> says&quot;</em>. With an
-argument —<code>run_test(&quot;random_test&quot;)</code>— you go back to hardcoding the test</li>
+argument —<code>run_test(&quot;random_test&quot;)</code>— that one becomes the <strong>default</strong>, and
+<code>+UVM_TESTNAME</code> still overrides it from the command line</li>
 <li>Before <code>run_test()</code> there is not a single UVM object alive: that is why the <code>set</code> goes here</li>
 </ul>
 <div class="nota">
@@ -1688,7 +1689,7 @@ always it is duplicated structure.</p>
 </section>
 
 <section id="s150" class="slide">
-<!-- es-sha: aa5203a4a3af -->
+<!-- es-sha: dbecab2723da -->
 <h2 id="reporting">Reporting</h2>
 <h4 id="47--of-the-time-goes-here"><em>47 % of the time goes here</em></h4>
 <ul>
@@ -1753,13 +1754,14 @@ the section is configuring that object.</p>
 <h4 id="the-reporting-macros"><em>The reporting macros</em></h4>
 <ul>
 <li>There are four and they differ by <strong>severity</strong>: <code>`uvm_info</code>,
-<code>`uvm_warning</code>, <code>`uvm_error</code> and <code>`uvm_fatal</code>. The last three count
-in the <em>Report Summary</em>; the last one also kills the simulation</li>
+<code>`uvm_warning</code>, <code>`uvm_error</code> and <code>`uvm_fatal</code>. <strong>All four</strong> are counted
+in the <em>Report Summary</em>; what changes is the default <strong>action</strong> — <code>`uvm_error</code>
+comes with <code>UVM_DISPLAY|UVM_COUNT</code> and <code>`uvm_fatal</code> also kills the simulation</li>
 <li>The <strong>ID</strong> is the first argument: a string that says who is talking. It is what you filter
 with afterwards, so it is worth making it the name of the component and always the
 same one</li>
 <li>The <strong>message</strong> is the second, and it gets assembled with <code>$sformatf</code> when it carries data</li>
-<li>The <strong>verbosity</strong> is the fourth, and <strong>only</strong> <code>`uvm_info</code> has it: it is the one
+<li>The <strong>verbosity</strong> is the third, and <strong>only</strong> <code>`uvm_info</code> has it: it is the one
 that decides whether the message comes out or not</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u4/reporting/reporting.sv</code></figcaption><pre><code class="hljs"><span class="hljs-uvm-macro">`uvm_info</span>   (Message ID String, Message String, Verbosity)
@@ -1808,7 +1810,7 @@ writes the hierarchical path, because they do not know it.</p>
 
 <section id="s154" class="slide">
 <h2 id="reporting">Reporting</h2>
-<h4 id="the-five-levels-and-why-the-message-stays"><em>The five levels, and why the message stays</em></h4>
+<h4 id="the-six-levels-and-why-the-message-stays"><em>The six levels, and why the message stays</em></h4>
 <ul>
 <li>The usual cycle: you fill the code with <code>$display</code>, you find the bug, you delete
 everything — and next week you write it again</li>
@@ -1832,8 +1834,10 @@ and the second one does not touch the code:<ul>
 } <span class="hljs-uvm-type">uvm_verbosity</span>
 
 <span class="hljs-comment">// Any message above the verbosity that was set does not get printed</span></code></pre></figure><div class="nota">
-<p>The five levels, from least to most noisy: <code>UVM_NONE</code>, <code>UVM_LOW</code>, <code>UVM_MEDIUM</code>
-—the default one—, <code>UVM_HIGH</code> and <code>UVM_DEBUG</code>. A message gets printed if its
+<p>The six levels, from least to most noisy: <code>UVM_NONE</code>, <code>UVM_LOW</code>, <code>UVM_MEDIUM</code>
+—the default one—, <code>UVM_HIGH</code>, <code>UVM_FULL</code> and <code>UVM_DEBUG</code>. <code>UVM_FULL</code> is the one
+nobody uses and the one that shows up in the enum on the slide, so it is worth
+naming. A message gets printed if its
 verbosity is <strong>less than or equal to</strong> the ceiling, so <code>UVM_NONE</code> always comes out.
 The rule of thumb worth handing down, because otherwise everybody invents their own:
 <code>UVM_LOW</code> for what you want to see in a regression —which test ran, how many
@@ -1841,7 +1845,7 @@ transactions—; <code>UVM_MEDIUM</code> for the summary of a component; <code>U
 every transaction that goes past. The monitors of the course are <code>UVM_HIGH</code> precisely for
 that: in a normal run they are not seen, and when something fails they get switched on with a
 plusarg.
-The formal detail that gets copied wrong: the verbosity is the <strong>fourth</strong> argument of the
+The formal detail that gets copied wrong: the verbosity is the <strong>third</strong> argument of the
 <code>`uvm_info</code>, and if you forget it, it does not compile. The ID —the first one— is a free
 string, but do not pick it at random: it is the key you are going to filter with afterwards.
 Make it the name of the component, in capitals, and always the same one.</p>
@@ -1939,9 +1943,12 @@ literally this path. A single tree serves both purposes.
 The clarification in the bullet is not a detail: this hierarchy <strong>is not the DUT&#39;s</strong>. A
 scoreboard is not inside any module. It is the tree UVM assembles by calling
 <code>build_phase</code> from the top down, and it exists only in the testbench.
-Classroom trick: <code>+UVM_CONFIG_DB_TRACE</code> or <code>print_topology()</code> print this
-tree for real, written by the library. It is the best way of showing that it is not
-a drawing.</p>
+Classroom trick: <code>uvm_top.print_topology()</code> prints this tree for real, written by
+the library. It is the best way of showing that it is not a drawing.
+<code>+UVM_CONFIG_DB_TRACE</code> is a different thing and it is better not to mix them: it does
+not draw the tree, it traces every <code>set()</code> and every <code>get()</code> of the <code>config_db</code> with
+the scope that was used — which is the knob for the other problem, the scope that
+does not match.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/157">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -2042,12 +2049,16 @@ not <em>&quot;does it get printed?&quot;</em> but <em>&quot;what gets done with 
 <p>The six actions are a bitwise OR, not a list of mutually exclusive options: the
 same message can be printed <strong>and</strong> written to a file <strong>and</strong> counted towards the
 summary. That is why they combine with <code>|</code>.
-The one almost nobody knows and that helps enormously is <code>UVM_COUNT</code>: it counts the appearances
-of that ID and kills the simulation when it reaches the maximum. It is the answer to the
-four-gigabyte log when a scoreboard fails on every transaction — you find out anyway, and
-in thirty seconds instead of in twenty minutes.
+<code>UVM_COUNT</code> is the one most often explained wrong, and it is worth saying it in full:
+it is already switched on by default on every <code>`uvm_error</code>, and what it increments
+is **a global counter** for the run, not one per ID. On its own it kills nothing,
+because the default maximum is 0, which means &quot;no limit&quot;. The one that cuts is
+<code>+UVM_MAX_QUIT_COUNT=N</code> —or <code>set_report_max_quit_count(N)</code>, <code>uvm_root.svh:1187</code>—, and
+that one really is the answer to the four-gigabyte log when a scoreboard fails on
+every transaction: you find out anyway, and in thirty seconds instead of in twenty
+minutes.
 <code>UVM_NO_ACTION</code> is the one the next slide uses to switch off the errors, and it has to be
-said out loud what it is <strong>not</strong> for: it is not so that the regression comes out green.
+said out loud what it is **not** for: it is not so that the regression comes out green.
 It is to carry on working while somebody else fixes their class, and it comes out the same day.
 A <code>UVM_NO_ACTION</code> that survives a commit is a bug waiting to happen.
 And the pair worth naming: <code>set_report_severity_action</code> is by severity,

@@ -63,7 +63,7 @@
 <li>El capstone: un testbench de APB, desde cero</li>
 <li>De la VTALU a un bus real</li>
 <li>La caja de herramientas de debug</li>
-<li>Las veinte trampas mudas</li>
+<li>Las 21 trampas mudas</li>
 <li>Glosario, referencias y cierre</li>
 </ul>
 <p><em>Y después, el <strong>día 8</strong>: opcional, y para el que ya entregó el capstone</em></p>
@@ -189,19 +189,28 @@ b : assert property (@(posedge clk) start |=&gt; !done);
 <li>¿Cuál va? Depende de si la respuesta es <strong>combinacional</strong> (el mismo flanco) o
 <strong>registrada</strong> (el siguiente). En el VTALU, <code>done</code> sale de un <code>always_ff</code>:
 siempre es el siguiente</li>
-<li>El síntoma de equivocarse es el peor de todos: la property <strong>pasa siempre</strong>,
-porque el antecedente y el consecuente nunca coinciden en el flanco que se pidió</li>
+<li>Equivocarse no da un síntoma solo: <code>start |-&gt; done</code> con <code>done</code> registrado
+<strong>falla en cada transacción</strong> —ve el <code>done</code> viejo—, y una property cuyo
+antecedente nunca ocurre pasa en vacío. Por eso va siempre con su <code>cover</code></li>
 </ul>
 <div class="nota">
 <p>Ésta es la primera pregunta de toda entrevista sobre SVA y conviene practicarla
 con el DUT en la mano: <code>done_1c &lt;= start &amp;&amp; (op != 3&#39;b000)</code> es un NBA, así que
 lo que se escribe en el flanco <em>n</em> recién se lee en el <em>n+1</em>. Con <code>|-&gt;</code> la
 property compararía <code>start</code> contra el <code>done</code> <strong>viejo</strong>.
-La regla operativa, que es más útil que la teoría: mirá el RTL. Si el
-consecuente sale de un <code>&lt;=</code>, va <code>|=&gt;</code>. Si sale de un <code>assign</code>, va <code>|-&gt;</code>.
-Y la trampa que hay que nombrar en voz alta: equivocarse acá casi nunca da un
-error. Da una property que se satisface por vacío o que se satisface siempre, y
-el reporte final dice que todo pasó. Es la razón por la que la slide del <code>cover property</code> no es un extra: es el único chequeo del chequeo.</p>
+La regla operativa, que es más útil que la teoría: <code>|=&gt;</code> <strong>es</strong> <code>|-&gt; ##1</code>, así que
+la pregunta no es cuál de los dos operadores va sino <strong>cuántos flancos después</strong> lo
+promete la spec. Un <code>assign</code> contesta en el mismo flanco y un <code>&lt;=</code> en el
+siguiente, pero eso es el caso fácil: la property estrella de esta misma sección
+—<code>start &amp;&amp; op_set != no_op |-&gt; ##[1:5] done</code>— usa <code>|-&gt;</code> para un <code>done</code> que sale de
+un <code>always_ff</code>, porque la spec promete una ventana de uno a cinco flancos y no
+uno solo.
+Y la trampa que hay que nombrar en voz alta, sin exagerarla: equivocarse a veces
+grita —<code>|-&gt;</code> contra una señal registrada falla en cada transacción— y a veces se
+calla, cuando el antecedente que escribiste no ocurre nunca y la property se
+satisface por vacío. Ese segundo caso es el que el reporte final da por bueno, y
+es la razón por la que la slide del <code>cover property</code> no es un extra: es el único
+chequeo del chequeo.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/339">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -230,9 +239,12 @@ Ese es exactamente el tema de la slide que viene, y conviene sembrarlo acá.
 <code>$past</code> con el segundo argumento es la que más se subestima: chequear <em>&quot;el
 resultado de ahora corresponde a los operandos de hace cuatro flancos&quot;</em> es una
 línea, y a mano son un shift register y tres bugs.
-Vale también decir lo que NO son: no son funciones que uno pueda llamar desde un
-<code>initial</code>. Sólo tienen sentido adentro de una property o de una sequence, porque
-necesitan un reloj para saber qué quiere decir &quot;anterior&quot;.</p>
+Vale también decir dónde se pueden usar, porque hay una media verdad que circula:
+sí se pueden llamar desde código procedural —un <code>always @(posedge clk) if ($rose(req)) …</code> es legal (1800-2017 §16.9.3) y Verilator 5.052 lo acepta—, porque
+de ahí infieren el reloj. Lo que necesitan siempre es <strong>un</strong> reloj: en un
+<code>initial</code> sin evento de reloj no significan nada. Y el límite práctico de este
+flujo: <code>$past</code> con el argumento de reloj explícito no lo soporta Verilator
+(<em>Unsupported: $past expr2 and/or clock arguments</em>).</p>
 </div>
 <p class="al-deck"><a href="../index.html#/340">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -765,9 +777,9 @@ que no existen. El reflejo del principiante es aflojar la property hasta que
 calle —y ahí se quedó sin chequeo. El reflejo correcto es mirar en qué flanco
 escribe el que estimula.
 La salida industrial de fondo es el <strong>clocking block</strong>, que declara el muestreo
-una vez para toda la interface en vez de repetirlo property por property. Este
-curso no lo enseña; el que llega hasta acá ya entendió el problema que resuelve,
-que es lo difícil.</p>
+una vez para toda la interface en vez de repetirlo property por property. Está en
+el día 1 —<code>030-interfaces-bfm.md</code> y <code>docs/clocking-blocks.md</code>— y vale volver a
+nombrarlo acá, porque recién ahora se ve el problema completo que resuelve.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/342">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -1771,8 +1783,8 @@ sección son veinte.</p>
 <li>Una <strong>assertion concurrente</strong> es una declaración con reloj: se escribe una vez
 y chequea cada flanco de la simulación, sola</li>
 <li>La anatomía no cambia nunca: <code>label : assert property (@(reloj) disable iff (reset) antecedente |-&gt; consecuente) else acción;</code></li>
-<li><code>|-&gt;</code> es el mismo flanco, <code>|=&gt;</code> el siguiente. Si el consecuente sale de un
-<code>always_ff</code>, va <code>|=&gt;</code></li>
+<li><code>|-&gt;</code> es el mismo flanco y <code>|=&gt;</code> <strong>es</strong> <code>|-&gt; ##1</code>. La pregunta no es cuál de los
+dos, es cuántos flancos después lo promete la spec</li>
 <li>Las properties viven <strong>en la <code>interface</code></strong>, con las señales. No se conectan, no
 se construyen, y viajan con ella</li>
 <li>En UVM la acción es <code>`uvm_error</code>, para que la falla <strong>cuente</strong> en el
@@ -1819,9 +1831,8 @@ tutoriales usan un DUT donde el estímulo y la respuesta comparten flanco.
 Es también la respuesta a <em>&quot;¿por qué un curso más de UVM?&quot;</em>. Éste corre. Y cuando
 algo no da, la sección cuenta por qué no daba en vez de cambiar el ejemplo.
 Lo que queda afuera y conviene nombrar para que nadie lo descubra tarde:
-<code>clocking block</code>, assertions formales, <code>expect</code>, y las properties de bus
-prefabricadas que vienen con los VIP comerciales. Con lo de esta sección se leen
-sin ayuda.</p>
+assertions formales, <code>expect</code>, y las properties de bus prefabricadas que vienen
+con los VIP comerciales. Con lo de esta sección se leen sin ayuda.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/352">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -1884,7 +1895,7 @@ existiera este testbench.</p>
 <li><input disabled="" type="checkbox"> Ninguna: para señales registradas hay que usar <code>$past()</code></li>
 </ul>
 <blockquote>
-<p><strong><code>|=&gt;</code> cuando el consecuente sale de un <code>&lt;=</code></strong> — y la regla operativa es mirar el RTL, no la property: si el consecuente sale de un <code>assign</code>, va <code>|-&gt;</code>. Equivocarse acá casi nunca da un error: da una property que pasa siempre.</p>
+<p><strong><code>|=&gt;</code> cuando el consecuente sale de un <code>&lt;=</code></strong> — porque <code>|=&gt;</code> <em>es</em> <code>|-&gt; ##1</code>, y lo que hay que preguntarse es cuántos flancos después lo promete la spec. Con <code>|-&gt;</code> contra una señal registrada la property no pasa en vacío: <strong>falla en cada transacción</strong>, porque compara contra el <code>done</code> viejo. La que sí pasa callada es aquella cuyo antecedente nunca ocurre — por eso va siempre con su <code>cover property</code>.</p>
 </blockquote>
 <p class="al-deck"><a href="../index.html#/355">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -2306,18 +2317,18 @@ que es exactamente lo que practicaron en los ejercicios de los días 3 y 6.</p>
 <td align="left">Tests</td>
 </tr>
 <tr>
-<td><code>+UVM_TIMEOUT=N</code></td>
+<td><code>+UVM_TIMEOUT=N,NO</code></td>
 <td>un techo para el cuelgue, en vez de esperar</td>
 <td align="left">Tests</td>
 </tr>
 <tr>
-<td><code>set_report_severity_action_hier(…, UVM_COUNT)</code></td>
+<td><code>+UVM_MAX_QUIT_COUNT=N</code></td>
 <td>matar la corrida al N-ésimo error</td>
 <td align="left">Reporting</td>
 </tr>
 </tbody></table>
 <ul>
-<li>Los cinco del medio son <strong>plusargs</strong>: no se toca código y no se recompila. En un
+<li>Los seis de abajo son <strong>plusargs</strong>: no se toca código y no se recompila. En un
 testbench con UVM eso son minutos de diferencia por intento</li>
 </ul>
 <div class="nota">
@@ -2331,6 +2342,12 @@ El punto que hay que decir en voz alta es el de los plusargs. Un <code>$display<
 agregado a mano cuesta una recompilación de UVM —minutos— y encima hay que
 acordarse de sacarlo. Estas siete perillas ya están puestas en el binario que
 compilaste: se prenden en la línea de comandos y no dejan rastro.
+Y un detalle del <code>+UVM_TIMEOUT</code> que muerde, porque no da error: el valor es un
+entero en unidades de tiempo, no una expresión con unidad. UVM lo lee con
+<code>$sscanf(…, &quot;%d,%s&quot;)</code> (<code>uvm_root.svh:916</code>), así que <code>+UVM_TIMEOUT=5ms</code> no se
+queja: agarra el <code>5</code> y corta la simulación a los 5 ns. Se escribe
+<code>+UVM_TIMEOUT=5000000,NO</code>, y el <code>NO</code> es para que un <code>set_timeout()</code> escrito en el
+testbench no pise lo que pediste en la línea de comandos.
 <code>+TOPOLOGY</code> no es de UVM: es del <code>base_test</code> del curso, que lee el plusarg y
 llama a <code>uvm_root::get().print_topology()</code>. Vale aclararlo para que nadie lo
 busque en el LRM. Lo mismo <code>VLT_TRACE=1</code>, que es del <code>run.sh</code>.
@@ -2360,7 +2377,7 @@ hasta que no lo podés repetir a voluntad.</p>
 <tr>
 <td><strong>No termina nunca</strong></td>
 <td>un <code>item_done()</code> que no se llamó, o una objection que no baja</td>
-<td><code>+UVM_TIMEOUT=5ms</code> y después el trace</td>
+<td><code>+UVM_TIMEOUT=5000000,NO</code> y después el trace</td>
 </tr>
 <tr>
 <td>El scoreboard <strong>grita en todas</strong></td>
@@ -2410,7 +2427,7 @@ el paso siguiente son las ondas, que es la herramienta con la que se hace el
 </section>
 
 <section id="s367" class="slide">
-<h2 id="apéndice-·-las-veinte-trampas-mudas">Apéndice · Las veinte trampas mudas</h2>
+<h2 id="apéndice-·-las-21-trampas-mudas">Apéndice · Las 21 trampas mudas</h2>
 <h4 id="compila-corre-y-miente"><em>Compila, corre, y miente</em></h4>
 <table>
 <thead>
@@ -2445,14 +2462,20 @@ el paso siguiente son las ondas, que es la herramienta con la que se hace el
 <td>el override primero, siempre. <code>+TOPOLOGY</code> lo delata</td>
 <td align="left">El env</td>
 </tr>
+<tr>
+<td>El modelo de registros da <strong>verde</strong> y el campo nunca se testeó</td>
+<td>el acceso arranca con <code>WO</code>: <code>bit_bash</code> lo saltea y <code>do_check</code> lo saca de la máscara</td>
+<td>si el campo se lee, <code>WC</code> o <code>W1C</code>. <code>WO*</code> sólo si de verdad no se lee</td>
+<td align="left">RAL · d8</td>
+</tr>
 </tbody></table>
 <ul>
-<li>Ninguna de estas cuatro da un warning. Ninguna deja la regresión en rojo. Todas
+<li>Ninguna de estas cinco da un warning. Ninguna deja la regresión en rojo. Todas
 se descubren semanas después, o no se descubren</li>
 </ul>
 <div class="nota">
-<p>Este apéndice es el que hay que imprimir y pegar al lado del monitor. Las veinte
-están repartidas en siete secciones porque cada una aparece cuando aparece el
+<p>Este apéndice es el que hay que imprimir y pegar al lado del monitor. Están
+repartidas en siete secciones porque cada una aparece cuando aparece el
 concepto, pero se necesitan juntas — y se necesitan en el peor momento.
 La tesis del apéndice está en el subtítulo, y vale enunciarla como regla general
 del oficio: <strong>en verificación, el error caro no es el que rompe, es el que
@@ -2468,7 +2491,7 @@ el árbol que UVM armó de verdad, contra el que uno dibujó en la cabeza.</p>
 </section>
 
 <section id="s368" class="slide">
-<h2 id="apéndice-·-las-veinte-trampas-mudas">Apéndice · Las veinte trampas mudas</h2>
+<h2 id="apéndice-·-las-21-trampas-mudas">Apéndice · Las 21 trampas mudas</h2>
 <h4 id="el-que-publica-y-el-que-escucha"><em>El que publica y el que escucha</em></h4>
 <table>
 <thead>
@@ -2526,7 +2549,7 @@ que no lo son. La segunda es peor, porque apaga el scoreboard entero sin apagarl
 </section>
 
 <section id="s369" class="slide">
-<h2 id="apéndice-·-las-veinte-trampas-mudas">Apéndice · Las veinte trampas mudas</h2>
+<h2 id="apéndice-·-las-21-trampas-mudas">Apéndice · Las 21 trampas mudas</h2>
 <h4 id="estímulo-ámbito-y-objections"><em>Estímulo, ámbito y objections</em></h4>
 <table>
 <thead>
@@ -2570,7 +2593,7 @@ que no lo son. La segunda es peor, porque apaga el scoreboard entero sin apagarl
 <tr>
 <td>La simulación <strong>no termina nunca</strong></td>
 <td>un <code>item_done()</code> que no se llamó</td>
-<td><code>+UVM_TIMEOUT=5ms</code> primero, el trace después</td>
+<td><code>+UVM_TIMEOUT=5000000,NO</code> primero, el trace después</td>
 <td align="left">Agents</td>
 </tr>
 <tr>
@@ -2581,7 +2604,7 @@ que no lo son. La segunda es peor, porque apaga el scoreboard entero sin apagarl
 </tr>
 </tbody></table>
 <div class="nota">
-<p>Las dos últimas son las únicas de las veinte que sí hacen ruido — una cuelga y
+<p>Las dos últimas son las únicas de la lista que sí hacen ruido — una cuelga y
 la otra termina raro — y están acá porque el ruido que hacen no señala al
 culpable. Un cuelgue no dice qué se quedó esperando; un t=0 dice PASS, que es
 peor que un error.
@@ -2602,7 +2625,7 @@ segunda se entiende justo la que te está pasando.</p>
 </section>
 
 <section id="s370" class="slide">
-<h2 id="apéndice-·-las-veinte-trampas-mudas">Apéndice · Las veinte trampas mudas</h2>
+<h2 id="apéndice-·-las-21-trampas-mudas">Apéndice · Las 21 trampas mudas</h2>
 <h4 id="las-cuatro-de-las-assertions"><em>Las cuatro de las assertions</em></h4>
 <table>
 <thead>
@@ -2639,19 +2662,19 @@ segunda se entiende justo la que te está pasando.</p>
 </tr>
 </tbody></table>
 <ul>
-<li>Las cuatro son de la misma familia que las quince de arriba, con un agravante:
+<li>Las cuatro son de la misma familia que las de arriba, con un agravante:
 una assertion rota <strong>se ve exactamente igual</strong> que una que anda. No hay salida
 que mirar</li>
 </ul>
 <div class="nota">
 <p>Estas cuatro llegaron al apéndice con las assertions y son las únicas de la lista
-donde el chequeo mismo es lo que falla — las otras quince son bugs del
+donde el chequeo mismo es lo que falla — las demás son bugs del
 testbench; éstas son bugs del que chequea el testbench. Por eso el antídoto es
 siempre el mismo y por eso vale repetirlo hasta el cansancio: <strong>un <code>cover property</code> por cada <code>assert property</code></strong>.
 La primera fila es la más barata de cometer en este flujo y conviene mostrarla en
 vivo: sacar <code>--assert</code> del <code>run.sh</code> de <code>code/u8/assertions</code> deja la corrida con <code>+BUG=1</code>
 en 0 <code>UVM_ERROR</code>. Las 183 fallas desaparecen sin que nada avise.
-La tercera es la lección de la sección y la única de las veinte que no está en
+La tercera es la lección de la sección y la única de la lista que no está en
 ningún tutorial. El reflejo equivocado, cuando aparecen los falsos positivos, es
 aflojar la property hasta que calle: ahí uno se queda sin chequeo y con la
 sensación de haberlo arreglado. El reflejo correcto es preguntar en qué flanco
@@ -2661,7 +2684,7 @@ escribe el que estimula.</p>
 </section>
 
 <section id="s371" class="slide">
-<h2 id="apéndice-·-las-veinte-trampas-mudas">Apéndice · Las veinte trampas mudas</h2>
+<h2 id="apéndice-·-las-21-trampas-mudas">Apéndice · Las 21 trampas mudas</h2>
 <h4 id="y-la-que-trae-el-clocking-block"><em>Y la que trae el clocking block</em></h4>
 <table>
 <thead>
@@ -2680,7 +2703,7 @@ escribe el que estimula.</p>
 </tr>
 </tbody></table>
 <ul>
-<li>Es la única de las veinte que <strong>la agrega una herramienta</strong>: sin clocking
+<li>Es la única de la lista que <strong>la agrega una herramienta</strong>: sin clocking
 block no existe. Mal usado es peor que no usarlo</li>
 <li>Dos nombres para el mismo cable, y difieren en un ciclo:
 <code>code/u2/clocking/mezcla.sv</code> imprime <code>3</code> y <code>4</code> en el mismo instante</li>
@@ -2689,8 +2712,8 @@ Si adoptás el clocking block, adoptás <strong>también su evento</strong></li>
 </ul>
 <div class="nota">
 <p>Esta trampa cierra el apéndice y es la que mejor resume su tesis, porque el
-síntoma es el peor de todos los de la lista: <strong>intermitente</strong>. Las otras
-dieciocho fallan siempre o no fallan nunca; ésta falla cuando el dato cambia,
+síntoma es el peor de todos los de la lista: <strong>intermitente</strong>. Las demás
+fallan siempre o no fallan nunca; ésta falla cuando el dato cambia,
 que es una de cada tantas corridas y justo la que no estás mirando.
 Y tiene una vuelta que vale marcar en voz alta: es la única de la lista que
 aparece <em>porque</em> usaste la herramienta que evita otro problema. El clocking

@@ -169,8 +169,9 @@ campos propios. Y como vimos en la factory, ese `$cast` chequea en runtime: si
 alguien intenta copiar un `mojito` sobre un `fernet`, devuelve 0 y hay que
 atajarlo.
 Es la primera vez que se ve una convención de firma que existe sólo para que el
-polimorfismo funcione. En UVM va a ser lo mismo y con más reglas: el argumento se
-tiene que llamar `rhs`, `do_compare()` recibe además un `uvm_comparer`, y así.
+polimorfismo funcione. En UVM va a ser lo mismo y con más reglas: el argumento
+tiene que ser un `uvm_object` —y por convención se lo llama `rhs`—,
+`do_compare()` recibe además un `uvm_comparer`, y así.
 Cuando en las transactions aparezcan esas firmas, la respuesta a "¿por qué así?" es
 esta slide.
 
@@ -186,8 +187,8 @@ esta slide.
   **los cuatro campos a mano**, incluidos los tres que heredó
 - Funciona, y por eso es peligroso. El día que `fernet` gane un campo, este método
   sigue compilando y sigue imprimiendo — de menos
-- El archivo entero está en `code/u6/jerarquias/wrong.sv`, y los `do_copy()` tienen el
-  mismo vicio: cada uno toca campos que no son suyos
+- El archivo entero está en `code/u6/jerarquias/wrong.sv`. Los tres `do_copy()` de
+  ahí sí llaman a `super`; la que tiene el vicio es `bad_copy()`, abajo de todo
 
 Note:
 La regla que hay que dejar: **una clase sólo escribe sobre sus propios campos.**

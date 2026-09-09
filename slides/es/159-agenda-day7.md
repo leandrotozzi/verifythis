@@ -8,7 +8,7 @@
 - El capstone: un testbench de APB, desde cero
 - De la VTALU a un bus real
 - La caja de herramientas de debug
-- Las veinte trampas mudas
+- Las 21 trampas mudas
 - Glosario, referencias y cierre
 
 *Y después, el **día 8**: opcional, y para el que ya entregó el capstone*

@@ -1,4 +1,4 @@
-<!-- es-sha: 2b01f64bfbd8 -->
+<!-- es-sha: bf323c5b95e3 -->
 # UVM in the interview
 
 The questions that get asked in a verification interview, with the short answer
@@ -271,7 +271,7 @@ the DUT, it is the testbench watching it.**
 | The symptom | The first suspect | What to look with |
 | --- | --- | --- |
 | Ends at **t = 0** and says PASS | nobody raised the objection | `+UVM_OBJECTION_TRACE` |
-| **Never ends** | an `item_done()` that was not called | `+UVM_TIMEOUT=5ms`, and then the trace |
+| **Never ends** | an `item_done()` that was not called | `+UVM_TIMEOUT=5000000,NO`, and then the trace |
 | The scoreboard **shouts on all of them** | the monitor samples wrong | `+UVM_VERBOSITY=UVM_HIGH` |
 | The `config_db` **finds nothing** | the scope of the `set`, not the `get` | `+UVM_CONFIG_DB_TRACE` |
 | Coverage reads **0 %** | the `new()` or the `sample()` is missing | `verilator_coverage` on the `.dat` |

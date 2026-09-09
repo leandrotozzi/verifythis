@@ -1,6 +1,6 @@
 # Día 2 — un tester que sólo multiplica, sin tocar el que ya está
 
-El testbench es el orientado a objetos del testbench en objetos. Hoy `tester` manda
+El testbench es el de *Un testbench sin un solo módulo*, en clases. Hoy `tester` manda
 operaciones al azar; queremos uno que mande sólo multiplicaciones, **sin copiar
 y pegar la clase entera**.
 

@@ -61,13 +61,14 @@ la sección es configurar ese objeto.
 #### *Las macros de reporting*
 
 - Son cuatro y se diferencian por la **severidad**: `` `uvm_info ``,
-  `` `uvm_warning ``, `` `uvm_error `` y `` `uvm_fatal ``. Los tres últimos cuentan
-  en el *Report Summary*; el último además mata la simulación
+  `` `uvm_warning ``, `` `uvm_error `` y `` `uvm_fatal ``. **Las cuatro** se cuentan
+  en el *Report Summary*; lo que cambia es la **acción** por defecto — `` `uvm_error ``
+  trae `UVM_DISPLAY|UVM_COUNT` y `` `uvm_fatal `` además mata la simulación
 - El **ID** es el primer argumento: un string que dice quién habla. Con él se
   filtra después, así que conviene que sea el nombre del componente y siempre el
   mismo
 - El **mensaje** es el segundo, y se arma con `$sformatf` cuando lleva datos
-- La **verbosidad** es el cuarto, y la tiene **sólo** `` `uvm_info ``: es la que
+- La **verbosidad** es el tercero, y la tiene **sólo** `` `uvm_info ``: es la que
   decide si el mensaje sale o no
 
 {{code:code/u4/reporting/reporting.sv}}
@@ -109,7 +110,7 @@ escribe la ruta jerárquica, porque no la sabe.
 
 ## Reporting
 
-#### *Los cinco niveles, y por qué el mensaje se queda*
+#### *Los seis niveles, y por qué el mensaje se queda*
 
 - El ciclo de siempre: llenás el código de `$display`, encontrás el bug, borrás
   todo — y la semana que viene lo escribís de nuevo
@@ -123,8 +124,10 @@ escribe la ruta jerárquica, porque no la sabe.
 {{code:code/u4/reporting/tb_classes/verbosidad.svh}}
 
 Note:
-Los cinco niveles, de menos a más ruidoso: `UVM_NONE`, `UVM_LOW`, `UVM_MEDIUM`
-—el que está por defecto—, `UVM_HIGH` y `UVM_DEBUG`. Un mensaje se imprime si su
+Los seis niveles, de menos a más ruidoso: `UVM_NONE`, `UVM_LOW`, `UVM_MEDIUM`
+—el que está por defecto—, `UVM_HIGH`, `UVM_FULL` y `UVM_DEBUG`. `UVM_FULL` es el
+que nadie usa y el que aparece en el enum de la slide, así que vale nombrarlo. Un
+mensaje se imprime si su
 verbosidad es **menor o igual** al techo, así que `UVM_NONE` sale siempre.
 La regla práctica que conviene bajar, porque si no cada uno inventa la suya:
 `UVM_LOW` para lo que querés ver en una regresión —qué test corrió, cuántas
@@ -132,7 +135,7 @@ transacciones—; `UVM_MEDIUM` para el resumen de un componente; `UVM_HIGH` para
 cada transacción que pasa. Los monitores del curso son `UVM_HIGH` justamente por
 eso: en una corrida normal no se ven, y cuando algo falla se prenden con un
 plusarg.
-El detalle de forma que se copia mal: la verbosidad es el **cuarto** argumento del
+El detalle de forma que se copia mal: la verbosidad es el **tercer** argumento del
 `` `uvm_info ``, y si te la olvidás no compila. El ID —el primero— es un string
 libre, pero no lo elijas al azar: es la llave con la que después vas a filtrar.
 Que sea el nombre del componente, en mayúsculas, y siempre el mismo.
@@ -233,9 +236,11 @@ literalmente esta ruta. Un solo árbol sirve para las dos cosas.
 La aclaración del bullet no es un detalle: esta jerarquía **no es la del DUT**. Un
 scoreboard no está adentro de ningún módulo. Es el árbol que UVM arma llamando
 `build_phase` de arriba hacia abajo, y existe sólo en el testbench.
-Truco para el aula: `+UVM_CONFIG_DB_TRACE` o `print_topology()` imprimen este
-árbol de verdad, escrito por la librería. Es la mejor forma de mostrar que no es
-un dibujo.
+Truco para el aula: `uvm_top.print_topology()` imprime este árbol de verdad,
+escrito por la librería. Es la mejor forma de mostrar que no es un dibujo.
+`+UVM_CONFIG_DB_TRACE` es otra cosa y conviene no mezclarlas: no dibuja el árbol,
+traza cada `set()` y cada `get()` del `config_db` con el ámbito que se usó — que
+es la perilla del otro problema, el del ámbito que no matchea.
 
 ---
 
@@ -311,10 +316,13 @@ Note:
 Las seis acciones son un OR de bits, no una lista de opciones excluyentes: un
 mismo mensaje puede imprimirse **y** escribirse a un archivo **y** contar para el
 resumen. Por eso se combinan con `|`.
-La que casi nadie conoce y sirve muchísimo es `UVM_COUNT`: cuenta las apariciones
-de ese ID y mata la simulación cuando llega al máximo. Es la respuesta al log de
-cuatro gigas cuando un scoreboard falla en cada transacción — te enterás igual, y
-en treinta segundos en vez de en veinte minutos.
+`UVM_COUNT` es la que más se explica mal, y conviene decirla completa: ya está
+puesta por defecto en todo `` `uvm_error ``, y lo que incrementa es **un contador
+global** de la corrida, no uno por ID. Sola no mata nada, porque el máximo por
+defecto es 0, que quiere decir "sin límite". La que corta es
+`+UVM_MAX_QUIT_COUNT=N` —o `set_report_max_quit_count(N)`, `uvm_root.svh:1187`—, y
+ésa sí es la respuesta al log de cuatro gigas cuando un scoreboard falla en cada
+transacción: te enterás igual, y en treinta segundos en vez de en veinte minutos.
 `UVM_NO_ACTION` es la que usa la slide siguiente para apagar los errores, y hay
 que decir en voz alta para qué **no** sirve: no es para que la regresión dé verde.
 Es para seguir trabajando mientras otro arregla su clase, y se saca el mismo día.

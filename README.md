@@ -1,4 +1,4 @@
-<!-- es-sha: 7c1c0e61c770 -->
+<!-- es-sha: 09e582917fea -->
 **English** · [Castellano](README.es.md)
 
 <div align="center">
@@ -143,7 +143,7 @@ Day 7 is the closing: *Assertions* in the morning, and in the afternoon the
 **capstone** — an APB slave with a spec and nothing else, where the testbench is
 written from a blank page. Then the four appendices: **from the VTALU to a real
 bus**, **the debug toolbox** (the seven knobs, and which one to turn for which
-symptom), **the 20 silent traps** —everything that compiles, runs and lies— and
+symptom), **the 21 silent traps** —everything that compiles, runs and lies— and
 an **ES ↔ EN glossary**, because everything a student reads after this course is
 going to be in English.
 
@@ -208,7 +208,7 @@ The course is written as **seven days**, which is how it is taught in a company.
 |---|---|
 | [`docs/en/for-teachers.md`](docs/en/for-teachers.md) | The same course as a **15-week term** —2 h theory + 2 h lab a week—, what can be cut and what each cut costs, the two midterms, and how to mark the capstone in stages |
 | [`docs/en/exam-bank.md`](docs/en/exam-bank.md) | The **45 questions without the answer marked**, key at the end. Generated from the same slides, so it cannot drift |
-| [`docs/en/silent-traps.md`](docs/en/silent-traps.md) | The **20 silent traps** —everything that compiles, runs and lies— and the seven debug knobs, as a loose page to hand out. Also generated |
+| [`docs/en/silent-traps.md`](docs/en/silent-traps.md) | The **21 silent traps** —everything that compiles, runs and lies— and the seven debug knobs, as a loose page to hand out. Also generated |
 | [`docs/en/uvm-interview.md`](docs/en/uvm-interview.md) | The questions a verification interview asks, each with the short answer, the link to the section and **the example that runs** |
 | [**`docs/machete-uvm.pdf`**](docs/machete-uvm.pdf) | **The one-page cheat sheet**: the class hierarchy, the nine phases, the driver handshake and the seven debug knobs. To print and stick next to the monitor |
 | [`CITATION.cff`](CITATION.cff) | GitHub's *Cite this repository* button, in APA or BibTeX |

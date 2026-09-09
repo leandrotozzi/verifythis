@@ -41,7 +41,7 @@ material — que además es la mitad más difícil de reconstruir leyendo el có
   corrido, con las notas ya adentro del texto. Tené el deck al lado para los
   repasos
 - **Cuando algo no ande, andá al final:** los apéndices *La caja de herramientas
-  de debug* —qué mirar según el síntoma— y *Las veinte trampas mudas* —todo lo
+  de debug* —qué mirar según el síntoma— y *Las 21 trampas mudas* —todo lo
   que compila, corre y miente—. Son las dos slides para imprimir
 
 Note:
