@@ -3,17 +3,17 @@ name: build
 # El deck, el libro, el PDF/PPTX y el sitio. El otro workflow (ejemplos.yml)
 # corre el CODIGO.
 #
-#   push / PR         armar todo + los gates (~4 min)
-#   push a master     ademas: publicar en Pages y probar que el sitio ande
-#   todas las noches  solo los links externos, que dependen de servers ajenos
+#   push / PR      armar todo + los gates (~4 min)
+#   push a master  ademas: publicar en Pages y probar que el sitio ande
+#   a mano         ademas: los links externos, que dependen de servers ajenos
+#
+# Sin cron: nada corre por reloj en este repo.
 
 on:
   push:
     branches: [master, main]
   pull_request:
   workflow_dispatch:
-  schedule:
-    - cron: '30 6 * * *' # 03:30 en Argentina
 
 # Por defecto lo minimo. Los permisos de Pages se dan SOLO en el job que
 # publica: asi ninguna action de terceros (setup-chrome, pandoc) corre en un job
@@ -29,7 +29,6 @@ concurrency:
 
 jobs:
   build:
-    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -185,12 +184,12 @@ jobs:
             || { echo "::error::la raiz responde pero no es la landing del curso"; fallas=$((fallas+1)); }
           exit $fallas
 
-  # Los links a sitios ajenos. Aparte y de noche a proposito: que el CI de un PR
-  # se ponga rojo porque se cayo el server de otro es la forma mas rapida de que
-  # el equipo aprenda a ignorar el CI. continue-on-error deja el aviso en la
-  # corrida sin romperla.
+  # Los links a sitios ajenos. Solo a mano, a proposito: que el CI de un PR se
+  # ponga rojo porque se cayo el server de otro es la forma mas rapida de que el
+  # equipo aprenda a ignorar el CI. continue-on-error deja el aviso en la corrida
+  # sin romperla. Se pide con: gh workflow run build.yml --ref master
   enlaces:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     continue-on-error: true
