@@ -93,7 +93,32 @@ agregar un hecho, una entrada en `HECHOS` con la fuente y los lugares.
 
 El mismo archivo prohíbe las **referencias de distancia** —*"dos slides más
 adelante"*, *"hace tres slides"*—, que se rompen solas cuando alguien inserta una
-slide. Nombrá la slide. Las de ±1 (*"la slide anterior"*) siguen permitidas.
+slide. Nombrá la slide. Las de ±1 (*"la slide anterior"*) siguen permitidas. Y
+verifica las **citas `archivo.svh:NNN`**: que el archivo exista, que la línea
+exista y que no esté en blanco — que es como se descubre que la cita quedó
+corrida un renglón.
+
+### Si vas a escribir un número que sale de contar el repo
+
+No lo escribas: pedilo. `{{count:nombre}}` se expande en el build, igual que
+`{{code:}}`.
+
+```sh
+node tools/contadores.mjs      # la tabla de contadores, con lo que cuenta cada uno
+```
+
+Los contadores son **nombrados**, no comandos: una slide no debería poder ejecutar
+shell, y con nombre los dos idiomas apuntan al mismo número y no pueden divergir.
+Para agregar uno, una entrada en `tools/contadores.mjs`.
+
+### Si vas a tocar la tabla de fases o la de perillas de debug
+
+Viven una sola vez, en `tools/datos-machete.mjs`. `tools/tablas.mjs` las
+renderiza a los ocho destinos —las slides de los dos idiomas y los dos machetes—
+entre marcadores `<!-- tabla: … -->`, y `npm run check` falla si editaste un
+destino a mano. Antes estaban escritas cuatro veces, y el día que `final` pasó a
+top-down cambió en tres: el machete impreso quedó diciendo lo contrario que la
+slide.
 
 ### Si tocaste `code/`
 

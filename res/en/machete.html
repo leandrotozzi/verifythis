@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- es-sha: f5b5b3982f03 -->
+<!-- es-sha: 4d17c49581bd -->
 <meta charset="utf-8">
 <title>UVM cheat sheet · Verify This!</title>
 <!--
@@ -109,15 +109,17 @@
     <table class="nowrap">
       <thead><tr><th>Phase</th><th>What for</th><th>Order</th></tr></thead>
       <tbody>
+<!-- tabla: fases -->
         <tr><td class="m-strong">build</td><td>instantiate the components</td><td><b>top-down</b></td></tr>
         <tr><td class="m">connect</td><td>connect the ports</td><td>bottom-up</td></tr>
         <tr><td class="m">end_of_elaboration</td><td>hierarchy ready, before simulating</td><td>bottom-up</td></tr>
         <tr><td class="m">start_of_simulation</td><td>last call before time 0</td><td>bottom-up</td></tr>
-        <tr><td class="m-strong">run</td><td><b>task</b>: the simulation happens here</td><td>one thread each</td></tr>
+        <tr><td class="m-strong">run</td><td><b>task</b>: this is where the simulation happens</td><td>one thread each</td></tr>
         <tr><td class="m">extract</td><td>gather the data from the run</td><td>bottom-up</td></tr>
         <tr><td class="m">check</td><td>decide whether it passed</td><td>bottom-up</td></tr>
         <tr><td class="m">report</td><td>print the verdict</td><td>bottom-up</td></tr>
         <tr><td class="m">final</td><td>close files and exit</td><td><b>top-down</b></td></tr>
+<!-- tabla: end -->
       </tbody>
     </table>
     <p class="nota" style="margin:4px 0 0">
@@ -175,13 +177,15 @@ endtask</pre>
         <th style="width:26%">Knob</th><th style="width:36%">What for</th><th style="width:38%">The symptom it solves</th>
       </tr></thead>
       <tbody>
-        <tr><td class="m">VLT_TRACE=1</td><td>dump the waves for GTKWave</td><td>when the log is no longer enough — 47 % of the work</td></tr>
-        <tr><td class="m">+UVM_VERBOSITY=UVM_HIGH</td><td>see what the monitors report</td><td>the scoreboard <b>screams on every one</b>: the monitor samples wrong, it is almost never the DUT</td></tr>
-        <tr><td class="m">+UVM_OBJECTION_TRACE</td><td>who raised it and who dropped it</td><td>it ends at <b>t = 0</b> and says PASS, or it <b>never ends</b></td></tr>
-        <tr><td class="m">+UVM_TIMEOUT=5000000,NO</td><td>a ceiling, instead of waiting</td><td>the simulation hung and you do not know where</td></tr>
-        <tr><td class="m">+UVM_CONFIG_DB_TRACE</td><td>who set what, and who read it</td><td>the <span class="m">config_db</span> "does not find it": look at the scope of the <span class="m">set</span>, not the <span class="m">get</span></td></tr>
+<!-- tabla: perillas -->
+        <tr><td class="m">VLT_TRACE=1</td><td>see the real signals</td><td>when the log is no longer enough — 47 % of the work</td></tr>
+        <tr><td class="m">+UVM_VERBOSITY=UVM_HIGH</td><td>see the monitors’ messages</td><td>the scoreboard <b>screams on every one</b>: the monitor samples wrong, the DUT almost never is</td></tr>
+        <tr><td class="m">+UVM_CONFIG_DB_TRACE</td><td>who put what in the <span class="m">config_db</span>, and who read it</td><td>the <span class="m">config_db</span> “does not find it”: look at the scope of the <span class="m">set</span>, not the <span class="m">get</span></td></tr>
         <tr><td class="m">+TOPOLOGY<br>&nbsp;&nbsp;→ print_topology()</td><td>the tree UVM <b>actually</b> built</td><td>the tree is not the one you drew: a <span class="m">create()</span> without the factory, or a late override</td></tr>
+        <tr><td class="m">+UVM_OBJECTION_TRACE</td><td>who raised and who dropped the objection</td><td>it ends at <b>t = 0</b> and says PASS, or it <b>never ends</b></td></tr>
+        <tr><td class="m">+UVM_TIMEOUT=5000000,NO</td><td>a ceiling for the hang, instead of waiting</td><td>the simulation hung and you do not know where</td></tr>
         <tr><td class="m">+UVM_MAX_QUIT_COUNT=N</td><td>kill the run at the Nth error</td><td>the four-gigabyte log when the scoreboard fails on every transaction</td></tr>
+<!-- tabla: end -->
       </tbody>
     </table>
   </section>

@@ -39,8 +39,22 @@ jobs:
           cache: npm
       - run: npm ci
 
+      # UVM vendorizada, no para compilar --aca no hay Verilator-- sino para que
+      # el lint de coherencia pueda RESOLVER las ~34 citas `uvm_*.svh:NNN` de las
+      # slides y los diez hechos que salen de la libreria. Sin esto el lint corre
+      # igual pero saltea justo lo que mas se pudre, y un check que solo anda en
+      # la maquina del autor no es un check. Mismo cache que ejemplos.yml, asi
+      # que casi siempre es un hit de segundos.
+      - name: Cache de UVM
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: code/.uvm
+          key: uvm-2020.3.1
+      - name: Bajar UVM
+        run: make uvm
+
       # El gate barato y el que mas atrapa: que los generados (index.html,
-      # libro/, docs/) esten al dia con slides/, y los cuatro linters.
+      # libro/, docs/) esten al dia con slides/, y los cinco linters.
       - name: Generados al dia + linters
         run: npm run check
 

@@ -1,19 +1,21 @@
-<!-- es-sha: de50dab17882 -->
+<!-- es-sha: 1e174f2b45a8 -->
 <!-- .slide: id="apendice-debug" data-machete="res/en/machete-debug.svg" -->
 
 ## Appendix · The debug toolbox
 
 #### *The tools we saw, all together*
 
+<!-- tabla: perillas -->
 | Tool | What for | Where it came up |
-| --- | --- | :-- |
+| --- | --- | --- |
 | `VLT_TRACE=1` + GTKWave | see the real signals | The VTALU spec |
-| `+UVM_VERBOSITY=UVM_HIGH` | see the messages of the monitors | Reporting |
+| `+UVM_VERBOSITY=UVM_HIGH` | see the monitors’ messages | Reporting |
 | `+UVM_CONFIG_DB_TRACE` | who put what in the `config_db`, and who read it | Agents |
 | `+TOPOLOGY` → `print_topology()` | the tree UVM **actually** built | Agents |
 | `+UVM_OBJECTION_TRACE` | who raised and who dropped the objection | Tests |
 | `+UVM_TIMEOUT=N,NO` | a ceiling for the hang, instead of waiting | Tests |
 | `+UVM_MAX_QUIT_COUNT=N` | kill the run at the Nth error | Reporting |
+<!-- tabla: end -->
 
 - The bottom six are **plusargs**: no code gets touched and nothing gets recompiled. On a
   testbench with UVM that is minutes of difference per attempt

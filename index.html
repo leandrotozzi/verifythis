@@ -4743,8 +4743,9 @@ respuesta honesta no es "se olvidaron": es que sin las macros de campo la llamad
 al de `uvm_component` no hace nada.
 Los números, para que nadie tenga que creernos:
 `grep -rn 'super\.build_phase' code/ --include='*.sv' --include='*.svh' --exclude-dir=.uvm`
-da quince llamadas reales —más seis comentarios que hablan de ellas— sobre 309
-`build_phase`. Las quince llaman al
+da 15 llamadas reales —más 6
+comentarios que hablan de ellas— sobre 309 `build_phase`. Las
+15 llaman al
 `super` de un `base_test` o un `random_test` **nuestro**, que construye el env.
 Ninguna llama al de `uvm_component`, que es de lo que habla la slide.
 La otra diferencia de fondo: hay dos formas de configurar un componente. La
@@ -4756,7 +4757,8 @@ Por qué la recomendación de afuera es la contraria a lo que hace el curso: el
 modo de falla es asimétrico. Ponerlo de más es cero efecto. No ponerlo cuando
 hacía falta es silencio: el campo queda en su default y la simulación corre.
 Este curso puede nombrar por qué en su caso es un no-op —no hay una sola macro
-`` `uvm_field_* `` en `code/` fuera de la librería vendorizada, verificalo—; el que entra a un testbench ajeno no
+`` `uvm_field_* `` en `code/` fuera de la librería vendorizada —son
+0, y el número lo cuenta el build—; el que entra a un testbench ajeno no
 puede. `uvm_agent` es el contraejemplo que tenemos a mano: es la única clase de
 la librería, además de `uvm_component`, que implementa `build_phase`, y lo que
 hace ahí es leer `is_active`. Vuelve en el día 6.
@@ -4770,6 +4772,7 @@ Con las otras fases pasa lo mismo, más barato todavía: en `uvm_component` son
 
 #### *El cuadro completo: son nueve, no cinco*
 
+<!-- tabla: fases -->
 | Fase | Para qué | Orden |
 | --- | --- | --- |
 | `build_phase` | instanciar los componentes | **top-down** |
@@ -4780,7 +4783,8 @@ Con las otras fases pasa lo mismo, más barato todavía: en `uvm_component` son
 | `extract_phase` | juntar los datos de la corrida | bottom-up |
 | `check_phase` | decidir si pasó o no | bottom-up |
 | `report_phase` | imprimir el veredicto | bottom-up |
-| `final_phase` | cerrar archivos y salir | top-down |
+| `final_phase` | cerrar archivos y salir | **top-down** |
+<!-- tabla: end -->
 
 - El curso usa cinco. Las otras cuatro existen, están vacías, y las vas a ver
 
@@ -11588,7 +11592,7 @@ code/u7/callbacks/tb_classes/driver.svh`. Todo lo demás —el `get_next_item`, 
 `send_op`, el `item_done`— está igual.
 El modo de falla del `uvm_register_cb` que falta no es el que uno espera, y vale
 contarlo con la fuente en la mano porque la mitad de los tutoriales lo dice al
-revés: `uvm_callback.svh:744` reporta un `UVM_WARNING CBUNREG` y **sigue de
+revés: `uvm_callback.svh:745` reporta un `UVM_WARNING CBUNREG` y **sigue de
 largo** — el `add()` mete el callback en `m_base_inst.m_pool` igual (`:777-783`),
 y `` `uvm_do_callbacks `` lee ese pool sin consultar el registro (`:964-1006`).
 O sea: sin la macro el callback corre, y lo que perdés es el chequeo de tipos y
@@ -14332,8 +14336,9 @@ que es exactamente lo que practicaron en los ejercicios de los días 3 y 6.
 
 #### *Las herramientas que vimos, todas juntas*
 
+<!-- tabla: perillas -->
 | Herramienta | Para qué | Dónde salió |
-| --- | --- | :-- |
+| --- | --- | --- |
 | `VLT_TRACE=1` + GTKWave | ver las señales de verdad | La spec del VTALU |
 | `+UVM_VERBOSITY=UVM_HIGH` | ver los mensajes de los monitores | Reporting |
 | `+UVM_CONFIG_DB_TRACE` | quién puso qué en el `config_db`, y quién lo leyó | Agents |
@@ -14341,6 +14346,7 @@ que es exactamente lo que practicaron en los ejercicios de los días 3 y 6.
 | `+UVM_OBJECTION_TRACE` | quién levantó y quién bajó la objection | Tests |
 | `+UVM_TIMEOUT=N,NO` | un techo para el cuelgue, en vez de esperar | Tests |
 | `+UVM_MAX_QUIT_COUNT=N` | matar la corrida al N-ésimo error | Reporting |
+<!-- tabla: end -->
 
 - Los seis de abajo son **plusargs**: no se toca código y no se recompila. En un
   testbench con UVM eso son minutos de diferencia por intento
@@ -15150,7 +15156,7 @@ dice exactamente eso es **`WC`**: la escritura borra el campo, el espejo baja a
 cero, y la lectura devuelve ese cero. `W1C` sirve igual acá.
 Y acá está la trampa muda de RAL, que vale más que la slide. `WOC` —el nombre que
 uno escribe primero, porque suena a "write-only, clears"— **también** da cero
-errores, pero los da por el motivo equivocado: `uvm_reg_bit_bash_seq.svh:129-135`
+errores, pero los da por el motivo equivocado: `uvm_reg_bit_bash_seq.svh:129-133`
 saltea todo campo cuyo acceso empiece con `WO` (el comentario de Accellera dice
 *"Ignore Write-only fields because you are not supposed to read them"*), y
 `do_check` lo saca de la máscara de comparación (`uvm_reg.svh:2782-2788`), así que
@@ -15765,7 +15771,7 @@ que sí la justifica, y ese DUT llega antes de lo que uno cree.
 - [x] Los dos saltean los accesos `WO*`: ese bit no se testeó
 - [ ] El predictor deja el espejo en `x`, y una comparación contra `x` siempre pasa
 
-> **Verde no es chequeado** — `uvm_reg_bit_bash_seq.svh:129-135` saltea todo campo cuyo acceso empiece con `WO` (*"you are not supposed to read them"*), y `do_check` lo saca de la máscara de comparación (`uvm_reg.svh:2782-2788`). El único rastro está en los tiempos: el bashing de `CTRL` dura cuatro transferencias menos. El acceso correcto es `WC` (o `W1C`), y con él el bit sí se batea. Un acceso `WO*` es la forma más barata que hay de apagar un chequeo sin enterarse.
+> **Verde no es chequeado** — `uvm_reg_bit_bash_seq.svh:129-133` saltea todo campo cuyo acceso empiece con `WO` (*"you are not supposed to read them"*), y `do_check` lo saca de la máscara de comparación (`uvm_reg.svh:2782-2788`). El único rastro está en los tiempos: el bashing de `CTRL` dura cuatro transferencias menos. El acceso correcto es `WC` (o `W1C`), y con él el bit sí se batea. Un acceso `WO*` es la forma más barata que hay de apagar un chequeo sin enterarse.
 
 ---
 

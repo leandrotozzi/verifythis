@@ -4,8 +4,9 @@
 
 #### *Las herramientas que vimos, todas juntas*
 
+<!-- tabla: perillas -->
 | Herramienta | Para qué | Dónde salió |
-| --- | --- | :-- |
+| --- | --- | --- |
 | `VLT_TRACE=1` + GTKWave | ver las señales de verdad | La spec del VTALU |
 | `+UVM_VERBOSITY=UVM_HIGH` | ver los mensajes de los monitores | Reporting |
 | `+UVM_CONFIG_DB_TRACE` | quién puso qué en el `config_db`, y quién lo leyó | Agents |
@@ -13,6 +14,7 @@
 | `+UVM_OBJECTION_TRACE` | quién levantó y quién bajó la objection | Tests |
 | `+UVM_TIMEOUT=N,NO` | un techo para el cuelgue, en vez de esperar | Tests |
 | `+UVM_MAX_QUIT_COUNT=N` | matar la corrida al N-ésimo error | Reporting |
+<!-- tabla: end -->
 
 - Los seis de abajo son **plusargs**: no se toca código y no se recompila. En un
   testbench con UVM eso son minutos de diferencia por intento

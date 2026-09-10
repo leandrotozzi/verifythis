@@ -908,8 +908,9 @@ respuesta honesta no es &quot;se olvidaron&quot;: es que sin las macros de campo
 al de <code>uvm_component</code> no hace nada.
 Los números, para que nadie tenga que creernos:
 <code>grep -rn &#39;super\.build_phase&#39; code/ --include=&#39;*.sv&#39; --include=&#39;*.svh&#39; --exclude-dir=.uvm</code>
-da quince llamadas reales —más seis comentarios que hablan de ellas— sobre 309
-<code>build_phase</code>. Las quince llaman al
+da 15 llamadas reales —más 6
+comentarios que hablan de ellas— sobre 309 <code>build_phase</code>. Las
+15 llaman al
 <code>super</code> de un <code>base_test</code> o un <code>random_test</code> <strong>nuestro</strong>, que construye el env.
 Ninguna llama al de <code>uvm_component</code>, que es de lo que habla la slide.
 La otra diferencia de fondo: hay dos formas de configurar un componente. La
@@ -921,7 +922,8 @@ Por qué la recomendación de afuera es la contraria a lo que hace el curso: el
 modo de falla es asimétrico. Ponerlo de más es cero efecto. No ponerlo cuando
 hacía falta es silencio: el campo queda en su default y la simulación corre.
 Este curso puede nombrar por qué en su caso es un no-op —no hay una sola macro
-<code>`uvm_field_*</code> en <code>code/</code> fuera de la librería vendorizada, verificalo—; el que entra a un testbench ajeno no
+<code>`uvm_field_*</code> en <code>code/</code> fuera de la librería vendorizada —son
+0, y el número lo cuenta el build—; el que entra a un testbench ajeno no
 puede. <code>uvm_agent</code> es el contraejemplo que tenemos a mano: es la única clase de
 la librería, además de <code>uvm_component</code>, que implementa <code>build_phase</code>, y lo que
 hace ahí es leer <code>is_active</code>. Vuelve en el día 6.
@@ -935,6 +937,7 @@ Con las otras fases pasa lo mismo, más barato todavía: en <code>uvm_component<
 <section id="s134" class="slide">
 <h2 id="components-y-fases">Components y fases</h2>
 <h4 id="el-cuadro-completo-son-nueve-no-cinco"><em>El cuadro completo: son nueve, no cinco</em></h4>
+<!-- tabla: fases -->
 <table>
 <thead>
 <tr>
@@ -986,9 +989,11 @@ Con las otras fases pasa lo mismo, más barato todavía: en <code>uvm_component<
 <tr>
 <td><code>final_phase</code></td>
 <td>cerrar archivos y salir</td>
-<td>top-down</td>
+<td><strong>top-down</strong></td>
 </tr>
 </tbody></table>
+<!-- tabla: end -->
+
 <ul>
 <li>El curso usa cinco. Las otras cuatro existen, están vacías, y las vas a ver</li>
 </ul>

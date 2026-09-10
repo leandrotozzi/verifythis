@@ -388,7 +388,7 @@ dice exactamente eso es <strong><code>WC</code></strong>: la escritura borra el 
 cero, y la lectura devuelve ese cero. <code>W1C</code> sirve igual acá.
 Y acá está la trampa muda de RAL, que vale más que la slide. <code>WOC</code> —el nombre que
 uno escribe primero, porque suena a &quot;write-only, clears&quot;— <strong>también</strong> da cero
-errores, pero los da por el motivo equivocado: <code>uvm_reg_bit_bash_seq.svh:129-135</code>
+errores, pero los da por el motivo equivocado: <code>uvm_reg_bit_bash_seq.svh:129-133</code>
 saltea todo campo cuyo acceso empiece con <code>WO</code> (el comentario de Accellera dice
 <em>&quot;Ignore Write-only fields because you are not supposed to read them&quot;</em>), y
 <code>do_check</code> lo saca de la máscara de comparación (<code>uvm_reg.svh:2782-2788</code>), así que
@@ -1580,7 +1580,7 @@ que sí la justifica, y ese DUT llega antes de lo que uno cree.</p>
 <li><input disabled="" type="checkbox"> El predictor deja el espejo en <code>x</code>, y una comparación contra <code>x</code> siempre pasa</li>
 </ul>
 <blockquote>
-<p><strong>Verde no es chequeado</strong> — <code>uvm_reg_bit_bash_seq.svh:129-135</code> saltea todo campo cuyo acceso empiece con <code>WO</code> (<em>&quot;you are not supposed to read them&quot;</em>), y <code>do_check</code> lo saca de la máscara de comparación (<code>uvm_reg.svh:2782-2788</code>). El único rastro está en los tiempos: el bashing de <code>CTRL</code> dura cuatro transferencias menos. El acceso correcto es <code>WC</code> (o <code>W1C</code>), y con él el bit sí se batea. Un acceso <code>WO*</code> es la forma más barata que hay de apagar un chequeo sin enterarse.</p>
+<p><strong>Verde no es chequeado</strong> — <code>uvm_reg_bit_bash_seq.svh:129-133</code> saltea todo campo cuyo acceso empiece con <code>WO</code> (<em>&quot;you are not supposed to read them&quot;</em>), y <code>do_check</code> lo saca de la máscara de comparación (<code>uvm_reg.svh:2782-2788</code>). El único rastro está en los tiempos: el bashing de <code>CTRL</code> dura cuatro transferencias menos. El acceso correcto es <code>WC</code> (o <code>W1C</code>), y con él el bit sí se batea. Un acceso <code>WO*</code> es la forma más barata que hay de apagar un chequeo sin enterarse.</p>
 </blockquote>
 <p class="al-deck"><a href="../index.html#/433">ver esta slide en el deck &rsaquo;</a></p>
 </section>

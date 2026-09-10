@@ -781,7 +781,7 @@ course goes inside an <code>if</code> with its <code>uvm_fatal</code>.</p>
 </section>
 
 <section id="s130" class="slide">
-<!-- es-sha: 0c2b1a730b11 -->
+<!-- es-sha: fed3add9fd3f -->
 <h2 id="components-and-phases">Components and phases</h2>
 <h4 id="a-component-is-what-is-in-the-tree-and-the-tree-is-walked-by-uvm"><em>A component is what is in the tree, and the tree is walked by UVM</em></h4>
 <ul>
@@ -913,8 +913,9 @@ there. The honest answer is not &quot;they forgot&quot;: it is that without the 
 call to <code>uvm_component</code>&#39;s does nothing.
 The numbers, so that nobody has to take our word for it:
 <code>grep -rn &#39;super\.build_phase&#39; code/ --include=&#39;*.sv&#39; --include=&#39;*.svh&#39; --exclude-dir=.uvm</code>
-gives fifteen real calls —plus six comments that talk about them— over 309
-<code>build_phase</code>. Those fifteen call the <code>super</code> of a
+gives 15 real calls —plus 6
+comments that talk about them— over 309 <code>build_phase</code>. Those
+15 call the <code>super</code> of a
 <code>base_test</code> or a <code>random_test</code> of <strong>ours</strong>, which builds the env. None of them calls
 <code>uvm_component</code>&#39;s, which is what the slide is about.
 The other underlying difference: there are two ways of configuring a component. The
@@ -926,7 +927,8 @@ Why the recommendation for out there is the opposite of what the course does: th
 failure mode is asymmetric. Putting it in for nothing has zero effect. Leaving it out
 when it was needed is silence: the field stays at its default and the simulation runs.
 This course can name why in its case it is a no-op —there is not a single
-<code>`uvm_field_*</code> macro in <code>code/</code> outside the vendored library, check it—; whoever walks into somebody else&#39;s
+<code>`uvm_field_*</code> macro in <code>code/</code> outside the vendored library —there are
+0, and the build counts them—; whoever walks into somebody else&#39;s
 testbench cannot. <code>uvm_agent</code> is the counterexample we have at hand: it is the only
 class in the library, besides <code>uvm_component</code>, that implements <code>build_phase</code>, and what
 it does there is read <code>is_active</code>. It comes back on day 6.
@@ -940,6 +942,7 @@ is connected, and that one we do extend.</p>
 <section id="s134" class="slide">
 <h2 id="components-and-phases">Components and phases</h2>
 <h4 id="the-full-picture-there-are-nine-not-five"><em>The full picture: there are nine, not five</em></h4>
+<!-- tabla: fases -->
 <table>
 <thead>
 <tr>
@@ -965,7 +968,7 @@ is connected, and that one we do extend.</p>
 </tr>
 <tr>
 <td><code>start_of_simulation_phase</code></td>
-<td>last warning before time 0</td>
+<td>last call before time 0</td>
 <td>bottom-up</td>
 </tr>
 <tr>
@@ -975,12 +978,12 @@ is connected, and that one we do extend.</p>
 </tr>
 <tr>
 <td><code>extract_phase</code></td>
-<td>gather the data of the run</td>
+<td>gather the data from the run</td>
 <td>bottom-up</td>
 </tr>
 <tr>
 <td><code>check_phase</code></td>
-<td>decide whether it passed or not</td>
+<td>decide whether it passed</td>
 <td>bottom-up</td>
 </tr>
 <tr>
@@ -991,9 +994,11 @@ is connected, and that one we do extend.</p>
 <tr>
 <td><code>final_phase</code></td>
 <td>close files and exit</td>
-<td>top-down</td>
+<td><strong>top-down</strong></td>
 </tr>
 </tbody></table>
+<!-- tabla: end -->
+
 <ul>
 <li>The course uses five. The other four exist, they are empty, and you are going to see them</li>
 </ul>
