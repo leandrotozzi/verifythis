@@ -1,4 +1,4 @@
-<!-- es-sha: 15775f3ccc0a -->
+<!-- es-sha: 48824877b8b7 -->
 # Setting up and running the examples
 
 The four ways to get the course running on a machine, from least to most work,
@@ -108,11 +108,11 @@ map written as a UVM model —its second stage is marked by two `uvm-core`
 sequences nobody wrote—; `d8-fifo` is the **second capstone**: a FIFO with
 backpressure, where the scoreboard cannot be a four-row table.
 
-The examples **are run by the CI**, not only by me: every push that touches
-`code/` runs the ones that do not use UVM (seconds) plus `u4/tests`, and every
-night the 38 run, plus the 19 exercise solutions. The `ejemplos` badge in the
-README says whether they are green *now*, not on the day somebody ran them by
-hand.
+The examples **are run by the CI**, not only by me: on every release it runs the
+38 plus the 19 exercise solutions. It does not run on every push nor every night,
+and that is on purpose: the UVM ones take minutes each to compile, so the run is
+tied to what gets published. The `ejemplos` badge in the README says how the last
+one went, not the day somebody ran them by hand.
 
 What works and what does not —with version, date and the coverage number of each
 example— is in **[`docs/en/verilator.md`](verilator.md)**. The two

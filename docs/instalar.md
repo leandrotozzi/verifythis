@@ -101,10 +101,11 @@ spec escrito como modelo de UVM —su segunda etapa la corrigen dos sequences de
 `uvm-core` que nadie escribió—; `d8-fifo` es el **segundo capstone**: una FIFO
 con backpressure, donde el scoreboard no puede ser una tabla de cuatro filas.
 
-Los ejemplos **los corre el CI**, no sólo yo: cada push que toque `code/` corre
-los que no usan UVM (segundos) más `u4/tests`, y todas las noches corren los 38 más
-las 19 soluciones de los ejercicios. El badge `ejemplos` del README dice si están en verde
-ahora, no en la fecha en que alguien los corrió a mano.
+Los ejemplos **los corre el CI**, no sólo yo: en cada release corre los 38 más
+las 19 soluciones de los ejercicios. No corre en cada push ni todas las noches, y
+es a propósito: los de UVM tardan minutos cada uno de compilar, así que la corrida
+va atada a lo que se publica. El badge `ejemplos` del README dice cómo salió la
+última, no la fecha en que alguien los corrió a mano.
 
 Lo que anda y lo que no —con versión, fecha y el número de cobertura de cada
 ejemplo— está en **[`docs/verilator.md`](verilator.md)**. Los dos agujeros

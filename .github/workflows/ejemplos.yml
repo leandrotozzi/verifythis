@@ -3,36 +3,19 @@ name: ejemplos
 # El otro workflow (build.yml) compila el deck. Este corre el CODIGO, que es la
 # promesa fuerte del curso: "38 ejemplos que se ejecutan de verdad".
 #
-#   push / PR que toque code/  ->  los ejemplos sin UVM (segundos) + u4/tests
-#                                  + los mutantes + LOS EJEMPLOS QUE CAMBIARON
-#   todas las noches           ->  los 38, y ademas las 19 soluciones
+#   release publicado  ->  los 38, y ademas las 19 soluciones
+#   a mano             ->  lo mismo, desde la pestana Actions
 #
-# Los de UVM tardan minutos cada uno de COMPILAR, por eso no van todos en cada
-# push. Pero correr solo los rapidos dejaba el caso mas probable sin cubrir: el
-# que toca u7/sequences se entera de que lo rompio A LA NOCHE. Por eso el paso
-# "los ejemplos que cambiaron": se deducen del diff, con tope, y asi un PR que
-# toca un ejemplo de UVM lo corre en el PR sin pagar los otros doce.
+# Ni en cada push ni de noche, a proposito: los de UVM tardan MINUTOS cada uno de
+# COMPILAR --Verilator elabora UVM entero y escupe ~2300 .cpp por ejemplo-- y la
+# corrida completa da ~45 min en un runner de 4 cores. Lo que tiene que estar
+# verde es lo que se PUBLICA, asi que la corrida va atada al release y no al
+# reloj: cero CI de mas entre release y release.
 
 on:
-  schedule:
-    - cron: '0 6 * * *' # 03:00 en Argentina
+  release:
+    types: [published]
   workflow_dispatch:
-  # Sin anchors de YAML (&x / *x): el parser de GitHub Actions no los expande,
-  # asi que la lista va repetida y punto.
-  push:
-    paths:
-      - 'code/**'
-      - 'Makefile'
-      - 'tools/verilator-matrix.sh'
-      - 'tools/get-uvm.sh'
-      - '.github/workflows/ejemplos.yml'
-  pull_request:
-    paths:
-      - 'code/**'
-      - 'Makefile'
-      - 'tools/verilator-matrix.sh'
-      - 'tools/get-uvm.sh'
-      - '.github/workflows/ejemplos.yml'
 
 permissions:
   contents: read
@@ -45,9 +28,6 @@ env:
   # Los covergroups entraron en 5.050 y son tema del curso, asi que el paquete
   # de la distro no sirve: hay que compilar de fuente. Sale cacheado.
   VERILATOR_VERSION: v5.052
-  # Tope de ejemplos que un PR corre por haberlos tocado. Sin tope, un PR que
-  # renombra algo en code/verilator/common.sh pediria los 38 con UVM.
-  MAX_CAMBIADOS: 6
 
 jobs:
   ejemplos:
@@ -57,10 +37,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          # Para el diff contra la base del PR. 0 es caro; 50 alcanza para
-          # cualquier PR de este repo y no baja los 8 GB de historia.
-          fetch-depth: 50
 
       # Dos que se necesitan SIEMPRE, y por eso no pueden vivir adentro del paso
       # que compila Verilator: ese se saltea en cuanto hay cache hit.
@@ -74,7 +50,7 @@ jobs:
       # distintos comparten apenas el 22 % de los buckets de g++ —Verilator
       # renombra los simbolos por diseno— pero el MISMO ejemplo, con el obj_dir
       # borrado, baja de 92 s a 15 s. O sea: lo que esta cache le ahorra al CI es
-      # recompilar todas las noches lo que ya compilo anoche.
+      # recompilar en cada release lo que ya compilo en el anterior.
       # La key lleva run_id para que cada corrida escriba su propia entrada
       # (actions/cache no actualiza una key que ya existe); restore-keys levanta
       # la ultima.
@@ -128,7 +104,8 @@ jobs:
       - name: Ejemplos sin UVM
         run: make rapido
 
-      # El canario: si UVM dejo de enlazar, se ve aca sin esperar a la noche.
+      # El canario: si UVM dejo de enlazar, se ve en 2 min y no a los 40, que
+      # es lo que tarda la matriz en llegar al primer ejemplo con UVM.
       - name: u4/tests - UVM enlaza y da 0 UVM_ERROR
         run: make u4/tests
 
@@ -139,52 +116,12 @@ jobs:
       - name: Los chequeos atrapan un DUT roto
         run: make mutante
 
-      # Los ejemplos que toca ESTE cambio, aunque usen UVM. El target sale de
-      # subir por el arbol hasta el directorio que tiene el run*.sh, que es
-      # exactamente como los arma el wildcard del Makefile.
-      - name: Los ejemplos que cambiaron
-        if: github.event_name == 'push' || github.event_name == 'pull_request'
-        env:
-          BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
-        run: |
-          set -u
-          # En el primer push de una rama, github.event.before son todos ceros.
-          if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-            BASE=$(git rev-parse HEAD~1 2>/dev/null || echo "")
-          fi
-          [ -n "$BASE" ] || { echo "sin base para el diff: nada que hacer"; exit 0; }
-
-          objetivos=""
-          for f in $(git diff --name-only "$BASE" HEAD -- 'code/u*'); do
-            d=$(dirname "$f")
-            while [ "$d" != "code" ] && [ "$d" != "." ]; do
-              if [ -n "$(find "$d" -maxdepth 1 -name 'run*.sh' -print -quit)" ]; then
-                objetivos="$objetivos ${d#code/}"; break
-              fi
-              d=$(dirname "$d")
-            done
-          done
-          objetivos=$(echo "$objetivos" | tr ' ' '\n' | grep . | sort -u || true)
-          [ -n "$objetivos" ] || { echo "el diff no toca ningun ejemplo"; exit 0; }
-
-          n=$(echo "$objetivos" | wc -l | tr -d " ")
-          echo "ejemplos tocados por este cambio: $n"
-          echo "$objetivos" | sed 's/^/  /'
-          if [ "$n" -gt "$MAX_CAMBIADOS" ]; then
-            echo "::notice::$n ejemplos cambiados, mas que MAX_CAMBIADOS=$MAX_CAMBIADOS."
-            echo "::notice::Se corren los primeros $MAX_CAMBIADOS; los otros van en la corrida de la noche."
-            objetivos=$(echo "$objetivos" | head -n "$MAX_CAMBIADOS")
-          fi
-          for t in $objetivos; do echo "==> make $t"; make "$t"; done
-
       - name: Los 38 ejemplos
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: make matrix
 
       # Las soluciones no se corrigen solas: esto comprueba que los diecinueve
       # ejercicios sigan siendo RESOLUBLES cuando cambia el codigo del curso.
       - name: Las 19 soluciones de los ejercicios
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: make ejercicios
 
       # Si el hit rate se desploma, es que la key del cache dejo de servir.
@@ -195,7 +132,7 @@ jobs:
       # docs/verilator.md se regenera con la fecha y la version de ESTA corrida.
       # No se commitea desde el CI: queda como artefacto para mirarlo.
       - name: Guardar la matriz de esta corrida
-        if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: matriz-verilator

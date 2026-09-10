@@ -118,8 +118,8 @@ deck, o `libro/dia1.html` para el libro. Los dos se commitean ya generados, así
 que un clon fresco anda sin build y sin internet.
 
 Los ejemplos no los corro yo a mano: el CI corre los 38 ejemplos y las 19
-soluciones todas las noches, y el badge `ejemplos` de arriba dice si están en
-verde **ahora**.
+soluciones **en cada release**, y el badge `ejemplos` de arriba dice cómo salió
+la última.
 
 <details>
 <summary>Atajos del deck</summary>

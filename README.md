@@ -1,4 +1,4 @@
-<!-- es-sha: 0aa603a3cded -->
+<!-- es-sha: fd521db175ef -->
 **English** · [Castellano](README.es.md)
 
 <div align="center">
@@ -123,7 +123,7 @@ double click for the deck, or `en/libro/day1.html` for the book. Both are
 committed already built, so a fresh clone works offline.
 
 The examples are not run by hand: CI runs the 38 examples and the 19 solutions
-every night, and the `examples` badge above says whether they are green **now**.
+**on every release**, and the `examples` badge above says how the last one went.
 
 <details>
 <summary>Deck keyboard shortcuts</summary>
