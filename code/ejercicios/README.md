@@ -1,115 +1,118 @@
-# Ejercicios
+<!-- es-sha: 334aca9f7cc6 -->
+**English** · [Castellano](README.es.md)
 
-**Diecinueve**, repartidos por día. Cada uno se corrige solo: el `run.sh` falla hasta
-que lo resolvés.
+# Exercises
 
-La columna **Necesita** dice qué hace falta tener instalado además de Verilator:
-`UVM` es "compila la librería entera la primera vez" y `z3` es el solver de
-`randomize()`, que sin él devuelve 0 en silencio.
+**Nineteen**, spread across the days. Each one marks itself: `run.sh` fails until
+you solve it.
 
-| | Día | Qué | Sale de | Necesita |
+The **Needs** column says what has to be installed besides Verilator: `UVM` means
+"it compiles the whole library the first time", and `z3` is the `randomize()`
+solver — without it, `randomize()` returns 0 silently.
+
+| | Day | What | Comes from | Needs |
 |---|:--:|---|---|---|
-| [`d1`](d1/) | 1 | Una operación nueva, de punta a punta: RTL, TB y cobertura | unidades 1 y 2 | — |
-| [`d1b`](d1b/) | 1 | **Las ondas**: el log da una línea y el resto está en el `.vcd` | La spec del VTALU · Interfaces y BFM | — |
-| [`d2`](d2/) | 2 | Un tester que sólo multiplica, sin copiar la clase entera | unidad 3 | — |
-| [`d3`](d3/) | 3 | El mismo tester, ahora con factory override y sin tocar el `env` | unidad 4 | UVM |
-| [`d3b`](d3b/) | 3 | El `uvm_error` que no dice nada: el mismo scoreboard, ahora legible | Reporting | UVM |
-| [`d4`](d4/) | 4 | Un subscriber más colgado del analysis port | unidad 5 | UVM |
-| [`d4b`](d4b/) | 4 | El `#500` es un parche: la FIFO sin tope y la objection que falta | unidad 5 | UVM |
-| [`d5`](d5/) | 5 | El scoreboard grita y el DUT está sano: encontrá el bug | unidades 5 y 6 | UVM |
-| [`d5b`](d5b/) | 5 | Medí tu `dist`: los pesos están bien y el histograma miente | Constrained random | z3 |
-| [`d5c`](d5c/) | 5 | Cerrar un bin con `randomize() with {}` | Constrained random | UVM · z3 |
-| [`d6-agents`](d6-agents/) | 6 | El agent que sólo mira: `is_active` y el ámbito del `config_db` | Agents | UVM |
-| [`d6-sequences`](d6-sequences/) | 6 | Una sequence que sólo multiplica, sin tocar la estructura | Sequences | UVM |
-| [`d6-debug`](d6-debug/) | 6 | **Tres bugs plantados**: uno cuelga, uno termina en `t=0`, uno miente en verde | Tests, Agents y Sequences | UVM · z3 |
-| [`d7-semillas`](d7-semillas/) | 7 | Cinco semillas y un merge: qué es una regresión | Constrained random y Sequences | UVM · z3 |
-| [`d7-sva`](d7-sva/) | 7 | El módulo heredado viola el protocolo: escribí la property que lo ve | Assertions | UVM |
-| [`d7-final`](d7-final/) | 7 | **Capstone**: un esclavo APB, su spec, y el testbench entero desde cero | todo | UVM · z3 |
-| [`d8-ral`](d8-ral/) | 8 | El mapa de registros de la spec, como modelo de UVM | RAL (unidad 9) | UVM |
-| [`d8-dpi`](d8-dpi/) | 8 | El modelo de referencia en C, y las dos mutaciones que lo prueban | DPI (unidad 9) | UVM · z3 |
-| [`d8-fifo`](d8-fifo/) | 8 | **Capstone 2**: una FIFO con backpressure, donde el scoreboard no puede ser una tabla | todo | UVM · z3 |
+| [`d1`](d1/) | 1 | A new operation, end to end: RTL, TB and coverage | units 1 and 2 | — |
+| [`d1b`](d1b/) | 1 | **The waves**: the log gives one line and the rest is in the `.vcd` | The VTALU spec · Interfaces and BFM | — |
+| [`d2`](d2/) | 2 | A tester that only multiplies, without copying the whole class | unit 3 | — |
+| [`d3`](d3/) | 3 | The same tester, now with a factory override and without touching the `env` | unit 4 | UVM |
+| [`d3b`](d3b/) | 3 | The `uvm_error` that says nothing: the same scoreboard, now readable | Reporting | UVM |
+| [`d4`](d4/) | 4 | One more subscriber hanging off the analysis port | unit 5 | UVM |
+| [`d4b`](d4b/) | 4 | The `#500` is a patch: the unbounded FIFO and the missing objection | unit 5 | UVM |
+| [`d5`](d5/) | 5 | The scoreboard screams and the DUT is healthy: find the bug | units 5 and 6 | UVM |
+| [`d5b`](d5b/) | 5 | Measure your `dist`: the weights are right and the histogram lies | Constrained random | z3 |
+| [`d5c`](d5c/) | 5 | Closing a bin with `randomize() with {}` | Constrained random | UVM · z3 |
+| [`d6-agents`](d6-agents/) | 6 | The agent that only watches: `is_active` and the scope of the `config_db` | Agents | UVM |
+| [`d6-sequences`](d6-sequences/) | 6 | A sequence that only multiplies, without touching the structure | Sequences | UVM |
+| [`d6-debug`](d6-debug/) | 6 | **Three planted bugs**: one hangs, one ends at `t=0`, one lies in green | Tests, Agents and Sequences | UVM · z3 |
+| [`d7-semillas`](d7-semillas/) | 7 | Five seeds and a merge: what a regression is | Constrained random and Sequences | UVM · z3 |
+| [`d7-sva`](d7-sva/) | 7 | The legacy module violates the protocol: write the property that sees it | Assertions | UVM |
+| [`d7-final`](d7-final/) | 7 | **Capstone**: an APB slave, its spec, and the whole testbench from scratch | everything | UVM · z3 |
+| [`d8-ral`](d8-ral/) | 8 | The register map of the spec, as a UVM model | RAL (unit 9) | UVM |
+| [`d8-dpi`](d8-dpi/) | 8 | The reference model in C, and the two mutations that prove it | DPI (unit 9) | UVM · z3 |
+| [`d8-fifo`](d8-fifo/) | 8 | **Capstone 2**: a FIFO with backpressure, where the scoreboard cannot be a table | everything | UVM · z3 |
 
-Tres de la tabla —`d5b`, `d5c` y `d7-semillas`— son el ciclo de
-*coverage closure* hecho con las manos: medir una distribución, escribir el caso
-dirigido que llena el bin que falta, y acumular cobertura con una regresión de
-varias semillas. El curso lo cuenta dos veces; acá se hace.
+Three of the table —`d5b`, `d5c` and `d7-semillas`— are the *coverage
+closure* cycle done by hand: measure a distribution, write the directed case
+that fills the missing bin, and accumulate coverage with a multi-seed
+regression. The course tells it twice; here you do it.
 
-[`d7-final`](d7-final/) es distinto de los otros y a propósito:
-**no hay archivo con un agujero**. Hay un DUT que no es la VTALU —un esclavo APB
-de cuatro registros de 32 bits—, su especificación, y una hoja en blanco. El
-corrector va por etapas —monitor, driver, scoreboard, cobertura y las properties
-del protocolo— y cada una imprime su `STAGE N OK`, así que se puede terminar de a
-una. Y dos filas del plan de verificación vienen **vacías**: las escribe el alumno.
+[`d7-final`](d7-final/) is different from the others, and on purpose: **there is
+no file with a hole in it**. There is a DUT that is not the VTALU —an APB slave
+with four 32-bit registers—, its specification, and a blank page. The checker
+goes in stages —monitor, driver, scoreboard, coverage and the protocol
+properties— and each one prints its `STAGE N OK`, so you can finish one at a
+time. And two rows of the verification plan come **empty**: the student writes them.
 
-[`d8-ral`](d8-ral/) es el de la unidad opcional y va **después** del capstone:
-reusa el mismo DUT y el mismo testbench, y agrega encima el modelo de registros.
-También va por etapas, y la segunda la corrigen dos sequences de `uvm-core` que
-nadie escribió.
+[`d8-ral`](d8-ral/) is the one from the optional unit and it goes **after** the
+capstone: it reuses the same DUT and the same testbench, and adds the register
+model on top. It also goes in stages, and the second one is marked by two
+`uvm-core` sequences nobody wrote.
 
-Y el último, [`d8-fifo`](d8-fifo/), es el **segundo capstone**, para el que ya
-entregó el primero. El protocolo es más simple —no hay direcciones ni wait
-states— y aun así es más difícil: el scoreboard del APB podía ser una tabla de
-cuatro filas, y el de una FIFO no, porque una FIFO tiene orden y ocupación. El
-bug de `+BUG=1` está en una **bandera**, no en los datos: un scoreboard que sólo
-compara lo que sale por `rd_data` pasa en verde con el DUT roto.
+And the last one, [`d8-fifo`](d8-fifo/), is the **second capstone**, for whoever
+already handed in the first. The protocol is simpler —no addresses, no wait
+states— and it is still harder: the APB scoreboard could be a four-row table,
+and a FIFO's cannot, because a FIFO has order and occupancy. The `+BUG=1` bug is
+in a **flag**, not in the data: a scoreboard that only compares what comes out
+of `rd_data` passes green with a broken DUT.
 
 ```sh
 cd code/ejercicios/d1
-bash run.sh              # con tus archivos
-SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
+bash run.sh              # with your files
+SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 ```
 
-## Cómo están armados
+## How they are put together
 
-Cada directorio tiene **sólo los archivos que vas a tocar**. El resto del
-testbench sale de la sección correspondiente, por referencia: los `+incdir` del
-`run.sh` ponen este directorio primero, así que tu versión de un archivo le gana
-a la de la sección. Nada de lo que hagas acá rompe los ejemplos del curso.
+Each directory holds **only the files you are going to touch**. The rest of the
+testbench comes from the corresponding section, by reference: the `+incdir` in
+`run.sh` put this directory first, so your version of a file wins over the
+section's. Nothing you do here breaks the course examples.
 
-Ocho —`d3`, `d3b`, `d4`, `d4b`, `d6-debug`, `d6-sequences`, `d7-sva` y `d8-dpi`—
-traen además un `intocables.sha`: la lista de los archivos que el enunciado dice
-**no** tocar, con su hash, y el `run.sh` la chequea antes de compilar. No es
-desconfianza: en esos ocho el ejercicio *está* en no tocarlos. En `d4b`, volver
-a ponerle el tope a la FIFO hace pasar el corrector sin haber entendido nada. Instanciar el `mult_tester` a
-mano en el `env.svh` de `d3` hace pasar el corrector sin escribir un solo
-`set_type_override`, que es justo el tema.
+Eight of them —`d3`, `d3b`, `d4`, `d4b`, `d6-debug`, `d6-sequences`, `d7-sva` and
+`d8-dpi`— also come with an `intocables.sha`: the list of the files the statement
+says **not** to touch, with their hashes, and the `run.sh` checks it before
+compiling. It is not distrust: in those eight the exercise *is* not touching
+them. In `d4b`, putting the ceiling back on the FIFO gets past the grader without
+having understood a thing. Instantiating the
+`mult_tester` by hand in the `env.svh` of `d3` gets past the grader without
+writing a single `set_type_override`, which is the whole topic.
 
-`SOLUCION=1` corre la solución sin pisar tu archivo: en los que usan UVM agrega
-un `+incdir+solucion` adelante de todo, y en los otros cuatro le pone el prefijo
-`solucion/` a los fuentes que compila.
+`SOLUCION=1` runs the solution without overwriting your file: in the ones that
+use UVM it adds a `+incdir+solucion` ahead of everything, and in the other four
+it puts the `solucion/` prefix on the sources it compiles.
 
-La excepción es `d7-final`: ahí no hay sección de la que salga el resto, porque el
-resto **es** el ejercicio. Lo único que viene hecho es el DUT, el `top.sv` y el
-módulo de estímulo que se usa para probar el monitor. Y `d8-ral` es el caso
-inverso: lo que le falta sale de dos lados a la vez —el testbench, de
-`d7-final/solucion/`; el adapter y los tests, de `code/u9/ral/`—, así que se
-resuelve con el capstone ya hecho.
+The exception is `d7-final`: there is no section the rest comes from, because the
+rest **is** the exercise. The only thing that comes done is the DUT, `top.sv`
+and the stimulus module used to test the monitor. And `d8-ral` is the inverse
+case: what it is missing comes from two places at once —the testbench, from
+`d7-final/solucion/`; the adapter and the tests, from `code/u9/ral/`— so it is
+solved with the capstone already done.
 
-Quince usan UVM: la primera compilación tarda ~1 min 30 en una laptop de 12 cores
-y ~4 min en un Codespaces gratis; los dos capstones tardan ~2 min.
-**Las siguientes son 15 segundos en cualquiera de las dos**, si tenés `ccache`
-instalado — el `run.sh` lo detecta solo. El tiempo de cada uno está en su README.
+Fifteen use UVM: the first compilation takes ~1 min 30 on a 12-core laptop and
+~4 min on a free Codespaces; the two capstones take ~2 min. **The following ones
+are 15 seconds on either**, if you have `ccache` installed — `run.sh` detects it
+by itself. The time for each one is in its README.
 
-Los cuatro que no usan UVM —`d1`, `d1b`, `d2` y `d5b`— corren sin esperar nada.
-`d1b` es además el único que compila con `--trace`: deja `ondas.vcd` al lado,
-porque las ondas *son* el ejercicio. Los siete que randomizan con constraints
-—`d5b`, `d5c`, `d6-debug`, `d7-semillas`, `d7-final`, `d8-dpi` y `d8-fifo`—
-necesitan además
-**`z3`**: sin él `randomize()` devuelve 0 en silencio. Ver
-[`docs/verilator.md`](../../docs/verilator.md).
+The four that do not use UVM —`d1`, `d1b`, `d2` and `d5b`— run without waiting
+for anything. `d1b` is also the only one that compiles with `--trace`: it leaves
+`ondas.vcd` alongside, because the waves *are* the exercise. The seven that
+randomize with constraints —`d5b`, `d5c`, `d6-debug`, `d7-semillas`,
+`d7-final`, `d8-dpi` and `d8-fifo`— also need **`z3`**: without it `randomize()` returns 0 silently. See
+[`docs/en/verilator.md`](../../docs/en/verilator.md).
 
-## Para el que dicta
+## For whoever teaches it
 
-`make ejercicios` corre las diecinueve **soluciones**. No comprueba que un alumno
-lo haya resuelto: comprueba que las diecinueve sigan siendo resolubles cuando
-cambia el código del curso.
+`make ejercicios` runs the nineteen **solutions**. It does not check that a
+student solved one: it checks that the nineteen are still solvable when the
+course code changes.
 
-Los tres del día 6, los tres del día 7 y los tres del día 8 compilan un testbench
-entero con UVM: son los más lentos.
+The three from day 6, the three from day 7 and the three from day 8 compile a
+whole testbench with UVM: they are the slowest.
 
-Dos de ellos tienen la semilla **fijada**, y es a propósito: `d5c` la clava
-en el `run.sh` (`export SEED=7`) porque necesita que las 60 operaciones al azar
-*no* llenen el bin que hay que cerrar, y `d7-semillas` la recorre de 1 a 5 en el
-`regresion.sh` porque necesita que las cinco den resultados distintos. Sin
-fijarlas, los dos serían intermitentes — que es justo el defecto que enseñan a
-evitar.
+Two of them have the seed **pinned**, and it is on purpose: `d5c` nails it in
+`run.sh` (`export SEED=7`) because it needs the 60 random operations *not* to
+fill the bin that has to be closed, and `d7-semillas` walks it from 1 to 5 in
+`regresion.sh` because it needs the five to give different results. Without
+pinning them, both would be flaky — which is exactly the defect they teach you
+to avoid.

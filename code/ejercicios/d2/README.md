@@ -1,33 +1,36 @@
-# Día 2 — un tester que sólo multiplica, sin tocar el que ya está
+<!-- es-sha: c15327204ebd -->
+**English** · [Castellano](README.es.md)
 
-El testbench es el de *Un testbench sin un solo módulo*, en clases. Hoy `tester` manda
-operaciones al azar; queremos uno que mande sólo multiplicaciones, **sin copiar
-y pegar la clase entera**.
+# Day 2 — a tester that only multiplies, without touching the one already there
 
-## Qué se pide
+The testbench is the one from *A testbench without a single module*, in classes. Today `tester` sends
+random operations; we want one that sends only multiplications, **without copying
+and pasting the whole class**.
 
-1. **`mult_tester.svh`** — escribí la clase: extiende `tester` y redefine
-   `get_op()` para devolver siempre `mul_op`.
-2. **`testbench.svh`** — hacé que `tester_h` sea un `mult_tester`.
-3. Y va a seguir mandando operaciones al azar. **Ahí está el ejercicio**:
-   mirá `tester.svh`, y acordate de polimorfismo.
+## What is asked
 
-Listo cuando `bash run.sh` imprime `EXERCISE OK`.
+1. **`mult_tester.svh`** — write the class: it extends `tester` and redefines
+   `get_op()` to always return `mul_op`.
+2. **`testbench.svh`** — make `tester_h` a `mult_tester`.
+3. And it is going to carry on sending random operations. **That is where the exercise is**:
+   look at `tester.svh`, and remember polymorphism.
 
-## Cómo se corre
+Done when `bash run.sh` prints `EXERCISE OK`.
+
+## How to run it
 
 ```sh
-bash run.sh              # con tus archivos
-SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
+bash run.sh              # with your files
+SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 ```
 
-## Cuánto tarda
+## How long it takes
 
-No usa UVM —el testbench es el orientado a objetos, sin la librería—: compila y
-corre en **segundos**.
+It does not use UVM —the testbench is the object-oriented one, without the
+library—: it compiles and runs in **seconds**.
 
-## Lo que practica
+## What it practises
 
-Herencia, polimorfismo y `virtual` sobre el testbench en objetos.
-Es el mismo problema que el ejercicio del día 3 resuelve con la factory: hacerlo
-primero a mano es lo que después explica para qué sirve la factory.
+Inheritance, polymorphism and `virtual` on top of the object-based testbench.
+It is the same problem the day 3 exercise solves with the factory: doing it
+by hand first is what afterwards explains what the factory is for.

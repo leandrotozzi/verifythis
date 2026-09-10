@@ -1,75 +1,78 @@
-# Día 7 — el módulo heredado viola el protocolo y nadie lo sabía
+<!-- es-sha: 7223e3118c29 -->
+**English** · [Castellano](README.es.md)
 
-El testbench es el de las assertions entero, con sus dos VTALU: una la maneja el
-driver del agent, la otra la maneja `vtalu_tester_module` — el "tester del jefe",
-un módulo de siempre, sin una línea de UVM, que está en producción hace años.
+# Day 7 — the legacy module violates the protocol and nobody knew
 
-Ese módulo **viola el protocolo**: para la multiplicación no llama a
-`bfm.send_op()` sino que mueve los cables a mano, y aprovecha los ciclos que el
-DUT tarda en contestar para ir dejando listo el operando de la próxima.
+The testbench is the whole one from the assertions, with its two VTALU: one is driven by the
+driver of the agent, the other by `vtalu_tester_module` — the "boss's tester",
+an ordinary module, without one line of UVM, that has been in production for years.
 
-El scoreboard **no lo ve**, y no es que esté roto: el multiplicador latchea `A` y
-`B` en el primer flanco, así que el resultado sale bien igual. Mil comparaciones,
-cero diferencias.
+That module **violates the protocol**: for the multiplication it does not call
+`bfm.send_op()` but moves the wires by hand, and it takes advantage of the cycles the
+DUT spends answering to go about getting the operand of the next one ready.
 
-## Qué se pide
+The scoreboard **does not see it**, and it is not that it is broken: the multiplier latches `A` and
+`B` on the first edge, so the result comes out right all the same. A thousand comparisons,
+zero differences.
 
-**`vtalu_bfm.sv`** — escribí la property que sí lo ve. La regla está en prosa
-desde la slide 1 del día 1: *mientras `start` está arriba, los operandos y la
-operación no se tocan.*
+## What is asked
 
-Las dos properties de `done` ya están hechas y sirven de molde. La acción de
-falla tiene que ser un `` `uvm_error `` con el id `"SVA"`: si dejás que la
-assertion termine en `$stop`, la simulación se corta, el *Report Summary* no se
-imprime y el corrector no ve nada.
+**`vtalu_bfm.sv`** — write the property that does see it. The rule has been in prose
+since slide 1 of day 1: *while `start` is up, the operands and the
+operation are not touched.*
 
-Listo cuando `bash run.sh` imprime `EXERCISE OK`.
+The two `done` properties are already done and serve as a mould. The failure action
+has to be a `` `uvm_error `` with the id `"SVA"`: if you let the
+assertion end in `$stop`, the simulation gets cut off, the *Report Summary* does not get
+printed and the checker sees nothing.
 
-## Cómo se corre
+Done when `bash run.sh` prints `EXERCISE OK`.
+
+## How to run it
 
 ```sh
-bash run.sh              # con tus archivos
-SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
+bash run.sh              # with your files
+SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 ```
 
-El corrector pide **tres** cosas, y la del medio es la que hace el ejercicio:
+The checker asks for **three** things, and the middle one is the one that makes the exercise:
 
-1. que la property dispare sobre `modulo_bfm`, que es la que viola el protocolo;
-2. que **no** dispare ni una vez sobre `clase_bfm`, que es la que maneja el
-   driver y lo respeta;
-3. que el scoreboard siga en verde, para que quede claro quién cazó qué.
+1. that the property fire on `modulo_bfm`, which is the one that violates the protocol;
+2. that it **not** fire even once on `clase_bfm`, which is the one driven by the
+   driver and respects it;
+3. that the scoreboard stay green, so it is clear who caught what.
 
-## Cuánto tarda
+## How long it takes
 
-Este ejercicio compila UVM entera. Medido con Verilator 5.052:
+This exercise compiles the whole of UVM. Measured with Verilator 5.052:
 
-| | 12 cores | 2 cores (Codespaces gratis) |
+| | 12 cores | 2 cores (free Codespaces) |
 |---|---|---|
-| la primera vez | ~1 min 30 | ~4 min |
-| las siguientes, con `ccache` | ~15 s | ~15 s |
+| the first time | ~1 min 30 | ~4 min |
+| the following ones, with `ccache` | ~15 s | ~15 s |
 
-## Pistas, en orden de utilidad
+## Hints, in order of usefulness
 
-- Si tu property no dispara nunca, agregale un `cover property` con el mismo
-  antecedente y mirá el `user:` del reporte de cobertura. Un cover en 0 quiere
-  decir que el antecedente no ocurre — no que el DUT esté sano.
-- Si dispara **sobre las dos** interfaces, el problema es el **flanco**. Mirá con
-  qué flanco escribe `bfm.send_op()` los operandos, y acordate de que SVA
-  muestrea en la región *preponed*: una señal escrita **en** un flanco no se ve
-  en ese flanco, se ve en el siguiente. Las dos properties de `done` que ya están
-  usan `@(posedge clk)`; ésta no puede.
-- `$stable(x)` compara contra el muestreo anterior, que es exactamente lo que
-  hace falta. Y son tres señales, no una: `A`, `B` y `op_set`.
-- La implicación va `|=>` y no `|->`: el consecuente es *"en el flanco
-  siguiente"*, porque un operando que cambia en el mismo flanco en que `start`
-  sube no es una violación, es el arranque de la transacción.
-- Si el `run.sh` compila y no dispara nada de nada, revisá que el `else` de tu
-  assertion tenga el `` `uvm_error `` con el id `"SVA"` — el corrector lo busca
-  por ese id.
+- If your property never fires, add a `cover property` to it with the same
+  antecedent and look at the `user:` of the coverage report. A cover at 0 means
+  that the antecedent does not occur — not that the DUT is healthy.
+- If it fires **on both** interfaces, the problem is the **edge**. Look at
+  which edge `bfm.send_op()` writes the operands on, and remember that SVA
+  samples in the *preponed* region: a signal written **on** an edge is not seen
+  on that edge, it is seen on the next one. The two `done` properties that are already there
+  use `@(posedge clk)`; this one cannot.
+- `$stable(x)` compares against the previous sample, which is exactly what
+  is needed. And it is three signals, not one: `A`, `B` and `op_set`.
+- The implication takes `|=>` and not `|->`: the consequent is *"on the next
+  edge"*, because an operand that changes on the same edge `start`
+  goes up is not a violation, it is the start of the transaction.
+- If the `run.sh` compiles and nothing at all fires, check that the `else` of your
+  assertion has the `` `uvm_error `` with the id `"SVA"` — the checker looks for it
+  by that id.
 
-## Lo que practica
+## What it practises
 
-La property de las assertions (`$stable`, `|=>`, `disable iff`), la elección del
-**flanco de muestreo** —que es la lección de la sección— y la idea de fondo: una
-assertion vive en la interface y por lo tanto chequea **a todos los que la usen**,
-incluido el código que nadie escribió pensando en UVM.
+The property of the assertions (`$stable`, `|=>`, `disable iff`), the choice of the
+**sampling edge** —which is the lesson of the section— and the underlying idea: an
+assertion lives in the interface and therefore checks **everybody who uses it**,
+including code nobody wrote with UVM in mind.

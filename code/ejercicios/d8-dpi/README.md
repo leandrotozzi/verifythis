@@ -1,73 +1,75 @@
-# Día 8 — el modelo de referencia en C
+<!-- es-sha: 2fb866f85dfa -->
+**English** · [Castellano](README.es.md)
 
-El testbench es el entero de la sección de DPI y **no se toca ni una línea**. El
-único archivo de este ejercicio es `vtalu_golden.c`: el modelo de referencia que
-el scoreboard consulta en vez de predecir en SystemVerilog.
+# Day 8 — the reference model in C
 
-Vienen tres operaciones hechas —son el patrón— y faltan dos.
+The testbench is the whole one from the DPI section and **not one line of it gets
+touched**. The only file of this exercise is `vtalu_golden.c`: the reference
+model the scoreboard consults instead of predicting in SystemVerilog.
 
-## Qué se pide
+Three operations come done —they are the pattern— and two are missing.
 
-1. **`SUB_OP`** — la resta tiene **dos mitades**, y la segunda es la que se
-   olvida todo el mundo: operandos de 8 bits en un resultado de 16, así que
-   `a - b` da la vuelta, y el **borrow** (`a < b`) es la otra mitad de la
-   respuesta que el scoreboard compara. Sale por `*ovf`.
-2. **`MUL_OP`** — el producto completo, y la mutación que prueba que el camino
-   está vivo: con `mutar` en 1 el modelo tiene que **mentir**. Truncar a 8 bits
-   alcanza.
+## What is asked for
 
-Listo cuando `bash run.sh` imprime las tres etapas y termina con `EXERCISE OK`.
+1. **`SUB_OP`** — the subtraction has **two halves**, and the second one is the
+   one everybody forgets: 8-bit operands into a 16-bit result, so `a - b` wraps,
+   and the **borrow** (`a < b`) is the other half of the answer the scoreboard
+   compares. It goes out through `*ovf`.
+2. **`MUL_OP`** — the full product, and the mutation that proves the path is
+   alive: with `mutar` at 1 the model has to **lie**. Truncating to 8 bits is
+   enough.
 
-## Las tres etapas del corrector
+Done when `bash run.sh` prints the three stages and ends with `EXERCISE OK`.
 
-| | Qué corre | Qué prueba |
+## The checker's three stages
+
+| | What it runs | What it proves |
 |:--:|---|---|
-| **1** | DUT sano contra tu modelo | que tu modelo es correcto: 0 `UVM_ERROR` |
-| **2** | DUT **mutado** (`VTALU_BUG=1`) contra tu modelo | que el scoreboard **de verdad** te está preguntando a vos |
-| **3** | DUT sano contra tu modelo **mutado** (`+GOLDEN_BUG`) | que tu mutación existe: un scoreboard que nunca vio un error no está probado |
+| **1** | healthy DUT against your model | that your model is right: 0 `UVM_ERROR` |
+| **2** | **mutated** DUT (`VTALU_BUG=1`) against your model | that the scoreboard is **really** asking you |
+| **3** | healthy DUT against your **mutated** model (`+GOLDEN_BUG`) | that your mutation exists: a scoreboard that never saw an error is not tested |
 
-La etapa 2 es la que hace que el ejercicio valga. Un modelo que devuelva
-cualquier cosa fija podría pasar la 1 por casualidad si el estímulo fuera pobre;
-con el DUT mintiendo en el bit 0, no hay forma de pasarla sin haber calculado.
+Stage 2 is what makes the exercise worth it. A model returning some fixed thing
+could pass stage 1 by accident if the stimulus were poor; with the DUT lying on
+bit 0, there is no way of passing it without having computed.
 
-## La trampa que no se ve
+## The trap you cannot see
 
-`extern "C"` no es decoración. Verilator le pasa las fuentes del usuario al
-compilador de **C++**, y sin la guarda el símbolo sale *mangled*: el link falla
-con un *undefined reference* a una función que está ahí, escrita, dos líneas más
-arriba. Es el modo de falla número uno de DPI con Verilator y por eso el
-esqueleto ya la trae puesta.
+`extern "C"` is not decoration. Verilator hands user sources to the **C++**
+compiler, and without the guard the symbol comes out mangled: the link fails with
+an *undefined reference* to a function that is right there, written, two lines
+above. It is DPI's number one failure mode with Verilator and that is why the
+skeleton comes with it already in place.
 
-La segunda: los opcodes están escritos **dos veces** —el `enum` de este archivo y
-el `operation_t` de `vtalu_pkg.sv`— y nadie los compara. Ése es el impuesto del
-DPI, y es lo primero que hay que mirar cuando fallan *todas* las comparaciones a
-la vez.
+The second one: the opcodes are written **twice** —the `enum` of this file and
+the `operation_t` of `vtalu_pkg.sv`— and nobody compares them. That is the tax of
+DPI, and it is the first thing to look at when *every* comparison fails at once.
 
-## Cómo se corre
+## How to run it
 
 ```sh
-bash run.sh              # con tu archivo
-SOLUCION=1 bash run.sh   # con el de solucion/, para comparar
+bash run.sh              # with your file
+SOLUCION=1 bash run.sh   # with the one in solucion/, to compare
 ```
 
-## Cuánto tarda
+## How long it takes
 
-Compila UVM entera, como el resto de los ejercicios del día 8:
+It compiles the whole of UVM, like the rest of the day 8 exercises:
 
-| | 12 cores | 2 cores (Codespaces gratis) |
+| | 12 cores | 2 cores (free Codespaces) |
 |---|---|---|
-| la primera vez | ~2 min | ~5 min |
-| las siguientes, con `ccache` | ~15 s | ~15 s |
+| the first time | ~2 min | ~5 min |
+| the following ones, with `ccache` | ~15 s | ~15 s |
 
-Tocar sólo el `.c` recompila **un** archivo: el resto del binario ya está. Ésa es
-media ventaja de tener el modelo afuera, y la otra es que lo escribió el equipo
-de algoritmos y no vos.
+Touching only the `.c` recompiles **one** file: the rest of the binary is already
+there. That is half the advantage of having the model outside, and the other half
+is that the algorithm team wrote it and you did not.
 
-## Lo que practica
+## What it practises
 
-DPI-C de ida y de vuelta: el valor de retorno y el argumento `output` por
-puntero, la guarda `extern "C"`, y la mutación como prueba de que el camino está
-conectado. El punto de fondo es el de la sección: para un DUT con aritmética de
-verdad —un DSP, un códec, un motor de cripto— **el modelo en C ya existe**, lo
-escribió el equipo que firmó la spec, y reescribirlo en SystemVerilog es mantener
-dos modelos y debuggear la diferencia entre ellos.
+DPI-C both ways: the return value and the `output` argument through a pointer,
+the `extern "C"` guard, and mutation as proof that the path is connected. The
+underlying point is the section's: for a DUT with real arithmetic —a DSP, a
+codec, a crypto engine— **the model in C already exists**, the team that signed
+the spec wrote it, and rewriting it in SystemVerilog means maintaining two models
+and debugging the difference between them.

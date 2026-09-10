@@ -1,66 +1,69 @@
-# Día 6 — el agent que sólo mira
+<!-- es-sha: 5d7878df07ac -->
+**English** · [Castellano](README.es.md)
 
-El testbench es el de los agents, pero recortado: hay **un solo agent**, el que
-maneja `clase_bfm`. La segunda VTALU la maneja `vtalu_tester_module` y nadie la
-está mirando.
+# Day 6 — the agent that only watches
 
-## Qué se pide
+The testbench is the one from the agents, but trimmed: there is **a single agent**, the
+one that drives `clase_bfm`. The second VTALU is driven by `vtalu_tester_module` and nobody
+is watching it.
 
-1. **`vtalu_agent.svh`** — hoy el `build_phase` construye el sequencer y el
-   driver **siempre**, así que `is_active` no sirve para nada. Hacé que se
-   construyan sólo cuando el agent es activo. El `connect_phase` también.
+## What is asked
 
-2. **`env.svh`** — agregá el segundo agent:
-   - su `vtalu_agent_config`, con `modulo_bfm` y `UVM_PASSIVE`
-   - el `set()` en el `uvm_config_db`, **con el ámbito que le corresponde**
-   - el agent, un `scoreboard` y un `coverage` propios
-   - las dos conexiones, contra los analysis ports **del agent**
+1. **`vtalu_agent.svh`** — today the `build_phase` builds the sequencer and the
+   driver **always**, so `is_active` is good for nothing. Make them get
+   built only when the agent is active. The `connect_phase` too.
 
-   Los nombres importan: el corrector busca `modulo_agent_h` y
-   `modulo_scoreboard_h`, igual que los `clase_*` que ya están.
+2. **`env.svh`** — add the second agent:
+   - its `vtalu_agent_config`, with `modulo_bfm` and `UVM_PASSIVE`
+   - the `set()` in the `uvm_config_db`, **with the scope that belongs to it**
+   - the agent, a `scoreboard` and a `coverage` of its own
+   - the two connections, against the analysis ports **of the agent**
 
-Listo cuando `bash run.sh` imprime `EXERCISE OK`.
+   The names matter: the checker looks for `modulo_agent_h` and
+   `modulo_scoreboard_h`, the same way as the `clase_*` ones already there.
 
-## Cómo se corre
+Done when `bash run.sh` prints `EXERCISE OK`.
+
+## How to run it
 
 ```sh
-bash run.sh              # con tus archivos
-SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
+bash run.sh              # with your files
+SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 ```
 
-Para ver el árbol de componentes con tus ojos y no con los del corrector:
+To see the tree of components with your own eyes and not with the checker's:
 
 ```sh
 bash ../../u7/agents/run.sh +TOPOLOGY
 ```
 
-## Cuánto tarda
+## How long it takes
 
-Este ejercicio compila UVM entera. Medido con Verilator 5.052:
+This exercise compiles the whole of UVM. Measured with Verilator 5.052:
 
-| | 12 cores | 2 cores (Codespaces gratis) |
+| | 12 cores | 2 cores (free Codespaces) |
 |---|---|---|
-| la primera vez | ~1 min 30 | ~4 min |
-| las siguientes, con `ccache` | ~15 s | ~15 s |
+| the first time | ~1 min 30 | ~4 min |
+| the following ones, with `ccache` | ~15 s | ~15 s |
 
-El hit de `ccache` es copiar un archivo, así que la segunda compilación tarda lo
-mismo en cualquier máquina. Instalalo antes de empezar —el `run.sh` lo detecta
-solo— o usá Codespaces, que ya lo trae.
+A `ccache` hit is copying a file, so the second compilation takes the
+same on any machine. Install it before starting —the `run.sh` detects it
+on its own— or use Codespaces, which already brings it.
 
-## Pistas, en orden de utilidad
+## Hints, in order of usefulness
 
-- El ámbito del `set()` es la **ruta** del componente que va a leer, no un
-  nombre libre. Con `"*"` en las dos líneas, la segunda pisa a la primera y los
-  dos agents arrancan iguales.
-- El asterisco del final importa: `"modulo_agent_h*"` alcanza también al driver
-  y a los monitores de adentro. Sin él, el agent encuentra su config y sus hijos
-  no.
-- Si el `connect_phase` revienta con un `null`, es porque el agent pasivo no
-  tiene driver y le estás pidiendo el `seq_item_port` igual.
+- The scope of the `set()` is the **path** of the component that is going to read, not a
+  free-form name. With `"*"` on both lines, the second overwrites the first and
+  both agents start up the same.
+- The asterisk at the end matters: `"modulo_agent_h*"` also reaches the driver
+  and the monitors inside. Without it, the agent finds its config and its children
+  do not.
+- If the `connect_phase` blows up with a `null`, it is because the passive agent has no
+  driver and you are asking it for the `seq_item_port` all the same.
 
-## Lo que practica
+## What it practises
 
-`is_active` y el ámbito del `uvm_config_db`, analysis ports, y la
-idea de fondo de la sección: **el agent es la unidad que se instancia una vez por
-interface**. La segunda VTALU no necesita un testbench nuevo. Necesita una
-línea más.
+`is_active` and the scope of the `uvm_config_db`, analysis ports, and the
+underlying idea of the section: **the agent is the unit that gets instantiated once per
+interface**. The second VTALU does not need a new testbench. It needs one
+more line.

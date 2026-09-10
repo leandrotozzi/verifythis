@@ -1,67 +1,71 @@
-# Día 5 — el scoreboard grita y el DUT está sano
+<!-- es-sha: d6622e6313e5 -->
+**English** · [Castellano](README.es.md)
 
-El testbench ya usa transactions. Corré:
+# Day 5 — the scoreboard screams and the DUT is healthy
+
+The testbench already uses transactions. Run:
 
 ```sh
 bash run.sh
 ```
 
-El scoreboard reporta `FAIL` en casi todas las operaciones. **El DUT está bien**
-— es el mismo que viene pasando desde la spec. El bug está en el
-testbench, en este directorio.
+The scoreboard reports `FAIL` on almost every operation. **The DUT is fine** — it
+is the same one that has been passing since the spec. The bug is in the
+testbench, in this directory.
 
-## Qué se pide
+## What is asked
 
-1. Encontralo. Los mensajes del monitor son `UVM_HIGH`, así que por defecto no
-   se ven:
+1. Find it. The messages from the monitor are `UVM_HIGH`, so by default they are
+   not shown:
 
    ```sh
    bash run.sh +UVM_VERBOSITY=UVM_HIGH
    ```
 
-   Compará lo que el monitor dice que vio con lo que el scoreboard compara.
-2. Arreglalo.
+   Compare what the monitor says it saw with what the scoreboard compares.
+2. Fix it.
 
-Listo cuando `bash run.sh` termina con `UVM_ERROR : 0`. No hace falta que
-chequees nada a mano: desde que `run_sim` lee el *Report Summary*, un ejemplo
-con UVM que reporte errores no pasa.
+Done when `bash run.sh` ends with `UVM_ERROR : 0`. You do not have to check
+anything by hand: ever since `run_sim` reads the *Report Summary*, an example
+with UVM that reports errors does not pass.
 
-## Cómo se corre
+## How to run it
 
 ```sh
-bash run.sh                          # con tus archivos
-bash run.sh +UVM_VERBOSITY=UVM_HIGH  # con los mensajes de debug a la vista
-SOLUCION=1 bash run.sh               # con los de solucion/, para comparar
+bash run.sh                          # with your files
+bash run.sh +UVM_VERBOSITY=UVM_HIGH  # with the debug messages in sight
+SOLUCION=1 bash run.sh               # with the ones in solucion/, to compare
 ```
 
-## Cuánto tarda
+## How long it takes
 
-Este ejercicio compila UVM entera. Medido con Verilator 5.052:
+This exercise compiles the whole of UVM. Measured with Verilator 5.052:
 
-| | 12 cores | 2 cores (Codespaces gratis) |
+| | 12 cores | 2 cores (free Codespaces) |
 |---|---|---|
-| la primera vez | ~1 min 30 | ~4 min |
-| las siguientes, con `ccache` | ~15 s | ~15 s |
+| the first time | ~1 min 30 | ~4 min |
+| the following ones, with `ccache` | ~15 s | ~15 s |
 
-El hit de `ccache` es copiar un archivo, así que la segunda compilación tarda lo
-mismo en cualquier máquina. Instalalo antes de empezar —el `run.sh` lo detecta
-solo— o usá Codespaces, que ya lo trae.
+A `ccache` hit is copying a file, so the second compilation takes the
+same on any machine. Install it before starting —the `run.sh` detects it
+on its own— or use Codespaces, which already brings it.
 
-## Si te trabás
+## If you get stuck
 
-Los dos apéndices del final del deck están escritos para este ejercicio:
+The two appendices at the end of the deck are written for this exercise:
 
-- **La caja de herramientas de debug** — la tabla *"cuál usar según el síntoma"*
-  tiene la fila `el scoreboard grita en todas`, y dice con qué se mira.
-- **Las 21 trampas mudas** — el catálogo de todo lo que compila, corre y
-  miente. La causa de este bug es una de las diecinueve.
+- **The debug toolbox** — the *"which one to use according to the symptom"* table
+  has the row `the scoreboard screams on every one`, and it says what to look at
+  it with.
+- **The 21 silent traps** — the catalogue of everything that compiles, runs
+  and lies. The cause of this bug is one of the nineteen.
 
-Se puede hacer el ejercicio sin haber visto reporting: alcanza con tener la
-slide de síntomas abierta al lado.
+The exercise can be done without having seen reporting: it is enough to have the
+symptom slide open alongside.
 
-## Lo que practica
+## What it practises
 
-Verbosidad y reporting, monitores y analysis ports, transactions.
-Y la lección de fondo, que es de oficio y no de sintaxis: **cuando el scoreboard
-grita, el sospechoso número uno no es el DUT.** Un monitor que muestrea mal
-inventa fallas que no existen, y hace perder días.
+Verbosity and reporting, monitors and analysis ports, transactions. And the
+underlying lesson, which is a matter of craft and not of syntax: **when the
+scoreboard screams, suspect number one is not the DUT.** A monitor that samples
+badly invents failures that do not exist, and makes you lose days.

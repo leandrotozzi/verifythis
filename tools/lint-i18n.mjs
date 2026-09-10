@@ -52,7 +52,10 @@ const EN = SALIDAS.en.slides;
 // se traducen con las slides y van como par, con el mismo sha.
 // Y la spec del capstone, que es enunciado igual que el README: el ejercicio es
 // leerla y desconfiar de ella, asi que en ingles tiene que estar en ingles.
-const PARES_MD = [['code/ejercicios', 'README.md', 'README.en.md'],
+// Los README van al reves que el resto, por lo mismo que el de la raiz: GitHub
+// renderiza README.md y ningun otro al entrar a un directorio, asi que ese
+// tiene que ser el ingles. La fuente sigue siendo el castellano, ahora .es.md.
+const PARES_MD = [['code/ejercicios', 'README.es.md', 'README.md'],
                   ['code/ejercicios', 'spec.md', 'spec.en.md']];
 // Y la landing, que es prosa a mano en los dos idiomas. Y el README.
 //
@@ -91,6 +94,7 @@ const PARES_MD = [['code/ejercicios', 'README.md', 'README.en.md'],
 // que se cae en la traduccion se ve.
 const PARES_SUELTOS = [['web/index.html', 'web/en/index.html'],
                        ['README.es.md', 'README.md'],
+                       ['code/README.es.md', 'code/README.md'],
                        ['docs/instalar.md', 'docs/en/setup.md'],
                        ['docs/uvm-en-la-entrevista.md', 'docs/en/uvm-interview.md'],
                        ['docs/para-docentes.md', 'docs/en/for-teachers.md'],
@@ -137,12 +141,20 @@ if (process.argv.includes('--bless')) {
   process.exit(0);
 }
 
-// El archivo ES del que sale una traduccion: mismo nombre en el arbol es/, o el
-// README.md hermano del .en.md.
+// El archivo ES del que sale una traduccion: mismo nombre en el arbol es/, el
+// hermano del .en.md, el hermano declarado en PARES_MD, o un par suelto.
 async function origenDe(f) {
   const n = path.normalize(f);
   if (n.startsWith(EN + path.sep)) return path.join(ES, path.basename(n));
   if (n.endsWith('.en.md')) return n.replace(/\.en\.md$/, '.md');
+  // PARES_MD: la traduccion se llama README.md y la fuente README.es.md al
+  // lado. Sin esto --bless no sabe contra que sellar y muere en el primero.
+  for (const [raiz, base, hermano] of PARES_MD) {
+    const dir = path.dirname(n);
+    if (path.basename(n) === hermano && (dir === path.normalize(raiz) || path.dirname(dir) === path.normalize(raiz))) {
+      return path.join(dir, base);
+    }
+  }
   const suelto = PARES_SUELTOS.find(([, en]) => path.normalize(en) === n);
   return suelto ? suelto[0] : null;
 }

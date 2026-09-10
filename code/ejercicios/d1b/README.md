@@ -1,42 +1,45 @@
-# Día 1 — las ondas: el log no alcanza
+<!-- es-sha: a228f29e62af -->
+**English** · [Castellano](README.es.md)
 
-El apéndice de debug dice que las ondas son la herramienta con la que se hace el
-**47 % del trabajo**. Éste es el ejercicio donde eso se practica: es el único
-del curso que **no se resuelve leyendo el log**.
+# Day 1 — the waves: the log is not enough
 
-Corré:
+The debug appendix says that the waves are the tool **47 % of the work** gets
+done with. This is the exercise where that gets practised: it is the only one
+of the course that is **not solved by reading the log**.
+
+Run:
 
 ```sh
 bash run.sh
 ```
 
-La simulación aborta con **una sola línea**:
+The simulation aborts with **a single line**:
 
 ```
 FAILED: A: e5  B: 0  op: mul_op result: fe01 ovf: 0
 ```
 
-Y ahí se termina lo que el log te da. `e5 * 00` es `0`, no `fe01`. El scoreboard
-tiene razón, el DUT está sano, y el número que salió no es de esta operación.
+And that is where what the log gives you ends. `e5 * 00` is `0`, not `fe01`. The scoreboard
+is right, the DUT is healthy, and the number that came out does not belong to this operation.
 
-## Qué se pide
+## What is asked
 
-### 1 · Leer las ondas
+### 1 · Read the waves
 
-El `run.sh` compila siempre con `--trace`, así que la corrida deja **`ondas.vcd`**
-al lado. Abrilo:
+The `run.sh` always compiles with `--trace`, so the run leaves **`ondas.vcd`**
+next to it. Open it:
 
 ```sh
-gtkwave ondas.vcd     # o surfer, o el visor que uses
+gtkwave ondas.vcd     # or surfer, or whatever viewer you use
 ```
 
-Poné en el visor `clk`, `start`, `op`, `A`, `B`, `done` y `result`, y contestá
-dos preguntas escribiendo los tiempos en **`respuesta.txt`**, uno por línea, en
-picosegundos y sin unidad:
+Put `clk`, `start`, `op`, `A`, `B`, `done` and `result` in the viewer, and answer
+two questions by writing the times into **`respuesta.txt`**, one per line, in
+picoseconds and without the unit:
 
-1. ¿En qué instante sube `done` por **primera vez**?
-2. ¿En qué instante sube `done` de la **primera multiplicación**? (buscá el
-   primer tramo con `op = mul_op`, o `start_mult` en 1)
+1. At which instant does `done` go up for the **first time**?
+2. At which instant does `done` of the **first multiplication** go up? (look for the
+   first stretch with `op = mul_op`, or `start_mult` at 1)
 
 ```
 # respuesta.txt
@@ -44,50 +47,49 @@ picosegundos y sin unidad:
 5678
 ```
 
-Los dos números salen del visor y de ningún otro lado: no están en el log. Están
-en picosegundos porque el `run.sh` compila con `--timescale 1ps/1ps`; sin eso
-dependerían del default del simulador.
+Both numbers come out of the viewer and from nowhere else: they are not in the log.
+They are in picoseconds because the `run.sh` compiles with `--timescale 1ps/1ps`;
+without it they would depend on the simulator's default.
 
-> Mientras estés ahí, mirá `A` y `B` en el instante de la segunda respuesta y
-> compará con los que imprimió el `FAILED`. Ésa es la respuesta a *por qué*.
+> While you are there, look at `A` and `B` at the instant of the second answer and
+> compare them with the ones the `FAILED` printed. That is the answer to *why*.
 
-### 2 · Arreglar la BFM
+### 2 · Fix the BFM
 
-Con las ondas a la vista se ve solo: `done` de una multiplicación llega en el
-**cuarto flanco** después del `start`, y el de las demás operaciones en el
-primero. El
-`send_op` de `vtalu_bfm.sv` **cuenta flancos** en vez de esperar el handshake,
-así que vuelve antes de tiempo y el estímulo siguiente pisa `A` y `B` mientras
-el multiplicador todavía está calculando.
+With the waves in sight it shows on its own: `done` of a multiplication arrives on the
+**fourth edge** after the `start`, and the one of the other operations on the first. The
+`send_op` of `vtalu_bfm.sv` **counts edges** instead of waiting for the handshake,
+so it returns too early and the next stimulus overwrites `A` and `B` while
+the multiplier is still computing.
 
-Se arregla con **una línea**. El TODO está en el archivo.
+It gets fixed with **one line**. The TODO is in the file.
 
-Listo cuando `bash run.sh` imprime `EXERCISE OK`.
+Done when `bash run.sh` prints `EXERCISE OK`.
 
-## Cómo se corre
+## How to run it
 
 ```sh
-bash run.sh              # con tus archivos
-SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
+bash run.sh              # with your files
+SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 ```
 
-El corrector va por etapas y cada una imprime su `STAGE N OK`, como el capstone.
-Los dos tiempos que pide son los de la BFM tal como viene: la primera corrida
-los mide de las ondas y los guarda en `obj_dir`, así que la respuesta no se te
-vence cuando toques la BFM —con el handshake bien esperado la primera
-multiplicación se adelanta—. Un `make clean` los olvida.
+The checker goes in stages and each one prints its `STAGE N OK`, like the capstone.
+The two times it asks for are the shipped BFM's: the first run measures them
+off the waves and keeps them in `obj_dir`, so your answer does not expire when
+you touch the BFM —with the handshake properly waited for, the first
+multiplication moves earlier—. A `make clean` forgets them.
 
-## Cuánto tarda
+## How long it takes
 
-No usa UVM: compila y corre en **segundos**, sin `ccache` y sin `z3`.
+It does not use UVM: it compiles and runs in **seconds**, without `ccache` and without `z3`.
 
-## Lo que practica
+## What it practises
 
-- **Abrir un `.vcd` y leer un tiempo.** Suena trivial hasta que hace falta.
-- Que un log dice *que* algo falló y casi nunca *por qué*. El `FAILED` de este
-  ejercicio es correcto, completo, y no alcanza.
-- La regla de oro del apéndice de debug: **el sospechoso número uno nunca es el
-  DUT**, es el testbench que lo mira.
-- Y la lección de protocolo que vuelve en el capstone del día 7, con el wait
-  state del APB: **no cuentes ciclos, esperá el handshake.** El día que el DUT
-  tarde un ciclo más, un testbench que cuenta no se entera.
+- **Opening a `.vcd` and reading a time.** It sounds trivial until you need it.
+- That a log says *that* something failed and almost never *why*. The `FAILED` of this
+  exercise is correct, complete, and not enough.
+- The golden rule of the debug appendix: **suspect number one is never the
+  DUT**, it is the testbench watching it.
+- And the protocol lesson that comes back in the day 7 capstone, with the APB wait
+  state: **do not count cycles, wait for the handshake.** The day the DUT
+  takes one more cycle, a testbench that counts does not find out.

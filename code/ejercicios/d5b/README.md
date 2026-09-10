@@ -1,50 +1,54 @@
-# Día 5 · segundo — medí tu `dist`
+<!-- es-sha: 2d17b63420b1 -->
+**English** · [Castellano](README.es.md)
 
-Sin UVM, sin DUT y sin testbench: una clase, un `dist` y un histograma. Es el
-ejercicio corto del curso.
+# Day 5 · second — measure your `dist`
 
-`histograma.sv` tiene una clase con un `rand byte unsigned A` y una constraint
-que ya dice lo que queremos: **10 % en `00`, 80 % en el medio, 10 % en `FF`**.
-Corré primero, antes de tocar nada:
+No UVM, no DUT and no testbench: one class, one `dist` and a histogram. It is the
+short exercise of the course.
+
+`histograma.sv` has a class with a `rand byte unsigned A` and a constraint that
+already says what we want: **10 % on `00`, 80 % in the middle, 10 % on `FF`**.
+Run it first, before touching anything:
 
 ```sh
 bash run.sh
 ```
 
-## Qué se pide
+## What is asked
 
-Que los tres casilleros den 10 / 80 / 10, con tolerancia de **±2 puntos** cada
-uno.
+That the three buckets give 10 / 80 / 10, with a tolerance of **±2 points** each.
 
-Los pesos ya están escritos y son los correctos. **No cambies los números.** El
-que está mal es otra cosa, y la salida de esa primera corrida te dice cuál.
+The weights are already written and they are the right ones. **Do not change the
+numbers.** What is wrong is something else, and the output of that first run tells
+you which.
 
-Listo cuando `bash run.sh` imprime `EXERCISE OK`.
+Done when `bash run.sh` prints `EXERCISE OK`.
 
-## Cómo se corre
+## How to run it
 
 ```sh
-bash run.sh              # con tu archivo
-SOLUCION=1 bash run.sh   # con el de solucion/, para comparar
-SEED=7 bash run.sh       # otra semilla: los números se mueven un poco
+bash run.sh              # with your file
+SOLUCION=1 bash run.sh   # with the one in solucion/, to compare
+SEED=7 bash run.sh       # another seed: the numbers move a little
 ```
 
-Tarda unos 20 segundos, y casi todo es el solver: Verilator resuelve cada
-`randomize()` con constraints llamando a **z3** por afuera, así que 4000
-randomizaciones son 4000 llamadas. Si te dice `Tried: $ z3 --in` y todos los
-casilleros dan cero, te falta instalarlo (`apt install z3` / `brew install z3`).
+It takes about 20 seconds, and almost all of it is the solver: Verilator resolves
+every `randomize()` that has constraints by calling **z3** from outside, so 4000
+randomizations are 4000 calls. If it tells you `Tried: $ z3 --in` and every bucket
+gives zero, you are missing the install (`apt install z3` / `brew install z3`).
 
-## La pista, si la necesitás
+## The hint, if you need it
 
-La diferencia entre la solución y el archivo inicial es **un carácter**.
+The difference between the solution and the initial file is **one character**.
 
-## Lo que practica
+## What it practises
 
-`:=` contra `:/`, y la regla que ordena la sección: **no lo supongas,
-medilo.** Una constraint mal escrita no falla, miente — no hay warning, no hay
-error de compilación, y el testbench pasa igual. Lo único que la delata es la
-cobertura que no sube, y eso se nota semanas después.
+`:=` against `:/`, and the rule that orders the section: **do not assume it,
+measure it.** A badly written constraint does not fail, it lies — there is no
+warning, there is no compilation error, and the testbench passes just the same.
+The only thing that gives it away is the coverage that does not go up, and that is
+noticed weeks later.
 
-Vale la pena mirar los números con dos o tres semillas antes de darlo por
-cerrado: con 4000 muestras el casillero del 10 % se mueve medio punto entre
-corridas. Un porcentaje medido es una muestra, no la distribución.
+It is worth looking at the numbers with two or three seeds before calling it
+closed: with 4000 samples the 10 % bucket moves half a point between runs. A
+measured percentage is a sample, not the distribution.

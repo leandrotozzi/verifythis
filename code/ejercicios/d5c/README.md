@@ -1,93 +1,100 @@
-# Día 5 · constrained random — cerrar un bin
+<!-- es-sha: 01a427d56d0f -->
+**English** · [Castellano](README.es.md)
 
-El curso dice dos veces que el trabajo diario del verificador es **correr, mirar
-qué bin falta, escribir el caso dirigido, volver a correr**. Este es ese
-ejercicio.
+# Day 5 · constrained random — closing a bin
 
-El testbench es el de la sección Transactions entero, con el `tester` ya escrito:
-manda un reset, 60 operaciones al azar, y después el caso dirigido. **De todo
-eso, lo único que escribís es el caso dirigido.**
+The course says twice that the daily work of the verifier is to **run, look at
+which bin is missing, write the directed case, run again**. This is that
+exercise.
+
+The testbench is the whole one from the Transactions section, with the `tester`
+already written: it sends a reset, 60 random operations, and then the directed
+case. **Of all that, the only thing you write is the directed case.**
 
 ```sh
 bash run.sh
 ```
 
-`run.sh` corre el test dos veces: la primera con `+SIN_CIERRE`, que saltea tu
-caso dirigido, y así ves la cobertura de partida. La segunda ya te incluye.
+`run.sh` runs the test twice: the first time with `+SIN_CIERRE`, which skips your
+directed case, and that way you see the starting coverage. The second one already
+includes you.
 
-## Qué se pide
+## What is asked
 
-**`tester.svh`**, adentro del bloque `el_cierre` — una transaction que lleve
-`A = 8'hFF`, `B = 8'hFF` y `op = mul_op`. Es el bin *"las dos patas en `FF`,
-multiplicando"* del plan de cobertura del testbench convencional, y 60
-operaciones al azar no lo llenan.
+**`tester.svh`**, inside the `el_cierre` block — a transaction carrying
+`A = 8'hFF`, `B = 8'hFF` and `op = mul_op`. It is the *"both legs at `FF`,
+multiplying"* bin of the coverage plan of the conventional testbench, and 60
+random operations do not fill it.
 
-Concretamente es la **fila 3** del plan de verificación
-([`docs/plan-de-verificacion.md`](../../../docs/plan-de-verificacion.md)): el
-**producto máximo** del multiplicador, la única fila de las doce cuya columna de
-estímulo dice **caso dirigido**. Y eso no lo decidió nadie a mano: `FF` × `FF` es
-una combinación entre 65 536, así que el random no la visita.
-Que quede claro por las dudas: `FF` × `FF` **no desborda**. Da `FE01`, que entra
-exacto en los 16 bits de `result`, y el DUT deja `ovf` en 0 en toda
-multiplicación. Es el máximo del espacio de entrada — por eso el bin se llama
-`mul_max`. El plan es lo que hace evidente qué test hay que escribir — este.
+Concretely it is **row 3** of the verification plan
+([`docs/en/verification-plan.md`](../../../docs/en/verification-plan.md)): the
+multiplier's **maximum product**, the only one of the twelve rows whose stimulus
+column says **directed case**. And nobody decided that by hand: `FF` × `FF` is one
+combination out of 65,536, so random never visits it.
+To be clear, just in case: `FF` × `FF` **does not overflow**. It gives `FE01`,
+which fits exactly in the 16 bits of `result`, and the DUT leaves `ovf` at 0 on
+every multiplication. It is the maximum of the input space — that is why the bin
+is called `mul_max`. The plan is what makes it obvious which test has to be
+written — this one.
 
-Pero no lo pidas asignando los campos, que es lo que hace el `tester` de la
-sección tres líneas más arriba: **pedilo con `randomize() with {}`**. El caso
-dirigido se pide en el punto de uso, y ésa es la herramienta de esta unidad.
-`run.sh` chequea que tu bloque llame a `randomize()`.
+But do not ask for it by assigning the fields, which is what the section's
+`tester` does three lines above: **ask for it with `randomize() with {}`**. The
+directed case is asked for at the point of use, and that is the tool of this
+unit. `run.sh` checks that your block calls `randomize()`.
 
-Listo cuando `bash run.sh` imprime `EXERCISE OK` — o sea, cuando la cobertura
-de la segunda corrida es **mayor** que la de la primera.
+Done when `bash run.sh` prints `EXERCISE OK` — that is, when the coverage of the
+second run is **higher** than that of the first.
 
-## Cómo se corre
+## How it is run
 
 ```sh
-bash run.sh              # con tu archivo
-SOLUCION=1 bash run.sh   # con el de solucion/, para comparar
+bash run.sh              # with your file
+SOLUCION=1 bash run.sh   # with the one in solucion/, to compare
 ```
 
-La semilla está fijada dentro del `run.sh` a propósito. Sin fijarla, algunas
-corridas llenarían el bin solas con las 60 al azar y no habría nada que cerrar —
-que es exactamente el tema del ejercicio de la mañana del día 7,
+The seed is pinned inside `run.sh` on purpose. Without pinning it, some runs
+would fill the bin on their own with the 60 random ones and there would be
+nothing to close — which is exactly the topic of the day 7 morning exercise,
 [`d7-semillas`](../d7-semillas/).
 
-## Cuánto tarda
+## How long it takes
 
-Este ejercicio compila UVM entera. Medido con Verilator 5.052:
+This exercise compiles the whole of UVM. Measured with Verilator 5.052:
 
-| | 12 cores | 2 cores (Codespaces gratis) |
+| | 12 cores | 2 cores (free Codespaces) |
 |---|---|---|
-| la primera vez | ~1 min 30 | ~4 min |
-| las siguientes, con `ccache` | ~15 s | ~15 s |
+| the first time | ~1 min 30 | ~4 min |
+| the next ones, with `ccache` | ~15 s | ~15 s |
 
-El hit de `ccache` es copiar un archivo, así que la segunda compilación tarda lo
-mismo en cualquier máquina. Instalalo antes de empezar —el `run.sh` lo detecta
-solo— o usá Codespaces, que ya lo trae.
+A `ccache` hit is copying a file, so the second compilation takes the same on any
+machine. Install it before starting —the `run.sh` detects it on its own— or use
+Codespaces, which already brings it.
 
-Hace falta también **`z3`**: Verilator resuelve `randomize()` con constraints
-llamando a un solver SMT externo, y sin él `randomize()` devuelve 0 sin decir
-nada.
+**`z3`** is needed too: Verilator solves `randomize()` with constraints by
+calling an external SMT solver, and without it `randomize()` returns 0 without
+saying anything.
 
-## Pistas, en orden de utilidad
+## Hints, in order of usefulness
 
-- **Si `randomize()` te devuelve 0, no es tu `with`.** `command_transaction`
-  tiene un `dist` sobre `A` y sobre `B`, y Verilator resuelve el `dist`
-  eligiendo un valor **antes** de mirar el resto de las constraints: si el que
-  sorteó no cumple tu `with`, devuelve 0 en vez de buscar otro. Con
-  `A dist {00 :/ 1, [01:FE] :/ 2, FF :/ 1}`, `with {A == 8'hFF}` resuelve una de
-  cada cuatro veces. El rodeo es una línea y está en la sección Constrained random.
-- Ese rodeo, además, es lo correcto acá aunque el simulador fuera perfecto: un
-  caso **dirigido** no quiere un reparto de probabilidades, quiere un valor.
-- `randomize()` se chequea con `if`, nunca con `assert()`. Un simulador con las
-  asserts deshabilitadas no ejecuta el argumento, y tu transaction sale con lo
-  que tenía.
-- El `tester` **no toca el DUT**: pone la transaction en una FIFO y el driver la
-  maneja. Por eso el `result` no está en el objeto que mandaste.
+- **If `randomize()` returns 0 to you, it is not your `with`.**
+  `command_transaction` has a `dist` on `A` and on `B`, and Verilator solves the
+  `dist` by picking a value **before** looking at the rest of the constraints: if
+  the one it drew does not satisfy your `with`, it returns 0 instead of looking
+  for another. With `A dist {00 :/ 1, [01:FE] :/ 2, FF :/ 1}`,
+  `with {A == 8'hFF}` solves one time out of four. The workaround is one line and
+  it is in the Constrained random section.
+- That workaround is also the right thing here even if the simulator were
+  perfect: a **directed** case does not want a spread of probabilities, it wants
+  a value.
+- `randomize()` is checked with `if`, never with `assert()`. A simulator with
+  asserts disabled does not execute the argument, and your transaction goes out
+  with whatever it had.
+- The `tester` **does not touch the DUT**: it puts the transaction in a FIFO and
+  the driver handles it. That is why `result` is not in the object you sent.
 
-## Lo que practica
+## What it practises
 
-`randomize() with {}` y `constraint_mode()`, y leer un reporte de cobertura para
-decidir qué escribir. Que es lo que hace que *coverage closure* sea un verbo y no
-un sustantivo: no se escribe un test por bin, se mira el reporte y se escriben
-tres líneas.
+`randomize() with {}` and `constraint_mode()`, and reading a coverage report to
+decide what to write. Which is what makes *coverage closure* a verb and not a
+noun: you do not write a test per bin, you look at the report and you write three
+lines.

@@ -1,71 +1,75 @@
-# Día 6 — tres bugs plantados, y ninguno se parece al otro
+<!-- es-sha: 9cb77801ad41 -->
+**English** · [Castellano](README.es.md)
 
-Los otros ejercicios te dan un archivo con un agujero y te dicen qué escribir.
-Éste te da un testbench **que ya está escrito** y no anda, y no te dice dónde.
+# Day 6 — three planted bugs, and none of them looks like the others
 
-Es el ejercicio que se parece al primer mes de trabajo.
+The other exercises give you a file with a hole and tell you what to write. This
+one gives you a testbench **that is already written** and does not work, and does
+not tell you where.
 
-El testbench es el entero de la sección de sequences. Tres de sus archivos se
-copiaron acá con **un bug cada uno**, y los tres fallan de forma distinta:
+It is the exercise that looks like your first month on the job.
 
-| | Archivo | Cómo se manifiesta |
+The testbench is the whole one from the sequences section. Three of its files
+were copied here with **one bug each**, and all three fail differently:
+
+| | File | How it shows up |
 |:--:|---|---|
-| **1** | `driver.svh` | **cuelga**: el log se corta y la simulación muere en `[PH_TIMEOUT]` |
-| **2** | `default_seq_test.svh` | **termina en `t=0`** y dice PASS, sin haber mandado nada |
-| **3** | `random_sequence.svh` | **miente en verde**: `add_test` pasa, la cobertura sube, y el estímulo no es el que dice |
+| **1** | `driver.svh` | **it hangs**: the log stops and the simulation dies on `[PH_TIMEOUT]` |
+| **2** | `default_seq_test.svh` | **it ends at `t=0`** and says PASS, without having sent anything |
+| **3** | `random_sequence.svh` | **it lies in green**: `add_test` passes, coverage even goes up, and the stimulus is not the one it says |
 
-## Qué se pide
+## What is asked for
 
-Arreglar los tres. El corrector te dice **cuál** de los tres sigue roto y en qué
-se nota; cuál es la línea, es el ejercicio.
+Fix all three. The checker tells you **which** of the three is still broken and
+how it shows; which line it is, is the exercise.
 
-Listo cuando `bash run.sh` imprime las tres etapas y termina con `EXERCISE OK`.
+Done when `bash run.sh` prints the three stages and ends with `EXERCISE OK`.
 
-## Por dónde se empieza
+## Where to start
 
-La caja de herramientas del apéndice de debug es exactamente para esto, y la
-tabla *"cuál usar según el síntoma"* tiene los tres:
+The debug toolbox of the appendix is exactly for this, and the *"which one to use
+according to the symptom"* table has all three:
 
-- **Cuelga** → `+UVM_TIMEOUT=2000000,YES` para no esperar al infinito, y después
-  `+UVM_OBJECTION_TRACE` para ver quién quedó agarrado. El `run.sh` ya pasa el
-  timeout: sin techo, un testbench colgado cuelga también al CI.
-- **Termina en t=0** → `+UVM_OBJECTION_TRACE`. Si nadie la levanta, la fase
-  termina enseguida y **no hay error**: no hay nada de qué quejarse.
-- **Miente en verde** → `+TOPOLOGY` es el reflejo correcto… y acá **no alcanza**,
-  porque lo que se construyó mal es un `uvm_object` y el árbol sólo muestra
-  `uvm_component`. La herramienta que sirve es leer el log del
-  `command_monitor` con `+UVM_VERBOSITY=UVM_HIGH` y mirar **qué salió al bus**.
+- **It hangs** → `+UVM_TIMEOUT=2000000,YES` so you do not wait forever, and then
+  `+UVM_OBJECTION_TRACE` to see who is left holding on. The `run.sh` already
+  passes the timeout: with no ceiling, a hung testbench hangs the CI too.
+- **It ends at t=0** → `+UVM_OBJECTION_TRACE`. If nobody raises it, the phase
+  ends right away and **there is no error**: there is nothing to complain about.
+- **It lies in green** → `+TOPOLOGY` is the right reflex… and here it **is not
+  enough**, because what got built wrong is a `uvm_object` and the tree only
+  shows `uvm_component`. The tool that works is reading the `command_monitor`
+  log with `+UVM_VERBOSITY=UVM_HIGH` and looking at **what went out on the bus**.
 
-Los tres bugs están catalogados en el apéndice de trampas mudas. Si te trabás,
-está permitido leerlo: la lista de trampas existe justamente para que la segunda
-vez tardes cinco minutos.
+All three bugs are catalogued in the silent traps appendix. If you get stuck,
+you are allowed to read it: the list of traps exists precisely so that the second
+time it takes you five minutes.
 
-## Lo que NO hay que hacer
+## What NOT to do
 
-Los tres archivos son los del curso con una línea cambiada cada uno. No hace
-falta reescribir nada, ni agregar clases, ni tocar `tb.f`. Si tu arreglo tiene
-más de tres líneas en total, estás resolviendo otro problema.
+The three files are the course's own with one line changed each. There is no need
+to rewrite anything, nor to add classes, nor to touch `tb.f`. If your fix is more
+than three lines in total, you are solving a different problem.
 
-## Cómo se corre
+## How to run it
 
 ```sh
-bash run.sh              # con tus archivos
-SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
+bash run.sh              # with your files
+SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 ```
 
-## Cuánto tarda
+## How long it takes
 
-Compila UVM entera, como el resto de los ejercicios del día 6:
+It compiles the whole of UVM, like the rest of the day 6 exercises:
 
-| | 12 cores | 2 cores (Codespaces gratis) |
+| | 12 cores | 2 cores (free Codespaces) |
 |---|---|---|
-| la primera vez | ~2 min | ~5 min |
-| las siguientes, con `ccache` | ~20 s | ~20 s |
+| the first time | ~2 min | ~5 min |
+| the following ones, with `ccache` | ~20 s | ~20 s |
 
-## Lo que practica
+## What it practises
 
-Debug, que es lo que un verificador hace la mayor parte del día y lo que ningún
-otro ejercicio del curso practica solo. Y una idea que ordena todo lo demás:
-**los tres modos de falla de un testbench de UVM no se parecen entre sí**. Uno
-cuelga y se nota enseguida; los otros dos pasan en verde, y ésos son los que
-cuestan semanas.
+Debugging, which is what a verification engineer does most of the day and what no
+other exercise of the course practises on its own. And one idea that orders
+everything else: **the three failure modes of a UVM testbench do not look like
+each other**. One hangs and shows up at once; the other two pass in green, and
+those are the ones that cost weeks.

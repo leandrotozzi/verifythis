@@ -1,84 +1,88 @@
-# Día 3 — el `uvm_error` que no dice nada
+<!-- es-sha: b38d22aba396 -->
+**English** · [Castellano](README.es.md)
 
-El día 1 arrancó con esta línea:
+# Day 3 — the `uvm_error` that says nothing
+
+Day 1 started with this line:
 
 ```
 FAILED: A: e5  B: 0  op: mul_op result: fe01 ovf: 0
 ```
 
-y con la observación de que un log dice **que** algo falló y casi nunca **por
-qué**. Éste es el ejercicio donde eso se arregla, del lado del que escribe el
-log.
+and with the observation that a log says **that** something failed and almost
+never **why**. This is the exercise where that gets fixed, from the side of
+whoever writes the log.
 
-El testbench es el entero de la sección *El env*. El `scoreboard.svh` que hay
-acá está **bien**: atrapa todos los errores. Y es inútil: cuando falla, dice
-`FAILED` y nada más.
+The testbench is the whole one from the *The whole env* section. The
+`scoreboard.svh` that is here is **right**: it catches every mismatch. And it is
+useless: when it fails, it says `FAILED` and nothing else.
 
 ```sh
 bash run.sh
 ```
 
-## Qué se pide
+## What is asked
 
-**`scoreboard.svh`**, dos cambios y ninguno cambia lo que el scoreboard
-*chequea*:
+**`scoreboard.svh`**, two changes, and neither of them changes what the
+scoreboard *checks*:
 
-1. **Que el `uvm_error` diga cuál falló.** El contrato de log es éste, y el
-   corrector lo verifica contra la operación que de verdad falló:
+1. **That the `uvm_error` says which one failed.** This is the log contract, and
+   the checker verifies it against the operation that really failed:
 
-   | Qué | Cómo |
+   | What | How |
    |---|---|
-   | `A` y `B` | **dos** dígitos hexa — `%02h` |
-   | la operación | su nombre, `add_op`, `mul_op`… — `%s` sobre `.name()` |
-   | el resultado del DUT y el que predijiste | **cuatro** dígitos hexa cada uno — `%04h` |
+   | `A` and `B` | **two** hex digits — `%02h` |
+   | the operation | its name, `add_op`, `mul_op`… — `%s` over `.name()` |
+   | the DUT's result and the one you predicted | **four** hex digits each — `%04h` |
 
-   El orden y el texto alrededor son tuyos. Lo que se chequea es que los cinco
-   valores estén **en la misma línea**.
+   The order and the text around them are yours. What is checked is that the
+   five values are **on the same line**.
 
-2. **Que la comparación que pasa también se imprima**, con la palabra `PASS` y
-   con verbosidad **`UVM_HIGH`**. Va en el `else` del mismo `if`.
+2. **That the comparison that passes gets printed too**, with the word `PASS`
+   and at verbosity **`UVM_HIGH`**. It goes in the `else` of the same `if`.
 
-Listo cuando `bash run.sh` imprime `EXERCISE OK`.
+Done when `bash run.sh` prints `EXERCISE OK`.
 
-## Cómo se corre
+## How it is run
 
 ```sh
-bash run.sh              # con tu archivo
-SOLUCION=1 bash run.sh   # con el de solucion/, para comparar
+bash run.sh              # with your file
+SOLUCION=1 bash run.sh   # with the one in solucion/, to compare
 ```
 
-`run.sh` corre el mismo testbench **tres veces**, y cada una corrige una cosa:
+`run.sh` runs the same testbench **three times**, and each one grades one thing:
 
-1. con `+VTALU_BUG` —el DUT sale roto a propósito— para que tu `uvm_error`
-   dispare y se pueda leer qué dice;
-2. sin el bug y con la verbosidad de siempre: el `PASS` **no** tiene que
-   aparecer;
-3. sin el bug y con `+UVM_VERBOSITY=UVM_HIGH`: ahora sí, **una vez por
-   comparación**.
+1. with `+VTALU_BUG` —the DUT comes out broken on purpose— so that your
+   `uvm_error` fires and what it says can be read;
+2. without the bug and with the usual verbosity: the `PASS` must **not** appear;
+3. without the bug and with `+UVM_VERBOSITY=UVM_HIGH`: now it does, **once per
+   comparison**.
 
-`chequeo.svh`, `env.svh`, `vtalu_pkg.sv` y los dos `.f` no se tocan: el
-`shasum -c intocables.sha` lo caza antes de compilar. `chequeo.svh` es el que
-mira el mismo bus que vos y sabe cuál fue la primera operación que falló.
+`chequeo.svh`, `env.svh`, `vtalu_pkg.sv` and the two `.f` are not touched: the
+`shasum -c intocables.sha` catches it before compiling. `chequeo.svh` is the one
+that watches the same bus you do and knows which was the first operation that
+failed.
 
-## Cuánto tarda
+## How long it takes
 
-Compila UVM entera: ~1 min 30 la primera vez en una laptop de 12 cores, ~15 s
-las siguientes con `ccache`. Escribirlo son diez minutos.
+It compiles the whole of UVM: ~1 min 30 the first time on a 12-core laptop, ~15 s
+the next ones with `ccache`. Writing it is ten minutes.
 
-## Por qué la verbosidad, y no borrar el `PASS`
+## Why the verbosity, and not deleting the `PASS`
 
-Un scoreboard que sólo habla cuando falla parece más limpio, y es el que hace
-perder la mañana: cuando la operación 700 falla, lo que necesitás saber es qué
-pasó en la 699. Por eso el `PASS` se escribe **y** se esconde: `UVM_HIGH` lo saca
-del log de todos los días y lo deja a un `+UVM_VERBOSITY=UVM_HIGH` de distancia
-el día que hace falta.
+A scoreboard that only speaks when it fails looks cleaner, and it is the one that
+loses you the morning: when operation 700 fails, what you need to know is what
+happened in 699. That is why the `PASS` is written **and** hidden: `UVM_HIGH`
+takes it out of the everyday log and leaves it one `+UVM_VERBOSITY=UVM_HIGH`
+away for the day it is needed.
 
-Ésa es la diferencia entre **verbosidad** y **severidad**, que es la mitad de la
-sección de *Reporting*: la severidad dice qué tan grave es, la verbosidad dice
-cuántas ganas tenés de leerlo hoy.
+That is the difference between **verbosity** and **severity**, which is half of
+the *Reporting* section: severity says how serious it is, verbosity says how much
+you feel like reading it today.
 
-## Lo que practica
+## What it practises
 
-`uvm_error` y `uvm_info` con `$sformatf`, los niveles de verbosidad,
-`+UVM_VERBOSITY` desde la línea de comandos, y la fila 10 de la autoevaluación
-del cierre: *hacer que un scoreboard que falla diga algo más que "falló"*.
+`uvm_error` and `uvm_info` with `$sformatf`, the verbosity levels,
+`+UVM_VERBOSITY` from the command line, and row 10 of the closing
+self-assessment: *making a scoreboard that fails say something more than
+"it failed"*.

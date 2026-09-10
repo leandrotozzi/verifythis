@@ -1,67 +1,70 @@
-# Día 6 · las sequences — el tester del día 3, ahora como sequence
+<!-- es-sha: 11dc6a828351 -->
+**English** · [Castellano](README.es.md)
 
-El testbench es el de las sequences entero: agent, sequencer, driver, monitores,
-cobertura y scoreboard. **No hay que tocar nada de eso**, y el `run.sh` lo
-verifica con `intocables.sha` antes de compilar. Lo único que falta es el
-estímulo.
+# Day 6 · sequences — the tester of day 3, now as a sequence
 
-## Qué se pide
+The testbench is the whole one from sequences: agent, sequencer, driver, monitors,
+coverage and scoreboard. **None of that has to be touched**, and `run.sh` checks
+that with `intocables.sha` before compiling. The only thing missing is the
+stimulus.
 
-1. **`mult_sequence.svh`** — una `uvm_sequence #(command_transaction)` que:
-   - mande primero un `rst_op`;
-   - después mande **20 multiplicaciones** con `A` y `B` al azar;
-   - cuente cuántas mandó y se quede con el **resultado más grande** que vio;
-   - imprima al final de `body()`, con verbosidad `UVM_NONE` y con el id
+## What is asked
+
+1. **`mult_sequence.svh`** — a `uvm_sequence #(command_transaction)` that:
+   - first sends a `rst_op`;
+   - then sends **20 multiplications** with `A` and `B` at random;
+   - counts how many it sent and keeps the **largest result** it saw;
+   - prints at the end of `body()`, with verbosity `UVM_NONE` and the id
      `MULT SEQ`:
 
      ```
      items=<n> max=<m>
      ```
 
-2. **`mult_test.svh`** — un test que extienda `base_test`, cree la sequence por
-   la factory y la arranque sobre `sequencer_h`, con el objection alrededor.
+2. **`mult_test.svh`** — a test that extends `base_test`, creates the sequence through
+   the factory and starts it on `sequencer_h`, with the objection around it.
 
-Listo cuando `bash run.sh` imprime `EXERCISE OK`.
+Done when `bash run.sh` prints `EXERCISE OK`.
 
-## Cómo se corre
+## How to run it
 
 ```sh
-bash run.sh              # con tus archivos
-SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
+bash run.sh              # with your files
+SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 ```
 
-## Cuánto tarda
+## How long it takes
 
-Este ejercicio compila UVM entera. Medido con Verilator 5.052:
+This exercise compiles the whole of UVM. Measured with Verilator 5.052:
 
-| | 12 cores | 2 cores (Codespaces gratis) |
+| | 12 cores | 2 cores (free Codespaces) |
 |---|---|---|
-| la primera vez | ~1 min 30 | ~4 min |
-| las siguientes, con `ccache` | ~15 s | ~15 s |
+| the first time | ~1 min 30 | ~4 min |
+| the following ones, with `ccache` | ~15 s | ~15 s |
 
-El hit de `ccache` es copiar un archivo, así que la segunda compilación tarda lo
-mismo en cualquier máquina. Instalalo antes de empezar —el `run.sh` lo detecta
-solo— o usá Codespaces, que ya lo trae.
+A `ccache` hit is copying a file, so the second compilation takes the
+same on any machine. Install it before starting —the `run.sh` detects it
+on its own— or use Codespaces, which already brings it.
 
-## Pistas, en orden de utilidad
+## Hints, in order of usefulness
 
-- **El primer item tiene que ser un `rst_op`.** El VTALU arranca con `reset_n`
-  en 0 y nunca levanta `done`; sin reset el driver se queda esperando y tu
-  sequence se cuelga en el primer `finish_item()`. Mirá `reset_sequence.svh`.
-- Para que salga sólo `mul_op` tenés dos caminos, los dos del día 5:
-  `randomize() with {op == mul_op;}` —`op` no tiene `dist`, así que acá el `with`
-  funciona— o `command.op = mul_op; command.op.rand_mode(0);` antes de
+- **The first item has to be a `rst_op`.** The VTALU starts up with `reset_n`
+  at 0 and never raises `done`; without a reset the driver stays waiting and your
+  sequence hangs in the first `finish_item()`. Look at `reset_sequence.svh`.
+- To get only `mul_op` out you have two ways, both of them from day 5:
+  `randomize() with {op == mul_op;}` —`op` has no `dist`, so here the `with`
+  works— or `command.op = mul_op; command.op.rand_mode(0);` before
   `randomize()`.
-- `command.result` lo escribe **el driver**, adentro del item, justo antes de
-  `item_done()`. O sea que recién es válido **después** de que volvió
-  `finish_item()`. Si lo leés antes, te va a dar 0 y el corrector te lo va a
-  decir.
-- La sequence es un `uvm_object`: `` `uvm_object_utils ``, constructor de un solo
-  argumento, y `body()` es una **task**.
+- `command.result` is written by **the driver**, inside the item, right before
+  `item_done()`. Which means it is only valid **after** `finish_item()` has come
+  back. If you read it before, it is going to give you 0 and the checker is going to tell
+  you so.
+- The sequence is a `uvm_object`: `` `uvm_object_utils ``, constructor with a single
+  argument, and `body()` is a **task**.
 
-## Lo que practica
+## What it practises
 
-`body()` y el ciclo de vida de la sequence, `start_item()` / `finish_item()`,
-randomización tardía y `rand_mode()` / `with {}`. Y la idea de fondo:
-**el estímulo se cambia sin tocar una línea de estructura**. Los dos archivos que
-escribís son los dos únicos que este ejercicio tiene.
+`body()` and the life cycle of the sequence, `start_item()` / `finish_item()`,
+late randomization and `rand_mode()` / `with {}`. And the underlying idea:
+**the stimulus gets changed without touching a line of structure**. The two files you
+write are the only two this exercise has.

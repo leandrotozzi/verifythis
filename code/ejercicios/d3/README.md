@@ -1,52 +1,55 @@
-# Día 3 — un test nuevo sin tocar la estructura
+<!-- es-sha: 22898a9a6696 -->
+**English** · [Castellano](README.es.md)
 
-El testbench ya trae el `env` separando estructura de estímulo.
-Ya existen `random_test` y `add_test`. Falta el que multiplica.
+# Day 3 — a new test without touching the structure
 
-## Qué se pide
+The testbench already comes with the `env` separating structure from stimulus.
+`random_test` and `add_test` already exist. The one that multiplies is missing.
 
-1. **`mult_tester.svh`** — un tester que extienda `random_tester` y devuelva
-   siempre `mul_op` en `get_op()`.
-2. **`mult_test.svh`** — un `uvm_test` que le diga a la factory que cuando
-   alguien pida un `base_tester` devuelva tu `mult_tester`, y que cree el `env`.
-3. **No toques `env.svh`.** Esa es toda la gracia: la estructura del testbench
-   no se entera de que cambió el estímulo. El `run.sh` lo verifica con
-   `intocables.sha` antes de compilar: instanciar tu `mult_tester` ahí a mano
-   también hace pasar el test, y ahí el ejercicio —el `set_type_override`— no se
-   hizo nunca.
+## What is asked
 
-Listo cuando `bash run.sh` imprime `EXERCISE OK`.
+1. **`mult_tester.svh`** — a tester that extends `random_tester` and always returns
+   `mul_op` in `get_op()`.
+2. **`mult_test.svh`** — a `uvm_test` that tells the factory that when
+   somebody asks for a `base_tester` it should hand over your `mult_tester`, and that creates the `env`.
+3. **Do not touch `env.svh`.** That is the whole point: the structure of the testbench
+   never finds out that the stimulus changed. `run.sh` checks that with
+   `intocables.sha` before compiling: instantiating your `mult_tester` there by
+   hand also makes the test pass, and then the exercise --the
+   `set_type_override`-- never happened.
 
-## Cómo se corre
+Done when `bash run.sh` prints `EXERCISE OK`.
+
+## How to run it
 
 ```sh
-bash run.sh              # con tus archivos
-SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
+bash run.sh              # with your files
+SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 ```
 
-`env.svh` instancia un componente `chequeo` que no es parte del curso: mira el
-bus del DUT y reporta un `uvm_error` si pasa una operación que no sea una
-multiplicación. Por eso el ejercicio se corrige solo.
+`env.svh` instantiates a `chequeo` component that is not part of the course: it watches the
+DUT bus and reports a `uvm_error` if an operation goes past that is not a
+multiplication. That is why the exercise marks itself.
 
-## Cuánto tarda
+## How long it takes
 
-Este ejercicio compila UVM entera. Medido con Verilator 5.052:
+This exercise compiles the whole of UVM. Measured with Verilator 5.052:
 
-| | 12 cores | 2 cores (Codespaces gratis) |
+| | 12 cores | 2 cores (free Codespaces) |
 |---|---|---|
-| la primera vez | ~1 min 30 | ~4 min |
-| las siguientes, con `ccache` | ~15 s | ~15 s |
+| the first time | ~1 min 30 | ~4 min |
+| the following ones, with `ccache` | ~15 s | ~15 s |
 
-El hit de `ccache` es copiar un archivo, así que la segunda compilación tarda lo
-mismo en cualquier máquina. Instalalo antes de empezar —el `run.sh` lo detecta
-solo— o usá Codespaces, que ya lo trae.
+A `ccache` hit is copying a file, so the second compilation takes the
+same on any machine. Install it before starting —the `run.sh` detects it
+on its own— or use Codespaces, which already brings it.
 
-## Lo que practica
+## What it practises
 
-UVM tests, components y phases, y sobre todo el factory override.
-Compará con el día 2: ahí el tipo se elegía en el código del testbench, acá
-lo elige la factory y el testbench ni se entera.
+UVM tests, components and phases, and above all the factory override of the
+`env` section. Compare it with day 2: there the type was picked in the code of the testbench, here
+the factory picks it and the testbench does not even find out.
 
-Mirá también la cobertura: con puras multiplicaciones baja a 26 %. Un test
-enfocado cubre menos — por eso hacen falta varios, y por eso importa que
-agregarlos sea barato.
+Look at the coverage too: with nothing but multiplications it drops to 26 %. A
+focused test covers less — that is why several are needed, and that is why it matters that
+adding them is cheap.

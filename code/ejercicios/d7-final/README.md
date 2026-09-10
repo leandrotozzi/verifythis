@@ -1,90 +1,91 @@
-# Día 7 — el capstone: verificá el `apb_regs`
+<!-- es-sha: 0f4ec16a3c7e -->
+**English** · [Castellano](README.es.md)
 
-Los otros trece ejercicios con enunciado te daban un archivo con un agujero.
-Éste te da un DUT, una spec y nada más. **El testbench lo escribís vos,
-entero**, y ésa es la única diferencia entre *"hice el curso"* y
-*"sé hacerlo"*.
+# Day 7 — the capstone: verify the `apb_regs`
 
-El DUT es un esclavo **APB3** de cuatro registros. No es una ALU: tiene
-direcciones, dos fases por transferencia, un wait state y respuesta de error. Es
-lo que te vas a encontrar el lunes, y es exactamente el salto que promete el
-apéndice *De la VTALU a un bus real*.
+The other thirteen exercises with a statement gave you a file with a hole in it. This one gives you a DUT,
+a spec and nothing else. **You write the testbench, all of it**, and that is the only
+difference between *"I did the course"* and *"I know how to do it"*.
 
-## Lo que te dan, y no se toca
+The DUT is an **APB3** slave with four registers. It is not an ALU: it has
+addresses, two phases per transfer, a wait state and an error response. It is
+what you are going to run into on Monday, and it is exactly the jump the
+appendix *From the VTALU to a real bus* promises.
+
+## What you are given, and does not get touched
 
 | | |
 |---|---|
-| [`spec.md`](spec.md) | **la especificación**: pines, protocolo, mapa de registros, la letra chica y el plan de verificación |
-| `rtl/apb_regs.sv` | el DUT |
-| `top.sv` | los **dos** esclavos, cada uno con su interface, y el `config_db` |
-| `apb_stim_module.sv` | el módulo de siempre, sin una línea de UVM, que maneja el segundo bus |
-| `run.sh` | el corrector, por etapas |
+| [`spec.en.md`](spec.en.md) | **the specification**: pins, protocol, register map, the small print and the verification plan |
+| `rtl/apb_regs.sv` | the DUT |
+| `top.sv` | the **two** slaves, each with its interface, and the `config_db` |
+| `apb_stim_module.sv` | the ordinary module, without one line of UVM, that drives the second bus |
+| `run.sh` | the checker, in stages |
 
-El segundo bus está para que puedas escribir el **monitor antes que el driver**,
-que es el consejo de campo del apéndice: si no podés *ver* el bus, no podés
-verificar nada — ni siquiera el estímulo de otro.
+The second bus is there so you can write the **monitor before the driver**,
+which is the field advice of the appendix: if you cannot *see* the bus, you cannot
+verify anything — not even somebody else's stimulus.
 
-## Lo que escribís vos
+## What you write
 
-En este directorio, empezando por una hoja en blanco:
+In this directory, starting from a blank sheet:
 
 ```
-apb_if.sv           la interface: pines, reloj, el protocolo y el enganche del monitor
-apb_pkg.sv          el package que incluye todo lo de abajo, en orden
+apb_if.sv           the interface: pins, clock, the protocol and the monitor hook
+apb_pkg.sv          the package that includes everything below, in order
 tb_classes/*.svh    transaction, config, driver, monitor, agent, scoreboard,
-                    covergroup, env, sequences y tests
+                    covergroup, env, sequences and tests
 ```
 
-## Los entregables, en orden
+## The deliverables, in order
 
-El corrector va por etapas y cada una imprime su `STAGE N OK`. Se puede
-terminar de a una, y conviene: cada etapa se apoya en la anterior.
+The checker goes in stages and each one prints its `STAGE N OK`. It can be
+finished one at a time, and that is the way to do it: each stage leans on the previous one.
 
-**1 · El monitor.** `apb_if.sv` con los pines de la spec, la `apb_transaction`,
-el `apb_monitor`, un `apb_agent` **pasivo** sobre `stim_bfm`, el `env` y un
-`monitor_test` que levante la objection y espere. Sin driver y sin scoreboard.
-El módulo de siempre hace **ocho** transferencias: hay que ver las ocho, y
-ninguna de más.
+**1 · The monitor.** `apb_if.sv` with the pins of the spec, the `apb_transaction`,
+the `apb_monitor`, a **passive** `apb_agent` on `stim_bfm`, the `env` and a
+`monitor_test` that raises the objection and waits. Without a driver and without a scoreboard.
+The ordinary module does **eight** transfers: you have to see all eight, and
+not one more.
 
-**2 · El driver.** Las tasks del protocolo adentro de `apb_if.sv`, el
-`apb_driver`, el sequencer, el agent **activo** sobre `bfm`, una sequence
-dirigida y un `smoke_test`. Tiene que escribir y leer los cuatro registros: es
-la fila 1 del plan de verificación.
+**2 · The driver.** The tasks of the protocol inside `apb_if.sv`, the
+`apb_driver`, the sequencer, the **active** agent on `bfm`, a directed
+sequence and a `smoke_test`. It has to write and read the four registers: it is
+row 1 of the verification plan.
 
-**3 · El scoreboard.** El `apb_scoreboard`, que es el DUT modelado en software:
-los mismos cuatro registros, las mismas reglas, ninguna señal. Y un
-`random_test` con una sequence al azar. El corrector lo corre **dos veces**: una
-contra el DUT sano —tiene que cerrar en 0 `UVM_ERROR`— y otra con `+BUG=1`, que
-le saca al DUT el gate de `CTRL.EN`. Ahí **tiene que gritar**: un scoreboard que
-nunca vio un error no está probado.
+**3 · The scoreboard.** The `apb_scoreboard`, which is the DUT modelled in software:
+the same four registers, the same rules, no signals. And a
+`random_test` with a random sequence. The checker runs it **twice**: once
+against the healthy DUT —it has to close at 0 `UVM_ERROR`— and another with `+BUG=1`, which
+takes the `CTRL.EN` gate off the DUT. There it **has to scream**: a scoreboard that
+has never seen an error is not tested.
 
-**4 · La cobertura.** El `covergroup` con las nueve filas del plan de
-verificación de `spec.md`. El corrector pide **más de 20 puntos** y **90 %**
-cubierto con el `random_test`. Las filas **8 y 9 vienen vacías**: las escribís
-vos, y los bins se llaman `back_to_back` y `unaligned` porque el corrector los
-busca por nombre. Cómo se llena una tabla de éstas, en
-[`docs/plan-de-verificacion.md`](../../../docs/plan-de-verificacion.md).
+**4 · The coverage.** The `covergroup` with the nine rows of the verification
+plan of `spec.en.md`. The checker asks for **more than 20 points** and **90 %**
+covered with the `random_test`. Rows **8 and 9 come empty**: you write them,
+and the bins are called `back_to_back` and `unaligned` because the checker looks
+them up by name. How a table like this gets filled in, in
+[`docs/en/verification-plan.md`](../../../docs/en/verification-plan.md).
 
-**5 · Las properties.** El protocolo del APB chequeado **donde ocurre**, adentro
-de `apb_if.sv`: SETUP dura un ciclo, el payload no se mueve hasta que termina la
-transferencia, ACCESS se sostiene hasta el handshake. Se compilan con `--assert`
-—el `run.sh` ya lo pasa— y reportan con `` `uvm_error("SVA", ...) `` en el `else`.
-El corrector corre el módulo de siempre con **`+BUG=2`**, que le mueve `PADDR` en
-el medio de ACCESS: el DUT contesta en la dirección nueva, el monitor reconstruye
-ocho transferencias impecables, el scoreboard no tiene nada que decir, y la única
-que se entera es la assertion. Ése es el argumento del día 7, ahora sobre un bus
-de verdad.
+**5 · The properties.** The APB protocol checked **where it happens**, inside
+`apb_if.sv`: SETUP lasts one cycle, the payload does not move until the transfer
+ends, ACCESS is held until the handshake. They are compiled with `--assert` —the
+`run.sh` already passes it— and they report with `` `uvm_error("SVA", ...) `` in the
+`else`. The checker runs the ordinary module with **`+BUG=2`**, which moves its
+`PADDR` in the middle of ACCESS: the DUT answers at the new address, the monitor
+reconstructs eight spotless transfers, the scoreboard has nothing to say, and the
+only one that notices is the assertion. That is the day 7 argument, now on a real
+bus.
 
-Listo cuando `bash run.sh` imprime las cinco etapas y termina con
-`EXERCISE OK`.
+Done when `bash run.sh` prints the five stages and ends with `EXERCISE OK`.
 
-## El contrato con el corrector
+## The contract with the checker
 
-El corrector no lee tu código: lee el log. Cuatro cosas tienen que ser así:
+The checker does not read your code: it reads the log. Four things have to be like this:
 
-- Los **tests** se llaman `monitor_test`, `smoke_test` y `random_test`.
-- El **monitor** imprime una línea por transferencia completa, con este formato
-  exacto y con el id `MONITOR`:
+- The **tests** are called `monitor_test`, `smoke_test` and `random_test`.
+- The **monitor** prints one line per complete transfer, with this exact
+  format and with the id `MONITOR`:
 
   ```
   `uvm_info("MONITOR", t.convert2string(), UVM_MEDIUM)
@@ -93,116 +94,116 @@ El corrector no lee tu código: lee el log. Cuatro cosas tienen que ser así:
   WR @0x04 = 0x10000000  slverr=0
   RD @0x08 = 0x00000030  slverr=1
   ```
-  En una escritura el valor es `PWDATA`; en una lectura, `PRDATA`.
-- El **scoreboard** reporta con `` `uvm_error("SCOREBOARD", ...) ``, y las
-  **properties** de la etapa 5 con `` `uvm_error("SVA", ...) ``.
-- Los dos bins de las filas 8 y 9 del plan se llaman **`back_to_back`** y
-  **`unaligned`**: el corrector los busca por nombre en la base de cobertura.
+  On a write the value is `PWDATA`; on a read, `PRDATA`.
+- The **scoreboard** reports with `` `uvm_error("SCOREBOARD", ...) ``, and the
+  stage 5 **properties** with `` `uvm_error("SVA", ...) ``.
+- The two bins of rows 8 and 9 of the plan are called **`back_to_back`** and
+  **`unaligned`**: the checker looks them up by name in the coverage database.
 
-No es burocracia: un formato de log acordado es lo que hace que el que llega
-mañana al proyecto pueda grepear tu testbench sin leerlo.
+It is not bureaucracy: an agreed log format is what lets whoever arrives at the
+project tomorrow grep your testbench without reading it.
 
-## Cómo se corre
+## How to run it
 
 ```sh
-bash run.sh              # con tus archivos
-SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
+bash run.sh              # with your files
+SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 ```
 
-`solucion/` tiene el testbench completo: diecisiete archivos, que son los mismos
-tipos de clase del `code/u7/sequences` más la interface y el package. Mirala
-**después**, o el ejercicio no sirve para nada.
+`solucion/` has the complete testbench: seventeen files, which are the same
+types of class as `code/u7/sequences` plus the interface and the package. Look at it
+**afterwards**, or the exercise is good for nothing.
 
-## Cuánto tarda
+## How long it takes
 
-Compila UVM entera, como los otros del día 6 y 7:
+It compiles the whole of UVM, like the other ones of days 6 and 7:
 
 | | |
 |---|---|
-| la primera vez | ~2 min |
-| las siguientes, sin tocar nada | ~6 s |
-| las siguientes, con `ccache` y un archivo tocado | ~15 s |
+| the first time | ~2 min |
+| the following ones, without touching anything | ~6 s |
+| the following ones, with `ccache` and one file touched | ~15 s |
 
-De esos segundos, cuatro se los lleva el solver: el `random_test` son 400
-transacciones con `dist`, y cada `randomize()` es una llamada a **z3**. Sin z3
-instalado, `randomize()` devuelve 0 en silencio — ver
-[`docs/verilator.md`](../../../docs/verilator.md).
+Of those seconds, four go to the solver: the `random_test` is 400
+transactions with `dist`, and every `randomize()` is a call to **z3**. Without z3
+installed, `randomize()` returns 0 in silence — see
+[`docs/verilator.md`](../../../docs/verilator.md) (in Spanish).
 
-## Pistas, en orden de utilidad
+## Hints, in order of usefulness
 
-- **Empezá por el monitor, no por el driver.** Es el orden del apéndice y es el
-  orden del corrector. Con el monitor andando tenés ojos; sin él estás
-  manejando a ciegas.
-- Una transferencia termina **en el flanco de subida en que `PREADY` está
-  alto**, no cuando baja `PENABLE`. Un monitor que muestree cualquier otro
-  flanco reporta de más o de menos, y en la etapa 1 el número te lo dice.
-- La lectura tiene **un wait state**. No lo cuentes en ciclos: esperá el
-  handshake (`do @(posedge PCLK); while (!PREADY);`). El día que el esclavo meta
-  tres wait states, tu driver no se entera.
-- Si el scoreboard falla en la primera lectura de `CTRL`, leé otra vez la letra
-  chica: `CLR` es autoclear y **nunca se lee en 1**.
-- Si falla escribiendo `ACC` o `STATUS`, la trampa es al revés: escribir un
-  registro de sólo lectura **no** da `PSLVERR`.
-- Si `+BUG=1` no te dispara nada, tu modelo no está mirando `CTRL.EN` — o tu
-  estímulo no lee `ACC` nunca. Las dos cosas se arreglan mirando la fila 5 del
-  plan de verificación.
-- El `covergroup` no lo inventes: la tabla del final de `spec.md` tiene las
-  filas, y la columna de la derecha dice qué bin es cada una. Las dos últimas
-  están vacías a propósito.
-- Si el scoreboard falla en una dirección rara —`0x06`, `0x0D`— es la fila 9:
-  `PADDR[1:0]` se ignora, así que `0x06` **es** el `SCRATCH`. Un `case` sobre la
-  dirección entera manda esas transferencias al `default`.
-- Para la fila 8 el que decide es el driver: si deja `PSEL` alto al final de una
-  transferencia, la siguiente arranca pegada. Ojo con la última de la sequence —
-  si queda encadenada y no viene nadie, el bus se queda en ACCESS para siempre.
-- Las properties de la etapa 5 van **en la interface**, no en el testbench: ahí
-  ven las señales sin que nadie se las pase, y las heredan las dos instancias del
-  `top.sv`. Y cada una con su `cover property`: una assertion cuyo antecedente
-  nunca pasa está en verde sin haber chequeado nada.
-- La lectura obvia de *"`PSLVERR` es válido junto con `PREADY`"* —
-  `PSLVERR |-> PREADY` — es **falsa** en este DUT: `PSLVERR` es combinacional y
-  ya está alto durante el wait state de la lectura. Esa regla es un `cover`, no
-  un `assert`.
-- Manejá en el flanco de **bajada** y muestreá en el de **subida**, como toda la
-  BFM del curso. Es la misma lección de los dos relojes de las assertions.
-- **O mejor: usá un `clocking block`** en `apb_if.sv`, que es lo que se escribe
-  en un proyecto. `default input #1step output #0`, y el driver deja de elegir
-  flanco: `cb.PADDR <= …` para manejar, `cb.PRDATA` para muestrear. La sección
-  de la unidad 2 tiene el ejemplo corriendo en `code/u2/clocking/`. El corrector
-  no mira cómo lo hiciste — mira el log —, así que las dos formas pasan; ésta es
-  la que vas a tener que saber defender.
+- **Start with the monitor, not with the driver.** It is the order of the appendix and it is the
+  order of the checker. With the monitor working you have eyes; without it you are
+  driving blind.
+- A transfer ends **on the rising edge on which `PREADY` is
+  high**, not when `PENABLE` goes down. A monitor that samples any other
+  edge reports too many or too few, and in stage 1 the number tells you so.
+- The read has **one wait state**. Do not count it in cycles: wait for the
+  handshake (`do @(posedge PCLK); while (!PREADY);`). The day the slave puts in
+  three wait states, your driver does not even notice.
+- If the scoreboard fails on the first read of `CTRL`, read the small
+  print again: `CLR` is autoclear and **never reads as 1**.
+- If it fails writing `ACC` or `STATUS`, the trap is the other way round: writing a
+  read-only register does **not** give `PSLVERR`.
+- If `+BUG=1` fires nothing at you, your model is not looking at `CTRL.EN` — or your
+  stimulus never reads `ACC`. Both things get fixed by looking at row 5 of the
+  verification plan.
+- Do not invent the `covergroup`: the table at the end of `spec.en.md` has the
+  rows, and the right-hand column says which bin each one is. The last two are
+  empty on purpose.
+- If the scoreboard fails on an odd address —`0x06`, `0x0D`— it is row 9:
+  `PADDR[1:0]` is ignored, so `0x06` **is** the `SCRATCH`. A `case` on the whole
+  address sends those transfers to the `default`.
+- For row 8 the one who decides is the driver: if it leaves `PSEL` high at the end of
+  a transfer, the next one starts glued to it. Careful with the last one of the sequence —
+  if it stays chained and nobody comes, the bus is left in ACCESS forever.
+- The stage 5 properties go **in the interface**, not in the testbench: there they
+  see the signals without anybody passing them along, and both instances of the
+  `top.sv` inherit them. And each one with its `cover property`: an assertion whose
+  antecedent never happens is green without having checked a thing.
+- The obvious reading of *"`PSLVERR` is valid together with `PREADY`"* —
+  `PSLVERR |-> PREADY` — is **false** on this DUT: `PSLVERR` is combinational and
+  is already high during the read's wait state. That rule is a `cover`, not an
+  `assert`.
+- Drive on the **falling** edge and sample on the **rising** one, like the whole
+  BFM of the course. It is the same lesson as the two clocks of the assertions.
+- **Or better: use a `clocking block`** in `apb_if.sv`, which is what gets written
+  in a project. `default input #1step output #0`, and the driver stops choosing an
+  edge: `cb.PADDR <= …` to drive, `cb.PRDATA` to sample. The section
+  of unit 2 has the example running in `code/u2/clocking/`. The checker
+  does not look at how you did it — it looks at the log —, so both ways pass; this is
+  the one you are going to have to be able to defend.
 
-## Y después: la regresión, en tu repo
+## And afterwards: the regression, in your repo
 
-Cuando el corrector te dé las cuatro etapas, el paso siguiente no es otro
-ejercicio: es **poner esto a correr solo**. `ci/regresion.yml` es un workflow de
-GitHub Actions listo para copiar a `.github/workflows/` de **tu** repo. Corre el
-mismo test con N semillas, mergea la cobertura, y deja el número en el resumen
-del job:
+When the checker gives you the four stages, the next step is not another
+exercise: it is **getting this to run on its own**. `ci/regresion.yml` is a workflow of
+GitHub Actions ready to copy into `.github/workflows/` of **your** repo. It runs
+the same test with N seeds, merges the coverage, and leaves the number in the summary
+of the job:
 
 ```
 cobertura de la regresión: 118/131 bins (90.1 %)
 bins que ninguna semilla llenó: unmapped_x_wr, status_x_wr, ...
 ```
 
-Hay que tocarle tres variables —dónde está tu `run.sh`, con qué test, cuántas
-semillas— y nada más. Compila Verilator de fuente y lo cachea, porque el paquete
-de la distro es viejo y los covergroups entraron en 5.050.
+Three variables have to be touched —where your `run.sh` is, with which test, how many
+seeds— and nothing else. It compiles Verilator from source and caches it, because the package
+of the distro is old and the covergroups came in on 5.050.
 
-Ese número subiendo commit a commit es **coverage closure**, que es lo que hace
-un equipo de verificación todos los días. Y que un alumno pueda tenerlo gratis
-en un runner público es consecuencia directa de que el simulador sea libre: no
-hay licencia flotante que pedirle a nadie.
+That number going up commit by commit is **coverage closure**, which is what
+a verification team does every day. And that a student can have it for free
+on a public runner is a direct consequence of the simulator being free: there
+is no floating licence to ask anybody for.
 
-Si trabajás adentro de un fork del curso, `make regresion EJEMPLO=... N=...` hace
-lo mismo en tu máquina y además escribe un reporte HTML con los bins abiertos.
+If you work inside a fork of the course, `make regresion EJEMPLO=... N=...` does
+the same on your machine and besides writes an HTML report with the open bins.
 
-## Lo que practica
+## What it practises
 
-Todo. Es el único ejercicio del curso donde no hay estructura previa: la
-transaction, la interface con el protocolo adentro, el agent activo y el pasivo,
-el `config_db` con dos ámbitos, el scoreboard como modelo de referencia, el
-covergroup como plan de verificación medido, las sequences, los tests y las
-properties del protocolo. Y dos cosas más, que no son de UVM: **leer una spec y
-desconfiar de ella**, y **escribir dos filas del plan** que la spec promete en una
-línea suelta y que nadie había medido.
+Everything. It is the only exercise of the course where there is no previous structure: the
+transaction, the interface with the protocol inside, the active agent and the passive one,
+the `config_db` with two scopes, the scoreboard as a reference model, the
+covergroup as a measured verification plan, the sequences, the tests and the
+protocol properties. And two more things, which are not about UVM: **reading a
+spec and distrusting it**, and **writing two rows of the plan** that the spec
+promises on a loose line and nobody had measured.
