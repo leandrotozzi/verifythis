@@ -1,4 +1,4 @@
-<!-- es-sha: 835495bbaf5f -->
+<!-- es-sha: f60d8981f6f2 -->
 **English** · [Castellano](README.es.md)
 
 # Day 7 — the capstone: verify the `apb_regs`
@@ -127,7 +127,7 @@ It compiles the whole of UVM, like the other ones of days 6 and 7:
 Of those seconds, four go to the solver: the `random_test` is 400
 transactions with `dist`, and every `randomize()` is a call to **z3**. Without z3
 installed, `randomize()` returns 0 in silence — see
-[`docs/verilator.md`](../../../docs/verilator.md) (in Spanish).
+[`docs/en/verilator.md`](../../../docs/en/verilator.md).
 
 ## Hints, in order of usefulness
 
@@ -175,7 +175,7 @@ installed, `randomize()` returns 0 in silence — see
 
 ## And afterwards: the regression, in your repo
 
-When the checker gives you the four stages, the next step is not another
+When the checker gives you the five stages, the next step is not another
 exercise: it is **getting this to run on its own**. `ci/regresion.yml` is a workflow of
 GitHub Actions ready to copy into `.github/workflows/` of **your** repo. It runs
 the same test with N seeds, merges the coverage, and leaves the number in the summary

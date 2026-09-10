@@ -1,4 +1,4 @@
-<!-- es-sha: 5409279503c8 -->
+<!-- es-sha: 3408a197244a -->
 **English** · [Castellano](README.es.md)
 
 # Code examples
@@ -67,7 +67,7 @@ explained on the slide.
 **Verilator ≥ 5.050** — free, no licence. Covergroups landed in that version:
 before it, functional coverage was not measured. What works and what does not,
 with the coverage number of each example, in
-[`../docs/verilator.md`](../docs/verilator.md).
+[`../docs/en/verilator.md`](../docs/en/verilator.md).
 
 UVM 2020.3.1 (Accellera `uvm-core`, IEEE 1800.2-2020) is downloaded separately,
 once: `make uvm` (or `make` does it by itself). Verilator has supported it
@@ -114,13 +114,15 @@ the property, the `+GOLDEN_BUG` of the C model, the `+MAL` of the RAL model— a
 check the result themselves. That is why they are not in `MUTANTES`.
 
 `code/verilator/` holds what the `run.sh` files share: the flags, the DPI shim
-that makes UVM compile, and four minimal repros of Verilator limitations —the
+that makes UVM compile, and five minimal repros of Verilator limitations —the
 transition bins and `binsof`/`intersect`, the covergroup options (`at_least`,
-`weight`, `merge_instances`), `solve ... before` and `randomize() with` over a
-field with `dist`— explained in `docs/verilator.md`. The fifth,
-`repro-vif-task.sv`, documents a bug that **has already been fixed** in Verilator
-5.052 and stays as dated evidence.
-They are run by hand; `make matrix` only runs the `run.sh` of `code/u*/`.
+`weight`, `merge_instances`), `solve ... before`, `randomize() with` over a
+field with `dist` and the `for` index inside a `fork`—; the first four are
+explained in `docs/en/verilator.md`. The sixth, `repro-vif-task.sv`, documents a
+bug that **has already been fixed** in Verilator 5.052 and stays as dated
+evidence.
+`make repros` runs all six and ends in an error if any of the measured numbers
+moved; `make matrix` runs the `run.sh` of `code/u*/`.
 
 The examples with several variants (`u3/polimorfismo`, `u3/estaticas`,
 `u3/parametricas`, `u5/varios-objetos`, `u5/threads`) have one subdirectory per

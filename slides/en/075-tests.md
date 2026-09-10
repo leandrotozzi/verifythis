@@ -1,4 +1,4 @@
-<!-- es-sha: e87cbca1cbd5 -->
+<!-- es-sha: 0f8215254834 -->
 ## Tests
 
 #### *Compile once, pick the test from the command line*
@@ -10,7 +10,7 @@
 - UVM turns the order around: the testbench gets compiled **once**, and the test that
   runs is picked when the simulation starts
 
-```bash
+```sh
 $ ./obj_dir/top/sim +UVM_TESTNAME=random_test
 $ ./obj_dir/top/sim +UVM_TESTNAME=add_test     # the same binary
 ```
@@ -24,7 +24,7 @@ in hand: it is not that the modular testbench is wrong, it is that it does not s
 If possible, live: compile once and run the two lines above. Let them
 see that the second one compiles nothing.
 What gets collected from the object-based testbench: the testbench is already split into tester,
-coverage and scoreboard, and that is why only the tester can be changed. What gets
+coverage and scoreboard, and that is why you can change the tester alone. What gets
 paid up front: in the components those three classes stop being loose objects that
 the test `new()`s and become components of the tree.
 
@@ -244,7 +244,7 @@ exactly the case of this slide, and the capstone steps on it again.
 
 #### *The timeline, end to end*
 
-![Timeline of an objection: raise, stimulus, drop, drain and the end of the phase](res/diagrams/en/tests_objections.svg)
+![Timeline of an objection: raise, stimulus, drop, drain_time and the end of the phase, with the transactions still in flight](res/diagrams/en/tests_objections.svg)
 <!-- .element: class="grande" -->
 
 - `raise` and `drop` mark **the stimulus**, and nothing but the stimulus

@@ -176,7 +176,7 @@ cosa.</p>
 </ul>
 </li>
 </ul>
-<p><img src="../res/print/funs/dados.svg" alt="Dos d6 y el histograma de sus sumas"></p>
+<p><img src="../res/print/funs/dados.svg" alt="Tirar 2d6: la suma va de 2 a 12 y el 7 es la más probable"></p>
 <div class="nota">
 <p>Vale plantearlo como problema de programación antes de mostrar una línea: son
 tres consumidores del mismo dato, y cada uno hace algo distinto con él. Nadie
@@ -482,7 +482,7 @@ suscriben. El productor <strong>no lleva la lista</strong></li>
 <li>La propiedad que compra todo: agregar un cuarto observador <strong>no toca una línea</strong>
 del que produce</li>
 </ul>
-<p><img src="../res/print/funs/observer-broadcast.svg" alt="Un emisor publica y N observadores reciben"></p>
+<p><img src="../res/print/funs/observer-broadcast.svg" alt="Observer: un emisor publica y N observadores reciben"></p>
 <div class="nota">
 <p>La analogía funciona mejor dada vuelta: el que publica no sabe quién lo lee, y
 ésa es justo la propiedad que querés en un monitor. Agregar un subscriber nuevo
@@ -503,7 +503,7 @@ ruido del protocolo.</p>
 </ul>
 </li>
 </ul>
-<p><img src="../res/print/diagrams/varios-objetos_ports.svg" alt="Un uvm_analysis_port publicando hacia varios uvm_subscriber"></p>
+<p><img src="../res/print/diagrams/varios-objetos_ports.svg" alt="Notación: rombo = uvm_analysis_port, círculo = analysis_export"></p>
 <div class="nota">
 <p>Los nombres cuestan un minuto y ahorran media hora después: <strong>port</strong> es la punta
 del que produce, <strong>export</strong> la del que consume, y el <code>connect()</code> siempre se
@@ -529,13 +529,85 @@ compilador, no por un string.</p>
 <li>Una vez que escribimos datos en el puerto, este va a todos sus subscribers</li>
 <li>Utilizamos el método <em>connect()</em> para conectar los subscribers al puerto. Este método tiene un único argumento, y es el <strong>export</strong> del subscriber (<code>analysis_export</code>), no otro port</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u5/varios-objetos/02-con-analysis-port/con-analysis-port.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">dice_roller</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
+<figure class="codigo"><figcaption><code>code/u5/varios-objetos/02-con-analysis-port/dice_roller.svh</code> · #dice_roller</figcaption><pre><code class="hljs"><span class="hljs-comment">// Same as version 01, but publishing: instead of returning the number it writes</span>
+<span class="hljs-comment">// it to an analysis port, and stops knowing who reads it.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">dice_roller</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(dice_roller);
+
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> die1;
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> die2;
+
+   <span class="hljs-keyword">constraint</span> d6 {
+      die1 &gt;= <span class="hljs-number">1</span>;
+      die1 &lt;= <span class="hljs-number">6</span>;
+      die2 &gt;= <span class="hljs-number">1</span>;
+      die2 &lt;= <span class="hljs-number">6</span>;
+   }
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// 1) declare the port, with the data type it will carry</span>
    <span class="hljs-uvm-type">uvm_analysis_port</span> #(<span class="hljs-type">int</span>) roll_ap;
 
-   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span> (<span class="hljs-uvm-type">uvm_phase</span> phase);
-      roll_ap = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;roll_ap&quot;</span>,<span class="hljs-keyword">this</span>);
-   <span class="hljs-keyword">endfunction</span> : build_phase</code></pre></figure><div class="nota">
+   <span class="hljs-comment">// 2) instantiate it in build_phase, with new(): ports do not go through the factory</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      roll_ap = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;roll_ap&quot;</span>, <span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-type">int</span> the_roll;
+      phase.raise_objection(<span class="hljs-keyword">this</span>);
+      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">20</span>) <span class="hljs-keyword">begin</span>
+         <span class="hljs-type">void</span>&#x27;(<span class="hljs-keyword">randomize</span>());
+         the_roll = die1 + die2;
+         <span class="hljs-comment">// 3) write: the port calls write() on every subscriber</span>
+         roll_ap.write(the_roll);
+      <span class="hljs-keyword">end</span>
+      phase.drop_objection(<span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endtask</span> : run_phase
+
+<span class="hljs-keyword">endclass</span> : dice_roller</code></pre><details><summary>el archivo entero, 40 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Same as version 01, but publishing: instead of returning the number it writes</span>
+<span class="hljs-comment">// it to an analysis port, and stops knowing who reads it.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">dice_roller</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(dice_roller);
+
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> die1;
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> die2;
+
+   <span class="hljs-keyword">constraint</span> d6 {
+      die1 &gt;= <span class="hljs-number">1</span>;
+      die1 &lt;= <span class="hljs-number">6</span>;
+      die2 &gt;= <span class="hljs-number">1</span>;
+      die2 &lt;= <span class="hljs-number">6</span>;
+   }
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-comment">// 1) declare the port, with the data type it will carry</span>
+   <span class="hljs-uvm-type">uvm_analysis_port</span> #(<span class="hljs-type">int</span>) roll_ap;
+
+   <span class="hljs-comment">// 2) instantiate it in build_phase, with new(): ports do not go through the factory</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      roll_ap = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;roll_ap&quot;</span>, <span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      <span class="hljs-type">int</span> the_roll;
+      phase.raise_objection(<span class="hljs-keyword">this</span>);
+      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">20</span>) <span class="hljs-keyword">begin</span>
+         <span class="hljs-type">void</span>&#x27;(<span class="hljs-keyword">randomize</span>());
+         the_roll = die1 + die2;
+         <span class="hljs-comment">// 3) write: the port calls write() on every subscriber</span>
+         roll_ap.write(the_roll);
+      <span class="hljs-keyword">end</span>
+      phase.drop_objection(<span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endtask</span> : run_phase
+
+<span class="hljs-keyword">endclass</span> : dice_roller</code></pre></details></figure><div class="nota">
 <p>Tres pasos y ninguno más: declarar el port, instanciarlo en build_phase,
 escribir con write(). Del otro lado el subscriber implementa write() y se
 conecta en connect_phase.
@@ -794,7 +866,7 @@ escribir la clase y <strong>una</strong> línea acá. Ni una en <code>dice_rolle
 <li>Cada subscriber tiene un objeto analysis_export</li>
 <li>La conexión entre ambos se realiza mediante el método connect()</li>
 </ul>
-<p><img src="../res/print/diagrams/varios-objetos_spicy.svg" alt="El ejemplo de los dados cableado con analysis ports"></p>
+<p><img src="../res/print/diagrams/varios-objetos_spicy.svg" alt="Conexionado del ejemplo de los dados: roll_ap contra los tres analysis_export"></p>
 <div class="nota">
 <p>Es el primer diagrama TLM del curso y conviene enseñar a leerlo ahora, porque los
 del resto del día y el de los agents usan la misma convención: <strong>rombo</strong> es analysis
@@ -902,7 +974,7 @@ la otra.</p>
 <section id="s200" class="slide">
 <h2 id="un-solo-lugar-que-mira-el-cable">Un solo lugar que mira el cable</h2>
 <h4 id="diagrama-del-testbench"><em>Diagrama del Testbench</em></h4>
-<p><img src="../res/print/diagrams/analysis-ports_fig102.svg" alt="TB del VTALU con analysis ports"></p>
+<p><img src="../res/print/diagrams/analysis-ports_fig102.svg" alt="Testbench del VTALU con analysis ports"></p>
 <p class="al-deck"><a href="../index.html#/200">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
@@ -1454,8 +1526,11 @@ llenando bins con la nada.</p>
 <li>El motivo del límite: <code>uvm_subscriber</code> te da <strong>un solo</strong> <code>write()</code>, y ése es el
 método que el puerto llama. Dos puertos no tienen dónde entrar</li>
 <li>UVM lo resuelve sin partir el componente, con la clase <em>uvm_tlm_analysis_fifo</em>,
-que es <strong>ilimitada por construcción</strong>: su <code>write()</code> es una <code>function</code> y no puede
-bloquear, así que no puede tirar nada</li>
+que es <strong>ilimitada por construcción</strong>: su constructor le pasa <code>size = 0</code>
+(<code>tlm1/uvm_tlm_fifos.svh:281</code>, con el comentario «analysis fifo must be unbounded»)</li>
+<li>Y el <code>write()</code> es una <code>function</code> que hace <code>void&#39;(this.try_put(t))</code>: descarta el
+retorno. Si la FIFO estuviera acotada tiraría <strong>sin avisar</strong> — por eso ésta se
+construye sin tope</li>
 <li>Es paramétrica y tiene dos caras: un <em>analysis_export</em> de un lado —que se conecta
 como cualquier subscriber— y un <code>try_get()</code> del otro</li>
 <li><code>try_get()</code> saca un elemento y devuelve 0 si la FIFO está vacía, sin bloquear</li>
@@ -1677,8 +1752,12 @@ El export no es del scoreboard, es <strong>de la FIFO que el scoreboard tiene ad
 Un <code>uvm_analysis_port</code> puede tener varios destinos —el <code>ap</code> del command_monitor
 alimenta dos— y no le cuesta nada: <code>write()</code> los recorre a todos.
 Y el detalle que se olvida y no avisa: <code>cmd_f</code> se instancia con <code>new()</code>, no con
-la factory. Las FIFOs y los ports no están registrados. Si te olvidás del <code>new()</code>
-el <code>connect()</code> explota con un null, y ese al menos es un error honesto.</p>
+la factory. La FIFO <strong>sí</strong> está registrada —<code>`uvm_component_param_utils</code> en
+<code>tlm1/uvm_tlm_fifos.svh:256</code>—, pero el curso la crea con <code>new()</code> porque le pasa el
+<code>size</code> por constructor y <code>create()</code> no puede. Los que no están en la factory son
+los *ports* y los *exports*: extienden <code>uvm_port_base</code> sin macro de utils. Si te
+olvidás del <code>new()</code> el <code>connect()</code> explota con un null, y ese al menos es un error
+honesto.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/207">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -1798,7 +1877,9 @@ agent en los agents.</p>
 <li>El nombre asusta y el mecanismo lo venís usando desde siempre: dos módulos con
 puertos, cada uno con su <code>always</code>, pasándose datos</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u5/threads/01-modulos/modules.sv</code> · #producer-and-consumer</figcaption><pre><code class="hljs"><span class="hljs-keyword">module</span> <span class="hljs-title">producer</span> (
+<figure class="codigo"><figcaption><code>code/u5/threads/01-modulos/modules.sv</code> · #producer-and-consumer</figcaption><pre><code class="hljs"><span class="hljs-comment">// Sends the data through the shared variable and signals it by toggling get_it</span>
+<span class="hljs-comment">// Then the producer blocks on the put_it signal</span>
+<span class="hljs-keyword">module</span> <span class="hljs-title">producer</span> (
     <span class="hljs-keyword">output</span> <span class="hljs-type">byte</span> shared,
     <span class="hljs-keyword">input</span>  <span class="hljs-type">bit</span>  put_it,
     <span class="hljs-keyword">output</span> <span class="hljs-type">bit</span>  get_it
@@ -2054,7 +2135,8 @@ arriba</li>
       fifo_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;fifo_h&quot;</span>, <span class="hljs-keyword">this</span>);
    <span class="hljs-keyword">endfunction</span> : build_phase
 
-   <span class="hljs-comment">// Connection Phase -&gt; Detalles en next slide</span>
+   <span class="hljs-comment">// Connect phase: the two ports and the fifo already exist -- build_phase</span>
+   <span class="hljs-comment">// runs first, top-down -- so this is where they get wired together.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">connect_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       producer_h.put_port_h.connect(fifo_h.put_export);
       consumer_h.get_port_h.connect(fifo_h.get_export);
@@ -2095,11 +2177,36 @@ que es el nombre que vas a ver en <code>print_topology()</code>—</li>
 <li>La regla que vale para todo TLM: <strong>el port se conecta al export</strong>, nunca dos
 ports entre sí</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u5/threads/02-bloqueante/connect_phase.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// Connection Phase</span>
-<span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">connect_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
-   producer_h.put_port_h.connect(fifo_h.put_export);
-   consumer_h.get_port_h.connect(fifo_h.get_export);
-<span class="hljs-keyword">endfunction</span> : connect_phase</code></pre></figure>
+<figure class="codigo"><figcaption><code>code/u5/threads/02-bloqueante/communication_test.svh</code> · #connect_phase</figcaption><pre><code class="hljs">   <span class="hljs-comment">// Connect phase: the two ports and the fifo already exist -- build_phase</span>
+   <span class="hljs-comment">// runs first, top-down -- so this is where they get wired together.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">connect_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      producer_h.put_port_h.connect(fifo_h.put_export);
+      consumer_h.get_port_h.connect(fifo_h.get_export);
+   <span class="hljs-keyword">endfunction</span> : connect_phase</code></pre><details><summary>el archivo entero, 25 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">communication_test</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_test</span>;
+   <span class="hljs-uvm-macro">`uvm_component_utils</span>(communication_test)
+
+   producer producer_h;
+   consumer consumer_h;
+   <span class="hljs-uvm-type">uvm_tlm_fifo</span> #(<span class="hljs-type">int</span>) fifo_h;
+
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name, <span class="hljs-uvm-type">uvm_component</span> parent);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name, parent);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">build_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      producer_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;producer_h&quot;</span>, <span class="hljs-keyword">this</span>);
+      consumer_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;consumer_h&quot;</span>, <span class="hljs-keyword">this</span>);
+      fifo_h = <span class="hljs-keyword">new</span>(<span class="hljs-string">&quot;fifo_h&quot;</span>, <span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endfunction</span> : build_phase
+
+   <span class="hljs-comment">// Connect phase: the two ports and the fifo already exist -- build_phase</span>
+   <span class="hljs-comment">// runs first, top-down -- so this is where they get wired together.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">connect_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+      producer_h.put_port_h.connect(fifo_h.put_export);
+      consumer_h.get_port_h.connect(fifo_h.get_export);
+   <span class="hljs-keyword">endfunction</span> : connect_phase
+
+<span class="hljs-keyword">endclass</span> : communication_test</code></pre></details></figure>
 
 <figure class="codigo"><figcaption><code>code/u5/threads/02-bloqueante/result.txt</code></figcaption><pre><code class="hljs">UVM_INFO @ 0: reporter [RNTST] Running test communication_test...
 UVM_INFO producer.svh(28) @ 0: uvm_test_top.producer_h [PRODUCER] Sent 1
@@ -2210,7 +2317,7 @@ sola línea de formateo.</p>
 <section id="s218" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="comunicación-no-bloqueante-la-línea-de-tiempo"><em>Comunicación NO bloqueante: la línea de tiempo</em></h4>
-<p><img src="../res/print/diagrams/threads_nonblocking.svg" alt="try_get() devuelve 0 cuando la FIFO está vacía"></p>
+<p><img src="../res/print/diagrams/threads_nonblocking.svg" alt="Línea de tiempo del ejemplo no bloqueante: en 7 ns y 49 ns la FIFO está vacía y try_get() devuelve 0"></p>
 <ul>
 <li>El producer pone un dato cada 17 ns y el consumer mira cada 14 ns: los relojes
 corren distinto, y en dos flancos la FIFO está vacía</li>
@@ -2230,7 +2337,7 @@ un testbench con reloj eso es un flanco perdido.</p>
 <section id="s219" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="cómo-se-leen-los-diagramas-tlm"><em>Cómo se leen los diagramas TLM</em></h4>
-<p><img src="../res/print/diagrams/threads_fig124.svg" alt="Put port, TLM FIFO y get port entre dos threads"></p>
+<p><img src="../res/print/diagrams/threads_fig124.svg" alt="Comunicación entre threads con put port, get port y uvm_tlm_fifo"></p>
 <ul>
 <li>La convención vale para todo el material de UVM que vayas a leer después:<ul>
 <li><em>Cuadrado:</em> put port / get port — el que <strong>inicia</strong> la llamada</li>
@@ -2364,28 +2471,139 @@ task, <code>wait fork</code> es la respuesta.</p>
 <section id="s222" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="⚠-la-trampa-el-índice-del-for-adentro-del-fork"><em>⚠ La trampa: el índice del <code>for</code> adentro del <code>fork</code></em></h4>
-<pre><code class="language-systemverilog">int i;                                  // declarado AFUERA del for: uno solo
-for (i = 0; i &lt; 3; i++)
-   fork  $display(&quot;i = %0d&quot;, i);  join_none      //  i = 3   i = 3   i = 3
+<figure class="codigo"><figcaption><code>code/verilator/repro-fork-automatic.sv</code> · #las-cuatro-variantes</figcaption><pre><code class="hljs">    <span class="hljs-comment">// A -- a single variable, shared by the three threads. A join_none runs</span>
+    <span class="hljs-comment">// nothing: it schedules. By the time the three run, the for is over.</span>
+    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">3</span>; i++)
+      <span class="hljs-keyword">fork</span> got = {got, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%0d&quot;</span>, i)}; <span class="hljs-keyword">join_none</span>
+    <span class="hljs-keyword">wait</span> <span class="hljs-keyword">fork</span>;
+    check(<span class="hljs-string">&quot;int i outside the for, no copy&quot;</span>, <span class="hljs-string">&quot;333&quot;</span>);
 
-for (int j = 0; j &lt; 3; j++)             // declarado EN el for: uno por vuelta
-   fork  $display(&quot;j = %0d&quot;, j);  join_none      //  j = 0   j = 1   j = 2
+    <span class="hljs-comment">// B -- declared inside the for: one per pass, and nothing to copy.</span>
+    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; <span class="hljs-number">3</span>; j++)
+      <span class="hljs-keyword">fork</span> got = {got, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%0d&quot;</span>, j)}; <span class="hljs-keyword">join_none</span>
+    <span class="hljs-keyword">wait</span> <span class="hljs-keyword">fork</span>;
+    check(<span class="hljs-string">&quot;int j declared in the for&quot;</span>, <span class="hljs-string">&quot;012&quot;</span>);
 
-for (i = 0; i &lt; 3; i++)
-   fork  begin
-      automatic int k = i;              // la copia se hace AL EJECUTARSE el fork
-      $display(&quot;k = %0d&quot;, k);
-   end join_none                                 //  k = 0   k = 1   k = 2
-</code></pre>
+    <span class="hljs-comment">// C -- the slide&#x27;s one: the automatic as the first line of a begin/end.</span>
+    <span class="hljs-comment">// Here the copy is NOT made when the fork is scheduled, so k reads the same</span>
+    <span class="hljs-comment">// i that A does and gives the same answer as A. This is the finding.</span>
+    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">3</span>; i++)
+      <span class="hljs-keyword">fork</span> <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">automatic</span> <span class="hljs-type">int</span> k = i;
+        got = {got, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%0d&quot;</span>, k)};
+      <span class="hljs-keyword">end</span> <span class="hljs-keyword">join_none</span>
+    <span class="hljs-keyword">wait</span> <span class="hljs-keyword">fork</span>;
+    check(<span class="hljs-string">&quot;fork begin automatic k = i; end  (the slide&#x27;s)&quot;</span>, <span class="hljs-string">&quot;333&quot;</span>);
+
+    <span class="hljs-comment">// D -- the LRM 9.3.2 one: the automatic declared in the fork, no begin/end.</span>
+    <span class="hljs-comment">// Same workaround, written where the LRM puts it, and this one does copy.</span>
+    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">3</span>; i++)
+      <span class="hljs-keyword">fork</span>
+        <span class="hljs-keyword">automatic</span> <span class="hljs-type">int</span> k = i;
+        got = {got, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%0d&quot;</span>, k)};
+      <span class="hljs-keyword">join_none</span>
+    <span class="hljs-keyword">wait</span> <span class="hljs-keyword">fork</span>;
+    check(<span class="hljs-string">&quot;fork automatic k = i;  no begin/end (LRM 9.3.2)&quot;</span>, <span class="hljs-string">&quot;012&quot;</span>);</code></pre><details><summary>el archivo entero, 88 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Minimal repro: what a `fork ... join_none` copies from the loop index, and when.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">//   $ verilator --binary --timing --top-module top -o sim repro-fork-automatic.sv</span>
+<span class="hljs-comment">//   ./obj_dir/sim</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// Why this file exists. The trap slide of the threads section --</span>
+<span class="hljs-comment">// slides/es/110-threads.md and its English twin -- shows the `for` index inside</span>
+<span class="hljs-comment">// a `fork` in three variants and closes by claiming, with the seal of a</span>
+<span class="hljs-comment">// measurement on Verilator 5.052, that the three lines above print 3 3 3,</span>
+<span class="hljs-comment">// 0 1 2 and 0 1 2. The third one, the</span>
+<span class="hljs-comment">// `automatic int k = i;` written as the FIRST LINE of a `fork begin ... end</span>
+<span class="hljs-comment">// join_none`, prints 3 3 3 here: the copy is not made when the fork is</span>
+<span class="hljs-comment">// scheduled. So the slide taught a workaround that does not work around</span>
+<span class="hljs-comment">// anything in the only simulator of the course, and it taught it with the seal</span>
+<span class="hljs-comment">// of a measurement -- which is worse than not measuring at all, because nobody</span>
+<span class="hljs-comment">// re-checks a number that says it was measured.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// The form the LRM blesses (IEEE 1800-2017, 9.3.2) is the declaration inside</span>
+<span class="hljs-comment">// the `fork` ITSELF, with no `begin`/`end` around it, and that one does print</span>
+<span class="hljs-comment">// 0 1 2. That is the difference this file pins, so that the slide has a source</span>
+<span class="hljs-comment">// instead of a claim: the block on the slide is code pasted into markdown, not</span>
+<span class="hljs-comment">// a {{code:}}, so until this file existed nobody ever compiled it.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// Measured on 5.052 (2026-09-10), deterministic, three runs:</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">//   A  int i outside the for, fork with no copy       3 3 3</span>
+<span class="hljs-comment">//   B  int j declared in the for                      0 1 2</span>
+<span class="hljs-comment">//   C  fork begin automatic int k = i; ... end        3 3 3   &lt;- the slide says 0 1 2</span>
+<span class="hljs-comment">//   D  fork automatic int k = i; ... join_none (LRM)  0 1 2</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// The four expected strings are asserted below, so a future Verilator that</span>
+<span class="hljs-comment">// changes any of them ends this file in $fatal instead of printing OK -- and</span>
+<span class="hljs-comment">// the day C starts printing 0 1 2 is the day the slide can go back to what it</span>
+<span class="hljs-comment">// used to say. Like the other repros here, `make repros` runs it. Seconds.</span>
+<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+  <span class="hljs-type">int</span>    i;
+  <span class="hljs-type">string</span> got;
+
+  <span class="hljs-comment">// Each variant leaves its three digits glued together in `got`. The whole</span>
+  <span class="hljs-comment">// string is compared, not digit by digit, because the ORDER is part of what</span>
+  <span class="hljs-comment">// is at stake: &quot;012&quot; and &quot;210&quot; would both be &quot;0 1 2&quot; if we only counted.</span>
+  <span class="hljs-keyword">function</span> <span class="hljs-keyword">automatic </span><span class="hljs-type">void </span><span class="hljs-title">check</span>(<span class="hljs-type">string</span> what, <span class="hljs-type">string</span> want);
+    <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  %-48s %-4s (expected %s)&quot;</span>, what, got, want);
+    <span class="hljs-keyword">if</span> (got != want) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;%s: printed &#x27;%s&#x27;, expected &#x27;%s&#x27;&quot;</span>, what, got, want);
+    got = <span class="hljs-string">&quot;&quot;</span>;
+  <span class="hljs-keyword">endfunction</span>
+
+  <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+    <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;Verilator 5.052, the for index inside the fork:&quot;</span>);
+
+    <span class="hljs-comment">// A -- a single variable, shared by the three threads. A join_none runs</span>
+    <span class="hljs-comment">// nothing: it schedules. By the time the three run, the for is over.</span>
+    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">3</span>; i++)
+      <span class="hljs-keyword">fork</span> got = {got, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%0d&quot;</span>, i)}; <span class="hljs-keyword">join_none</span>
+    <span class="hljs-keyword">wait</span> <span class="hljs-keyword">fork</span>;
+    check(<span class="hljs-string">&quot;int i outside the for, no copy&quot;</span>, <span class="hljs-string">&quot;333&quot;</span>);
+
+    <span class="hljs-comment">// B -- declared inside the for: one per pass, and nothing to copy.</span>
+    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; <span class="hljs-number">3</span>; j++)
+      <span class="hljs-keyword">fork</span> got = {got, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%0d&quot;</span>, j)}; <span class="hljs-keyword">join_none</span>
+    <span class="hljs-keyword">wait</span> <span class="hljs-keyword">fork</span>;
+    check(<span class="hljs-string">&quot;int j declared in the for&quot;</span>, <span class="hljs-string">&quot;012&quot;</span>);
+
+    <span class="hljs-comment">// C -- the slide&#x27;s one: the automatic as the first line of a begin/end.</span>
+    <span class="hljs-comment">// Here the copy is NOT made when the fork is scheduled, so k reads the same</span>
+    <span class="hljs-comment">// i that A does and gives the same answer as A. This is the finding.</span>
+    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">3</span>; i++)
+      <span class="hljs-keyword">fork</span> <span class="hljs-keyword">begin</span>
+        <span class="hljs-keyword">automatic</span> <span class="hljs-type">int</span> k = i;
+        got = {got, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%0d&quot;</span>, k)};
+      <span class="hljs-keyword">end</span> <span class="hljs-keyword">join_none</span>
+    <span class="hljs-keyword">wait</span> <span class="hljs-keyword">fork</span>;
+    check(<span class="hljs-string">&quot;fork begin automatic k = i; end  (the slide&#x27;s)&quot;</span>, <span class="hljs-string">&quot;333&quot;</span>);
+
+    <span class="hljs-comment">// D -- the LRM 9.3.2 one: the automatic declared in the fork, no begin/end.</span>
+    <span class="hljs-comment">// Same workaround, written where the LRM puts it, and this one does copy.</span>
+    <span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">3</span>; i++)
+      <span class="hljs-keyword">fork</span>
+        <span class="hljs-keyword">automatic</span> <span class="hljs-type">int</span> k = i;
+        got = {got, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;%0d&quot;</span>, k)};
+      <span class="hljs-keyword">join_none</span>
+    <span class="hljs-keyword">wait</span> <span class="hljs-keyword">fork</span>;
+    check(<span class="hljs-string">&quot;fork automatic k = i;  no begin/end (LRM 9.3.2)&quot;</span>, <span class="hljs-string">&quot;012&quot;</span>);
+
+    <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;OK&quot;</span>);
+    <span class="hljs-built_in">$finish</span>;
+  <span class="hljs-keyword">end</span>
+<span class="hljs-keyword">endmodule</span></code></pre></details></figure>
+
 <ul>
 <li>Un <code>join_none</code> <strong>no ejecuta nada todavía</strong>: deja el thread listo y sigue. Para
 cuando el thread corre, el <code>for</code> ya terminó y la variable vale lo último</li>
 <li>Si la variable se declara <strong>adentro</strong> del <code>for</code>, cada vuelta tiene la suya y no
 hay problema. Es lo que dice el LRM y lo que Verilator hace</li>
 <li>Si viene de afuera —un <code>int</code> del <code>run_phase</code>, un campo de la clase— hay que
-<strong>copiarla</strong> con un <code>automatic</code> como primera línea del bloque</li>
-<li>Medido en Verilator 5.052: las tres líneas de arriba imprimen <code>3 3 3</code>,
-<code>0 1 2</code> y <code>0 1 2</code></li>
+<strong>copiarla</strong> con un <code>automatic</code>, y <strong>dónde</strong> se escribe la copia cambia el
+resultado: adentro de un <code>fork begin ... end</code> <strong>no copia</strong>; declarada en el
+<code>fork</code> mismo, sin <code>begin</code>/<code>end</code> —que es la forma del LRM 1800-2017 §9.3.2—, sí</li>
+<li>Medido en Verilator 5.052, y el archivo termina en <code>$fatal</code> si algún día cambia
+(<code>make repros</code>): las cuatro variantes imprimen <code>3 3 3</code>, <code>0 1 2</code>, <strong><code>3 3 3</code></strong> y
+<code>0 1 2</code></li>
 </ul>
 <div class="nota">
 <p>Es el bug de threads que más caro sale y el que menos se ve leyendo el código,
@@ -2401,9 +2619,15 @@ parezca magia: el LRM declara automática la variable de un <code>for</code> que
 así que cada vuelta tiene su copia. Está medido acá, no es teoría.
 El caso donde igual hace falta el <code>automatic</code> es el que aparece en la vida real:
 el índice no es del <code>for</code>, es un campo de la clase o un argumento de la task.
-Ahí no hay copia por vuelta y hay que hacerla a mano. La regla práctica para
-llevarse: <strong>si un thread lanzado con <code>join_none</code> lee una variable de afuera,
-copiala en un <code>automatic</code> en su primera línea.</strong></p>
+Ahí no hay copia por vuelta y hay que hacerla a mano — y acá está la parte que
+esta slide decía mal hasta ahora: <strong>el <code>automatic</code> como primera línea de un
+<code>fork begin ... end</code> no copia</strong>. En Verilator 5.052 la variante C imprime
+<code>3 3 3</code>, igual que la A. La que copia es la D, la del LRM §9.3.2: la declaración
+adentro del <code>fork</code>, sin <code>begin</code>/<code>end</code>. Las dos se parecen tanto que es fácil
+escribir la que no anda.
+La regla práctica para llevarse: <strong>si un thread lanzado con <code>join_none</code> lee una
+variable de afuera, declarale la copia en el <code>fork</code>, no adentro de un
+<code>begin</code>.</strong></p>
 </div>
 <p class="al-deck"><a href="../index.html#/222">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -2559,7 +2783,7 @@ testbench que tiene derecho a escribir un <code>@(negedge clk)</code>.</p>
 <li>El resultado: una clase decide <strong>qué</strong> mandar y otra sabe <strong>cómo</strong> mandarlo, y
 entre las dos hay una FIFO en vez de una llamada a método</li>
 </ul>
-<p><img src="../res/print/diagrams/put-get_fig125.svg" alt="El tester elige el estimulo y el driver lo aplica"></p>
+<p><img src="../res/print/diagrams/put-get_fig125.svg" alt="El tester y el driver del VTALU separados por una uvm_tlm_fifo"></p>
 <div class="nota">
 <p>La caja del medio es la que hay que señalar, porque es la que sorprende: entre el
 tester y el driver <strong>no hay una flecha</strong>. Hay una FIFO. El tester no llama al
@@ -2652,8 +2876,10 @@ El mantra tiene una razón que conviene dar y no repetir como loro: el <em>port<
 el que pide el servicio, el <em>export</em> es el que lo ofrece. La FIFO ofrece las dos
 puntas, así que tiene dos exports. Si lo escribís al revés no compila, y el
 mensaje del compilador es de los peores de UVM.
-Y el detalle que se olvida: <code>command_f = new(...)</code>, no <code>create()</code>. Las FIFOs no
-están en la factory.</p>
+Y el detalle que se olvida: <code>command_f = new(...)</code>, no <code>create()</code>. No es que la
+FIFO falte en la factory —está registrada, <code>tlm1/uvm_tlm_fifos.svh:62</code>—: es que el
+<code>size</code> va por constructor y <code>create()</code> no lo sabe pasar. Los que de verdad no están
+en la factory son los ports y los exports.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/227">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -2881,7 +3107,7 @@ arreglar convirtiéndolas en transactions.</p>
 <li><input disabled="" type="checkbox"> Conectando los dos puertos al mismo <code>analysis_export</code></li>
 </ul>
 <blockquote>
-<p><strong>Con una <code>uvm_tlm_analysis_fifo</code></strong> — un <code>uvm_subscriber</code> tiene un solo <code>write()</code>, así que sólo puede escuchar un puerto. La FIFO da un <code>analysis_export</code> de un lado y un <code>try_get()</code> del otro. Es lo que hace el scoreboard del VTALU.</p>
+<p><strong>Con una <code>uvm_tlm_analysis_fifo</code></strong> — un <code>uvm_subscriber</code> tiene un solo <code>write()</code>, así que sólo puede escuchar un puerto. La FIFO da un <code>analysis_export</code> de un lado y un <code>try_get()</code> del otro. Es lo que hace el scoreboard del VTALU. La otra forma es <code>`uvm_analysis_imp_decl</code>, que fabrica un <code>write_</code> por sufijo: no son dos <code>write()</code> en la misma clase, que SystemVerilog no permite.</p>
 </blockquote>
 <p class="al-deck"><a href="../index.html#/232">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -2925,8 +3151,8 @@ arreglar convirtiéndolas en transactions.</p>
 <ul>
 <li><input disabled="" type="checkbox"> Se bloquea igual que <code>get()</code></li>
 <li><input disabled="" type="checkbox"> Devuelve 1 con un dato basura</li>
-<li><input checked="" disabled="" type="checkbox"> Devuelve 0 inmediatamente, sin bloquear</li>
 <li><input disabled="" type="checkbox"> Espera un ciclo de reloj y reintenta, hasta el timeout de la fase</li>
+<li><input checked="" disabled="" type="checkbox"> Devuelve 0 inmediatamente, sin bloquear</li>
 </ul>
 <blockquote>
 <p><strong>Devuelve 0 y sigue</strong> — es la versión no bloqueante, y por eso puede ser una <code>function</code>. Fijate que el scoreboard la usa en un <code>do ... while</code> para saltear los <code>no_op</code> y los <code>rst_op</code>.</p>

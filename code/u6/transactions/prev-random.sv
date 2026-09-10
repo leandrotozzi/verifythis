@@ -1,3 +1,6 @@
+// ILLUSTRATION -- not compiled. The two functions as they are in
+// code/u5/put-get/tb_classes/random_tester.svh, the section this one replaces.
+//
 // This function handles the fact that
 // the operation bus has 8 possible values,
 // but only 6 of them are valid operations

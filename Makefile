@@ -81,7 +81,7 @@ mutante: $(UVM)
 	  done; \
 	done
 
-# Los cinco repros de code/verilator/ son la evidencia de docs/verilator.md y la
+# Los seis repros de code/verilator/ son la evidencia de docs/verilator.md y la
 # justificacion de los "ifndef VERILATOR" que hay en dos covergroups del curso.
 # Hasta que existio este target no los corria nadie, y se notaba: repro-cg-transition.sv
 # no compilaba (una linea de comentario que arrancaba con el nombre de la
@@ -93,7 +93,16 @@ mutante: $(UVM)
 # el dia que Verilator implemente los bins de transicion hay que sacarles el
 # ifndef a los covergroups, y sin esto el curso los iba a seguir escondiendo.
 # Segundos.
-REPROS := repro-cg-options repro-dist-with repro-solve-before repro-vif-task repro-cg-transition
+#
+# repro-fork-automatic.sv es el sexto y entro por lo mismo: la slide de la
+# trampa del for/fork decia "Medido en Verilator 5.052" que el automatic adentro
+# de un 'fork begin ... end join_none' imprime 0 1 2, y hoy imprime 3 3 3. El
+# bloque estaba pegado en el markdown de la slide, no era un {{code:}}, asi que
+# no lo compilaba nadie: un numero medido sin un archivo que lo produzca envejece
+# mudo. Ahora el archivo existe y termina en $fatal si alguna de las cuatro
+# variantes cambia.
+REPROS := repro-cg-options repro-dist-with repro-solve-before repro-vif-task repro-cg-transition \
+          repro-fork-automatic
 repros:
 	@cd code/verilator && for f in $(REPROS); do \
 	  printf '==> %-22s ' "$$f"; mkdir -p obj_dir/$$f; \

@@ -60,8 +60,7 @@ Six things this table says that no single slide says:
 
 - **Row 3 is the only one with directed stimulus**, and that is not a whim:
   `FF` × `FF` comes up once every sixteen multiplications and random fills it some
-  runs and not others, in a
-  thousand operations. The plan is what makes it obvious **which test has to be
+  runs and not others. The plan is what makes it obvious **which test has to be
   written**, and it is exactly the exercise
   [`d5c`](../../code/ejercicios/d5c/), which closes this row.
   And watch the name: it is the **maximum product**, not an overflow. `FF` × `FF`

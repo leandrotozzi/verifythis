@@ -60,7 +60,7 @@ la otra.
 
 #### *Diagrama del Testbench*
 
-![TB del VTALU con analysis ports](res/diagrams/analysis-ports_fig102.svg)
+![Testbench del VTALU con analysis ports](res/diagrams/analysis-ports_fig102.svg)
 <!-- .element: class="grande" -->
 
 ---
@@ -164,8 +164,11 @@ llenando bins con la nada.
 - El motivo del límite: `uvm_subscriber` te da **un solo** `write()`, y ése es el
   método que el puerto llama. Dos puertos no tienen dónde entrar
 - UVM lo resuelve sin partir el componente, con la clase *uvm_tlm_analysis_fifo*,
-  que es **ilimitada por construcción**: su `write()` es una `function` y no puede
-  bloquear, así que no puede tirar nada
+  que es **ilimitada por construcción**: su constructor le pasa `size = 0`
+  (`tlm1/uvm_tlm_fifos.svh:281`, con el comentario «analysis fifo must be unbounded»)
+- Y el `write()` es una `function` que hace `void'(this.try_put(t))`: descarta el
+  retorno. Si la FIFO estuviera acotada tiraría **sin avisar** — por eso ésta se
+  construye sin tope
 - Es paramétrica y tiene dos caras: un *analysis_export* de un lado —que se conecta
   como cualquier subscriber— y un `try_get()` del otro
 - `try_get()` saca un elemento y devuelve 0 si la FIFO está vacía, sin bloquear
@@ -267,8 +270,12 @@ El export no es del scoreboard, es **de la FIFO que el scoreboard tiene adentro*
 Un `uvm_analysis_port` puede tener varios destinos —el `ap` del command_monitor
 alimenta dos— y no le cuesta nada: `write()` los recorre a todos.
 Y el detalle que se olvida y no avisa: `cmd_f` se instancia con `new()`, no con
-la factory. Las FIFOs y los ports no están registrados. Si te olvidás del `new()`
-el `connect()` explota con un null, y ese al menos es un error honesto.
+la factory. La FIFO **sí** está registrada —`` `uvm_component_param_utils `` en
+`tlm1/uvm_tlm_fifos.svh:256`—, pero el curso la crea con `new()` porque le pasa el
+`size` por constructor y `create()` no puede. Los que no están en la factory son
+los *ports* y los *exports*: extienden `uvm_port_base` sin macro de utils. Si te
+olvidás del `new()` el `connect()` explota con un null, y ese al menos es un error
+honesto.
 
 ---
 

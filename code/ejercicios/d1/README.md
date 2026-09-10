@@ -1,4 +1,4 @@
-<!-- es-sha: 3e6f505703e5 -->
+<!-- es-sha: 2d43db9193a1 -->
 **English** · [Castellano](README.es.md)
 
 # Day 1 — a new operation, end to end
@@ -23,9 +23,14 @@ that it has to verify it too.
    every bin**: it runs, it passes the scoreboard, and it does not show up in the report.
    Put it in.
 
-Done when `bash run.sh` finishes with `EXERCISE OK` **and** the coverage report
-closes with **77 covered bins or more**. Two conditions, because step 3 does not
-move the first one: the one that catches it is the second.
+Done when `bash run.sh` finishes with `EXERCISE OK`. The checker looks at three
+things and none of them comes out of the files you edit: `chequeo.sv` —bound into
+the top, and not to be touched— counts the shifts off the DUT's pins and predicts
+the result by itself; your scoreboard has to have looked at **every** operation
+the bus answered; and the coverage database has to close **without a single bin at
+zero** and with `single_cycle` at **seven** bins. That last one is step 3: a bigger
+bin total proves nothing, because any spare `coverpoint` moves it up without
+measuring the new opcode.
 
 ## How to run it
 

@@ -6,7 +6,7 @@ class env extends uvm_env;
    scoreboard      scoreboard_h;
    command_monitor command_monitor_h;
    result_monitor  result_monitor_h;
-   // TODO(exercise 4): declare your op_counter here
+   // TODO(exercise d4): declare your op_counter here
 
    function new(string name, uvm_component parent);
       super.new(name, parent);
@@ -18,7 +18,7 @@ class env extends uvm_env;
       scoreboard_h = scoreboard::type_id::create("scoreboard_h", this);
       command_monitor_h = command_monitor::type_id::create("command_monitor_h", this);
       result_monitor_h = result_monitor::type_id::create("result_monitor_h", this);
-      // TODO(exercise 4): create it here, with the factory
+      // TODO(exercise d4): create it here, with the factory
 
    endfunction : build_phase
 
@@ -27,7 +27,7 @@ class env extends uvm_env;
       result_monitor_h.ap.connect(scoreboard_h.analysis_export);
       command_monitor_h.ap.connect(scoreboard_h.cmd_f.analysis_export);
       command_monitor_h.ap.connect(coverage_h.analysis_export);
-      // TODO(exercise 4): connect your op_counter to the same analysis port.
+      // TODO(exercise d4): connect your op_counter to the same analysis port.
       // A port connects to as many subscribers as you like: that is why adding
       // one does not touch the ones already there.
 

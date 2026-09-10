@@ -176,7 +176,7 @@ instalado, `randomize()` devuelve 0 en silencio — ver
 
 ## Y después: la regresión, en tu repo
 
-Cuando el corrector te dé las cuatro etapas, el paso siguiente no es otro
+Cuando el corrector te dé las cinco etapas, el paso siguiente no es otro
 ejercicio: es **poner esto a correr solo**. `ci/regresion.yml` es un workflow de
 GitHub Actions listo para copiar a `.github/workflows/` de **tu** repo. Corre el
 mismo test con N semillas, mergea la cobertura, y deja el número en el resumen

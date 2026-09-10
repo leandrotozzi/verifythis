@@ -1,4 +1,4 @@
-<!-- es-sha: 3d57bdc4c97f -->
+<!-- es-sha: 7d2db865bb54 -->
 <!-- .slide: id="day8" -->
 
 ## Yesterday we left…
@@ -26,7 +26,7 @@ without a problem.
 
 ---
 
-<!-- .slide: data-machete="res/en/uvm_class_diagram.svg,res/diagrams/en/ral_camino.svg,res/diagrams/en/sequences_tb_completo.svg" -->
+<!-- .slide: data-machete="res/en/uvm_class_diagram.svg|The UVM base class hierarchy,res/diagrams/en/ral_camino.svg|The RAL data path: from the model write down to the bus · and from the monitor up to the mirror through the predictor,res/diagrams/en/sequences_tb_completo.svg|The whole testbench: the sequence cloud · the agent with sequencer and driver · and the analysis layer in the env" -->
 
 ## Agenda
 

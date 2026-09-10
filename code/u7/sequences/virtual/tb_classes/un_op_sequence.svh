@@ -7,7 +7,7 @@ class un_op_sequence extends uvm_sequence #(command_transaction);
 
    byte unsigned     A, B;
    operation_t       op;
-   shortint unsigned result;  // lo escribe el driver adentro del item
+   shortint unsigned result;  // the driver writes it inside the item
 
    function new(string name = "un_op_sequence");
       super.new(name);

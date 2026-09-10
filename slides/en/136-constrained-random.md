@@ -222,7 +222,7 @@ the bin. Measured: `with {A == 8'hFF}` resolves 25 % of the time —the weight o
 that bin—, `with {A inside {[1:10]}}` 2 %, and a field with no `dist` 100 %.
 Why it matters more than it looks: the symptom is **an intermittent directed
 case**, which works when you try it and fails in the overnight regression. The
-numbers are in `code/verilator/repro-dist-with.sv`, and the way around it —turning
+numbers are in `code/verilator/repro-dist-with.sv`, and the workaround —turning
 the constraint off— is the same `constraint_mode()` you see further on.
 
 ---
@@ -314,7 +314,7 @@ time, so it goes where it is needed and not out of habit.
 
 ## Constrained random
 
-#### *Measured, with the way round that Verilator does honour*
+#### *Measured, with the workaround that Verilator does honour*
 
 {{code:code/u6/transactions/constraints/03_solve.sv#both-classes}}
 
@@ -327,14 +327,14 @@ time, so it goes where it is needed and not out of habit.
 - Verilator 5.052 **accepts `solve ... before` and does not honour it**: it leaves
   the field pinned at 0, which is worse than ignoring it. Repro in
   `code/verilator/repro-solve-before.sv`
-- The portable way round: ask for the share-out of the control field with a `dist`.
+- The portable workaround: ask for the spread of the control field with a `dist`.
   It says the same thing and it does not depend on the solver getting the order
   right
 
 Note:
 It is the second Verilator hole of the course, alongside the transition bins, and
 it gets treated the same way: it gets said head on, with a minimal repro and with
-a way round that works. The concept belongs to the language, not to the simulator.
+a workaround that works. The concept belongs to the language, not to the simulator.
 What does have to be stressed is the asymmetry: the **biased** constraint gives
 0.3 %, which is exactly what the theory predicts — which means the Verilator
 solver is fine; what is missing is the ordering directive.
@@ -432,7 +432,7 @@ DUT, not a preference of whoever wrote the class first.
 
 - No step asks for a new class: `dist` and `inside` in the transaction, three
   lines of `with {}`, and `rand_mode(0)` or `constraint_mode(0)` to break a rule
-- That is *coverage closure*, and it is what a verifier spends the day on
+- That is *coverage closure*, and it is what a verification engineer spends the day on
 - What it is **not**: writing one test per bin. Nor looking at the total percentage
 - The stimulus still comes out of a `tester` you wrote yourself. In modern UVM
   that is a `uvm_sequence` — and that is day 6
@@ -521,4 +521,4 @@ fields with the previous value and the testbench goes on sending stimulus that i
 not the one you think. The coverage is going to tell you three days later.
 And the tool notice that is needed from today: without `z3` installed, Verilator
 resolves `randomize()` by returning 0 **in silence**. It is in
-`docs/verilator.md`, and it is the reason day 5 asks for the solver.
+`docs/en/verilator.md`, and it is the reason day 5 asks for the solver.

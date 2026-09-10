@@ -41,9 +41,9 @@
 **El test corre 1000 operaciones al azar y la cobertura de *código* da 100 %. ¿Qué te dice eso sobre la verificación?**
 
 - [ ] Que el DUT está verificado y el plan de verificación se puede cerrar
-- [x] Muy poco: mide el RTL que se ejecutó, no la spec
 - [ ] Que el testbench no tiene bugs
 - [ ] Que faltan pocos escenarios: el 100 % ya recorrió el diseño entero
+- [x] Muy poco: mide el RTL que se ejecutó, no la spec
 
 > **Muy poco** — la cobertura de código mide el DUT; la funcional mide la spec. Una feature que el diseñador nunca escribió da 100 % de líneas y 0 % de lo que importa, y el reporte no te lo va a decir.
 
@@ -57,8 +57,8 @@
 
 **Declarás un `covergroup`, le hacés `new()`, corrés mil operaciones y el reporte da 0 %. ¿Qué es lo primero que hay que mirar?**
 
-- [ ] Que los bins estén mal definidos y no matcheen ningún valor
 - [x] Que nadie esté llamando a `sample()`
+- [ ] Que los bins estén mal definidos y no matcheen ningún valor
 - [ ] Que el DUT no esté respondiendo
 - [ ] Que falten `ignore_bins`
 

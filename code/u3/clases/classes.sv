@@ -19,11 +19,11 @@ class rectangle;
    endfunction
 endclass
 
-// Extendiendo Clases!
+// Extending classes!
 class square extends rectangle;
    // Override Constructor
    function new(int side);
-      //super: llamado a metodo de padre
+      // super: the call to the parent method
       super.new(.l(side), .w(side));
    endfunction
 

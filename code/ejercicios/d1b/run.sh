@@ -18,6 +18,10 @@ set -e
 # BEFORE common.sh is sourced: that is where VLT_FLAGS gets assembled from it.
 export VLT_TRACE=1
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
+# The two times the checker demands come out of RUNNING the reference BFM, and
+# solucion/vtalu_bfm.sv plus the top that dumps the waves are sealed. See
+# intocables.sha.
+intocables
 SRC=${SOLUCION:+solucion/}
 
 falta() { echo "not yet: $1" >&2; exit 1; }
@@ -49,30 +53,33 @@ tiempos() {
     END { print p, dm }' ondas.vcd
 }
 
-# The two times are the ones of the BFM AS SHIPPED, which is what the student
-# reads: with a send_op that waits for the handshake every one-cycle op takes
-# one cycle less, and the first multiplication moves (830 ps -> 650 ps). So the
-# reference is measured once per directory -- on the first run, before anybody
-# touched send_op -- and kept in obj_dir. Under SOLUCION=1 the shipped BFM gets
-# built and measured apart, first. make clean forgets it: if you already fixed
-# the BFM, put the repeat(2) back for one run.
-REF=obj_dir/tiempos.txt
-if [ ! -f "$REF" ] && [ -n "$SRC" ]; then
-  build vtalu_bfm.sv
-  corre
-  t=$(tiempos) || exit 1; echo "$t" > "$REF"
-fi
+# The reference: the same testbench with the BFM of solucion/, built and run
+# here, every run. It is what STAGE 2 compares against, and it is measured and
+# not written down: the day the DUT or the stimulus changes, the number changes
+# with them.
+#
+# It used to be the other way round --the times of the BFM as shipped, measured
+# ONCE and cached in obj_dir-- and that lied in both directions: with the BFM
+# already fixed the waves said 650 ps and the checker went on demanding 830, and
+# after a make clean it demanded 650 from an answer that had been read off the
+# shipped waves. Nothing is cached now: every number the checker prints was
+# measured in this run.
+build solucion/vtalu_bfm.sv
+corre > /dev/null
+read -r I_PRIMERO I_MUL <<< "$(tiempos)"
 
-# Under SOLUCION=1 whatever is in obj_dir/top was built from the other BFM --
-# the reference above, or the student's own run a moment ago. Two builds within
-# the same second come out stale on macOS (its make 3.81 compares whole
-# seconds, and the regenerated .cpp is not newer than the .o), so start clean.
-[ -z "$SRC" ] || rm -rf obj_dir/top
-build "${SRC}vtalu_bfm.sv"
-echo "=== running, and dumping ondas.vcd ==="
-corre
-if [ ! -f "$REF" ]; then t=$(tiempos) || exit 1; echo "$t" > "$REF"; fi
-read -r T_PRIMERO T_MUL < "$REF"
+if [ -n "$SRC" ]; then
+  T_PRIMERO=$I_PRIMERO; T_MUL=$I_MUL
+else
+  # Two builds within the same second come out stale on macOS (its make 3.81
+  # compares whole seconds, and the regenerated .cpp is not newer than the .o),
+  # so start clean.
+  rm -rf obj_dir/top
+  build vtalu_bfm.sv
+  echo "=== running, and dumping ondas.vcd ==="
+  corre
+  read -r T_PRIMERO T_MUL <<< "$(tiempos)"
+fi
 
 echo ""
 echo "=== STAGE 1: read the waves ==="
@@ -85,25 +92,35 @@ R=(); while read -r n; do R+=("$n"); done < <(grep -oE "^[0-9]+" "${SRC}respuest
 [ "${#R[@]}" -ge 2 ] || falta "respuesta.txt has ${#R[@]} number(s) and 2 are needed:
     the first rising edge of done, and the one of the FIRST multiplication."
 
+# Against the waves THIS run just left, which are the ones you have open.
 [ "${R[0]}" = "$T_PRIMERO" ] ||
-  falta "the first rising edge of done is not ${R[0]} ps.
-    Put the cursor on the FIRST rising edge of done and read the time."
+  falta "in ondas.vcd the first rising edge of done is at $T_PRIMERO ps, and
+    respuesta.txt says ${R[0]}. Put the cursor on the FIRST rising edge of done and
+    read the time."
 [ "${R[1]}" = "$T_MUL" ] ||
-  falta "the done of the first multiplication is not ${R[1]} ps.
-    Look for the first stretch with op = mul_op (or start_mult at 1) and read the
-    time of the rising edge of done that closes it."
+  falta "in ondas.vcd the done of the first multiplication is at $T_MUL ps, and
+    respuesta.txt says ${R[1]}. Look for the first stretch with op = mul_op (or
+    start_mult at 1) and read the time of the rising edge of done that closes it.
+    If you already fixed send_op, that number MOVED, and the move is the lesson:
+    every one-cycle operation now takes one edge less, so the first multiplication
+    starts --and closes-- earlier. Open the waves again and write down what they say."
 echo "STAGE 1 OK: you read the waves -- first done at $T_PRIMERO ps, the one of the first multiplication at $T_MUL ps"
 
 echo ""
 echo "=== STAGE 2: fix the BFM ==="
-# The run first, the grep after: a wait(done) fails the run (done is a level
-# still up from the previous op, so start drops before the DUT sees the new
-# one), and a repeat(5) passes the run while still counting cycles. Each gets
-# the message that is true for it.
+# Two ways of getting it wrong and two messages, and neither of them reads the
+# shape of your code: a wait(done) fails the run (done is a level still up from
+# the previous op, so start drops before the DUT sees the new one), and a
+# repeat(5) passes the run while still counting cycles -- it just counts too
+# many. What gives the second one away is the clock, not the grep: waiting more
+# edges than the DUT needs pushes every response later than the reference.
 run_sim || falta "the run still reports errors: look at the lines above"
-grep -q 'while *( *done' "${SRC}vtalu_bfm.sv" ||
-  falta "send_op still counts cycles. The DUT says when it finished: wait for the
-    handshake (done), not a number of edges. It is one line."
+[ "$T_MUL" = "$I_MUL" ] ||
+  falta "no operation fails any more, but send_op is still going by the clock and
+    not by the handshake: in your waves the first multiplication closes at $T_MUL ps
+    and with the handshake it closes at $I_MUL. Waiting MORE edges than the DUT needs
+    also keeps the scoreboard quiet, and it is the same bug: the DUT says when it
+    finished."
 echo "STAGE 2 OK: the BFM waits for the handshake and no operation fails"
 echo ""
 echo "EXERCISE OK"

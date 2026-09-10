@@ -1,4 +1,4 @@
-<!-- es-sha: fed3add9fd3f -->
+<!-- es-sha: 2564ba45f39c -->
 ## Components and phases
 
 #### *A component is what is in the tree, and the tree is walked by UVM*
@@ -25,7 +25,7 @@ the agents— comes out of there.
 The practical consequence that has to be said out loud: if something is not a
 component, UVM does not see it. It does not build it, it does not call phases on it and it does not show up in the
 topology. Later on we are going to have objects that on purpose are **not**
-components —the transactions— and there the distinction gets charged for.
+components —the transactions— and that is where the distinction buys you something.
 The three axes —structure, sequences, data— work as a map of the rest of the
 course: components and `env` are structure, transactions are data, sequences are
 sequences.
@@ -59,7 +59,7 @@ you, and well: `ILLCRT` tells you which component and under which parent.
 
 #### *The tree, twice: one walk goes down and the other goes up*
 
-![The tree walked twice: build_phase goes down and connect_phase goes up](res/diagrams/en/components_fases.svg)
+![The tree walked twice: build_phase goes down and connect_phase goes up, and the real order in which a child gets built](res/diagrams/en/components_fases.svg)
 <!-- .element: class="grande" -->
 
 - `build_phase` goes down because a parent has to exist to create its children
@@ -77,8 +77,8 @@ child inside its own `build_phase`, when does the `build_phase` of the child run
 Later, and that is the part that has to be said slowly: `create()` calls the
 **constructor**, not the phase. UVM walks the tree calling the phase on the
 components that showed up along the way, so the child gets built in two steps.
-The practical consequence is the one in the last bullet and it is the one that
-charges: a `uvm_config_db::set()` written **after** the `create()` of the child
+The practical consequence is the one in the last bullet, and it is the one that
+buys you something: a `uvm_config_db::set()` written **after** the `create()` of the child
 arrives late, the child already read, and the field stays at its default without
 anybody warning. It is the same asymmetric failure mode as the next slide.
 If somebody asks about the code: `uvm_topdown_phase::traverse` runs the phase on
@@ -92,7 +92,7 @@ then already exist.
 #### *And what about `super.build_phase()`?*
 
 ```systemverilog
-// uvm_component.svh -- uvm-core 2020.3.1, exactly as it is
+// uvm_component.svh:2385-2393 -- uvm-core 2020.3.1, with the return; elided
 function void uvm_component::build_phase(uvm_phase phase);
    build();            // -> apply_config_settings(): the automatic config
 endfunction
@@ -136,9 +136,11 @@ when it was needed is silence: the field stays at its default and the simulation
 This course can name why in its case it is a no-op —there is not a single
 `` `uvm_field_* `` macro in `code/` outside the vendored library —there are
 {{count:uvm-field-macros}}, and the build counts them—; whoever walks into somebody else's
-testbench cannot. `uvm_agent` is the counterexample we have at hand: it is the only
-class in the library, besides `uvm_component`, that implements `build_phase`, and what
-it does there is read `is_active`. It comes back on day 6.
+testbench cannot. `uvm_agent` is the counterexample we have at hand: besides
+`uvm_component`, it is implemented by `uvm_agent` —which reads `is_active` there—
+and by the two sequencer bases (`seq/uvm_sequencer_base.svh:122`, which reads
+`wait_for_sequences_count` from the config_db, and
+`seq/uvm_sequencer_param_base.svh:236`). It comes back on day 6.
 The same goes for the other phases, cheaper still: in `uvm_component` they are
 `return;`, but `uvm_driver::end_of_elaboration_phase` checks that the `seq_item_port`
 is connected, and that one we do extend.
@@ -187,7 +189,7 @@ top-down one is `final_phase`, which closes the tree in the same order it was bu
 
 #### *And inside the `run_phase`, a schedule*
 
-![The twelve runtime phases in parallel with run_phase, and where the default_sequence hooks in](res/diagrams/en/components_runtime.svg)
+![The twelve runtime phases running in parallel with run_phase, and where the default_sequence hooks in](res/diagrams/en/components_runtime.svg)
 <!-- .element: class="grande" -->
 
 - The twelve are `task`s, they run **in parallel** with `run_phase`, and they are

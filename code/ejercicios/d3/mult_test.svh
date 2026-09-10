@@ -1,4 +1,4 @@
-// TODO(exercise 3): write the mult_test class here.
+// TODO(exercise d3): write the mult_test class here.
 //
 // It has to:
 //   1. extend uvm_test and register itself in the factory

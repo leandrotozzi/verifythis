@@ -57,7 +57,7 @@ testbench anterior a 2011 que nadie migró. Pasa más de lo que parece.
 
 #### *Un testbench de SystemVerilog, por dentro*
 
-![Anatomia de un testbench SystemVerilog](res/TB.svg)
+![Anatomía de un testbench SystemVerilog](res/TB.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -94,7 +94,7 @@ poco.
 
 #### *El árbol de clases*
 
-![Arbol de clases base de UVM](res/uvm_class_diagram.svg)
+![Jerarquía de clases base de UVM](res/uvm_class_diagram.svg)
 <!-- .element: class="grande" -->
 
 Note:

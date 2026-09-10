@@ -11,14 +11,14 @@ set -e
 vlt_uvm top --coverage-user -Wno-fatal dice_pkg.sv top.sv
 run_sim
 
-# Los dos dados salen de un randomize() con constraints, y randomize() devuelve
-# 0 --sin decir nada-- cuando falta el solver z3. Ahi los dados quedan en 0, la
-# tirada es siempre 0, y el ejemplo termina "verde" mostrando 0 % de cobertura y
-# un promedio de 0.0. Es la unica forma que tiene este ejemplo de fallar, asi
-# que la miramos.
+# The two dice come out of a randomize() with constraints, and randomize()
+# returns 0 --without saying anything-- when the z3 solver is missing. The dice
+# then stay at 0, every roll is 0, and the example ends up "green" showing 0 %
+# coverage and an average of 0.0. It is the only way this example has of failing,
+# so we look at it.
 if grep -qE 'COVERAGE: +0%|DICE AVERAGE: +0\.0' "$VLT_LOG"; then
-   echo "FAIL: los dados dieron siempre 0 — randomize() no resolvio." >&2
-   echo "      Casi siempre es que falta z3: instalalo y volve a correr." >&2
+   echo "FAIL: the dice always came out 0 -- randomize() did not solve." >&2
+   echo "      It is almost always a missing z3: install it and run again." >&2
    exit 1
 fi
 cov_report

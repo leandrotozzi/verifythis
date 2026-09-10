@@ -1,3 +1,3 @@
-// macOS no tiene <malloc.h>; uvm_dpi.h lo incluye igual. Todo lo que UVM usa de
-// ahi (malloc/free) esta en <stdlib.h>, que tambien existe en Linux.
+// macOS has no <malloc.h>; uvm_dpi.h includes it anyway. Everything UVM uses
+// from there (malloc/free) is in <stdlib.h>, which exists on Linux too.
 #include <stdlib.h>

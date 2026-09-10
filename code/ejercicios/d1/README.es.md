@@ -22,9 +22,14 @@ que lo tiene que verificar.
    todos los bins**: se ejecuta, pasa el scoreboard, y no aparece en el reporte.
    Metelo.
 
-Listo cuando `bash run.sh` termina con `EXERCISE OK` **y** el reporte de
-cobertura cierra con **77 bins cubiertos o más**. Son dos condiciones porque el
-paso 3 no mueve la primera: la que lo agarra es la segunda.
+Listo cuando `bash run.sh` termina con `EXERCISE OK`. El corrector mira tres
+cosas y ninguna sale de los archivos que editás: `chequeo.sv` —que está
+*bindeado* al top y no se toca— cuenta los shifts sobre los pines del DUT y
+predice el resultado por su cuenta; el scoreboard tuyo tiene que haber mirado
+**todas** las operaciones que el bus contestó; y la base de datos de cobertura
+tiene que cerrar **sin un solo bin en cero** y con `single_cycle` en **siete**
+bins. Ese último es el paso 3: un total de bins más grande no prueba nada,
+porque cualquier `coverpoint` de más lo sube sin medir el opcode nuevo.
 
 ## Cómo se corre
 

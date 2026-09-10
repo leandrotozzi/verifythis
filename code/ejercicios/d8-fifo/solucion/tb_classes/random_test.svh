@@ -1,4 +1,4 @@
-// Etapas 3 y 4: el random, contra el scoreboard y la cobertura.
+// Stages 3 and 4: the random one, against the scoreboard and the coverage.
 class random_test extends base_test;
    `uvm_component_utils(random_test)
 

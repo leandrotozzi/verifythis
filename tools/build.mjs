@@ -34,8 +34,11 @@ const OUT_BANCO = OUT.banco;
 // una sola linea que indexar, y esta es justo la tabla que alguien googlea a las
 // tres de la manana ("randomize devuelve 0 verilator"). Sale del MISMO apendice.
 const OUT_TRAMPAS = OUT.trampas;
-// para-docentes.md vive en docs/; el banco del ingles esta en docs/en/.
-const DOCENTES = path.relative(path.dirname(OUT_BANCO), 'docs/para-docentes.md');
+// La guia docente tiene las dos versiones: el banco de cada idioma linkea la
+// suya. Antes el de ingles mandaba a la castellana con un "(in Spanish)" que
+// dejo de ser cierto el dia que se tradujo.
+const DOCENTES = path.relative(path.dirname(OUT_BANCO),
+  IDIOMA === 'en' ? 'docs/en/for-teachers.md' : 'docs/para-docentes.md');
 
 const errors = [];
 const fail = (file, msg) => errors.push(`${file}: ${msg}`);
@@ -232,11 +235,11 @@ if (errors.length) {
 }
 
 // --- docs/trampas-mudas.md: el apendice, fuera del deck -----------------------
-// Las filas se copian tal cual de las tablas de slides/172-apendice-trampas.md,
+// Las filas se copian tal cual de las tablas de slides/<idioma>/172-apendice-trampas.md,
 // con el subtitulo de cada slide como encabezado de grupo. Una trampa nueva en
 // la slide entra sola.
 const apendice = chapters.find(c => /apendice-trampas/.test(c.f));
-if (!apendice) fail('slides/', 'falta 172-apendice-trampas.md, de donde sale docs/trampas-mudas.md');
+if (!apendice) fail(`slides/${IDIOMA}/`, 'falta 172-apendice-trampas.md, de donde sale docs/trampas-mudas.md');
 const grupos = [];
 // El encabezado de la tabla no es una fila: se saltea por su primera celda,
 // que sale de T.trampasCols para que el ingles saltee la suya y no la nuestra.
@@ -249,7 +252,7 @@ for (const slide of (apendice?.md ?? '').split(/^---$/m)) {
 }
 const nTrampas = grupos.reduce((n, g) => n + g.filas.length, 0);
 
-const trampas = `<!-- Generado por tools/build.mjs desde slides/172-apendice-trampas.md.
+const trampas = `<!-- Generado por tools/build.mjs desde slides/${IDIOMA}/${apendice.f}.
      NO editar a mano: la fila se corrige en la slide y esto se regenera con
      \`npm run build\`. \`npm run check\` falla si quedo viejo. -->
 

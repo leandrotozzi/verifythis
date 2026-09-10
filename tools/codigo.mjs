@@ -33,6 +33,7 @@ export const RE_CODE = /^([ \t]*)\{\{code:([^}|#]+?)(?:#([\w.-]+))?(?:\|lines=(\
 export const LANG = {
   '.sv': 'sv', '.svh': 'sv', '.vhd': 'vhdl', '.vhdl': 'vhdl',
   '.do': 'tcl', '.py': 'python',
+  '.sh': 'bash', '.c': 'c', '.h': 'c',
   '.f': 'plaintext', '.txt': 'plaintext', '.questa': 'plaintext', '.log': 'plaintext',
 };
 
@@ -140,7 +141,15 @@ export async function recortar(rel, simbolo, from, to) {
     recorte = lines.slice(+from - 1, +to);
     donde = ` · líneas ${from}-${to} de ${lines.length}`;
   }
-  const limpiar = ls => ls.filter(l => !marca.test(l));
+  // Sacar el marcador deja su renglon vacio en la punta del recorte, y en la
+  // slide eso es una linea en blanco arriba del codigo. Se recortan los dos
+  // extremos; los blancos de adentro se respetan, que son del autor.
+  const limpiar = ls => {
+    const r = ls.filter(l => !marca.test(l));
+    while (r.length && !r[0].trim()) r.shift();
+    while (r.length && !r[r.length - 1].trim()) r.pop();
+    return r;
+  };
   return {
     lineas: limpiar(lines),
     recorte: limpiar(recorte),

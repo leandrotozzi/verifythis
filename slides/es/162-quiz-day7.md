@@ -6,9 +6,9 @@
 
 **¿Cuál es la diferencia de fondo entre `assert(x.randomize())` y `assert property (@(posedge clk) …)`?**
 
+- [x] Una es una **sentencia**; la otra, una **declaración con reloj**
 - [ ] Ninguna: la segunda es azúcar sintáctico de la primera
 - [ ] La primera se puede apagar por línea de comandos y la segunda no
-- [x] Una es una **sentencia**; la otra, una **declaración con reloj**
 - [ ] La primera sólo vale adentro de una clase y la segunda sólo adentro de un módulo, por el scheduler
 
 > **Sentencia contra declaración** — la inmediata corre cuando el hilo pasa por ahí; la concurrente se evalúa sola, en cada flanco de su reloj. Es a un `if` lo que la concurrente es a un `always_ff`: una se ejecuta, la otra se instancia. Por eso sólo la concurrente puede describir algo que dura varios ciclos.
@@ -42,8 +42,8 @@
 
 - [ ] Falta el `disable iff (!reset_n)`
 - [ ] El `posedge` es demasiado rápido: hay que dividir el reloj
-- [x] El estímulo se escribe en el `negedge` y el muestreo no lo ve
 - [ ] Los covergroups y las assertions no pueden compartir el reloj sin un `clocking block`
+- [x] El estímulo se escribe en el `negedge` y el muestreo no lo ve
 
 > **Una assertion vale lo que vale su muestreo** — la BFM escribe el estímulo en el `negedge`, y en dos `no_op` seguidas `start` baja y vuelve a subir entre dos `posedge`: el muestreo no lo ve bajar. El estímulo se muestrea donde el estímulo se escribe. Estímulo en `negedge`, respuesta del DUT en `posedge`: cero errores. Con un solo reloj no hay forma.
 
@@ -57,9 +57,9 @@
 
 **Una property `assert` reporta 0 fallas durante toda la regresión. ¿Qué se sabe?**
 
+- [x] Nada todavía: puede que nunca se haya evaluado
 - [ ] Que la regla que describe se cumple
 - [ ] Que el DUT está libre de bugs de protocolo
-- [x] Nada todavía: puede que nunca se haya evaluado
 - [ ] Que la property tiene un `disable iff` mal escrito y quedó apagada todo el tiempo
 
 > **Cero fallas y cero evaluaciones se ven igual** — puede que su antecedente no haya ocurrido nunca, o que falte `--assert` y ni siquiera se esté evaluando. Por eso toda assertion va con su `cover property`: es el único chequeo del chequeo. En la sección, `c_mult_3ciclos` se queda en 0 y delata que la latencia real son cuatro flancos, no tres.

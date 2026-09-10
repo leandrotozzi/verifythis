@@ -39,7 +39,7 @@ o cloná el repo y abrí `index.html` con doble clic
 
 > ## También está entero en inglés — traducido, no pasado por una máquina
 >
-> Las mismas 444 slides, el mismo libro, los mismos 38 ejemplos y los mismos 15
+> Las mismas 444 slides, el mismo libro, los mismos 38 ejemplos y los mismos 19
 > ejercicios. `tools/lint-i18n.mjs` compara los dos árboles sección por sección y
 > falla si uno se movió y el otro no, así que las dos versiones son el mismo
 > curso y no dos cursos parecidos.
@@ -56,11 +56,12 @@ Casi todo el material de UVM que hay dando vueltas asume Questa, VCS o Xcelium
   en [`docs/verilator.md`](docs/verilator.md). No hay flujo Questa.
 - **Está en español**, y es un curso de siete días de clase, no una referencia.
 - **Se abre con doble clic.** El deck es un archivo, sin servidor ni internet.
-- **Es libre de verdad:** MIT el código, CC BY 4.0 las slides. Dictalo,
+- **Es libre de verdad:** MIT las herramientas, Apache-2.0 el código, CC BY 4.0
+  las slides. Dictalo,
   adaptalo, cobralo si querés — solo citá la fuente.
 
 <div align="center">
-<img src="docs/demo.gif" width="820" height="470" alt="make u4/tests: Verilator + UVM 2020.3.1, 0 errores, 86.8% de cobertura funcional">
+<img src="docs/demo.gif" width="820" height="470" alt="make u4/tests: Verilator + UVM 2020.3.1, 0 errores, 86,8 % de cobertura funcional">
 <br>
 <sub><code>make u4/tests</code> — UVM 2020.3.1 sobre Verilator, 0 errores, 86,8 % de cobertura funcional</sub>
 </div>
@@ -146,7 +147,7 @@ con los diagramas de referencia del día.
 ## Qué trae
 
 Ocho unidades, agrupadas por el problema que resuelven, y se dicta en **siete
-días**: el día 1 lleva dos unidades cortas y del 2 al 7 hay una unidad por día.
+días**: el día 1 y el día 7 llevan dos unidades y del 2 al 6 hay una por día.
 Después hay un **día 8 opcional** —RAL, el modelo de referencia en C por DPI y un
 segundo capstone—, que va **después del cierre** porque las tres cosas necesitan
 que el capstone del día 7 ya esté hecho.
@@ -159,11 +160,12 @@ que el capstone del día 7 ya esté hecho.
 | **3** | **4 ·** Entra UVM | Tests · Components y fases · El env: estructura y estímulo · Reporting | ≈ 4 h 30 |
 | **4** | **5 ·** Cómo hablan los componentes | Un productor, muchos oyentes · Un solo lugar que mira el cable · Cuando alguien tiene que esperar · Quién espera a quién | ≈ 4 h |
 | **5** | **6 ·** El dato | Copiar un objeto que contiene otro · Transactions · Constrained random | ≈ 4 h 30 |
-| **6** | **7 ·** El testbench reutilizable | Agents · Callbacks · Sequences | ≈ 4 h 15 |
-| **7** | **8 ·** La otra mitad | Sequences virtuales · Assertions (SVA) · el capstone · los cuatro apéndices · glosario, referencias y cierre | ≈ 5 h 15 |
+| **6** | **7 ·** El testbench reutilizable | Agents · Callbacks · Sequences | ≈ 4 h 45 |
+| **7** | **7 ·** El testbench reutilizable *(cierre)* | Sequences virtuales | ≈ 5 h 15 |
+| | **8 ·** La otra mitad | Assertions (SVA) · el capstone · los tres apéndices · glosario, referencias y cierre | |
 | **8** *(opc.)* | **9 ·** RAL · y lo que sigue | El modelo de registros sobre el APB del capstone · el modelo de referencia en C por DPI · el segundo capstone: una FIFO con backpressure | ≈ 4 h |
 
-**≈ 34 h 30 de clase**, de las cuales **30 h 30 son los siete días** y el resto el
+**≈ 35 h de clase**, de las cuales **31 h son los siete días** y el resto el
 día 8 opcional. El número no es una promesa: sale de las slides de cada día a
 **4 minutos** —con las notas leídas y los ejemplos corridos— más el ejercicio,
 medido. Si lo hacés solo, calculá el doble: la mitad se te va en correr las
@@ -171,10 +173,10 @@ cosas, y esa mitad es la que enseña.
 
 El **día 7** es el cierre: a la mañana *Assertions*, y a la tarde el **capstone**,
 un esclavo APB con su especificación y nada más, donde el testbench se escribe
-entero desde una hoja en blanco. Y después los cuatro apéndices: **de la VTALU a
+entero desde una hoja en blanco. Y después los tres apéndices: **de la VTALU a
 un bus real**, **la caja de herramientas de debug** —las siete perillas, y cuál
-usar según el síntoma—, **las 21 trampas mudas** —todo lo que compila,
-corre y miente— y un **glosario ES ↔ EN**, porque todo lo que el alumno lea
+usar según el síntoma— y **las 21 trampas mudas** —todo lo que compila,
+corre y miente—. Cierra un **glosario ES ↔ EN**, porque todo lo que el alumno lea
 después de este curso va a estar en inglés.
 
 Cada día cierra con un **repaso**: 58 preguntas en total, que se responden
@@ -218,7 +220,7 @@ con versión, fecha y el número de cobertura de cada ejemplo:
 
 **Diecinueve**, en [`code/ejercicios/`](code/ejercicios/): el `run.sh` **falla hasta
 que lo resolvés**, y la solución está al lado (`SOLUCION=1 bash run.sh`). Cada
-enunciado tiene su versión en inglés (`README.en.md`).
+enunciado tiene su versión en inglés (`README.md`; el castellano es `README.es.md`).
 
 Tres de ellos —`d5b`, `d5c` y `d7-semillas`— son el ciclo de *coverage
 closure* hecho con las manos. `d7-final` es el **capstone**: un esclavo APB de
@@ -241,7 +243,7 @@ El curso está escrito como **siete días**, que es como se dicta en una empresa
 | [`docs/para-docentes.md`](docs/para-docentes.md) | El mismo curso como **cuatrimestre de 15 semanas** —2 h de teoría y 2 h de laboratorio por semana—, qué se puede saltear y qué cuesta cada recorte, los dos parciales, y cómo corregir el capstone por etapas |
 | [`docs/banco-de-examen.md`](docs/banco-de-examen.md) | Las **58 preguntas sin la respuesta marcada**, con la clave al final. Lo genera `npm run build` desde las mismas slides, así que no se desincroniza |
 | [`docs/trampas-mudas.md`](docs/trampas-mudas.md) | Las **21 trampas mudas** —todo lo que compila, corre y miente— y las siete perillas de debug, como página suelta para repartir. También generada |
-| [**`docs/machete-uvm.pdf`**](docs/machete-uvm.pdf) | **El machete de una carilla**: la jerarquía de clases, las nueve fases, el handshake del driver y las siete perillas de debug. Para imprimir y pegar al lado del monitor. La fuente es [`res/machete.html`](res/machete.html); `make machete` regenera el PDF |
+| [**`docs/machete-uvm.pdf`**](docs/machete-uvm.pdf) | **El machete de una carilla**: la jerarquía de clases, las nueve fases, el handshake del driver y las siete perillas de debug. Para imprimir y pegar al lado del monitor. La fuente es [`res/machete.html`](res/machete.html); `make machete` regenera los dos PDF |
 | [`docs/uvm-en-la-entrevista.md`](docs/uvm-en-la-entrevista.md) | Las preguntas de una entrevista de verificación, cada una con la respuesta corta, el link a la sección y **el ejemplo que corre** |
 | [`CITATION.cff`](CITATION.cff) | El botón *Cite this repository* de GitHub, en APA o BibTeX |
 | `make regresion` | N semillas, merge de cobertura, y un reporte HTML con los **bins abiertos** |

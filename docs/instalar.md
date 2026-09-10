@@ -198,4 +198,4 @@ la red de seguridad del que hoy no puede instalar nada. Y sus simuladores
 comerciales soportan los *bins de transición* que Verilator todavía no.
 
 Cada ejemplo es **autocontenido a propósito**: podés copiar `code/u4/env/` a otro
-lado y correrlo tal cual. Ver [`code/README.md`](../code/README.md).
+lado y correrlo tal cual. Ver [`code/README.es.md`](../code/README.es.md).

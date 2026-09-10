@@ -1,4 +1,4 @@
-<!-- es-sha: 0ffe5105000d -->
+<!-- es-sha: be632c7afec5 -->
 ## Exercise · Day 5 · 2 of 3
 
 #### *Measure your `dist`*
@@ -19,8 +19,8 @@ The point is in the order: it gets run **before** touching anything. The file sa
 section appears on its own — if the numbers are right, what is wrong? The operator
 is wrong, and there is no warning to say so.
 It is worth asking them to run it two or three times with different `SEED=` before
-calling it closed: with 4000 samples the 10 % bucket moves half a point between
-runs. A measured percentage is a sample, not the distribution — which is the other
+calling it closed: with 4000 samples the 10 % bucket moves a good point between
+runs, between 9 and 11 — that is why the checker accepts ±2. A measured percentage is a sample, not the distribution — which is the other
 half of the rule of the section.
 An infrastructure detail worth mentioning if somebody asks why a program with no
 DUT takes twenty seconds: Verilator resolves every `randomize()` that has

@@ -1,9 +1,9 @@
 // InterThread Communication
 // 	The initials of each module are 2 different threads
 
+// cb: producer-and-consumer
 // Sends the data through the shared variable and signals it by toggling get_it
 // Then the producer blocks on the put_it signal
-// cb: producer-and-consumer
 module producer (
     output byte shared,
     input  bit  put_it,

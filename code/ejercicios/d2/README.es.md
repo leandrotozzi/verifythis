@@ -14,7 +14,13 @@ y pegar la clase entera**.
 3. Y va a seguir mandando operaciones al azar. **Ahí está el ejercicio**:
    mirá `tester.svh`, y acordate de polimorfismo.
 
-Listo cuando `bash run.sh` imprime `EXERCISE OK`.
+Listo cuando `bash run.sh` imprime `EXERCISE OK`. El corrector es `chequeo.svh`,
+que está *bindeado* al top y **no se toca**: cuenta lo que pasó por la BFM y
+además llama al `get_op()` a mano dos veces —sobre un `tester` pelado, que tiene
+que seguir sorteando las ocho, y sobre el objeto que quedó en `tester_h` a través
+de un handle de tipo `tester`, que tiene que contestar `mul_op` siempre—. Ese
+segundo número **es** la lección: sólo da 1 si `get_op()` es `virtual` y si
+`tester_h` tiene adentro un `mult_tester`.
 
 ## Cómo se corre
 

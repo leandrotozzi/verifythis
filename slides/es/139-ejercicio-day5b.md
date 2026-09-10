@@ -18,8 +18,8 @@ La gracia está en el orden: se corre **antes** de tocar nada. El archivo dice 1
 sección — si los números están bien, ¿qué está mal? Está mal el operador, y no
 hay warning que lo diga.
 Conviene pedirles que lo corran dos o tres veces con `SEED=` distintas antes de
-darlo por cerrado: con 4000 muestras el casillero del 10 % se mueve medio punto
-entre corridas. Un porcentaje medido es una muestra, no la distribución — que es
+darlo por cerrado: con 4000 muestras el casillero del 10 % se mueve un punto
+largo entre corridas, entre 9 y 11 — por eso el corrector acepta ±2. Un porcentaje medido es una muestra, no la distribución — que es
 la otra mitad de la regla de la sección.
 Detalle de infraestructura que vale mencionar si alguien pregunta por qué tarda
 veinte segundos un programa que no tiene DUT: Verilator resuelve cada

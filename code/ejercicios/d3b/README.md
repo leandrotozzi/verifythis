@@ -13,7 +13,7 @@ and with the observation that a log says **that** something failed and almost
 never **why**. This is the exercise where that gets fixed, from the side of
 whoever writes the log.
 
-The testbench is the whole one from the *The whole env* section. The
+The testbench is the whole one from the *The env* section. The
 `scoreboard.svh` that is here is **right**: it catches every mismatch. And it is
 useless: when it fails, it says `FAILED` and nothing else.
 

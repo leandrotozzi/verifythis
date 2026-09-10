@@ -1,4 +1,4 @@
-<!-- .slide: id="glosario" data-machete="res/uvm_class_diagram.svg,res/diagrams/sequences_tb_completo.svg" -->
+<!-- .slide: id="glosario" data-machete="res/uvm_class_diagram.svg|Jerarquía de clases base de UVM,res/diagrams/sequences_tb_completo.svg|El testbench completo: la nube de sequences · el agent con sequencer y driver · y la capa de análisis en el env" -->
 
 ## Glosario · ES → EN
 
@@ -65,8 +65,9 @@ sirve de repaso rápido antes de una entrevista.
 Las dos filas que más se confunden son *sequence* y *sequencer*, y la forma de no
 errarle es la del día 6: el que termina en **-er** es el **componente** —está en
 el árbol, tiene fases—; el otro es el objeto que se crea, corre y se tira. Lo
-mismo vale para *driver* y *monitor*: todos los que terminan en -er/-or son
-componentes.
+mismo vale para *driver* y *monitor*. La regla es de las piezas del árbol y no
+del sufijo: las *policies* de UVM —`uvm_printer`, `uvm_comparer`, `uvm_packer`,
+`uvm_recorder`— y el `uvm_report_catcher` terminan igual y son objects.
 Y la primera fila es la que más cuesta y la que más cara sale: *handle*. Si el
 alumno se lleva una sola palabra de este glosario, que sea que un handle no es un
 objeto.

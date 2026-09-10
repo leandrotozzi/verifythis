@@ -58,8 +58,9 @@ aprendan sin que les suene a chino.
 - Y si te trabás: **[Discussions](https://github.com/leandrotozzi/verifythis/discussions)**,
   con una categoría por día. Un ejemplo que no corre o una explicación que no se
   entiende son **issues del curso**, no problemas tuyos
-- Y si querés seguir acá mismo: el **día 8** es opcional y arranca en la slide
-  que sigue — RAL, el modelo de referencia en C, y un segundo capstone
+- Y si querés seguir acá mismo: el **día 8** es opcional y arranca después de la
+  autoevaluación y de *El lunes* — RAL, el modelo de referencia en C, y un
+  segundo capstone
 
 Note:
 **RAL salió de esta tabla y ahora es la unidad 9**, opcional, con el ejemplo que

@@ -1,4 +1,4 @@
-// TODO(exercise 4): write the op_counter class here.
+// TODO(exercise d4): write the op_counter class here.
 //
 // It has to:
 //   1. extend uvm_subscriber #(command_s)

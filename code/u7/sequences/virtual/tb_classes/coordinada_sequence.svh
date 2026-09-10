@@ -7,11 +7,11 @@
 //      Hence "virtual" -- it is tied to no item type and no sequencer.
 //   2. It runs on more than one sequencer, and that is where the one thing no
 //      single sequence can do comes from: coordinating two interfaces.
-//
+
+// cb: p-sequencer
 // `uvm_declare_p_sequencer declares `p_sequencer` with the type above and casts
 // it on its own inside m_set_p_sequencer. Without it, get_sequencer() returns a
 // uvm_sequencer_base and every use would need a cast by hand.
-// cb: p-sequencer
 class coordinada_sequence extends uvm_sequence;
    `uvm_object_utils(coordinada_sequence)
    `uvm_declare_p_sequencer(virtual_sequencer)
@@ -38,11 +38,11 @@ class coordinada_sequence extends uvm_sequence;
 
       random_b.count = count;
 
+      // cb: the-fork
       // --- 1. Both ALUs get reset at the same time -----------------------------
       // fork/join over TWO sequencers. Each branch blocks on its own driver, and
       // the join waits for both: that cannot be written inside a normal
       // sequence, which only knows the sequencer that started it.
-      // cb: the-fork
       fork
          reset_a.start(p_sequencer.clase_sequencer_h);
          reset_b.start(p_sequencer.modulo_sequencer_h);
@@ -56,11 +56,11 @@ class coordinada_sequence extends uvm_sequence;
       join
       // cb: end
 
+      // cb: the-ordered-pair
       // --- 3. What no single sequence can do ----------------------------------
       // The result of VTALU A is the operand of B. It is a dependency BETWEEN
       // interfaces: the second one cannot even start being built until the
       // first one answered.
-      // cb: the-ordered-pair
       primera.A  = 8'h0F;
       primera.B  = 8'h07;
       primera.op = mul_op;

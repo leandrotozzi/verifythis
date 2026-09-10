@@ -308,7 +308,7 @@ Números para el pizarrón: 0 1 1 2 3 5 8 13 21 34 55 89 144 233. Se corta en 23
 porque el siguiente es 377 y `A` y `B` son de 8 bits. Que el alumno vea por qué el
 `for` va hasta 14 y no hasta 20 vale más que la sequence entera.
 Y una que se ve en la corrida real: el test entero tarda **500 unidades de
-tiempo**, contra las 44.000 del test random. Trece operaciones. Un test dirigido
+tiempo**, contra las 43.000 del test random. Trece operaciones. Un test dirigido
 bien escrito es barato; lo caro es el random, y por eso se corre de noche.
 
 ---
@@ -422,8 +422,8 @@ sequencer. Es la misma razón por la que las conexiones van en `connect_phase`.
   quiere decir *"en la `main_phase` de ese sequencer"*
 - Se puede configurar por **instancia** (como acá, con
   `uvm_config_db #(uvm_sequence_base)`) o por **tipo**
-  (`uvm_config_db #(uvm_object_wrapper)` + `get_type()`). La instancia gana si
-  están las dos
+  (`uvm_config_db #(uvm_object_wrapper)` + `get_type()`). Si están las dos gana
+  la de **mayor precedencia**, y a igual precedencia el **último `set()`**
 - El sequencer dejó de ser un handle y pasó a ser una **ruta**: eso ya es
   configuración, no código
 

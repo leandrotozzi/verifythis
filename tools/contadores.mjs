@@ -21,8 +21,18 @@
 //
 // Para agregar uno: una entrada aca, con `que` (que cuenta, en una linea) y el
 // filtro. Si la slide pide un nombre que no existe, el build muere.
+//
+// Hay dos formas de contador. La original --`linea`-- filtra las lineas de
+// code/, que es de donde salen los numeros que las slides greperon a mano. La
+// otra --`valor`-- devuelve un numero que ya cuenta tools/inventario.mjs, para
+// los que NO salen de code/: cuantos recortes tiene el deck y cuantas preguntas
+// tiene el repaso de cada dia. Los dos primeros nacen del mismo defecto que el
+// resto: docs/editar.md desglosaba el banco dia por dia a mano --"10 el dia 6,
+// 8 el dia 2, 7 el dia 3 y 6 el dia 1 ... 45 en total"-- y cuando el banco paso
+// de 45 a 58 preguntas se quedaron viejos los cinco numeros y el total.
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { inventario, preguntasPorDia } from './inventario.mjs';
 
 export const RE_COUNT = /\{\{count:([a-z0-9-]+)\}\}/g;
 
@@ -50,6 +60,14 @@ const CONTADORES = {
     que: 'macros `uvm_field_* en el codigo del curso (la slide dice que no hay ninguna)',
     linea: l => /`uvm_field_/.test(l),
   },
+  recortes: {
+    que: 'recortes {{code:}} del deck castellano (los "bloques" que vienen de code/)',
+    valor: async () => (await inventario()).recortes,
+  },
+  ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8].map(d => [`preguntas-dia${d}`, {
+    que: `preguntas del repaso del dia ${d}`,
+    valor: async () => (await preguntasPorDia())[d],
+  }])),
 };
 
 async function* archivos(dir) {
@@ -77,7 +95,9 @@ function lineas() {
 const valores = new Map();
 export async function contar(nombre) {
   if (!CONTADORES[nombre]) throw new Error(`{{count:${nombre}}} -> no existe ese contador (ver tools/contadores.mjs)`);
-  if (!valores.has(nombre)) valores.set(nombre, (await lineas()).filter(CONTADORES[nombre].linea).length);
+  const c = CONTADORES[nombre];
+  if (!valores.has(nombre))
+    valores.set(nombre, c.valor ? await c.valor() : (await lineas()).filter(c.linea).length);
   return valores.get(nombre);
 }
 

@@ -6,8 +6,8 @@ package fifo_pkg;
    // coverage read them from here: a model that hardcodes the 8 breaks quietly
    // the day the FIFO changes size.
    localparam int DEPTH = 8;
-   localparam int AF    = 6;  // almost_full con 6 o mas
-   localparam int AE    = 2;  // almost_empty con 2 o menos
+   localparam int AF    = 6;  // almost_full with 6 or more
+   localparam int AE    = 2;  // almost_empty with 2 or fewer
 
    `include "fifo_env_config.svh"
    `include "fifo_agent_config.svh"

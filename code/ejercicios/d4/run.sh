@@ -19,17 +19,36 @@ vlt_uvm top -Wno-fatal $INC -f dut.f -f tb.f
 # Reporting section's topic; here it is enough to know that without the flag they are invisible.
 run_sim +UVM_TESTNAME=random_test +UVM_VERBOSITY=UVM_HIGH || true
 
-# The grading is cross-checked: what you counted has to match the lines the
-# command_monitor printed, which you did not write.
+falta() { echo "not yet: $1" >&2; exit 1; }
+
+# The grading is cross-checked TWICE, and neither number comes out of a file this
+# exercise edits.
+#
+#   commands=       against the lines the command_monitor printed. It comes from
+#                   u5 and you do not write it.
+#   multiplications= against what chequeo.sv counted off the bus. That one is the
+#                   important one: commands are always a thousand, so a
+#                   report_phase printing the literal "commands=1000" passed
+#                   without counting anything. The multiplications move with the
+#                   seed, and there is no way to know how many there were other
+#                   than counting them.
+#
 # The ^UVM_INFO is not decorative: without it, the grep also counts the line
 # "[COMMAND MONITOR]  1000" of the Report Summary and gives one too many.
 vistos=$(grep -c '^UVM_INFO.*\[COMMAND MONITOR\]' "$VLT_LOG" || true)
 contados=$(sed -nE 's/.*OP_COUNTER.*commands=([0-9]+).*/\1/p' "$VLT_LOG" | tail -1)
+muls_tb=$(sed -nE 's/.*OP_COUNTER.*multiplications=([0-9]+).*/\1/p' "$VLT_LOG" | tail -1)
+muls_bus=$(sed -nE 's/.*\[CHEQUEO\] muls=([0-9]+).*/\1/p' "$VLT_LOG" | tail -1)
 
-if [ -z "$contados" ]; then
-  echo "not yet: op_counter printed nothing in report_phase" >&2; exit 1
-fi
-if [ "$contados" != "$vistos" ]; then
-  echo "not yet: you counted $contados commands and the monitor saw $vistos" >&2; exit 1
-fi
-echo "EXERCISE OK: $contados commands, the same the command_monitor saw"
+[ -n "$muls_bus" ] || falta "the [CHEQUEO] line did not come out: look at the log above"
+[ -n "$contados" ] || falta "op_counter printed nothing in report_phase"
+[ "$contados" = "$vistos" ] ||
+  falta "you counted $contados commands and the monitor saw $vistos"
+[ -n "$muls_tb" ] ||
+  falta "op_counter reports the commands and not the multiplications. The line the
+    README asks for has the two numbers: commands= and multiplications=."
+[ "$muls_tb" = "$muls_bus" ] ||
+  falta "you counted $muls_tb multiplications and $muls_bus went through the bus."
+
+echo "EXERCISE OK: $contados commands --the same the command_monitor saw-- and"
+echo "              $muls_tb multiplications, the same that went through the bus"

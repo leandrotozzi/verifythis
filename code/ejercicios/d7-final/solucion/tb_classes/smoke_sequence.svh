@@ -28,7 +28,7 @@ class smoke_sequence extends uvm_sequence #(apb_transaction);
       uno(1, ACC_ADDR, 32'hFFFF_FFFF);       // RO: se ignora y NO da error
       uno(1, STATUS_ADDR, 32'hFFFF_FFFF);    // idem
       uno(0, ACC_ADDR);                      // sigue valiendo 0x1000_0000
-      uno(1, 8'h10, 32'hDEAD_BEEF);          // fuera del mapa: PSLVERR
+      uno(1, 8'h10, 32'hDEAD_BEEF);          // outside the map: PSLVERR
       uno(0, 8'h10);                         // idem, y PRDATA en cero
       uno(1, CTRL_ADDR, 32'h2);              // CLR
       uno(0, ACC_ADDR);                      // 0

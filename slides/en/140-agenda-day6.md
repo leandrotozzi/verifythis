@@ -1,4 +1,4 @@
-<!-- es-sha: a117462e4a31 -->
+<!-- es-sha: 2936b3fdbbfe -->
 <!-- .slide: id="day6" -->
 
 ## Yesterday we left…
@@ -25,7 +25,7 @@ grows factorially, and it is the reason the unit exists.
 
 ---
 
-<!-- .slide: data-machete="res/en/machete-debug.svg,res/diagrams/en/agents_agent.svg,res/diagrams/en/sequences_tb_completo.svg" -->
+<!-- .slide: data-machete="res/en/machete-debug.svg|Debug cheat sheet: the seven knobs of the course and what to look at for each symptom,res/diagrams/en/agents_agent.svg|Inside a uvm_agent: sequencer · driver · monitors and the analysis ports it exposes,res/diagrams/en/sequences_tb_completo.svg|The whole testbench: the sequence cloud · the agent with sequencer and driver · and the analysis layer in the env" -->
 
 ## Agenda
 
@@ -50,4 +50,4 @@ answered today: `uvm_object` is the **data** and `uvm_component` is the
 **structure**.
 The third one is what closes the unit and the day: when that line goes, no line
 of the test names a component from inside the `env`, and only then is the
-testbench truly reusable.
+testbench reusable for one agent. Coordinating two is day 7.

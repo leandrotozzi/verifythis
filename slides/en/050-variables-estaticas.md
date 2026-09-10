@@ -7,7 +7,7 @@
   the list of in-flight transactions, the handle to the configuration
 - The easy answer is a global variable, and it is the one nobody can debug
   afterwards: you do not know who wrote it, or from where, or when
-- `static` is the same idea with a surname. The variable lives **in the class**, not
+- `static` is the same idea, but with a last name attached. The variable lives **in the class**, not
   in the object, and to touch it you have to name the class: `bandeja_de_fernet::vasos`
 - That `::` is the whole argument. The day the value looks odd, a grep tells you
   exactly who put it there
@@ -38,7 +38,7 @@ with a longer prefix.
 {{code:code/u3/estaticas/01-variables/static_variables.sv#tray-and-top}}
 
 Note:
-Quick translation: static is the global variable you can actually defend in a code
+Put plainly: static is the global variable you can actually defend in a code
 review. It lives in the class, not in the object.
 The second slide shows why it has to be encapsulated with static methods: if
 you leave it public, the day you swap the queue for another structure you have to

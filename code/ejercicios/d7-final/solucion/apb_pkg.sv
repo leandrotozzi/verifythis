@@ -7,7 +7,7 @@ package apb_pkg;
    localparam bit [7:0] SCRATCH_ADDR = 8'h04;
    localparam bit [7:0] ACC_ADDR = 8'h08;
    localparam bit [7:0] STATUS_ADDR = 8'h0C;
-   localparam bit [7:0] MAPA_FIN = 8'h10;  // de aca para arriba, PSLVERR
+   localparam bit [7:0] MAPA_FIN = 8'h10;  // from here up, PSLVERR
 
    `include "apb_env_config.svh"
    `include "apb_agent_config.svh"

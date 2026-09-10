@@ -8,7 +8,9 @@
 //
 // Both compile, both run, and one of the two never fills the corner bins.
 // That is the whole lesson.
-module top_histograma;
+package histograma_pkg;
+
+   localparam int N = 4000;
 
    class operando;
       rand byte unsigned A;
@@ -22,27 +24,4 @@ module top_histograma;
       }
    endclass
 
-   localparam int N = 4000;
-
-   initial begin
-      operando o;
-      int ceros, medio, unos;
-
-      o = new();
-
-      repeat (N) begin
-         if (!o.randomize()) $fatal(1, "randomize() failed: the constraints do not close");
-         case (o.A)
-            8'h00:   ceros = ceros + 1;
-            8'hFF:   unos  = unos + 1;
-            default: medio = medio + 1;
-         endcase
-      end
-
-      $display("%0d randomizaciones", N);
-      $display("HISTOGRAM 00=%0.1f mid=%0.1f FF=%0.1f",
-               100.0 * ceros / N, 100.0 * medio / N, 100.0 * unos / N);
-      $finish;
-   end
-
-endmodule : top_histograma
+endpackage : histograma_pkg

@@ -24,7 +24,7 @@ entre un capítulo y el siguiente.
 
 ---
 
-<!-- .slide: data-machete="res/diagrams/uml-poli.svg,res/diagrams/factory_diagram.svg" -->
+<!-- .slide: data-machete="res/diagrams/uml-poli.svg|trago, fernet y mojito: qué servir() vive en qué clase,res/diagrams/factory_diagram.svg|cantina fabrica fernet y mojito, y devuelve un handle trago" -->
 
 <!-- .slide: data-transition="concave" -->
 

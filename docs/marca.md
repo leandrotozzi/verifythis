@@ -42,8 +42,10 @@ uno cuesta algo distinto:
 2. **Crear una organización y mudar el repo.** Es lo que hacen los proyectos que
    muestran su propio logo. Pero la URL de Pages pasa de
    `leandrotozzi.github.io/verifythis` a `<org>.github.io/verifythis`, y esa URL
-   está escrita **198 veces en 31 archivos** —el README, las slides, el libro, el
-   `CITATION.cff`, y horneada adentro del PDF—. La etapa 10 pide justamente lo
+   está escrita **unas doscientas veces, en más de treinta archivos** —el README,
+   las slides, el libro, el `CITATION.cff`, y horneada adentro del PDF—. El
+   comando que lo cuenta:
+   `grep -roa 'leandrotozzi\.github\.io/verifythis' . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=obj_dir --exclude-dir=.uvm | wc -l`. La etapa 10 pide justamente lo
    contrario: *congelar el layout de URLs* antes de grabar.
 3. **Dejarlo como está.** La marca igual viaja: la tarjeta social es lo que se ve
    cuando alguien comparte el link, que es donde el logo hace el trabajo.

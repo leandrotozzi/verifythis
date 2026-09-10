@@ -33,10 +33,10 @@ static int mutar = 0;
 
 void vtalu_golden_bug(int on) { mutar = on; }
 
+// cb: the-golden
 /* op, a and b arrive as SystemVerilog `int` (32-bit signed). The result goes
  * back as the return value and the borrow through a pointer, which is how an
  * `output int` argument crosses the boundary. */
-// cb: the-golden
 int vtalu_golden(int op, int a, int b, int *ovf) {
    int r;
 

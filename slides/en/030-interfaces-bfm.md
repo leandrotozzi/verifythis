@@ -1,4 +1,4 @@
-<!-- es-sha: e198e9427073 -->
+<!-- es-sha: 69fe6bc50975 -->
 ## Interfaces and BFM
 
 #### *First: the signals stop being loose*
@@ -140,7 +140,7 @@ the same one we did here —hiding the wire— repeated one level up.
 
 #### *The protocol rule, written in the simulator's language*
 
-```sv
+```systemverilog
 // IMMEDIATE: a statement. It checks the present, where the thread goes by.
 assert (op_set != no_op || done == 0)
    else $error("no_op should not raise done");
@@ -155,7 +155,7 @@ assert property (@(negedge clk) start |=> $stable(A) && $stable(B));
   written **twice**: in prose in the spec, and wrapped inside
   `send_op()` here
 - An **assertion** is that same sentence a third time, but **executable**: it does not
-  respect it, it **checks** it
+  merely comply with the rule, it **checks** it
 - And it checks it where it happens —in the interface, on the exact edge— and not at the end,
   comparing results
 
@@ -233,10 +233,10 @@ seen clocking blocks, not because it is what gets written on a project.
 
 #### *Why the edge alone is not enough: the regions*
 
-![The regions of an edge: Preponed, Active and NBA, and the three samples](res/diagrams/en/interfaces-bfm_regiones.svg)
+![The regions of an edge: Preponed, Active and NBA, and the three samples that give different values](res/diagrams/en/interfaces-bfm_regiones.svg)
 <!-- .element: class="grande" -->
 
-- An edge is not an indivisible instant: inside it there are **regions**, in order
+- An edge is not an indivisible instant: inside it there are **regions**, in a fixed order
 - The `<=` of the `always_ff` **lands in NBA**: whoever reads in *Active* reads the old value
 - The `#1` crosses the NBA, the opposite edge crosses it with room to spare, and
   SVA needs neither of the two: it samples in *preponed*, before everything
@@ -247,7 +247,7 @@ previous slide. Without it the explanation is *"the old value"*, which sounds li
 a quirk of the simulator; with it, it is a consequence of the order, and the order
 is in the LRM.
 The scheduler has more regions than the four in the drawing —`docs/clocking-blocks.md`
-lists them all— but these are enough to explain the three cases, and adding the
+(in Spanish) lists them all— but these are enough to explain the three cases, and adding the
 others changes no answer.
 The question worth asking the group before showing the answer: if the DUT writes in
 NBA and your `initial` wakes up in Active, which one runs first? That is where it
@@ -287,7 +287,7 @@ If somebody asks why the course does not use it from day 1: because to
 understand which problem it solves you have to have had the problem. Only now,
 with the BFM written and the three lines running, does the question make sense.
 Verilator supports it since 5.x and the example ends in `$fatal` if the
-sampling stops giving 11: it is the net that warns if a release changes the semantics.
+sampling stops giving 11: it is the safety net that warns if a release changes the semantics.
 
 ---
 
@@ -325,7 +325,7 @@ RAII useless.
 Where they really move the needle, and this is what to retain: **reusable** agents and VIP
 —whoever writes them is far from whoever uses them—, gate-level
 with SDF, and protocols where the spec defines setup/hold. There they stop being style.
-The long material, with the sources, is in `docs/clocking-blocks.md`.
+The long material, with the sources, is in `docs/clocking-blocks.md` (in Spanish).
 
 ---
 

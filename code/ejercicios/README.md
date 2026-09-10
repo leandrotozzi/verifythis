@@ -1,4 +1,4 @@
-<!-- es-sha: 334aca9f7cc6 -->
+<!-- es-sha: 9adb453779c0 -->
 **English** · [Castellano](README.es.md)
 
 # Exercises
@@ -64,19 +64,23 @@ SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 
 ## How they are put together
 
-Each directory holds **only the files you are going to touch**. The rest of the
+Each directory holds **the files you are going to touch**, and in several of them
+the grader too —a `chequeo.svh`, a `chequeo.sv` bound into the top, a
+`histograma_top.sv`—, which is what is **not** to be touched. The rest of the
 testbench comes from the corresponding section, by reference: the `+incdir` in
 `run.sh` put this directory first, so your version of a file wins over the
 section's. Nothing you do here breaks the course examples.
 
-Eight of them —`d3`, `d3b`, `d4`, `d4b`, `d6-debug`, `d6-sequences`, `d7-sva` and
-`d8-dpi`— also come with an `intocables.sha`: the list of the files the statement
-says **not** to touch, with their hashes, and the `run.sh` checks it before
-compiling. It is not distrust: in those eight the exercise *is* not touching
-them. In `d4b`, putting the ceiling back on the FIFO gets past the grader without
-having understood a thing. Instantiating the
+Thirteen of them —`d1`, `d1b`, `d2`, `d3`, `d3b`, `d4`, `d4b`, `d5b`, `d5c`,
+`d6-debug`, `d6-sequences`, `d7-sva` and `d8-dpi`— also come with an
+`intocables.sha`: the list of the files the statement says **not** to touch, with
+their hashes, and the `run.sh` checks it before compiling. It is not distrust: it
+is that **what the grader measures has to come out of a sealed file or off the
+bus, never out of one you can edit**. In `d4b`, putting the ceiling back on the
+FIFO gets past the grader without having understood a thing. Instantiating the
 `mult_tester` by hand in the `env.svh` of `d3` gets past the grader without
-writing a single `set_type_override`, which is the whole topic.
+writing a single `set_type_override`, which is the whole topic. And in `d5b`
+rewriting the `$display` the grader reads used to be enough.
 
 `SOLUCION=1` runs the solution without overwriting your file: in the ones that
 use UVM it adds a `+incdir+solucion` ahead of everything, and in the other four

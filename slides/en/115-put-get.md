@@ -1,4 +1,4 @@
-<!-- es-sha: fa5fc25e4e3f -->
+<!-- es-sha: 53cc43ecc04f -->
 ## Who waits for whom
 
 #### *What to send and how to send it*
@@ -72,7 +72,7 @@ it is the only class of the testbench that has the right to write an
 - The result: one class decides **what** to send and another one knows **how** to
   send it, and between the two there is a FIFO instead of a method call
 
-![The tester picks the stimulus and the driver applies it](res/diagrams/en/put-get_fig125.svg)
+![The VTALU tester and driver separated by a uvm_tlm_fifo](res/diagrams/en/put-get_fig125.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -114,8 +114,11 @@ The mantra has a reason worth giving instead of repeating it like a parrot: the
 it. The FIFO offers both ends, so it has two exports. If you write it the other
 way round it does not compile, and the compiler message is one of the worst in
 UVM.
-And the detail that gets forgotten: `command_f = new(...)`, not `create()`.
-FIFOs are not in the factory.
+And the detail that gets forgotten: `command_f = new(...)`, not `create()`. It is
+not that the FIFO is missing from the factory —it is registered,
+`tlm1/uvm_tlm_fifos.svh:62`—: it is that the `size` goes through the constructor and
+`create()` does not know how to pass it. The ones that really are not in the factory
+are the ports and the exports.
 
 ---
 

@@ -1,4 +1,4 @@
-<!-- es-sha: c15327204ebd -->
+<!-- es-sha: 8cfd03bfdf24 -->
 **English** · [Castellano](README.es.md)
 
 # Day 2 — a tester that only multiplies, without touching the one already there
@@ -15,7 +15,13 @@ and pasting the whole class**.
 3. And it is going to carry on sending random operations. **That is where the exercise is**:
    look at `tester.svh`, and remember polymorphism.
 
-Done when `bash run.sh` prints `EXERCISE OK`.
+Done when `bash run.sh` prints `EXERCISE OK`. The checker is `chequeo.svh`, bound
+into the top and **not to be touched**: it counts what went through the BFM and it
+also calls `get_op()` by hand twice —on a plain `tester`, which has to go on
+drawing the eight, and on the object left in `tester_h` through a handle of type
+`tester`, which has to answer `mul_op` every time—. That second number **is** the
+lesson: it only comes out 1 if `get_op()` is `virtual` and `tester_h` is holding a
+`mult_tester`.
 
 ## How to run it
 

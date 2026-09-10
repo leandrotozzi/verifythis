@@ -1,5 +1,5 @@
-<!-- es-sha: 4a71e1803167 -->
-<!-- .slide: id="glosario" data-machete="res/en/uvm_class_diagram.svg,res/diagrams/en/sequences_tb_completo.svg" -->
+<!-- es-sha: 15f1583204fc -->
+<!-- .slide: id="glosario" data-machete="res/en/uvm_class_diagram.svg|The UVM base class hierarchy,res/diagrams/en/sequences_tb_completo.svg|The whole testbench: the sequence cloud · the agent with sequencer and driver · and the analysis layer in the env" -->
 
 ## Glossary · the words of the trade
 
@@ -66,8 +66,10 @@ serves as a quick review before an interview.
 The two rows that get confused the most are *sequence* and *sequencer*, and the way not to
 get them wrong is the one from day 6: the one ending in **-er** is the **component** —it is in
 the tree, it has phases—; the other is the object that gets created, runs and is thrown away. The
-same holds for *driver* and *monitor*: all the ones ending in -er/-or are
-components.
+same holds for *driver* and *monitor*. The rule is about the pieces of the tree
+and not about the suffix: the UVM *policies* —`uvm_printer`, `uvm_comparer`,
+`uvm_packer`, `uvm_recorder`— and the `uvm_report_catcher` end the same way and
+are objects.
 And the first row is the hardest one and the one that costs the most: *handle*. If the
 student takes a single word away from this glossary, let it be that a handle is not an
 object.

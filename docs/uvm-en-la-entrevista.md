@@ -188,7 +188,7 @@ serie— las sequences de cada interfaz. El caso que la justifica es el que tien
 un dato que cruza: configurar por un bus, leer el estado, y recién entonces
 mandar tráfico por el otro con lo que la configuración devolvió.
 
-**Dónde**: [día 6 · sequences virtuales](../libro/dia6.html#sequences-virtuales-el-problema) ·
+**Dónde**: [día 7 · sequences virtuales](../libro/dia7.html#sequences-virtuales) ·
 **Corre**: `bash code/u7/sequences/virtual/run.sh`
 
 ---

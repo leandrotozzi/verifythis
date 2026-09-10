@@ -22,7 +22,7 @@ vlt_uvm top --coverage-user -Wno-fatal $INC -f dut.f -f tb.f
 falta() { echo "not yet: $1" >&2; exit 1; }
 censo() { sed -nE "s/.*\[CHEQUEO\].*$1=([0-9]+).*/\1/p" "$VLT_LOG" | tail -1; }
 
-echo "=== 1) con el DUT roto: el mensaje tiene que decir cuál falló ==="
+echo "=== 1) with the DUT broken: the message has to say which one failed ==="
 # The scoreboard has to report: this run is EXPECTED to end with UVM_ERROR.
 UVM_ERRORS_OK=1 VTALU_BUG=1 run_sim +UVM_TESTNAME=random_test > /dev/null
 
@@ -36,8 +36,8 @@ grep -q 'UVM_ERROR.*\[SCOREBOARD\]' "$VLT_LOG" ||
 
 primera=$(sed -nE 's/.*\[CHEQUEO\].*primera (.*)$/\1/p' "$VLT_LOG" | tail -1)
 linea=$(grep -m1 'UVM_ERROR.*\[SCOREBOARD\]' "$VLT_LOG")
-echo "    la primera que falló:  $primera"
-echo "    lo que tu scoreboard dijo:"
+echo "    the first one that failed:  $primera"
+echo "    what your scoreboard said:"
 echo "      $linea"
 
 for kv in $primera; do
@@ -50,7 +50,7 @@ for kv in $primera; do
   esac
 done
 
-echo "=== 2) sin el bug y con la verbosidad de siempre: el PASS no se imprime ==="
+echo "=== 2) without the bug and with the usual verbosity: the PASS is not printed ==="
 run_sim +UVM_TESTNAME=random_test > /dev/null
 comparadas=$(censo comparadas)
 [ -n "$comparadas" ] && [ "$comparadas" -gt 0 ] || falta "the checker never got to report"
@@ -59,7 +59,7 @@ pass=$(grep -c '\[SCOREBOARD\].*PASS' "$VLT_LOG" || true)
   falta "the PASS came out $pass times with the usual verbosity. It goes at
     UVM_HIGH: in a nightly regression nobody reads a thousand lines of PASS."
 
-echo "=== 3) sin el bug y con +UVM_VERBOSITY=UVM_HIGH: ahora sí, una por comparación ==="
+echo "=== 3) without the bug and with +UVM_VERBOSITY=UVM_HIGH: now it is, one per comparison ==="
 run_sim +UVM_TESTNAME=random_test +UVM_VERBOSITY=UVM_HIGH > /dev/null
 pass=$(grep -c '\[SCOREBOARD\].*PASS' "$VLT_LOG" || true)
 [ "$pass" -eq "$comparadas" ] ||
@@ -68,4 +68,4 @@ pass=$(grep -c '\[SCOREBOARD\].*PASS' "$VLT_LOG" || true)
     with the word PASS in the message."
 
 cov_report
-echo "EXERCISE OK: el mismo scoreboard, ahora legible — $comparadas comparaciones, y el log dice cuál falló"
+echo "EXERCISE OK: the same scoreboard, now readable -- $comparadas comparisons, and the log says which one failed"

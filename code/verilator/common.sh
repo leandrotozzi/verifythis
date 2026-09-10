@@ -167,7 +167,16 @@ sha256() {
 }
 
 intocables() {
-  [ -f intocables.sha ] || return 0
+  # The seal is the only thing that keeps the exercise from being solved by
+  # editing the scaffolding, so a MISSING intocables.sha is a failure and not a
+  # "nothing to check": returning 0 here used to turn the whole mechanism off
+  # -- silently, and with the run.sh still printing EXERCISE OK.
+  [ -f intocables.sha ] || {
+    echo "intocables.sha is missing, and this exercise grades itself against it." >&2
+    echo "  Put it back --git checkout -- intocables.sha-- or, if the files it seals" >&2
+    echo "  changed on purpose, regenerate it: sha256 <files> > intocables.sha" >&2
+    return 1
+  }
   local movidas
   # "FAILED" and "FAILED open or read": a deleted file counts as touched.
   movidas=$(sha256 -c intocables.sha 2>/dev/null | sed -n 's/: FAILED.*$//p')

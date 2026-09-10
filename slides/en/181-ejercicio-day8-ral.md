@@ -1,9 +1,9 @@
-<!-- es-sha: 32d406bafe7d -->
+<!-- es-sha: ffa4ea16e781 -->
 ## Exercise · Day 8 · 1 of 2
 
 #### *Modelling the register map*
 
-`cd code/ejercicios/d8-ral && cat README.en.md`
+`cd code/ejercicios/d8-ral && cat README.md`
 <!-- .element: class="comando" -->
 
 - It is **literally** the first thing you get asked for in a project with registers: they
@@ -20,8 +20,8 @@ It is the shortest exercise of the fifteen and the one most like a real task fro
 the first weeks of a project. Forty lines, and half of them are copying and
 pasting the pattern of `CTRL`.
 The stage that teaches is stage 1, and for a reason of method: the model gets **printed**
-—`+UVM_TESTNAME=mapa_test`— and gets compared line by line against the table of
-`spec.en.md`, before simulating anything. It is what has to be done with a real register
+—`+UVM_TESTNAME=mapa_test`— and gets compared line by line against the register
+table of the exercise README, before simulating anything. It is what has to be done with a real register
 model, where the typical mistake is not about UVM but an offset copied
 wrong from a 200-row spreadsheet.
 Stage 2 is where `CLR` falls: whoever declared it `RW` passes stage 1 without

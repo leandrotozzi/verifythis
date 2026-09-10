@@ -19,11 +19,6 @@ que se tomaron por lo que Verilator soporta y por lo que todavía no, y están
 documentadas en [`docs/verilator.md`](verilator.md), con la matriz de los 38
 ejemplos y su cobertura.
 
-**La cobertura funcional aparece en el testbench convencional, no al final.** El libro llega a
-la cobertura tarde. Acá se enseña *antes* que UVM, junto con el testbench
-convencional, porque la pregunta *"¿cuándo terminás de verificar?"* es anterior a
-la metodología y no depende de ella.
-
 **El plan de verificación es la columna vertebral.** Cinco columnas —feature,
 escenario, estímulo, chequeo, medida— escritas antes que el testbench. Cada
 unidad dice qué fila del plan cierra, y el capstone lo llena desde cero. El libro
@@ -42,7 +37,11 @@ env, el agent, el scoreboard y la cobertura de cero. Ese DUT no tiene nada que
 ver con la ALU del curso, que es justo el punto: sirve para ver qué se aprendió y
 qué se copió.
 
-**Constrained random y sequences virtuales.** Dos temas que el libro no cubre.
+**Sequences virtuales.** El libro no las cubre: `p_sequencer` no aparece en
+ninguno de sus ejemplos. El *constrained random* sí está —las `constraint … dist`
+del `sequence_item` de su sección de sequences—; lo nuevo de acá es la unidad que le
+dedica: `solve … before`, `constraint_mode()`, `rand_mode()` y el ciclo de
+*coverage closure*.
 
 **Se evalúa.** 58 preguntas de repaso con explicación, 19 ejercicios con solución
 que compilan y corren, y un apéndice de **21 trampas mudas** —todo lo que
@@ -67,6 +66,15 @@ SystemVerilog, se llama **VTALU**, tiene una operación más, un flag de overflo
 otro encoding de opcodes, con un encoding libre reservado a propósito para el
 ejercicio del día 1. Su spec está en la unidad 1 del curso y en el encabezado de
 [`code/vtalu_dut/vtalu.sv`](../code/vtalu_dut/vtalu.sv).
+
+**La cobertura funcional, con el plan al lado.** Acá también se dicta *antes* que
+UVM, junto con el testbench convencional — pero eso el libro ya lo hace: su
+cobertura aparece en el testbench convencional, al principio, y el
+[`coverage.sv`](../code/u2/interfaces-bfm/coverage.sv) de acá **deriva del suyo**
+—los mismos dos covergroups, los mismos coverpoints y el mismo cross—. Lo que
+cambió es el marco: entra pegada al plan de verificación —cada bin es una fila
+del plan— y se le agregó el coverpoint `borrow`, que es la fila que el scoreboard
+sólo cierra mirando dos salidas a la vez.
 
 **Otro lugar para el análisis.** El libro mete el scoreboard y el coverage
 *adentro* del agent; acá van afuera, colgados del `env`. La razón es que **un

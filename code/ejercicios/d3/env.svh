@@ -6,7 +6,7 @@ class env extends uvm_env;
    base_tester tester_h;
    coverage    coverage_h;
    scoreboard  scoreboard_h;
-   chequeo     chequeo_h;  // lo agrega el ejercicio; no hace falta que la toques
+   chequeo     chequeo_h;  // the exercise adds it; you do not need to touch this one
 
    function void build_phase(uvm_phase phase);
       // tester_h creates an object of the base_tester class

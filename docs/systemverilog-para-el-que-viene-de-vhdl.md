@@ -145,7 +145,7 @@ Y después abrir tres archivos, en este orden:
 
 1. `code/vtalu_dut/vtalu.sv` — `logic`, `always_ff`, un `case`. Es Verilog con
    otro nombre.
-2. `code/u2/convencional/vtalu_pkg.sv` — el `package` y el `enum`.
+2. `code/u2/interfaces-bfm/vtalu_pkg.sv` — el `package` y el `enum`.
 3. `code/u2/interfaces-bfm/vtalu_bfm.sv` — el `interface` con las tasks adentro.
 
 Si los tres se leen sin tropezar, el día 1 no tiene ningún escalón escondido.

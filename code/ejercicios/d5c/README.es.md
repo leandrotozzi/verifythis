@@ -39,7 +39,9 @@ multiplicación. Es el máximo del espacio de entrada — por eso el bin se llam
 Pero no lo pidas asignando los campos, que es lo que hace el `tester` de la
 sección tres líneas más arriba: **pedilo con `randomize() with {}`**. El caso
 dirigido se pide en el punto de uso, y ésa es la herramienta de esta unidad.
-`run.sh` chequea que tu bloque llame a `randomize()`.
+`run.sh` chequea dos cosas de tu bloque: que llame a `randomize()` y que **no**
+escriba `A`, `B` ni `op` a mano. Lo demás lo mide `chequeo.svh` sobre el bus, y
+ése está sellado.
 
 Listo cuando `bash run.sh` imprime `EXERCISE OK` — o sea, cuando la cobertura
 de la segunda corrida es **mayor** que la de la primera.

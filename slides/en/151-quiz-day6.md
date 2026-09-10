@@ -1,4 +1,4 @@
-<!-- es-sha: b50aeb748a7a -->
+<!-- es-sha: f87155407b20 -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 6
@@ -7,9 +7,9 @@
 
 **An agent in `UVM_PASSIVE`, what does its `build_phase` build?**
 
+- [x] The monitors and the analysis ports; the driver and the sequencer, no
 - [ ] Nothing: a passive agent is an empty shell
 - [ ] Everything the same as an active one, but without connecting the driver to the sequencer
-- [x] The monitors and the analysis ports; the driver and the sequencer, no
 - [ ] Only the sequencer, so it can receive sequences from another agent of the same env
 
 > **The monitors, always; the sequencer and the driver are left at `null`** — watching is never optional: a passive agent goes on feeding scoreboard and coverage. What gets skipped is what *drives* the interface, because there somebody else is already driving it.
@@ -92,8 +92,8 @@
 
 **What is the practical difference of a `uvm_sequence` being a `uvm_object` and not a `uvm_component`?**
 
-- [ ] That it cannot be registered in the factory nor overridden
 - [x] That it gets created, runs and is thrown away
+- [ ] That it cannot be registered in the factory nor overridden
 - [ ] That it cannot have `rand` fields nor constraints
 - [ ] That UVM builds it in `build_phase`, like any other class of the tree
 
@@ -126,12 +126,12 @@
 
 **At what moment does `command.result` have a value that can be read?**
 
+- [x] When `finish_item()` came back, because the driver wrote it before calling `item_done()`
 - [ ] As soon as `start_item()` came back
 - [ ] When the `result_monitor` publishes it through its analysis port
-- [x] When `finish_item()` came back, because the driver wrote it before calling `item_done()`
 - [ ] Never: to receive a response you have to use the REQ/RSP pair of `uvm_sequence #(REQ, RSP)`
 
-> **After `finish_item()`** — there is no way back at all: there is a shared handle and an agreement between the two parties. The REQ/RSP pair exists and is the formal mechanism, but almost nobody uses it: writing the result into the request is enough. This is what makes Fibonacci possible.
+> **After `finish_item()`** — there is no return channel at all: there is a shared handle and an agreement between the two parties. The REQ/RSP pair exists and is the formal mechanism, but almost nobody uses it: writing the result into the request is enough. This is what makes Fibonacci possible.
 
 ---
 

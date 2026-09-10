@@ -59,8 +59,9 @@
 <h2 id="ayer-quedó">Ayer quedó…</h2>
 <h4 id="dónde-dejamos-el-testbench"><em>Dónde dejamos el testbench</em></h4>
 <ul>
-<li>El testbench quedó <strong>completo y reutilizable</strong>: agents con <code>is_active</code>, el
-análisis en el <code>env</code>, y el estímulo afuera del árbol, en sequences</li>
+<li>El testbench quedó <strong>reutilizable para un agent</strong>: agents con <code>is_active</code>, el
+análisis en el <code>env</code>, y el estímulo afuera del árbol, en sequences. La última
+pieza —coordinar dos— es hoy a la mañana</li>
 <li>Ninguna línea del test nombra un componente de adentro del <code>env</code>: la última
 se fue con el <code>default_sequence</code> por <code>uvm_config_db</code></li>
 <li>Y falta la otra mitad del plan de verificación: las filas que <strong>ningún
@@ -90,6 +91,8 @@ se dejó abierto a propósito: el scoreboard chequea <strong>qué</strong>, la a
 <li>De la VTALU a un bus real</li>
 <li>La caja de herramientas de debug · Las 21 trampas mudas</li>
 <li>Glosario, referencias y cierre</li>
+<li>Autoevaluación: quince cosas que a esta altura tendrías que poder hacer</li>
+<li><em>El lunes</em>: qué hacer con esto cuando se apaga la pantalla</li>
 </ul>
 <p><em>Y después, el <strong>día 8</strong>: opcional, y para el que ya entregó el capstone</em></p>
 <p><strong>Al final del día podés:</strong></p>
@@ -218,7 +221,9 @@ argumento: una sequence virtual no cambia la estructura del testbench.</p>
 
 <span class="hljs-keyword">endclass</span> : virtual_sequencer</code></pre></details></figure>
 
-<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/env.svh</code> · #wiring-the-sequencers</figcaption><pre><code class="hljs">      <span class="hljs-comment">// not compile instead of returning null at simulation time.</span>
+<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/env.svh</code> · #wiring-the-sequencers</figcaption><pre><code class="hljs">      <span class="hljs-comment">// The handles are passed HERE and not looked up by string: in connect_phase</span>
+      <span class="hljs-comment">// both agents already exist, and if somebody renames a component this does</span>
+      <span class="hljs-comment">// not compile instead of returning null at simulation time.</span>
       virtual_sequencer_h.clase_sequencer_h  = clase_agent_h.sequencer_h;
       virtual_sequencer_h.modulo_sequencer_h = modulo_agent_h.sequencer_h;</code></pre><details><summary>el archivo entero, 65 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The env of the Sequences section with TWO changes, and no more:</span>
 <span class="hljs-comment">//</span>
@@ -311,7 +316,10 @@ cambió, que es exactamente lo que uno quiere.</p>
 <section id="s360" class="slide">
 <h2 id="sequences-virtuales">Sequences virtuales</h2>
 <h4 id="la-sequence-virtual-p_sequencer-y-dos-ramas"><em>La sequence virtual: <code>p_sequencer</code> y dos ramas</em></h4>
-<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · #p-sequencer</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">coordinada_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span>;
+<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · #p-sequencer</figcaption><pre><code class="hljs"><span class="hljs-comment">// `uvm_declare_p_sequencer declares `p_sequencer` with the type above and casts</span>
+<span class="hljs-comment">// it on its own inside m_set_p_sequencer. Without it, get_sequencer() returns a</span>
+<span class="hljs-comment">// uvm_sequencer_base and every use would need a cast by hand.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">coordinada_sequence</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence</span>;
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(coordinada_sequence)
    <span class="hljs-uvm-macro">`uvm_declare_p_sequencer</span>(virtual_sequencer)</code></pre><details><summary>el archivo entero, 76 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// THE virtual sequence.</span>
 <span class="hljs-comment">//</span>
@@ -322,7 +330,7 @@ cambió, que es exactamente lo que uno quiere.</p>
 <span class="hljs-comment">//      Hence &quot;virtual&quot; -- it is tied to no item type and no sequencer.</span>
 <span class="hljs-comment">//   2. It runs on more than one sequencer, and that is where the one thing no</span>
 <span class="hljs-comment">//      single sequence can do comes from: coordinating two interfaces.</span>
-<span class="hljs-comment">//</span>
+
 <span class="hljs-comment">// `uvm_declare_p_sequencer declares `p_sequencer` with the type above and casts</span>
 <span class="hljs-comment">// it on its own inside m_set_p_sequencer. Without it, get_sequencer() returns a</span>
 <span class="hljs-comment">// uvm_sequencer_base and every use would need a cast by hand.</span>
@@ -390,7 +398,11 @@ cambió, que es exactamente lo que uno quiere.</p>
 
 <span class="hljs-keyword">endclass</span> : coordinada_sequence</code></pre></details></figure>
 
-<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · #the-fork</figcaption><pre><code class="hljs">      <span class="hljs-keyword">fork</span>
+<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · #the-fork</figcaption><pre><code class="hljs">      <span class="hljs-comment">// --- 1. Both ALUs get reset at the same time -----------------------------</span>
+      <span class="hljs-comment">// fork/join over TWO sequencers. Each branch blocks on its own driver, and</span>
+      <span class="hljs-comment">// the join waits for both: that cannot be written inside a normal</span>
+      <span class="hljs-comment">// sequence, which only knows the sequencer that started it.</span>
+      <span class="hljs-keyword">fork</span>
          reset_a.start(p_sequencer.clase_sequencer_h);
          reset_b.start(p_sequencer.modulo_sequencer_h);
       <span class="hljs-keyword">join</span>
@@ -409,7 +421,7 @@ cambió, que es exactamente lo que uno quiere.</p>
 <span class="hljs-comment">//      Hence &quot;virtual&quot; -- it is tied to no item type and no sequencer.</span>
 <span class="hljs-comment">//   2. It runs on more than one sequencer, and that is where the one thing no</span>
 <span class="hljs-comment">//      single sequence can do comes from: coordinating two interfaces.</span>
-<span class="hljs-comment">//</span>
+
 <span class="hljs-comment">// `uvm_declare_p_sequencer declares `p_sequencer` with the type above and casts</span>
 <span class="hljs-comment">// it on its own inside m_set_p_sequencer. Without it, get_sequencer() returns a</span>
 <span class="hljs-comment">// uvm_sequencer_base and every use would need a cast by hand.</span>
@@ -504,7 +516,11 @@ sequence normal con más ceremonia. La clase se justifica cuando hay dos.</p>
 <section id="s361" class="slide">
 <h2 id="sequences-virtuales">Sequences virtuales</h2>
 <h4 id="lo-que-ninguna-sequence-sola-puede"><em>Lo que ninguna sequence sola puede</em></h4>
-<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · #the-ordered-pair</figcaption><pre><code class="hljs">      primera.A  = <span class="hljs-number">8&#x27;h0F</span>;
+<figure class="codigo"><figcaption><code>code/u7/sequences/virtual/tb_classes/coordinada_sequence.svh</code> · #the-ordered-pair</figcaption><pre><code class="hljs">      <span class="hljs-comment">// --- 3. What no single sequence can do ----------------------------------</span>
+      <span class="hljs-comment">// The result of VTALU A is the operand of B. It is a dependency BETWEEN</span>
+      <span class="hljs-comment">// interfaces: the second one cannot even start being built until the</span>
+      <span class="hljs-comment">// first one answered.</span>
+      primera.A  = <span class="hljs-number">8&#x27;h0F</span>;
       primera.B  = <span class="hljs-number">8&#x27;h07</span>;
       primera.op = mul_op;
       primera.start(p_sequencer.clase_sequencer_h);
@@ -524,7 +540,7 @@ sequence normal con más ceremonia. La clase se justifica cuando hay dos.</p>
 <span class="hljs-comment">//      Hence &quot;virtual&quot; -- it is tied to no item type and no sequencer.</span>
 <span class="hljs-comment">//   2. It runs on more than one sequencer, and that is where the one thing no</span>
 <span class="hljs-comment">//      single sequence can do comes from: coordinating two interfaces.</span>
-<span class="hljs-comment">//</span>
+
 <span class="hljs-comment">// `uvm_declare_p_sequencer declares `p_sequencer` with the type above and casts</span>
 <span class="hljs-comment">// it on its own inside m_set_p_sequencer. Without it, get_sequencer() returns a</span>
 <span class="hljs-comment">// uvm_sequencer_base and every use would need a cast by hand.</span>
@@ -704,7 +720,7 @@ testbench no cubre.</p>
 <section id="s364" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="inmediatas-y-concurrentes-la-que-ya-conocen-y-la-nueva"><em>Inmediatas y concurrentes: la que ya conocen y la nueva</em></h4>
-<pre><code class="language-sv">// INMEDIATA: es una SENTENCIA. Corre cuando el hilo pasa por ahí,
+<pre><code class="language-systemverilog">// INMEDIATA: es una SENTENCIA. Corre cuando el hilo pasa por ahí,
 // una vez, y nada más. La de las transactions es de esta familia.
 assert (cmd.op inside {add_op, sub_op, and_op, xor_op, mul_op})
    else `uvm_error(&quot;SEQ&quot;, &quot;operacion invalida&quot;);
@@ -741,7 +757,7 @@ misma palabra clave para dos cosas distintas.</p>
 <section id="s365" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="anatomía-de-una-property"><em>Anatomía de una property</em></h4>
-<pre><code class="language-sv">a_done_llega :                      // &lt;- el label: NO es opcional
+<pre><code class="language-systemverilog">a_done_llega :                      // &lt;- el label: NO es opcional
 assert property (
    @(posedge clk)                   // &lt;- el reloj: cuando se muestrea
    disable iff (!reset_n)           // &lt;- cuando NO chequear
@@ -777,7 +793,7 @@ positivos genera.</p>
 <section id="s366" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="--contra--el-error-número-uno"><em><code>|-&gt;</code> contra <code>|=&gt;</code>, el error número uno</em></h4>
-<pre><code class="language-sv">// |-&gt;  overlapping: el consecuente empieza en EL MISMO flanco
+<pre><code class="language-systemverilog">// |-&gt;  overlapping: el consecuente empieza en EL MISMO flanco
 a : assert property (@(posedge clk) start |-&gt; !done);
 
 // |=&gt;  non-overlapping: el consecuente empieza en el flanco SIGUIENTE
@@ -817,7 +833,7 @@ chequeo del chequeo.</p>
 <section id="s367" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="mirar-el-pasado-rose-fell-stable-past"><em>Mirar el pasado: <code>$rose</code>, <code>$fell</code>, <code>$stable</code>, <code>$past</code></em></h4>
-<pre><code class="language-sv">$rose(start)      // 0 -&gt; 1 entre el flanco anterior y este
+<pre><code class="language-systemverilog">$rose(start)      // 0 -&gt; 1 entre el flanco anterior y este
 $fell(done)       // 1 -&gt; 0
 $stable(A)        // el valor es el mismo que en el flanco anterior
 $past(result, 3)  // el valor que tenia hace 3 flancos
@@ -1001,7 +1017,7 @@ flujo: <code>$past</code> con el argumento de reloj explícito no lo soporta Ver
    <span class="hljs-comment">// The properties live HERE, with the signals, and not in the testbench: they</span>
    <span class="hljs-comment">// plug themselves in, nobody connects them, and the passive agent of the Agents</span>
    <span class="hljs-comment">// section gets them for free. All they need in order to run is --assert.</span>
-   <span class="hljs-comment">//</span>
+
    <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
    <span class="hljs-comment">// negedge and the DUT registers on posedge. An assertion samples in the</span>
    <span class="hljs-comment">// preponed region of the edge it is given, so a signal written ON the negedge</span>
@@ -1082,8 +1098,8 @@ flujo: <code>$past</code> con el argumento de reloj explícito no lo soporta Ver
 <span class="hljs-keyword">endinterface</span> : vtalu_bfm</code></pre></details></figure>
 
 <ul>
-<li>Es <strong>la regla de la slide 1 del día 1</strong>: mientras <code>start</code> está arriba, los
-operandos no se tocan. Estuvo escrita en prosa seis días</li>
+<li>Es <strong>la regla de <em>La spec del VTALU</em>, el día 1</strong>: mientras <code>start</code> está arriba,
+los operandos no se tocan. Estuvo escrita en prosa seis días</li>
 <li>Once líneas, y chequean cada transacción de cada test, en los dos agents, sin
 que nadie las conecte a nada</li>
 <li>El scoreboard <strong>no puede</strong> escribir esta regla: para cuando la transaction le
@@ -1091,10 +1107,10 @@ llega, el protocolo ya se borró</li>
 </ul>
 <div class="nota">
 <p>Éste es el momento para volver a la slide de la spec y leerla textualmente.
-La distancia entre <em>&quot;los operandos deben permanecer estables mientras <code>start</code>
-está activo&quot;</em> y la línea de SVA que está en pantalla es casi cero — y ése es todo
-el argumento de por qué las assertions se escriben temprano y no al final: la
-especificación <strong>ya está escrita</strong>, sólo hay que traducirla.
+La distancia entre <em>&quot;start debe permanecer en 1 y los operandos estables hasta
+que termina la operación&quot;</em> y la línea de SVA que está en pantalla es casi cero —
+y ése es todo el argumento de por qué las assertions se escriben temprano y no al
+final: la especificación <strong>ya está escrita</strong>, sólo hay que traducirla.
 El <code>$stable(op_set)</code> del final es el que suele faltar y es el que caza el bug más
 feo: cambiar la operación a mitad de transacción es legal para el compilador,
 ilegal para el DUT y transparente para el scoreboard.
@@ -1257,7 +1273,7 @@ rareza que se aclara en la slide siguiente. Alguien va a preguntar antes.</p>
    <span class="hljs-comment">// The properties live HERE, with the signals, and not in the testbench: they</span>
    <span class="hljs-comment">// plug themselves in, nobody connects them, and the passive agent of the Agents</span>
    <span class="hljs-comment">// section gets them for free. All they need in order to run is --assert.</span>
-   <span class="hljs-comment">//</span>
+
    <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
    <span class="hljs-comment">// negedge and the DUT registers on posedge. An assertion samples in the</span>
    <span class="hljs-comment">// preponed region of the edge it is given, so a signal written ON the negedge</span>
@@ -1570,7 +1586,7 @@ operandos y no de otra cosa.</p>
    <span class="hljs-comment">// The properties live HERE, with the signals, and not in the testbench: they</span>
    <span class="hljs-comment">// plug themselves in, nobody connects them, and the passive agent of the Agents</span>
    <span class="hljs-comment">// section gets them for free. All they need in order to run is --assert.</span>
-   <span class="hljs-comment">//</span>
+
    <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
    <span class="hljs-comment">// negedge and the DUT registers on posedge. An assertion samples in the</span>
    <span class="hljs-comment">// preponed region of the edge it is given, so a signal written ON the negedge</span>
@@ -1681,7 +1697,7 @@ la slide anterior: <code>done</code> sale de un <code>always_ff</code>.</p>
 <section id="s372" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="disable-iff-y-el-reset"><em><code>disable iff</code> y el reset</em></h4>
-<pre><code class="language-sv">default disable iff (!reset_n);   // una vez, para toda la interface
+<pre><code class="language-systemverilog">default disable iff (!reset_n);   // una vez, para toda la interface
 
 property p;
    @(posedge clk) disable iff (!reset_n)   // o property por property
@@ -1788,7 +1804,7 @@ está en cero, el <code>bind</code> no llegó.</p>
 <section id="s375" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="la-integración-con-uvm-el-else-que-hace-que-cuente"><em>La integración con UVM: el <code>else</code> que hace que cuente</em></h4>
-<pre><code class="language-sv">// El default de SystemVerilog: MATA la simulacion en la primera falla
+<pre><code class="language-systemverilog">// El default: $error, y en Verilator ademas $stop — se corta en la primera falla
 a : assert property (p);
 
 // Lo que se quiere en UVM: la falla cuenta y la simulacion sigue
@@ -1970,7 +1986,7 @@ en vez de la de la librería.</p>
    <span class="hljs-comment">// The properties live HERE, with the signals, and not in the testbench: they</span>
    <span class="hljs-comment">// plug themselves in, nobody connects them, and the passive agent of the Agents</span>
    <span class="hljs-comment">// section gets them for free. All they need in order to run is --assert.</span>
-   <span class="hljs-comment">//</span>
+
    <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
    <span class="hljs-comment">// negedge and the DUT registers on posedge. An assertion samples in the</span>
    <span class="hljs-comment">// preponed region of the edge it is given, so a signal written ON the negedge</span>
@@ -2287,7 +2303,7 @@ cuenta como anécdota.</p>
    <span class="hljs-comment">// The properties live HERE, with the signals, and not in the testbench: they</span>
    <span class="hljs-comment">// plug themselves in, nobody connects them, and the passive agent of the Agents</span>
    <span class="hljs-comment">// section gets them for free. All they need in order to run is --assert.</span>
-   <span class="hljs-comment">//</span>
+
    <span class="hljs-comment">// TWO CLOCKS, and it is not an implementation detail: the BFM drives on</span>
    <span class="hljs-comment">// negedge and the DUT registers on posedge. An assertion samples in the</span>
    <span class="hljs-comment">// preponed region of the edge it is given, so a signal written ON the negedge</span>
@@ -2550,9 +2566,9 @@ existiera este testbench.</p>
 <h4 id="1-de-5-·-inmediatas-y-concurrentes"><em>1 de 5 · Inmediatas y concurrentes</em></h4>
 <p><strong>¿Cuál es la diferencia de fondo entre <code>assert(x.randomize())</code> y <code>assert property (@(posedge clk) …)</code>?</strong></p>
 <ul>
+<li><input checked="" disabled="" type="checkbox"> Una es una <strong>sentencia</strong>; la otra, una <strong>declaración con reloj</strong></li>
 <li><input disabled="" type="checkbox"> Ninguna: la segunda es azúcar sintáctico de la primera</li>
 <li><input disabled="" type="checkbox"> La primera se puede apagar por línea de comandos y la segunda no</li>
-<li><input checked="" disabled="" type="checkbox"> Una es una <strong>sentencia</strong>; la otra, una <strong>declaración con reloj</strong></li>
 <li><input disabled="" type="checkbox"> La primera sólo vale adentro de una clase y la segunda sólo adentro de un módulo, por el scheduler</li>
 </ul>
 <blockquote>
@@ -2584,8 +2600,8 @@ existiera este testbench.</p>
 <ul>
 <li><input disabled="" type="checkbox"> Falta el <code>disable iff (!reset_n)</code></li>
 <li><input disabled="" type="checkbox"> El <code>posedge</code> es demasiado rápido: hay que dividir el reloj</li>
-<li><input checked="" disabled="" type="checkbox"> El estímulo se escribe en el <code>negedge</code> y el muestreo no lo ve</li>
 <li><input disabled="" type="checkbox"> Los covergroups y las assertions no pueden compartir el reloj sin un <code>clocking block</code></li>
+<li><input checked="" disabled="" type="checkbox"> El estímulo se escribe en el <code>negedge</code> y el muestreo no lo ve</li>
 </ul>
 <blockquote>
 <p><strong>Una assertion vale lo que vale su muestreo</strong> — la BFM escribe el estímulo en el <code>negedge</code>, y en dos <code>no_op</code> seguidas <code>start</code> baja y vuelve a subir entre dos <code>posedge</code>: el muestreo no lo ve bajar. El estímulo se muestrea donde el estímulo se escribe. Estímulo en <code>negedge</code>, respuesta del DUT en <code>posedge</code>: cero errores. Con un solo reloj no hay forma.</p>
@@ -2598,9 +2614,9 @@ existiera este testbench.</p>
 <h4 id="4-de-5-·-la-assertion-que-no-chequea-nada"><em>4 de 5 · La assertion que no chequea nada</em></h4>
 <p><strong>Una property <code>assert</code> reporta 0 fallas durante toda la regresión. ¿Qué se sabe?</strong></p>
 <ul>
+<li><input checked="" disabled="" type="checkbox"> Nada todavía: puede que nunca se haya evaluado</li>
 <li><input disabled="" type="checkbox"> Que la regla que describe se cumple</li>
 <li><input disabled="" type="checkbox"> Que el DUT está libre de bugs de protocolo</li>
-<li><input checked="" disabled="" type="checkbox"> Nada todavía: puede que nunca se haya evaluado</li>
 <li><input disabled="" type="checkbox"> Que la property tiene un <code>disable iff</code> mal escrito y quedó apagada todo el tiempo</li>
 </ul>
 <blockquote>
@@ -2789,10 +2805,10 @@ de cobertura, es exactamente el ejemplo que piden.</p>
                <span class="hljs-comment">// +BUG=1 breaks.</span>
                <span class="hljs-keyword">if</span> (en || bug_en) <span class="hljs-keyword">begin</span>
                   acc &lt;= suma[<span class="hljs-number">31</span>:<span class="hljs-number">0</span>];
-                  <span class="hljs-keyword">if</span> (suma[<span class="hljs-number">32</span>]) ovf &lt;= <span class="hljs-number">1&#x27;b1</span>;  <span class="hljs-comment">// pegajoso hasta el proximo CLR</span>
+                  <span class="hljs-keyword">if</span> (suma[<span class="hljs-number">32</span>]) ovf &lt;= <span class="hljs-number">1&#x27;b1</span>;  <span class="hljs-comment">// sticky until the next CLR</span>
                <span class="hljs-keyword">end</span>
             <span class="hljs-keyword">end</span>
-            <span class="hljs-keyword">default</span>: ;  <span class="hljs-comment">// ACC y STATUS son de solo lectura: la escritura se ignora</span>
+            <span class="hljs-keyword">default</span>: ;  <span class="hljs-comment">// ACC and STATUS are read-only: the write is ignored</span>
          <span class="hljs-keyword">endcase</span>
       <span class="hljs-keyword">end</span>
    <span class="hljs-keyword">end</span>
@@ -3673,8 +3689,9 @@ sirve de repaso rápido antes de una entrevista.
 Las dos filas que más se confunden son <em>sequence</em> y <em>sequencer</em>, y la forma de no
 errarle es la del día 6: el que termina en <strong>-er</strong> es el <strong>componente</strong> —está en
 el árbol, tiene fases—; el otro es el objeto que se crea, corre y se tira. Lo
-mismo vale para <em>driver</em> y <em>monitor</em>: todos los que terminan en -er/-or son
-componentes.
+mismo vale para <em>driver</em> y <em>monitor</em>. La regla es de las piezas del árbol y no
+del sufijo: las <em>policies</em> de UVM —<code>uvm_printer</code>, <code>uvm_comparer</code>, <code>uvm_packer</code>,
+<code>uvm_recorder</code>— y el <code>uvm_report_catcher</code> terminan igual y son objects.
 Y la primera fila es la que más cuesta y la que más cara sale: <em>handle</em>. Si el
 alumno se lleva una sola palabra de este glosario, que sea que un handle no es un
 objeto.
@@ -3740,8 +3757,8 @@ que aprendí UVM, y del que salieron varios de los ejemplos de <code>code/</code
 <li><strong>2024 Siemens EDA / Wilson Research Group Functional Verification Study</strong>.
 Fuente de los <strong>datos</strong> de Tendencias. Los gráficos son propios: se generan
 con <code>make figs</code> desde <code>res/trends/data.json</code>.</li>
-<li><strong>Sobre RAL</strong>: el capítulo <em>Register Layer</em> del <strong>UVM 1.2 User Guide</strong> de
-Accellera es la explicación larga, y la tabla de los veinticinco accesos de
+<li><strong>Sobre RAL</strong>: el capítulo <em>Using the Register Layer Classes</em> del <strong>UVM 1.2
+User’s Guide</strong> de Accellera es la explicación larga, y la tabla de los veinticinco accesos de
 campo —<code>RW</code>, <code>WOC</code>, <code>W1C</code>…— está en el <strong>IEEE 1800.2</strong>, en <code>uvm_reg_field</code>. Lo
 que la unidad no usa vive en el mismo lugar: <code>add_hdl_path</code> para el backdoor,
 y <strong>IP-XACT</strong> (IEEE 1685) o <strong>SystemRDL</strong> (Accellera) para generar el modelo en
@@ -3749,7 +3766,7 @@ vez de escribirlo.</li>
 <li><strong>Sobre los clocking blocks</strong>, que es la discusión más viva del curso: los
 hilos de <strong>Dave Rich</strong> en Verification Academy (2014, 2022 y 2024), su paper
 <em>The Missing Link: The Testbench to DUT Connection</em>, y el <strong>DV Coding Style
-Guide de lowRISC/OpenTitan</strong>, que los hace obligatorios. El resumen, con los
+Guide de lowRISC/OpenTitan</strong>, que los prescribe como regla. El resumen, con los
 links y las citas, en <strong><code>docs/clocking-blocks.md</code></strong>.</li>
 </ul>
 <div class="nota">
@@ -3900,8 +3917,9 @@ de <strong>Accellera</strong>, y <strong>Verification Academy</strong></li>
 <li>Y si te trabás: <strong><a href="https://github.com/leandrotozzi/verifythis/discussions">Discussions</a></strong>,
 con una categoría por día. Un ejemplo que no corre o una explicación que no se
 entiende son <strong>issues del curso</strong>, no problemas tuyos</li>
-<li>Y si querés seguir acá mismo: el <strong>día 8</strong> es opcional y arranca en la slide
-que sigue — RAL, el modelo de referencia en C, y un segundo capstone</li>
+<li>Y si querés seguir acá mismo: el <strong>día 8</strong> es opcional y arranca después de la
+autoevaluación y de <em>El lunes</em> — RAL, el modelo de referencia en C, y un
+segundo capstone</li>
 </ul>
 <div class="nota">
 <p><strong>RAL salió de esta tabla y ahora es la unidad 9</strong>, opcional, con el ejemplo que
@@ -4077,6 +4095,43 @@ un testbench propio andando, y ése es el capstone. Un alumno que marca las
 quince y no lo termina no terminó el curso.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/413">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s414" class="slide">
+<h2 id="el-lunes">El lunes</h2>
+<h4 id="qué-hacer-con-esto-cuando-se-apaga-la-pantalla"><em>Qué hacer con esto cuando se apaga la pantalla</em></h4>
+<ul>
+<li><strong>Lo primero: un testbench propio andando.</strong> El capstone es el mínimo. Si ya
+está entregado, el que sigue es un DUT tuyo — el del trabajo, el de la tesis,
+el que sea. Un curso terminado no prueba nada; un testbench sí</li>
+<li><strong>Guardá dos páginas y tirá el resto:</strong> el machete de una carilla y <em>Las 21
+trampas mudas</em>. Son las dos que se abren con el simulador corriendo</li>
+<li><strong>Si te trabás, preguntá acá:</strong>
+<a href="https://github.com/leandrotozzi/verifythis/discussions">Discussions</a> tiene una
+categoría por día. Un ejemplo que no corre es un <strong>issue del curso</strong></li>
+<li><strong>Y si algo te resultó confuso, arreglalo.</strong> Es CC BY 4.0 y el repo está
+entero: las slides, los ejemplos, los correctores y los linters. Un PR que
+aclara una slide vale tanto como uno que agrega una sección</li>
+</ul>
+<p><em>Gracias por llegar hasta acá.</em></p>
+<div class="nota">
+<p>La última slide del curso, y conviene que sea corta y en imperativo: después de
+siete días nadie se lleva una idea nueva más, pero sí se lleva una instrucción.
+La instrucción es la primera línea, y vale decirla mirando a la cámara o al
+grupo: <strong>lo único que prueba que alguien sabe hacer esto es un testbench propio
+andando</strong>. No el capstone corregido, no las quince filas de la autoevaluación en
+verde: uno propio, sobre un DUT que nadie preparó para ser fácil.
+El segundo bullet es el consejo más práctico de la slide y el que más se
+agradece a los seis meses. De todo lo que se imprimió esta semana, lo que se
+vuelve a abrir son dos páginas: el machete —<code>docs/machete-uvm.pdf</code>, una carilla,
+A4— y la tabla de trampas mudas, que está escrita para buscar por síntoma y no
+para leer.
+Y la invitación del cuarto no es cortesía. El curso mejora por donde alguien se
+tropieza: la mitad de las notas del presentador existen porque alguien preguntó
+lo mismo dos veces. Si se dicta en clase, cerrar pidiendo explícitamente las tres
+cosas que no se entendieron — y anotarlas antes de que el grupo se vaya.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/414">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 </main>
 

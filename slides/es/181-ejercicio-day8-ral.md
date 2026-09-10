@@ -2,7 +2,7 @@
 
 #### *Modelar el mapa de registros*
 
-`cd code/ejercicios/d8-ral && cat README.md`
+`cd code/ejercicios/d8-ral && cat README.es.md`
 <!-- .element: class="comando" -->
 
 - Es **literalmente** lo primero que te piden en un proyecto con registros: te
@@ -20,7 +20,7 @@ las primeras semanas de un proyecto. Cuarenta líneas, y la mitad son copiar y
 pegar el patrón de `CTRL`.
 La etapa que enseña es la 1, y por una razón de método: el modelo se **imprime**
 —`+UVM_TESTNAME=mapa_test`— y se compara línea por línea contra la tabla de
-`spec.md`, antes de simular nada. Es lo que hay que hacer con un modelo de
+registros del README del ejercicio, antes de simular nada. Es lo que hay que hacer con un modelo de
 registros de verdad, donde el error típico no es de UVM sino un offset copiado
 mal de una planilla de 200 filas.
 La etapa 2 es donde cae `CLR`: el que lo declaró `RW` pasa la etapa 1 sin

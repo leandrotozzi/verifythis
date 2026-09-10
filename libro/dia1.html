@@ -83,7 +83,7 @@ orientado a objetos <strong>no</strong> hace falta — el día 2 es exactamente 
 que el curso da por sabido es <strong>SystemVerilog</strong>: si venís de VHDL o de
 Verilog-2001, media hora con
 <strong><code>docs/systemverilog-para-el-que-viene-de-vhdl.md</code></strong> antes de empezar</li>
-<li>Son <strong>siete días de clase</strong>, de 4 a 5 horas y media — <strong>≈ 30 h 30</strong>, y cada
+<li>Son <strong>siete días de clase</strong>, de 4 a 5 horas y cuarto — <strong>≈ 31 h</strong>, y cada
 agenda trae el suyo. Y un <strong>día 8 opcional</strong>, después del cierre. Solo,
 calculá el doble: la mitad se va en correr los ejemplos, y ésa es la que enseña</li>
 <li><kbd>s</kbd> abre las <strong>notas del presentador</strong> en otra ventana ·
@@ -91,7 +91,8 @@ calculá el doble: la mitad se va en correr los ejemplos, y ésa es la que ense�
 instructor diría en voz alta: la trampa clásica, el porqué del número, el
 error que comete todo el mundo la primera vez. <strong>No las saltees</strong></li>
 <li>Cada día cierra con un <strong>repaso</strong> de opciones clickeables y con un
-<strong>ejercicio que se corrige solo</strong>: <code>cd code/ejercicios/dN &amp;&amp; bash run.sh</code></li>
+<strong>ejercicio que se corrige solo</strong>: <code>cd code/ejercicios/d1 &amp;&amp; bash run.sh</code>. Los
+nombres de los otros dieciocho están en <code>code/ejercicios/README.es.md</code></li>
 </ul>
 <div class="nota">
 <p>Si estás dictando el curso, estas dos slides se saltean con la tecla 1.
@@ -158,9 +159,9 @@ opcionales</li>
 <div class="nota">
 <p>Los tres verbos de abajo son el contrato del día, y conviene leerlos en voz alta
 antes de empezar: en video son los diez segundos en los que alguien decide si
-éste es el que buscaba. Son las tres primeras filas de la autoevaluación del
-cierre, traídas al principio; el que las pueda contestar al terminar el día no
-necesita mirar nada más.
+éste es el que buscaba. Son las filas 2, 4 y 5 de la autoevaluación del cierre,
+traídas al principio; el que las pueda contestar al terminar el día no necesita
+mirar nada más.
 Y una advertencia honesta para el que viene de VHDL o de Verilog-2001, que es la
 audiencia declarada: el día 2 nivela la OOP, pero <strong>nadie nivela SystemVerilog</strong>,
 y hoy aparecen <code>interface</code>, <code>logic</code>, <code>enum</code>, <code>package</code>, <code>covergroup</code>, <code>clocking</code>
@@ -356,7 +357,7 @@ testbench anterior a 2011 que nadie migró. Pasa más de lo que parece.</p>
 <section id="s12" class="slide">
 <h2 id="introducción">Introducción</h2>
 <h4 id="un-testbench-de-systemverilog-por-dentro"><em>Un testbench de SystemVerilog, por dentro</em></h4>
-<p><img src="../res/print/TB.svg" alt="Anatomia de un testbench SystemVerilog"></p>
+<p><img src="../res/print/TB.svg" alt="Anatomía de un testbench SystemVerilog"></p>
 <div class="nota">
 <p>Éste es el testbench que vamos a escribir <strong>nosotros</strong>, a mano, en los días 1 y
 2. Conviene decirlo así: las cajas de este diagrama no son teoría, son los
@@ -389,7 +390,7 @@ poco.</p>
 <section id="s14" class="slide">
 <h2 id="introducción">Introducción</h2>
 <h4 id="el-árbol-de-clases"><em>El árbol de clases</em></h4>
-<p><img src="../res/print/uvm_class_diagram.svg" alt="Arbol de clases base de UVM"></p>
+<p><img src="../res/print/uvm_class_diagram.svg" alt="Jerarquía de clases base de UVM"></p>
 <div class="nota">
 <p>Este diagrama asusta y por eso conviene desactivarlo de entrada: <strong>de todo esto
 vamos a extender diez</strong>: <code>uvm_component</code>, <code>uvm_test</code>, <code>uvm_env</code>, <code>uvm_agent</code>,
@@ -452,7 +453,7 @@ uno. Es literalmente el ejercicio <code>d7-semillas</code>, con el que arranca e
 
 <section id="s16" class="slide">
 <h2 id="la-spec-del-vtalu">La spec del VTALU</h2>
-<p><img src="../res/print/diagrams/wave-dut.svg" alt="Diagrama de ondas de la VTALU: start, done y el resultado"></p>
+<p><img src="../res/print/diagrams/wave-dut.svg" alt="Protocolo del VTALU: start y operandos estables hasta done"></p>
 <ul>
 <li><em>start</em> debe permanecer en 1 y los operandos estables hasta<br>que termina la operación</li>
 <li><em>done</em> se levanta cuando termina la operación: en la multiplicación<br>es un pulso de un ciclo; en add/sub/and/xor es un <strong>nivel</strong>, y se queda<br>arriba mientras <em>start</em> siga arriba</li>
@@ -648,7 +649,23 @@ cambien el resultado: la ALU se queda con lo último que calculó.</p>
 <section id="s19" class="slide">
 <h2 id="la-spec-del-vtalu">La spec del VTALU</h2>
 <h4 id="multi-cycle-multiplicación"><em>Multi Cycle: Multiplicación</em></h4>
-<figure class="codigo"><figcaption><code>code/vtalu_dut/vtalu_mult.sv</code> · #the-pipeline</figcaption><pre><code class="hljs">         a_int &lt;= A;
+<figure class="codigo"><figcaption><code>code/vtalu_dut/vtalu_mult.sv</code> · #the-pipeline</figcaption><pre><code class="hljs">   <span class="hljs-comment">// Four register stages. done is pipelined alongside the data, and each</span>
+   <span class="hljs-comment">// stage clears itself with (&amp; ~done_mult): that is what makes done a</span>
+   <span class="hljs-comment">// one-cycle pulse instead of staying high for as long as start does. It is</span>
+   <span class="hljs-comment">// subtle -- it is copied straight from the VHDL.</span>
+   <span class="hljs-keyword">always_ff</span> @(<span class="hljs-keyword">posedge</span> clk or <span class="hljs-keyword">negedge</span> reset_n) <span class="hljs-keyword">begin</span>
+      <span class="hljs-keyword">if</span> (!reset_n) <span class="hljs-keyword">begin</span>
+         done_mult &lt;= <span class="hljs-number">1&#x27;b0</span>;
+         done3 &lt;= <span class="hljs-number">1&#x27;b0</span>;
+         done2 &lt;= <span class="hljs-number">1&#x27;b0</span>;
+         done1 &lt;= <span class="hljs-number">1&#x27;b0</span>;
+         a_int &lt;= <span class="hljs-number">8&#x27;h00</span>;
+         b_int &lt;= <span class="hljs-number">8&#x27;h00</span>;
+         mult1 &lt;= <span class="hljs-number">16&#x27;h0000</span>;
+         mult2 &lt;= <span class="hljs-number">16&#x27;h0000</span>;
+         result_mult &lt;= <span class="hljs-number">16&#x27;h0000</span>;
+      <span class="hljs-keyword">end</span> <span class="hljs-keyword">else</span> <span class="hljs-keyword">begin</span>
+         a_int &lt;= A;
          b_int &lt;= B;
          mult1 &lt;= a_int * b_int;
          mult2 &lt;= mult1;
@@ -656,7 +673,9 @@ cambien el resultado: la ALU se queda con lo último que calculó.</p>
          done3 &lt;= start &amp; ~done_mult;
          done2 &lt;= done3 &amp; ~done_mult;
          done1 &lt;= done2 &amp; ~done_mult;
-         done_mult &lt;= done1 &amp; ~done_mult;</code></pre><details><summary>el archivo entero, 46 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Multi-cycle multiplication: done rises on the FOURTH clock edge after start</span>
+         done_mult &lt;= done1 &amp; ~done_mult;
+      <span class="hljs-keyword">end</span>
+   <span class="hljs-keyword">end</span></code></pre><details><summary>el archivo entero, 46 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Multi-cycle multiplication: done rises on the FOURTH clock edge after start</span>
 <span class="hljs-comment">// (the one-cycle ops raise it on the first). The latency is deliberate: it is</span>
 <span class="hljs-comment">// what forces the testbench to wait for &#x27;done&#x27; instead of counting cycles.</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">vtalu_mult</span> (
@@ -811,8 +830,10 @@ y el scoreboard reporta un error que no está en el DUT.</p>
 
 <ul>
 <li>El top no calcula nada: instancia los dos bloques y <strong>decodifica</strong> el opcode</li>
-<li><code>es_mult = (op == mul_op)</code>. El <code>start</code> se rutea a uno solo, y <code>result</code>,
-<code>done</code> y <code>ovf</code> salen del mismo lado</li>
+<li><code>es_mult = (op == mul_op)</code>. El <code>start</code> se rutea a uno solo, y <code>result_mux</code> y
+<code>done</code> salen del mismo lado. El <code>ovf</code> sigue el mismo patrón justo abajo del
+recorte —<code>assign ovf = es_mult ? 1&#39;b0 : ovf_1c;</code>— y <code>result_mux</code> sale por
+<code>result</code> recién después del XOR de <code>+VTALU_BUG</code></li>
 <li>Por eso el protocolo del bus es uno solo aunque adentro haya dos latencias
 distintas: lo que el testbench ve es <code>start</code> → <code>done</code></li>
 </ul>
@@ -991,8 +1012,8 @@ el curso: acá para leerla, y el día 7 para llenarla de cero.</p>
 son tres filas, y se cierran de a una</li>
 </ul>
 <div class="nota">
-<p>Vale leer la columna de la derecha en voz alta: son los cuatro errores que se
-cometen la primera vez, y los cuatro suenan razonables cuando uno los escribe.
+<p>Vale leer la columna de la derecha en voz alta: son los cinco errores que se
+cometen la primera vez, y los cinco suenan razonables cuando uno los escribe.
 La columna que más cuesta es la de medida, porque obliga a decidir <em>antes</em> qué
 se va a contar. Es la que el día 1 todavía no se puede llenar —los bins no
 existen hasta la unidad que viene— y por eso el plan se llena a medida que el
@@ -1110,7 +1131,7 @@ y nada más pasa en verde con el <code>ovf</code> clavado en cero.</p>
            <span class="hljs-keyword">end</span>
          <span class="hljs-keyword">endcase</span> <span class="hljs-comment">// case (op_set)</span>
       <span class="hljs-keyword">end</span>
-      <span class="hljs-built_in">$finish</span>;</code></pre><details><summary>el archivo entero, 258 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
+      <span class="hljs-built_in">$finish</span>;</code></pre><details><summary>el archivo entero, 256 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
 <span class="hljs-comment">// ----------</span>
 <span class="hljs-comment">//  * Functional Coverage</span>
 <span class="hljs-comment">//  * Self Checking</span>
@@ -1177,9 +1198,8 @@ y nada más pasa en verde con el <code>ovf</code> clavado en cero.</p>
       }
    <span class="hljs-keyword">endgroup</span>
 
-   <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
    <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
-
+      <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
       all_ops : <span class="hljs-keyword">coverpoint</span> op_set {
          <span class="hljs-keyword">ignore_bins</span> null_ops = {rst_op, no_op};}
 
@@ -1201,7 +1221,6 @@ y nada más pasa en verde con el <code>ovf</code> clavado en cero.</p>
          <span class="hljs-keyword">bins</span> hubo_borrow = {<span class="hljs-number">1</span>};
          <span class="hljs-keyword">ignore_bins</span> resto = {<span class="hljs-number">0</span>};
       }
-
 
       op_00_FF:  <span class="hljs-keyword">cross</span> a_leg, b_leg, all_ops {
          <span class="hljs-keyword">bins</span> add_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {add_op} &amp;&amp;
@@ -1434,7 +1453,7 @@ y <code>:/</code>. Conviene nombrarlo ahora para que después se vea el ahorro.<
           <span class="hljs-built_in">$error</span> (<span class="hljs-string">&quot;FAILED: A: %0h  B: %0h  op: %s result: %0h ovf: %0b&quot;</span>,
                   A, B, op_set.name(), result, ovf);
       <span class="hljs-keyword">end</span>
-   <span class="hljs-keyword">end</span> : scoreboard</code></pre><details><summary>el archivo entero, 258 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
+   <span class="hljs-keyword">end</span> : scoreboard</code></pre><details><summary>el archivo entero, 256 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
 <span class="hljs-comment">// ----------</span>
 <span class="hljs-comment">//  * Functional Coverage</span>
 <span class="hljs-comment">//  * Self Checking</span>
@@ -1501,9 +1520,8 @@ y <code>:/</code>. Conviene nombrarlo ahora para que después se vea el ahorro.<
       }
    <span class="hljs-keyword">endgroup</span>
 
-   <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
    <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
-
+      <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
       all_ops : <span class="hljs-keyword">coverpoint</span> op_set {
          <span class="hljs-keyword">ignore_bins</span> null_ops = {rst_op, no_op};}
 
@@ -1525,7 +1543,6 @@ y <code>:/</code>. Conviene nombrarlo ahora para que después se vea el ahorro.<
          <span class="hljs-keyword">bins</span> hubo_borrow = {<span class="hljs-number">1</span>};
          <span class="hljs-keyword">ignore_bins</span> resto = {<span class="hljs-number">0</span>};
       }
-
 
       op_00_FF:  <span class="hljs-keyword">cross</span> a_leg, b_leg, all_ops {
          <span class="hljs-keyword">bins</span> add_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {add_op} &amp;&amp;
@@ -1915,7 +1932,7 @@ propia slide en esta sección.</p>
          <span class="hljs-keyword">bins</span> manymult = (mul_op [* <span class="hljs-number">3</span>:<span class="hljs-number">5</span>]);
 <span class="hljs-meta">`endif</span>
       }
-   <span class="hljs-keyword">endgroup</span></code></pre><details><summary>el archivo entero, 258 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
+   <span class="hljs-keyword">endgroup</span></code></pre><details><summary>el archivo entero, 256 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
 <span class="hljs-comment">// ----------</span>
 <span class="hljs-comment">//  * Functional Coverage</span>
 <span class="hljs-comment">//  * Self Checking</span>
@@ -1982,9 +1999,8 @@ propia slide en esta sección.</p>
       }
    <span class="hljs-keyword">endgroup</span>
 
-   <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
    <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
-
+      <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
       all_ops : <span class="hljs-keyword">coverpoint</span> op_set {
          <span class="hljs-keyword">ignore_bins</span> null_ops = {rst_op, no_op};}
 
@@ -2006,7 +2022,6 @@ propia slide en esta sección.</p>
          <span class="hljs-keyword">bins</span> hubo_borrow = {<span class="hljs-number">1</span>};
          <span class="hljs-keyword">ignore_bins</span> resto = {<span class="hljs-number">0</span>};
       }
-
 
       op_00_FF:  <span class="hljs-keyword">cross</span> a_leg, b_leg, all_ops {
          <span class="hljs-keyword">bins</span> add_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {add_op} &amp;&amp;
@@ -2200,8 +2215,7 @@ herramienta no hace es un curso que miente.</p>
 <section id="s37" class="slide">
 <h2 id="cobertura-funcional">Cobertura funcional</h2>
 <h4 id="ignore_bins-decir-en-voz-alta-lo-que-no-se-cubre"><em>ignore_bins: decir en voz alta lo que no se cubre</em></h4>
-<figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #legs-and-ops</figcaption><pre><code class="hljs">   <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
-
+<figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #legs-and-ops</figcaption><pre><code class="hljs">      <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
       all_ops : <span class="hljs-keyword">coverpoint</span> op_set {
          <span class="hljs-keyword">ignore_bins</span> null_ops = {rst_op, no_op};}
 
@@ -2215,7 +2229,14 @@ herramienta no hace es un curso que miente.</p>
          <span class="hljs-keyword">bins</span> zeros = {<span class="hljs-number">8&#x27;h00</span>};
          <span class="hljs-keyword">bins</span> others= {[<span class="hljs-number">8&#x27;h01</span>:<span class="hljs-number">8&#x27;hFE</span>]};
          <span class="hljs-keyword">bins</span> ones  = {<span class="hljs-number">8&#x27;hFF</span>};
-      }</code></pre><details><summary>el archivo entero, 258 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
+      }
+      <span class="hljs-comment">// VTALU rev2: the borrow of the subtraction, the row of the plan that the</span>
+      <span class="hljs-comment">// scoreboard can only close by looking at TWO outputs. Without this bin, a</span>
+      <span class="hljs-comment">// subtraction that never went negative looks exactly like one that did.</span>
+      borrow: <span class="hljs-keyword">coverpoint</span> ((op_set == sub_op) &amp;&amp; (A &lt; B)) {
+         <span class="hljs-keyword">bins</span> hubo_borrow = {<span class="hljs-number">1</span>};
+         <span class="hljs-keyword">ignore_bins</span> resto = {<span class="hljs-number">0</span>};
+      }</code></pre><details><summary>el archivo entero, 256 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
 <span class="hljs-comment">// ----------</span>
 <span class="hljs-comment">//  * Functional Coverage</span>
 <span class="hljs-comment">//  * Self Checking</span>
@@ -2282,9 +2303,8 @@ herramienta no hace es un curso que miente.</p>
       }
    <span class="hljs-keyword">endgroup</span>
 
-   <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
    <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
-
+      <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
       all_ops : <span class="hljs-keyword">coverpoint</span> op_set {
          <span class="hljs-keyword">ignore_bins</span> null_ops = {rst_op, no_op};}
 
@@ -2306,7 +2326,6 @@ herramienta no hace es un curso que miente.</p>
          <span class="hljs-keyword">bins</span> hubo_borrow = {<span class="hljs-number">1</span>};
          <span class="hljs-keyword">ignore_bins</span> resto = {<span class="hljs-number">0</span>};
       }
-
 
       op_00_FF:  <span class="hljs-keyword">cross</span> a_leg, b_leg, all_ops {
          <span class="hljs-keyword">bins</span> add_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {add_op} &amp;&amp;
@@ -2517,7 +2536,12 @@ Después se combinan con <code>&amp;&amp;</code> y <code>||</code> como cualquie
 El error de escala que hay que anticipar: en un DUT real un cross de tres
 coverpoints con bins automáticos son miles de casilleros, y una regresión no los
 llena nunca. Cuando alguien dice &quot;la cobertura no sube&quot;, en la mitad de los casos
-el problema es un cross sin filtrar, no un test que falta.</p>
+el problema es un cross sin filtrar, no un test que falta.
+Y el número que hay que tener a mano para la slide &quot;Leer el número&quot;: los 45 son
+la cuenta del LRM, un bin por miembro del enum. <strong>Verilator mide 54</strong>, porque
+reparte los bins automáticos por el tipo base (<code>bit [2:0]</code>, 8 valores menos los
+2 de <code>ignore_bins</code>, o sea 3 × 3 × 6). Los 9 de más son el <code>3&#39;b110</code> cruzado, y son
+exactamente los 9 que quedan en cero.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/38">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -2535,7 +2559,7 @@ el problema es un cross sin filtrar, no un test que falta.</p>
                         (binsof (a_leg.ones) &amp;&amp; binsof (b_leg.ones));
 
          <span class="hljs-keyword">ignore_bins</span> others_only =
-                         binsof(a_leg.others) &amp;&amp; binsof(b_leg.others);</code></pre><details><summary>el archivo entero, 258 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
+                         binsof(a_leg.others) &amp;&amp; binsof(b_leg.others);</code></pre><details><summary>el archivo entero, 256 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
 <span class="hljs-comment">// ----------</span>
 <span class="hljs-comment">//  * Functional Coverage</span>
 <span class="hljs-comment">//  * Self Checking</span>
@@ -2602,9 +2626,8 @@ el problema es un cross sin filtrar, no un test que falta.</p>
       }
    <span class="hljs-keyword">endgroup</span>
 
-   <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
    <span class="hljs-keyword">covergroup</span> zeros_or_ones_on_ops;
-
+      <span class="hljs-comment">// Check the corners where the inputs are all 0s or all 1s</span>
       all_ops : <span class="hljs-keyword">coverpoint</span> op_set {
          <span class="hljs-keyword">ignore_bins</span> null_ops = {rst_op, no_op};}
 
@@ -2626,7 +2649,6 @@ el problema es un cross sin filtrar, no un test que falta.</p>
          <span class="hljs-keyword">bins</span> hubo_borrow = {<span class="hljs-number">1</span>};
          <span class="hljs-keyword">ignore_bins</span> resto = {<span class="hljs-number">0</span>};
       }
-
 
       op_00_FF:  <span class="hljs-keyword">cross</span> a_leg, b_leg, all_ops {
          <span class="hljs-keyword">bins</span> add_00 = binsof (all_ops) <span class="hljs-keyword">intersect</span> {add_op} &amp;&amp;
@@ -2816,9 +2838,10 @@ vale por ser el máximo del espacio de entrada, no por desbordar. La única
 operación que desborda es la resta, y sólo cuando A &lt; B.
 La honestidad de esta slide es parte del curso, así que conviene decirla y no
 pasarla rápido: el 86,8 % que reporta el ejemplo <strong>no es</strong> el número que daría
-Questa. Verilator ignora el filtro y mide el cross entero —los 45, y además le
-suma un valor que el enum no tiene; la slide &quot;Leer el número&quot; dice cuál—, así
-que el porcentaje sale más bajo y por un motivo que no es del testbench. Está
+Questa. Verilator ignora el filtro y mide el cross entero, y además le suma un
+valor que el enum no tiene: donde el LRM cuenta 45, Verilator cuenta <strong>54</strong> (los
+9 de más son el <code>3&#39;b110</code> cruzado, y son los 9 que quedan en cero). Por eso el
+porcentaje sale más bajo, y por un motivo que no es del testbench. Está
 escrito, fechado y con versión en <code>docs/verilator.md</code>.
 La pregunta útil para el aula: ¿eso invalida el ejercicio? No. Lo que se aprende
 —escribir el cross, filtrarlo, y saber qué bin corresponde a qué fila del plan—
@@ -2907,8 +2930,10 @@ Coverage Summary:
   covergroup : 86.8% (66/76)
 </code></pre>
 <ul>
-<li>66 de 76 bins llenos, con 1000 operaciones al azar. Las otras filas del
-resumen salen <code>0/0</code>: <code>--coverage-user</code> deja afuera la cobertura de código</li>
+<li>66 de 76 bins llenos, con <strong>1000 randomizaciones</strong> y <strong>615 operaciones al bus</strong>
+—el <code>no_op</code> y el <code>rst_op</code> se sortean y no se envían, y el testbench lo imprime
+dos líneas arriba de este resumen—. Las otras filas salen <code>0/0</code>:
+<code>--coverage-user</code> deja afuera la cobertura de código</li>
 <li>Los 10 que faltan son <strong>un solo valor</strong>: <code>all_ops.auto_5</code> y sus nueve cruces.
 Es <code>3&#39;b110</code>, que el enum <strong>no tiene</strong> — Verilator reparte los bins
 automáticos por el tipo de base, <code>bit [2:0]</code>, y no por miembro del enum</li>
@@ -3557,7 +3582,7 @@ la misma que hicimos acá — esconder el cable— repetida un nivel más arriba
 <section id="s50" class="slide">
 <h2 id="interfaces-y-bfm">Interfaces y BFM</h2>
 <h4 id="la-regla-del-protocolo-escrita-en-el-idioma-del-simulador"><em>La regla del protocolo, escrita en el idioma del simulador</em></h4>
-<pre><code class="language-sv">// INMEDIATA: una sentencia. Chequea el presente, donde el hilo pasa.
+<pre><code class="language-systemverilog">// INMEDIATA: una sentencia. Chequea el presente, donde el hilo pasa.
 assert (op_set != no_op || done == 0)
    else $error(&quot;no_op no deberia levantar done&quot;);
 
@@ -3616,8 +3641,7 @@ detalle.</p>
 <section id="s52" class="slide">
 <h2 id="interfaces-y-bfm">Interfaces y BFM</h2>
 <h4 id="el-agujero-que-deja-la-bfm-el-temporizado"><em>El agujero que deja la BFM: el temporizado</em></h4>
-<figure class="codigo"><figcaption><code>code/u2/clocking/sin_clocking.sv</code> · #three-samples</figcaption><pre><code class="hljs">
-      <span class="hljs-comment">// 1. Sample AT the edge. The DUT always_ff updates d_out with a</span>
+<figure class="codigo"><figcaption><code>code/u2/clocking/sin_clocking.sv</code> · #three-samples</figcaption><pre><code class="hljs">      <span class="hljs-comment">// 1. Sample AT the edge. The DUT always_ff updates d_out with a</span>
       <span class="hljs-comment">//    nonblocking assignment, which lands after this initial already ran:</span>
       <span class="hljs-comment">//    you read the OLD value.</span>
       @(<span class="hljs-keyword">posedge</span> clk);
@@ -3717,7 +3741,7 @@ visto clocking blocks, no porque sea lo que se escribe en un proyecto.</p>
 <section id="s53" class="slide">
 <h2 id="interfaces-y-bfm">Interfaces y BFM</h2>
 <h4 id="por-qué-el-flanco-solo-no-alcanza-las-regiones"><em>Por qué el flanco solo no alcanza: las regiones</em></h4>
-<p><img src="../res/print/diagrams/interfaces-bfm_regiones.svg" alt="Las regiones de un flanco: Preponed, Active y NBA, y los tres muestreos"></p>
+<p><img src="../res/print/diagrams/interfaces-bfm_regiones.svg" alt="Las regiones de un flanco: Preponed, Active y NBA, y los tres muestreos que dan valores distintos"></p>
 <ul>
 <li>Un flanco no es un instante indivisible: adentro hay <strong>regiones</strong>, en orden fijo</li>
 <li>El <code>&lt;=</code> del <code>always_ff</code> <strong>aterriza en NBA</strong>: el que lee en <em>Active</em> lee el viejo</li>
@@ -3917,8 +3941,7 @@ El material largo, con las fuentes, está en <code>docs/clocking-blocks.md</code
 <section id="s56" class="slide">
 <h2 id="interfaces-y-bfm">Interfaces y BFM</h2>
 <h4 id="el-precio-dos-nombres-para-el-mismo-cable"><em>El precio: dos nombres para el mismo cable</em></h4>
-<figure class="codigo"><figcaption><code>code/u2/clocking/mezcla.sv</code> · #two-reads</figcaption><pre><code class="hljs">
-      <span class="hljs-comment">// The two reads, at the SAME instant, on the SAME wire.</span>
+<figure class="codigo"><figcaption><code>code/u2/clocking/mezcla.sv</code> · #two-reads</figcaption><pre><code class="hljs">      <span class="hljs-comment">// The two reads, at the SAME instant, on the SAME wire.</span>
       por_cb = bfm.cb.d_out;
       crudo  = bfm.d_out;
 
@@ -4084,9 +4107,9 @@ un driver de dispositivo es al sistema operativo.</p>
 <p><strong>El test corre 1000 operaciones al azar y la cobertura de <em>código</em> da 100 %. ¿Qué te dice eso sobre la verificación?</strong></p>
 <ul>
 <li><input disabled="" type="checkbox"> Que el DUT está verificado y el plan de verificación se puede cerrar</li>
-<li><input checked="" disabled="" type="checkbox"> Muy poco: mide el RTL que se ejecutó, no la spec</li>
 <li><input disabled="" type="checkbox"> Que el testbench no tiene bugs</li>
 <li><input disabled="" type="checkbox"> Que faltan pocos escenarios: el 100 % ya recorrió el diseño entero</li>
+<li><input checked="" disabled="" type="checkbox"> Muy poco: mide el RTL que se ejecutó, no la spec</li>
 </ul>
 <blockquote>
 <p><strong>Muy poco</strong> — la cobertura de código mide el DUT; la funcional mide la spec. Una feature que el diseñador nunca escribió da 100 % de líneas y 0 % de lo que importa, y el reporte no te lo va a decir.</p>
@@ -4099,8 +4122,8 @@ un driver de dispositivo es al sistema operativo.</p>
 <h4 id="4-de-7-·-covergroup"><em>4 de 7 · covergroup</em></h4>
 <p><strong>Declarás un <code>covergroup</code>, le hacés <code>new()</code>, corrés mil operaciones y el reporte da 0 %. ¿Qué es lo primero que hay que mirar?</strong></p>
 <ul>
-<li><input disabled="" type="checkbox"> Que los bins estén mal definidos y no matcheen ningún valor</li>
 <li><input checked="" disabled="" type="checkbox"> Que nadie esté llamando a <code>sample()</code></li>
+<li><input disabled="" type="checkbox"> Que los bins estén mal definidos y no matcheen ningún valor</li>
 <li><input disabled="" type="checkbox"> Que el DUT no esté respondiendo</li>
 <li><input disabled="" type="checkbox"> Que falten <code>ignore_bins</code></li>
 </ul>

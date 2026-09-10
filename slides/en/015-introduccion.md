@@ -1,4 +1,4 @@
-<!-- es-sha: 9ea40ec498c1 -->
+<!-- es-sha: bca8c0839486 -->
 ## Introduction
 
 #### *What is UVM?*
@@ -22,7 +22,7 @@ it loudly because it lowers the anxiety of whoever arrives scared: **UVM does no
 could not do yourself**. There is no magic inside. There is a factory, some ports, some
 phases and a lot of agreement about names.
 If somebody asks why bother then: because of the last bullet. A
-verifier who changes project —or company— opens the testbench and recognizes
+verification engineer who changes project —or company— opens the testbench and recognizes
 the structure on day one. That is what you are buying. It is not simulation
 speed and it is not fewer lines: it is that the structure is the same everywhere.
 The historical note is useful for whoever comes from the industry: until 2011 every
@@ -94,7 +94,7 @@ not little.
 
 #### *The class tree*
 
-![UVM base class tree](res/en/uvm_class_diagram.svg)
+![The UVM base class hierarchy](res/en/uvm_class_diagram.svg)
 <!-- .element: class="grande" -->
 
 Note:

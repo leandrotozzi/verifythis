@@ -1,5 +1,5 @@
-<!-- es-sha: c0a16628fc0a -->
-<!-- .slide: id="portada" data-machete="res/en/uvm_class_diagram.svg" -->
+<!-- es-sha: 9d41ea5ce432 -->
+<!-- .slide: id="portada" data-machete="res/en/uvm_class_diagram.svg|The UVM base class hierarchy" -->
 
 # Verify This!
 

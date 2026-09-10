@@ -59,8 +59,8 @@
 
 - [ ] Un tercio de las veces: son tres entradas con el mismo peso
 - [ ] La mitad: los bordes se reparten entre los dos
-- [x] Una vez cada 256: con `:=` el peso va a **cada valor**
 - [ ] Nunca: `:=` sólo acepta valores sueltos, no rangos, y el rango se descarta
+- [x] Una vez cada 256: con `:=` el peso va a **cada valor**
 
 > **1 de cada 256** — `:=` le da peso 1 a *cada uno* de los 254 valores del medio, así que el rango pesa 254 contra 1 y 1 de los bordes. Para repartir el peso *dentro* del rango va `:/`. Las dos formas compilan y corren: la diferencia sólo aparece en la cobertura que no sube.
 
@@ -109,9 +109,9 @@
 **¿Qué hace `cmd.A.rand_mode(0)`?**
 
 - [ ] Apaga todas las constraints que mencionan ese campo
-- [x] Saca el campo del sorteo y le deja el valor que tenía
 - [ ] Lo randomiza una sola vez y después lo congela
 - [ ] Hace que el solver lo resuelva último, después de todos los demás campos
+- [x] Saca el campo del sorteo y le deja el valor que tenía
 
 > **Deja de ser `rand`** — son las dos perillas de tiempo de ejecución y se confunden seguido: `rand_mode(0)` saca **un campo** del sorteo, `constraint_mode(0)` apaga **una constraint**. Una elige *qué se sortea*, la otra *qué reglas valen*. Sirve para fijar un operando a mano y seguir randomizando el resto.
 

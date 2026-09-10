@@ -184,7 +184,7 @@ question.
 The **key is at the end**, with the reason for each one: it is what you need
 in order to grade without going back to look for the slide.
 
-How to use it, and what to assess in each midterm: **[\`para-docentes.md\`](${docentes})** (in Spanish).
+How to use it, and what to assess in each midterm: **[\`for-teachers.md\`](${docentes})**.
 
 > The course is **CC BY 4.0**: it can be printed, cut up, reordered and given as
 > your own exam. The only thing asked is that you cite the source.`,

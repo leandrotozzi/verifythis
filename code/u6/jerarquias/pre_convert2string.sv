@@ -1,4 +1,5 @@
-// The WRONG way to write convert2string!
+// ILLUSTRATION -- not compiled. The WRONG way to write convert2string!
+// The classes are drawn as comments: only the methods are on screen.
 //class trago;
    virtual function string convert2string();
       return $sformatf("Hielos: %0d", hielos);

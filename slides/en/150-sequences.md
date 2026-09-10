@@ -1,4 +1,4 @@
-<!-- es-sha: 7bab513dd9ec -->
+<!-- es-sha: b75b859d6bfc -->
 ## Sequences
 
 #### *The only thing left hard-wired*
@@ -181,7 +181,7 @@ finish_item(command);
 ```sh
 with {op == mul_op}                       100 of 100   op has no dist
 with {A inside {[1:10]}}                    1 of 100   A does have one
-constraint_mode(0) + with {A inside ...}  100 of 100   the way around it
+constraint_mode(0) + with {A inside ...}  100 of 100   the workaround
 ```
 
 - The rule, in one line: **if the `with {}` touches a field that has a `dist`,
@@ -193,12 +193,12 @@ Note:
 It is the same limitation they already saw in the Constrained random unit, but here
 it shows up in the place where they are really going to use it, so it is worth measuring it
 again against the real transaction.
-What the measurement adds on top of what `docs/verilator.md` says: the trigger is
+What the measurement adds on top of what `docs/en/verilator.md` says: the trigger is
 not "there is a `dist` in the class". It is **the `with {}` restricting a field that has a
 `dist`**. Asking for `op == mul_op` works perfectly, even though `A` and `B` have `dist` in the
 same resolution. That is why the sequences of the section do not run into this: none of them
 uses `with {}`.
-And the way around it is not a concession: for a directed case, switching off the distribution
+And the workaround is not a concession: for a directed case, switching off the distribution
 constraint is the right thing anyway. The `dist` is there so the random hits the
 edges; if you already know which value you want, it has nothing to contribute.
 `constraint_mode(0)` is per **object**, not per class, and the object gets thrown away after
@@ -222,7 +222,7 @@ edges; if you already know which value you want, it has nothing to contribute.
 
 Note:
 This is the subtlest point of the section and it is worth saying it slowly: **there is
-no way back at all**. There is no port, there is no FIFO. There is a shared
+no return channel at all**. There is no port, there is no FIFO. There is a shared
 handle, and the two parties agreed that the driver writes and the
 sequence reads, and that the safe moment to read is after `finish_item()`.
 If somebody asks "wasn't the rule to clone?": yes, that is the rule of the transactions, and this is the documented exception. UVM has besides a formal
@@ -309,7 +309,7 @@ Numbers for the blackboard: 0 1 1 2 3 5 8 13 21 34 55 89 144 233. It stops at 23
 because the next one is 377 and `A` and `B` are 8 bits. Having the student see why the
 `for` goes up to 14 and not up to 20 is worth more than the whole sequence.
 And one that is seen in the real run: the whole test takes **500 units of
-time**, against the 44,000 of the random test. Thirteen operations. A well-written directed
+time**, against the 43,000 of the random test. Thirteen operations. A well-written directed
 test is cheap; what is expensive is the random, and that is why it runs at night.
 
 ---
@@ -423,8 +423,9 @@ sequencer yet. It is the same reason why the connections go in `connect_phase`.
   means *"in the `main_phase` of that sequencer"*
 - It can be configured per **instance** (as here, with
   `uvm_config_db #(uvm_sequence_base)`) or per **type**
-  (`uvm_config_db #(uvm_object_wrapper)` + `get_type()`). The instance wins if
-  both are there
+  (`uvm_config_db #(uvm_object_wrapper)` + `get_type()`). If both are there the
+  one with the **higher precedence** wins, and at equal precedence the **last
+  `set()`**
 - The sequencer stopped being a handle and became a **path**: that is already
   configuration, not code
 

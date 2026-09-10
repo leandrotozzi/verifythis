@@ -1,4 +1,4 @@
-<!-- es-sha: d4d4df2ea27b -->
+<!-- es-sha: a88102953876 -->
 ## Functional coverage
 
 #### *When are you done verifying?*
@@ -13,7 +13,7 @@
   case of the spec has no bin, nobody is going to find out it is missing
 
 Note:
-The question on the slide is the one a verifier gets asked in the
+The question on the slide is the one a verification engineer gets asked in the
 tape-out meeting, and it is not answered with "I ran a lot of tests".
 If somebody asks why code coverage is not enough: because it measures the
 DUT, not the spec. A DUT that is missing a whole feature can give 100 % of
@@ -144,7 +144,7 @@ more than one cycle. The shape of the covergroup **is** the table of the plan, a
 plan gets written first.
 The `` `ifndef VERILATOR `` is worth naming now and not hiding: those bins are
 a topic of the course, they are written, and today Verilator does not compile them. It is in
-`docs/verilator.md` with the version and the date. A course that covers up what its
+`docs/en/verilator.md` with the version and the date. A course that covers up what its
 tool does not do is a course that lies.
 
 ---
@@ -199,6 +199,11 @@ The scale mistake to anticipate: on a real DUT a cross of three
 coverpoints with automatic bins is thousands of buckets, and a regression never
 fills them. When somebody says "the coverage is not going up", half the time
 the problem is an unfiltered cross, not a missing test.
+And the number to keep at hand for the "Reading the number" slide: the 45 are the
+LRM count, one bin per enum member. **Verilator measures 54**, because it hands out
+the automatic bins by the base type (`bit [2:0]`, 8 values minus the 2 of
+`ignore_bins`, that is 3 x 3 x 6). The 9 extra are the `3'b110` crossed, and they
+are exactly the 9 that stay at zero.
 
 ---
 
@@ -230,10 +235,11 @@ something for being the maximum of the input space, not for overflowing. The onl
 that overflows is the subtraction, and only when A < B.
 The honesty of this slide is part of the course, so it is worth saying and not
 rushing past: the 86.8 % the example reports **is not** the number Questa would give.
-Verilator ignores the filter and measures the whole cross —the 45, and on top it
-adds a value the enum does not have; the "Reading the number" slide says which—, so
-the percentage comes out lower and for a reason that is not the testbench's. It is
-written, dated and with a version in `docs/verilator.md`.
+Verilator ignores the filter and measures the whole cross, and on top it adds a
+value the enum does not have: where the LRM counts 45, Verilator counts **54** (the
+9 extra are the `3'b110` crossed, and they are the 9 that stay at zero). That is why
+the percentage comes out lower, and for a reason that is not the testbench's. It is
+written, dated and with a version in `docs/en/verilator.md`.
 The useful question for the classroom: does that invalidate the exercise? No. What gets learned
 —writing the cross, filtering it, and knowing which bin belongs to which row of the plan—
 is identical. The only thing that cannot be done with this tool is signing off on
@@ -290,7 +296,7 @@ coverpoint A { option.auto_bin_max = 8; } // 8 automatic buckets, not 64
   **`type_option.merge_instances`** adds every instance into a single number
   instead of reporting them separately
 - Verilator 5.052 honours `auto_bin_max`, and `at_least` **only written in the
-  coverpoint**: in the covergroup it ignores it without warning. It is in `docs/verilator.md`
+  coverpoint**: in the covergroup it ignores it without warning. It is in `docs/en/verilator.md`
 
 Note:
 This is the slide that puts an asterisk on every percentage of the unit, and
@@ -323,8 +329,10 @@ Coverage Summary:
   covergroup : 86.8% (66/76)
 ```
 
-- 66 of 76 bins filled, with 1000 random operations. The other rows of the
-  summary come out `0/0`: `--coverage-user` leaves code coverage out
+- 66 of 76 bins filled, with **1000 randomizations** and **615 operations on the
+  bus** —`no_op` and `rst_op` get drawn and never sent, and the testbench prints
+  that two lines above this summary—. The other rows come out `0/0`:
+  `--coverage-user` leaves code coverage out
 - The 10 that are missing are **a single value**: `all_ops.auto_5` and its nine
   crosses. It is `3'b110`, which the enum **does not have** — Verilator hands out
   the automatic bins by the base type, `bit [2:0]`, and not by enum member
@@ -332,7 +340,7 @@ Coverage Summary:
   The number is not the goal: the question that helps is **which** bin is missing,
   and only the per-bin report says that, `obj_dir/top/coverage.dat`
 - Run → look at what is missing → write the directed test → run again. That is
-  called *coverage closure*, and it is what a verifier spends the day on
+  called *coverage closure*, and it is what a verification engineer spends the day on
 
 Note:
 This is where it is worth running it live and opening the `coverage.dat`: the
@@ -341,7 +349,7 @@ in the `operation_t`. The lesson is to read the report and not the number: the
 number says 86.8 % and the report says "nothing is missing, the tool invented a
 bucket". On a commercial tool the automatic bin of an enum is one per member
 (IEEE 1800, 19.5) and this gives 100 % from the start; it is noted in
-`docs/verilator.md`.
+`docs/en/verilator.md`.
 And the punchline: the exercise of the day uses precisely `3'b110` for the shift, so
 the new operation fills the phantom bucket and the coverage goes from 86.8 % to
 100 % — 77 out of 77, with the shift's own bin added. The one who raises it is the
@@ -375,7 +383,7 @@ because we have just seen the percentage cannot read.
   outputs**: if it only compares `result`, it passes green with `ovf` stuck at zero
 - The **last four** are checked by no scoreboard: they are `ovf` and **protocol**
   rules, and get checked where they happen —the assertions
-- The twelve rows are numbered the same as in **`docs/plan-de-verificacion.md`**,
+- The twelve rows are numbered the same as in **`docs/en/verification-plan.md`**,
   which also says which file each one lives in and carries the capstone template
 
 Note:
@@ -391,7 +399,7 @@ one of the day 5 afternoon, with this same row.
 The three protocol rows are worth naming and moving on: they are the half the
 course does not touch until day 7, and they serve to plant the idea that a scoreboard does not
 check everything. A serious verification plan has both columns.
-And what the student takes home: `docs/plan-de-verificacion.md` is the same table
+And what the student takes home: `docs/en/verification-plan.md` is the same table
 as an artifact, with an empty template. The day 7 capstone is handed in with the
 plan filled — which is exactly what gets handed in on a project.
 

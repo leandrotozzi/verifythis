@@ -12,7 +12,7 @@
 module sync_fifo #(
     parameter int DEPTH = 8,   // lugares
     parameter int AF    = 6,   // almost_full a partir de aca, INCLUSIVE
-    parameter int AE    = 2    // almost_empty hasta aca, INCLUSIVE
+    parameter int AE    = 2    // almost_empty up to here, INCLUSIVE
 ) (
     input  logic       clk,
     input  logic       rst_n,

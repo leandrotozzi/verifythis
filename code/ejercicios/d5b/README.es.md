@@ -21,6 +21,11 @@ uno.
 Los pesos ya están escritos y son los correctos. **No cambies los números.** El
 que está mal es otra cosa, y la salida de esa primera corrida te dice cuál.
 
+El lazo que saca las 4000 muestras y arma el histograma está en
+`histograma_top.sv`, y ése **no se toca**: `run.sh` le chequea el hash antes de
+compilar. Lo que el corrector mide tiene que salir de un archivo que el
+ejercicio no edita.
+
 Listo cuando `bash run.sh` imprime `EXERCISE OK`.
 
 ## Cómo se corre

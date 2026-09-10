@@ -22,7 +22,7 @@ interface tb_if;
       forever #5 clk = ~clk;
    end
 
-   task drive(input bit [2:0] v);  // <- la task vive en la interface
+   task drive(input bit [2:0] v);  // <- the task lives in the interface
       @(negedge clk);
       op_set = v;
       start = 1'b1;
@@ -38,7 +38,7 @@ module sink (
 endmodule
 
 class cls_driver;
-   virtual tb_if vif;  // <- se la llama por virtual interface
+   virtual tb_if vif;  // <- it gets called through a virtual interface
    function new(virtual tb_if v);
       vif = v;
    endfunction
@@ -61,7 +61,7 @@ module top;
       cd = new(intf);
       cd.go();
       #1;
-      $display("op_set=%b op=%b start=%b y=%b   (op e y deberian ser 101 y 1)",
+      $display("op_set=%b op=%b start=%b y=%b   (op and y should be 101 and 1)",
                intf.op_set, intf.op, intf.start, y);
       $finish;
    end

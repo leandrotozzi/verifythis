@@ -139,7 +139,7 @@ la misma que hicimos acá — esconder el cable— repetida un nivel más arriba
 
 #### *La regla del protocolo, escrita en el idioma del simulador*
 
-```sv
+```systemverilog
 // INMEDIATA: una sentencia. Chequea el presente, donde el hilo pasa.
 assert (op_set != no_op || done == 0)
    else $error("no_op no deberia levantar done");
@@ -232,7 +232,7 @@ visto clocking blocks, no porque sea lo que se escribe en un proyecto.
 
 #### *Por qué el flanco solo no alcanza: las regiones*
 
-![Las regiones de un flanco: Preponed, Active y NBA, y los tres muestreos](res/diagrams/interfaces-bfm_regiones.svg)
+![Las regiones de un flanco: Preponed, Active y NBA, y los tres muestreos que dan valores distintos](res/diagrams/interfaces-bfm_regiones.svg)
 <!-- .element: class="grande" -->
 
 - Un flanco no es un instante indivisible: adentro hay **regiones**, en orden fijo

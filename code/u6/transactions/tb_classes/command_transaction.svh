@@ -28,6 +28,7 @@ class command_transaction extends uvm_sequence_item;
    function void do_copy(uvm_object rhs);
       command_transaction copied_transaction_h;
 
+      // Checks that make DEBUG easier
       if (rhs == null)
          `uvm_fatal("COMMAND TRANSACTION", "Tried to copy from a null pointer")
 
@@ -58,8 +59,11 @@ class command_transaction extends uvm_sequence_item;
       if (rhs == null)
          `uvm_fatal("RANDOM TRANSACTION", "Tried to do comparison to a null pointer");
 
+      // First check whether we are comparing the same type
       if (!$cast(compared_transaction_h, rhs)) same = 0;
       else
+         // Deep comparison: what the parent compares, plus the three fields of
+         // this class
          same = super.do_compare(
              rhs, comparer
          ) && (compared_transaction_h.A == A) && (compared_transaction_h.B == B) &&
@@ -70,10 +74,13 @@ class command_transaction extends uvm_sequence_item;
 
    function string convert2string();
       string s;
+      // op.name() can be add_op, no_op ...
       s = $sformatf("A: %2h  B: %2h op: %s", A, B, op.name());
       return s;
    endfunction : convert2string
 
+   // Constructor of a uvm_object: dead simple, it only takes a name. A
+   // transaction has no parent because it does not live in the component tree.
    function new(string name = "");
       super.new(name);
    endfunction : new

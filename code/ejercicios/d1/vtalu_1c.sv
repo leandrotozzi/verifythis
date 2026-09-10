@@ -30,7 +30,7 @@ module vtalu_1c (
             3'b010:  result_1c <= {8'h00, A} - {8'h00, B};
             3'b011:  result_1c <= {8'h00, A} & {8'h00, B};
             3'b100:  result_1c <= {8'h00, A} ^ {8'h00, B};
-            // TODO(exercise 1): 3'b110 is free. The shift goes here.
+            // TODO(exercise d1): 3'b110 is free. The shift goes here.
             default: ;
          endcase
       end

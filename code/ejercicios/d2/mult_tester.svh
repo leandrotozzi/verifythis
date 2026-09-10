@@ -1,4 +1,4 @@
-// TODO(exercise 2): write the mult_tester class here.
+// TODO(exercise d2): write the mult_tester class here.
 //
 // It has to:
 //   - extend tester

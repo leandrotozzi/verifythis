@@ -67,7 +67,7 @@ cosa.
   - Un histograma con la frecuencia de valores
   - Un reporte de cobertura que muestre si salieron todos los posibles valores de 2 a 12
 
-![Dos d6 y el histograma de sus sumas](res/funs/dados.svg)
+![Tirar 2d6: la suma va de 2 a 12 y el 7 es la más probable](res/funs/dados.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -194,7 +194,7 @@ nombres.
 - La propiedad que compra todo: agregar un cuarto observador **no toca una línea**
   del que produce
 
-![Un emisor publica y N observadores reciben](res/funs/observer-broadcast.svg)
+![Observer: un emisor publica y N observadores reciben](res/funs/observer-broadcast.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -214,7 +214,7 @@ ruido del protocolo.
   - *uvm_analysis_port:* Envía data a un conjunto de subscribers (observadores)
   - *uvm_subscriber:* Extensión de uvm_component que permite al componente suscribirse a un uvm_analysis_port
 
-![Un uvm_analysis_port publicando hacia varios uvm_subscriber](res/diagrams/varios-objetos_ports.svg)
+![Notación: rombo = uvm_analysis_port, círculo = analysis_export](res/diagrams/varios-objetos_ports.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -241,7 +241,7 @@ compilador, no por un string.
 - Una vez que escribimos datos en el puerto, este va a todos sus subscribers
 - Utilizamos el método *connect()* para conectar los subscribers al puerto. Este método tiene un único argumento, y es el **export** del subscriber (`analysis_export`), no otro port
 
-{{code:code/u5/varios-objetos/02-con-analysis-port/con-analysis-port.sv}}
+{{code:code/u5/varios-objetos/02-con-analysis-port/dice_roller.svh#dice_roller}}
 
 Note:
 Tres pasos y ninguno más: declarar el port, instanciarlo en build_phase,
@@ -370,7 +370,7 @@ escribir la clase y **una** línea acá. Ni una en `dice_roller`.
 - Cada subscriber tiene un objeto analysis_export
 - La conexión entre ambos se realiza mediante el método connect()
 
-![El ejemplo de los dados cableado con analysis ports](res/diagrams/varios-objetos_spicy.svg)
+![Conexionado del ejemplo de los dados: roll_ap contra los tres analysis_export](res/diagrams/varios-objetos_spicy.svg)
 <!-- .element: class="grande" -->
 
 Note:

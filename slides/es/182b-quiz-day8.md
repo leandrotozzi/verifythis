@@ -23,8 +23,8 @@
 
 **¿Qué cambia entre `set_auto_predict(1)` y enganchar un `uvm_reg_predictor` al monitor?**
 
-- [ ] Nada: el predictor es la implementación interna del auto-predict
 - [x] Con auto-predict el modelo cree lo que **quiso** mandar, no lo que pasó
+- [ ] Nada: el predictor es la implementación interna del auto-predict
 - [ ] El predictor es más rápido: no arma la transaction del bus
 - [ ] El auto-predict sólo sirve para el frontdoor, y el predictor también para el backdoor
 
@@ -40,8 +40,8 @@
 
 **`STATUS` cambia solo, sin que nadie le escriba. ¿Qué querés decir al declararlo `volatile` en `configure()`?**
 
-- [ ] Que UVM lo va a releer del DUT antes de cada comparación, para no equivocarse
 - [x] Que el espejo no es evidencia: el valor pudo cambiar sin pasar por el bus
+- [ ] Que UVM lo va a releer del DUT antes de cada comparación, para no equivocarse
 - [ ] Que el campo queda fuera del mapa y deja de tener dirección
 - [ ] Que hay que leerlo por backdoor, porque el frontdoor no llega a tiempo
 
@@ -58,9 +58,9 @@
 **`model.CTRL.read(status, data)` y `model.CTRL.mirror(status, UVM_CHECK)`. ¿En qué se diferencian?**
 
 - [ ] `read` va por el bus y `mirror` se queda en el espejo, sin generar una transferencia
-- [x] Las dos leen del DUT; `mirror` además compara contra lo que el modelo creía
 - [ ] `mirror` escribe el espejo en el DUT, para dejar a los dos iguales
 - [ ] `read` actualiza el espejo y `mirror` no lo toca, para no tapar un error
+- [x] Las dos leen del DUT; `mirror` además compara contra lo que el modelo creía
 
 > **`mirror` es un scoreboard de registros en una palabra** — las dos leen del DUT; la diferencia es que `mirror` compara contra lo que el modelo creía **antes** de la lectura, y si no coincide reporta un `uvm_error` sin que nadie escriba un chequeo. Y una lectura *es* una predicción: las dos actualizan el espejo después.
 
@@ -127,7 +127,7 @@
 
 - [ ] Sí: mil comparaciones sin una sola diferencia es la definición de verificado
 - [ ] Sí, siempre que además la cobertura funcional haya cerrado al 100 %
-- [x] No: un scoreboard que nunca vio un error no está probado
 - [ ] No, porque los dos lados comparten el `enum` de opcodes y se anulan entre sí
+- [x] No: un scoreboard que nunca vio un error no está probado
 
 > **Hay que romper el modelo a propósito** — `vtalu_golden_bug(1)` muta la multiplicación y el `run.sh` exige que el scoreboard grite. Si no grita, el testbench está comparando contra sí mismo y nadie se iba a enterar: es el mismo test de mutación que el corrector del capstone hace con `+BUG=1`, del otro lado del cable. Y el `enum` duplicado es real pero es otro síntoma: si fallan **todas** las comparaciones a la vez, es el mapeo; si falla una de cada seis, es el DUT.

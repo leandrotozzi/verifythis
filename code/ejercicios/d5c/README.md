@@ -1,9 +1,9 @@
-<!-- es-sha: fd2fd2af6e47 -->
+<!-- es-sha: 07aecb09c239 -->
 **English** · [Castellano](README.es.md)
 
 # Day 5 · constrained random — closing a bin
 
-The course says twice that the daily work of the verifier is to **run, look at
+The course says twice that the daily work of the verification engineer is to **run, look at
 which bin is missing, write the directed case, run again**. This is that
 exercise.
 
@@ -42,7 +42,9 @@ written — this one.
 But do not ask for it by assigning the fields, which is what the section's
 `tester` does three lines above: **ask for it with `randomize() with {}`**. The
 directed case is asked for at the point of use, and that is the tool of this
-unit. `run.sh` checks that your block calls `randomize()`.
+unit. `run.sh` checks two things about your block: that it calls `randomize()` and that
+it does **not** write `A`, `B` or `op` by hand. The rest is measured by
+`chequeo.svh` on the bus, and that one is sealed.
 
 Done when `bash run.sh` prints `EXERCISE OK` — that is, when the coverage of the
 second run is **higher** than that of the first.

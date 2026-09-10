@@ -1,5 +1,6 @@
 // El inventario del curso: cuantos ejemplos, ejercicios, slides, secciones,
-// preguntas, dias, figuras, trampas y bloques de codigo hay.
+// preguntas, dias, figuras, trampas, bloques de codigo, apendices y recortes
+// hay.
 //
 // UN solo lugar que sabe contar, y ningun lugar que lo escriba a mano. Todo
 // sale del filesystem, asi que un ejemplo nuevo, una slide nueva o una pregunta
@@ -46,14 +47,20 @@ export async function inventario() {
   // El inventario cuenta el arbol CANONICO, el castellano: sus numeros son los
   // que la prosa cita. Que tan traducido esta el ingles lo dice lint-i18n.
   const secciones = (await readdir('slides/es')).filter(f => f.endsWith('.md'));
-  let slides = 0, preguntas = 0, trampas = 0;
+  let slides = 0, preguntas = 0, trampas = 0, apendices = 0;
   for (const f of secciones) {
     const md = await readFile(path.join('slides/es', f), 'utf8');
     slides += 1 + (md.match(/^---$/gm) ?? []).length;
-    if (/quiz/.test(f)) preguntas += (md.match(/^- \[x\]/gm) ?? []).length;
+    if (/quiz/.test(f)) {
+      preguntas += (md.match(/^- \[x\]/gm) ?? []).length;
+    }
     // Las trampas son las filas de las tablas del apendice, sin encabezados.
     if (/apendice-trampas/.test(f))
       trampas += [...md.matchAll(/^\| (?!---|El síntoma)(.+?) \|\s*$/gm)].length;
+    // --- apendices: la seccion que se ROTULA como apendice, no la que esta al
+    // final. El deck rotula tres y la prosa del repo cuenta una mas en ocho
+    // lugares, porque a veces le suma el glosario y a veces no.
+    if (/^## (Apéndice|Appendix) ·/.test(md.match(/^## .*$/m)?.[0] ?? '')) apendices++;
   }
 
   // --- dias: un HTML del libro es un dia del curso ---
@@ -68,16 +75,34 @@ export async function inventario() {
 
   // --- bloques de codigo del deck: los ```...``` de las slides, contando
   // tambien los que build.mjs expande desde {{code:}} ---
-  let bloques = 0;
+  // Y los RECORTES aparte: los {{code:}} solos. "Bloques" tiene dos
+  // significados en la prosa --los 216 del deck y los 157 que vienen de code/--
+  // y por eso lint-refs no lo puede chequear; con el numero de los recortes
+  // expuesto, el que escribe la frase tiene el que necesita.
+  let bloques = 0, recortes = 0;
   for (const f of secciones) {
     const md = await readFile(path.join('slides/es', f), 'utf8');
+    recortes += (md.match(/\{\{code:/g) ?? []).length;
     bloques += (md.match(/^```/gm) ?? []).length / 2 + (md.match(/\{\{code:/g) ?? []).length;
   }
 
   return {
     ejemplos, ejercicios, slides, secciones: secciones.length,
-    preguntas, dias, figuras, trampas, bloques,
+    preguntas, dias, figuras, trampas, bloques, apendices, recortes,
   };
+}
+
+// El desglose del repaso, dia por dia. Va aparte y no adentro de inventario():
+// no es UN numero, asi que no entra en la linea que imprime lint-refs ni se
+// puede comparar contra la prosa como los otros once. Lo consume
+// tools/contadores.mjs, que lo expone como {{count:preguntas-diaN}}.
+export async function preguntasPorDia() {
+  const out = {};
+  for (const f of (await readdir('slides/es')).filter(f => /quiz/.test(f))) {
+    const md = await readFile(path.join('slides/es', f), 'utf8');
+    out[Number(f.match(/day(\d+)/)?.[1])] = (md.match(/^- \[x\]/gm) ?? []).length;
+  }
+  return out;
 }
 
 // Lo que NO esta aca, y por que:

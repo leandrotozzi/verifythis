@@ -24,7 +24,7 @@ del primero. Sin el capstone hecho, las tres son abstracciones sin problema.
 
 ---
 
-<!-- .slide: data-machete="res/uvm_class_diagram.svg,res/diagrams/ral_camino.svg,res/diagrams/sequences_tb_completo.svg" -->
+<!-- .slide: data-machete="res/uvm_class_diagram.svg|Jerarquía de clases base de UVM,res/diagrams/ral_camino.svg|El camino de datos de RAL: del write del modelo al bus · y del monitor al espejo por el predictor,res/diagrams/sequences_tb_completo.svg|El testbench completo: la nube de sequences · el agent con sequencer y driver · y la capa de análisis en el env" -->
 
 ## Agenda
 

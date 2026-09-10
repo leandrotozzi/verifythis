@@ -22,7 +22,7 @@ class testbench;
    // The objects have to be instantiated and their execute methods launched
    task execute();
       // Our 3 objects get instantiated and each gets a copy of the BFM
-      // TODO(exercise 2): make tester_h be a mult_tester.
+      // TODO(exercise d2): make tester_h be a mult_tester.
       // tester_h is of type tester; a mult_tester IS ALSO a tester.
       tester_h = new(bfm);
       coverage_h = new(bfm);

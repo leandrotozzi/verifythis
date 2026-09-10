@@ -132,6 +132,7 @@ class apb_reg_block extends uvm_reg_block;
       STATUS.build();
       default_map.add_reg(STATUS, STATUS_ADDR, "RO");
 
+      // cb: no-check
       // The honest line of the whole unit. ACC and STATUS have an address, but
       // they are not registers: their value is produced by writes to OTHER
       // addresses. A register model predicts "what I wrote is what I will read",
@@ -139,7 +140,6 @@ class apb_reg_block extends uvm_reg_block;
       // off on them. Reads still update the mirror -- a read is a prediction --
       // and the accumulator itself stays where it was in the capstone: in the
       // scoreboard, which is the thing that does know how to add.
-      // cb: no-check
       ACC.VALUE.set_compare(UVM_NO_CHECK);
       STATUS.EN.set_compare(UVM_NO_CHECK);
       STATUS.OVF.set_compare(UVM_NO_CHECK);

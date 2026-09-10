@@ -1,4 +1,4 @@
-<!-- es-sha: 3bd28085ff3a -->
+<!-- es-sha: d772f07da5a5 -->
 ## Transactions
 
 #### *The testbench is well divided up, and the data is not*
@@ -159,7 +159,7 @@ plan asks for operations after a reset.
 - It is still worth giving them a name: it is the one that shows up in the UVM
   messages
 
-{{code:code/u6/transactions/tb_classes/command_transaction_constructor.svh}}
+{{code:code/u6/transactions/tb_classes/command_transaction.svh#new}}
 
 Note:
 It is the distinction that has to be left clear: *component* is structure —it is
@@ -184,7 +184,7 @@ it is a component. If it travels along an arrow of the diagram, it is an object.
   called, `do_copy()` is the one that gets written
 - The only difference is the argument: it has to be a `uvm_object` —hence the `$cast`—. UVM calls it *rhs* (*right hand side*) by convention, not by requirement
 
-{{code:code/u6/transactions/tb_classes/command_transaction_do_copy.svh}}
+{{code:code/u6/transactions/tb_classes/command_transaction.svh#do_copy}}
 
 Note:
 The pattern is the one from the class hierarchies, with two UVM rules on top.
@@ -252,7 +252,7 @@ two parties and it is the only place in the testbench where that gets done.
 - UVM does not bring it: it is four lines written once in the data, so that none
   of the ones who use it have to remember the cast
 
-{{code:code/u6/transactions/tb_classes/command_transaction_do_clone.svh}}
+{{code:code/u6/transactions/tb_classes/command_transaction.svh#clone_me}}
 
 Note:
 It is a three-line method and it exists for one reason only: `clone()` returns a
@@ -280,7 +280,7 @@ hierarchies, under another name.
 - Almost nobody touches the comparer, but it has to be declared because the
   signature asks for it
 
-{{code:code/u6/transactions/tb_classes/command_transaction_do_comparer.svh}}
+{{code:code/u6/transactions/tb_classes/command_transaction.svh#do_compare}}
 
 Note:
 Two things that get copied wrong.
@@ -311,7 +311,7 @@ because the signature asks for it.
   `add_op` instead of `3'b001`. Without that the error says a number and nobody
   reads it
 
-{{code:code/u6/transactions/tb_classes/command_transaction_convert2string.svh}}
+{{code:code/u6/transactions/tb_classes/command_transaction.svh#convert2string}}
 
 Note:
 It is the most used of the three methods, and the one that gets the least
@@ -393,7 +393,7 @@ What it costs to change the data type of a TB that already exists. We look at
 
 | # | What | Where |
 | --: | --- | --- |
-| 1 | a `result_transaction` for the way back | `result_transaction.svh` |
+| 1 | a `result_transaction` for the trip back | `result_transaction.svh` |
 | 2 | an `add_transaction`, additions only | `add_transaction.svh` |
 | 3 | the two testers merge into one | `tester.svh` |
 | 4 | the `command_monitor` publishes objects | `command_monitor.svh` |
@@ -560,9 +560,10 @@ command.op = rst_op;
 - The rule, short: **every `uvm_object` that travels around the testbench comes
   out of `type_id::create()`** — the transactions of the tester, and also the ones
   the monitors build and the `predicted` of the scoreboard
-- The *ports*, the *exports* and the *TLM FIFO* are the exception: they are not in
-  the factory and they get instantiated with `new()`, as we saw in one producer,
-  many listeners
+- The *ports* and the *exports* are the exception: they are not in the factory and
+  they get instantiated with `new()`, as we saw in one producer, many listeners.
+  The *TLM FIFO* is registered, but the course builds it with `new()` anyway
+  because the `size` goes through the constructor and `create()` cannot pass it
 
 Note:
 This slide comes out of a bug this very course had: the tester created the two

@@ -1,4 +1,4 @@
-<!-- es-sha: 15f1821ac679 -->
+<!-- es-sha: e4719bfcf668 -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 5
@@ -60,8 +60,8 @@
 
 - [ ] A third of the time: they are three entries with the same weight
 - [ ] Half: the edges share it between the two of them
-- [x] Once every 256: with `:=` the weight goes to **each value**
 - [ ] Never: `:=` only takes single values, not ranges, and the range is dropped
+- [x] Once every 256: with `:=` the weight goes to **each value**
 
 > **1 in 256** — `:=` gives weight 1 to *each one* of the 254 values in the middle, so the range weighs 254 against the 1 and 1 of the edges. To spread the weight *inside* the range you need `:/`. Both spellings compile and run: the difference only shows up in the coverage that does not go up.
 
@@ -90,7 +90,7 @@
 
 #### *6 of 8 · constraint_mode()*
 
-**`randomize() with { A == 8'hFF; }` on a field the class spreads with a `dist` returns 0 three times out of four. What is the way around it?**
+**`randomize() with { A == 8'hFF; }` on a field the class spreads with a `dist` returns 0 three times out of four. What is the workaround?**
 
 - [ ] Retry in a `do ... while` until it returns 1
 - [x] `constraint_mode(0)` on the `dist` constraint, for that object
@@ -110,9 +110,9 @@
 **What does `cmd.A.rand_mode(0)` do?**
 
 - [ ] It switches off every constraint that mentions that field
-- [x] It takes the field out of the draw and leaves it the value it had
 - [ ] It randomizes it once and freezes it afterwards
 - [ ] It makes the solver resolve it last, after all the other fields
+- [x] It takes the field out of the draw and leaves it the value it had
 
 > **It stops being `rand`** — they are the two run-time knobs and they get mixed up often: `rand_mode(0)` takes **a field** out of the draw, `constraint_mode(0)` switches off **a constraint**. One picks *what gets drawn*, the other *which rules hold*. It is what you use to pin one operand by hand and go on randomizing the rest.
 
@@ -131,4 +131,4 @@
 - [x] 1 in 257: the solver draws among the **solutions**
 - [ ] It depends on the seed, and over enough runs it averages out to half
 
-> **1 in 257** — the solver picks uniformly among the *solutions*, not among the values of each field: `es_reset=1` leaves a single combination (`A = 00`) and `es_reset=0` leaves 256. The *"any operation after a reset"* row of the plan does not get filled, and the report does not say why. The answer in the language is `solve es_reset before A`; Verilator accepts it and **does not honour it**, so the portable way around is to ask for the spread of the control field with a `dist`.
+> **1 in 257** — the solver picks uniformly among the *solutions*, not among the values of each field: `es_reset=1` leaves a single combination (`A = 00`) and `es_reset=0` leaves 256. The *"any operation after a reset"* bin of the plan does not get filled, and the report does not say why. The answer in the language is `solve es_reset before A`; Verilator accepts it and **does not honour it**, so the portable workaround is to ask for the spread of the control field with a `dist`.

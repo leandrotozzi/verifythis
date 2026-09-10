@@ -23,10 +23,10 @@ run_sim +UVM_TESTNAME=random_test
 run_sim +UVM_TESTNAME=add_test
 unset UVM_ERRORS_OK
 
-# ...but "toleramos los uvm_error" no puede querer decir "no miramos nada". Sin
-# esto, un scoreboard desconectado --el analysis port sin conectar, el write()
-# que no se llama nunca-- deja el ejemplo igual de verde que ahora, y lo que la
-# seccion viene a mostrar no aparece por ningun lado.
+# ...but "we tolerate the uvm_errors" cannot mean "we look at nothing". Without
+# this, a disconnected scoreboard --the analysis port never connected, the write()
+# that never gets called-- leaves the example just as green as it is now, and what
+# the section came to show does not appear anywhere.
 if ! grep -q 'UVM_ERROR.*\[SCOREBOARD\]' "$VLT_LOG"; then
    echo "EXPECTED the deliberately broken scoreboard to report [SCOREBOARD]" >&2
    exit 1

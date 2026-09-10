@@ -1,12 +1,13 @@
-<!-- es-sha: a45c9dc8b40d -->
+<!-- es-sha: af83e0b2c500 -->
 <!-- .slide: id="day7" -->
 
 ## Yesterday we left…
 
 #### *Where the testbench stands*
 
-- The testbench was left **complete and reusable**: agents with `is_active`, the
-  analysis in the `env`, and the stimulus outside the tree, in sequences
+- The testbench was left **reusable for one agent**: agents with `is_active`, the
+  analysis in the `env`, and the stimulus outside the tree, in sequences. The last
+  piece —coordinating two— is this morning
 - No line of the test names a component from inside the `env`: the last one went
   with the `default_sequence` through `uvm_config_db`
 - And the other half of the verification plan is missing: the rows **no
@@ -24,7 +25,7 @@ Today it closes.
 
 ---
 
-<!-- .slide: data-machete="res/diagrams/en/assertions_property.svg,res/en/machete-debug.svg" -->
+<!-- .slide: data-machete="res/diagrams/en/assertions_property.svg|Anatomy of a property: label · clock · guard · antecedent · implication · consequent and action,res/en/machete-debug.svg|Debug cheat sheet: the seven knobs of the course and what to look at for each symptom" -->
 
 ## Agenda
 
@@ -37,6 +38,8 @@ Today it closes.
 - From the VTALU to a real bus
 - The debug toolbox · The 21 silent traps
 - Glossary, references and wrap-up
+- Self-assessment: fifteen things you should be able to do by now
+- *On Monday*: what to do with this once the screen goes off
 
 *And afterwards, **day 8**: optional, and for whoever has already handed in the capstone*
 

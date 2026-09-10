@@ -280,11 +280,11 @@ se leyó del config_db queda en null.</p>
    <span class="hljs-keyword">endfunction</span>
 <span class="hljs-keyword">endclass</span>
 
-<span class="hljs-comment">// Extendiendo Clases!</span>
+<span class="hljs-comment">// Extending classes!</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">square</span> <span class="hljs-keyword">extends</span> rectangle;
    <span class="hljs-comment">// Override Constructor</span>
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> side);
-      <span class="hljs-comment">//super: llamado a metodo de padre</span>
+      <span class="hljs-comment">// super: the call to the parent method</span>
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(.l(side), .w(side));
    <span class="hljs-keyword">endfunction</span>
 
@@ -308,11 +308,11 @@ se leyó del config_db queda en null.</p>
    <span class="hljs-keyword">endfunction</span>
 <span class="hljs-keyword">endclass</span>
 
-<span class="hljs-comment">// Extendiendo Clases!</span>
+<span class="hljs-comment">// Extending classes!</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">square</span> <span class="hljs-keyword">extends</span> rectangle;
    <span class="hljs-comment">// Override Constructor</span>
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> side);
-      <span class="hljs-comment">//super: llamado a metodo de padre</span>
+      <span class="hljs-comment">// super: the call to the parent method</span>
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(.l(side), .w(side));
    <span class="hljs-keyword">endfunction</span>
 
@@ -417,7 +417,7 @@ handle y no el objeto—, así que conviene nombrarlo las tres.</p>
 <section id="s75" class="slide">
 <h2 id="polimorfismo">Polimorfismo</h2>
 <h4 id="una-variable-trago-un-objeto-fernet-¿cuál-servir-corre"><em>Una variable <code>trago</code>, un objeto <code>fernet</code>: ¿cuál <code>servir()</code> corre?</em></h4>
-<p><img src="../res/print/diagrams/uml-poli.svg" alt="Diagrama UML de los tragos"></p>
+<p><img src="../res/print/diagrams/uml-poli.svg" alt="trago, fernet y mojito: qué servir() vive en qué clase"></p>
 <ul>
 <li>Un <code>fernet</code> <strong>es</strong> un <code>trago</code>, así que guardarlo en una variable <code>trago</code>
 compila y es legal</li>
@@ -951,7 +951,7 @@ compilador <em>&quot;buscá esta variable en el namespace de esa clase&quot;</em
 declarada. Un <code>vasos</code> suelto, no</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u3/estaticas/01-variables/static_variables.sv</code> · #tray-and-top</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">bandeja_de_fernet</span>;
-   <span class="hljs-comment">//Queue static</span>
+   <span class="hljs-comment">// Static queue</span>
    <span class="hljs-keyword">static</span> fernet vasos[$];
 
 <span class="hljs-keyword">endclass</span> : bandeja_de_fernet
@@ -1022,7 +1022,7 @@ declarada. Un <code>vasos</code> suelto, no</li>
 <span class="hljs-comment">// They are global variables created in a controlled way</span>
 
 <span class="hljs-keyword">class</span> <span class="hljs-title">bandeja_de_fernet</span>;
-   <span class="hljs-comment">//Queue static</span>
+   <span class="hljs-comment">// Static queue</span>
    <span class="hljs-keyword">static</span> fernet vasos[$];
 
 <span class="hljs-keyword">endclass</span> : bandeja_de_fernet
@@ -1077,7 +1077,7 @@ tocar todo el testbench.</p>
 <span class="hljs-keyword">endclass</span> : pepe
 
 <span class="hljs-comment">//----------------------------------------</span>
-<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+<span class="hljs-keyword">module</span> <span class="hljs-title">top_pepes</span>;
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       pepe pepe1_h, pepe2_h;
 
@@ -1092,7 +1092,7 @@ tocar todo el testbench.</p>
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;NUMBER OF PEPES = %0d&quot;</span>, pepe::cant);
 
    <span class="hljs-keyword">end</span>
-<span class="hljs-keyword">endmodule</span> : top</code></pre></figure>
+<span class="hljs-keyword">endmodule</span> : top_pepes</code></pre></figure>
 
 <p><em><strong>¿Y el encapsulamiento?</strong></em></p>
 <div class="nota">
@@ -1348,7 +1348,10 @@ que aparezca en el resto del curso es esto.</p>
 <li>La cola es <code>static</code> y aun así hay <strong>dos</strong>: <code>bandeja#(fernet)</code> y
 <code>bandeja#(mojito)</code> son dos clases distintas, cada una con la suya</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u3/parametricas/02-estatica/bandejas.sv</code> · #tray-and-top</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
+<figure class="codigo"><figcaption><code>code/u3/parametricas/02-estatica/bandejas.sv</code> · #tray-and-top</figcaption><pre><code class="hljs"><span class="hljs-comment">// Parameterized class</span>
+<span class="hljs-comment">// the T (type) parameter is what says which</span>
+<span class="hljs-comment">// kind of queue this is.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
     type T
 );
 
@@ -1705,8 +1708,8 @@ devuelve ya construido, del subtipo que corresponda</li>
 <li>Antes de la solución, el problema. Mirá qué pasa cuando el <code>new()</code> está
 escrito en el lugar donde se usa el objeto:</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u3/factory/without-factory.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// In the previous example, new() gets called every time an object is needed.</span>
-<span class="hljs-comment">// Building a new set of drinks means changing the source code</span>
+<figure class="codigo"><figcaption><code>code/u3/factory/without-factory.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// ILLUSTRATION -- not compiled. In the previous example, new() gets called every</span>
+<span class="hljs-comment">// time an object is needed: building a new set of drinks means editing the source.</span>
 bandeja_de_fernet = <span class="hljs-keyword">new</span>();
 fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at the bar&quot;</span>);
 bandeja_de_fernet.bandeja_trago(fernet_h);
@@ -1740,7 +1743,7 @@ muestra que no inventamos nada.</p>
 
 <section id="s94" class="slide">
 <h2 id="el-patrón-factory">El patrón factory</h2>
-<p><img src="../res/print/diagrams/factory_diagram.svg" alt="La cantina fabrica fernet y mojito, y devuelve un handle trago"></p>
+<p><img src="../res/print/diagrams/factory_diagram.svg" alt="cantina fabrica fernet y mojito, y devuelve un handle trago"></p>
 <br>
 
 <ul>
@@ -2311,7 +2314,7 @@ conviven. Eso es todo lo que compra la OOP acá</li>
 <li>scoreboard: Chequea que la VTALU está funcionando</li>
 <li>coverage: Captura la información de cobertura funcional</li>
 </ul>
-<p><img src="../res/print/diagrams/tb-en-objetos_arbol.svg" alt="El árbol de objetos: el top elabora, y adentro viven la clase testbench y sus tres piezas"></p>
+<p><img src="../res/print/diagrams/tb-en-objetos_arbol.svg" alt="El árbol de objetos del testbench sin módulos: el top elabora, y adentro viven la clase testbench y sus tres piezas"></p>
 <div class="nota">
 <p>Es el mismo testbench de interfaces y BFM, pero en objetos: cambia la forma, no lo
 que hace. Si se puede, mostrarlos lado a lado.

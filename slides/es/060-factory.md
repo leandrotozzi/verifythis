@@ -50,7 +50,7 @@ muestra que no inventamos nada.
 
 ## El patrón factory
 
-![La cantina fabrica fernet y mojito, y devuelve un handle trago](res/diagrams/factory_diagram.svg)
+![cantina fabrica fernet y mojito, y devuelve un handle trago](res/diagrams/factory_diagram.svg)
 <!-- .element: class="grande" -->
 
 <br>

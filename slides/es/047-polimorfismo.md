@@ -2,7 +2,7 @@
 
 #### *Una variable `trago`, un objeto `fernet`: ¿cuál `servir()` corre?*
 
-![Diagrama UML de los tragos](res/diagrams/uml-poli.svg)
+![trago, fernet y mojito: qué servir() vive en qué clase](res/diagrams/uml-poli.svg)
 <!-- .element: class="grande" -->
 
 - Un `fernet` **es** un `trago`, así que guardarlo en una variable `trago`

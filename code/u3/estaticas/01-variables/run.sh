@@ -5,7 +5,7 @@ set -e
 vlt top -f sv.f
 run_sim
 
-# Los tres fernets se pushearon desde TRES objetos distintos y salen de una sola
-# lista, la estatica de la clase. Si dejara de ser compartida la bandeja tendria
-# un solo vaso, y sin este chequeo el ejemplo pasaria igual.
+# The three fernets were pushed from THREE different objects and come out of a
+# single list, the static one of the class. If it stopped being shared the tray
+# would hold a single glass, and without this check the example would pass anyway.
 expect_in_log 3 'the one at'

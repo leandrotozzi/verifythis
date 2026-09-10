@@ -22,7 +22,7 @@ ser una fórmula mágica.
 
 ---
 
-<!-- .slide: data-machete="res/TB_UVM.svg,res/diagrams/env_uvm_incantation.svg,res/diagrams/UVM-hierarchy.svg,res/machete-debug.svg" -->
+<!-- .slide: data-machete="res/TB_UVM.svg|El mismo testbench con estructura UVM: test, env, tester, scoreboard y coverage,res/diagrams/env_uvm_incantation.svg|Anatomía de la línea tipo::type_id::create(nombre, this),res/diagrams/UVM-hierarchy.svg|Jerarquía de instancias que UVM arma en build_phase,res/machete-debug.svg|Machete de debug: las siete perillas del curso y qué mirar según el síntoma" -->
 
 <!-- .slide: data-transition="convex" -->
 

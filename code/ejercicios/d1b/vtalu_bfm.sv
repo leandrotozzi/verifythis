@@ -61,7 +61,7 @@ interface vtalu_bfm;
             #1;
             start = 1'b0;
          end else begin
-            // TODO(exercise 1b): this line counts cycles instead of waiting for
+            // TODO(exercise d1b): this line counts cycles instead of waiting for
             // the handshake. For one-cycle operations it makes no difference; for one
             // that takes longer, send_op returns too early and the next
             // stimulus overwrites A and B while the DUT is still computing.

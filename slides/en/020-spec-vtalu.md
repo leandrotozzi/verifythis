@@ -1,7 +1,7 @@
-<!-- es-sha: fb322a53c041 -->
+<!-- es-sha: e3c167e629e6 -->
 ## The VTALU spec
 
-![VTALU waveform: start, done and the result](res/diagrams/en/wave-dut.svg)
+![VTALU protocol: start and operands stable until done](res/diagrams/en/wave-dut.svg)
 <!-- .element: class="grande" -->
 
 - *start* has to stay at 1 and the operands stable until  
@@ -117,8 +117,10 @@ and the scoreboard reports an error that is not in the DUT.
 {{code:code/vtalu_dut/vtalu.sv#the-mux}}
 
 - The top computes nothing: it instantiates the two blocks and **decodes** the opcode
-- `es_mult = (op == mul_op)`. The `start` is routed to only one of them, and `result`,
-  `done` and `ovf` come out of the same side
+- `es_mult = (op == mul_op)`. The `start` is routed to only one of them, and
+  `result_mux` and `done` come out of the same side. `ovf` follows the same pattern
+  right below the excerpt —`assign ovf = es_mult ? 1'b0 : ovf_1c;`— and `result_mux`
+  only comes out through `result` after the `+VTALU_BUG` XOR
 - That is why the bus protocol is a single one even though inside there are two different
   latencies: what the testbench sees is `start` → `done`
 

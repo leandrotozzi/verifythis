@@ -154,4 +154,4 @@ block takes the sampling race out and puts the possibility of this mixture in. I
 argument for not using it — it is the argument for using it **whole**, or not using it.
 The rule in one line, which is Dave Rich's: if a signal belongs to the
 timing contract of a clocking block, it is always accessed through that contract. The
-long material is in `docs/clocking-blocks.md`.
+long material is in `docs/clocking-blocks.md` (in Spanish).

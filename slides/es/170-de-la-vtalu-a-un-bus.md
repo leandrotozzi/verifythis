@@ -1,4 +1,4 @@
-<!-- .slide: id="apendice-bus" data-machete="res/diagrams/sequences_tb_completo.svg,res/diagrams/agents_agent.svg" -->
+<!-- .slide: id="apendice-bus" data-machete="res/diagrams/sequences_tb_completo.svg|El testbench completo: la nube de sequences · el agent con sequencer y driver · y la capa de análisis en el env,res/diagrams/agents_agent.svg|Estructura interna de un uvm_agent: sequencer · driver · monitores y los analysis ports que expone" -->
 
 ## Apéndice · De la VTALU a un bus real
 

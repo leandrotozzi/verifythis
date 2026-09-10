@@ -577,7 +577,7 @@ If somebody asks why we do not do it right from the start: because to understand
   the constructor forces you. The industry usually makes it a `uvm_object`
 - The protocol lives in the BFM, the same as in the *UVM Primer*. Up to Verilator 5.051 this
   could not be done: an interface task called through a virtual interface did not
-  propagate. It was fixed in 5.052 — `docs/verilator.md`
+  propagate. It was fixed in 5.052 — `docs/en/verilator.md`
 
 Note:
 That the material says where it departs from its sources is not a detail of

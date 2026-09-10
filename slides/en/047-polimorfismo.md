@@ -1,9 +1,9 @@
-<!-- es-sha: b40e985a82e7 -->
+<!-- es-sha: 0b11eb1f2fd0 -->
 ## Polymorphism
 
 #### *A `trago` variable, a `fernet` object: which `servir()` runs?*
 
-![UML diagram of the trago classes](res/diagrams/en/uml-poli.svg)
+![trago, fernet and mojito: which servir() lives in which class](res/diagrams/en/uml-poli.svg)
 <!-- .element: class="grande" -->
 
 - A `fernet` **is** a `trago`, so storing it in a `trago` variable

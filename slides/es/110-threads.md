@@ -153,7 +153,7 @@ lado y el driver del otro.
 - La regla que vale para todo TLM: **el port se conecta al export**, nunca dos
   ports entre sí
 
-{{code:code/u5/threads/02-bloqueante/connect_phase.sv}}
+{{code:code/u5/threads/02-bloqueante/communication_test.svh#connect_phase}}
 
 {{code:code/u5/threads/02-bloqueante/result.txt}}
 
@@ -199,7 +199,7 @@ sola línea de formateo.
 
 #### *Comunicación NO bloqueante: la línea de tiempo*
 
-![try_get() devuelve 0 cuando la FIFO está vacía](res/diagrams/threads_nonblocking.svg)
+![Línea de tiempo del ejemplo no bloqueante: en 7 ns y 49 ns la FIFO está vacía y try_get() devuelve 0](res/diagrams/threads_nonblocking.svg)
 <!-- .element: class="grande" -->
 
 - El producer pone un dato cada 17 ns y el consumer mira cada 14 ns: los relojes
@@ -220,7 +220,7 @@ un testbench con reloj eso es un flanco perdido.
 
 #### *Cómo se leen los diagramas TLM*
 
-![Put port, TLM FIFO y get port entre dos threads](res/diagrams/threads_fig124.svg)
+![Comunicación entre threads con put port, get port y uvm_tlm_fifo](res/diagrams/threads_fig124.svg)
 <!-- .element: class="grande" -->
 
 - La convención vale para todo el material de UVM que vayas a leer después:
@@ -340,29 +340,19 @@ task, `wait fork` es la respuesta.
 
 #### *⚠ La trampa: el índice del `for` adentro del `fork`*
 
-```systemverilog
-int i;                                  // declarado AFUERA del for: uno solo
-for (i = 0; i < 3; i++)
-   fork  $display("i = %0d", i);  join_none      //  i = 3   i = 3   i = 3
-
-for (int j = 0; j < 3; j++)             // declarado EN el for: uno por vuelta
-   fork  $display("j = %0d", j);  join_none      //  j = 0   j = 1   j = 2
-
-for (i = 0; i < 3; i++)
-   fork  begin
-      automatic int k = i;              // la copia se hace AL EJECUTARSE el fork
-      $display("k = %0d", k);
-   end join_none                                 //  k = 0   k = 1   k = 2
-```
+{{code:code/verilator/repro-fork-automatic.sv#las-cuatro-variantes}}
 
 - Un `join_none` **no ejecuta nada todavía**: deja el thread listo y sigue. Para
   cuando el thread corre, el `for` ya terminó y la variable vale lo último
 - Si la variable se declara **adentro** del `for`, cada vuelta tiene la suya y no
   hay problema. Es lo que dice el LRM y lo que Verilator hace
 - Si viene de afuera —un `int` del `run_phase`, un campo de la clase— hay que
-  **copiarla** con un `automatic` como primera línea del bloque
-- Medido en Verilator 5.052: las tres líneas de arriba imprimen `3 3 3`,
-  `0 1 2` y `0 1 2`
+  **copiarla** con un `automatic`, y **dónde** se escribe la copia cambia el
+  resultado: adentro de un `fork begin ... end` **no copia**; declarada en el
+  `fork` mismo, sin `begin`/`end` —que es la forma del LRM 1800-2017 §9.3.2—, sí
+- Medido en Verilator 5.052, y el archivo termina en `$fatal` si algún día cambia
+  (`make repros`): las cuatro variantes imprimen `3 3 3`, `0 1 2`, **`3 3 3`** y
+  `0 1 2`
 
 Note:
 Es el bug de threads que más caro sale y el que menos se ve leyendo el código,
@@ -378,9 +368,15 @@ parezca magia: el LRM declara automática la variable de un `for` que la declara
 así que cada vuelta tiene su copia. Está medido acá, no es teoría.
 El caso donde igual hace falta el `automatic` es el que aparece en la vida real:
 el índice no es del `for`, es un campo de la clase o un argumento de la task.
-Ahí no hay copia por vuelta y hay que hacerla a mano. La regla práctica para
-llevarse: **si un thread lanzado con `join_none` lee una variable de afuera,
-copiala en un `automatic` en su primera línea.**
+Ahí no hay copia por vuelta y hay que hacerla a mano — y acá está la parte que
+esta slide decía mal hasta ahora: **el `automatic` como primera línea de un
+`fork begin ... end` no copia**. En Verilator 5.052 la variante C imprime
+`3 3 3`, igual que la A. La que copia es la D, la del LRM §9.3.2: la declaración
+adentro del `fork`, sin `begin`/`end`. Las dos se parecen tanto que es fácil
+escribir la que no anda.
+La regla práctica para llevarse: **si un thread lanzado con `join_none` lee una
+variable de afuera, declarale la copia en el `fork`, no adentro de un
+`begin`.**
 
 ---
 

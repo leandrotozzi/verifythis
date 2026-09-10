@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- es-sha: 4d17c49581bd -->
+<!-- es-sha: d09d90332cc4 -->
 <meta charset="utf-8">
 <title>UVM cheat sheet · Verify This!</title>
 <!--
@@ -94,8 +94,7 @@
          ├─ uvm_agent      <span class="tuyo">your agent</span>
          ├─ uvm_driver     <span class="tuyo">your driver</span>
          ├─ uvm_monitor    <span class="tuyo">your monitors</span>
-         ├─ uvm_scoreboard <span class="tuyo">your scoreboard</span>
-         ├─ uvm_subscriber <span class="tuyo">your coverage</span>
+         ├─ uvm_subscriber <span class="tuyo">your scoreboard and coverage</span>
          └─ uvm_sequencer  as is, with a typedef</pre>
     <p class="nota" style="margin:4px 0 0">
       <b>The line that matters:</b> an <span class="m">object</span> is created, used and thrown away;
@@ -143,7 +142,8 @@
   req = my_item::type_id
           ::create("req");
   start_item(req);   <span class="cmt">// waits</span>
-  assert(req.randomize());
+  if (!req.randomize())
+    `uvm_fatal("SEQ", "rand")
   finish_item(req);  <span class="cmt">// waits</span>
   <span class="cmt">// req.result is back</span>
 endtask</pre>

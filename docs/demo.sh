@@ -99,7 +99,7 @@ Coverage Summary:
   expr       : 0.0% ( 0/ 0)
   fsm_state  : 0.0% ( 0/ 0)
   fsm_arc    : 0.0% ( 0/ 0)
-  covergroup : 72.6% (53/73)
+  covergroup : 86.8% (66/76)
 EOF
 
 printf '%s' "$PROMPT"

@@ -1,8 +1,8 @@
 // The env configuration: the two interfaces of the testbench.
 class fifo_env_config;
 
-   virtual fifo_if bfm;       // la que maneja el testbench
-   virtual fifo_if stim_bfm;  // la del modulo de siempre: solo se mira
+   virtual fifo_if bfm;       // the one the testbench drives
+   virtual fifo_if stim_bfm;  // the legacy module's: only watched
 
    function new(virtual fifo_if bfm, virtual fifo_if stim_bfm);
       this.bfm = bfm;

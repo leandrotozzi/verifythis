@@ -1,5 +1,5 @@
-<!-- es-sha: 4288d7d4dba9 -->
-<!-- .slide: id="apendice-bus" data-machete="res/diagrams/en/sequences_tb_completo.svg,res/diagrams/en/agents_agent.svg" -->
+<!-- es-sha: 519bc73cda86 -->
+<!-- .slide: id="apendice-bus" data-machete="res/diagrams/en/sequences_tb_completo.svg|The whole testbench: the sequence cloud · the agent with sequencer and driver · and the analysis layer in the env,res/diagrams/en/agents_agent.svg|Inside a uvm_agent: sequencer · driver · monitors and the analysis ports it exposes" -->
 
 ## Appendix · From the VTALU to a real bus
 
@@ -142,7 +142,7 @@ plug it in passively on somebody else's stimulus —or on a test from the design
 already contributing on the first day.
 If somebody asks where the learning path goes on **after this course**, the short
 list, in order: **TLM2** —`uvm_tlm_generic_payload` and the sockets, which is how
-bus VIPs get connected to each other—, the **RAL backdoor** —`docs/verilator.md`
+bus VIPs get connected to each other—, the **RAL backdoor** —`docs/en/verilator.md`
 explains why it is not here—, the **`uvm_sequence_library`** for the stress test
 you do not write, and reading the `dv/` of a real open project: the agents of
 **OpenTitan** and the AXI VIP of **pulp-platform/axi** are production code and

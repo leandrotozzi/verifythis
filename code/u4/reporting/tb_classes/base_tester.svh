@@ -25,8 +25,10 @@ virtual class base_tester extends uvm_component;
       // 10 and not 1000 like the rest of the sections, ON PURPOSE: the scoreboard
       // in this unit fails deliberately and the slide shows its whole output. With
       // 1000 operations the transcript does not fit on the screen and the example
-      // stops teaching what it came to teach. That is why u4/reporting measures 28,8 % of
-      // coverage and not 72,6 %: it is the price of a readable log.
+      // stops teaching what it came to teach. That is the price of a readable log:
+      // this example closes far fewer bins than the ones that run a thousand, and
+      // the number that says how many is the one in the matrix of docs/verilator.md,
+      // which is measured from the run instead of written here by hand.
       repeat (10) begin : random_loop
          command.op = get_op();
          command.A = get_data();
