@@ -182,7 +182,7 @@ starting, and day 1 stops having two steps at once.</p>
 </section>
 
 <section id="s4" class="slide">
-<!-- es-sha: 494d5a6b24a5 -->
+<!-- es-sha: 6fd844c44c0d -->
 <h2 id="the-log-says-it-failed">The log says it failed</h2>
 <h4 id="and-the-dut-is-healthy"><em>And the DUT is healthy</em></h4>
 <pre><code class="language-text">$ cd code/ejercicios/d1b &amp;&amp; bash run.sh
@@ -201,15 +201,18 @@ engineer&#39;s time, and it is what the week is about</li>
 <p>This is the first slide with something running, and it goes here on purpose:
 before any chart, before the word UVM, the student has to have seen the problem.
 It is the <code>d1b</code> exercise, the second one of today, and in class it is worth
-running it live — it is four seconds, it does not compile UVM.
+running it live: it is four seconds because there is no UVM to compile here yet.
+It builds and runs fine —the DUT is healthy—; what fails is the test, and that is
+what has to be debugged.
 The question to throw out and <strong>not</strong> answer: <em>&quot;with that line, where would you
 start?&quot;</em>. The answers that will come are <code>$display</code> and running again, which is
 exactly what the course comes to replace. The answer is in an <code>ondas.vcd</code> the run
 left alongside and nobody has opened yet.
 And the honest close, which is the promise of the whole course: this is not about
 writing testbenches faster, it is about the log saying why when it fails — and it
-will fail. The figure in the bullet below, the 47 %, comes from the survey on the
-next slide.</p>
+will fail. The <em>almost half</em> in the last bullet is the 47 % of the verification
+engineer&#39;s time that goes into debug: the figure comes from the Wilson Research
+Group 2024 survey and the chart is on the next slide.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/4">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -309,7 +312,7 @@ It is useful for lowering the anxiety of whoever arrives scared by the size of U
 </section>
 
 <section id="s10" class="slide">
-<!-- es-sha: 31496a304ebf -->
+<!-- es-sha: 3f6b82db4897 -->
 <h2 id="introduction">Introduction</h2>
 <h4 id="what-is-uvm"><em>What is UVM?</em></h4>
 <ul>
@@ -408,6 +411,10 @@ half the course: hanging off <code>uvm_object</code> is the <strong>data</strong
 sequences, the configs— and hanging off <code>uvm_component</code> is the <strong>structure</strong> —everything
 that lives in the tree and has phases—. An object is created and thrown away; a component
 is built once and lasts the whole simulation.
+The colours say what you do with each one: the amber ones you extend yourself, the
+grey ones are never touched —they are only there for the others to inherit from—
+and <code>uvm_sequencer</code> is the only green one because it is the only one used as is,
+with a parameterized <code>typedef</code>. That comes on day 6.
 The question to throw at the group when we get to agents: is a
 <code>uvm_sequence</code> an object or a component? An object. And that is why it does not show up in
 <code>print_topology()</code>.
