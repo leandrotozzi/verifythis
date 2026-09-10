@@ -60,8 +60,16 @@ jobs:
 
       - run: npm run build
 
+      # v2 dejo de instalar el Chrome del sistema y baja chrome-for-testing en un
+      # zip, con install-dependencies en false por defecto. Sin las librerias
+      # compartidas Chrome ARRANCA, sale con codigo 0 y escribe un PDF vacio: el
+      # bump de dependabot dejo curso-uvm.pdf en 1 pagina y 0 MB, y pdf.mjs no se
+      # entero porque solo mira el codigo de salida. Lo cazo lint-dist, que es
+      # exactamente para lo que existe.
       - uses: browser-actions/setup-chrome@48ad923757ca74d66703209fe939badbdf80f2f4 # v2.2.0
         id: chrome
+        with:
+          install-dependencies: true
       # Falla si alguna slide se recorta, en pantalla o en el PDF
       - name: Ninguna slide recortada
         env:
