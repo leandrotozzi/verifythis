@@ -19,7 +19,6 @@ vtalu_bfm bfm ();
    );
 
    initial begin
-      vtalu_pkg::bfm_g = bfm;
       uvm_config_db#(virtual vtalu_bfm)::set(null, "*", "bfm", bfm);
       run_test();
    end

@@ -45,8 +45,8 @@ module top_mezcla;
       $display("");
       $display("They differ by one cycle, and no warning says so. A monitor that");
       $display("reads through the clocking block and a scoreboard that reads the");
-// cb: end
       $display("raw wire do not fail every time: they fail when the data changes.");
+// cb: end
 
       if (por_cb == crudo)
         $fatal(1, "they were expected to differ: the example stopped showing the trap");

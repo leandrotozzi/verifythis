@@ -1,4 +1,4 @@
-<!-- es-sha: efe7f071236a -->
+<!-- es-sha: 7513efd43da7 -->
 ## Constrained random
 
 #### *The other half of the pincer*
@@ -196,13 +196,14 @@ the difference between believing and knowing.
 {{code:code/u6/transactions/constraints/02_with.sv#workaround}}
 
 - `inside {a, b, c}` is the set of legal values: without it, the random also asks
-  for `no_op` and `rst_op`, which compute nothing
+  for `no_op` and `rst_op`, which compute nothing. Here it also leaves out `sub_op`,
+  so that the draw comes out uniform among four
 - `randomize() with { ... }` adds constraints **for that call only**: the directed
   case gets asked for at the point of use, without touching the class and without
   writing a new tester. It is the tool of *coverage closure*
 
 Note:
-The number from the run is the whole argument of the section: 400 random attempts
+The number that comes out of running `02_with.sv` is the whole argument of the section: 400 random attempts
 fill `mul_max` a handful of times —6 with the default seed, between 2 and 8
 depending on which one you use— **because the `dist` biases towards the edges**.
 The arithmetic is worth doing out loud: `op` comes out uniform among four and each
@@ -212,7 +213,7 @@ slide, the probability of both legs landing on `FF` is 1/65536 per operation: yo
 never touch it.
 The mental sequence is always the same: I run random, I look at which bin was left
 empty, I write a three-line `with {}`, I run again. Never "I write 76 tests".
-The Verilator limitation that shows up in the output is there on purpose, and it
+The Verilator limitation the section states is there on purpose, and it
 is worth stating it properly because it is not a matter of "it works or it does
 not". Verilator resolves the `dist` **by picking a concrete value first** and only
 then checks the rest: if the one drawn does not satisfy the `with`, it returns 0
@@ -356,7 +357,8 @@ out even. Measure it.
 ```
 
 - `constraint_mode(0)` turns **one constraint** off at run time; `rand_mode(0)`
-  takes **one field** out of the draw and leaves it with the value it had
+  takes **one field** out of the draw and leaves it with the value it had — and if
+  that value does not satisfy the constraints that name it, `randomize()` returns 0
 - They are for the test that needs to break a rule on purpose — injecting an
   illegal opcode, for instance — without touching the class everybody else uses
 
@@ -474,8 +476,9 @@ This slide exists to defuse a misunderstanding the previous cycle invites: *"if 
 do not close, I run another seed"*. It was measured, and no: `code/u2/convencional`
 gives 66 out of 76 with the default seed, with 7 and with 8, and the merge of the
 three gives 66. The 10 that are missing are not missing out of luck — they are
-missing because they are transition bins Verilator does not measure and crosses the
-stimulus does not reach. No seed is going to touch them.
+missing because Verilator generates the enum's automatic bins over the **base
+type**: `3'b110` does not exist in `operation_t`, so `auto_5` stays at 0 forever,
+with its nine crosses. No seed is going to touch them.
 The seed is good for two other things, and both are matters of craft. First:
 **reproducing**. An intermittent bug does not get debugged, it gets repeated; and
 to repeat it you have to know which seed it came up with, which is exactly why

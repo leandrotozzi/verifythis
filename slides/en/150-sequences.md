@@ -1,4 +1,4 @@
-<!-- es-sha: fd3d44b98f43 -->
+<!-- es-sha: 7bab513dd9ec -->
 ## Sequences
 
 #### *The only thing left hard-wired*
@@ -58,8 +58,8 @@ somebody looks for `sequencer_h.full_seq` with `uvm_root::get().find()` they are
 find it.
 The other consequence, the one used every day: since it is not a component, a
 sequence can have configurable fields that get changed **between** the `create()`
-and the `start()`. That is what `full_seq.count = 200` does two slides
-further on, and with a component it could not be done: by the time you want to change it, the
+and the `start()`. That is what `full_seq.count = 200` does at the end of the
+unit, and with a component it could not be done: by the time you want to change it, the
 `build_phase` has already gone by.
 
 ---
@@ -115,13 +115,14 @@ Note:
 Confusion number one of the section: believing that `finish_item()` comes back when the
 item **was delivered**. No: it comes back when the driver called `item_done()`, that is
 when the operation **finished in the DUT**. It is the difference between "I sent it" and
-"it is done", and it is what makes Fibonacci possible four slides further on.
+"it is done", and it is what makes the Fibonacci sequence possible.
 Out of that comes as well why the `#500` that the `tester` of the transactions
 had at the end disappeared: it was not stimulus, it was a patch so the objection would not drop
 before its time. With `finish_item()` the stimulus no longer gets cut in half. Careful,
 honesty: the **last** result can still end up uncompared, because the
 objection gets dropped as soon as `start()` comes back and the `result_monitor` publishes one edge
-later. It can be seen in the log of the `add_test`: 1001 commands, 1000 comparisons.
+later. It can be seen in the log of the `add_test` run with `+UVM_VERBOSITY=UVM_HIGH`: 1001
+commands, 1000 comparisons.
 If somebody asks about the non-blocking cousin: there is `try_next_item()`, which
 comes back right away with `null` if the sequencer has nothing. It is the same
 `get()` / `try_get()` pair from the communication between threads and it is useful when the protocol forces you to drive
@@ -232,6 +233,7 @@ vast majority of cases. It is worth naming so they recognise it if they see it.
 An implementation detail that does matter: the `send_op` reads `bfm.result` on the
 same edge on which it sees `done` high. One edge later the DUT has already started the
 next operation.
+
 ---
 
 ## Sequences
@@ -557,6 +559,7 @@ join
 | `UVM_SEQ_ARB_STRICT_FIFO` | the priority rules; at equal priority, order of arrival |
 | `UVM_SEQ_ARB_WEIGHTED` | at random, with the priority as the weight |
 | `UVM_SEQ_ARB_RANDOM` | at random, all equal |
+| `UVM_SEQ_ARB_STRICT_RANDOM` | at random, but only among the highest priority ones |
 | `UVM_SEQ_ARB_USER` | `user_priority_arbitration()`, you write it |
 
 - The default **ignores the priority**: putting a 500 in and not changing the mode is the
@@ -672,6 +675,7 @@ design, the analysis per verification plan.
   the way back, and it is what makes a stimulus that reacts possible
 - Two ways of starting: explicit `start(sequencer)`, or `default_sequence` through
   `uvm_config_db` — which besides takes the last hard-wired line out of the testbench
+
 Note:
 The first half of the summary is the mechanism: what a sequence is, where the
 `randomize()` lives, and which way the result comes back. Anyone who got lost in
@@ -685,7 +689,7 @@ the unit catches up here.
 
 - Sequences compose: one calls others, in series or with `fork`/`join`
 - And when there is **more than one sequencer**, the one that composes is a
-  **virtual sequence**, which is first thing tomorrow ↪ day 7
+  **virtual sequence**, which comes just as day 7 starts ↪ day 7
 - With **two sequences on the same sequencer** the one who hands out is the sequencer:
   priority and `set_arbitration(...)`, and `lock()`/`grab()` for the scenario that cannot
   be interleaved

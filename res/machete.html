@@ -116,12 +116,12 @@
         <tr><td class="m">extract</td><td>juntar los datos de la corrida</td><td>bottom-up</td></tr>
         <tr><td class="m">check</td><td>decidir si pasó o no</td><td>bottom-up</td></tr>
         <tr><td class="m">report</td><td>imprimir el veredicto</td><td>bottom-up</td></tr>
-        <tr><td class="m">final</td><td>cerrar archivos y salir</td><td>bottom-up</td></tr>
+        <tr><td class="m">final</td><td>cerrar archivos y salir</td><td><b>top-down</b></td></tr>
       </tbody>
     </table>
     <p class="nota" style="margin:4px 0 0">
-      <span class="m">build</span> es la única top-down porque el padre tiene que existir para
-      crear al hijo; las demás necesitan lo contrario. Todas son <span class="m">function</span>
+      <span class="m">build</span> y <span class="m">final</span> son las dos top-down; <span class="m">build</span>,
+      porque el padre tiene que existir para crear al hijo. Las demás van al revés. Todas son <span class="m">function</span>
       salvo <span class="m">run</span>, y por eso ninguna otra puede esperar un flanco.
     </p>
     <p class="nota" style="margin:3px 0 0">
@@ -168,7 +168,7 @@ endtask</pre>
   </section>
 
   <section style="grid-column: 1 / -1">
-    <h2>Las siete perillas de debug <span>— cinco son plusargs: no se recompila nada</span></h2>
+    <h2>Las siete perillas de debug <span>— seis son plusargs: no se recompila nada</span></h2>
     <table>
       <thead><tr>
         <th style="width:26%">Perilla</th><th style="width:36%">Para qué</th><th style="width:38%">El síntoma que resuelve</th>
@@ -179,7 +179,7 @@ endtask</pre>
         <tr><td class="m">+UVM_OBJECTION_TRACE</td><td>quién la levantó y quién la bajó</td><td>termina en <b>t = 0</b> y dice PASS, o <b>no termina nunca</b></td></tr>
         <tr><td class="m">+UVM_TIMEOUT=5000000,NO</td><td>un techo, en vez de esperar</td><td>la simulación se colgó y no sabés dónde</td></tr>
         <tr><td class="m">+UVM_CONFIG_DB_TRACE</td><td>quién puso qué, y quién lo leyó</td><td>el <span class="m">config_db</span> «no encuentra»: mirá el ámbito del <span class="m">set</span>, no el <span class="m">get</span></td></tr>
-        <tr><td class="m">uvm_root::get()<br>&nbsp;&nbsp;.print_topology()</td><td>el árbol que UVM armó <b>de verdad</b></td><td>el árbol no es el que dibujaste: un <span class="m">create()</span> sin factory, o un override tardío</td></tr>
+        <tr><td class="m">+TOPOLOGY<br>&nbsp;&nbsp;→ print_topology()</td><td>el árbol que UVM armó <b>de verdad</b></td><td>el árbol no es el que dibujaste: un <span class="m">create()</span> sin factory, o un override tardío</td></tr>
         <tr><td class="m">+UVM_MAX_QUIT_COUNT=N</td><td>matar la corrida al N-ésimo error</td><td>el log de cuatro gigas cuando el scoreboard falla en cada transacción</td></tr>
       </tbody>
     </table>

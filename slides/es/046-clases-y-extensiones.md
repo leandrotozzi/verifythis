@@ -130,7 +130,7 @@ los lleva. El día 3, `uvm_component` los lleva.
 El último bullet es el argumento entero de la unidad y vale decirlo con un
 ejemplo: si `area()` cambia mañana, en la versión con `struct` hay que acordarse
 de los dos lugares; acá cambia en uno y el otro se entera solo. Ese "se entera
-solo" es lo que se compra con la herencia, y es la misma promesa que el día 6
+solo" es lo que se compra con la herencia, y es la misma promesa que el día 3
 hace el `env` con los tests.
 Y el aviso de hacia dónde va, para que la palabra no aparezca fría en la slide
 siguiente: heredar deja al hijo *usar* lo del padre. Lo que todavía no se puede

@@ -6,7 +6,6 @@
 virtual class base_tester extends uvm_component;
 
    `uvm_component_utils(base_tester)
-   virtual vtalu_bfm bfm;
 
    // the handle to the BFM is replaced by a uvm_put_port
    uvm_put_port #(command_s) command_port;

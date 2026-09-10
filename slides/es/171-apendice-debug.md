@@ -26,8 +26,10 @@ el handshake del driver en una sola carilla A4. La fuente es `res/machete.html`,
 se abre con doble clic y se imprime con Ctrl+P.
 El punto que hay que decir en voz alta es el de los plusargs. Un `$display`
 agregado a mano cuesta una recompilación de UVM —minutos— y encima hay que
-acordarse de sacarlo. Estas siete perillas ya están puestas en el binario que
-compilaste: se prenden en la línea de comandos y no dejan rastro.
+acordarse de sacarlo. Seis de estas siete ya están puestas en el binario que compilaste: se prenden en
+la línea de comandos y no dejan rastro. La séptima, `VLT_TRACE`, necesita además
+el bloque `$dumpfile`/`$dumpvars` en el top — hoy lo tienen `u2/convencional` y
+`ejercicios/d1b`.
 Y un detalle del `+UVM_TIMEOUT` que muerde, porque no da error: el valor es un
 entero en unidades de tiempo, no una expresión con unidad. UVM lo lee con
 `$sscanf(…, "%d,%s")` (`uvm_root.svh:916`), así que `+UVM_TIMEOUT=5ms` no se

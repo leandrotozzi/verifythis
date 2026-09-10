@@ -1,4 +1,4 @@
-<!-- es-sha: 5c9f5d528669 -->
+<!-- es-sha: bc809639adbf -->
 ## Reporting
 
 #### *47 % of the time goes here*
@@ -314,19 +314,20 @@ half an afternoon while somebody else fixes their class, and it comes out the sa
   that they should be: nobody wants to switch off an error by accident
 - The knob that does reach them is called **actions**, and it answers another question:
   not *"does it get printed?"* but *"what gets done with this message?"*
-- Printing is only one of the six possible things
+- Printing is only one of the seven possible things
 
 {{code:code/u4/reporting/tb_classes/UVM_report_actions.sv}}
 
 Note:
-The six actions are a bitwise OR, not a list of mutually exclusive options: the
+The seven actions are a bitwise OR, not a list of mutually exclusive options: the
 same message can be printed **and** written to a file **and** counted towards the
 summary. That is why they combine with `|`.
 `UVM_COUNT` is the one most often explained wrong, and it is worth saying it in full:
 it is already switched on by default on every `` `uvm_error ``, and what it increments
 is **a global counter** for the run, not one per ID. On its own it kills nothing,
 because the default maximum is 0, which means "no limit". The one that cuts is
-`+UVM_MAX_QUIT_COUNT=N` —or `set_report_max_quit_count(N)`, `uvm_root.svh:1187`—, and
+`+UVM_MAX_QUIT_COUNT=N` (`uvm_root.svh:1187`) —or `set_report_max_quit_count(N)`,
+`uvm_report_object.svh:578`—, and
 that one really is the answer to the four-gigabyte log when a scoreboard fails on
 every transaction: you find out anyway, and in thirty seconds instead of in twenty
 minutes.
@@ -360,7 +361,7 @@ Say it out loud: switching off errors is for carrying on working while somebody 
 fixes their class, not so that the regression comes out green.
 And showing the *Report Summary* of the second log next to the first one is the best
 warning the section gives: the testbench says **0 UVM_ERROR** and the DUT is still
-exactly as broken as it was two slides ago. That is the reason a
+exactly as broken as it was when we broke it. That is the reason a
 `UVM_NO_ACTION` cannot survive a commit — it is a silent trap, and it is in
 the appendix.
 The scoreboard of this section adds too much ON PURPOSE, it is the bug we are

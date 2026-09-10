@@ -1,4 +1,4 @@
-<!-- es-sha: ff2e67a23c5a -->
+<!-- es-sha: 5d1f4dd9fcd3 -->
 ## Copying an object that contains another
 
 #### *The handle is not the object*
@@ -80,7 +80,7 @@ The method still returns a string.
 
 #### *`convert2string()`: the deep version*
 
-![The deep copy, level by level](res/diagrams/en/jerarquias_convert2string_deep.svg)
+![A new level in the hierarchy breaks convert2string(): graduacion does not appear in the string](res/diagrams/en/jerarquias_convert2string_deep.svg)
 <!-- .element: class="grande" -->
 
 - The day somebody puts a class **in the middle**, the ones below go on printing
@@ -197,8 +197,8 @@ this?" is this slide.
 Note:
 The rule to leave behind: **a class only writes on its own fields.** Everything
 else it asks `super` for.
-It is worth counting on screen: `hielos` and `con_coca` show up in four different
-`convert2string()` of this file. Four places to remember, and not one of them
+It is worth counting on screen: `hielos` shows up in four different `convert2string()`
+of this file and `con_coca` in three. Seven places to remember, and not one of them
 fails if you forget one.
 There is a `bad_copy()` a little further down the file worth opening if there is
 time to spare: it takes a `fernet_con_hielo` as an argument instead of a `trago`.

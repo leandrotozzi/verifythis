@@ -1,4 +1,4 @@
-<!-- es-sha: 0f4ec16a3c7e -->
+<!-- es-sha: 835495bbaf5f -->
 **English** · [Castellano](README.es.md)
 
 # Day 7 — the capstone: verify the `apb_regs`
@@ -61,7 +61,7 @@ takes the `CTRL.EN` gate off the DUT. There it **has to scream**: a scoreboard t
 has never seen an error is not tested.
 
 **4 · The coverage.** The `covergroup` with the nine rows of the verification
-plan of `spec.en.md`. The checker asks for **more than 20 points** and **90 %**
+plan of `spec.en.md`. The checker asks for **at least 20 points** and **90 %**
 covered with the `random_test`. Rows **8 and 9 come empty**: you write them,
 and the bins are called `back_to_back` and `unaligned` because the checker looks
 them up by name. How a table like this gets filled in, in

@@ -44,5 +44,5 @@ module tester (
       end : random_loop
       $finish;
    end  // initial begin
-endmodule : tester
    // cb: end
+endmodule : tester

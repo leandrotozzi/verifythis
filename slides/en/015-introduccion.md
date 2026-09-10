@@ -1,4 +1,4 @@
-<!-- es-sha: 3f6b82db4897 -->
+<!-- es-sha: 9ea40ec498c1 -->
 ## Introduction
 
 #### *What is UVM?*
@@ -11,7 +11,7 @@
   **IEEE 1800.2**. The course uses the reference implementation, `uvm-core
   2020.3.1`
 - It comes from OVM (Cadence + Mentor), with ideas from VMM (Synopsys) and from eRM
-  (Verisity): the methodologies of three vendors that competed, until the
+  (Verisity): the methodologies of four vendors that competed, until the
   industry got tired of translating testbenches between tools
 - And there is the goal, and it is a single one: **that the testbench of the person next to
   you looks like yours**
@@ -99,9 +99,9 @@ not little.
 
 Note:
 This diagram is scary and that is why it is worth defusing it right away: **out of all of
-this we are going to use seven classes**. `uvm_object`, `uvm_component`, `uvm_test`,
-`uvm_env`, `uvm_agent`, `uvm_driver`, `uvm_monitor` and `uvm_sequence` — all right,
-eight.
+this we are going to extend ten**: `uvm_component`, `uvm_test`, `uvm_env`, `uvm_agent`,
+`uvm_driver`, `uvm_monitor`, `uvm_scoreboard`, `uvm_subscriber`,
+`uvm_sequence_item` and `uvm_sequence`. They are the amber ones in the drawing, plus the sequence.
 What does have to be marked is the split at the top, because it explains
 half the course: hanging off `uvm_object` is the **data** —the transactions, the
 sequences, the configs— and hanging off `uvm_component` is the **structure** —everything
@@ -109,8 +109,9 @@ that lives in the tree and has phases—. An object is created and thrown away; 
 is built once and lasts the whole simulation.
 The colours say what you do with each one: the amber ones you extend yourself, the
 grey ones are never touched —they are only there for the others to inherit from—
-and `uvm_sequencer` is the only green one because it is the only one used as is,
-with a parameterized `typedef`. That comes on day 6.
+and `uvm_sequencer` is the only green one because it is the only one instantiated
+without extending it, with a parameterized `typedef`. That comes on day 6; the only
+time the course extends it is for the virtual sequencer on day 7.
 The question to throw at the group when we get to agents: is a
 `uvm_sequence` an object or a component? An object. And that is why it does not show up in
 `print_topology()`.

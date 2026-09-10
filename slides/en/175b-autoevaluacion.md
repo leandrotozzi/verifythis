@@ -1,4 +1,4 @@
-<!-- es-sha: d97533d950af -->
+<!-- es-sha: 99b0bd93451b -->
 ## Self-assessment
 
 #### *Fifteen things you should be able to do by now · 1 of 3*
@@ -67,7 +67,7 @@ testbench that works and one you can work with.
   spec, and the whole testbench from a blank sheet
 
 Note:
-The 14 is the question thrown out on day 3, when the UVM class diagram
+The 14 is the question thrown out on day 1, when the UVM class diagram
 shows up, and it gets answered on day 6. If the student can answer it, they understood the
 division that explains half the library: `uvm_object` is the **data** and
 `uvm_component` is the **structure**. An object gets created and thrown away; a component

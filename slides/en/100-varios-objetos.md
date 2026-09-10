@@ -1,4 +1,4 @@
-<!-- es-sha: 3eb7ead07ccc -->
+<!-- es-sha: 552644393658 -->
 ## One producer, many listeners
 
 #### *Two ways of talking between objects*
@@ -100,9 +100,9 @@ have to be touched?
 Note:
 It is worth showing the whole class only once —this one— and after that only the
 `write()`s, because what matters is that the shape repeats.
-Two details that get collected later: the `report_phase` runs **when the last
-objection drops**, not at the end of the `run_phase`, and that is why the average
-comes out complete. And `dice_total` and `count` are `protected`: the one
+Two details that get collected later: the `report_phase` runs **after** the
+`run_phase` —and after `extract` and `check`—, not inside it, and that is why the
+average comes out complete. And `dice_total` and `count` are `protected`: the one
 publishing cannot touch them, only call `write()`.
 When this is the VTALU, in the analysis ports, `average` is going to be the
 scoreboard and the `report_phase` the verdict of the run. Same shape.
@@ -355,8 +355,8 @@ a mistake because there is nothing to instantiate.
 {{code:code/u5/varios-objetos/02-con-analysis-port/dice_test.svh#build-and-connect}}
 
 Note:
-This is the "after", and it has to be put next to the "before" from five slides
-back. The `run_phase` of the test is left without the three `write()`s: now it
+This is the "after", and it has to be put next to the "before", the version
+without the analysis port. The `run_phase` of the test is left without the three `write()`s: now it
 only raises the objection and starts the producer. The distribution moved to the
 `connect_phase`, which is where the structure goes.
 The line to read slowly is

@@ -27,8 +27,10 @@ operaciones al azar no lo llenan.
 Concretamente es la **fila 3** del plan de verificación
 ([`docs/plan-de-verificacion.md`](../../../docs/plan-de-verificacion.md)): el
 **producto máximo** del multiplicador, la única fila de las doce cuya columna de
-estímulo dice **caso dirigido**. Y eso no lo decidió nadie a mano: `FF` × `FF` es
-una combinación entre 65 536, así que el random no la visita.
+estímulo dice **caso dirigido**. Y eso no lo decidió nadie a mano: con el `dist` de la
+transaction cada pata cae en `FF` una de cada cuatro, así que `FF` × `FF` sale una
+de cada dieciséis multiplicaciones: pocas veces en 60 operaciones, pero no nunca
+—por eso la semilla está fijada—.
 Que quede claro por las dudas: `FF` × `FF` **no desborda**. Da `FE01`, que entra
 exacto en los 16 bits de `result`, y el DUT deja `ovf` en 0 en toda
 multiplicación. Es el máximo del espacio de entrada — por eso el bin se llama

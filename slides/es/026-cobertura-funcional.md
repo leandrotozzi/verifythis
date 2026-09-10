@@ -39,7 +39,7 @@ Los seis puntos del plan de la sección anterior, traducidos:
   código, y el simulador te dice cuáles todavía no pasaron
 
 Note:
-Vale la pena volver a la slide anterior y leer el plan en voz alta antes de
+Vale la pena volver al plan de la sección anterior y leerlo en voz alta antes de
 mostrar esta tabla: la gracia es que no hay ni un punto del plan que se quede
 sin traducir.
 El orden importa — el plan primero, el covergroup después. Al revés terminás
@@ -114,10 +114,10 @@ reporta la herramienta cambia por completo.
 La consecuencia práctica hay que decirla fuerte porque es una trampa muda: un
 bin sin `[]` sobre un rango grande **siempre da 100 %**. Cubriste un valor de
 mil y la herramienta te dice que está listo. Nadie te avisa.
-Y el último bullet es la advertencia que ordena la slide siguiente: un bin que
+Y el último bullet es la advertencia que ordena lo que viene: un bin que
 no se puede llenar no es un problema de la herramienta, es una decisión que
-alguien no escribió. La forma de escribirla se llama `ignore_bins` y viene en
-dos slides.
+alguien no escribió. La forma de escribirla se llama `ignore_bins`, y tiene su
+propia slide en esta sección.
 
 ---
 
@@ -128,8 +128,8 @@ dos slides.
 {{code:code/u2/convencional/vtalu_tb.sv#op_cov}}
 
 - `single_cycle[]` genera seis bins —uno por operación—, `multi_cycle` uno solo
-- Lo que está entre `` `ifndef VERILATOR `` son los bins de transición: dos
-  slides más adelante
+- Lo que está entre `` `ifndef VERILATOR `` son los bins de transición, que
+  vienen más adelante en esta misma sección
 
 Note:
 Éste es el primer covergroup real del curso, y conviene leerlo de arriba hacia
@@ -301,8 +301,8 @@ La regla de campo, y conviene darla porque la pregunta viene sola: `at_least`
 alto en los bins que representan un caso raro, default en los que representan un
 valor. Subirlo para todo el covergroup no es rigor, es una regresión que no
 cierra nunca y un número que nadie mira.
-`auto_bin_max` es la contracara de la trampa de los corchetes de hace tres
-slides. Ahí el problema era un bin de más; acá es al revés: si el coverpoint es
+`auto_bin_max` es la contracara de la trampa de los corchetes, la de la slide de
+los bins. Ahí el problema era un bin de más; acá es al revés: si el coverpoint es
 un `int` y no le escribís bins, la herramienta inventa 64 rangos que no
 corresponden a ninguna fila del plan. El número que sale es real y no significa
 nada.

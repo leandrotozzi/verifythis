@@ -51,13 +51,13 @@ chequeo dice *scoreboard* o *assertion* según de qué mitad sea la fila.
 | 8 | sub | `A == B`: el resultado es 0 y el `ovf` **no** sube | random | scoreboard, dos salidas | bin `sub_00`/`sub_FF` del cross | `u7/sequences/tb_classes/coverage.svh` |
 | 9 | ovf | `ovf` no se levanta para ninguna otra operación | random | assertion `a_ovf_solo_en_sub` | `c_ovf`, `c_sub_sin_borrow` | `u8/assertions/vtalu_bfm.sv` |
 | 10 | protocolo | los operandos no se tocan con `start` arriba | random | assertion `a_operandos_estables` | `cover property` | `u8/assertions/vtalu_bfm.sv` |
-| 11 | protocolo | `done` llega, y antes de 5 ciclos | random | assertion `a_done_llega` | `c_mult_4ciclos`, `c_un_ciclo` | `u8/assertions/vtalu_bfm.sv` |
+| 11 | protocolo | `done` llega, y antes de 5 ciclos | random | assertion `a_done_llega` | `c_mult_4ciclos`, `c_un_ciclo`, `c_mult_3ciclos` (en 0) | `u8/assertions/vtalu_bfm.sv` |
 | 12 | protocolo | `no_op` es la única que no contesta | random | assertion `a_no_op_sin_done` | `cover property` | `u8/assertions/vtalu_bfm.sv` |
 
 Seis cosas que esta tabla dice y que ninguna slide suelta dice:
 
-- **La fila 3 es la única con estímulo dirigido**, y no es un capricho: `FF` × `FF`
-  es una combinación entre 65 536 y el random no la visita en mil operaciones.
+- **La fila 3 es la única con estímulo dirigido**, y no es un capricho: `FF` × `FF` sale
+  una de cada dieciséis multiplicaciones y el random lo llena a veces sí y a veces no.
   El plan es lo que hace evidente **qué test hay que escribir**, y es exactamente
   el ejercicio [`d5c`](../code/ejercicios/d5c/), que cierra esta fila.
   Y ojo con el nombre: es el **producto máximo**, no un desborde. `FF` × `FF` da

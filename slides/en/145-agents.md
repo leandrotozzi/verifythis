@@ -1,4 +1,4 @@
-<!-- es-sha: 9368389b7634 -->
+<!-- es-sha: b1c9dffa7311 -->
 ## Agents
 
 #### *The problem: a testbench that cannot be copied*
@@ -294,7 +294,7 @@ built two objects fewer. Both monitors are in both, because watching
 is never optional.
 And the one that is not there: there is no `sequence` in this tree. A sequence is a
 `uvm_object`, not a `uvm_component`, so it does not live in the topology. It is the
-question thrown out on day 3 with the class diagram, and here it can be answered
+question thrown out on day 1 with the class diagram, and here it can be answered
 pointing at the screen.
 
 ---

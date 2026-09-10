@@ -42,7 +42,7 @@ primera vez en el curso que la clase no es prolijidad: es la única forma.
   - `do_compare()` — se compara sola
 - Lo que cambia no es el dato: es **quién sabe cosas sobre él**. El `tester`
   dejaba de saber qué valores son legales; ahora sólo dice *"randomizate"*
-- Y el resto del testbench se achica: los cuatro `$sformatf` escritos a mano se
+- Y el resto del testbench se achica: los tres `$sformatf` escritos a mano se
   vuelven una llamada a `convert2string()`
 
 Note:
@@ -190,8 +190,9 @@ castear. Y como el `$cast` chequea en runtime, va con su `uvm_fatal`: si alguien
 intenta copiar un `result_transaction` sobre un `command_transaction`, querés
 enterarte ahí y no tres componentes más adelante.
 La segunda: el `super.do_copy(rhs)` va **antes** de tocar los campos propios. Es
-la misma disciplina de las jerarquías de clases y acá importa más, porque `uvm_object` tiene
-campos propios que uno no ve.
+la misma disciplina de las jerarquías de clases y acá importa más, porque `uvm_transaction` —dos
+niveles más arriba— tiene campos propios que uno no ve: `accept_time`,
+`begin_time`, `end_time` e `initiator`.
 Y el detalle que confunde a todos: vos escribís `do_copy()`, pero **nunca lo
 llamás**. El testbench llama a `copy()`, que está en `uvm_object`, y ésa se
 encarga de invocar tu `do_copy()`. Es el mismo reparto que las fases — vos ponés
@@ -485,7 +486,7 @@ viaja —aunque sólo viaje hasta el `compare()` de la línea siguiente—, así
 de la factory como todas.
 Y el `do ... while` que saltea `no_op` y `rst_op` sigue igual que en los analysis ports: esas
 operaciones no producen resultado, y si no se descartan la comparación se corre un
-lugar y falla todo. Es el ejercicio del día 5.
+lugar y falla todo.
 
 
 ---
@@ -538,7 +539,7 @@ command.op = rst_op;
   `type_id::create()`** — las transactions del tester, y también las que arman los
   monitores y el `predicted` del scoreboard
 - Los *ports*, los *exports* y las *TLM FIFO* son la excepción: no están en la
-  factory y se instancian con `new()`, como vimos en hablar con varios objetos
+  factory y se instancian con `new()`, como vimos en un productor, muchos oyentes
 
 Note:
 Esta slide sale de un bug que tenía el código de este mismo curso: el tester

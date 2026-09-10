@@ -675,7 +675,7 @@ moving on.</p>
 </section>
 
 <section id="s363" class="slide">
-<!-- es-sha: 5c2088d92c4e -->
+<!-- es-sha: 6fb7203e5453 -->
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-hole-the-scoreboard-left"><em>The hole the scoreboard left</em></h4>
 <ul>
@@ -712,7 +712,7 @@ testbench does not cover.</p>
 <h4 id="immediate-and-concurrent-the-one-you-know-and-the-new-one"><em>Immediate and concurrent: the one you know and the new one</em></h4>
 <pre><code class="language-sv">// IMMEDIATE: it is a STATEMENT. It runs when the thread goes past it,
 // once, and that is all. The one from the transactions is of this family.
-assert (cmd.op inside {add_op, and_op, xor_op, mul_op})
+assert (cmd.op inside {add_op, sub_op, and_op, xor_op, mul_op})
    else `uvm_error(&quot;SEQ&quot;, &quot;invalid operation&quot;);
 
 // CONCURRENT -- the new thing. It is a DECLARATION with a clock: it gets
@@ -855,7 +855,7 @@ $past expr2 and/or clock arguments</em>).</p>
 <section id="s368" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="the-property-that-is-worth-the-section"><em>The property that is worth the section</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #stable-operands</figcaption><pre><code class="hljs">   <span class="hljs-comment">// --- El estimulo ---</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #stable-operands</figcaption><pre><code class="hljs">   <span class="hljs-comment">// --- The stimulus ---</span>
 
    <span class="hljs-comment">// The rule from slide 1 of day 1, executable at last: while start is up, the</span>
    <span class="hljs-comment">// operands and the operation are not touched.</span>
@@ -1020,7 +1020,7 @@ $past expr2 and/or clock arguments</em>).</p>
 
    <span class="hljs-keyword">default</span> <span class="hljs-keyword">disable</span> iff (!reset_n);
 
-   <span class="hljs-comment">// --- El estimulo ---</span>
+   <span class="hljs-comment">// --- The stimulus ---</span>
 
    <span class="hljs-comment">// The rule from slide 1 of day 1, executable at last: while start is up, the</span>
    <span class="hljs-comment">// operands and the operation are not touched.</span>
@@ -1036,7 +1036,7 @@ $past expr2 and/or clock arguments</em>).</p>
 
    <span class="hljs-comment">// --- The DUT&#x27;s answer ---</span>
 
-   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
+   <span class="hljs-comment">// The variable latency from the VTALU spec section, in one line: one cycle for the</span>
    <span class="hljs-comment">// one-cycle ops, four edges for the multiplication.</span>
    <span class="hljs-keyword">property</span> p_done_llega;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set != no_op) |-&gt; ##[<span class="hljs-number">1</span>:<span class="hljs-number">5</span>] done;
@@ -1081,7 +1081,7 @@ $past expr2 and/or clock arguments</em>).</p>
 
    c_mult_3ciclos : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set == mul_op) ##<span class="hljs-number">3</span> done);
    c_mult_4ciclos : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set == mul_op) ##<span class="hljs-number">4</span> done);
-   c_un_ciclo : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set <span class="hljs-keyword">inside</span> {add_op, and_op, xor_op}) ##<span class="hljs-number">1</span> done);
+   c_un_ciclo : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set <span class="hljs-keyword">inside</span> {add_op, sub_op, and_op, xor_op}) ##<span class="hljs-number">1</span> done);
 
 <span class="hljs-keyword">endinterface</span> : vtalu_bfm</code></pre></details></figure>
 
@@ -1276,7 +1276,7 @@ curiosity that gets cleared up on the next slide. Somebody is going to ask first
 
    <span class="hljs-keyword">default</span> <span class="hljs-keyword">disable</span> iff (!reset_n);
 
-   <span class="hljs-comment">// --- El estimulo ---</span>
+   <span class="hljs-comment">// --- The stimulus ---</span>
 
    <span class="hljs-comment">// The rule from slide 1 of day 1, executable at last: while start is up, the</span>
    <span class="hljs-comment">// operands and the operation are not touched.</span>
@@ -1292,7 +1292,7 @@ curiosity that gets cleared up on the next slide. Somebody is going to ask first
 
    <span class="hljs-comment">// --- The DUT&#x27;s answer ---</span>
 
-   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
+   <span class="hljs-comment">// The variable latency from the VTALU spec section, in one line: one cycle for the</span>
    <span class="hljs-comment">// one-cycle ops, four edges for the multiplication.</span>
    <span class="hljs-keyword">property</span> p_done_llega;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set != no_op) |-&gt; ##[<span class="hljs-number">1</span>:<span class="hljs-number">5</span>] done;
@@ -1337,7 +1337,7 @@ curiosity that gets cleared up on the next slide. Somebody is going to ask first
 
    c_mult_3ciclos : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set == mul_op) ##<span class="hljs-number">3</span> done);
    c_mult_4ciclos : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set == mul_op) ##<span class="hljs-number">4</span> done);
-   c_un_ciclo : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set <span class="hljs-keyword">inside</span> {add_op, and_op, xor_op}) ##<span class="hljs-number">1</span> done);
+   c_un_ciclo : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set <span class="hljs-keyword">inside</span> {add_op, sub_op, and_op, xor_op}) ##<span class="hljs-number">1</span> done);
 
 <span class="hljs-keyword">endinterface</span> : vtalu_bfm</code></pre></details></figure>
 
@@ -1419,7 +1419,7 @@ about something else.</p>
 <section id="s371" class="slide">
 <h2 id="assertions-sva">Assertions (SVA)</h2>
 <h4 id="variable-latency-in-one-line"><em>Variable latency, in one line</em></h4>
-<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #done-arrives</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
+<figure class="codigo"><figcaption><code>code/u8/assertions/vtalu_bfm.sv</code> · #done-arrives</figcaption><pre><code class="hljs">   <span class="hljs-comment">// The variable latency from the VTALU spec section, in one line: one cycle for the</span>
    <span class="hljs-comment">// one-cycle ops, four edges for the multiplication.</span>
    <span class="hljs-keyword">property</span> p_done_llega;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set != no_op) |-&gt; ##[<span class="hljs-number">1</span>:<span class="hljs-number">5</span>] done;
@@ -1589,7 +1589,7 @@ about something else.</p>
 
    <span class="hljs-keyword">default</span> <span class="hljs-keyword">disable</span> iff (!reset_n);
 
-   <span class="hljs-comment">// --- El estimulo ---</span>
+   <span class="hljs-comment">// --- The stimulus ---</span>
 
    <span class="hljs-comment">// The rule from slide 1 of day 1, executable at last: while start is up, the</span>
    <span class="hljs-comment">// operands and the operation are not touched.</span>
@@ -1605,7 +1605,7 @@ about something else.</p>
 
    <span class="hljs-comment">// --- The DUT&#x27;s answer ---</span>
 
-   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
+   <span class="hljs-comment">// The variable latency from the VTALU spec section, in one line: one cycle for the</span>
    <span class="hljs-comment">// one-cycle ops, four edges for the multiplication.</span>
    <span class="hljs-keyword">property</span> p_done_llega;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set != no_op) |-&gt; ##[<span class="hljs-number">1</span>:<span class="hljs-number">5</span>] done;
@@ -1650,13 +1650,13 @@ about something else.</p>
 
    c_mult_3ciclos : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set == mul_op) ##<span class="hljs-number">3</span> done);
    c_mult_4ciclos : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set == mul_op) ##<span class="hljs-number">4</span> done);
-   c_un_ciclo : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set <span class="hljs-keyword">inside</span> {add_op, and_op, xor_op}) ##<span class="hljs-number">1</span> done);
+   c_un_ciclo : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set <span class="hljs-keyword">inside</span> {add_op, sub_op, and_op, xor_op}) ##<span class="hljs-number">1</span> done);
 
 <span class="hljs-keyword">endinterface</span> : vtalu_bfm</code></pre></details></figure>
 
 <ul>
 <li><code>##[1:5] done</code> says <em>&quot;between one and five edges later&quot;</em>. The VTALU takes <strong>one</strong>
-on <code>add</code>/<code>and</code>/<code>xor</code> and <strong>four</strong> on the multiplication: one property covers
+on <code>add</code>/<code>sub</code>/<code>and</code>/<code>xor</code> and <strong>four</strong> on the multiplication: one property covers
 both</li>
 <li><code>##n</code> is an exact delay, <code>##[a:b]</code> a window, <code>##[1:$]</code> <em>&quot;at some
 point&quot;</em> — which is almost never what you want: a property without an upper bound
@@ -1836,7 +1836,7 @@ instead of the one of the library.</p>
 
    c_mult_3ciclos : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set == mul_op) ##<span class="hljs-number">3</span> done);
    c_mult_4ciclos : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set == mul_op) ##<span class="hljs-number">4</span> done);
-   c_un_ciclo : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set <span class="hljs-keyword">inside</span> {add_op, and_op, xor_op}) ##<span class="hljs-number">1</span> done);</code></pre><details><summary>el archivo entero, 217 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
+   c_un_ciclo : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set <span class="hljs-keyword">inside</span> {add_op, sub_op, and_op, xor_op}) ##<span class="hljs-number">1</span> done);</code></pre><details><summary>el archivo entero, 217 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
    <span class="hljs-keyword">import</span> <span class="hljs-uvm-type">uvm_pkg</span>::*;
    <span class="hljs-keyword">import</span> vtalu_pkg::*;
    <span class="hljs-meta">`include</span> <span class="hljs-string">&quot;uvm_macros.svh&quot;</span>
@@ -1989,7 +1989,7 @@ instead of the one of the library.</p>
 
    <span class="hljs-keyword">default</span> <span class="hljs-keyword">disable</span> iff (!reset_n);
 
-   <span class="hljs-comment">// --- El estimulo ---</span>
+   <span class="hljs-comment">// --- The stimulus ---</span>
 
    <span class="hljs-comment">// The rule from slide 1 of day 1, executable at last: while start is up, the</span>
    <span class="hljs-comment">// operands and the operation are not touched.</span>
@@ -2005,7 +2005,7 @@ instead of the one of the library.</p>
 
    <span class="hljs-comment">// --- The DUT&#x27;s answer ---</span>
 
-   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
+   <span class="hljs-comment">// The variable latency from the VTALU spec section, in one line: one cycle for the</span>
    <span class="hljs-comment">// one-cycle ops, four edges for the multiplication.</span>
    <span class="hljs-keyword">property</span> p_done_llega;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set != no_op) |-&gt; ##[<span class="hljs-number">1</span>:<span class="hljs-number">5</span>] done;
@@ -2050,7 +2050,7 @@ instead of the one of the library.</p>
 
    c_mult_3ciclos : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set == mul_op) ##<span class="hljs-number">3</span> done);
    c_mult_4ciclos : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set == mul_op) ##<span class="hljs-number">4</span> done);
-   c_un_ciclo : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set <span class="hljs-keyword">inside</span> {add_op, and_op, xor_op}) ##<span class="hljs-number">1</span> done);
+   c_un_ciclo : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set <span class="hljs-keyword">inside</span> {add_op, sub_op, and_op, xor_op}) ##<span class="hljs-number">1</span> done);
 
 <span class="hljs-keyword">endinterface</span> : vtalu_bfm</code></pre></details></figure>
 
@@ -2306,7 +2306,7 @@ as an anecdote.</p>
 
    <span class="hljs-keyword">default</span> <span class="hljs-keyword">disable</span> iff (!reset_n);
 
-   <span class="hljs-comment">// --- El estimulo ---</span>
+   <span class="hljs-comment">// --- The stimulus ---</span>
 
    <span class="hljs-comment">// The rule from slide 1 of day 1, executable at last: while start is up, the</span>
    <span class="hljs-comment">// operands and the operation are not touched.</span>
@@ -2322,7 +2322,7 @@ as an anecdote.</p>
 
    <span class="hljs-comment">// --- The DUT&#x27;s answer ---</span>
 
-   <span class="hljs-comment">// The variable latency of the The VTALU spec section in one line: one cycle for the</span>
+   <span class="hljs-comment">// The variable latency from the VTALU spec section, in one line: one cycle for the</span>
    <span class="hljs-comment">// one-cycle ops, four edges for the multiplication.</span>
    <span class="hljs-keyword">property</span> p_done_llega;
       @(<span class="hljs-keyword">posedge</span> clk) start &amp;&amp; (op_set != no_op) |-&gt; ##[<span class="hljs-number">1</span>:<span class="hljs-number">5</span>] done;
@@ -2367,7 +2367,7 @@ as an anecdote.</p>
 
    c_mult_3ciclos : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set == mul_op) ##<span class="hljs-number">3</span> done);
    c_mult_4ciclos : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set == mul_op) ##<span class="hljs-number">4</span> done);
-   c_un_ciclo : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set <span class="hljs-keyword">inside</span> {add_op, and_op, xor_op}) ##<span class="hljs-number">1</span> done);
+   c_un_ciclo : <span class="hljs-keyword">cover</span> <span class="hljs-keyword">property</span> (@(<span class="hljs-keyword">posedge</span> clk) <span class="hljs-built_in">$rose</span>(start) &amp;&amp; (op_set <span class="hljs-keyword">inside</span> {add_op, sub_op, and_op, xor_op}) ##<span class="hljs-number">1</span> done);
 
 <span class="hljs-keyword">endinterface</span> : vtalu_bfm</code></pre></details></figure>
 
@@ -2452,7 +2452,7 @@ And the antidote is the same for all four, which is the elegant part: the <code>
 occur. In both cases you have to go and look, and in both cases the <code>assert</code> on its own
 would have said that everything is fine.
 These four are added to the appendix of the silent traps, which from this
-section on are twenty.</p>
+section on are twenty-one.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/379">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -2634,12 +2634,12 @@ this testbench existed.</p>
 </section>
 
 <section id="s388" class="slide">
-<!-- es-sha: 58d61a3aa27d -->
+<!-- es-sha: 2e112e1fa061 -->
 <h2 id="capstone-·-day-7">Capstone · Day 7</h2>
 <h4 id="the-whole-testbench-from-a-blank-sheet"><em>The whole testbench, from a blank sheet</em></h4>
 <p><code>cd code/ejercicios/d7-final &amp;&amp; cat spec.en.md</code></p>
 <ul>
-<li>The other thirteen exercises gave you a file with a hole in it. This one gives a <strong>DUT,
+<li>The previous exercises gave you a file with a hole in it. This one gives a <strong>DUT,
 a spec and nothing else</strong></li>
 <li>The DUT is not the VTALU: it is an <strong>APB3 slave</strong> with four registers. It has
 addresses, two phases per transfer, a <em>wait state</em> and an error response</li>
@@ -2817,7 +2817,7 @@ coverage plan, is exactly the example they ask for.</p>
 a spec badly read, not about UVM: the wait state of the read, the <code>CLR</code> that never gets read
 at 1, the read-only register that gets written without giving an error, and the accumulator
 that only runs with <code>EN=1</code>. They are the four that hang the first testbench, and
-they are together in a section of <code>spec.md</code> called <em>The small print</em> — in
+they are together in a section of <code>spec.en.md</code> called <em>The small print</em> — in
 a real spec they are not going to be together nor in a section with that name.
 The <code>assign</code> of the <code>PREADY</code> is the whole slide if one has to be picked: it says that the
 write does not wait and the read does, and out of that comes the <code>do @(posedge PCLK); while (!PREADY);</code> of the driver. A driver that takes for granted that ACCESS lasts one cycle reads
@@ -2839,7 +2839,7 @@ sequence that writes and reads the four registers</li>
 <li><strong>3 · The scoreboard.</strong> The DUT modelled in software. The checker runs it twice:
 against the healthy DUT it has to keep quiet, and with <strong><code>+BUG=1</code></strong> it has to scream</li>
 <li><strong>4 · The coverage.</strong> The covergroup with the nine rows of the verification
-plan of the spec: more than 20 points, 90 % covered. And <strong>two rows come empty</strong></li>
+plan of the spec: at least 20 points, 90 % covered. And <strong>two rows come empty</strong></li>
 <li><strong>5 · The properties.</strong> The APB protocol inside <code>apb_if.sv</code>, with
 <code>--assert</code>. With <strong><code>+BUG=2</code></strong> there is a bug the scoreboard cannot see</li>
 </ul>
@@ -3076,7 +3076,7 @@ to it</strong> — which is exactly what they practised in the exercises of days
 </section>
 
 <section id="s396" class="slide">
-<!-- es-sha: d485ca9d682c -->
+<!-- es-sha: de50dab17882 -->
 
 
 <h2 id="appendix-·-the-debug-toolbox">Appendix · The debug toolbox</h2>
@@ -3138,8 +3138,10 @@ the handshake of the driver on a single A4 side. The source is <code>res/en/mach
 it opens with a double click and it prints with Ctrl+P.
 The point to say out loud is the one about the plusargs. A <code>$display</code>
 added by hand costs a recompilation of UVM —minutes— and on top of that you have to
-remember to take it out. These seven knobs are already fitted in the binary you
-compiled: they get switched on from the command line and they leave no trace.
+remember to take it out. Six of these seven are already fitted in the binary you compiled: they get switched
+on from the command line and they leave no trace. The seventh, <code>VLT_TRACE</code>, also
+needs the <code>$dumpfile</code>/<code>$dumpvars</code> block in the top — today <code>u2/convencional</code> and
+<code>ejercicios/d1b</code> have it.
 And one detail of <code>+UVM_TIMEOUT</code> that bites, because it does not error out: the value
 is an integer in time units, not an expression with a unit. UVM reads it with
 <code>$sscanf(…, &quot;%d,%s&quot;)</code> (<code>uvm_root.svh:916</code>), so <code>+UVM_TIMEOUT=5ms</code> does not complain:
@@ -3225,7 +3227,7 @@ the next step is the waveforms, which is the tool that does
 </section>
 
 <section id="s398" class="slide">
-<!-- es-sha: c17f3821f756 -->
+<!-- es-sha: 0c261c51b6f1 -->
 
 
 <h2 id="appendix-·-the-21-silent-traps">Appendix · The 21 silent traps</h2>
@@ -3777,7 +3779,7 @@ The LRM and the <em>User Guide</em> are for consulting: nobody reads them straig
 look things up when there is a discussion about syntax or semantics. The Verification
 Academy is the place where almost everything this course left out lives, and it is
 free with registration.
-About Salemi&#39;s book it is worth repeating what <code>docs/en-que-se-diferencia.md</code> says: this
+About Salemi&#39;s book it is worth repeating what <code>docs/en-que-se-diferencia.md</code> (in Spanish) says: this
 course does not replace it and does not follow it. If somebody wants a second pass over
 the same concepts written by another person, it is the best one there is to start with.
 And the point about the charts, because it is the part a student may want to
@@ -3799,7 +3801,7 @@ is in the repo. Nothing in unit 1 is an image downloaded from the internet.</p>
 <span class="libro-pie">Ray Salemi &middot; Boston Light Press, 2013 &middot; ISBN 978-0974164939</span>
 </span>
 </a>
-<p class="libro-nota">This course is not that book: it has another structure, another DUT, another simulator and four units of material the book does not cover. What it does share is credited in <code>NOTICE</code>, and the complete list of differences is in <code>docs/en-que-se-diferencia.md</code>.</p>
+<p class="libro-nota">This course is not that book: it has another structure, another DUT, another simulator and four units of material the book does not cover. What it does share is credited in <code>NOTICE</code>, and the complete list of differences is in <code>docs/en-que-se-diferencia.md</code> (in Spanish).</p>
 </div><div class="nota">
 <p>It is worth saying out loud when you get here: the book is short, it is well
 written and it is still the best way to start in English. If the course was of any
@@ -3838,7 +3840,7 @@ tools are software and MIT is what anybody copying them expects.</p>
 </section>
 
 <section id="s409" class="slide">
-<!-- es-sha: 2f21e65454e9 -->
+<!-- es-sha: 71028ffd7dd5 -->
 
 
 <h2 id="this-is-as-far-as-we-got">This is as far as we got</h2>
@@ -3863,7 +3865,7 @@ anybody for a licence</li>
 </ul>
 <div class="nota">
 <p>It is worth reading the list out loud and slowly, because after seven days nobody
-has a sense of how much they saw. It is five bullets and each one was a whole course
+has a sense of how much they saw. It is seven bullets and each one was a whole course
 a week ago.
 The one to underline is the last, and not out of activism: <strong>all of this runs on
 the student&#39;s machine</strong>. There is no part of the course left in demo mode
@@ -3958,7 +3960,7 @@ library stops being magic.</p>
 </section>
 
 <section id="s411" class="slide">
-<!-- es-sha: d97533d950af -->
+<!-- es-sha: 99b0bd93451b -->
 <h2 id="self-assessment">Self-assessment</h2>
 <h4 id="fifteen-things-you-should-be-able-to-do-by-now-·-1-of-3"><em>Fifteen things you should be able to do by now · 1 of 3</em></h4>
 <table>
@@ -4086,7 +4088,7 @@ testbench that works and one you can work with.</p>
 spec, and the whole testbench from a blank sheet</li>
 </ul>
 <div class="nota">
-<p>The 14 is the question thrown out on day 3, when the UVM class diagram
+<p>The 14 is the question thrown out on day 1, when the UVM class diagram
 shows up, and it gets answered on day 6. If the student can answer it, they understood the
 division that explains half the library: <code>uvm_object</code> is the <strong>data</strong> and
 <code>uvm_component</code> is the <strong>structure</strong>. An object gets created and thrown away; a component

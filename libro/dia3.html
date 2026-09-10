@@ -783,7 +783,7 @@ curso van adentro de un <code>if</code> con su <code>uvm_fatal</code>.</p>
 <ul>
 <li><p>Un testbench tiene tres cosas distintas: la <strong>estructura</strong> —qué partes hay y
 cómo se conectan—, las <strong>secuencias</strong> —qué comandos, en qué orden— y los
-<strong>datos</strong>. Esta unidad es la primera; las otras dos son el día 6</p>
+<strong>datos</strong>. Esta unidad es la primera; los datos son el día 5 y las secuencias el día 6</p>
 </li>
 <li><p>En los tests el test hacía <code>new()</code> de tres objetos sueltos y los llamaba
 él mismo. Eso no es una estructura: es una función larga</p>
@@ -841,8 +841,8 @@ Si además conviene llamar a <code>super</code>, es tema de la slide que sigue</
 <div class="nota">
 <p>Tres cosas que hay que decir sí o sí: build_phase es top-down, connect_phase es
 bottom-up, y todos los run_phase corren en paralelo, cada uno en su thread.
-Y el error clásico: instanciar componentes fuera de build_phase. UVM no te avisa
-amablemente.</p>
+Y el error clásico: crear componentes <strong>después</strong> de que build terminó. UVM sí te
+avisa, y bien: <code>ILLCRT</code> te dice qué componente y bajo qué padre.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/131">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -907,8 +907,9 @@ material de internet y en la mayoría de los <code>build_phase</code> del curso 
 respuesta honesta no es &quot;se olvidaron&quot;: es que sin las macros de campo la llamada
 al de <code>uvm_component</code> no hace nada.
 Los números, para que nadie tenga que creernos:
-<code>grep -rn &#39;super\.build_phase&#39; code/</code> da once llamadas reales —más tres
-comentarios que hablan de ellas— sobre 122 <code>build_phase</code>. Las once llaman al
+<code>grep -rn &#39;super\.build_phase&#39; code/ --include=&#39;*.sv&#39; --include=&#39;*.svh&#39; --exclude-dir=.uvm</code>
+da quince llamadas reales —más seis comentarios que hablan de ellas— sobre 309
+<code>build_phase</code>. Las quince llaman al
 <code>super</code> de un <code>base_test</code> o un <code>random_test</code> <strong>nuestro</strong>, que construye el env.
 Ninguna llama al de <code>uvm_component</code>, que es de lo que habla la slide.
 La otra diferencia de fondo: hay dos formas de configurar un componente. La
@@ -920,7 +921,7 @@ Por qué la recomendación de afuera es la contraria a lo que hace el curso: el
 modo de falla es asimétrico. Ponerlo de más es cero efecto. No ponerlo cuando
 hacía falta es silencio: el campo queda en su default y la simulación corre.
 Este curso puede nombrar por qué en su caso es un no-op —no hay una sola macro
-<code>`uvm_field_*</code> en <code>code/</code>, verificalo—; el que entra a un testbench ajeno no
+<code>`uvm_field_*</code> en <code>code/</code> fuera de la librería vendorizada, verificalo—; el que entra a un testbench ajeno no
 puede. <code>uvm_agent</code> es el contraejemplo que tenemos a mano: es la única clase de
 la librería, además de <code>uvm_component</code>, que implementa <code>build_phase</code>, y lo que
 hace ahí es leer <code>is_active</code>. Vuelve en el día 6.
@@ -1415,7 +1416,6 @@ y si se olvida, no compila.</p>
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(add_tester)
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">operation_t </span><span class="hljs-title">get_op</span>();
-      <span class="hljs-type">bit</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] op_choice;
       <span class="hljs-keyword">return</span> add_op;
    <span class="hljs-keyword">endfunction</span> : get_op
 
@@ -1688,7 +1688,7 @@ llamada, otro tipo.</p>
 <section id="s153" class="slide">
 <h2 id="el-env-estructura-y-estímulo">El env: estructura y estímulo</h2>
 <h4 id="el-override-de-la-factory"><em>El override de la factory</em></h4>
-<p><img src="../res/print/diagrams/env_uvm_incantation_2.svg" alt="set_type_override_by_type: la factory devuelve add_tester donde se pide base_tester"></p>
+<p><img src="../res/print/diagrams/env_uvm_incantation_2.svg" alt="set_type_override: la factory devuelve add_tester donde se pide base_tester"></p>
 <ul>
 <li>El método static <em>set_type_override()</em> le dice a la factory que cuando vea un pedido por una <em>base_class_name</em> retorne un objeto del tipo <em>new_class_name</em></li>
 <li>Esta feature es la que nos permite separar la estructura del TB (<em>uvm_env</em>) del tipo de estímulo generado (<em>uvm_test</em>)</li>
@@ -1725,7 +1725,7 @@ la factory no encuentra la clase y el mensaje de error no ayuda nada.</p>
 <ul>
 <li>Vemos que esta versión es más adaptable</li>
 <li>Todos los tests hacen un override de base_tester en función del tester que necesitan para sus estímulos</li>
-<li>La clase env crea el objeto y lo pone en ejecución</li>
+<li>La clase env crea el objeto; ponerlo en ejecución es cosa de UVM</li>
 <li>Ahora la clase test hace una cosa bien (generar estímulos) y la clase env hace otra cosa muy bien (crear la estructura)</li>
 </ul>
 <div class="nota">
@@ -1765,7 +1765,7 @@ Type Overrides:
 gana el de instancia</li>
 <li>La ruta es <strong>absoluta y arranca en <code>uvm_test_top</code></strong>. Medido: <code>&quot;env_h.t3_h&quot;</code> se
 registra igual, no da error, y <code>t3_h</code> sale <code>add_tester</code></li>
-<li><code>factory.print(0)</code> es la contraparte de <code>+TOPOLOGY</code>: uno dice lo que
+<li><code>factory.print(0)</code> es la contraparte de <code>uvm_top.print_topology()</code>: uno dice lo que
 <strong>pediste</strong>, el otro lo que <strong>salió</strong>. Cuando no coinciden, el bug está en el medio</li>
 <li>Con <code>*</code> anda: <code>&quot;*.env_h.t4_h&quot;</code> aplica. Es el rodeo cuando el test no sabe dónde
 lo van a instanciar</li>
@@ -1780,7 +1780,7 @@ como si estuviera funcionando. No hay warning, no hay error, y el componente sal
 del tipo base. Es la misma familia que el <code>set_type_override</code> tardío del apéndice
 de trampas: la factory no valida rutas porque no puede — cuando se registra el
 override, el componente todavía no existe.
-La regla práctica: la ruta es la que imprime <code>+TOPOLOGY</code>, sin el <code>&lt;unnamed&gt;</code> de
+La regla práctica: la ruta es la que imprime <code>uvm_top.print_topology()</code>, sin el <code>&lt;unnamed&gt;</code> de
 arriba. Si el árbol dice <code>uvm_test_top.env_h.t2_h</code>, eso es lo que va entre
 comillas. Y si no querés depender de dónde te instancian, <code>*.env_h.t2_h</code>, que
 también está medido y también aplica.
@@ -2172,26 +2172,28 @@ media tarde mientras otro arregla su clase, y se saca el mismo día.</p>
 que así sea: nadie quiere apagar un error sin querer</li>
 <li>La perilla que sí los alcanza se llama <strong>actions</strong>, y responde a otra pregunta:
 no <em>&quot;¿se imprime?&quot;</em> sino <em>&quot;¿qué se hace con este mensaje?&quot;</em></li>
-<li>Imprimir es sólo una de las seis cosas posibles</li>
+<li>Imprimir es sólo una de las siete cosas posibles</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u4/reporting/tb_classes/UVM_report_actions.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">enum</span>
 {
-	<span class="hljs-uvm-const">UVM_NO_ACTION</span> = <span class="hljs-number">6&#x27;b000000</span>,
-	<span class="hljs-uvm-const">UVM_DISPLAY</span>   = <span class="hljs-number">6&#x27;b000001</span>,
-	<span class="hljs-uvm-const">UVM_LOG</span>       = <span class="hljs-number">6&#x27;b000010</span>,
-	<span class="hljs-uvm-const">UVM_COUNT</span>     = <span class="hljs-number">6&#x27;b000100</span>,
-	<span class="hljs-uvm-const">UVM_EXIT</span>      = <span class="hljs-number">6&#x27;b001000</span>,
-	<span class="hljs-uvm-const">UVM_CALL_HOOK</span> = <span class="hljs-number">6&#x27;b010000</span>,
-	<span class="hljs-uvm-const">UVM_STOP</span>      = <span class="hljs-number">6&#x27;b100000</span>
+	<span class="hljs-uvm-const">UVM_NO_ACTION</span> = <span class="hljs-number">7&#x27;b0000000</span>,
+	<span class="hljs-uvm-const">UVM_DISPLAY</span>   = <span class="hljs-number">7&#x27;b0000001</span>,
+	<span class="hljs-uvm-const">UVM_LOG</span>       = <span class="hljs-number">7&#x27;b0000010</span>,
+	<span class="hljs-uvm-const">UVM_COUNT</span>     = <span class="hljs-number">7&#x27;b0000100</span>,
+	<span class="hljs-uvm-const">UVM_EXIT</span>      = <span class="hljs-number">7&#x27;b0001000</span>,
+	<span class="hljs-uvm-const">UVM_CALL_HOOK</span> = <span class="hljs-number">7&#x27;b0010000</span>,
+	<span class="hljs-uvm-const">UVM_STOP</span>      = <span class="hljs-number">7&#x27;b0100000</span>,
+	<span class="hljs-uvm-const">UVM_RM_RECORD</span> = <span class="hljs-number">7&#x27;b1000000</span>
 } <span class="hljs-uvm-type">uvm_action_type</span></code></pre></figure><div class="nota">
-<p>Las seis acciones son un OR de bits, no una lista de opciones excluyentes: un
+<p>Las siete acciones son un OR de bits, no una lista de opciones excluyentes: un
 mismo mensaje puede imprimirse <strong>y</strong> escribirse a un archivo <strong>y</strong> contar para el
 resumen. Por eso se combinan con <code>|</code>.
 <code>UVM_COUNT</code> es la que más se explica mal, y conviene decirla completa: ya está
 puesta por defecto en todo <code>`uvm_error</code>, y lo que incrementa es **un contador
 global** de la corrida, no uno por ID. Sola no mata nada, porque el máximo por
 defecto es 0, que quiere decir &quot;sin límite&quot;. La que corta es
-<code>+UVM_MAX_QUIT_COUNT=N</code> —o <code>set_report_max_quit_count(N)</code>, <code>uvm_root.svh:1187</code>—, y
+<code>+UVM_MAX_QUIT_COUNT=N</code> (<code>uvm_root.svh:1187</code>) —o <code>set_report_max_quit_count(N)</code>,
+<code>uvm_report_object.svh:578</code>—, y
 ésa sí es la respuesta al log de cuatro gigas cuando un scoreboard falla en cada
 transacción: te enterás igual, y en treinta segundos en vez de en veinte minutos.
 <code>UVM_NO_ACTION</code> es la que usa la slide siguiente para apagar los errores, y hay
@@ -2238,7 +2240,7 @@ UVM_FATAL :    0
 arregla su clase, no para que la regresión dé verde.
 Y mostrar el <em>Report Summary</em> del segundo log al lado del primero es la mejor
 advertencia que da la sección: el testbench dice <strong>0 UVM_ERROR</strong> y el DUT sigue
-exactamente igual de roto que hace dos slides. Ésa es la razón de que un
+exactamente igual de roto que cuando lo rompimos. Ésa es la razón de que un
 <code>UVM_NO_ACTION</code> no pueda sobrevivir a un commit — es una trampa muda, y está en
 el apéndice.
 El scoreboard de esta sección suma de más A PROPÓSITO, es el bug que estamos
@@ -2451,7 +2453,8 @@ la verbosidad.</p>
 <p>Antes de largarlos al ejercicio, volver a la slide <em>&quot;El mapa del día 3: qué
 reemplaza a qué&quot;</em> del testbench en objetos y leer la columna derecha de corrido: el
 <code>build_phase</code> del env, el config_db, los <code>run_phase</code>, las objections y el
-<code>set_type_override</code>. Las cinco filas están tachadas, y el día cierra ahí.
+<code>set_type_override</code> y el <code>$display</code> que pasó a <code>uvm_info</code>. Las seis filas están
+tachadas, y el día cierra ahí.
 Es el ejercicio del día 2 otra vez, pero con la factory. Vale ponerlos a
 comparar los dos: en el día 2 el tipo se elegía en el código del testbench, acá
 lo elige la factory y el testbench no cambia una línea.
@@ -2468,7 +2471,7 @@ que agregar uno tenga que ser barato.</p>
 <p><code>cd code/ejercicios/d3b &amp;&amp; bash run.sh</code></p>
 <ul>
 <li>El scoreboard está <strong>bien</strong> —atrapa todos los errores— y cuando falla dice
-<code>FAILED</code> y nada más. Es la línea con la que arrancó el día 1</li>
+<code>FAILED</code> y nada más: menos todavía que la línea con la que arrancó el día 1</li>
 <li>Que el <code>uvm_error</code> diga <strong>cuál</strong> falló: <code>A</code>, <code>B</code>, la operación, el resultado
 del DUT y el que predijiste</li>
 <li>Y que el que <strong>pasa</strong> también se imprima, con <code>UVM_HIGH</code>, para que no aparezca

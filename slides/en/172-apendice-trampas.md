@@ -1,4 +1,4 @@
-<!-- es-sha: c17f3821f756 -->
+<!-- es-sha: 0c261c51b6f1 -->
 <!-- .slide: id="apendice-trampas" -->
 
 ## Appendix · The 21 silent traps

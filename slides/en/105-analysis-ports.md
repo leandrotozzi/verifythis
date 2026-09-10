@@ -1,4 +1,4 @@
-<!-- es-sha: ceed568d8fe9 -->
+<!-- es-sha: 00464c069316 -->
 ## A single place that watches the wire
 
 #### *A single place that watches the wire*
@@ -169,7 +169,9 @@ old one was filling bins with nothing.
 - However, in cases like a scoreboard, we need one and the same component to receive data from 2 analysis ports
 - The reason for the limit: `uvm_subscriber` gives you **a single** `write()`, and
   that is the method the port calls. Two ports have nowhere to come in
-- UVM solves it without splitting the component, with the *uvm_tlm_analysis_fifo* class
+- UVM solves it without splitting the component, with the *uvm_tlm_analysis_fifo* class,
+  which is **unbounded by construction**: its `write()` is a `function` and cannot
+  block, so it cannot drop anything
 - It is parameterized and it has two faces: an *analysis_export* on one side
   —which gets connected like any subscriber— and a `try_get()` on the other
 - `try_get()` takes an element out and returns 0 if the FIFO is empty, without blocking

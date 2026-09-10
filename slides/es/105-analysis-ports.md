@@ -163,7 +163,9 @@ llenando bins con la nada.
 - Sin embargo, en casos como un scoreboard, necesitamos que un mismo componente reciba datos de 2 analysis port
 - El motivo del límite: `uvm_subscriber` te da **un solo** `write()`, y ése es el
   método que el puerto llama. Dos puertos no tienen dónde entrar
-- UVM lo resuelve sin partir el componente, con la clase *uvm_tlm_analysis_fifo*
+- UVM lo resuelve sin partir el componente, con la clase *uvm_tlm_analysis_fifo*,
+  que es **ilimitada por construcción**: su `write()` es una `function` y no puede
+  bloquear, así que no puede tirar nada
 - Es paramétrica y tiene dos caras: un *analysis_export* de un lado —que se conecta
   como cualquier subscriber— y un `try_get()` del otro
 - `try_get()` saca un elemento y devuelve 0 si la FIFO está vacía, sin bloquear

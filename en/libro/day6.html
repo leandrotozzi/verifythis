@@ -56,7 +56,7 @@
   your own, start here and keep the deck alongside for the reviews.</p>
 
 <section id="s295" class="slide">
-<!-- es-sha: 246c56e3b625 -->
+<!-- es-sha: a117462e4a31 -->
 
 
 <h2 id="yesterday-we-left">Yesterday we left…</h2>
@@ -85,7 +85,7 @@ grows factorially, and it is the reason the unit exists.</p>
 
 <section id="s296" class="slide">
 <h2 id="agenda">Agenda</h2>
-<h4 id="day-6-·-≈-4-h-15-·-unit-7-·-the-reusable-testbench"><em>Day 6 · ≈ 4 h 15 · unit 7 · the reusable testbench</em></h4>
+<h4 id="day-6-·-≈-4-h-45-·-unit-7-·-the-reusable-testbench"><em>Day 6 · ≈ 4 h 45 · unit 7 · the reusable testbench</em></h4>
 <ul>
 <li>Agents</li>
 <li>Callbacks</li>
@@ -101,7 +101,7 @@ grows factorially, and it is the reason the unit exists.</p>
 </ul>
 <div class="nota">
 <p>The first two are rows 13 and 14 of the closing self-assessment. The 14th is the
-question thrown on day 3, when the UVM class diagram showed up, and it gets
+question thrown on day 1, when the UVM class diagram showed up, and it gets
 answered today: <code>uvm_object</code> is the <strong>data</strong> and <code>uvm_component</code> is the
 <strong>structure</strong>.
 The third one is what closes the unit and the day: when that line goes, no line
@@ -112,7 +112,7 @@ testbench truly reusable.</p>
 </section>
 
 <section id="s297" class="slide">
-<!-- es-sha: 9368389b7634 -->
+<!-- es-sha: b1c9dffa7311 -->
 <h2 id="agents">Agents</h2>
 <h4 id="the-problem-a-testbench-that-cannot-be-copied"><em>The problem: a testbench that cannot be copied</em></h4>
 <ul>
@@ -541,7 +541,7 @@ built two objects fewer. Both monitors are in both, because watching
 is never optional.
 And the one that is not there: there is no <code>sequence</code> in this tree. A sequence is a
 <code>uvm_object</code>, not a <code>uvm_component</code>, so it does not live in the topology. It is the
-question thrown out on day 3 with the class diagram, and here it can be answered
+question thrown out on day 1 with the class diagram, and here it can be answered
 pointing at the screen.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/305">see this slide in the deck &rsaquo;</a></p>
@@ -1574,7 +1574,7 @@ the DUT, not the stimulus — which is exactly what the <code>+BUG=1</code> of t
 </section>
 
 <section id="s321" class="slide">
-<!-- es-sha: fd3d44b98f43 -->
+<!-- es-sha: 7bab513dd9ec -->
 <h2 id="sequences">Sequences</h2>
 <h4 id="the-only-thing-left-hard-wired"><em>The only thing left hard-wired</em></h4>
 <ul>
@@ -1631,8 +1631,8 @@ somebody looks for <code>sequencer_h.full_seq</code> with <code>uvm_root::get().
 find it.
 The other consequence, the one used every day: since it is not a component, a
 sequence can have configurable fields that get changed <strong>between</strong> the <code>create()</code>
-and the <code>start()</code>. That is what <code>full_seq.count = 200</code> does two slides
-further on, and with a component it could not be done: by the time you want to change it, the
+and the <code>start()</code>. That is what <code>full_seq.count = 200</code> does at the end of the
+unit, and with a component it could not be done: by the time you want to change it, the
 <code>build_phase</code> has already gone by.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/322">see this slide in the deck &rsaquo;</a></p>
@@ -1659,9 +1659,9 @@ further on, and with a component it could not be done: by the time you want to c
    <span class="hljs-keyword">task</span> <span class="hljs-title">body</span>();
       command_transaction command;
       command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
-      start_item(command);    <span class="hljs-comment">// bloquea hasta que el sequencer nos da el turno</span>
-      command.op = rst_op;    <span class="hljs-comment">// recien ahora decidimos que mandar</span>
-      finish_item(command);   <span class="hljs-comment">// bloquea hasta el item_done() del driver</span>
+      start_item(command);    <span class="hljs-comment">// blocks until the sequencer gives us our turn</span>
+      command.op = rst_op;    <span class="hljs-comment">// only now do we decide what to send</span>
+      finish_item(command);   <span class="hljs-comment">// blocks until the driver calls item_done()</span>
    <span class="hljs-keyword">endtask</span> : body
 
 <span class="hljs-keyword">endclass</span> : reset_sequence</code></pre></figure>
@@ -1713,13 +1713,14 @@ cost a clock edge</li>
 <p>Confusion number one of the section: believing that <code>finish_item()</code> comes back when the
 item <strong>was delivered</strong>. No: it comes back when the driver called <code>item_done()</code>, that is
 when the operation <strong>finished in the DUT</strong>. It is the difference between &quot;I sent it&quot; and
-&quot;it is done&quot;, and it is what makes Fibonacci possible four slides further on.
+&quot;it is done&quot;, and it is what makes the Fibonacci sequence possible.
 Out of that comes as well why the <code>#500</code> that the <code>tester</code> of the transactions
 had at the end disappeared: it was not stimulus, it was a patch so the objection would not drop
 before its time. With <code>finish_item()</code> the stimulus no longer gets cut in half. Careful,
 honesty: the <strong>last</strong> result can still end up uncompared, because the
 objection gets dropped as soon as <code>start()</code> comes back and the <code>result_monitor</code> publishes one edge
-later. It can be seen in the log of the <code>add_test</code>: 1001 commands, 1000 comparisons.
+later. It can be seen in the log of the <code>add_test</code> run with <code>+UVM_VERBOSITY=UVM_HIGH</code>: 1001
+commands, 1000 comparisons.
 If somebody asks about the non-blocking cousin: there is <code>try_next_item()</code>, which
 comes back right away with <code>null</code> if the sequencer has nothing. It is the same
 <code>get()</code> / <code>try_get()</code> pair from the communication between threads and it is useful when the protocol forces you to drive
@@ -1857,10 +1858,10 @@ edges; if you already know which value you want, it has nothing to contribute.
       command_transaction command;
       <span class="hljs-type">shortint</span> <span class="hljs-type">unsigned</span>   alu_result;
       <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span> : command_loop
-         seq_item_port.get_next_item(command);  <span class="hljs-comment">// bloquea hasta que haya item</span>
+         seq_item_port.get_next_item(command);  <span class="hljs-comment">// blocks until there is an item</span>
          bfm.send_op(command.A, command.B, command.op, alu_result);
-         command.result = alu_result;  <span class="hljs-comment">// el camino de vuelta</span>
-         seq_item_port.item_done();  <span class="hljs-comment">// desbloquea el finish_item()</span>
+         command.result = alu_result;  <span class="hljs-comment">// the way back</span>
+         seq_item_port.item_done();  <span class="hljs-comment">// unblocks the finish_item()</span>
       <span class="hljs-keyword">end</span> : command_loop
    <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 29 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">driver</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_driver</span> #(<span class="hljs-type">command_transaction</span>);
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(driver)
@@ -1883,10 +1884,10 @@ edges; if you already know which value you want, it has nothing to contribute.
       command_transaction command;
       <span class="hljs-type">shortint</span> <span class="hljs-type">unsigned</span>   alu_result;
       <span class="hljs-keyword">forever</span> <span class="hljs-keyword">begin</span> : command_loop
-         seq_item_port.get_next_item(command);  <span class="hljs-comment">// bloquea hasta que haya item</span>
+         seq_item_port.get_next_item(command);  <span class="hljs-comment">// blocks until there is an item</span>
          bfm.send_op(command.A, command.B, command.op, alu_result);
-         command.result = alu_result;  <span class="hljs-comment">// el camino de vuelta</span>
-         seq_item_port.item_done();  <span class="hljs-comment">// desbloquea el finish_item()</span>
+         command.result = alu_result;  <span class="hljs-comment">// the way back</span>
+         seq_item_port.item_done();  <span class="hljs-comment">// unblocks the finish_item()</span>
       <span class="hljs-keyword">end</span> : command_loop
    <span class="hljs-keyword">endtask</span> : run_phase
 
@@ -1991,10 +1992,10 @@ bug until proven otherwise.</p>
          command.A  = n_menos_2;
          command.B  = n_menos_1;
          command.op = add_op;
-         finish_item(command);        <span class="hljs-comment">// vuelve cuando el driver hizo item_done()</span>
+         finish_item(command);        <span class="hljs-comment">// returns when the driver called item_done()</span>
 
          n_menos_2 = n_menos_1;
-         n_menos_1 = command.result;  <span class="hljs-comment">// el driver lo escribio adentro del item</span>
+         n_menos_1 = command.result;  <span class="hljs-comment">// the driver wrote it inside the item</span>
          <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;FIBONACCI&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;Fib(%02d) = %03d&quot;</span>, ff, n_menos_1),
                    <span class="hljs-uvm-const">UVM_MEDIUM</span>)
       <span class="hljs-keyword">end</span> : fib_loop
@@ -2029,10 +2030,10 @@ bug until proven otherwise.</p>
          command.A  = n_menos_2;
          command.B  = n_menos_1;
          command.op = add_op;
-         finish_item(command);        <span class="hljs-comment">// vuelve cuando el driver hizo item_done()</span>
+         finish_item(command);        <span class="hljs-comment">// returns when the driver called item_done()</span>
 
          n_menos_2 = n_menos_1;
-         n_menos_1 = command.result;  <span class="hljs-comment">// el driver lo escribio adentro del item</span>
+         n_menos_1 = command.result;  <span class="hljs-comment">// the driver wrote it inside the item</span>
          <span class="hljs-uvm-macro">`uvm_info</span>(<span class="hljs-string">&quot;FIBONACCI&quot;</span>, <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;Fib(%02d) = %03d&quot;</span>, ff, n_menos_1),
                    <span class="hljs-uvm-const">UVM_MEDIUM</span>)
       <span class="hljs-keyword">end</span> : fib_loop
@@ -2188,7 +2189,7 @@ sequencer, and there are six modes, one of them with weights.</p>
       <span class="hljs-comment">// THE TEST raises the objection, not the sequence: the sequence knows</span>
       <span class="hljs-comment">// nothing about phases, and has to be able to run inside another sequence.</span>
       phase.raise_objection(<span class="hljs-keyword">this</span>);
-      full_seq.start(sequencer_h);   <span class="hljs-comment">// no vuelve hasta que body() termino</span>
+      full_seq.start(sequencer_h);   <span class="hljs-comment">// does not return until body() finished</span>
       phase.drop_objection(<span class="hljs-keyword">this</span>);
    <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 20 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Same stimulus as the dual_test of the agents section, now in three sequences.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">full_test</span> <span class="hljs-keyword">extends</span> base_test;
@@ -2205,7 +2206,7 @@ sequencer, and there are six modes, one of them with weights.</p>
       <span class="hljs-comment">// THE TEST raises the objection, not the sequence: the sequence knows</span>
       <span class="hljs-comment">// nothing about phases, and has to be able to run inside another sequence.</span>
       phase.raise_objection(<span class="hljs-keyword">this</span>);
-      full_seq.start(sequencer_h);   <span class="hljs-comment">// no vuelve hasta que body() termino</span>
+      full_seq.start(sequencer_h);   <span class="hljs-comment">// does not return until body() finished</span>
       phase.drop_objection(<span class="hljs-keyword">this</span>);
    <span class="hljs-keyword">endtask</span> : run_phase
 
@@ -2503,6 +2504,10 @@ join
 <td>at random, all equal</td>
 </tr>
 <tr>
+<td><code>UVM_SEQ_ARB_STRICT_RANDOM</code></td>
+<td>at random, but only among the highest priority ones</td>
+</tr>
+<tr>
 <td><code>UVM_SEQ_ARB_USER</code></td>
 <td><code>user_priority_arbitration()</code>, you write it</td>
 </tr>
@@ -2636,7 +2641,7 @@ the unit catches up here.</p>
 <ul>
 <li>Sequences compose: one calls others, in series or with <code>fork</code>/<code>join</code></li>
 <li>And when there is <strong>more than one sequencer</strong>, the one that composes is a
-<strong>virtual sequence</strong>, which is first thing tomorrow ↪ day 7</li>
+<strong>virtual sequence</strong>, which comes just as day 7 starts ↪ day 7</li>
 <li>With <strong>two sequences on the same sequencer</strong> the one who hands out is the sequencer:
 priority and <code>set_arbitration(...)</code>, and <code>lock()</code>/<code>grab()</code> for the scenario that cannot
 be interleaved</li>

@@ -1,4 +1,4 @@
-// Wrong Way de hacer convert2string!
+// The WRONG way to write convert2string!
 //class trago;
    virtual function string convert2string();
       return $sformatf("Hielos: %0d", hielos);

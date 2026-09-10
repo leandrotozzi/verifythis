@@ -78,6 +78,23 @@ node tools/lint-i18n.mjs --bless slides/en/060-factory.md
 Si todavía no la vas a traducir, dejalo fallar y avisá en el PR: es mejor un
 check en rojo que una versión que dice otra cosa.
 
+### Si tocaste un dato que está escrito en más de un lugar
+
+`npm run check` corre `tools/lint-coherencia.mjs`. Es la respuesta a la causa
+número uno de los defectos de este repo: el mismo dato vive en la slide ES, en la
+EN, en la figura de cada idioma, en el machete y a veces en un comentario del
+código, y el arreglo entra en todos menos uno. Después nadie lo ve, porque para
+verlo hay que mirar los N lugares a la vez.
+
+Cada hecho declara una **fuente** —el archivo del repo o de `code/.uvm` que lo
+hace verdadero— y los **lugares** que lo repiten. Si cambia la fuente, el lint
+avisa que hay que revisar los lugares; si un lugar quedó viejo, dice cuál. Para
+agregar un hecho, una entrada en `HECHOS` con la fuente y los lugares.
+
+El mismo archivo prohíbe las **referencias de distancia** —*"dos slides más
+adelante"*, *"hace tres slides"*—, que se rompen solas cuando alguien inserta una
+slide. Nombrá la slide. Las de ±1 (*"la slide anterior"*) siguen permitidas.
+
 ### Si tocaste `code/`
 
 ```sh

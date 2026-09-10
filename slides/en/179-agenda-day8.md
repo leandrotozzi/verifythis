@@ -1,4 +1,4 @@
-<!-- es-sha: 21fce0178178 -->
+<!-- es-sha: 3d57bdc4c97f -->
 <!-- .slide: id="day8" -->
 
 ## Yesterday we left…
@@ -26,7 +26,7 @@ without a problem.
 
 ---
 
-<!-- .slide: data-machete="res/en/uvm_class_diagram.svg,res/diagrams/en/sequences_tb_completo.svg" -->
+<!-- .slide: data-machete="res/en/uvm_class_diagram.svg,res/diagrams/en/ral_camino.svg,res/diagrams/en/sequences_tb_completo.svg" -->
 
 ## Agenda
 
@@ -48,7 +48,7 @@ For whoever teaches it: in a company this is another half day, and it usually
 gets taught when the group has real registers in the project. In a term it is the
 optional unit, or the final assignment for those who want a high mark.
 The three objectives are deliberately concrete and not "understand RAL": day 8
-has no self-assessment of its own, so these three verbs are the only rubric the
-student takes away. The third is the one that pays off the most of the three and
+has no row in the `175b` self-assessment, so the rubric the student takes away is
+these three verbs and the eight-question review. The third is the one that pays off the most of the three and
 the least expected — a FIFO has order and occupancy, and that does not fit in a
 four-row table.

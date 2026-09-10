@@ -48,9 +48,9 @@ el docente no corrige código a mano hasta el capstone.
 | 7 | **U3** · El patrón factory · Un testbench sin un solo módulo | Repaso: preguntas **8–15** del banco, en clase |
 | 8 | **Parcial 1** (1 h) + **U4** · Tests | — |
 | 9 | **U4** · Components y fases · El env | [`d3`](../code/ejercicios/d3/) — factory override sin tocar el `env` |
-| 10 | **U4** · Reporting · **U5** · Un productor, muchos oyentes | [`d3b`](../code/ejercicios/d3b/) — el `uvm_error` que no dice nada · [`d4`](../code/ejercicios/d4/) — un subscriber más |
-| 10b | **U5** · Quién espera a quién · `fork` y familia | [`d4b`](../code/ejercicios/d4b/) — el `#500` es un parche |
-| 11 | **U5** · Un solo lugar que mira el cable · Quién espera a quién | [`d5`](../code/ejercicios/d5/) — el scoreboard grita y el DUT está sano |
+| 10 | **U4** · Reporting · **U5** · Un productor, muchos oyentes · Un solo lugar que mira el cable | [`d3b`](../code/ejercicios/d3b/) — el `uvm_error` que no dice nada · [`d4`](../code/ejercicios/d4/) — un subscriber más |
+| 10b | **U5** · Quién espera a quién · Cuando alguien tiene que esperar (`put`/`get` y la FIFO) | [`d4b`](../code/ejercicios/d4b/) — el `#500` es un parche |
+| 11 | **U6** · Repaso de U5 y arranque de jerarquías | [`d5`](../code/ejercicios/d5/) — el scoreboard grita y el DUT está sano |
 | 12 | **U6** · Copiar un objeto que contiene otro · Transactions | [`d5b`](../code/ejercicios/d5b/) — medí tu `dist` |
 | 13 | **U6** · Constrained random + **Parcial 2** (1 h) | [`d5c`](../code/ejercicios/d5c/) — cerrar un bin dirigido |
 | 14 | **U7** · Agents · Sequences — y *Callbacks* si entra, que es el primero de la lista de recortes | [`d6-agents`](../code/ejercicios/d6-agents/) · [`d6-sequences`](../code/ejercicios/d6-sequences/) · [`d6-debug`](../code/ejercicios/d6-debug/) — tres bugs plantados |
@@ -100,7 +100,7 @@ gratis.
 Lo que **no** conviene sacar, aunque tiente:
 
 - **El plan de verificación** (U1). Es media hora y es lo que convierte el
-  covergroup del día 6 en algo que se deduce en vez de inventarse. Sin él, la
+  covergroup del día 1 en algo que se deduce en vez de inventarse. Sin él, la
   etapa 4 del capstone no tiene de dónde salir.
 - **Reporting** (U4). Parece accesorio y es el 47 % del trabajo real. El curso
   entero apunta a esa cifra desde la primera slide.

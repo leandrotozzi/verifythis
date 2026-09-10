@@ -1,4 +1,4 @@
-<!-- es-sha: d485ca9d682c -->
+<!-- es-sha: de50dab17882 -->
 <!-- .slide: id="apendice-debug" data-machete="res/en/machete-debug.svg" -->
 
 ## Appendix · The debug toolbox
@@ -27,8 +27,10 @@ the handshake of the driver on a single A4 side. The source is `res/en/machete.h
 it opens with a double click and it prints with Ctrl+P.
 The point to say out loud is the one about the plusargs. A `$display`
 added by hand costs a recompilation of UVM —minutes— and on top of that you have to
-remember to take it out. These seven knobs are already fitted in the binary you
-compiled: they get switched on from the command line and they leave no trace.
+remember to take it out. Six of these seven are already fitted in the binary you compiled: they get switched
+on from the command line and they leave no trace. The seventh, `VLT_TRACE`, also
+needs the `$dumpfile`/`$dumpvars` block in the top — today `u2/convencional` and
+`ejercicios/d1b` have it.
 And one detail of `+UVM_TIMEOUT` that bites, because it does not error out: the value
 is an integer in time units, not an expression with a unit. UVM reads it with
 `$sscanf(…, "%d,%s")` (`uvm_root.svh:916`), so `+UVM_TIMEOUT=5ms` does not complain:

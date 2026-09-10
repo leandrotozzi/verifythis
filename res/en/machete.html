@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- es-sha: c9b9debb42a6 -->
+<!-- es-sha: f5b5b3982f03 -->
 <meta charset="utf-8">
 <title>UVM cheat sheet · Verify This!</title>
 <!--
@@ -117,12 +117,12 @@
         <tr><td class="m">extract</td><td>gather the data from the run</td><td>bottom-up</td></tr>
         <tr><td class="m">check</td><td>decide whether it passed</td><td>bottom-up</td></tr>
         <tr><td class="m">report</td><td>print the verdict</td><td>bottom-up</td></tr>
-        <tr><td class="m">final</td><td>close files and exit</td><td>bottom-up</td></tr>
+        <tr><td class="m">final</td><td>close files and exit</td><td><b>top-down</b></td></tr>
       </tbody>
     </table>
     <p class="nota" style="margin:4px 0 0">
-      <span class="m">build</span> is the only top-down one because the parent has to exist to
-      create the child; the rest need the opposite. They are all <span class="m">function</span>
+      <span class="m">build</span> and <span class="m">final</span> are the two top-down ones; <span class="m">build</span>,
+      because the parent has to exist to create the child. The rest go the other way. They are all <span class="m">function</span>
       except <span class="m">run</span>, and that is why no other one can wait for an edge.
     </p>
     <p class="nota" style="margin:3px 0 0">
@@ -169,7 +169,7 @@ endtask</pre>
   </section>
 
   <section style="grid-column: 1 / -1">
-    <h2>The seven debug knobs <span>— five are plusargs: nothing gets recompiled</span></h2>
+    <h2>The seven debug knobs <span>— six are plusargs: nothing gets recompiled</span></h2>
     <table>
       <thead><tr>
         <th style="width:26%">Knob</th><th style="width:36%">What for</th><th style="width:38%">The symptom it solves</th>
@@ -180,7 +180,7 @@ endtask</pre>
         <tr><td class="m">+UVM_OBJECTION_TRACE</td><td>who raised it and who dropped it</td><td>it ends at <b>t = 0</b> and says PASS, or it <b>never ends</b></td></tr>
         <tr><td class="m">+UVM_TIMEOUT=5000000,NO</td><td>a ceiling, instead of waiting</td><td>the simulation hung and you do not know where</td></tr>
         <tr><td class="m">+UVM_CONFIG_DB_TRACE</td><td>who set what, and who read it</td><td>the <span class="m">config_db</span> "does not find it": look at the scope of the <span class="m">set</span>, not the <span class="m">get</span></td></tr>
-        <tr><td class="m">uvm_root::get()<br>&nbsp;&nbsp;.print_topology()</td><td>the tree UVM <b>actually</b> built</td><td>the tree is not the one you drew: a <span class="m">create()</span> without the factory, or a late override</td></tr>
+        <tr><td class="m">+TOPOLOGY<br>&nbsp;&nbsp;→ print_topology()</td><td>the tree UVM <b>actually</b> built</td><td>the tree is not the one you drew: a <span class="m">create()</span> without the factory, or a late override</td></tr>
         <tr><td class="m">+UVM_MAX_QUIT_COUNT=N</td><td>kill the run at the Nth error</td><td>the four-gigabyte log when the scoreboard fails on every transaction</td></tr>
       </tbody>
     </table>

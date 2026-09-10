@@ -1,11 +1,11 @@
-<!-- es-sha: 28668dba74f2 -->
+<!-- es-sha: 0c2b1a730b11 -->
 ## Components and phases
 
 #### *A component is what is in the tree, and the tree is walked by UVM*
 
 - A testbench has three different things: the **structure** —what parts there are and
   how they connect—, the **sequences** —which commands, in what order— and the
-  **data**. This unit is the first one; the other two are day 6
+  **data**. This unit is the first one; the data is day 5 and the sequences day 6
 - In the tests the test did `new()` on three loose objects and called them
   itself. That is not a structure: it is a long function
 - A `uvm_component` is a **node with a name and a parent**. UVM assembles the whole
@@ -50,8 +50,8 @@ sequences.
 Note:
 Three things that have to be said no matter what: build_phase is top-down, connect_phase is
 bottom-up, and every run_phase runs in parallel, each one in its thread.
-And the classic mistake: instantiating components outside build_phase. UVM does not warn you
-kindly.
+And the classic mistake: creating components **after** build has ended. UVM does warn
+you, and well: `ILLCRT` tells you which component and under which parent.
 
 ---
 
@@ -119,8 +119,9 @@ piece of material on the internet and in most of the course's `build_phase` it i
 there. The honest answer is not "they forgot": it is that without the field macros the
 call to `uvm_component`'s does nothing.
 The numbers, so that nobody has to take our word for it:
-`grep -rn 'super\.build_phase' code/` gives eleven real calls —plus three comments
-that talk about them— over 122 `build_phase`. Those eleven call the `super` of a
+`grep -rn 'super\.build_phase' code/ --include='*.sv' --include='*.svh' --exclude-dir=.uvm`
+gives fifteen real calls —plus six comments that talk about them— over 309
+`build_phase`. Those fifteen call the `super` of a
 `base_test` or a `random_test` of **ours**, which builds the env. None of them calls
 `uvm_component`'s, which is what the slide is about.
 The other underlying difference: there are two ways of configuring a component. The
@@ -132,7 +133,7 @@ Why the recommendation for out there is the opposite of what the course does: th
 failure mode is asymmetric. Putting it in for nothing has zero effect. Leaving it out
 when it was needed is silence: the field stays at its default and the simulation runs.
 This course can name why in its case it is a no-op —there is not a single
-`` `uvm_field_* `` macro in `code/`, check it—; whoever walks into somebody else's
+`` `uvm_field_* `` macro in `code/` outside the vendored library, check it—; whoever walks into somebody else's
 testbench cannot. `uvm_agent` is the counterexample we have at hand: it is the only
 class in the library, besides `uvm_component`, that implements `build_phase`, and what
 it does there is read `is_active`. It comes back on day 6.

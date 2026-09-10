@@ -2,7 +2,7 @@
 
 #### *El primer silicio casi nunca sale bien*
 
-![Porcentaje de proyectos que llegan al primer silicio sin errores, por año](res/trends/resultado.svg)
+![Cómo terminan los proyectos IC/ASIC en 2024: 14 % acierta el primer silicio y 75 % llega atrasado](res/trends/resultado.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -19,7 +19,7 @@ regeneran con `make figs`.
 
 #### *Por qué: lo que hay adentro de un chip hoy*
 
-![Crecimiento de la cantidad de bloques y de procesadores embebidos por chip](res/trends/complejidad.svg)
+![Qué tienen adentro los IC/ASIC de 2024: relojes asincrónicos, procesador embebido, seguridad, IA, RISC-V y safety](res/trends/complejidad.svg)
 <!-- .element: class="grande" -->
 
 ---
@@ -28,7 +28,7 @@ regeneran con `make figs`.
 
 #### *Verificar no es una etapa, es la mitad del trabajo*
 
-![Reparto del tiempo del verificador: casi la mitad se va en debug](res/trends/esfuerzo.svg)
+![Del tiempo del diseñador, 49 % va a verificación; del tiempo del verificador, 47 % va a debug](res/trends/esfuerzo.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -42,7 +42,7 @@ mitad del proyecto, con su propio equipo y su propio lenguaje.
 
 #### *Y se verifica, sobre todo, con UVM*
 
-![Adopcion de metodologias de verificacion: UVM contra las demas](res/trends/metodologia.svg)
+![Con qué se verifica en 2024: UVM al 80 % en IC/ASIC y al 50 % en FPGA](res/trends/metodologia.svg)
 <!-- .element: class="grande" -->
 
 ---

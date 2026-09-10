@@ -64,7 +64,10 @@ class cantina;
             return nuevo_mojito;
          end
 
-         default: $fatal(1, {"No such drink: ", pedido});
+         default: begin
+            $fatal(1, {"No such drink: ", pedido});
+            return null;
+         end
 
       endcase  // case (pedido)
 
@@ -76,7 +79,7 @@ class bandeja #(
     type T = trago
 );
 
-   static T vasos[$];
+   protected static T vasos[$];
 
    static function void bandeja_trago(T l);
       vasos.push_back(l);
@@ -95,7 +98,6 @@ module top;
       trago trago_h;
       fernet fernet_h;
       mojito mojito_h;
-      bit cast_ok;
 
       // cb: casting
       // Using the factory!
@@ -104,8 +106,7 @@ module top;
 
       // Reaching a member of fernet (derived from trago) through a trago variable
       // requires casting it to fernet.
-      cast_ok = $cast(fernet_h, trago_h);
-      if (!cast_ok) $fatal(1, "Could not cast trago_h to fernet_h");
+      if (!$cast(fernet_h, trago_h)) $fatal(1, "Could not cast trago_h to fernet_h");
 
       if (fernet_h.sin_hielo) $display("And on top of that it comes warm!");
       bandeja#(fernet)::bandeja_trago(fernet_h);

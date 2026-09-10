@@ -1,4 +1,4 @@
-<!-- es-sha: 766f8ac46574 -->
+<!-- es-sha: 8742bca66899 -->
 # For teachers
 
 *Verify This!* is written as **seven days of class** —plus an **optional day
@@ -49,9 +49,9 @@ code by hand until the capstone.
 | 7 | **U3** · The factory pattern · A testbench without a single module | Review: questions **8–15** of the bank, in class |
 | 8 | **Midterm 1** (1 h) + **U4** · Tests | — |
 | 9 | **U4** · Components and phases · The env | [`d3`](../../code/ejercicios/d3/) — a factory override without touching the `env` |
-| 10 | **U4** · Reporting · **U5** · One producer, many listeners | [`d3b`](../../code/ejercicios/d3b/) — the `uvm_error` that says nothing · [`d4`](../../code/ejercicios/d4/) — one more subscriber |
-| 10b | **U5** · Who waits for whom · `fork` and family | [`d4b`](../../code/ejercicios/d4b/) — the `#500` is a patch |
-| 11 | **U5** · A single place that watches the wire · Who waits for whom | [`d5`](../../code/ejercicios/d5/) — the scoreboard shouts and the DUT is healthy |
+| 10 | **U4** · Reporting · **U5** · One producer, many listeners · A single place that watches the wire | [`d3b`](../../code/ejercicios/d3b/) — the `uvm_error` that says nothing · [`d4`](../../code/ejercicios/d4/) — one more subscriber |
+| 10b | **U5** · Who waits for whom · When somebody has to wait (`put`/`get` and the FIFO) | [`d4b`](../../code/ejercicios/d4b/) — the `#500` is a patch |
+| 11 | **U6** · Recap of U5 and the start of hierarchies | [`d5`](../../code/ejercicios/d5/) — the scoreboard shouts and the DUT is healthy |
 | 12 | **U6** · Copying an object that holds another · Transactions | [`d5b`](../../code/ejercicios/d5b/) — measure your `dist` |
 | 13 | **U6** · Constrained random + **Midterm 2** (1 h) | [`d5c`](../../code/ejercicios/d5c/) — closing a directed bin |
 | 14 | **U7** · Agents · Sequences — and *Callbacks* if it fits, which is the first on the list of cuts | [`d6-agents`](../../code/ejercicios/d6-agents/) · [`d6-sequences`](../../code/ejercicios/d6-sequences/) · [`d6-debug`](../../code/ejercicios/d6-debug/) — three planted bugs |
@@ -101,7 +101,7 @@ is free.
 What it is **not** wise to cut, however tempting:
 
 - **The verification plan** (U1). It is half an hour and it is what turns the
-  day 6 covergroup into something you derive instead of invent. Without it,
+  day 1 covergroup into something you derive instead of invent. Without it,
   stage 4 of the capstone has nowhere to come from.
 - **Reporting** (U4). It looks like an accessory and it is 47 % of the real
   work. The whole course aims at that figure from the very first slide.

@@ -26,7 +26,7 @@ Eso crece factorial, y es el motivo de que exista la unidad.
 
 ## Agenda
 
-#### *Día 6 · ≈ 4 h 15 · unidad 7 · el testbench reutilizable*
+#### *Día 6 · ≈ 4 h 45 · unidad 7 · el testbench reutilizable*
 
 - Agents
 - Callbacks
@@ -41,7 +41,7 @@ Eso crece factorial, y es el motivo de que exista la unidad.
 
 Note:
 Los dos primeros son las filas 13 y 14 de la autoevaluación del cierre. La 14 es
-la pregunta que se tiró el día 3, cuando apareció el diagrama de clases de UVM,
+la pregunta que se tiró el día 1, cuando apareció el diagrama de clases de UVM,
 y se contesta hoy: `uvm_object` son los **datos** y `uvm_component` es la
 **estructura**.
 El tercero es el que cierra la unidad y el día: cuando esa línea se va, ninguna

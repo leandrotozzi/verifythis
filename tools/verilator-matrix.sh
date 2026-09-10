@@ -78,7 +78,8 @@ make u4/tests         # uno solo
 make matrix       # todos, y regenera este archivo
 \`\`\`
 
-Los ejemplos con UVM tardan **minutos** en compilar (uno tardo 12). La corrida
+Los ejemplos con UVM tardan **minutos** en compilar (100-121 s cada uno en el CI,
+15 s con ccache caliente). La corrida
 completa es de casi una hora. Los flags compartidos estan en
 \`code/verilator/common.sh\`.
 

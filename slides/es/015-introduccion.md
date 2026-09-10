@@ -10,7 +10,7 @@
   **IEEE 1800.2**. El curso usa la implementación de referencia, `uvm-core
   2020.3.1`
 - Viene de OVM (Cadence + Mentor), con ideas de VMM (Synopsys) y de eRM
-  (Verisity): las metodologías de tres vendors que competían, hasta que la
+  (Verisity): las metodologías de cuatro vendors que competían, hasta que la
   industria se cansó de traducir testbenches entre herramientas
 - Y ahí está el objetivo, que es uno solo: **que el testbench del de al lado se
   parezca al tuyo**
@@ -99,9 +99,9 @@ poco.
 
 Note:
 Este diagrama asusta y por eso conviene desactivarlo de entrada: **de todo esto
-vamos a usar siete clases**. `uvm_object`, `uvm_component`, `uvm_test`,
-`uvm_env`, `uvm_agent`, `uvm_driver`, `uvm_monitor` y `uvm_sequence` — bueno,
-ocho.
+vamos a extender diez**: `uvm_component`, `uvm_test`, `uvm_env`, `uvm_agent`,
+`uvm_driver`, `uvm_monitor`, `uvm_scoreboard`, `uvm_subscriber`,
+`uvm_sequence_item` y `uvm_sequence`. Son las ámbar del dibujo, más la sequence.
 Lo que sí hay que dejar marcado es la división de más arriba, porque explica
 medio curso: de `uvm_object` cuelgan los **datos** —las transactions, las
 sequences, los configs— y de `uvm_component` cuelga la **estructura** —todo lo
@@ -109,8 +109,9 @@ que vive en el árbol y tiene fases—. Un objeto se crea y se tira; un componen
 se construye una vez y dura toda la simulación.
 Los colores dicen qué hacés con cada una: las ámbar las extendés vos, las grises
 no se tocan nunca —están sólo para que las otras hereden— y el `uvm_sequencer` es
-la única verde porque es la única que se usa tal cual, con un `typedef`
-parametrizado. Eso llega el día 6.
+la única verde porque es la única que se instancia sin extenderla, con un
+`typedef` parametrizado. Eso llega el día 6; la única vez que el curso la
+extiende es para el sequencer virtual del día 7.
 La pregunta para tirar al grupo cuando lleguemos a los agents: ¿una
 `uvm_sequence` es un object o un component? Object. Y por eso no aparece en
 `print_topology()`.

@@ -1,4 +1,4 @@
-<!-- es-sha: 0ab8683f26bb -->
+<!-- es-sha: 3bd28085ff3a -->
 ## Transactions
 
 #### *The testbench is well divided up, and the data is not*
@@ -43,7 +43,7 @@ tidiness: it is the only way.
   - `do_compare()` — it compares itself
 - What changes is not the data: it is **who knows things about it**. The `tester`
   used to know which values were legal; now it only says *"randomize yourself"*
-- And the rest of the testbench shrinks: the four hand-written `$sformatf` become
+- And the rest of the testbench shrinks: the three hand-written `$sformatf` become
   one call to `convert2string()`
 
 Note:
@@ -199,7 +199,8 @@ thing to do is cast it. And since the `$cast` checks at run time, it goes with i
 further on.
 The second one: the `super.do_copy(rhs)` goes **before** touching your own
 fields. It is the same discipline as in the class hierarchies and here it matters
-more, because `uvm_object` has fields of its own that you do not see.
+more, because `uvm_transaction` —two levels up— has fields of its own that you do
+not see: `accept_time`, `begin_time`, `end_time` and `initiator`.
 And the detail that confuses everybody: you write `do_copy()`, but you **never
 call it**. The testbench calls `copy()`, which lives in `uvm_object`, and that one
 takes care of invoking your `do_copy()`. It is the same division as the phases —
@@ -502,7 +503,7 @@ transaction that travels —even if it only travels as far as the `compare()` on
 next line—, so it comes out of the factory like all the others.
 And the `do ... while` that skips `no_op` and `rst_op` is still the same as in the
 analysis ports: those operations produce no result, and if they are not thrown
-away the comparison shifts by one and everything fails. It is the day 5 exercise.
+away the comparison shifts by one and everything fails.
 
 
 ---

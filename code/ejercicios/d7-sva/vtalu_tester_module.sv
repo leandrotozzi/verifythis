@@ -57,14 +57,14 @@ module vtalu_tester_module (vtalu_bfm bfm);
    initial begin
       byte unsigned     iA, iB;
       operation_t       op_set;
-      shortint unsigned descartado;  // el modulo no chequea: de eso se ocupa el scoreboard
+      shortint unsigned discarded;  // the module does not check: the scoreboard does that
       bfm.reset_alu();
       repeat (200) begin : random_loop
          op_set = get_op();
          iA = get_data();
          iB = get_data();
          if (op_set == mul_op) mult_a_mano(iA, iB);
-         else bfm.send_op(iA, iB, op_set, descartado);
+         else bfm.send_op(iA, iB, op_set, discarded);
       end : random_loop
    end
 

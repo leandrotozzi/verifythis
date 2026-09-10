@@ -15,7 +15,6 @@ class scoreboard extends uvm_component;
    task run_phase(uvm_phase phase);
       shortint predicted_result;
       bit      predicted_ovf;
-      ;
       forever begin : self_checker
          @(posedge bfm.done) #1;
          case (bfm.op_set)

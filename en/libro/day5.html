@@ -109,7 +109,7 @@ whoever never measured it has no way of knowing.</p>
 </section>
 
 <section id="s240" class="slide">
-<!-- es-sha: ff2e67a23c5a -->
+<!-- es-sha: 5d1f4dd9fcd3 -->
 <h2 id="copying-an-object-that-contains-another">Copying an object that contains another</h2>
 <h4 id="the-handle-is-not-the-object"><em>The handle is not the object</em></h4>
 <ul>
@@ -167,7 +167,7 @@ fields of its own</li>
 <li>This first version works. Count how many times the name of a field of the base
 class shows up</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u6/jerarquias/pre_convert2string.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// Wrong Way de hacer convert2string!</span>
+<figure class="codigo"><figcaption><code>code/u6/jerarquias/pre_convert2string.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// The WRONG way to write convert2string!</span>
 <span class="hljs-comment">//class trago;</span>
    <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
       <span class="hljs-keyword">return</span> <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;Hielos: %0d&quot;</span>, hielos);
@@ -200,7 +200,7 @@ The method still returns a string.</p>
 <section id="s243" class="slide">
 <h2 id="copying-an-object-that-contains-another">Copying an object that contains another</h2>
 <h4 id="convert2string-the-deep-version"><em><code>convert2string()</code>: the deep version</em></h4>
-<p><img src="../../res/print/diagrams/en/jerarquias_convert2string_deep.svg" alt="The deep copy, level by level"></p>
+<p><img src="../../res/print/diagrams/en/jerarquias_convert2string_deep.svg" alt="A new level in the hierarchy breaks convert2string(): graduacion does not appear in the string"></p>
 <ul>
 <li>The day somebody puts a class <strong>in the middle</strong>, the ones below go on printing
 what they knew and the one in the middle does not show up. And there is no
@@ -527,8 +527,8 @@ there do call <code>super</code>; the one with the vice is <code>bad_copy()</cod
 <div class="nota">
 <p>The rule to leave behind: <strong>a class only writes on its own fields.</strong> Everything
 else it asks <code>super</code> for.
-It is worth counting on screen: <code>hielos</code> and <code>con_coca</code> show up in four different
-<code>convert2string()</code> of this file. Four places to remember, and not one of them
+It is worth counting on screen: <code>hielos</code> shows up in four different <code>convert2string()</code>
+of this file and <code>con_coca</code> in three. Seven places to remember, and not one of them
 fails if you forget one.
 There is a <code>bad_copy()</code> a little further down the file worth opening if there is
 time to spare: it takes a <code>fernet_con_hielo</code> as an argument instead of a <code>trago</code>.
@@ -727,7 +727,7 @@ ready-made — which is exactly the unit that follows.</p>
 </section>
 
 <section id="s250" class="slide">
-<!-- es-sha: 0ab8683f26bb -->
+<!-- es-sha: 3bd28085ff3a -->
 <h2 id="transactions">Transactions</h2>
 <h4 id="the-testbench-is-well-divided-up-and-the-data-is-not"><em>The testbench is well divided up, and the data is not</em></h4>
 <ul>
@@ -774,7 +774,7 @@ tidiness: it is the only way.</p>
 </li>
 <li>What changes is not the data: it is <strong>who knows things about it</strong>. The <code>tester</code>
 used to know which values were legal; now it only says <em>&quot;randomize yourself&quot;</em></li>
-<li>And the rest of the testbench shrinks: the four hand-written <code>$sformatf</code> become
+<li>And the rest of the testbench shrinks: the three hand-written <code>$sformatf</code> become
 one call to <code>convert2string()</code></li>
 </ul>
 <div class="nota">
@@ -1079,7 +1079,8 @@ thing to do is cast it. And since the <code>$cast</code> checks at run time, it 
 further on.
 The second one: the <code>super.do_copy(rhs)</code> goes <strong>before</strong> touching your own
 fields. It is the same discipline as in the class hierarchies and here it matters
-more, because <code>uvm_object</code> has fields of its own that you do not see.
+more, because <code>uvm_transaction</code> —two levels up— has fields of its own that you do
+not see: <code>accept_time</code>, <code>begin_time</code>, <code>end_time</code> and <code>initiator</code>.
 And the detail that confuses everybody: you write <code>do_copy()</code>, but you <strong>never
 call it</strong>. The testbench calls <code>copy()</code>, which lives in <code>uvm_object</code>, and that one
 takes care of invoking your <code>do_copy()</code>. It is the same division as the phases —
@@ -1213,7 +1214,7 @@ reads it</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction_convert2string.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
    <span class="hljs-type">string</span> s;
-   <span class="hljs-comment">// op.name() puede ser add_op, no_op ...</span>
+   <span class="hljs-comment">// op.name() can be add_op, no_op ...</span>
    s = <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;A: %2h  B: %2h op: %s&quot;</span>, A, B, op.name());
    <span class="hljs-keyword">return</span> s;
 <span class="hljs-keyword">endfunction</span> : convert2string</code></pre></figure><div class="nota">
@@ -1590,7 +1591,7 @@ transaction that travels —even if it only travels as far as the <code>compare(
 next line—, so it comes out of the factory like all the others.
 And the <code>do ... while</code> that skips <code>no_op</code> and <code>rst_op</code> is still the same as in the
 analysis ports: those operations produce no result, and if they are not thrown
-away the comparison shifts by one and everything fails. It is the day 5 exercise.</p>
+away the comparison shifts by one and everything fails.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/265">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -1725,7 +1726,7 @@ an agent. That is day 6.</p>
 </section>
 
 <section id="s270" class="slide">
-<!-- es-sha: efe7f071236a -->
+<!-- es-sha: 7513efd43da7 -->
 <h2 id="constrained-random">Constrained random</h2>
 <h4 id="the-other-half-of-the-pincer"><em>The other half of the pincer</em></h4>
 <ul>
@@ -2140,13 +2141,14 @@ the difference between believing and knowing.</p>
 
 <ul>
 <li><code>inside {a, b, c}</code> is the set of legal values: without it, the random also asks
-for <code>no_op</code> and <code>rst_op</code>, which compute nothing</li>
+for <code>no_op</code> and <code>rst_op</code>, which compute nothing. Here it also leaves out <code>sub_op</code>,
+so that the draw comes out uniform among four</li>
 <li><code>randomize() with { ... }</code> adds constraints <strong>for that call only</strong>: the directed
 case gets asked for at the point of use, without touching the class and without
 writing a new tester. It is the tool of <em>coverage closure</em></li>
 </ul>
 <div class="nota">
-<p>The number from the run is the whole argument of the section: 400 random attempts
+<p>The number that comes out of running <code>02_with.sv</code> is the whole argument of the section: 400 random attempts
 fill <code>mul_max</code> a handful of times —6 with the default seed, between 2 and 8
 depending on which one you use— <strong>because the <code>dist</code> biases towards the edges</strong>.
 The arithmetic is worth doing out loud: <code>op</code> comes out uniform among four and each
@@ -2156,7 +2158,7 @@ slide, the probability of both legs landing on <code>FF</code> is 1/65536 per op
 never touch it.
 The mental sequence is always the same: I run random, I look at which bin was left
 empty, I write a three-line <code>with {}</code>, I run again. Never &quot;I write 76 tests&quot;.
-The Verilator limitation that shows up in the output is there on purpose, and it
+The Verilator limitation the section states is there on purpose, and it
 is worth stating it properly because it is not a matter of &quot;it works or it does
 not&quot;. Verilator resolves the <code>dist</code> <strong>by picking a concrete value first</strong> and only
 then checks the rest: if the one drawn does not satisfy the <code>with</code>, it returns 0
@@ -2354,7 +2356,7 @@ out even. Measure it.</p>
 <figure class="codigo"><figcaption><code>code/u6/transactions/constraints/04_falla.sv</code> · #the-unsolvable</figcaption><pre><code class="hljs">   <span class="hljs-keyword">class</span> <span class="hljs-title">comando</span>;
       <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
       <span class="hljs-keyword">constraint</span> chico {A &lt; <span class="hljs-number">8&#x27;h10</span>;}
-      <span class="hljs-keyword">constraint</span> grande {A &gt; <span class="hljs-number">8&#x27;hF0</span>;}  <span class="hljs-comment">// contradice a la anterior: no hay solucion</span>
+      <span class="hljs-keyword">constraint</span> grande {A &gt; <span class="hljs-number">8&#x27;hF0</span>;}  <span class="hljs-comment">// contradicts the previous one: no solution</span>
    <span class="hljs-keyword">endclass</span>
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
@@ -2385,7 +2387,7 @@ out even. Measure it.</p>
    <span class="hljs-keyword">class</span> <span class="hljs-title">comando</span>;
       <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
       <span class="hljs-keyword">constraint</span> chico {A &lt; <span class="hljs-number">8&#x27;h10</span>;}
-      <span class="hljs-keyword">constraint</span> grande {A &gt; <span class="hljs-number">8&#x27;hF0</span>;}  <span class="hljs-comment">// contradice a la anterior: no hay solucion</span>
+      <span class="hljs-keyword">constraint</span> grande {A &gt; <span class="hljs-number">8&#x27;hF0</span>;}  <span class="hljs-comment">// contradicts the previous one: no solution</span>
    <span class="hljs-keyword">endclass</span>
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
@@ -2417,7 +2419,8 @@ out even. Measure it.</p>
 </code></pre>
 <ul>
 <li><code>constraint_mode(0)</code> turns <strong>one constraint</strong> off at run time; <code>rand_mode(0)</code>
-takes <strong>one field</strong> out of the draw and leaves it with the value it had</li>
+takes <strong>one field</strong> out of the draw and leaves it with the value it had — and if
+that value does not satisfy the constraints that name it, <code>randomize()</code> returns 0</li>
 <li>They are for the test that needs to break a rule on purpose — injecting an
 illegal opcode, for instance — without touching the class everybody else uses</li>
 </ul>
@@ -2531,8 +2534,9 @@ the first: the <code>with {}</code> comes first</li>
 do not close, I run another seed&quot;</em>. It was measured, and no: <code>code/u2/convencional</code>
 gives 66 out of 76 with the default seed, with 7 and with 8, and the merge of the
 three gives 66. The 10 that are missing are not missing out of luck — they are
-missing because they are transition bins Verilator does not measure and crosses the
-stimulus does not reach. No seed is going to touch them.
+missing because Verilator generates the enum&#39;s automatic bins over the <strong>base
+type</strong>: <code>3&#39;b110</code> does not exist in <code>operation_t</code>, so <code>auto_5</code> stays at 0 forever,
+with its nine crosses. No seed is going to touch them.
 The seed is good for two other things, and both are matters of craft. First:
 <strong>reproducing</strong>. An intermittent bug does not get debugged, it gets repeated; and
 to repeat it you have to know which seed it came up with, which is exactly why

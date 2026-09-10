@@ -20,7 +20,7 @@ inyectado=$VLT_LOG
 
 # Both callbacks really ran. This does NOT check the `uvm_register_cb: without that
 # macro the add() still hooks the callback up and it still runs, with a CBUNREG
-# warning (uvm_callback.svh:744, and the add() carries on at :777-783). What it does
+# warning (uvm_callback.svh:745, and the add() carries on at :781-786). What it does
 # check is the effect -- an example that "passes" without having injected anything
 # proves nothing, whatever the reason the queue came out empty.
 # The bracket and the "A:" belong to the `uvm_info line; without them, the count

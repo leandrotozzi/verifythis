@@ -114,7 +114,7 @@ exercise. The first two are rows 6 and 7 of the closing self-assessment.</p>
 </section>
 
 <section id="s69" class="slide">
-<!-- es-sha: 038f21a96f50 -->
+<!-- es-sha: de259d352aef -->
 <h2 id="classes-and-extensions">Classes and extensions</h2>
 <h4 id="why-oop-in-a-testbench"><em>Why OOP in a testbench?</em></h4>
 <ul>
@@ -177,7 +177,7 @@ The three bullets are three different things and it is worth separating them. Th
 is <strong>cohesion</strong>: the data is here and the operation on the data is in another file,
 so nothing forces them to agree. The second is <strong>inheritance</strong>: a
 square <em>is</em> a rectangle and the language has no way of saying so, so it gets
-copied and pasted. The third is the one that gets charged on day 5: a <code>command_s</code> does not
+copied and pasted. The third is the one you pay for on day 5: a <code>command_s</code> does not
 know how to randomize itself or compare itself against itself, and all of that has to be
 written outside, once for every place that uses it.
 The honest punchline, so that nobody leaves with a religious idea: the <code>command_s</code> of the
@@ -352,7 +352,7 @@ also has to be built, and it goes <strong>first</strong></li>
 </ul>
 <div class="nota">
 <p>The constructor order is the first thing to nail down, because it is mandatory and
-it fails ugly: <code>super.new()</code> goes <strong>before</strong> anything else of the child. The reason
+it fails badly: <code>super.new()</code> goes <strong>before</strong> anything else of the child. The reason
 is physical — the object is a single one, and the part the base class contributes has to
 be built before touching anything. If you forget it, SystemVerilog calls it on its own
 when the base constructor takes no arguments, and it does not compile when it does
@@ -361,7 +361,7 @@ The last bullet is the whole argument of the unit and it is worth saying with an
 example: if <code>area()</code> changes tomorrow, in the <code>struct</code> version you have to remember
 both places; here it changes in one and the other finds out on its own. That &quot;finds out
 on its own&quot; is what inheritance buys you, and it is the same promise the <code>env</code> makes
-to the tests on day 6.
+to the tests on day 3.
 And the warning about where this is heading, so that the word does not turn up cold on the
 next slide: inheriting lets the child <em>use</em> what belongs to the parent. What still cannot
 be done is for the parent to call the child&#39;s version — that is polymorphism, and it is the
@@ -421,7 +421,7 @@ worth naming it all three.</p>
 </section>
 
 <section id="s75" class="slide">
-<!-- es-sha: 85efb3009aa8 -->
+<!-- es-sha: b40e985a82e7 -->
 <h2 id="polymorphism">Polymorphism</h2>
 <h4 id="a-trago-variable-a-fernet-object-which-servir-runs"><em>A <code>trago</code> variable, a <code>fernet</code> object: which <code>servir()</code> runs?</em></h4>
 <p><img src="../../res/print/diagrams/en/uml-poli.svg" alt="UML diagram of the trago classes"></p>
@@ -548,7 +548,7 @@ with its own</li>
 <code>$display</code></li>
 </ul>
 <div class="nota">
-<p>The <code>$fatal</code> in the base class is a pattern you see a lot and that in two slides
+<p>The <code>$fatal</code> in the base class is a pattern you see a lot and that in this same section
 we are going to replace with something better: if the method cannot be implemented here, the
 right thing is not to explode in simulation, it is not to let it compile.
 That the three classes have a method with the same name and the same signature is what
@@ -788,7 +788,7 @@ Where it is going to show up again: <code>uvm_object</code> and <code>uvm_compon
 does **not** do is force you to implement anything: the other way round, it *provides*
 <code>get_type_name()</code> and the registry&#39;s <code>type_id</code>. The real <code>pure virtual</code> in UVM is
 <code>uvm_subscriber::write()</code>, which you are going to have to write no matter what on day 4.
-And in the day 2 exercise, the base class of the testbench.</p>
+And in the day 3 exercise, the <code>virtual class base_tester</code>.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/79">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -1675,7 +1675,7 @@ each monitor has its own. With that they can already read both.</p>
 </section>
 
 <section id="s92" class="slide">
-<!-- es-sha: b23240cf9ba2 -->
+<!-- es-sha: f067fec308e0 -->
 <h2 id="the-factory-pattern">The factory pattern</h2>
 <h4 id="who-decides-the-type"><em>Who decides the type?</em></h4>
 <ul>
@@ -1698,7 +1698,7 @@ detour: the <code>+UVM_TESTNAME=add_test</code> of the tests, tomorrow, is going
 UVM reads a string from the command line and builds the class that corresponds.
 Here you see the mechanism from the inside.
 And for whoever comes from software: yes, it is the GoF Factory Method, and we
-invented nothing. The Python version on the last slide is there precisely for that.</p>
+invented nothing. The Python version that closes the section is there precisely for that.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/92">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -1731,7 +1731,7 @@ bandeja_de_mojito.bandeja_trago(mojito_h);
 <span class="hljs-comment">// Consider the case where a set of random drinks has to be read from a file</span>
 <span class="hljs-comment">// dynamically.</span>
 <span class="hljs-comment">//    --&gt; Doing that with NON hardcoded code is impossible</span>
-<span class="hljs-comment">//        You would need a script that generates the source, recompile it....</span></code></pre></figure>
+<span class="hljs-comment">//        You would need a script that generates the source, recompile it...</span></code></pre></figure>
 
 <blockquote>
 <p><em>The idea is to create data of random types without changing the code.</em></p>
@@ -1748,7 +1748,7 @@ that we invented nothing.</p>
 
 <section id="s94" class="slide">
 <h2 id="the-factory-pattern">The factory pattern</h2>
-<p><img src="../../res/print/diagrams/en/factory_diagram.svg" alt="UML Class Example Diagram"></p>
+<p><img src="../../res/print/diagrams/en/factory_diagram.svg" alt="The cantina builds fernet and mojito, and returns a trago handle"></p>
 <br>
 
 <ul>
@@ -1804,13 +1804,16 @@ inside an <code>if</code> with its <code>$fatal</code></li>
             <span class="hljs-keyword">return</span> nuevo_mojito;
          <span class="hljs-keyword">end</span>
 
-         <span class="hljs-keyword">default</span>: <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, {<span class="hljs-string">&quot;No such drink: &quot;</span>, pedido});
+         <span class="hljs-keyword">default</span>: <span class="hljs-keyword">begin</span>
+            <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, {<span class="hljs-string">&quot;No such drink: &quot;</span>, pedido});
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+         <span class="hljs-keyword">end</span>
 
       <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (pedido)</span>
 
    <span class="hljs-keyword">endfunction</span> : hacer_trago
 
-<span class="hljs-keyword">endclass</span> : cantina</code></pre><details><summary>el archivo entero, 133 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Example: the factory pattern</span>
+<span class="hljs-keyword">endclass</span> : cantina</code></pre><details><summary>el archivo entero, 134 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Example: the factory pattern</span>
 <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
    <span class="hljs-keyword">protected</span> <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
    <span class="hljs-keyword">protected</span> <span class="hljs-type">string</span> name;
@@ -1876,7 +1879,10 @@ inside an <code>if</code> with its <code>$fatal</code></li>
             <span class="hljs-keyword">return</span> nuevo_mojito;
          <span class="hljs-keyword">end</span>
 
-         <span class="hljs-keyword">default</span>: <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, {<span class="hljs-string">&quot;No such drink: &quot;</span>, pedido});
+         <span class="hljs-keyword">default</span>: <span class="hljs-keyword">begin</span>
+            <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, {<span class="hljs-string">&quot;No such drink: &quot;</span>, pedido});
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+         <span class="hljs-keyword">end</span>
 
       <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (pedido)</span>
 
@@ -1888,7 +1894,7 @@ inside an <code>if</code> with its <code>$fatal</code></li>
     type T = trago
 );
 
-   <span class="hljs-keyword">static</span> T vasos[$];
+   <span class="hljs-keyword">protected</span> <span class="hljs-keyword">static</span> T vasos[$];
 
    <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">bandeja_trago</span>(T l);
       vasos.push_back(l);
@@ -1907,7 +1913,6 @@ inside an <code>if</code> with its <code>$fatal</code></li>
       trago trago_h;
       fernet fernet_h;
       mojito mojito_h;
-      <span class="hljs-type">bit</span> cast_ok;
 
       <span class="hljs-comment">// Using the factory!</span>
       trago_h = cantina::hacer_trago(<span class="hljs-string">&quot;fernet&quot;</span>, <span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at the bar&quot;</span>);
@@ -1915,8 +1920,7 @@ inside an <code>if</code> with its <code>$fatal</code></li>
 
       <span class="hljs-comment">// Reaching a member of fernet (derived from trago) through a trago variable</span>
       <span class="hljs-comment">// requires casting it to fernet.</span>
-      cast_ok = <span class="hljs-built_in">$cast</span>(fernet_h, trago_h);
-      <span class="hljs-keyword">if</span> (!cast_ok) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Could not cast trago_h to fernet_h&quot;</span>);
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(fernet_h, trago_h)) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Could not cast trago_h to fernet_h&quot;</span>);
 
       <span class="hljs-keyword">if</span> (fernet_h.sin_hielo) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;And on top of that it comes warm!&quot;</span>);
       bandeja#(<span class="hljs-type">fernet</span>)::bandeja_trago(fernet_h);
@@ -1954,14 +1958,13 @@ to reach <code>sin_hielo</code> you have to bring it down to <code>fernet</code>
 
       <span class="hljs-comment">// Reaching a member of fernet (derived from trago) through a trago variable</span>
       <span class="hljs-comment">// requires casting it to fernet.</span>
-      cast_ok = <span class="hljs-built_in">$cast</span>(fernet_h, trago_h);
-      <span class="hljs-keyword">if</span> (!cast_ok) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Could not cast trago_h to fernet_h&quot;</span>);
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(fernet_h, trago_h)) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Could not cast trago_h to fernet_h&quot;</span>);
 
       <span class="hljs-keyword">if</span> (fernet_h.sin_hielo) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;And on top of that it comes warm!&quot;</span>);
       bandeja#(<span class="hljs-type">fernet</span>)::bandeja_trago(fernet_h);
 
       <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(fernet_h, cantina::hacer_trago(<span class="hljs-string">&quot;fernet&quot;</span>, <span class="hljs-number">2</span>, <span class="hljs-string">&quot;the one at table 4&quot;</span>)))
-         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Could not cast the cantina drink to fernet_h&quot;</span>);</code></pre><details><summary>el archivo entero, 133 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Example: the factory pattern</span>
+         <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Could not cast the cantina drink to fernet_h&quot;</span>);</code></pre><details><summary>el archivo entero, 134 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Example: the factory pattern</span>
 <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">trago</span>;
    <span class="hljs-keyword">protected</span> <span class="hljs-type">int</span> hielos = -<span class="hljs-number">1</span>;
    <span class="hljs-keyword">protected</span> <span class="hljs-type">string</span> name;
@@ -2027,7 +2030,10 @@ to reach <code>sin_hielo</code> you have to bring it down to <code>fernet</code>
             <span class="hljs-keyword">return</span> nuevo_mojito;
          <span class="hljs-keyword">end</span>
 
-         <span class="hljs-keyword">default</span>: <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, {<span class="hljs-string">&quot;No such drink: &quot;</span>, pedido});
+         <span class="hljs-keyword">default</span>: <span class="hljs-keyword">begin</span>
+            <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, {<span class="hljs-string">&quot;No such drink: &quot;</span>, pedido});
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">null</span>;
+         <span class="hljs-keyword">end</span>
 
       <span class="hljs-keyword">endcase</span>  <span class="hljs-comment">// case (pedido)</span>
 
@@ -2039,7 +2045,7 @@ to reach <code>sin_hielo</code> you have to bring it down to <code>fernet</code>
     type T = trago
 );
 
-   <span class="hljs-keyword">static</span> T vasos[$];
+   <span class="hljs-keyword">protected</span> <span class="hljs-keyword">static</span> T vasos[$];
 
    <span class="hljs-keyword">static</span> <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">bandeja_trago</span>(T l);
       vasos.push_back(l);
@@ -2058,7 +2064,6 @@ to reach <code>sin_hielo</code> you have to bring it down to <code>fernet</code>
       trago trago_h;
       fernet fernet_h;
       mojito mojito_h;
-      <span class="hljs-type">bit</span> cast_ok;
 
       <span class="hljs-comment">// Using the factory!</span>
       trago_h = cantina::hacer_trago(<span class="hljs-string">&quot;fernet&quot;</span>, <span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at the bar&quot;</span>);
@@ -2066,8 +2071,7 @@ to reach <code>sin_hielo</code> you have to bring it down to <code>fernet</code>
 
       <span class="hljs-comment">// Reaching a member of fernet (derived from trago) through a trago variable</span>
       <span class="hljs-comment">// requires casting it to fernet.</span>
-      cast_ok = <span class="hljs-built_in">$cast</span>(fernet_h, trago_h);
-      <span class="hljs-keyword">if</span> (!cast_ok) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Could not cast trago_h to fernet_h&quot;</span>);
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(fernet_h, trago_h)) <span class="hljs-built_in">$fatal</span>(<span class="hljs-number">1</span>, <span class="hljs-string">&quot;Could not cast trago_h to fernet_h&quot;</span>);
 
       <span class="hljs-keyword">if</span> (fernet_h.sin_hielo) <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;And on top of that it comes warm!&quot;</span>);
       bandeja#(<span class="hljs-type">fernet</span>)::bandeja_trago(fernet_h);
@@ -2269,12 +2273,12 @@ Python it takes ten lines. We invented nothing, and that is good news.</p>
 </section>
 
 <section id="s98" class="slide">
-<!-- es-sha: 454b20650c1d -->
+<!-- es-sha: de322b440014 -->
 <h2 id="a-testbench-without-a-single-module">A testbench without a single module</h2>
 <h4 id="the-same-testbench-without-a-single-module"><em>The same testbench, without a single module</em></h4>
 <ul>
-<li>Nine sections later, this section <strong>adds no functionality</strong>:
-it does exactly the same as the interfaces and BFM testbench</li>
+<li>This section <strong>adds no functionality</strong>:
+it verifies the same as the interfaces and BFM testbench</li>
 <li>What changes is what it is made of. The three modules —tester, scoreboard,
 coverage— become three <strong>classes</strong>, and the <code>initial</code> becomes a method</li>
 <li>The piece that binds them appears: a <code>testbench</code> class that instantiates the others,
@@ -2426,7 +2430,7 @@ they need and launches their threads. Every OOP testbench has one</li>
       <span class="hljs-keyword">join_none</span>
    <span class="hljs-keyword">endtask</span> : execute
 <span class="hljs-keyword">endclass</span> : testbench</code></pre></figure><div class="nota">
-<p>This is the class UVM is going to run over, so it is worth reading it line by
+<p>This is the class UVM is going to replace, so it is worth reading it line by
 line: <code>new()</code> on the three objects, <code>fork ... join_none</code> to start them, and
 that is it. That is an <code>env</code> written by hand.
 Two things to flag. The first is the <code>virtual vtalu_bfm bfm</code>: the word

@@ -1,4 +1,4 @@
-<!-- es-sha: 631437948cb3 -->
+<!-- es-sha: 75044b3a4bce -->
 ## Exercise · Day 3 · 2 of 2
 
 #### *The `uvm_error` that says nothing*
@@ -7,7 +7,7 @@
 <!-- .element: class="comando" -->
 
 - The scoreboard is **right** —it catches every mismatch— and when it fails it
-  says `FAILED` and nothing else. It is the line day 1 started with
+  says `FAILED` and nothing else: even less than the line day 1 started with
 - Make the `uvm_error` say **which one** failed: `A`, `B`, the operation, the
   DUT's result and the one you predicted
 - And make the one that **passes** get printed too, at `UVM_HIGH`, so that it

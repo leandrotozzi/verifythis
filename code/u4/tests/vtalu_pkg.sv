@@ -12,7 +12,6 @@ package vtalu_pkg;
       rst_op = 3'b111
    } operation_t;
 
-   virtual vtalu_bfm bfm_g;
 
    `include "coverage.svh"
    `include "random_tester.svh"

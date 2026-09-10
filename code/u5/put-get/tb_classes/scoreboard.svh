@@ -1,7 +1,6 @@
 class scoreboard extends uvm_subscriber #(shortint);
    `uvm_component_utils(scoreboard);
 
-   virtual vtalu_bfm bfm;
    uvm_tlm_analysis_fifo #(command_s) cmd_f;
 
    function new(string name, uvm_component parent);

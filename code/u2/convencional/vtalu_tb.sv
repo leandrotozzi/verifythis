@@ -130,8 +130,8 @@ module top;
 
          ignore_bins others_only =
                          binsof(a_leg.others) && binsof(b_leg.others);
-      }
          // cb: end
+      }
    endgroup
 
    initial begin
@@ -251,8 +251,8 @@ module top;
          endcase // case (op_set)
       end
       $finish;
-   end : tester
       // cb: end
+   end : tester
 
    // The testbench checks itself: every operation sent has to come back
    // through the scoreboard. A tester that drops operations -- while the

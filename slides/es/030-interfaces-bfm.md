@@ -88,8 +88,8 @@ versión anterior había que acordarse de cablearla en cada instancia.
 
 {{code:code/u2/interfaces-bfm/scoreboard.sv}}
 
-- Es el `scoreboard` del testbench convencional sin una línea de lógica cambiada: predice y
-  compara igual
+- Es el `scoreboard` del testbench convencional: predice y compara con la misma
+  lógica
 - Lo único que cambió es de dónde saca las señales: antes eran variables del
   mismo módulo, ahora son `bfm.A`, `bfm.B`, `bfm.op_set`
 - Y por eso ahora es un **módulo aparte**: puede vivir en su propio archivo
@@ -345,8 +345,8 @@ El material largo, con las fuentes, está en `docs/clocking-blocks.md`.
   por ahí** — y se espera `@(bfm.cb)`, no `@(posedge bfm.clk)`
 
 Note:
-Ésta es la contracara de la slide anterior y la razón por la que el curso no
-mete clocking blocks el día 1: mal usados son **peores** que no usarlos, porque
+Ésta es la contracara de la slide anterior y la razón por la que el curso no los
+usa en su BFM: mal usados son **peores** que no usarlos, porque
 el modo de falla es intermitente y el waveform se ve bien.
 El error de verdad, el que aparece en los foros, tiene dos formas y conviene
 nombrar las dos. Una es mezclar el evento: `@(posedge vif.clk)` y después leer

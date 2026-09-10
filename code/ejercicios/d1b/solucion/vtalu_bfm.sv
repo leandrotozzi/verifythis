@@ -1,5 +1,5 @@
 interface vtalu_bfm;
-   // guardamos operation_t. Ej: (no_op  = 3'b000)
+   // brings in operation_t. e.g. (no_op  = 3'b000)
    import vtalu_pkg::*;
 
    byte unsigned        A;

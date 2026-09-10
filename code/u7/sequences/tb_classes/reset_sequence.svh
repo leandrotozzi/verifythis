@@ -16,9 +16,9 @@ class reset_sequence extends uvm_sequence #(command_transaction);
    task body();
       command_transaction command;
       command = command_transaction::type_id::create("command");
-      start_item(command);    // bloquea hasta que el sequencer nos da el turno
-      command.op = rst_op;    // recien ahora decidimos que mandar
-      finish_item(command);   // bloquea hasta el item_done() del driver
+      start_item(command);    // blocks until the sequencer gives us our turn
+      command.op = rst_op;    // only now do we decide what to send
+      finish_item(command);   // blocks until the driver calls item_done()
    endtask : body
 
 endclass : reset_sequence

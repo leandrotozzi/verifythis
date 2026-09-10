@@ -23,7 +23,7 @@
 
 Note:
 Vale leer la lista en voz alta y despacio, porque después de siete días nadie
-tiene dimensión de cuánto vio. Son cinco bullets y cada uno era un curso entero
+tiene dimensión de cuánto vio. Son siete bullets y cada uno era un curso entero
 hace una semana.
 El que hay que subrayar es el último, y no por militancia: **todo esto corre en
 la máquina del alumno**. No hay una parte del curso que quede en modo demo

@@ -61,7 +61,7 @@ le saca al DUT el gate de `CTRL.EN`. Ahí **tiene que gritar**: un scoreboard qu
 nunca vio un error no está probado.
 
 **4 · La cobertura.** El `covergroup` con las nueve filas del plan de
-verificación de `spec.md`. El corrector pide **más de 20 puntos** y **90 %**
+verificación de `spec.md`. El corrector pide **al menos 20 puntos** y **90 %**
 cubierto con el `random_test`. Las filas **8 y 9 vienen vacías**: las escribís
 vos, y los bins se llaman `back_to_back` y `unaligned` porque el corrector los
 busca por nombre. Cómo se llena una tabla de éstas, en

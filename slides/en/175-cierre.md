@@ -1,4 +1,4 @@
-<!-- es-sha: 2f21e65454e9 -->
+<!-- es-sha: 71028ffd7dd5 -->
 <!-- .slide: id="cierre" -->
 
 ## This is as far as we got
@@ -24,7 +24,7 @@
 
 Note:
 It is worth reading the list out loud and slowly, because after seven days nobody
-has a sense of how much they saw. It is five bullets and each one was a whole course
+has a sense of how much they saw. It is seven bullets and each one was a whole course
 a week ago.
 The one to underline is the last, and not out of activism: **all of this runs on
 the student's machine**. There is no part of the course left in demo mode

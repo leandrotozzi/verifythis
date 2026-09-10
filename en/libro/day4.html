@@ -110,7 +110,7 @@ out forces you to understand what keeps the simulation alive.</p>
 </section>
 
 <section id="s182" class="slide">
-<!-- es-sha: 3eb7ead07ccc -->
+<!-- es-sha: 552644393658 -->
 <h2 id="one-producer-many-listeners">One producer, many listeners</h2>
 <h4 id="two-ways-of-talking-between-objects"><em>Two ways of talking between objects</em></h4>
 <ul>
@@ -235,9 +235,9 @@ roll at a time, and the result only exists once everything is over</li>
 <div class="nota">
 <p>It is worth showing the whole class only once —this one— and after that only the
 <code>write()</code>s, because what matters is that the shape repeats.
-Two details that get collected later: the <code>report_phase</code> runs <strong>when the last
-objection drops</strong>, not at the end of the <code>run_phase</code>, and that is why the average
-comes out complete. And <code>dice_total</code> and <code>count</code> are <code>protected</code>: the one
+Two details that get collected later: the <code>report_phase</code> runs <strong>after</strong> the
+<code>run_phase</code> —and after <code>extract</code> and <code>check</code>—, not inside it, and that is why the
+average comes out complete. And <code>dice_total</code> and <code>count</code> are <code>protected</code>: the one
 publishing cannot touch them, only call <code>write()</code>.
 When this is the VTALU, in the analysis ports, <code>average</code> is going to be the
 scoreboard and the <code>report_phase</code> the verdict of the run. Same shape.</p>
@@ -635,15 +635,14 @@ And a detail that shows up in the output: here the coverage is read with
    <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-type">int</span> the_roll;
       phase.raise_objection(<span class="hljs-keyword">this</span>);
-      <span class="hljs-type">void</span>&#x27;(<span class="hljs-keyword">randomize</span>());
-      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">40</span>) <span class="hljs-keyword">begin</span>
+      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">20</span>) <span class="hljs-keyword">begin</span>
          <span class="hljs-type">void</span>&#x27;(<span class="hljs-keyword">randomize</span>());
          the_roll = die1 + die2;
          <span class="hljs-comment">// 3) write: the port calls write() on every subscriber</span>
          roll_ap.write(the_roll);
       <span class="hljs-keyword">end</span>
       phase.drop_objection(<span class="hljs-keyword">this</span>);
-   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 41 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Same as version 01, but publishing: instead of returning the number it writes</span>
+   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 40 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Same as version 01, but publishing: instead of returning the number it writes</span>
 <span class="hljs-comment">// it to an analysis port, and stops knowing who reads it.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">dice_roller</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(dice_roller);
@@ -673,8 +672,7 @@ And a detail that shows up in the output: here the coverage is read with
    <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-type">int</span> the_roll;
       phase.raise_objection(<span class="hljs-keyword">this</span>);
-      <span class="hljs-type">void</span>&#x27;(<span class="hljs-keyword">randomize</span>());
-      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">40</span>) <span class="hljs-keyword">begin</span>
+      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">20</span>) <span class="hljs-keyword">begin</span>
          <span class="hljs-type">void</span>&#x27;(<span class="hljs-keyword">randomize</span>());
          the_roll = die1 + die2;
          <span class="hljs-comment">// 3) write: the port calls write() on every subscriber</span>
@@ -786,8 +784,8 @@ port: <code>ap.connect(sub_h.analysis_export)</code></li>
    <span class="hljs-keyword">endfunction</span> : connect_phase
 
 <span class="hljs-keyword">endclass</span> : dice_test</code></pre></details></figure><div class="nota">
-<p>This is the &quot;after&quot;, and it has to be put next to the &quot;before&quot; from five slides
-back. The <code>run_phase</code> of the test is left without the three <code>write()</code>s: now it
+<p>This is the &quot;after&quot;, and it has to be put next to the &quot;before&quot;, the version
+without the analysis port. The <code>run_phase</code> of the test is left without the three <code>write()</code>s: now it
 only raises the objection and starts the producer. The distribution moved to the
 <code>connect_phase</code>, which is where the structure goes.
 The line to read slowly is
@@ -862,7 +860,7 @@ naming convention, it is the language telling you which side you are on.</p>
 </section>
 
 <section id="s198" class="slide">
-<!-- es-sha: ceed568d8fe9 -->
+<!-- es-sha: 00464c069316 -->
 <h2 id="a-single-place-that-watches-the-wire">A single place that watches the wire</h2>
 <h4 id="a-single-place-that-watches-the-wire-1"><em>A single place that watches the wire</em></h4>
 <ul>
@@ -1481,7 +1479,9 @@ old one was filling bins with nothing.</p>
 <li>However, in cases like a scoreboard, we need one and the same component to receive data from 2 analysis ports</li>
 <li>The reason for the limit: <code>uvm_subscriber</code> gives you <strong>a single</strong> <code>write()</code>, and
 that is the method the port calls. Two ports have nowhere to come in</li>
-<li>UVM solves it without splitting the component, with the <em>uvm_tlm_analysis_fifo</em> class</li>
+<li>UVM solves it without splitting the component, with the <em>uvm_tlm_analysis_fifo</em> class,
+which is <strong>unbounded by construction</strong>: its <code>write()</code> is a <code>function</code> and cannot
+block, so it cannot drop anything</li>
 <li>It is parameterized and it has two faces: an <em>analysis_export</em> on one side
 —which gets connected like any subscriber— and a <code>try_get()</code> on the other</li>
 <li><code>try_get()</code> takes an element out and returns 0 if the FIFO is empty, without blocking</li>
@@ -1827,7 +1827,7 @@ outside the agent in the agents.</p>
 </section>
 
 <section id="s211" class="slide">
-<!-- es-sha: 27c7476ffa1d -->
+<!-- es-sha: 793393cd944c -->
 <h2 id="when-somebody-has-to-wait">When somebody has to wait</h2>
 <h4 id="you-were-already-doing-this-with-modules"><em>You were already doing this, with modules</em></h4>
 <ul>
@@ -2130,7 +2130,8 @@ sequencer on one side and the driver on the other.</p>
 <ul>
 <li>It is the same <code>connect()</code> as the analysis ports: on one side the <strong>port</strong>, on
 the other the <strong>export</strong> the FIFO provides</li>
-<li><code>uvm_tlm_fifo</code> exposes two: <code>put_export</code> for the one that puts and <code>get_export</code>
+<li><code>uvm_tlm_fifo</code> exposes twelve handles; the two that get used are <code>put_export</code> for
+the one that puts and <code>get_export</code>
 for the one that takes out</li>
 <li>The rule that holds for all of TLM: <strong>the port connects to the export</strong>, never
 two ports to each other</li>
@@ -2302,9 +2303,9 @@ two are one to one.</p>
 <section id="s220" class="slide">
 <h2 id="when-somebody-has-to-wait">When somebody has to wait</h2>
 <h4 id="fork-the-three-ways-of-starting-in-parallel"><em><code>fork</code>: the three ways of starting in parallel</em></h4>
-<pre><code class="language-systemverilog">fork  esperar_done();  contar_ciclos();  join        // goes on when BOTH have finished
-fork  esperar_done();  contar_ciclos();  join_any    // goes on with THE FIRST; the other stays alive
-fork  esperar_done();  contar_ciclos();  join_none   // goes on NOW; both stay running
+<pre><code class="language-systemverilog">fork  wait_done();  count_cycles();  join        // goes on when BOTH have finished
+fork  wait_done();  count_cycles();  join_any    // goes on with THE FIRST; the other stays alive
+fork  wait_done();  count_cycles();  join_none   // goes on NOW; both stay running
 </code></pre>
 <table>
 <thead>
@@ -2366,7 +2367,7 @@ a coincidence nor a trick — it is exactly what UVM does when it runs the
 <pre><code class="language-systemverilog">// The response-against-timeout idiom. The outer fork ISOLATES
 fork begin
    fork
-      begin  esperar_done();          `uvm_info(&quot;BFM&quot;, &quot;it arrived&quot;, UVM_LOW)  end
+      begin  wait_done();          `uvm_info(&quot;BFM&quot;, &quot;it arrived&quot;, UVM_LOW)  end
       begin  repeat (100) @(posedge clk);  `uvm_error(&quot;BFM&quot;, &quot;timeout&quot;)        end
    join_any
    disable fork;      // kills the sister that lost, and nobody else
@@ -2382,8 +2383,9 @@ whatever was already running</li>
 It is what a test uses so as not to close with transactions in flight</li>
 <li>The <code>join_any</code> + <code>disable fork</code> pair is the timeout of every production BFM. It gets
 written once and copied forever</li>
-<li>Measured: with the <code>disable fork</code>, the 5-unit branch that was going to print
-<em>&quot;the response arrived&quot;</em> <strong>prints nothing</strong> — the timeout of 3 killed it</li>
+<li>Whichever finishes first wins: if <code>done</code> arrives before the 100 edges, the
+timeout <code>uvm_error</code> is not printed; if it does not, the <code>uvm_info</code> of <code>&quot;it arrived&quot;</code>
+is not printed. The <code>disable fork</code> kills the loser</li>
 </ul>
 <div class="nota">
 <p>The <code>disable fork</code> without the isolating <code>fork ... join</code> is the classic bug of this
@@ -2417,7 +2419,7 @@ for (int j = 0; j &lt; 3; j++)             // declared IN the for: one per pass
 
 for (i = 0; i &lt; 3; i++)
    fork  begin
-      automatic int k = i;              // the copy is made WHEN the thread starts
+      automatic int k = i;              // the copy is made WHEN THE FORK RUNS
       $display(&quot;k = %0d&quot;, k);
    end join_none                                 //  k = 0   k = 1   k = 2
 </code></pre>
@@ -2730,7 +2732,6 @@ stopped at the base class</li>
 <figure class="codigo"><figcaption><code>code/u5/put-get/tb_classes/base_tester.svh</code> · #class-and-run</figcaption><pre><code class="hljs"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">base_tester</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
 
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(base_tester)
-   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
 
    <span class="hljs-comment">// the handle to the BFM is replaced by a uvm_put_port</span>
    <span class="hljs-uvm-type">uvm_put_port</span> #(<span class="hljs-type">command_s</span>) command_port;
@@ -2760,14 +2761,13 @@ stopped at the base class</li>
       <span class="hljs-keyword">end</span> : random_loop
       #<span class="hljs-number">500</span>;
       phase.drop_objection(<span class="hljs-keyword">this</span>);
-   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 44 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// This version does not hold a handle to the BFM</span>
+   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 43 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// This version does not hold a handle to the BFM</span>
 <span class="hljs-comment">// Since add_tester and random_tester inherit from this one</span>
 <span class="hljs-comment">// and the connection is untouched, those classes get new behaviour</span>
 <span class="hljs-comment">// just by changing this base class</span>
 <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">base_tester</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
 
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(base_tester)
-   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
 
    <span class="hljs-comment">// the handle to the BFM is replaced by a uvm_put_port</span>
    <span class="hljs-uvm-type">uvm_put_port</span> #(<span class="hljs-type">command_s</span>) command_port;

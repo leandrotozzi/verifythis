@@ -32,7 +32,7 @@ The LRM and the *User Guide* are for consulting: nobody reads them straight thro
 look things up when there is a discussion about syntax or semantics. The Verification
 Academy is the place where almost everything this course left out lives, and it is
 free with registration.
-About Salemi's book it is worth repeating what `docs/en-que-se-diferencia.md` says: this
+About Salemi's book it is worth repeating what `docs/en-que-se-diferencia.md` (in Spanish) says: this
 course does not replace it and does not follow it. If somebody wants a second pass over
 the same concepts written by another person, it is the best one there is to start with.
 And the point about the charts, because it is the part a student may want to
@@ -55,7 +55,7 @@ is in the repo. Nothing in unit 1 is an image downloaded from the internet.
 <span class="libro-pie">Ray Salemi &middot; Boston Light Press, 2013 &middot; ISBN 978-0974164939</span>
 </span>
 </a>
-<p class="libro-nota">This course is not that book: it has another structure, another DUT, another simulator and four units of material the book does not cover. What it does share is credited in <code>NOTICE</code>, and the complete list of differences is in <code>docs/en-que-se-diferencia.md</code>.</p>
+<p class="libro-nota">This course is not that book: it has another structure, another DUT, another simulator and four units of material the book does not cover. What it does share is credited in <code>NOTICE</code>, and the complete list of differences is in <code>docs/en-que-se-diferencia.md</code> (in Spanish).</p>
 </div>
 
 Note:

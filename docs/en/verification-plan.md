@@ -1,4 +1,4 @@
-<!-- es-sha: e3bd92f37022 -->
+<!-- es-sha: cfc4e42a2f3e -->
 # The verification plan
 
 The most professional deliverable of the discipline, and the cheapest to write:
@@ -53,13 +53,14 @@ to.
 | 8 | sub | `A == B`: the result is 0 and `ovf` does **not** go up | random | scoreboard, two outputs | bin `sub_00`/`sub_FF` of the cross | `u7/sequences/tb_classes/coverage.svh` |
 | 9 | ovf | `ovf` does not go up for any other operation | random | assertion `a_ovf_solo_en_sub` | `c_ovf`, `c_sub_sin_borrow` | `u8/assertions/vtalu_bfm.sv` |
 | 10 | protocol | the operands are not touched with `start` high | random | assertion `a_operandos_estables` | `cover property` | `u8/assertions/vtalu_bfm.sv` |
-| 11 | protocol | `done` arrives, and before 5 cycles | random | assertion `a_done_llega` | `c_mult_4ciclos`, `c_un_ciclo` | `u8/assertions/vtalu_bfm.sv` |
+| 11 | protocol | `done` arrives, and before 5 cycles | random | assertion `a_done_llega` | `c_mult_4ciclos`, `c_un_ciclo`, `c_mult_3ciclos` (at 0) | `u8/assertions/vtalu_bfm.sv` |
 | 12 | protocol | `no_op` is the only one that does not answer | random | assertion `a_no_op_sin_done` | `cover property` | `u8/assertions/vtalu_bfm.sv` |
 
 Six things this table says that no single slide says:
 
 - **Row 3 is the only one with directed stimulus**, and that is not a whim:
-  `FF` × `FF` is one combination out of 65,536 and random does not visit it in a
+  `FF` × `FF` comes up once every sixteen multiplications and random fills it some
+  runs and not others, in a
   thousand operations. The plan is what makes it obvious **which test has to be
   written**, and it is exactly the exercise
   [`d5c`](../../code/ejercicios/d5c/), which closes this row.

@@ -1,4 +1,4 @@
-<!-- es-sha: 01a427d56d0f -->
+<!-- es-sha: fd2fd2af6e47 -->
 **English** · [Castellano](README.es.md)
 
 # Day 5 · constrained random — closing a bin
@@ -29,8 +29,10 @@ random operations do not fill it.
 Concretely it is **row 3** of the verification plan
 ([`docs/en/verification-plan.md`](../../../docs/en/verification-plan.md)): the
 multiplier's **maximum product**, the only one of the twelve rows whose stimulus
-column says **directed case**. And nobody decided that by hand: `FF` × `FF` is one
-combination out of 65,536, so random never visits it.
+column says **directed case**. And nobody decided that by hand: with the transaction's `dist`
+each leg lands on `FF` one time in four, so `FF` × `FF` comes up once every sixteen
+multiplications: not often in 60 operations, but not never —that is why the seed is
+pinned—.
 To be clear, just in case: `FF` × `FF` **does not overflow**. It gives `FE01`,
 which fits exactly in the 16 bits of `result`, and the DUT leaves `ovf` at 0 on
 every multiplication. It is the maximum of the input space — that is why the bin

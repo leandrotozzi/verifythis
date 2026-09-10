@@ -105,7 +105,7 @@ class apb_reg_block extends uvm_reg_block;
    // component: nobody calls you. Who calls this build() is the test, one line
    // after the create().
    virtual function void build();
-      // El mapa: direcciones de byte, 4 bytes por acceso, little endian.
+      // The map: byte addresses, 4 bytes per access, little endian.
       default_map = create_map("default_map", 'h0, 4, UVM_LITTLE_ENDIAN, 1);
 
       CTRL = ctrl_reg::type_id::create("CTRL");

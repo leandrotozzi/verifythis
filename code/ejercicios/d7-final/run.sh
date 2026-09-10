@@ -78,7 +78,7 @@ puntos=$(echo "$cov" | sed -n 's/.*(\([0-9]*\)\/\([0-9]*\)).*/\2/p')
 llenos=$(echo "$cov" | sed -n 's/.*(\([0-9]*\)\/\([0-9]*\)).*/\1/p')
 if [ "${puntos:-0}" -lt 20 ]; then
    falta "your covergroup has ${puntos:-0} points and the verification plan of
-    spec.md has seven rows: with the address-by-direction cross alone, you are already
+    spec.md has nine rows: with the address-by-direction cross alone, you are already
     over twenty."
 fi
 if [ "$((llenos * 100 / puntos))" -lt 90 ]; then

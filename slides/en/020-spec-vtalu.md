@@ -1,7 +1,7 @@
-<!-- es-sha: d339e0e31c8e -->
+<!-- es-sha: fb322a53c041 -->
 ## The VTALU spec
 
-![ALU waveform](res/diagrams/en/wave-dut.svg)
+![VTALU waveform: start, done and the result](res/diagrams/en/wave-dut.svg)
 <!-- .element: class="grande" -->
 
 - *start* has to stay at 1 and the operands stable until  
@@ -33,7 +33,7 @@ knows why.
 | and_op | 3'b011 | 1 | 0 |
 | xor_op | 3'b100 | 1 | 0 |
 | mul_op | 3'b101 | 4 | 0 |
-| *free* | 3'b110 | — | — |
+| *free* | 3'b110 | 1 | 0 |
 | rst_op | 3'b111 | — | — |
 
 - **Cycles** counts `clk` edges with `start` up, up to and including the one
@@ -127,7 +127,7 @@ That both blocks share `A`, `B` and `clk` and only split on the `start`
 is what makes the DUT have a single interface. Worth pointing out because it is the
 shape the `vtalu_bfm` of interfaces and BFM is going to have.
 The complete file, with both instances and their connections, is in
-`code/vtalu_dut/vtalu.sv`. Here there are only the four lines that decide.
+`code/vtalu_dut/vtalu.sv`. Here there are only the decode and the four lines that decide.
 Worth pointing out why it is a decode and not a loose bit: with an `op[2]` the
 opcodes would have to sit in tidy halves of the space, and the design
 would lose the freedom to assign them as convenient. A decode costs one gate
@@ -214,8 +214,9 @@ it is in the code.
 - `ovf` is one more output, and it belongs to `sub_op` and to nobody else
 - `rst_op` **does not exist for the RTL**: it is a testbench convention for
   pulsing `reset_n`, and that is why it enters the coverage
-- The DUT does not validate the opcode: the free one does nothing. Catching it is
-  the **verification plan's** job, not the design's
+- The DUT does not validate the opcode: the free one **raises `done` all the same**,
+  with the `result` of the previous operation. Catching it is the **verification
+  plan's** job, not the design's
 - And the tool used 47 % of the time is already installed:
   `VLT_TRACE=1` and GTKWave
 

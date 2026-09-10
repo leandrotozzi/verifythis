@@ -13,7 +13,7 @@ class full_test extends base_test;
       // THE TEST raises the objection, not the sequence: the sequence knows
       // nothing about phases, and has to be able to run inside another sequence.
       phase.raise_objection(this);
-      full_seq.start(sequencer_h);   // no vuelve hasta que body() termino
+      full_seq.start(sequencer_h);   // does not return until body() finished
       phase.drop_objection(this);
    endtask : run_phase
 

@@ -1,4 +1,4 @@
-<!-- es-sha: 58d61a3aa27d -->
+<!-- es-sha: 2e112e1fa061 -->
 ## Capstone · Day 7
 
 #### *The whole testbench, from a blank sheet*
@@ -6,7 +6,7 @@
 `cd code/ejercicios/d7-final && cat spec.en.md`
 <!-- .element: class="comando" -->
 
-- The other thirteen exercises gave you a file with a hole in it. This one gives a **DUT,
+- The previous exercises gave you a file with a hole in it. This one gives a **DUT,
   a spec and nothing else**
 - The DUT is not the VTALU: it is an **APB3 slave** with four registers. It has
   addresses, two phases per transfer, a *wait state* and an error response
@@ -51,7 +51,7 @@ The four traps of the spec are put there on purpose and all four are about
 a spec badly read, not about UVM: the wait state of the read, the `CLR` that never gets read
 at 1, the read-only register that gets written without giving an error, and the accumulator
 that only runs with `EN=1`. They are the four that hang the first testbench, and
-they are together in a section of `spec.md` called *The small print* — in
+they are together in a section of `spec.en.md` called *The small print* — in
 a real spec they are not going to be together nor in a section with that name.
 The `assign` of the `PREADY` is the whole slide if one has to be picked: it says that the
 write does not wait and the read does, and out of that comes the `do @(posedge PCLK); while
@@ -73,7 +73,7 @@ can happen.
 - **3 · The scoreboard.** The DUT modelled in software. The checker runs it twice:
   against the healthy DUT it has to keep quiet, and with **`+BUG=1`** it has to scream
 - **4 · The coverage.** The covergroup with the nine rows of the verification
-  plan of the spec: more than 20 points, 90 % covered. And **two rows come empty**
+  plan of the spec: at least 20 points, 90 % covered. And **two rows come empty**
 - **5 · The properties.** The APB protocol inside `apb_if.sv`, with
   `--assert`. With **`+BUG=2`** there is a bug the scoreboard cannot see
 

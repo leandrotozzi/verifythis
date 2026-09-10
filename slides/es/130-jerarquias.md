@@ -78,7 +78,7 @@ un string.
 
 #### *`convert2string()`: la versión deep*
 
-![La copia profunda, nivel por nivel](res/diagrams/jerarquias_convert2string_deep.svg)
+![Un nivel nuevo en la jerarquía rompe convert2string(): graduacion no aparece en el string](res/diagrams/jerarquias_convert2string_deep.svg)
 <!-- .element: class="grande" -->
 
 - El día que alguien mete una clase **en el medio**, los de abajo siguen
@@ -193,8 +193,8 @@ esta slide.
 Note:
 La regla que hay que dejar: **una clase sólo escribe sobre sus propios campos.**
 Todo lo demás se lo pide a `super`.
-Conviene contar en pantalla: `hielos` y `con_coca` aparecen en cuatro
-`convert2string()` distintos de este archivo. Cuatro lugares para acordarse, y
+Conviene contar en pantalla: `hielos` aparece en cuatro `convert2string()`
+distintos de este archivo y `con_coca` en tres. Siete lugares para acordarse, y
 ninguno falla si te olvidás de uno.
 Hay una `bad_copy()` un poco más abajo en el archivo que vale la pena abrir si
 sobra tiempo: toma un `fernet_con_hielo` como argumento en vez de un `trago`. Compila

@@ -34,7 +34,7 @@ class chequeo extends uvm_component;
    function void report_phase(uvm_phase phase);
       if (muls < 500)
          `uvm_error("CHEQUEO", $sformatf(
-                    "only %0d multiplications: the test sends 1000 operations", muls))
+                    "only %0d multiplications, and at least 500 are needed", muls))
       else if (otras == 0)
          `uvm_info("CHEQUEO", $sformatf(
                    "EXERCISE OK: %0d multiplications and no other operation", muls),

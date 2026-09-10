@@ -1,4 +1,4 @@
-<!-- es-sha: 85efb3009aa8 -->
+<!-- es-sha: b40e985a82e7 -->
 ## Polymorphism
 
 #### *A `trago` variable, a `fernet` object: which `servir()` runs?*
@@ -39,7 +39,7 @@ things. Here it is the first one.
   `$display`
 
 Note:
-The `$fatal` in the base class is a pattern you see a lot and that in two slides
+The `$fatal` in the base class is a pattern you see a lot and that in this same section
 we are going to replace with something better: if the method cannot be implemented here, the
 right thing is not to explode in simulation, it is not to let it compile.
 That the three classes have a method with the same name and the same signature is what
@@ -128,7 +128,7 @@ Where it is going to show up again: `uvm_object` and `uvm_component` are declare
 does **not** do is force you to implement anything: the other way round, it *provides*
 `get_type_name()` and the registry's `type_id`. The real `pure virtual` in UVM is
 `uvm_subscriber::write()`, which you are going to have to write no matter what on day 4.
-And in the day 2 exercise, the base class of the testbench.
+And in the day 3 exercise, the `virtual class base_tester`.
 
 ---
 
