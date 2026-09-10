@@ -30,6 +30,7 @@ curso son las slides y `code/`— pero cada uno resuelve algo concreto.
 | [`editar.md`](editar.md) | **Editar el curso.** El formato de una slide, los `{{code:}}`, las notas del presentador, los controles de maquetación, la exportación a PDF y PPTX, la tipografía, el árbol del repo y las decisiones de diseño |
 | [`docker.md`](docker.md) | Correr los ejemplos sin compilar Verilator a mano. El `Dockerfile` y el devcontainer, y el único parámetro que hay que mirar (la RAM) |
 | [`demo.tape`](demo.tape) + [`demo.sh`](demo.sh) | Cómo se regenera `demo.gif`, el GIF del README, con `vhs`. La salida es real y está replayeada |
+| [`marca.md`](marca.md) | El logo del curso, los tres colores y las tres piezas —favicon, tarjeta social, avatar—. Dónde se sube cada una, y por qué un repositorio de GitHub no tiene avatar propio |
 
 ## Fondo técnico
 
