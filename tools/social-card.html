@@ -1,0 +1,94 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Verify This! — social card</title>
+<!--
+  La tarjeta que GitHub muestra cuando alguien comparte el link del repo
+  (Settings > General > Social preview), y que sirve igual de og:image de
+  respaldo. 1280x640, que es lo que pide GitHub.
+
+  El logo es el MISMO del favicon (css/favicon.svg), a escala: la V de "Verify"
+  dibujada con la asimetria de un tilde de verificacion. Aca entra grande
+  porque a 1280 px si hay lugar para que se lea el trazo.
+
+  Se rinde con:  node tools/social-card.mjs   -> docs/social-card.png
+-->
+<style>
+  @font-face { font-family: 'Chakra Petch'; src: url('../css/fonts/chakra-petch-700.woff2') format('woff2'); font-weight: 700; }
+  @font-face { font-family: 'Chakra Petch'; src: url('../css/fonts/chakra-petch-600.woff2') format('woff2'); font-weight: 600; }
+  @font-face { font-family: 'IBM Plex Sans'; src: url('../css/fonts/ibm-plex-sans-400.woff2') format('woff2'); font-weight: 400; }
+  @font-face { font-family: 'IBM Plex Mono'; src: url('../css/fonts/ibm-plex-mono-400.woff2') format('woff2'); font-weight: 400; }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1280px; height: 640px; overflow: hidden; }
+  body {
+    background: #111;
+    display: flex;
+    align-items: center;
+    gap: 68px;
+    padding: 0 88px;
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* El mismo dibujo que css/favicon.svg, sin el fondo redondeado: sobre el
+     #111 de la tarjeta el rect del favicon seria invisible igual. */
+  .marca { flex: 0 0 320px; }
+
+  .texto { flex: 1; min-width: 0; }
+
+  h1 {
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 700;
+    font-size: 104px;
+    line-height: 0.94;
+    letter-spacing: -0.015em;
+    color: #f0f0f0;
+  }
+  h1 .bang { color: #e7ad52; }
+
+  .hook {
+    margin-top: 26px;
+    font-size: 37px;
+    line-height: 1.28;
+    color: #c9ced4;
+    max-width: none;
+  }
+  .hook b { color: #f0f0f0; font-weight: 600; }
+
+  .regla {
+    margin: 30px 0 24px;
+    width: 92px;
+    height: 5px;
+    background: #e7ad52;
+  }
+
+  .datos {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 25px;
+    letter-spacing: 0.01em;
+    color: #74e685;
+  }
+  .datos span { color: #5b6b7a; padding: 0 10px; }
+
+  .url {
+    margin-top: 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 23px;
+    color: #5b6b7a;
+  }
+</style>
+
+<svg class="marca" viewBox="0 0 32 32" role="img" aria-label="Verify This!">
+  <path d="M5.5 13.5 12.2 23.5 19.8 5.5" fill="none" stroke="#e7ad52" stroke-width="5"
+        stroke-linecap="square"/>
+  <rect x="23" y="6.8" width="5" height="11.2" fill="#f0f0f0"/>
+  <rect x="23" y="20.4" width="5" height="4.8" fill="#f0f0f0"/>
+</svg>
+
+<div class="texto">
+  <h1>Verify&nbsp;This<span class="bang">!</span></h1>
+  <p class="hook">A free <b>UVM</b> course that runs end to end<br>on <b>Verilator</b>. No EDA licences.</p>
+  <div class="regla"></div>
+  <p class="datos">8 units<span>·</span>444 slides<span>·</span>38 runnable examples</p>
+  <p class="url">github.com/leandrotozzi/verifythis</p>
+</div>

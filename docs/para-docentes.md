@@ -17,7 +17,7 @@ El repo trae [`CITATION.cff`](../CITATION.cff), así que el botón *Cite this
 repository* de GitHub genera la cita sola, en APA o BibTeX. Está bajo **CC BY
 4.0** el material y **MIT / Apache-2.0** el código: se puede imprimir, cortar,
 reordenar, traducir y dictar —también cobrando— con la única condición de citar
-la fuente. Ver [`../LICENSE`](../LICENSE).
+la fuente. Ver [`../LICENSING.md`](../LICENSING.md).
 
 ## El número que hay que mirar primero
 

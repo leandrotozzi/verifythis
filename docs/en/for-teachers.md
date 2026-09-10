@@ -1,4 +1,4 @@
-<!-- es-sha: 3f6346d9d28f -->
+<!-- es-sha: 766f8ac46574 -->
 # For teachers
 
 *Verify This!* is written as **seven days of class** —plus an **optional day
@@ -17,7 +17,7 @@ The repository ships [`CITATION.cff`](../../CITATION.cff), so GitHub's *Cite
 this repository* button generates the citation on its own, in APA or BibTeX. The
 material is under **CC BY 4.0** and the code under **MIT / Apache-2.0**: it can
 be printed, cut, reordered, translated and taught —for money too— with the
-single condition of citing the source. See [`LICENSE`](../../LICENSE).
+single condition of citing the source. See [`LICENSING.md`](../../LICENSING.md).
 
 ## The number to look at first
 

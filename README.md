@@ -1,4 +1,4 @@
-<!-- es-sha: fd521db175ef -->
+<!-- es-sha: 235a190b58a2 -->
 **English** · [Castellano](README.es.md)
 
 <div align="center">
@@ -316,7 +316,7 @@ generated appendices. The rest is in Spanish, and every link to one says so.
 
 | What | Licence |
 |:--|:--|
-| Tools (`tools/`, `css/`, `js/`, `.github/`) | [MIT](LICENSE) |
+| Tools (`tools/`, `css/`, `js/`, `.github/`) | [MIT](LICENSES/MIT.txt) |
 | Examples and exercises (`code/`) | [Apache-2.0](code/LICENSE) + [`NOTICE`](NOTICE) |
 | Course content (`slides/`, `docs/`) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 
@@ -330,4 +330,4 @@ examples, which their author published under Apache-2.0; that is why `code/` is
 Apache-2.0 and not MIT. All the licence asks in return is that you keep the
 [`NOTICE`](NOTICE), which credits the origin and lists the changes. Third-party
 material —reveal.js, forkit.js, the typefaces— is covered in the corresponding
-section of [`LICENSE`](LICENSE).
+section of [`LICENSING.md`](LICENSING.md), the map of the three licences.

@@ -32,4 +32,4 @@ en el mismo PR** — es lo que hace que el curso ande con doble clic, sin build.
 
 Los detalles, en [CONTRIBUTING.md](../CONTRIBUTING.md). Al mandar el PR aceptás
 que tu aporte se publique con la licencia que le corresponda a ese archivo
-(ver [LICENSE](../LICENSE)).
+(ver [LICENSING.md](../LICENSING.md)).

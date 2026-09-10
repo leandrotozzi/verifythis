@@ -130,7 +130,7 @@ Mensajes en castellano, con el prefijo del área: `feat(curso)`, `fix(code)`,
 
 El repo tiene tres licencias: **MIT** para las herramientas, **Apache-2.0** para
 los ejemplos de `code/` y **CC BY 4.0** para el contenido del curso. Está todo en
-[`LICENSE`](LICENSE), y conviene leerlo antes de mandar un ejemplo nuevo.
+[`LICENSING.md`](LICENSING.md), y conviene leerlo antes de mandar un ejemplo nuevo.
 
 Si mandás un ejemplo de `code/`, va bajo Apache-2.0 y el [`NOTICE`](NOTICE)
 tiene que seguir intacto: parte de `code/` deriva de los ejemplos del *UVM

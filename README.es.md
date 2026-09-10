@@ -314,7 +314,7 @@ largos de fondo (clocking blocks, y en qué se diferencia del *UVM Primer*).
 
 | Qué | Licencia |
 |:--|:--|
-| Herramientas (`tools/`, `css/`, `js/`, `.github/`) | [MIT](LICENSE) |
+| Herramientas (`tools/`, `css/`, `js/`, `.github/`) | [MIT](LICENSES/MIT.txt) |
 | Ejemplos y ejercicios (`code/`) | [Apache-2.0](code/LICENSE) + [`NOTICE`](NOTICE) |
 | Contenido del curso (`slides/`, `docs/`) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 
@@ -328,4 +328,4 @@ ejemplos del *UVM Primer*, que su autor publicó bajo Apache-2.0; por eso `code/
 está bajo Apache-2.0 y no MIT. Lo único que la licencia pide a cambio es
 conservar el [`NOTICE`](NOTICE), que acredita el origen y lista los cambios.
 Lo de terceros —reveal.js, forkit.js, las tipografías— está en la sección del
-[`LICENSE`](LICENSE).
+[`LICENSING.md`](LICENSING.md), que es el mapa de las tres licencias.
