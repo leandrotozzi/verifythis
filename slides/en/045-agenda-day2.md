@@ -1,4 +1,4 @@
-<!-- es-sha: b9a97b1bd38f -->
+<!-- es-sha: 9c1de2f54dcf -->
 <!-- .slide: id="day2" -->
 
 ## Yesterday we left…
@@ -26,7 +26,7 @@ between one chapter and the next.
 
 ---
 
-<!-- .slide: data-machete="res/diagrams/en/uml-poli.svg,res/diagrams/en/factory_diagram.svg" -->
+<!-- .slide: data-machete="res/diagrams/en/uml-poli.svg|trago, fernet and mojito: which servir() lives in which class,res/diagrams/en/factory_diagram.svg|cantina builds fernet and mojito, and returns a trago handle" -->
 
 <!-- .slide: data-transition="concave" -->
 

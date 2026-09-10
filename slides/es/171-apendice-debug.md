@@ -1,4 +1,4 @@
-<!-- .slide: id="apendice-debug" data-machete="res/machete-debug.svg" -->
+<!-- .slide: id="apendice-debug" data-machete="res/machete-debug.svg|Machete de debug: las siete perillas del curso y qué mirar según el síntoma" -->
 
 ## Apéndice · La caja de herramientas de debug
 

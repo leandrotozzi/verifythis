@@ -29,7 +29,7 @@ class apb_scoreboard extends uvm_subscriber #(apb_transaction);
 
    function bit [31:0] leer_esperado(bit [7:0] addr);
       case (registro(addr))
-         CTRL_ADDR:    return {31'h0, en};        // CLR es autoclear: siempre 0
+         CTRL_ADDR:    return {31'h0, en};        // CLR is self-clearing: always 0
          SCRATCH_ADDR: return scratch;
          ACC_ADDR:     return acc;
          default:      return {30'h0, ovf, en};   // STATUS
@@ -48,13 +48,13 @@ class apb_scoreboard extends uvm_subscriber #(apb_transaction);
          end
          SCRATCH_ADDR: begin
             scratch = t.wdata;
-            if (en) begin  // el acumulador solo corre con EN=1
+            if (en) begin  // the accumulator only runs with EN=1
                suma = {1'b0, acc} + {1'b0, t.wdata};
                acc  = suma[31:0];
                if (suma[32]) ovf = 1'b1;  // pegajoso
             end
          end
-         default: ;  // ACC y STATUS son de solo lectura: la escritura se ignora
+         default: ;  // ACC and STATUS are read-only: the write is ignored
       endcase
    endfunction : aplicar_escritura
 

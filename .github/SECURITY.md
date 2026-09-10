@@ -20,7 +20,7 @@ saber:
 
 Fuera de eso: **si el ejemplo del curso enseña una práctica de verificación
 insegura o incorrecta, eso no es un issue de seguridad, es un issue de
-contenido** y va por [el formulario de typo](ISSUE_TEMPLATE/typo.yml).
+contenido** y va por [el formulario de typo](../../issues/new?template=typo.yml).
 
 ## Cómo reportar
 

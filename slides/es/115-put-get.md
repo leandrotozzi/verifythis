@@ -66,7 +66,7 @@ testbench que tiene derecho a escribir un `@(negedge clk)`.
 - El resultado: una clase decide **qué** mandar y otra sabe **cómo** mandarlo, y
   entre las dos hay una FIFO en vez de una llamada a método
 
-![El tester elige el estimulo y el driver lo aplica](res/diagrams/put-get_fig125.svg)
+![El tester y el driver del VTALU separados por una uvm_tlm_fifo](res/diagrams/put-get_fig125.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -103,8 +103,10 @@ El mantra tiene una razón que conviene dar y no repetir como loro: el *port* es
 el que pide el servicio, el *export* es el que lo ofrece. La FIFO ofrece las dos
 puntas, así que tiene dos exports. Si lo escribís al revés no compila, y el
 mensaje del compilador es de los peores de UVM.
-Y el detalle que se olvida: `command_f = new(...)`, no `create()`. Las FIFOs no
-están en la factory.
+Y el detalle que se olvida: `command_f = new(...)`, no `create()`. No es que la
+FIFO falte en la factory —está registrada, `tlm1/uvm_tlm_fifos.svh:62`—: es que el
+`size` va por constructor y `create()` no lo sabe pasar. Los que de verdad no están
+en la factory son los ports y los exports.
 
 ---
 

@@ -81,7 +81,7 @@ code/u7/callbacks/tb_classes/driver.svh`. Todo lo demás —el `get_next_item`, 
 El modo de falla del `uvm_register_cb` que falta no es el que uno espera, y vale
 contarlo con la fuente en la mano porque la mitad de los tutoriales lo dice al
 revés: `uvm_callback.svh:745` reporta un `UVM_WARNING CBUNREG` y **sigue de
-largo** — el `add()` mete el callback en `m_base_inst.m_pool` igual (`:777-783`),
+largo** — el `add()` mete el callback en `m_base_inst.m_pool` igual (`:781-785`),
 y `` `uvm_do_callbacks `` lee ese pool sin consultar el registro (`:964-1006`).
 O sea: sin la macro el callback corre, y lo que perdés es el chequeo de tipos y
 el `add_by_name` por tipo derivado. Es peor que un error: es un warning entre mil

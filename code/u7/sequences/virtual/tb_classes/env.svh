@@ -47,9 +47,9 @@ class env extends uvm_env;
    endfunction : build_phase
 
    function void connect_phase(uvm_phase phase);
+      // cb: wiring-the-sequencers
       // The handles are passed HERE and not looked up by string: in connect_phase
       // both agents already exist, and if somebody renames a component this does
-      // cb: wiring-the-sequencers
       // not compile instead of returning null at simulation time.
       virtual_sequencer_h.clase_sequencer_h  = clase_agent_h.sequencer_h;
       virtual_sequencer_h.modulo_sequencer_h = modulo_agent_h.sequencer_h;

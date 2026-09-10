@@ -74,10 +74,15 @@ SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
 ```
 
 El corrector va por etapas y cada una imprime su `STAGE N OK`, como el capstone.
-Los dos tiempos que pide son los de la BFM tal como viene: la primera corrida
-los mide de las ondas y los guarda en `obj_dir`, así que la respuesta no se te
-vence cuando toques la BFM —con el handshake bien esperado la primera
-multiplicación se adelanta—. Un `make clean` los olvida.
+Los dos tiempos se miden **del `ondas.vcd` que esa misma corrida acaba de
+dejar**: lo que te pide es siempre lo que dice la onda que tenés abierta, corras
+en el orden que corras.
+
+Ojo con eso en la etapa 2: cuando arreglás la BFM, **el segundo número se
+mueve**. Con el handshake bien esperado cada operación de un ciclo tarda un
+flanco menos, así que la primera multiplicación arranca —y cierra— antes (830 ps
+pasan a 650 ps). Volvé a abrir las ondas y actualizá `respuesta.txt`: ese
+corrimiento es la lección del ejercicio, mirado en el visor.
 
 ## Cuánto tarda
 

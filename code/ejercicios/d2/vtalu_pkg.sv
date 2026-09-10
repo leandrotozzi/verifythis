@@ -12,6 +12,7 @@ package vtalu_pkg;
    `include "coverage.svh"
    `include "tester.svh"
    `include "mult_tester.svh"
+   `include "chequeo.svh"  // the exercise checker
    `include "scoreboard.svh"
    `include "testbench.svh"
 endpackage : vtalu_pkg

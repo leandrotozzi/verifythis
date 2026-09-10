@@ -21,8 +21,9 @@ la fuente. Ver [`../LICENSING.md`](../LICENSING.md).
 
 ## El número que hay que mirar primero
 
-Los siete días son **≈ 30 h 30 de clase**; con el día 8 opcional, ≈ 34 h 30. Un cuatrimestre de 15 semanas con 2 h de
-teoría son **30 h**: entra, pero justo, y sólo si el laboratorio va aparte. El
+Los siete días son **≈ 31 h de clase**; con el día 8 opcional, ≈ 35 h. Un
+cuatrimestre de 15 semanas con 2 h de teoría son **30 h**: falta una hora, así
+que algo hay que recortar, y sólo cierra si el laboratorio va aparte. El
 mapa de abajo asume el formato normal de una materia con práctica:
 
 > **2 h de teoría + 2 h de laboratorio por semana, 15 semanas.**
@@ -45,15 +46,14 @@ el docente no corrige código a mano hasta el capstone.
 | 4 | **U2** · Interfaces y BFM · `clocking block` | [`d1b`](../code/ejercicios/d1b/) — el bug que sólo se ve en el `.vcd` |
 | 5 | **U3** · Clases y extensiones · Polimorfismo | [`d2`](../code/ejercicios/d2/) — extender sin copiar la clase entera |
 | 6 | **U3** · Variables y métodos estáticos · Clases paramétricas | `d2` (cierre) |
-| 7 | **U3** · El patrón factory · Un testbench sin un solo módulo | Repaso: preguntas **8–15** del banco, en clase |
+| 7 | **U3** · El patrón factory · Un testbench sin un solo módulo | Repaso: preguntas **8–11** del banco, en clase — las demás quedan frescas para el Parcial 1 |
 | 8 | **Parcial 1** (1 h) + **U4** · Tests | — |
 | 9 | **U4** · Components y fases · El env | [`d3`](../code/ejercicios/d3/) — factory override sin tocar el `env` |
 | 10 | **U4** · Reporting · **U5** · Un productor, muchos oyentes · Un solo lugar que mira el cable | [`d3b`](../code/ejercicios/d3b/) — el `uvm_error` que no dice nada · [`d4`](../code/ejercicios/d4/) — un subscriber más |
-| 10b | **U5** · Quién espera a quién · Cuando alguien tiene que esperar (`put`/`get` y la FIFO) | [`d4b`](../code/ejercicios/d4b/) — el `#500` es un parche |
-| 11 | **U6** · Repaso de U5 y arranque de jerarquías | [`d5`](../code/ejercicios/d5/) — el scoreboard grita y el DUT está sano |
+| 11 | **U5** · Cuando alguien tiene que esperar · Quién espera a quién (`put`/`get` y la FIFO — el primer recorte de la lista si la clase no da) · arranque de las jerarquías de **U6** | [`d4b`](../code/ejercicios/d4b/) — el `#500` es un parche · [`d5`](../code/ejercicios/d5/) — el scoreboard grita y el DUT está sano |
 | 12 | **U6** · Copiar un objeto que contiene otro · Transactions | [`d5b`](../code/ejercicios/d5b/) — medí tu `dist` |
-| 13 | **U6** · Constrained random + **Parcial 2** (1 h) | [`d5c`](../code/ejercicios/d5c/) — cerrar un bin dirigido |
-| 14 | **U7** · Agents · Sequences — y *Callbacks* si entra, que es el primero de la lista de recortes | [`d6-agents`](../code/ejercicios/d6-agents/) · [`d6-sequences`](../code/ejercicios/d6-sequences/) · [`d6-debug`](../code/ejercicios/d6-debug/) — tres bugs plantados |
+| 13 | **U6** · Constrained random | [`d5c`](../code/ejercicios/d5c/) — cerrar un bin dirigido |
+| 14 | **Parcial 2** (1 h) + **U7** · Agents · Sequences — y *Callbacks* si entra, que es el primero de la lista de recortes | [`d6-agents`](../code/ejercicios/d6-agents/) · [`d6-sequences`](../code/ejercicios/d6-sequences/) · [`d6-debug`](../code/ejercicios/d6-debug/) — tres bugs plantados |
 | 15 | **U7** · Sequences virtuales · **U8** · Assertions (SVA) | [`d7-semillas`](../code/ejercicios/d7-semillas/) con `make regresion`, de calentamiento · [`d7-sva`](../code/ejercicios/d7-sva/) · **arranque del capstone** |
 | — | *(período de exámenes)* | **Capstone**: [`d7-final`](../code/ejercicios/d7-final/) |
 | + | **Día 8** *(opcional)* · **U9** · RAL · DPI · el segundo capstone — no entra en las 15 semanas | [`d8-ral`](../code/ejercicios/d8-ral/) — el mapa de registros · [`d8-dpi`](../code/ejercicios/d8-dpi/) — el modelo en C · [`d8-fifo`](../code/ejercicios/d8-fifo/) — el segundo capstone |
@@ -67,8 +67,9 @@ Las tres piezas dependen de que el capstone esté hecho, así que sólo funciona
 - **U9 · RAL** — 45 min de teoría y un laboratorio de una hora. Reusa el DUT y el
   testbench del capstone. El argumento que hay que asegurarse de que quede es el
   de la última sección: RAL modela almacenamiento direccionable, no comportamiento.
-- **El modelo de referencia en C, por DPI** — 30 min, sin laboratorio propio: el
-  ejemplo `code/u8/dpi/` corre y se lee. Es la técnica de la industria para un
+- **El modelo de referencia en C, por DPI** — 30 min de teoría y un laboratorio
+  corto ([`d8-dpi`](../code/ejercicios/d8-dpi/), dos mutaciones); el ejemplo
+  `code/u8/dpi/` corre y se lee. Es la técnica de la industria para un
   DUT con aritmética seria, y ningún curso atado a una licencia la puede mostrar
   corriendo.
 - **El segundo capstone** ([`d8-fifo`](../code/ejercicios/d8-fifo/)) — dos horas.
@@ -77,8 +78,8 @@ Las tres piezas dependen de que el capstone esté hecho, así que sólo funciona
   datos, así que un scoreboard que sólo compara lo que sale pasa en verde. Separa
   al que entendió del que copió el patrón del primer capstone.
 
-Los cuatro **apéndices** del día 7 —de la VTALU a un bus real, la caja de
-herramientas de debug, las 21 trampas mudas y el glosario— no ocupan hora
+Los tres **apéndices** del día 7 —de la VTALU a un bus real, la caja de
+herramientas de debug y las 21 trampas mudas—, más el glosario, no ocupan hora
 de clase: se dan como **lectura**, porque el curso tiene libro. `libro/dia7.html`
 es el mismo material para leer de corrido, con las notas del instructor adentro
 del texto. Los apéndices de debug y de trampas se leen antes del capstone; se

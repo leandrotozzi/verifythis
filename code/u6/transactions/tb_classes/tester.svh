@@ -33,7 +33,6 @@ class tester extends uvm_component;
          if (!command.randomize()) `uvm_fatal("TESTER", "randomize() failed")
          command_port.put(command);
       end : random_loop
-   // cb: end
 
       // Directed: the multiplier overflow case, which 1000 random operations
       // might never touch. It comes out of the factory like the others, but
@@ -48,4 +47,5 @@ class tester extends uvm_component;
       #500;
       phase.drop_objection(this);
    endtask : run_phase
+   // cb: end
 endclass : tester

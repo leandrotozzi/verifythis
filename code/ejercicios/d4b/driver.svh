@@ -1,8 +1,8 @@
 // TODO(exercise d4b): the test ends with the bus half empty. Fix it HERE.
 //
 // The tester finishes putting its thousand commands at t = 0, waits its #500
-// and drops the objection. By then the driver has sent about twenty-five: the
-// rest are still in the FIFO when the simulation ends, and UVM says PASS.
+// and drops the objection. By then the driver has sent thirteen: the rest are
+// still in the FIFO when the simulation ends, and UVM says PASS.
 //
 // The #500 of base_tester.svh is a patch, and it is not the fix: with the
 // unbounded FIFO the tester no longer knows anything about the bus, so it cannot

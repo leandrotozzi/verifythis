@@ -65,10 +65,9 @@ module top;
       }
    endgroup
 
-   // Check the corners where the inputs are all 0s or all 1s
-   // cb: legs-and-ops
    covergroup zeros_or_ones_on_ops;
-
+      // cb: legs-and-ops
+      // Check the corners where the inputs are all 0s or all 1s
       all_ops : coverpoint op_set {
          ignore_bins null_ops = {rst_op, no_op};}
 
@@ -83,7 +82,6 @@ module top;
          bins others= {[8'h01:8'hFE]};
          bins ones  = {8'hFF};
       }
-   // cb: end
       // VTALU rev2: the borrow of the subtraction, the row of the plan that the
       // scoreboard can only close by looking at TWO outputs. Without this bin, a
       // subtraction that never went negative looks exactly like one that did.
@@ -91,7 +89,7 @@ module top;
          bins hubo_borrow = {1};
          ignore_bins resto = {0};
       }
-
+      // cb: end
 
       op_00_FF:  cross a_leg, b_leg, all_ops {
          bins add_00 = binsof (all_ops) intersect {add_op} &&

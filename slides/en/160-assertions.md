@@ -1,4 +1,4 @@
-<!-- es-sha: 6fb7203e5453 -->
+<!-- es-sha: 60d805467be3 -->
 ## Assertions (SVA)
 
 #### *The hole the scoreboard left*
@@ -34,7 +34,7 @@ testbench does not cover.
 
 #### *Immediate and concurrent: the one you know and the new one*
 
-```sv
+```systemverilog
 // IMMEDIATE: it is a STATEMENT. It runs when the thread goes past it,
 // once, and that is all. The one from the transactions is of this family.
 assert (cmd.op inside {add_op, sub_op, and_op, xor_op, mul_op})
@@ -72,7 +72,7 @@ same keyword for two different things.
 
 #### *Anatomy of a property*
 
-```sv
+```systemverilog
 a_done_llega :                      // <- the label: NOT optional
 assert property (
    @(posedge clk)                   // <- the clock: when it gets sampled
@@ -98,7 +98,7 @@ gets lost because they do not tell the antecedent from the consequent.
 The label deserves a paragraph of its own. Without it, the simulator invents one
 (`__unnamed$$_0`), and that name is the one that is going to show up in the log of the nightly
 regression and in the assertion coverage report. It is exactly the same
-argument as the `begin : nombre` the course has been using since interfaces and BFM.
+argument as the `begin : name` the course has been using since interfaces and BFM.
 The `disable iff` is looked at in detail further on, but it is worth getting ahead of why it is
 so high up in the template: it is the part that gets forgotten most and the one that generates the most false
 positives.
@@ -109,7 +109,7 @@ positives.
 
 #### *`|->` against `|=>`, mistake number one*
 
-```sv
+```systemverilog
 // |->  overlapping: the consequent starts on THE SAME edge
 a : assert property (@(posedge clk) start |-> !done);
 
@@ -149,7 +149,7 @@ check.
 
 #### *Looking at the past: `$rose`, `$fell`, `$stable`, `$past`*
 
-```sv
+```systemverilog
 $rose(start)      // 0 -> 1 between the previous edge and this one
 $fell(done)       // 1 -> 0
 $stable(A)        // the value is the same as on the previous edge
@@ -187,7 +187,7 @@ $past expr2 and/or clock arguments*).
 
 {{code:code/u8/assertions/vtalu_bfm.sv#stable-operands}}
 
-- It is **the rule of slide 1 of day 1**: while `start` is up, the
+- It is **the rule of *The VTALU spec*, day 1**: while `start` is up, the
   operands are not touched. It sat written in prose for six days
 - Eleven lines, and they check every transaction of every test, on both agents, without
   anybody connecting them to anything
@@ -196,9 +196,9 @@ $past expr2 and/or clock arguments*).
 
 Note:
 This is the moment to go back to the spec slide and read it word for word.
-The distance between *"the operands must remain stable while `start`
-is active"* and the line of SVA on screen is almost zero — and that is the whole
-argument for why assertions get written early and not at the end: the
+The distance between *"start has to stay at 1 and the operands stable until the
+operation finishes"* and the line of SVA on screen is almost zero — and that is
+the whole argument for why assertions get written early and not at the end: the
 specification **is already written**, it only has to be translated.
 The `$stable(op_set)` at the end is the one that tends to be missing and it is the one that catches the ugliest
 bug: changing the operation halfway through a transaction is legal for the compiler,
@@ -239,8 +239,8 @@ shuts up —and there they are left without a check. The correct reflex is to lo
 the one driving the stimulus writes on.
 The underlying industrial way out is the **clocking block**, which declares the sampling
 once for the whole interface instead of repeating it property by property. It is in
-day 1 —`030-interfaces-bfm.md` and `docs/clocking-blocks.md`— and it is worth naming
-again here, because only now is the full problem it solves in view.
+day 1 —`030-interfaces-bfm.md` and `docs/clocking-blocks.md` (in Spanish)— and it
+is worth naming again here, because only now is the full problem it solves in view.
 
 ---
 
@@ -253,7 +253,7 @@ again here, because only now is the full problem it solves in view.
 
 - Between two `posedge` a whole `start` pulse fits that the sampling never sees
 - All on `posedge`: the two `no_op` read as **one**, and out come 145 screams
-- Stimulus on `negedge`: at `t=120` it is already low, the antecedent never starts
+- Stimulus on `negedge`: at `t=120` it is already low, the antecedent does not start
 
 Note:
 This is the figure to pause on and walk through with a finger, because the whole
@@ -310,7 +310,7 @@ the previous slide said: `done` comes out of an `always_ff`.
 
 #### *`disable iff` and the reset*
 
-```sv
+```systemverilog
 default disable iff (!reset_n);   // once, for the whole interface
 
 property p;
@@ -418,8 +418,8 @@ is at zero, the `bind` did not arrive.
 
 #### *The integration with UVM: the `else` that makes it count*
 
-```sv
-// The SystemVerilog default: it KILLS the simulation on the first failure
+```systemverilog
+// The default: $error, and in Verilator also $stop — it cuts off on the first failure
 a : assert property (p);
 
 // What you want in UVM: the failure counts and the simulation goes on
@@ -540,7 +540,7 @@ Summary* is the slide.
 It is worth pointing out why the bug is invisible, because it is not obvious: the pipeline
 does `a_int <= A` on the first edge and `mult1 <= a_int * b_int` on the second.
 Everything that happens to `A` and `B` after the first edge gets discarded. A
-designer would say the DUT is *robust*; a verifier would say the testbench
+designer would say the DUT is *robust*; a verification engineer would say the testbench
 is lying — the stimulus violated the contract and nobody found out.
 And the punchline: this bug is not hypothetical. It is exactly what the legacy
 module of the exercise does, and it is exactly the kind of thing that survives for years in a

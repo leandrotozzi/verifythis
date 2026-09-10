@@ -44,7 +44,7 @@ endclass : fernet
 
 // cb: tray-and-top
 class bandeja_de_fernet;
-   //Queue static
+   // Static queue
    static fernet vasos[$];
 
 endclass : bandeja_de_fernet

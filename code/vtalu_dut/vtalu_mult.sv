@@ -15,6 +15,7 @@ module vtalu_mult (
    logic [15:0] mult1, mult2;  // pipeline registers
    logic done3, done2, done1;  // done travels down the same pipeline
 
+   // cb: the-pipeline
    // Four register stages. done is pipelined alongside the data, and each
    // stage clears itself with (& ~done_mult): that is what makes done a
    // one-cycle pulse instead of staying high for as long as start does. It is
@@ -31,7 +32,6 @@ module vtalu_mult (
          mult2 <= 16'h0000;
          result_mult <= 16'h0000;
       end else begin
-      // cb: the-pipeline
          a_int <= A;
          b_int <= B;
          mult1 <= a_int * b_int;
@@ -41,8 +41,8 @@ module vtalu_mult (
          done2 <= done3 & ~done_mult;
          done1 <= done2 & ~done_mult;
          done_mult <= done1 & ~done_mult;
-      // cb: end
       end
    end
+   // cb: end
 
 endmodule : vtalu_mult

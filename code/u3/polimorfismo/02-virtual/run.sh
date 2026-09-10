@@ -5,8 +5,9 @@ set -e
 vlt top -f sv.f
 run_sim
 
-# El punto de la seccion: con 'virtual', servir() por el handle de la clase base
-# ejecuta el de la derivada. O sea que cada trago se sirve DOS veces, una por su
-# propio handle y otra por el de trago. Sin despacho virtual saldria una sola.
+# The point of the section: with 'virtual', calling servir() through the base
+# class handle runs the derived one. So every drink gets served TWICE, once
+# through its own handle and once through trago's. Without virtual dispatch it
+# would come out only once.
 expect_in_log 2 'Fernet: 70/30, and the coke last'
 expect_in_log 2 'Mojito: mint, lime and crushed ice'

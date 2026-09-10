@@ -62,7 +62,7 @@ module top;
   function automatic void check(string what, real got, real want);
     $display("  %-28s %6.2f %%   (expected %0.2f)", what, got, want);
     if (got < want - 0.05 || got > want + 0.05)
-      $fatal(1, "%s: %0.2f, esperaba %0.2f", what, got, want);
+      $fatal(1, "%s: %0.2f, expected %0.2f", what, got, want);
   endfunction
 
   initial begin
@@ -80,17 +80,17 @@ module top;
     op = 0; m1.sample(); op = 1; m1.sample();
     op = 2; m2.sample(); op = 3; m2.sample();
 
-    $display("Verilator 5.052, opciones de covergroup:");
+    $display("Verilator 5.052, covergroup options:");
     // 1 of 4 bins: only op = 1 reached the three hits.
-    check("at_least en coverpoint",  a_cp.get_inst_coverage(), 25.0);
+    check("at_least on coverpoint",  a_cp.get_inst_coverage(), 25.0);
     // 2 of 4: the option did nothing, op = 0 counts with a single hit.
-    check("at_least en covergroup",  a_cg.get_inst_coverage(), 50.0);
+    check("at_least on covergroup",  a_cg.get_inst_coverage(), 50.0);
     // 2 of 4 automatic bins.
     check("auto_bin_max = 4",        abm.get_inst_coverage(),  50.0);
     // 2 of the 64 automatic bins Verilator makes by default.
-    check("sin auto_bin_max",        dfl.get_inst_coverage(),   3.13);
+    check("no auto_bin_max",         dfl.get_inst_coverage(),   3.13);
     // 2 of 5 bins: weight = 0 did not drop cp1 out of the average.
-    check("weight = 0 en cp1",       w.get_inst_coverage(),    40.0);
+    check("weight = 0 on cp1",       w.get_inst_coverage(),    40.0);
     // Type-wide coverage is 0 whatever merge_instances says.
     check("merge_instances (type)",  cg_merge::get_coverage(),  0.0);
     $display("OK");

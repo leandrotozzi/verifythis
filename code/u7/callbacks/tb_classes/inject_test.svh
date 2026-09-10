@@ -14,10 +14,10 @@ class inject_test extends dual_test;
       super.new(name, parent);
    endfunction : new
 
+   // cb: hooking-the-cb
    // end_of_elaboration and not build: the driver is a grandchild of the env,
    // and build_phase runs top-down -- when this test's build_phase returns, the
    // driver does not exist yet.
-   // cb: hooking-the-cb
    function void end_of_elaboration_phase(uvm_phase phase);
       super.end_of_elaboration_phase(phase);
 
@@ -30,9 +30,9 @@ class inject_test extends dual_test;
       uvm_callbacks #(driver, driver_callback)::add(env_h.clase_agent_h.driver_h, jitter_h);
       uvm_callbacks #(driver, driver_callback)::add(env_h.clase_agent_h.driver_h, flip_h);
 
-   // cb: end
       if ($test$plusargs("CALLBACK_TRACE"))
          uvm_callbacks #(driver, driver_callback)::display(env_h.clase_agent_h.driver_h);
    endfunction : end_of_elaboration_phase
+   // cb: end
 
 endclass : inject_test

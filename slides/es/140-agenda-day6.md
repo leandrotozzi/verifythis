@@ -22,7 +22,7 @@ Eso crece factorial, y es el motivo de que exista la unidad.
 
 ---
 
-<!-- .slide: data-machete="res/machete-debug.svg,res/diagrams/agents_agent.svg,res/diagrams/sequences_tb_completo.svg" -->
+<!-- .slide: data-machete="res/machete-debug.svg|Machete de debug: las siete perillas del curso y qué mirar según el síntoma,res/diagrams/agents_agent.svg|Estructura interna de un uvm_agent: sequencer · driver · monitores y los analysis ports que expone,res/diagrams/sequences_tb_completo.svg|El testbench completo: la nube de sequences · el agent con sequencer y driver · y la capa de análisis en el env" -->
 
 ## Agenda
 
@@ -46,4 +46,4 @@ y se contesta hoy: `uvm_object` son los **datos** y `uvm_component` es la
 **estructura**.
 El tercero es el que cierra la unidad y el día: cuando esa línea se va, ninguna
 del test nombra un componente de adentro del `env`, y recién ahí el testbench es
-reutilizable de verdad.
+reutilizable para un agent. Coordinar dos es el día 7.

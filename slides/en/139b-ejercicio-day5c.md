@@ -25,7 +25,7 @@ a value **before** looking at the `with`. With the distribution active, `with {A
 resolves one out of every four times and the rest returns 0. Whoever does not read the hint
 is going to see an exercise that sometimes passes and sometimes does not — which is exactly the
 symptom the section describes.
-The way around it is `constraint_mode(0)`, and it is worth defending it as a design decision and
+The workaround is `constraint_mode(0)`, and it is worth defending it as a design decision and
 not as a patch for the simulator: a **directed** case does not want a distribution of
 probabilities, it wants a value.
 The seed of the `run.sh` is fixed. Without fixing it, some runs would fill the

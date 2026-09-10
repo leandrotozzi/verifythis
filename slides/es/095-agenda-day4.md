@@ -20,7 +20,7 @@ monitor"— es exactamente la que la unidad viene a desarmar.
 
 ---
 
-<!-- .slide: data-machete="res/diagrams/analysis-ports_fig102.svg,res/diagrams/threads_fig124.svg" -->
+<!-- .slide: data-machete="res/diagrams/analysis-ports_fig102.svg|Testbench del VTALU con analysis ports,res/diagrams/threads_fig124.svg|Comunicación entre threads con put port, get port y uvm_tlm_fifo" -->
 
 ## Agenda
 

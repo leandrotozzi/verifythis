@@ -29,7 +29,7 @@ regenerated with `make figs`.
 
 #### *Verification is not a stage, it is half the work*
 
-![49 % of the designer's time goes to verification; 47 % of the verifier's time goes to debug](res/trends/en/esfuerzo.svg)
+![49 % of the designer's time goes to verification; 47 % of the verification engineer's time goes to debug](res/trends/en/esfuerzo.svg)
 <!-- .element: class="grande" -->
 
 Note:

@@ -91,6 +91,19 @@ jobs:
           echo "$HOME/opt/verilator/bin" >> "$GITHUB_PATH"
           "$HOME/opt/verilator/bin/verilator" --version
 
+      # Los seis repros de code/verilator/ son la evidencia de docs/verilator.md
+      # y de las slides que dicen "Medido en Verilator 5.052". Cada uno termina
+      # en $fatal si su numero se movio, asi que son el unico lugar del repo
+      # donde un dato medido se defiende solo.
+      #
+      # Estaban fuera del CI: 'make repros' existia y no lo corria nadie mas que
+      # el que se acordaba a mano. Un repro que nadie corre es una captura de
+      # pantalla con extension .sv -- el mismo problema que vino a resolver.
+      # Segundos, sin UVM, y antes que todo lo demas: si Verilator cambio algo
+      # de abajo, se ve en 10 s y no a los 40 min.
+      - name: Los seis repros de docs/verilator.md
+        run: make repros
+
       # UVM son varios MB de libreria de terceros que no se commitean.
       - name: Cache de UVM
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
@@ -119,10 +132,115 @@ jobs:
       - name: Los 38 ejemplos
         run: make matrix
 
+      # La matriz se ESCRIBE desde los logs y hasta hoy nunca se CONTRASTABA
+      # contra ellos: 'make matrix' la regenera, y si nadie la corre envejece
+      # muda. La revision por clase de error encontro dos filas mintiendo:
+      #
+      #   u5/varios-objetos/02  decia 100.0% (11/11) -- la unica fila de las 38
+      #                         que decia 100 %, y el ejemplo da 81.8% ( 9/11):
+      #                         es el MISMO dice_roller que el /01, misma semilla
+      #                         y mismo repeat(20), asi que no puede dar otra cosa
+      #   u4/reporting          decia 28.9% (22/76) -- ese es random_test SOLO,
+      #                         de antes de que add_test entrara al run.sh; hoy
+      #                         los dos tests mergeados dan 34.2% (26/76)
+      #
+      # El paso anterior acaba de regenerar docs/verilator.md con la columna
+      # Cobertura sacada de los logs de ESTA corrida, con la expresion de
+      # tools/verilator-matrix.sh:38. Asi que contrastar es comparar ese archivo
+      # contra el commiteado: cero codigo duplicado. Se comparan el nombre del
+      # ejemplo y la cobertura, no la fecha ni la version, que cambian siempre.
+      - name: La matriz commiteada dice lo que midio esta corrida
+        if: always()
+        run: |
+          cols() {
+            awk -F'|' '/^## Matriz$/ { on = 1 }
+                       on && /^\| `/ { gsub(/^[ \t]+|[ \t]+$/, "", $2)
+                                       gsub(/^[ \t]+|[ \t]+$/, "", $4)
+                                       print $2 "\t" $4 }' "$1"
+          }
+          git show HEAD:docs/verilator.md > /tmp/matriz-commiteada.md
+          cols /tmp/matriz-commiteada.md > /tmp/commiteada.txt
+          cols docs/verilator.md         > /tmp/medida.txt
+          if diff -u --label commiteada /tmp/commiteada.txt --label medida /tmp/medida.txt; then
+            echo "  ok  las $(wc -l < /tmp/medida.txt | tr -d ' ') filas coinciden"
+          else
+            echo "::error::la matriz de docs/verilator.md no dice lo que midio esta corrida. Corre 'make matrix' y commitea docs/verilator.md (el archivo que se edita es ese, no las slides que lo citan)"
+            exit 1
+          fi
+
+      # Las 8 salidas capturadas de code/ son lo que muestran las slides con
+      # {{code:}}, y code/README.md promete que salen de correr el ejemplo. Se
+      # regeneran con tools/regen-outputs.sh, que tarda media hora larga: por eso
+      # va aca y no en 'npm run check'.
+      #
+      # Que atrapa: code/u4/tests/output.txt:14 quedo con una linea en
+      # castellano que common.sh ya no imprime -- se tradujo el script y no se
+      # regenero la salida. Cae fuera del recorte |lines=1-13 de la slide, asi
+      # que no se ve en pantalla; lo que prueba es que la salida capturada dejo
+      # de ser la que produce el ejemplo, que es toda la promesa.
+      #
+      # Ningun linter abre estos .txt, y no puede: la unica forma de saber que
+      # dicen la verdad es volver a correr los ejemplos.
+      - name: Las salidas capturadas siguen siendo las que produce el codigo
+        run: |
+          sh tools/regen-outputs.sh
+          git diff --stat -- code/
+          if ! git diff --quiet -- code/; then
+            echo "::error::alguna salida capturada de code/ quedo vieja. Corre 'sh tools/regen-outputs.sh' y commitea el diff de code/"
+            exit 1
+          fi
+          echo "  ok  las 8 salidas capturadas coinciden con la corrida"
+
       # Las soluciones no se corrigen solas: esto comprueba que los diecinueve
       # ejercicios sigan siendo RESOLUBLES cuando cambia el codigo del curso.
       - name: Las 19 soluciones de los ejercicios
         run: make ejercicios
+
+      # El corrector de d1b tiene estado en disco, y por eso da distinto segun el
+      # orden de las corridas. Los dos tiempos de referencia son los de la BFM
+      # TAL COMO VIENE -- que es lo que el alumno lee en las ondas -- pero se
+      # miden UNA sola vez y se guardan en obj_dir/tiempos.txt
+      # (code/ejercicios/d1b/run.sh:59-64). El ondas.vcd que el alumno abre es
+      # siempre el de la ULTIMA corrida, y el numero aceptado es el de la
+      # PRIMERA: arreglada la BFM, la primera multiplicacion cierra en 650 ps y
+      # las ondas lo muestran, pero si el obj_dir se borro en el medio el
+      # corrector remide la referencia en 650 y rechaza el 830 del enunciado --
+      # o al reves. En los dos casos rechaza la lectura correcta de las ondas que
+      # el mismo acaba de generar, y el rodeo que sugiere su propio comentario es
+      # "put the repeat(2) back for one run": desarmar la solucion.
+      #
+      # El invariante, entonces, es uno solo: la referencia NO depende de lo que
+      # el alumno tenga en vtalu_bfm.sv ni de si hay cache. Dos corridas limpias,
+      # una con la BFM como viene y otra con la BFM ya arreglada, tienen que
+      # medir los mismos dos tiempos. 'make ejercicios' lo corre una sola vez y
+      # con el obj_dir de la corrida anterior, asi que nunca lo mira. ~30 s.
+      #
+      # Las copias van en un directorio con punto adelante: code/ejercicios/*/run.sh
+      # --el glob del Makefile y el de regen-outputs-- no matchea dotfiles, y el
+      # run.sh busca common.sh como ../../verilator/, asi que la copia tiene que
+      # quedar a esta profundidad y no en /tmp.
+      - name: d1b se corrige igual sin importar el orden de las corridas
+        run: |
+          cd code/ejercicios
+          copia="$PWD/.d1b-orden"
+          trap 'rm -rf "$copia"' EXIT
+          medir() {  # $1 opcional: la BFM con la que se corre, si no es la que viene
+            rm -rf "$copia"; cp -R d1b "$copia"
+            ( cd "$copia"
+              rm -rf obj_dir ondas.vcd
+              [ -z "${1:-}" ] || cp "$1" vtalu_bfm.sv
+              bash ./run.sh >/dev/null 2>&1 || true )
+            cat "$copia/obj_dir/tiempos.txt" 2>/dev/null || echo "(no midio nada)"
+          }
+          como_viene=$(medir)
+          arreglada=$(medir solucion/vtalu_bfm.sv)
+          echo "  BFM como viene : $como_viene"
+          echo "  BFM arreglada  : $arreglada"
+          if [ "$como_viene" != "$arreglada" ]; then
+            echo "::error::d1b mide la referencia distinto segun el estado de la BFM ('$como_viene' contra '$arreglada'): con la BFM ya arreglada rechaza la lectura correcta de sus propias ondas. Se arregla en code/ejercicios/d1b/run.sh, midiendo la BFM como viene en CADA corrida en vez de guardar el numero en obj_dir/tiempos.txt"
+            exit 1
+          fi
+          echo "  ok  la referencia no depende del orden de las corridas"
 
       # Si el hit rate se desploma, es que la key del cache dejo de servir.
       - name: Hit rate de ccache

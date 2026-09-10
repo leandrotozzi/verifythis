@@ -36,8 +36,8 @@ el curso: acá para leerla, y el día 7 para llenarla de cero.
   son tres filas, y se cierran de a una
 
 Note:
-Vale leer la columna de la derecha en voz alta: son los cuatro errores que se
-cometen la primera vez, y los cuatro suenan razonables cuando uno los escribe.
+Vale leer la columna de la derecha en voz alta: son los cinco errores que se
+cometen la primera vez, y los cinco suenan razonables cuando uno los escribe.
 La columna que más cuesta es la de medida, porque obliga a decidir *antes* qué
 se va a contar. Es la que el día 1 todavía no se puede llenar —los bins no
 existen hasta la unidad que viene— y por eso el plan se llena a medida que el

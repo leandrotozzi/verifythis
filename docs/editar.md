@@ -79,7 +79,9 @@ la de Verilog-95, que dejaba sin pintar las macros <code>`uvm_*</code> y las cla
 
 ### Los repasos
 
-Cada día cierra con un **repaso** de 5 preguntas — 10 el día 6, 8 el día 2, 7 el día 3 y 6 el día 1, que son los más cargados; 4 el día 5. **45 en total.** Se responde clickeando la
+Cada día cierra con un **repaso**: 7 preguntas el día 1, 8 el día 2, 7 el día 3,
+5 el día 4, 8 el día 5, 10 el día 6, 5 el día 7 y 8 el día 8. **58 preguntas en
+total.** Se responde clickeando la
 opción: el deck marca en verde la correcta, en rojo la elegida si erró, y abajo
 explica el porqué. En el PDF salen ya respondidas.
 
@@ -111,7 +113,7 @@ Lo que hay que decir y no entra en la slide: el porqué del dato, la analogía q
 engancha, la trampa clásica.
 ```
 
-Van en las slides que cargan el concepto, no en las 400. `npm run check` corre
+Van en las slides que cargan el concepto, no en las 444 slides. `npm run check` corre
 `tools/lint-slides.mjs`, que **falla** si una slide con `{{code:}}` no tiene ni un
 bullet ni una `Note:` —una slide de código muda sólo se entiende con el
 instructor al lado—, y avisa si un `{{code:}}` sin recortar trae más de 35 líneas
@@ -225,7 +227,7 @@ npm run pptx    # dist/curso-uvm.pptx  — texto editable
 | **Cómo** | Chrome headless sobre `?print-pdf` | pandoc |
 | **Fidelidad** | mismo layout, paleta clara | deck limpio, *no* reproduce el tema |
 | **Editable** | no | sí, texto y bullets reales |
-| **Páginas** | 440 (los archivos largos fluyen a varias páginas en vez de recortarse) | 1 por slide |
+| **Páginas** | 653 en castellano y 669 en inglés (los archivos largos fluyen a varias páginas en vez de recortarse) | 1 por slide |
 
 El PDF **se puede imprimir**, y es también lo que sale con <kbd>Ctrl</kbd>+<kbd>P</kbd>
 desde el deck: papel blanco, tinta oscura, el código sobre una
@@ -259,7 +261,7 @@ Sale de las mismas `slides/`, con `npm run libro` —que ya corre dentro de
 `npm run build`—, y `npm run check` falla si quedó viejo. Tema claro por defecto,
 porque esto se lee largo.
 
-`index.html` se commitea ya generado, con las slides y los 154 bloques de código
+`index.html` se commitea ya generado, con las slides y los 158 recortes de código
 embebidos —leídos de los archivos reales de `code/`—. Un clon fresco funciona tal
 cual.
 

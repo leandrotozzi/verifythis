@@ -1,3 +1,5 @@
+// ILLUSTRATION -- not compiled. The same three methods written deep, with the
+// classes drawn as comments. The version that does compile is deep.sv.
 //virtual class trago;
    virtual function string convert2string();
       return $sformatf("Hielos: %0d", hielos);

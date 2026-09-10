@@ -28,10 +28,25 @@ falta() { echo "not yet: $1" >&2; exit 1; }
 modulo=$(grep -c 'UVM_ERROR.*\[SVA\].*modulo_bfm' "$VLT_LOG" || true)
 clase=$(grep -c  'UVM_ERROR.*\[SVA\].*clase_bfm'  "$VLT_LOG" || true)
 
+# And how many there SHOULD be: the legacy module counts its own violations and
+# says so. That number comes out of vtalu_tester_module.sv, which is sealed in
+# intocables.sha, and it moves with the seed -- so the exercise is not passed by a
+# uvm_error with the id "SVA" fired from anywhere, which is what "more than zero"
+# used to accept. It has to be the property, and it has to fire once per violation.
+esperadas=$(sed -nE 's/.*\[CHEQUEO\] violations=([0-9]+).*/\1/p' "$VLT_LOG" | tail -1)
+[ -n "$esperadas" ] || falta "the [CHEQUEO] line did not come out: look at the log above"
+
 if [ "$modulo" -eq 0 ]; then
   falta "no assertion fired on modulo_bfm, which is the one driven by the
     legacy module. Either you have not written the property yet, or its antecedent
     never happens: add a cover property to it and see whether it gets covered."
+fi
+if [ "$modulo" -ne "$esperadas" ]; then
+  falta "your property fired $modulo times on modulo_bfm and the legacy module broke
+    the protocol $esperadas times -- once per multiplication, which is where it moves
+    an operand with start up. Firing fewer means the property is letting violations
+    through; firing more means it is also complaining about something that is legal.
+    Mind the EDGE: the BFM writes on negedge."
 fi
 if [ "$clase" -gt 0 ]; then
   falta "your property fired $clase times on clase_bfm, which is the one driven by

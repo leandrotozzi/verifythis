@@ -1,3 +1,4 @@
+// ILLUSTRATION -- not compiled. The initial block of deep.sv:110-118, on its own.
 initial begin
    fernet_hielo1_h =
        new(.hielos(2), .con_coca(1), .graduacion(2), .mesa("mesa 4"), .medidas(2));

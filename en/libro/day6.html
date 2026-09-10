@@ -56,7 +56,7 @@
   your own, start here and keep the deck alongside for the reviews.</p>
 
 <section id="s295" class="slide">
-<!-- es-sha: a117462e4a31 -->
+<!-- es-sha: 2936b3fdbbfe -->
 
 
 <h2 id="yesterday-we-left">Yesterday we left…</h2>
@@ -106,7 +106,7 @@ answered today: <code>uvm_object</code> is the <strong>data</strong> and <code>u
 <strong>structure</strong>.
 The third one is what closes the unit and the day: when that line goes, no line
 of the test names a component from inside the <code>env</code>, and only then is the
-testbench truly reusable.</p>
+testbench reusable for one agent. Coordinating two is day 7.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/296">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -1131,7 +1131,7 @@ the <em>UVM Primer</em> does. A passive agent should not drag a scoreboard along
 the constructor forces you. The industry usually makes it a <code>uvm_object</code></li>
 <li>The protocol lives in the BFM, the same as in the <em>UVM Primer</em>. Up to Verilator 5.051 this
 could not be done: an interface task called through a virtual interface did not
-propagate. It was fixed in 5.052 — <code>docs/verilator.md</code></li>
+propagate. It was fixed in 5.052 — <code>docs/en/verilator.md</code></li>
 </ul>
 <div class="nota">
 <p>That the material says where it departs from its sources is not a detail of
@@ -1174,7 +1174,7 @@ inside.</p>
 </section>
 
 <section id="s316" class="slide">
-<!-- es-sha: 8ea38651fef0 -->
+<!-- es-sha: d50867b25c07 -->
 <h2 id="callbacks">Callbacks</h2>
 <h4 id="the-third-hook"><em>The third hook</em></h4>
 <ul>
@@ -1424,7 +1424,7 @@ The failure mode of the missing <code>uvm_register_cb</code> is not the one you 
 is worth telling it with the source in hand because half the tutorials get it
 backwards: <code>uvm_callback.svh:745</code> reports a <code>UVM_WARNING CBUNREG</code> and <strong>carries
 on</strong> — the <code>add()</code> puts the callback into <code>m_base_inst.m_pool</code> all the same
-(<code>:777-783</code>), and <code>`uvm_do_callbacks</code> reads that pool without consulting the
+(<code>:781-785</code>), and <code>`uvm_do_callbacks</code> reads that pool without consulting the
 registry (<code>:964-1006</code>). Which means: without the macro the callback runs, and what
 you lose is the type check and <code>add_by_name</code> by derived type. That is worse than an
 error: it is a warning among a thousand lines, and the testbench ends up outside
@@ -1443,7 +1443,10 @@ forward compatibility. That is why VIPs have three or four, not thirty.</p>
 <section id="s319" class="slide">
 <h2 id="callbacks">Callbacks</h2>
 <h4 id="putting-them-in-the-test-and-nothing-but-the-test"><em>Putting them in: the test, and nothing but the test</em></h4>
-<figure class="codigo"><figcaption><code>code/u7/callbacks/tb_classes/inject_test.svh</code> · #hooking-the-cb</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">end_of_elaboration_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+<figure class="codigo"><figcaption><code>code/u7/callbacks/tb_classes/inject_test.svh</code> · #hooking-the-cb</figcaption><pre><code class="hljs">   <span class="hljs-comment">// end_of_elaboration and not build: the driver is a grandchild of the env,</span>
+   <span class="hljs-comment">// and build_phase runs top-down -- when this test&#x27;s build_phase returns, the</span>
+   <span class="hljs-comment">// driver does not exist yet.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">end_of_elaboration_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-keyword">super</span>.end_of_elaboration_phase(phase);
 
       flip_h   = flip_bit_cb::type_id::create(<span class="hljs-string">&quot;flip_h&quot;</span>);
@@ -1454,7 +1457,10 @@ forward compatibility. That is why VIPs have three or four, not thirty.</p>
       <span class="hljs-comment">// is nothing to hook there.</span>
       <span class="hljs-uvm-type">uvm_callbacks</span> #(<span class="hljs-type">driver</span>, driver_callback)::add(env_h.clase_agent_h.driver_h, jitter_h);
       <span class="hljs-uvm-type">uvm_callbacks</span> #(<span class="hljs-type">driver</span>, driver_callback)::add(env_h.clase_agent_h.driver_h, flip_h);
-</code></pre><details><summary>el archivo entero, 36 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The same test as ../agents, with two callbacks hung on the driver.</span>
+
+      <span class="hljs-keyword">if</span> (<span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;CALLBACK_TRACE&quot;</span>))
+         <span class="hljs-uvm-type">uvm_callbacks</span> #(<span class="hljs-type">driver</span>, driver_callback)::display(env_h.clase_agent_h.driver_h);
+   <span class="hljs-keyword">endfunction</span> : end_of_elaboration_phase</code></pre><details><summary>el archivo entero, 36 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The same test as ../agents, with two callbacks hung on the driver.</span>
 <span class="hljs-comment">//</span>
 <span class="hljs-comment">// Note what this class does NOT touch: not the env, not the agent, not the</span>
 <span class="hljs-comment">// driver, not the sequence. That is the whole promise of the third hook -- and</span>
@@ -1574,7 +1580,7 @@ the DUT, not the stimulus — which is exactly what the <code>+BUG=1</code> of t
 </section>
 
 <section id="s321" class="slide">
-<!-- es-sha: 7bab513dd9ec -->
+<!-- es-sha: b75b859d6bfc -->
 <h2 id="sequences">Sequences</h2>
 <h4 id="the-only-thing-left-hard-wired"><em>The only thing left hard-wired</em></h4>
 <ul>
@@ -1825,7 +1831,7 @@ finish_item(command);
 </ul>
 <pre><code class="language-sh">with {op == mul_op}                       100 of 100   op has no dist
 with {A inside {[1:10]}}                    1 of 100   A does have one
-constraint_mode(0) + with {A inside ...}  100 of 100   the way around it
+constraint_mode(0) + with {A inside ...}  100 of 100   the workaround
 </code></pre>
 <ul>
 <li>The rule, in one line: <strong>if the <code>with {}</code> touches a field that has a <code>dist</code>,
@@ -1837,12 +1843,12 @@ switch that constraint off first</strong></li>
 <p>It is the same limitation they already saw in the Constrained random unit, but here
 it shows up in the place where they are really going to use it, so it is worth measuring it
 again against the real transaction.
-What the measurement adds on top of what <code>docs/verilator.md</code> says: the trigger is
+What the measurement adds on top of what <code>docs/en/verilator.md</code> says: the trigger is
 not &quot;there is a <code>dist</code> in the class&quot;. It is <strong>the <code>with {}</code> restricting a field that has a
 <code>dist</code></strong>. Asking for <code>op == mul_op</code> works perfectly, even though <code>A</code> and <code>B</code> have <code>dist</code> in the
 same resolution. That is why the sequences of the section do not run into this: none of them
 uses <code>with {}</code>.
-And the way around it is not a concession: for a directed case, switching off the distribution
+And the workaround is not a concession: for a directed case, switching off the distribution
 constraint is the right thing anyway. The <code>dist</code> is there so the random hits the
 edges; if you already know which value you want, it has nothing to contribute.
 <code>constraint_mode(0)</code> is per <strong>object</strong>, not per class, and the object gets thrown away after
@@ -1904,7 +1910,7 @@ agreed between the two parties, and it is the only place in the testbench where 
 </ul>
 <div class="nota">
 <p>This is the subtlest point of the section and it is worth saying it slowly: <strong>there is
-no way back at all</strong>. There is no port, there is no FIFO. There is a shared
+no return channel at all</strong>. There is no port, there is no FIFO. There is a shared
 handle, and the two parties agreed that the driver writes and the
 sequence reads, and that the safe moment to read is after <code>finish_item()</code>.
 If somebody asks &quot;wasn&#39;t the rule to clone?&quot;: yes, that is the rule of the transactions, and this is the documented exception. UVM has besides a formal
@@ -2058,7 +2064,7 @@ Numbers for the blackboard: 0 1 1 2 3 5 8 13 21 34 55 89 144 233. It stops at 23
 because the next one is 377 and <code>A</code> and <code>B</code> are 8 bits. Having the student see why the
 <code>for</code> goes up to 14 and not up to 20 is worth more than the whole sequence.
 And one that is seen in the real run: the whole test takes <strong>500 units of
-time</strong>, against the 44,000 of the random test. Thirteen operations. A well-written directed
+time</strong>, against the 43,000 of the random test. Thirteen operations. A well-written directed
 test is cheap; what is expensive is the random, and that is why it runs at night.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/329">see this slide in the deck &rsaquo;</a></p>
@@ -2301,8 +2307,9 @@ the phase begins</li>
 means <em>&quot;in the <code>main_phase</code> of that sequencer&quot;</em></li>
 <li>It can be configured per <strong>instance</strong> (as here, with
 <code>uvm_config_db #(uvm_sequence_base)</code>) or per <strong>type</strong>
-(<code>uvm_config_db #(uvm_object_wrapper)</code> + <code>get_type()</code>). The instance wins if
-both are there</li>
+(<code>uvm_config_db #(uvm_object_wrapper)</code> + <code>get_type()</code>). If both are there the
+one with the <strong>higher precedence</strong> wins, and at equal precedence the <strong>last
+<code>set()</code></strong></li>
 <li>The sequencer stopped being a handle and became a <strong>path</strong>: that is already
 configuration, not code</li>
 </ul>
@@ -2665,16 +2672,16 @@ structure it deserves.</p>
 </section>
 
 <section id="s342" class="slide quiz">
-<!-- es-sha: b50aeb748a7a -->
+<!-- es-sha: f87155407b20 -->
 
 
 <h2 id="review-·-day-6">Review · Day 6</h2>
 <h4 id="1-of-10-·-is_active"><em>1 of 10 · is_active</em></h4>
 <p><strong>An agent in <code>UVM_PASSIVE</code>, what does its <code>build_phase</code> build?</strong></p>
 <ul>
+<li><input checked="" disabled="" type="checkbox"> The monitors and the analysis ports; the driver and the sequencer, no</li>
 <li><input disabled="" type="checkbox"> Nothing: a passive agent is an empty shell</li>
 <li><input disabled="" type="checkbox"> Everything the same as an active one, but without connecting the driver to the sequencer</li>
-<li><input checked="" disabled="" type="checkbox"> The monitors and the analysis ports; the driver and the sequencer, no</li>
 <li><input disabled="" type="checkbox"> Only the sequencer, so it can receive sequences from another agent of the same env</li>
 </ul>
 <blockquote>
@@ -2752,8 +2759,8 @@ structure it deserves.</p>
 <h4 id="6-of-10-·-object-not-component"><em>6 of 10 · Object, not component</em></h4>
 <p><strong>What is the practical difference of a <code>uvm_sequence</code> being a <code>uvm_object</code> and not a <code>uvm_component</code>?</strong></p>
 <ul>
-<li><input disabled="" type="checkbox"> That it cannot be registered in the factory nor overridden</li>
 <li><input checked="" disabled="" type="checkbox"> That it gets created, runs and is thrown away</li>
+<li><input disabled="" type="checkbox"> That it cannot be registered in the factory nor overridden</li>
 <li><input disabled="" type="checkbox"> That it cannot have <code>rand</code> fields nor constraints</li>
 <li><input disabled="" type="checkbox"> That UVM builds it in <code>build_phase</code>, like any other class of the tree</li>
 </ul>
@@ -2784,13 +2791,13 @@ structure it deserves.</p>
 <h4 id="8-of-10-·-the-way-back"><em>8 of 10 · The way back</em></h4>
 <p><strong>At what moment does <code>command.result</code> have a value that can be read?</strong></p>
 <ul>
+<li><input checked="" disabled="" type="checkbox"> When <code>finish_item()</code> came back, because the driver wrote it before calling <code>item_done()</code></li>
 <li><input disabled="" type="checkbox"> As soon as <code>start_item()</code> came back</li>
 <li><input disabled="" type="checkbox"> When the <code>result_monitor</code> publishes it through its analysis port</li>
-<li><input checked="" disabled="" type="checkbox"> When <code>finish_item()</code> came back, because the driver wrote it before calling <code>item_done()</code></li>
 <li><input disabled="" type="checkbox"> Never: to receive a response you have to use the REQ/RSP pair of <code>uvm_sequence #(REQ, RSP)</code></li>
 </ul>
 <blockquote>
-<p><strong>After <code>finish_item()</code></strong> — there is no way back at all: there is a shared handle and an agreement between the two parties. The REQ/RSP pair exists and is the formal mechanism, but almost nobody uses it: writing the result into the request is enough. This is what makes Fibonacci possible.</p>
+<p><strong>After <code>finish_item()</code></strong> — there is no return channel at all: there is a shared handle and an agreement between the two parties. The REQ/RSP pair exists and is the formal mechanism, but almost nobody uses it: writing the result into the request is enough. This is what makes Fibonacci possible.</p>
 </blockquote>
 <p class="al-deck"><a href="../index.html#/349">see this slide in the deck &rsaquo;</a></p>
 </section>

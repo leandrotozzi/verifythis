@@ -1,4 +1,4 @@
-<!-- es-sha: d6622e6313e5 -->
+<!-- es-sha: 79c012f0c46f -->
 **English** · [Castellano](README.es.md)
 
 # Day 5 — the scoreboard screams and the DUT is healthy
@@ -58,7 +58,7 @@ The two appendices at the end of the deck are written for this exercise:
   has the row `the scoreboard screams on every one`, and it says what to look at
   it with.
 - **The 21 silent traps** — the catalogue of everything that compiles, runs
-  and lies. The cause of this bug is one of the nineteen.
+  and lies. The cause of this bug is one of the twenty-one traps.
 
 The exercise can be done without having seen reporting: it is enough to have the
 symptom slide open alongside.

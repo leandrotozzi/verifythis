@@ -63,18 +63,22 @@ SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
 
 ## Cómo están armados
 
-Cada directorio tiene **sólo los archivos que vas a tocar**. El resto del
-testbench sale de la sección correspondiente, por referencia: los `+incdir` del
-`run.sh` ponen este directorio primero, así que tu versión de un archivo le gana
-a la de la sección. Nada de lo que hagas acá rompe los ejemplos del curso.
+Cada directorio tiene **los archivos que vas a tocar**, y en varios también el
+corrector —un `chequeo.svh`, un `chequeo.sv` *bindeado* al top, un
+`histograma_top.sv`—, que es lo que **no** se toca. El resto del testbench sale de
+la sección correspondiente, por referencia: los `+incdir` del `run.sh` ponen este
+directorio primero, así que tu versión de un archivo le gana a la de la sección.
+Nada de lo que hagas acá rompe los ejemplos del curso.
 
-Ocho —`d3`, `d3b`, `d4`, `d4b`, `d6-debug`, `d6-sequences`, `d7-sva` y `d8-dpi`—
-traen además un `intocables.sha`: la lista de los archivos que el enunciado dice
-**no** tocar, con su hash, y el `run.sh` la chequea antes de compilar. No es
-desconfianza: en esos ocho el ejercicio *está* en no tocarlos. En `d4b`, volver
-a ponerle el tope a la FIFO hace pasar el corrector sin haber entendido nada. Instanciar el `mult_tester` a
-mano en el `env.svh` de `d3` hace pasar el corrector sin escribir un solo
-`set_type_override`, que es justo el tema.
+Trece —`d1`, `d1b`, `d2`, `d3`, `d3b`, `d4`, `d4b`, `d5b`, `d5c`, `d6-debug`,
+`d6-sequences`, `d7-sva` y `d8-dpi`— traen además un `intocables.sha`: la lista de
+los archivos que el enunciado dice **no** tocar, con su hash, y el `run.sh` la
+chequea antes de compilar. No es desconfianza: es que **lo que el corrector mide
+tiene que salir de un archivo sellado o del bus, nunca de uno que vos podés
+editar**. En `d4b`, volver a ponerle el tope a la FIFO hace pasar el corrector sin
+haber entendido nada. Instanciar el `mult_tester` a mano en el `env.svh` de `d3`
+hace pasar el corrector sin escribir un solo `set_type_override`, que es justo el
+tema. Y en `d5b` alcanzaba con reescribir el `$display` que el corrector lee.
 
 `SOLUCION=1` corre la solución sin pisar tu archivo: en los que usan UVM agrega
 un `+incdir+solucion` adelante de todo, y en los otros cuatro le pone el prefijo

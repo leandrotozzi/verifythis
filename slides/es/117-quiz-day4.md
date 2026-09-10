@@ -28,7 +28,7 @@
 - [ ] Registrando el componente dos veces en la factory, una por puerto
 - [ ] Conectando los dos puertos al mismo `analysis_export`
 
-> **Con una `uvm_tlm_analysis_fifo`** — un `uvm_subscriber` tiene un solo `write()`, así que sólo puede escuchar un puerto. La FIFO da un `analysis_export` de un lado y un `try_get()` del otro. Es lo que hace el scoreboard del VTALU.
+> **Con una `uvm_tlm_analysis_fifo`** — un `uvm_subscriber` tiene un solo `write()`, así que sólo puede escuchar un puerto. La FIFO da un `analysis_export` de un lado y un `try_get()` del otro. Es lo que hace el scoreboard del VTALU. La otra forma es `` `uvm_analysis_imp_decl ``, que fabrica un `write_` por sufijo: no son dos `write()` en la misma clase, que SystemVerilog no permite.
 
 ---
 
@@ -76,7 +76,7 @@
 
 - [ ] Se bloquea igual que `get()`
 - [ ] Devuelve 1 con un dato basura
-- [x] Devuelve 0 inmediatamente, sin bloquear
 - [ ] Espera un ciclo de reloj y reintenta, hasta el timeout de la fase
+- [x] Devuelve 0 inmediatamente, sin bloquear
 
 > **Devuelve 0 y sigue** — es la versión no bloqueante, y por eso puede ser una `function`. Fijate que el scoreboard la usa en un `do ... while` para saltear los `no_op` y los `rst_op`.

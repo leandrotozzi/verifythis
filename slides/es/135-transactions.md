@@ -152,7 +152,7 @@ verificación pide operaciones después de un reset.
   corre; los componentes se construyen una vez, antes de arrancar, y se quedan
 - Igual conviene darles nombre: es el que aparece en los mensajes de UVM
 
-{{code:code/u6/transactions/tb_classes/command_transaction_constructor.svh}}
+{{code:code/u6/transactions/tb_classes/command_transaction.svh#new}}
 
 Note:
 Es la distinción que hay que dejar clara: *component* es estructura —está en el
@@ -176,7 +176,7 @@ testbench, es un component. Si viaja por una flecha del diagrama, es un object.
   `do_copy()` es el que se escribe
 - La única diferencia es el argumento: tiene que ser un `uvm_object` —de ahí el `$cast`—. UVM lo llama *rhs* (*right hand side*) por convención, no por requisito
 
-{{code:code/u6/transactions/tb_classes/command_transaction_do_copy.svh}}
+{{code:code/u6/transactions/tb_classes/command_transaction.svh#do_copy}}
 
 Note:
 El patrón es el de las jerarquías de clases, con dos reglas de UVM encima.
@@ -243,7 +243,7 @@ partes y es el único lugar del testbench donde se hace.
 - No lo trae UVM: es cuatro líneas escritas una vez en el dato, para que ninguno
   de los que lo usan tenga que acordarse del cast
 
-{{code:code/u6/transactions/tb_classes/command_transaction_do_clone.svh}}
+{{code:code/u6/transactions/tb_classes/command_transaction.svh#clone_me}}
 
 Note:
 Es un método de tres líneas y existe por una sola razón: `clone()` devuelve un
@@ -269,7 +269,7 @@ otro nombre.
   política de comparación: cuántas diferencias reportar y con qué verbosidad
 - Casi nadie toca el comparer, pero hay que declararlo porque la firma lo pide
 
-{{code:code/u6/transactions/tb_classes/command_transaction_do_comparer.svh}}
+{{code:code/u6/transactions/tb_classes/command_transaction.svh#do_compare}}
 
 Note:
 Dos cosas que se copian mal.
@@ -299,7 +299,7 @@ la firma lo pide.
 - Y el detalle que hace legible un log: un `enum` tiene `name()`, que devuelve
   `add_op` en vez de `3'b001`. Sin eso el error dice un número y nadie lo lee
 
-{{code:code/u6/transactions/tb_classes/command_transaction_convert2string.svh}}
+{{code:code/u6/transactions/tb_classes/command_transaction.svh#convert2string}}
 
 Note:
 Es el método que más se usa de los tres, y el que menos atención recibe: cada
@@ -538,8 +538,10 @@ command.op = rst_op;
 - La regla, corta: **todo `uvm_object` que viaje por el testbench sale de
   `type_id::create()`** — las transactions del tester, y también las que arman los
   monitores y el `predicted` del scoreboard
-- Los *ports*, los *exports* y las *TLM FIFO* son la excepción: no están en la
-  factory y se instancian con `new()`, como vimos en un productor, muchos oyentes
+- Los *ports* y los *exports* son la excepción: no están en la factory y se
+  instancian con `new()`, como vimos en un productor, muchos oyentes. La *TLM
+  FIFO* sí está registrada, pero el curso la crea con `new()` igual porque el
+  `size` va por constructor y `create()` no lo puede pasar
 
 Note:
 Esta slide sale de un bug que tenía el código de este mismo curso: el tester

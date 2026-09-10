@@ -40,6 +40,15 @@ module vtalu_tester_module (vtalu_bfm bfm);
       else return $random;
    endfunction : get_data
 
+   // How many times this module breaks the protocol: one per multiplication,
+   // because mult_a_mano moves B with start up. It is not decoration -- it is the
+   // number run.sh demands from your property, and it comes from HERE, out of a
+   // sealed file, instead of being a literal written in the checker. It moves
+   // with the seed, so it cannot be guessed either.
+   int violations = 0;
+
+   final $display("[CHEQUEO] violations=%0d", violations);
+
    // The "optimization". It is the same handshake as send_op, plus the extra line.
    task mult_a_mano(input byte iA, input byte iB);
       @(negedge bfm.clk);
@@ -49,7 +58,8 @@ module vtalu_tester_module (vtalu_bfm bfm);
       bfm.start  = 1'b1;
       @(negedge bfm.clk);
       @(negedge bfm.clk);
-      bfm.B = ~iB;  // <-- adelantando trabajo, mientras el DUT "no mira"
+      bfm.B = ~iB;  // <-- getting ahead, while the DUT "is not looking"
+      violations++;
       do @(negedge bfm.clk); while (bfm.done == 0);
       bfm.start = 1'b0;
    endtask : mult_a_mano

@@ -5,7 +5,7 @@
 
 | Can I…? | Where it is |
 | --- | --- |
-| **1 ·** Explain why **47 %** of a verifier's time goes on debug, and what this course does about it | [Trends](libro/day1.html#trends) |
+| **1 ·** Explain why **47 %** of a verification engineer's time goes on debug, and what this course does about it | [Trends](libro/day1.html#trends) |
 | **2 ·** Write a five-column **verification plan** for a DUT I have not seen before | [The verification plan](libro/day1.html#the-verification-plan) |
 | **3 ·** Say why **100 % code coverage** does not mean the DUT is verified | [Functional coverage](libro/day1.html#functional-coverage) |
 | **4 ·** Say what to look at **first** when a `covergroup` reports 0 % | [Functional coverage](libro/day1.html#functional-coverage) |

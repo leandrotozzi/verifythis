@@ -6,7 +6,7 @@ class fifo_monitor extends uvm_monitor;
    uvm_analysis_port #(fifo_transaction) ap_ciclo;
    uvm_analysis_port #(dato_transaction) ap_dato;
 
-   int unsigned vistos;  // ciclos con actividad: lo mira monitor_test
+   int unsigned vistos;  // cycles with activity: monitor_test looks at it
 
    function new(string name, uvm_component parent);
       super.new(name, parent);

@@ -1,3 +1,5 @@
+// ILLUSTRATION -- not compiled. The two halves of the config_db, side by side:
+// the set() lives in top.sv and the get() in tb_classes/driver.svh.
 // -- IN THE TOP -- top is a module, not a uvm_component ---------------------
 //   cntxt = null : the scope starts at the UVM root
 //   inst  = "*"  : visible to the whole component tree

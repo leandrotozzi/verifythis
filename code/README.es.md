@@ -110,13 +110,15 @@ propia mutación adentro del `run.sh` —el bit dado vuelta por el callback, el
 de RAL— y chequean el resultado ellos mismos. Por eso no están en `MUTANTES`.
 
 `code/verilator/` tiene lo compartido por los `run.sh`: los flags, el shim de
-DPI que hace compilar UVM, y cuatro repros mínimos de limitaciones de
+DPI que hace compilar UVM, y cinco repros mínimos de limitaciones de
 Verilator —los bins de transición y `binsof`/`intersect`, las opciones del
-covergroup (`at_least`, `weight`, `merge_instances`), `solve ... before` y
-`randomize() with` sobre un campo con `dist`— explicados en
-`docs/verilator.md`. El quinto, `repro-vif-task.sv`, documenta un bug que **ya
-se arregló** en Verilator 5.052 y queda como evidencia fechada.
-Se corren a mano; `make matrix` sólo corre los `run.sh` de `code/u*/`.
+covergroup (`at_least`, `weight`, `merge_instances`), `solve ... before`,
+`randomize() with` sobre un campo con `dist` y el índice del `for` adentro de un
+`fork`—; los cuatro primeros, explicados en `docs/verilator.md`. El sexto,
+`repro-vif-task.sv`, documenta un bug que **ya se arregló** en Verilator 5.052 y
+queda como evidencia fechada.
+Los seis los corre `make repros`, que termina en error si alguno de los números
+medidos cambió; `make matrix` corre los `run.sh` de `code/u*/`.
 
 Los ejemplos con varias variantes (`u3/polimorfismo`, `u3/estaticas`,
 `u3/parametricas`, `u5/varios-objetos`, `u5/threads`) tienen un subdirectorio por

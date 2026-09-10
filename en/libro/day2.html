@@ -56,7 +56,7 @@
   your own, start here and keep the deck alongside for the reviews.</p>
 
 <section id="s67" class="slide">
-<!-- es-sha: b9a97b1bd38f -->
+<!-- es-sha: 9c1de2f54dcf -->
 
 
 <h2 id="yesterday-we-left">Yesterday we left…</h2>
@@ -285,11 +285,11 @@ not read from the config_db is left at null.</p>
    <span class="hljs-keyword">endfunction</span>
 <span class="hljs-keyword">endclass</span>
 
-<span class="hljs-comment">// Extendiendo Clases!</span>
+<span class="hljs-comment">// Extending classes!</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">square</span> <span class="hljs-keyword">extends</span> rectangle;
    <span class="hljs-comment">// Override Constructor</span>
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> side);
-      <span class="hljs-comment">//super: llamado a metodo de padre</span>
+      <span class="hljs-comment">// super: the call to the parent method</span>
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(.l(side), .w(side));
    <span class="hljs-keyword">endfunction</span>
 
@@ -313,11 +313,11 @@ not read from the config_db is left at null.</p>
    <span class="hljs-keyword">endfunction</span>
 <span class="hljs-keyword">endclass</span>
 
-<span class="hljs-comment">// Extendiendo Clases!</span>
+<span class="hljs-comment">// Extending classes!</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">square</span> <span class="hljs-keyword">extends</span> rectangle;
    <span class="hljs-comment">// Override Constructor</span>
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> side);
-      <span class="hljs-comment">//super: llamado a metodo de padre</span>
+      <span class="hljs-comment">// super: the call to the parent method</span>
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(.l(side), .w(side));
    <span class="hljs-keyword">endfunction</span>
 
@@ -421,10 +421,10 @@ worth naming it all three.</p>
 </section>
 
 <section id="s75" class="slide">
-<!-- es-sha: b40e985a82e7 -->
+<!-- es-sha: 0b11eb1f2fd0 -->
 <h2 id="polymorphism">Polymorphism</h2>
 <h4 id="a-trago-variable-a-fernet-object-which-servir-runs"><em>A <code>trago</code> variable, a <code>fernet</code> object: which <code>servir()</code> runs?</em></h4>
-<p><img src="../../res/print/diagrams/en/uml-poli.svg" alt="UML diagram of the trago classes"></p>
+<p><img src="../../res/print/diagrams/en/uml-poli.svg" alt="trago, fernet and mojito: which servir() lives in which class"></p>
 <ul>
 <li>A <code>fernet</code> <strong>is</strong> a <code>trago</code>, so storing it in a <code>trago</code> variable
 compiles and is legal</li>
@@ -928,7 +928,7 @@ do not give it away: it is understood much better by suffering it.</p>
 the list of in-flight transactions, the handle to the configuration</li>
 <li>The easy answer is a global variable, and it is the one nobody can debug
 afterwards: you do not know who wrote it, or from where, or when</li>
-<li><code>static</code> is the same idea with a surname. The variable lives <strong>in the class</strong>, not
+<li><code>static</code> is the same idea, but with a last name attached. The variable lives <strong>in the class</strong>, not
 in the object, and to touch it you have to name the class: <code>bandeja_de_fernet::vasos</code></li>
 <li>That <code>::</code> is the whole argument. The day the value looks odd, a grep tells you
 exactly who put it there</li>
@@ -959,7 +959,7 @@ compiler <em>&quot;look this variable up in the namespace of that class&quot;</e
 declared. A loose <code>vasos</code> does not</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u3/estaticas/01-variables/static_variables.sv</code> · #tray-and-top</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">bandeja_de_fernet</span>;
-   <span class="hljs-comment">//Queue static</span>
+   <span class="hljs-comment">// Static queue</span>
    <span class="hljs-keyword">static</span> fernet vasos[$];
 
 <span class="hljs-keyword">endclass</span> : bandeja_de_fernet
@@ -1030,7 +1030,7 @@ declared. A loose <code>vasos</code> does not</li>
 <span class="hljs-comment">// They are global variables created in a controlled way</span>
 
 <span class="hljs-keyword">class</span> <span class="hljs-title">bandeja_de_fernet</span>;
-   <span class="hljs-comment">//Queue static</span>
+   <span class="hljs-comment">// Static queue</span>
    <span class="hljs-keyword">static</span> fernet vasos[$];
 
 <span class="hljs-keyword">endclass</span> : bandeja_de_fernet
@@ -1057,7 +1057,7 @@ declared. A loose <code>vasos</code> does not</li>
       <span class="hljs-keyword">foreach</span> (bandeja_de_fernet::vasos[i]) <span class="hljs-built_in">$display</span>(bandeja_de_fernet::vasos[i].get_name());
    <span class="hljs-keyword">end</span>
 <span class="hljs-keyword">endmodule</span> : top</code></pre></details></figure><div class="nota">
-<p>Quick translation: static is the global variable you can actually defend in a code
+<p>Put plainly: static is the global variable you can actually defend in a code
 review. It lives in the class, not in the object.
 The second slide shows why it has to be encapsulated with static methods: if
 you leave it public, the day you swap the queue for another structure you have to
@@ -1085,7 +1085,7 @@ touch the whole testbench.</p>
 <span class="hljs-keyword">endclass</span> : pepe
 
 <span class="hljs-comment">//----------------------------------------</span>
-<span class="hljs-keyword">module</span> <span class="hljs-title">top</span>;
+<span class="hljs-keyword">module</span> <span class="hljs-title">top_pepes</span>;
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
       pepe pepe1_h, pepe2_h;
 
@@ -1100,7 +1100,7 @@ touch the whole testbench.</p>
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;NUMBER OF PEPES = %0d&quot;</span>, pepe::cant);
 
    <span class="hljs-keyword">end</span>
-<span class="hljs-keyword">endmodule</span> : top</code></pre></figure>
+<span class="hljs-keyword">endmodule</span> : top_pepes</code></pre></figure>
 
 <p><em><strong>And what about encapsulation?</strong></em></p>
 <div class="nota">
@@ -1356,7 +1356,10 @@ that shows up in the rest of the course is this.</p>
 <li>The queue is <code>static</code> and even so there are <strong>two</strong>: <code>bandeja#(fernet)</code> and
 <code>bandeja#(mojito)</code> are two different classes, each one with its own</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u3/parametricas/02-estatica/bandejas.sv</code> · #tray-and-top</figcaption><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
+<figure class="codigo"><figcaption><code>code/u3/parametricas/02-estatica/bandejas.sv</code> · #tray-and-top</figcaption><pre><code class="hljs"><span class="hljs-comment">// Parameterized class</span>
+<span class="hljs-comment">// the T (type) parameter is what says which</span>
+<span class="hljs-comment">// kind of queue this is.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">bandeja</span> #(
     type T
 );
 
@@ -1675,7 +1678,7 @@ each monitor has its own. With that they can already read both.</p>
 </section>
 
 <section id="s92" class="slide">
-<!-- es-sha: f067fec308e0 -->
+<!-- es-sha: 8fdd4d8e54aa -->
 <h2 id="the-factory-pattern">The factory pattern</h2>
 <h4 id="who-decides-the-type"><em>Who decides the type?</em></h4>
 <ul>
@@ -1713,8 +1716,8 @@ hands it back already built, of whichever subtype corresponds</li>
 <li>Before the solution, the problem. Look at what happens when the <code>new()</code> is
 written in the place where the object gets used:</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u3/factory/without-factory.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// In the previous example, new() gets called every time an object is needed.</span>
-<span class="hljs-comment">// Building a new set of drinks means changing the source code</span>
+<figure class="codigo"><figcaption><code>code/u3/factory/without-factory.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// ILLUSTRATION -- not compiled. In the previous example, new() gets called every</span>
+<span class="hljs-comment">// time an object is needed: building a new set of drinks means editing the source.</span>
 bandeja_de_fernet = <span class="hljs-keyword">new</span>();
 fernet_h = <span class="hljs-keyword">new</span>(<span class="hljs-number">15</span>, <span class="hljs-string">&quot;the one at the bar&quot;</span>);
 bandeja_de_fernet.bandeja_trago(fernet_h);
@@ -1748,7 +1751,7 @@ that we invented nothing.</p>
 
 <section id="s94" class="slide">
 <h2 id="the-factory-pattern">The factory pattern</h2>
-<p><img src="../../res/print/diagrams/en/factory_diagram.svg" alt="The cantina builds fernet and mojito, and returns a trago handle"></p>
+<p><img src="../../res/print/diagrams/en/factory_diagram.svg" alt="cantina builds fernet and mojito, and returns a trago handle"></p>
 <br>
 
 <ul>
@@ -2273,7 +2276,7 @@ Python it takes ten lines. We invented nothing, and that is good news.</p>
 </section>
 
 <section id="s98" class="slide">
-<!-- es-sha: de322b440014 -->
+<!-- es-sha: 1784df9533e3 -->
 <h2 id="a-testbench-without-a-single-module">A testbench without a single module</h2>
 <h4 id="the-same-testbench-without-a-single-module"><em>The same testbench, without a single module</em></h4>
 <ul>
@@ -2321,7 +2324,7 @@ live side by side. That is all OOP buys you here</li>
 <li>scoreboard: Checks that the VTALU is working</li>
 <li>coverage: Captures the functional coverage information</li>
 </ul>
-<p><img src="../../res/print/diagrams/en/tb-en-objetos_arbol.svg" alt="The object tree: top elaborates, and inside live the testbench class and its three pieces"></p>
+<p><img src="../../res/print/diagrams/en/tb-en-objetos_arbol.svg" alt="The object tree of the testbench without modules: top elaborates, and inside live the testbench class and its three pieces"></p>
 <div class="nota">
 <p>It is the same testbench as interfaces and BFM, but in objects: what changes is the shape, not
 what it does. If possible, show them side by side.

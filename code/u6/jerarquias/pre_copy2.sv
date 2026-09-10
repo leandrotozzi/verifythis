@@ -1,3 +1,5 @@
+// ILLUSTRATION -- not compiled. The bottom two classes of the hierarchy, with the
+// comments that explain the do_copy() argument. The whole one is deep.sv:64-105.
 class fernet_doble extends fernet;
    string mesa;
 

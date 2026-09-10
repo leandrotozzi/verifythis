@@ -1,4 +1,4 @@
-<!-- es-sha: 71028ffd7dd5 -->
+<!-- es-sha: 7873a1eafd51 -->
 <!-- .slide: id="cierre" -->
 
 ## This is as far as we got
@@ -59,8 +59,9 @@ learn without it sounding like gibberish.
 - And if you get stuck: **[Discussions](https://github.com/leandrotozzi/verifythis/discussions)**,
   with one category per day. An example that does not run or an explanation that does not get
   understood are **issues of the course**, not problems of yours
-- And if you want to go on right here: **day 8** is optional and starts on the slide
-  that follows — RAL, the reference model in C, and a second capstone
+- And if you want to go on right here: **day 8** is optional and starts after the
+  self-assessment and *On Monday* — RAL, the reference model in C, and a second
+  capstone
 
 Note:
 **RAL came out of this table and is now unit 9**, optional, with the example that

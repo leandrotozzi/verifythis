@@ -203,20 +203,15 @@ module top;
 
    end : scoreboard
 
-   // --- exercise checker (you do not need to touch this) ---------------------
-   // A $error in Verilator aborts the simulation, so a result that does not
-   // match shows up on its own: what is left to count are the shifts, and that
-   // every operation sent came back through the scoreboard.
+   // --- the counters, so the run says what this testbench did ----------------
+   // They are a REPORT and not the verdict: run.sh cross-checks them against
+   // what chequeo.sv counts off the bus, and that file you cannot edit. A
+   // $error in Verilator aborts the simulation, so a result that does not match
+   // shows up on its own; what these say is whether every operation sent came
+   // back through the scoreboard.
    int shifts = 0;
 
-   final begin
-      if (enviadas != chequeadas)
-        $display("EXERCISE INCOMPLETE: sent %0d operations, the scoreboard checked %0d", enviadas, chequeadas);
-      else if (shifts == 0)
-        $display("EXERCISE INCOMPLETE: the TB never sent a shift (look at get_op)");
-      else
-        $display("EXERCISE OK: %0d shifts checked, 0 errors", shifts);
-   end
+   final $display("TB COUNTERS: sent=%0d checked=%0d shifts=%0d", enviadas, chequeadas, shifts);
 
    // Randomize the stimulus
    // get_op and get_data are Constrained Random Data

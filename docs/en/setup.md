@@ -1,4 +1,4 @@
-<!-- es-sha: 48824877b8b7 -->
+<!-- es-sha: 80ca4c0f2220 -->
 # Setting up and running the examples
 
 The four ways to get the course running on a machine, from least to most work,
@@ -87,8 +87,8 @@ which breaks the scoreboard on purpose so that reporting can be taught.
 **Nineteen** of them, in [`code/ejercicios/`](../../code/ejercicios/): `run.sh`
 **fails until you solve it**, and the solution sits next to it
 (`SOLUCION=1 bash run.sh`). Every directory holds only the files you touch; the
-rest of the testbench comes from the section, by reference. Every statement has
-an English version (`README.en.md`).
+rest of the testbench comes from the section, by reference. Every statement is
+`README.md`, with a Spanish version right next to it.
 
 Three of them —`d5b`, `d5c` and `d7-semillas`— are the *coverage closure*
 loop done by hand: measure a distribution, write the directed case that fills
@@ -99,8 +99,7 @@ specification, and **nothing else**. The testbench is written whole, from a
 blank sheet, and the marker goes in stages — monitor, driver, scoreboard and
 coverage, one `STAGE N OK` each. It is handed in with its **verification plan**
 filled out: the five columns, the template and the VTALU plan as an example are
-in **[`docs/plan-de-verificacion.md`](../plan-de-verificacion.md)**
-*(in Spanish)*.
+in **[`docs/en/verification-plan.md`](verification-plan.md)**.
 
 The last two belong to the optional unit and come **after** the capstone.
 `d8-ral` reuses the same DUT and the same testbench, with the spec's register
@@ -209,5 +208,4 @@ And its commercial simulators support the *transition bins* that Verilator does
 not yet.
 
 Every example is **self-contained on purpose**: you can copy `code/u4/env/`
-somewhere else and run it as is. See [`code/README.md`](../../code/README.md)
-*(in Spanish)*.
+somewhere else and run it as is. See [`code/README.md`](../../code/README.md).

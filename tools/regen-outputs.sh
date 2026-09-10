@@ -144,5 +144,34 @@ if quiere code/u4/reporting; then
   trap 'rm -rf "$TMP"' EXIT
 fi
 
+# --- d4b: el bus con la FIFO sin tope -------------------------------------------
+# El numero que hace el ejercicio --cuantas de las mil operaciones llegan al
+# bus-- vivia escrito en la prosa, y la revision de septiembre 2026 lo encontro
+# mal: decia "unas veinticinco" y son 13. Como es el estado ROTO el que ensena,
+# esta captura corre el ejercicio SIN resolver, y por eso no puede usar corre():
+# el run.sh termina en 1 a proposito, con el "not yet" que le explica al alumno
+# lo que acaba de ver. Un exit 0 aca seria la senal de que el ejercicio se
+# rompio y ya no ensena nada.
+if quiere code/ejercicios/d4b; then
+  printf '  corriendo %-24s ' code/ejercicios/d4b >&2
+  log=$TMP/d4b.log
+  ( cd code/ejercicios/d4b && bash ./run.sh ) >"$log" 2>&1 && {
+    echo "PASO SIN RESOLVER" >&2
+    echo "  code/ejercicios/d4b tendria que fallar sin la solucion y paso" >&2; exit 1; }
+  echo "ok (fallo, que es lo que tenia que pasar)" >&2
+  sed -n '/^\*\* Report counts by id/,/^$/p' "$log" | escribe code/ejercicios/d4b/roto.txt
+fi
+
+# --- u7/sequences: cuando termina el full_test ----------------------------------
+# La slide de sequences dice en cuanto termina el full_test para contrastarlo
+# con el test que no levanta objections. El run.sh corre cinco tests seguidos:
+# el full_test es el PRIMERO, asi que se corta en su $finish y no en el ultimo,
+# que es el del no_objection_test y termina en 0.
+if quiere code/u7/sequences; then
+  log=$(corre code/u7/sequences)
+  sed -n '/--- UVM Report Summary ---/,/finish at/p' "$log" \
+    | sed -n '1,/finish at/p' | escribe code/u7/sequences/full_test.txt
+fi
+
 echo
 echo "Listo. Revisa el diff antes de commitear: git diff --stat code/"

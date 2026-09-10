@@ -4,8 +4,9 @@
 
 #### *Dónde dejamos el testbench*
 
-- El testbench quedó **completo y reutilizable**: agents con `is_active`, el
-  análisis en el `env`, y el estímulo afuera del árbol, en sequences
+- El testbench quedó **reutilizable para un agent**: agents con `is_active`, el
+  análisis en el `env`, y el estímulo afuera del árbol, en sequences. La última
+  pieza —coordinar dos— es hoy a la mañana
 - Ninguna línea del test nombra un componente de adentro del `env`: la última
   se fue con el `default_sequence` por `uvm_config_db`
 - Y falta la otra mitad del plan de verificación: las filas que **ningún
@@ -23,7 +24,7 @@ se dejó abierto a propósito: el scoreboard chequea **qué**, la assertion cheq
 
 ---
 
-<!-- .slide: data-machete="res/diagrams/assertions_property.svg,res/machete-debug.svg" -->
+<!-- .slide: data-machete="res/diagrams/assertions_property.svg|Anatomía de una property: label · reloj · guarda · antecedente · implicación · consecuente y acción,res/machete-debug.svg|Machete de debug: las siete perillas del curso y qué mirar según el síntoma" -->
 
 ## Agenda
 
@@ -36,6 +37,8 @@ se dejó abierto a propósito: el scoreboard chequea **qué**, la assertion cheq
 - De la VTALU a un bus real
 - La caja de herramientas de debug · Las 21 trampas mudas
 - Glosario, referencias y cierre
+- Autoevaluación: quince cosas que a esta altura tendrías que poder hacer
+- *El lunes*: qué hacer con esto cuando se apaga la pantalla
 
 *Y después, el **día 8**: opcional, y para el que ya entregó el capstone*
 

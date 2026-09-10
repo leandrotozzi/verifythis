@@ -1,6 +1,6 @@
 ## La spec del VTALU
 
-![Diagrama de ondas de la VTALU: start, done y el resultado](res/diagrams/wave-dut.svg)
+![Protocolo del VTALU: start y operandos estables hasta done](res/diagrams/wave-dut.svg)
 <!-- .element: class="grande" -->
 
 - *start* debe permanecer en 1 y los operandos estables hasta  
@@ -116,8 +116,10 @@ y el scoreboard reporta un error que no está en el DUT.
 {{code:code/vtalu_dut/vtalu.sv#the-mux}}
 
 - El top no calcula nada: instancia los dos bloques y **decodifica** el opcode
-- `es_mult = (op == mul_op)`. El `start` se rutea a uno solo, y `result`,
-  `done` y `ovf` salen del mismo lado
+- `es_mult = (op == mul_op)`. El `start` se rutea a uno solo, y `result_mux` y
+  `done` salen del mismo lado. El `ovf` sigue el mismo patrón justo abajo del
+  recorte —`assign ovf = es_mult ? 1'b0 : ovf_1c;`— y `result_mux` sale por
+  `result` recién después del XOR de `+VTALU_BUG`
 - Por eso el protocolo del bus es uno solo aunque adentro haya dos latencias
   distintas: lo que el testbench ve es `start` → `done`
 

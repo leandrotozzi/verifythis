@@ -1,4 +1,4 @@
-<!-- es-sha: bf323c5b95e3 -->
+<!-- es-sha: 3799b0cf7b67 -->
 # UVM in the interview
 
 The questions that get asked in a verification interview, with the short answer
@@ -195,7 +195,7 @@ that justifies it is the one with a piece of data that crosses over: configure
 through one bus, read the status, and only then send traffic through the other
 one with whatever the configuration returned.
 
-**Where**: [day 6 · virtual sequences](../../en/libro/day6.html#virtual-sequences-the-problem) ·
+**Where**: [day 7 · virtual sequences](../../en/libro/day7.html#virtual-sequences) ·
 **Runs**: `bash code/u7/sequences/virtual/run.sh`
 
 ---

@@ -93,8 +93,7 @@
          ├─ uvm_agent      <span class="tuyo">tu agent</span>
          ├─ uvm_driver     <span class="tuyo">tu driver</span>
          ├─ uvm_monitor    <span class="tuyo">tus monitores</span>
-         ├─ uvm_scoreboard <span class="tuyo">tu scoreboard</span>
-         ├─ uvm_subscriber <span class="tuyo">tu cobertura</span>
+         ├─ uvm_subscriber <span class="tuyo">tu scoreboard y tu cobertura</span>
          └─ uvm_sequencer  tal cual, con typedef</pre>
     <p class="nota" style="margin:4px 0 0">
       <b>La línea que importa:</b> un <span class="m">object</span> se crea, se usa y se tira;
@@ -142,7 +141,8 @@
   req = tipo::type_id
           ::create("req");
   start_item(req);   <span class="cmt">// espera</span>
-  assert(req.randomize());
+  if (!req.randomize())
+    `uvm_fatal("SEQ", "rand")
   finish_item(req);  <span class="cmt">// espera</span>
   <span class="cmt">// req.result ya volvió</span>
 endtask</pre>

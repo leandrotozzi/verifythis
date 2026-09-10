@@ -1,5 +1,5 @@
-<!-- es-sha: 1e174f2b45a8 -->
-<!-- .slide: id="apendice-debug" data-machete="res/en/machete-debug.svg" -->
+<!-- es-sha: 25e608b572a4 -->
+<!-- .slide: id="apendice-debug" data-machete="res/en/machete-debug.svg|Debug cheat sheet: the seven knobs of the course and what to look at for each symptom" -->
 
 ## Appendix · The debug toolbox
 

@@ -1,4 +1,4 @@
-<!-- es-sha: 4ea9bbd6d978 -->
+<!-- es-sha: b26a9f695eca -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 7
@@ -7,9 +7,9 @@
 
 **What is the underlying difference between `assert(x.randomize())` and `assert property (@(posedge clk) …)`?**
 
+- [x] One is a **statement**; the other, a **declaration with a clock**
 - [ ] None: the second is syntactic sugar for the first
 - [ ] The first can be switched off from the command line and the second cannot
-- [x] One is a **statement**; the other, a **declaration with a clock**
 - [ ] The first is only valid inside a class and the second only inside a module, because of the scheduler
 
 > **Statement against declaration** — the immediate one runs when the thread goes past it; the concurrent one gets evaluated on its own, on every edge of its clock. It is to an `if` what the concurrent one is to an `always_ff`: one executes, the other gets instantiated. That is why only the concurrent one can describe something that lasts several cycles.
@@ -43,8 +43,8 @@
 
 - [ ] The `disable iff (!reset_n)` is missing
 - [ ] The `posedge` is too fast: the clock has to be divided
-- [x] The stimulus is written on the `negedge` and the sampling does not see it
 - [ ] Covergroups and assertions cannot share the clock without a `clocking block`
+- [x] The stimulus is written on the `negedge` and the sampling does not see it
 
 > **An assertion is worth what its sampling is worth** — the BFM writes the stimulus on the `negedge`, and on two consecutive `no_op` `start` goes down and comes back up between two `posedge`: the sampling does not see it go down. The stimulus gets sampled where the stimulus gets written. Stimulus on `negedge`, response of the DUT on `posedge`: zero errors. With a single clock there is no way.
 
@@ -58,9 +58,9 @@
 
 **An `assert` property reports 0 failures during the whole regression. What do you know?**
 
+- [x] Nothing yet: it may never have been evaluated at all
 - [ ] That the rule it describes holds
 - [ ] That the DUT is free of protocol bugs
-- [x] Nothing yet: it may never have been evaluated at all
 - [ ] That the property has a badly written `disable iff` and stayed off the whole time
 
 > **Zero failures and zero evaluations look the same** — its antecedent may never have occurred, or `--assert` may be missing and it is not even being evaluated. That is why every assertion goes with its `cover property`: it is the only check of the check. In the section, `c_mult_3ciclos` stays at 0 and gives away that the real latency is four edges, not three.

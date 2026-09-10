@@ -62,7 +62,7 @@
     <div class="slides">
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- .slide: id="portada" data-machete="res/uvm_class_diagram.svg" -->
+<!-- .slide: id="portada" data-machete="res/uvm_class_diagram.svg|Jerarquía de clases base de UVM" -->
 
 # Verify This!
 
@@ -99,7 +99,7 @@
   que el curso da por sabido es **SystemVerilog**: si venís de VHDL o de
   Verilog-2001, media hora con
   **`docs/systemverilog-para-el-que-viene-de-vhdl.md`** antes de empezar
-- Son **siete días de clase**, de 4 a 5 horas y media — **≈ 30 h 30**, y cada
+- Son **siete días de clase**, de 4 a 5 horas y cuarto — **≈ 31 h**, y cada
   agenda trae el suyo. Y un **día 8 opcional**, después del cierre. Solo,
   calculá el doble: la mitad se va en correr los ejemplos, y ésa es la que enseña
 - <kbd>s</kbd> abre las **notas del presentador** en otra ventana ·
@@ -107,7 +107,8 @@
   instructor diría en voz alta: la trampa clásica, el porqué del número, el
   error que comete todo el mundo la primera vez. **No las saltees**
 - Cada día cierra con un **repaso** de opciones clickeables y con un
-  **ejercicio que se corrige solo**: `cd code/ejercicios/dN && bash run.sh`
+  **ejercicio que se corrige solo**: `cd code/ejercicios/d1 && bash run.sh`. Los
+  nombres de los otros dieciocho están en `code/ejercicios/README.es.md`
 
 Note:
 Si estás dictando el curso, estas dos slides se saltean con la tecla 1.
@@ -148,7 +149,7 @@ para leer de corrido.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- .slide: id="day1" data-machete="res/diagrams/wave-dut.svg,res/TB.svg" -->
+<!-- .slide: id="day1" data-machete="res/diagrams/wave-dut.svg|Protocolo del VTALU: start y operandos estables hasta done,res/TB.svg|Anatomía de un testbench SystemVerilog: el DUT, el tester, el scoreboard y la interface" -->
 
 <!-- .slide: data-transition="concave" -->
 
@@ -183,9 +184,9 @@ para leer de corrido.
 Note:
 Los tres verbos de abajo son el contrato del día, y conviene leerlos en voz alta
 antes de empezar: en video son los diez segundos en los que alguien decide si
-éste es el que buscaba. Son las tres primeras filas de la autoevaluación del
-cierre, traídas al principio; el que las pueda contestar al terminar el día no
-necesita mirar nada más.
+éste es el que buscaba. Son las filas 2, 4 y 5 de la autoevaluación del cierre,
+traídas al principio; el que las pueda contestar al terminar el día no necesita
+mirar nada más.
 Y una advertencia honesta para el que viene de VHDL o de Verilog-2001, que es la
 audiencia declarada: el día 2 nivela la OOP, pero **nadie nivela SystemVerilog**,
 y hoy aparecen `interface`, `logic`, `enum`, `package`, `covergroup`, `clocking`
@@ -373,7 +374,7 @@ testbench anterior a 2011 que nadie migró. Pasa más de lo que parece.
 
 #### *Un testbench de SystemVerilog, por dentro*
 
-![Anatomia de un testbench SystemVerilog](res/TB.svg)
+![Anatomía de un testbench SystemVerilog](res/TB.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -410,7 +411,7 @@ poco.
 
 #### *El árbol de clases*
 
-![Arbol de clases base de UVM](res/uvm_class_diagram.svg)
+![Jerarquía de clases base de UVM](res/uvm_class_diagram.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -474,7 +475,7 @@ uno. Es literalmente el ejercicio `d7-semillas`, con el que arranca el día 7.
         <textarea data-template>
 ## La spec del VTALU
 
-![Diagrama de ondas de la VTALU: start, done y el resultado](res/diagrams/wave-dut.svg)
+![Protocolo del VTALU: start y operandos estables hasta done](res/diagrams/wave-dut.svg)
 <!-- .element: class="grande" -->
 
 - *start* debe permanecer en 1 y los operandos estables hasta  
@@ -586,6 +587,22 @@ cambien el resultado: la ALU se queda con lo último que calculó.
 #### *Multi Cycle: Multiplicación*
 
 ```sv
+   // Four register stages. done is pipelined alongside the data, and each
+   // stage clears itself with (& ~done_mult): that is what makes done a
+   // one-cycle pulse instead of staying high for as long as start does. It is
+   // subtle -- it is copied straight from the VHDL.
+   always_ff @(posedge clk or negedge reset_n) begin
+      if (!reset_n) begin
+         done_mult <= 1'b0;
+         done3 <= 1'b0;
+         done2 <= 1'b0;
+         done1 <= 1'b0;
+         a_int <= 8'h00;
+         b_int <= 8'h00;
+         mult1 <= 16'h0000;
+         mult2 <= 16'h0000;
+         result_mult <= 16'h0000;
+      end else begin
          a_int <= A;
          b_int <= B;
          mult1 <= a_int * b_int;
@@ -595,6 +612,8 @@ cambien el resultado: la ALU se queda con lo último que calculó.
          done2 <= done3 & ~done_mult;
          done1 <= done2 & ~done_mult;
          done_mult <= done1 & ~done_mult;
+      end
+   end
 ```
 
 - Es un pipeline: los operandos se registran, se multiplican, y el producto
@@ -631,8 +650,10 @@ y el scoreboard reporta un error que no está en el DUT.
 ```
 
 - El top no calcula nada: instancia los dos bloques y **decodifica** el opcode
-- `es_mult = (op == mul_op)`. El `start` se rutea a uno solo, y `result`,
-  `done` y `ovf` salen del mismo lado
+- `es_mult = (op == mul_op)`. El `start` se rutea a uno solo, y `result_mux` y
+  `done` salen del mismo lado. El `ovf` sigue el mismo patrón justo abajo del
+  recorte —`assign ovf = es_mult ? 1'b0 : ovf_1c;`— y `result_mux` sale por
+  `result` recién después del XOR de `+VTALU_BUG`
 - Por eso el protocolo del bus es uno solo aunque adentro haya dos latencias
   distintas: lo que el testbench ve es `start` → `done`
 
@@ -785,8 +806,8 @@ el curso: acá para leerla, y el día 7 para llenarla de cero.
   son tres filas, y se cierran de a una
 
 Note:
-Vale leer la columna de la derecha en voz alta: son los cuatro errores que se
-cometen la primera vez, y los cuatro suenan razonables cuando uno los escribe.
+Vale leer la columna de la derecha en voz alta: son los cinco errores que se
+cometen la primera vez, y los cinco suenan razonables cuando uno los escribe.
 La columna que más cuesta es la de medida, porque obliga a decidir *antes* qué
 se va a contar. Es la que el día 1 todavía no se puede llenar —los bins no
 existen hasta la unidad que viene— y por eso el plan se llena a medida que el
@@ -1202,8 +1223,7 @@ herramienta no hace es un curso que miente.
 #### *ignore_bins: decir en voz alta lo que no se cubre*
 
 ```sv
-   covergroup zeros_or_ones_on_ops;
-
+      // Check the corners where the inputs are all 0s or all 1s
       all_ops : coverpoint op_set {
          ignore_bins null_ops = {rst_op, no_op};}
 
@@ -1217,6 +1237,13 @@ herramienta no hace es un curso que miente.
          bins zeros = {8'h00};
          bins others= {[8'h01:8'hFE]};
          bins ones  = {8'hFF};
+      }
+      // VTALU rev2: the borrow of the subtraction, the row of the plan that the
+      // scoreboard can only close by looking at TWO outputs. Without this bin, a
+      // subtraction that never went negative looks exactly like one that did.
+      borrow: coverpoint ((op_set == sub_op) && (A < B)) {
+         bins hubo_borrow = {1};
+         ignore_bins resto = {0};
       }
 ```
 
@@ -1264,6 +1291,11 @@ El error de escala que hay que anticipar: en un DUT real un cross de tres
 coverpoints con bins automáticos son miles de casilleros, y una regresión no los
 llena nunca. Cuando alguien dice "la cobertura no sube", en la mitad de los casos
 el problema es un cross sin filtrar, no un test que falta.
+Y el número que hay que tener a mano para la slide "Leer el número": los 45 son
+la cuenta del LRM, un bin por miembro del enum. **Verilator mide 54**, porque
+reparte los bins automáticos por el tipo base (`bit [2:0]`, 8 valores menos los
+2 de `ignore_bins`, o sea 3 × 3 × 6). Los 9 de más son el `3'b110` cruzado, y son
+exactamente los 9 que quedan en cero.
 
 ---
 
@@ -1307,9 +1339,10 @@ vale por ser el máximo del espacio de entrada, no por desbordar. La única
 operación que desborda es la resta, y sólo cuando A < B.
 La honestidad de esta slide es parte del curso, así que conviene decirla y no
 pasarla rápido: el 86,8 % que reporta el ejemplo **no es** el número que daría
-Questa. Verilator ignora el filtro y mide el cross entero —los 45, y además le
-suma un valor que el enum no tiene; la slide "Leer el número" dice cuál—, así
-que el porcentaje sale más bajo y por un motivo que no es del testbench. Está
+Questa. Verilator ignora el filtro y mide el cross entero, y además le suma un
+valor que el enum no tiene: donde el LRM cuenta 45, Verilator cuenta **54** (los
+9 de más son el `3'b110` cruzado, y son los 9 que quedan en cero). Por eso el
+porcentaje sale más bajo, y por un motivo que no es del testbench. Está
 escrito, fechado y con versión en `docs/verilator.md`.
 La pregunta útil para el aula: ¿eso invalida el ejercicio? No. Lo que se aprende
 —escribir el cross, filtrarlo, y saber qué bin corresponde a qué fila del plan—
@@ -1401,8 +1434,10 @@ Coverage Summary:
   covergroup : 86.8% (66/76)
 ```
 
-- 66 de 76 bins llenos, con 1000 operaciones al azar. Las otras filas del
-  resumen salen `0/0`: `--coverage-user` deja afuera la cobertura de código
+- 66 de 76 bins llenos, con **1000 randomizaciones** y **615 operaciones al bus**
+  —el `no_op` y el `rst_op` se sortean y no se envían, y el testbench lo imprime
+  dos líneas arriba de este resumen—. Las otras filas salen `0/0`:
+  `--coverage-user` deja afuera la cobertura de código
 - Los 10 que faltan son **un solo valor**: `all_ops.auto_5` y sus nueve cruces.
   Es `3'b110`, que el enum **no tiene** — Verilator reparte los bins
   automáticos por el tipo de base, `bit [2:0]`, y no por miembro del enum
@@ -1782,7 +1817,7 @@ la misma que hicimos acá — esconder el cable— repetida un nivel más arriba
 
 #### *La regla del protocolo, escrita en el idioma del simulador*
 
-```sv
+```systemverilog
 // INMEDIATA: una sentencia. Chequea el presente, donde el hilo pasa.
 assert (op_set != no_op || done == 0)
    else $error("no_op no deberia levantar done");
@@ -1842,7 +1877,6 @@ detalle.
 #### *El agujero que deja la BFM: el temporizado*
 
 ```sv
-
       // 1. Sample AT the edge. The DUT always_ff updates d_out with a
       //    nonblocking assignment, which lands after this initial already ran:
       //    you read the OLD value.
@@ -1894,7 +1928,7 @@ visto clocking blocks, no porque sea lo que se escribe en un proyecto.
 
 #### *Por qué el flanco solo no alcanza: las regiones*
 
-![Las regiones de un flanco: Preponed, Active y NBA, y los tres muestreos](res/diagrams/interfaces-bfm_regiones.svg)
+![Las regiones de un flanco: Preponed, Active y NBA, y los tres muestreos que dan valores distintos](res/diagrams/interfaces-bfm_regiones.svg)
 <!-- .element: class="grande" -->
 
 - Un flanco no es un instante indivisible: adentro hay **regiones**, en orden fijo
@@ -2013,7 +2047,6 @@ El material largo, con las fuentes, está en `docs/clocking-blocks.md`.
 #### *El precio: dos nombres para el mismo cable*
 
 ```sv
-
       // The two reads, at the SAME instant, on the SAME wire.
       por_cb = bfm.cb.d_out;
       crudo  = bfm.d_out;
@@ -2134,9 +2167,9 @@ un driver de dispositivo es al sistema operativo.
 **El test corre 1000 operaciones al azar y la cobertura de *código* da 100 %. ¿Qué te dice eso sobre la verificación?**
 
 - [ ] Que el DUT está verificado y el plan de verificación se puede cerrar
-- [x] Muy poco: mide el RTL que se ejecutó, no la spec
 - [ ] Que el testbench no tiene bugs
 - [ ] Que faltan pocos escenarios: el 100 % ya recorrió el diseño entero
+- [x] Muy poco: mide el RTL que se ejecutó, no la spec
 
 > **Muy poco** — la cobertura de código mide el DUT; la funcional mide la spec. Una feature que el diseñador nunca escribió da 100 % de líneas y 0 % de lo que importa, y el reporte no te lo va a decir.
 
@@ -2150,8 +2183,8 @@ un driver de dispositivo es al sistema operativo.
 
 **Declarás un `covergroup`, le hacés `new()`, corrés mil operaciones y el reporte da 0 %. ¿Qué es lo primero que hay que mirar?**
 
-- [ ] Que los bins estén mal definidos y no matcheen ningún valor
 - [x] Que nadie esté llamando a `sample()`
+- [ ] Que los bins estén mal definidos y no matcheen ningún valor
 - [ ] Que el DUT no esté respondiendo
 - [ ] Que falten `ignore_bins`
 
@@ -2316,7 +2349,7 @@ entre un capítulo y el siguiente.
 
 ---
 
-<!-- .slide: data-machete="res/diagrams/uml-poli.svg,res/diagrams/factory_diagram.svg" -->
+<!-- .slide: data-machete="res/diagrams/uml-poli.svg|trago, fernet y mojito: qué servir() vive en qué clase,res/diagrams/factory_diagram.svg|cantina fabrica fernet y mojito, y devuelve un handle trago" -->
 
 <!-- .slide: data-transition="concave" -->
 
@@ -2526,11 +2559,11 @@ class rectangle;
    endfunction
 endclass
 
-// Extendiendo Clases!
+// Extending classes!
 class square extends rectangle;
    // Override Constructor
    function new(int side);
-      //super: llamado a metodo de padre
+      // super: the call to the parent method
       super.new(.l(side), .w(side));
    endfunction
 
@@ -2598,7 +2631,7 @@ handle y no el objeto—, así que conviene nombrarlo las tres.
 
 #### *Una variable `trago`, un objeto `fernet`: ¿cuál `servir()` corre?*
 
-![Diagrama UML de los tragos](res/diagrams/uml-poli.svg)
+![trago, fernet y mojito: qué servir() vive en qué clase](res/diagrams/uml-poli.svg)
 <!-- .element: class="grande" -->
 
 - Un `fernet` **es** un `trago`, así que guardarlo en una variable `trago`
@@ -2874,7 +2907,7 @@ con un prefijo más largo.
 
 ```sv
 class bandeja_de_fernet;
-   //Queue static
+   // Static queue
    static fernet vasos[$];
 
 endclass : bandeja_de_fernet
@@ -2931,7 +2964,7 @@ class pepe;
 endclass : pepe
 
 //----------------------------------------
-module top;
+module top_pepes;
    initial begin
       pepe pepe1_h, pepe2_h;
 
@@ -2946,7 +2979,7 @@ module top;
       $display("NUMBER OF PEPES = %0d", pepe::cant);
 
    end
-endmodule : top
+endmodule : top_pepes
 ```
 
 ***¿Y el encapsulamiento?***
@@ -3142,6 +3175,9 @@ que aparezca en el resto del curso es esto.
   `bandeja#(mojito)` son dos clases distintas, cada una con la suya
 
 ```sv
+// Parameterized class
+// the T (type) parameter is what says which
+// kind of queue this is.
 class bandeja #(
     type T
 );
@@ -3322,8 +3358,8 @@ eso.
   escrito en el lugar donde se usa el objeto:
 
 ```sv
-// In the previous example, new() gets called every time an object is needed.
-// Building a new set of drinks means changing the source code
+// ILLUSTRATION -- not compiled. In the previous example, new() gets called every
+// time an object is needed: building a new set of drinks means editing the source.
 bandeja_de_fernet = new();
 fernet_h = new(15, "the one at the bar");
 bandeja_de_fernet.bandeja_trago(fernet_h);
@@ -3356,7 +3392,7 @@ muestra que no inventamos nada.
 
 ## El patrón factory
 
-![La cantina fabrica fernet y mojito, y devuelve un handle trago](res/diagrams/factory_diagram.svg)
+![cantina fabrica fernet y mojito, y devuelve un handle trago](res/diagrams/factory_diagram.svg)
 <!-- .element: class="grande" -->
 
 <br>
@@ -3582,7 +3618,7 @@ justamente lo que se sintetiza.
 - scoreboard: Chequea que la VTALU está funcionando
 - coverage: Captura la información de cobertura funcional
 
-![El árbol de objetos: el top elabora, y adentro viven la clase testbench y sus tres piezas](res/diagrams/tb-en-objetos_arbol.svg)
+![El árbol de objetos del testbench sin módulos: el top elabora, y adentro viven la clase testbench y sus tres piezas](res/diagrams/tb-en-objetos_arbol.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -4128,7 +4164,7 @@ ser una fórmula mágica.
 
 ---
 
-<!-- .slide: data-machete="res/TB_UVM.svg,res/diagrams/env_uvm_incantation.svg,res/diagrams/UVM-hierarchy.svg,res/machete-debug.svg" -->
+<!-- .slide: data-machete="res/TB_UVM.svg|El mismo testbench con estructura UVM: test, env, tester, scoreboard y coverage,res/diagrams/env_uvm_incantation.svg|Anatomía de la línea tipo::type_id::create(nombre, this),res/diagrams/UVM-hierarchy.svg|Jerarquía de instancias que UVM arma en build_phase,res/machete-debug.svg|Machete de debug: las siete perillas del curso y qué mirar según el síntoma" -->
 
 <!-- .slide: data-transition="convex" -->
 
@@ -4174,7 +4210,7 @@ pasen a haberse sufrido.
 - UVM da vuelta el orden: el testbench se compila **una vez**, y el test que
   corre se elige al arrancar la simulación
 
-```bash
+```sh
 $ ./obj_dir/top/sim +UVM_TESTNAME=random_test
 $ ./obj_dir/top/sim +UVM_TESTNAME=add_test     # el mismo binario
 ```
@@ -4199,7 +4235,6 @@ el test hace `new()` y pasan a ser components del árbol.
 #### *El top: instanciar, publicar la interface, arrancar*
 
 ```sv
-
    initial begin
       // null and "*": from the root and visible to the whole tree. See the
       // uvm_config_db slide.
@@ -4239,6 +4274,8 @@ que arranca con UVM.
 - El **ámbito** es una ruta jerárquica, y ahí está toda la gracia
 
 ```sv
+// ILLUSTRATION -- not compiled. The two halves of the config_db, side by side:
+// the set() lives in top.sv and the get() in tb_classes/driver.svh.
 // -- IN THE TOP -- top is a module, not a uvm_component ---------------------
 //   cntxt = null : the scope starts at the UVM root
 //   inst  = "*"  : visible to the whole component tree
@@ -4469,7 +4506,7 @@ exactamente el caso de esta slide, y el capstone lo pisa de nuevo.
 
 #### *La línea de tiempo, de punta a punta*
 
-![Línea de tiempo de una objection: raise, estímulo, drop, drain y fin de la fase](res/diagrams/tests_objections.svg)
+![Línea de tiempo de una objection: raise, estímulo, drop, drain_time y fin de la fase, con las transacciones en vuelo](res/diagrams/tests_objections.svg)
 <!-- .element: class="grande" -->
 
 - `raise` y `drop` marcan **el estímulo**, y nada más que el estímulo
@@ -4543,7 +4580,7 @@ método virtual para elegir el tester: está bien, y es más o menos lo que hace
 
 #### *Cómo se corre, y qué imprime*
 
-```plaintext
+```bash
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
 vlt_uvm top --coverage-user -Wno-fatal -f dut.f -f tb.f
@@ -4683,7 +4720,7 @@ avisa, y bien: `ILLCRT` te dice qué componente y bajo qué padre.
 
 #### *El árbol, dos veces: una baja y la otra sube*
 
-![El árbol recorrido dos veces: build_phase baja y connect_phase sube](res/diagrams/components_fases.svg)
+![El árbol recorrido dos veces: build_phase baja y connect_phase sube, y el orden real en que se construye un hijo](res/diagrams/components_fases.svg)
 <!-- .element: class="grande" -->
 
 - `build_phase` baja porque el padre tiene que existir para crear a sus hijos
@@ -4716,7 +4753,7 @@ para entonces ya existen.
 #### *¿Y el `super.build_phase()`?*
 
 ```systemverilog
-// uvm_component.svh — uvm-core 2020.3.1, tal cual
+// uvm_component.svh:2385-2393 — uvm-core 2020.3.1, con el return; elidido
 function void uvm_component::build_phase(uvm_phase phase);
    build();            // -> apply_config_settings(): la config automatica
 endfunction
@@ -4744,7 +4781,7 @@ al de `uvm_component` no hace nada.
 Los números, para que nadie tenga que creernos:
 `grep -rn 'super\.build_phase' code/ --include='*.sv' --include='*.svh' --exclude-dir=.uvm`
 da 15 llamadas reales —más 6
-comentarios que hablan de ellas— sobre 309 `build_phase`. Las
+comentarios que hablan de ellas— sobre 306 `build_phase`. Las
 15 llaman al
 `super` de un `base_test` o un `random_test` **nuestro**, que construye el env.
 Ninguna llama al de `uvm_component`, que es de lo que habla la slide.
@@ -4759,9 +4796,11 @@ hacía falta es silencio: el campo queda en su default y la simulación corre.
 Este curso puede nombrar por qué en su caso es un no-op —no hay una sola macro
 `` `uvm_field_* `` en `code/` fuera de la librería vendorizada —son
 0, y el número lo cuenta el build—; el que entra a un testbench ajeno no
-puede. `uvm_agent` es el contraejemplo que tenemos a mano: es la única clase de
-la librería, además de `uvm_component`, que implementa `build_phase`, y lo que
-hace ahí es leer `is_active`. Vuelve en el día 6.
+puede. `uvm_agent` es el contraejemplo que tenemos a mano: además de `uvm_component`,
+lo implementan `uvm_agent` —que ahí lee `is_active`— y las dos bases del
+sequencer (`seq/uvm_sequencer_base.svh:122`, que lee
+`wait_for_sequences_count` del config_db, y `seq/uvm_sequencer_param_base.svh:236`).
+Vuelve en el día 6.
 Con las otras fases pasa lo mismo, más barato todavía: en `uvm_component` son
 `return;`, pero `uvm_driver::end_of_elaboration_phase` chequea que el
 `seq_item_port` esté conectado, y ése lo extendemos nosotros.
@@ -4810,7 +4849,7 @@ necesitan lo contrario — que los hijos ya estén. La otra top-down es
 
 #### *Y adentro del `run_phase`, un cronograma*
 
-![Las doce fases runtime en paralelo con run_phase, y dónde engancha la default_sequence](res/diagrams/components_runtime.svg)
+![Las doce fases runtime corriendo en paralelo con run_phase, y dónde se engancha la default_sequence](res/diagrams/components_runtime.svg)
 <!-- .element: class="grande" -->
 
 - Las doce son `task`, corren **en paralelo** con `run_phase`, y están para
@@ -5048,7 +5087,7 @@ Ninguno, si la estructura vive en un solo lugar. Los diez, si cada test la arma.
 > “Jugar al fútbol es muy simple, pero jugar un fútbol simple
 > es lo más difícil que hay.” — **Johan Cruyff**
 
-![La misma jugada, enredada y simple](res/funs/simple-es-dificil.svg)
+![La misma jugada: enredada y simple](res/funs/simple-es-dificil.svg)
 <!-- .element: class="grande" -->
 
 - *Intractable* es el código que sale rápido y después no se deja tocar. El
@@ -5077,26 +5116,33 @@ tests y ya hay copia y pega.
 
 ## El env: estructura y estímulo
 
-#### *El problema: dos testers, dos veces el mismo `run_phase()`*
+#### *El problema: dos tests, dos veces el mismo `build_phase()`*
 
-![Dos testers hermanos que repiten el mismo run_phase](res/diagrams/env_intract_sol_1.svg)
+![random_test y add_test escriben el mismo build_phase()](res/diagrams/env_intract_sol_1.svg)
 <!-- .element: class="grande" -->
 
-- Hoy hay dos testers: `random_tester` manda mil operaciones al azar,
-  `add_tester` manda mil sumas. Los dos randomizan A y B igual
-- Los dos extienden `uvm_component` **por separado**, y cada uno tiene su
-  `get_op()`, su `get_data()` y su `run_phase()`
-- El `get_op()` es lo único que cambia. El `run_phase()` —el `repeat(1000)`, el
-  handshake con la BFM, el `#500` del final— está **escrito dos veces**
-- Duplicar el bucle no es feo, es caro: el día que cambie el protocolo del BFM,
-  hay que acordarse de los dos
+- Hoy hay dos tests: `random_test` construye un `random_tester`, `add_test` un
+  `add_tester`. Todo lo demás —coverage y scoreboard— lo construyen igual
+- `add_test` **hereda** de `random_test` y le **reescribe el `build_phase()`
+  entero**: los tres `new()` son idénticos y están escritos dos veces
+- Los testers, en cambio, no duplican nada: `add_tester extends random_tester` y
+  sólo redefine `get_op()`. El `run_phase()` está escrito **una sola vez**, en
+  `random_tester`, y se hereda
+- O sea: la escalera de herencia ya está bien resuelta abajo, en los testers, y
+  mal resuelta arriba, en los tests. Las dos slides que siguen muestran cómo
+  quedó abajo; el resto de la sección lo aplica arriba
+- Duplicar el `build_phase` no es feo, es caro: diez tests son diez copias, y un
+  cambio en la estructura son diez ediciones
 
 Note:
 Ésta es la slide del problema, y conviene no adelantar la solución: que se vea la
-duplicación primero.
-La pregunta que la ordena: ¿qué parte de un tester es *el test*, y qué parte es
-*infraestructura*? El `get_op()` es el test —cuatro líneas—; todo el resto es
-infraestructura que no tiene nada que ver con qué querés probar.
+duplicación primero, y que se vea **dónde está**. No está en los testers —ésos ya
+heredan bien— sino en los tests, que es donde nadie la busca.
+La pregunta que ordena las dos slides que siguen: ¿qué parte de un tester es
+*el test*, y qué parte es *infraestructura*? El `get_op()` es el test —cuatro
+líneas—; todo el resto es infraestructura que no tiene nada que ver con qué
+querés probar. Ésa es la operación que ya se hizo abajo, y la que falta hacer
+arriba.
 Y el criterio general, que vale para cualquier lenguaje: cuando dos clases
 hermanas comparten un método idéntico, el método está en el lugar equivocado.
 Va al padre.
@@ -5107,7 +5153,7 @@ Va al padre.
 
 #### *La salida: una clase abstracta, y el estímulo en las hijas*
 
-![base_tester abstracta con get_op y get_data pure virtual](res/diagrams/env_using_virtual_class.svg)
+![base_tester abstracta con run_phase() compartido y métodos pure virtual](res/diagrams/env_using_virtual_class.svg)
 <!-- .element: class="grande" -->
 
 - `base_tester` es una clase **abstracta**: escribe el `run_phase()` una sola vez
@@ -5135,7 +5181,7 @@ código es señal de que falta un escalón en la jerarquía — y el escalón es
 
 #### *El resultado: la jerarquía de tres pisos*
 
-![La jerarquia de tres pisos: base_tester, random_tester y add_tester](res/diagrams/env_adaptable_sol.svg)
+![random_tester como base y add_tester heredando de él](res/diagrams/env_adaptable_sol.svg)
 <!-- .element: class="grande" -->
 
 - `base_tester` pone el `run_phase()` y declara `get_op()` y `get_data()` como
@@ -5260,7 +5306,7 @@ que se metió lógica de test adentro de la estructura.
 
 #### *El mapa después de separar*
 
-![Dos jerarquias paralelas: los tests a la izquierda y el env a la derecha](res/diagrams/env_struct_level.svg)
+![El diagrama de clases antes y después de separar estructura de estímulo con uvm_env](res/diagrams/env_struct_level.svg)
 <!-- .element: class="grande" -->
 
 - Dos jerarquías paralelas, y ésa es toda la sección: a la izquierda los tests
@@ -5354,25 +5400,33 @@ olvidar, y olvidarlo era un null pointer en simulación.
 
 #### *La fórmula, leída de izquierda a derecha*
 
-![La formula clase::type_id::create(nombre, this), pieza por pieza](res/diagrams/env_uvm_incantation.svg)
+![Anatomía de la línea tipo::type_id::create(nombre, this)](res/diagrams/env_uvm_incantation.svg)
 <!-- .element: class="grande" -->
 
 - Es el patrón *static member/method* de las variables estáticas, tal cual: `type_id` es un
   miembro static de la clase, y `create()` un método static de ese miembro
 - Los dos argumentos son los de siempre: el **nombre** que va a salir en la
   topología, y el **padre** que lo cuelga del árbol
-- Todo lo que puede salir mal se ve al **compilar**: la clase mal escrita, la que
-  no existe, y la que se olvidó el `` `uvm_component_utils `` — porque sin la
-  macro no hay `type_id`
+- La clase mal escrita y la que no existe se ven al **compilar**. La que se olvidó
+  el `` `uvm_component_utils ``, sólo si **ningún ancestro** está registrado: si
+  hereda de una registrada, el `type_id` se **hereda** y no hay error
 
 Note:
 Vale leer la fórmula en voz alta una vez, despacio, porque se va a escribir
 cincuenta veces en lo que queda del curso:
 *"clase, dos puntos dos puntos, type_id, dos puntos dos puntos, create, nombre,
 this"*.
-El último bullet es el que tranquiliza: el error de olvidarse la macro no es
-mudo. `base_tester::type_id` no existe si `base_tester` no se registró, y eso no
-compila. Es de los pocos errores de UVM que el compilador ataja.
+El último bullet es el que **no** tranquiliza, y hay que decirlo así. Si
+`base_tester` no se registró y nada arriba tampoco, `base_tester::type_id` no
+existe y no compila: ése es el caso bueno. Pero en la jerarquía de esta misma
+sección —las tres registradas— olvidarse la macro en `add_tester` **no rompe
+nada**: el `type_id` y el `get_type()` se heredan de `random_tester`, el
+testbench compila limpio, y el `set_type_override` del `add_test` termina
+registrando `random_tester`. Medido: `add_tester::get_type().get_type_name()`
+devuelve `random_tester`, el env construye un `random_tester`, y el test corre
+con `UVM_ERROR : 0`. Es de la familia «no rompe, miente» del apéndice de trampas
+mudas: el único caso en que sí falla al compilar es si el handle se declara del
+tipo derivado, y acá el handle es `base_tester tester_h;`.
 El nombre del primer argumento no es decorativo: es la ruta del componente, la
 que usa el config_db y la que imprime `print_topology`. Ponerle otro nombre que
 el del handle es una forma barata de perder media hora en los agents.
@@ -5387,14 +5441,13 @@ el del handle es una forma barata de perder media hora en los agents.
   una clase **abstracta**. Y esto compila, corre y anda. ¿Por qué?
 
 ```sv
-function void build_phase(uvm_phase phase);
-   // base_tester is abstract: it cannot be instantiated with new(). The factory
-   // is asked for it anyway, because what will arrive is the type the test set
-   // with set_type_override -- add_tester or random_tester, never this one.
-   tester_h = base_tester::type_id::create("tester_h", this);
-   coverage_h = coverage::type_id::create("coverage_h", this);
-   scoreboard_h = scoreboard::type_id::create("scoreboard_h", this);
-endfunction : build_phase
+   function void build_phase(uvm_phase phase);
+      // base_tester is abstract and this works anyway: create() does not build
+      // it, it asks the factory what to hand out when somebody asks for a base_tester.
+      tester_h = base_tester::type_id::create("tester_h", this);
+      coverage_h = coverage::type_id::create("coverage_h", this);
+      scoreboard_h = scoreboard::type_id::create("scoreboard_h", this);
+   endfunction : build_phase
 ```
 
 - Porque `base_tester` acá no es un molde: es un **formulario de pedido**. El
@@ -5450,7 +5503,7 @@ llamada, otro tipo.
 
 #### *El override de la factory*
 
-![set_type_override: la factory devuelve add_tester donde se pide base_tester](res/diagrams/env_uvm_incantation_2.svg)
+![Anatomía del factory override con set_type_override()](res/diagrams/env_uvm_incantation_2.svg)
 <!-- .element: class="grande" -->
 
 - El método static *set_type_override()* le dice a la factory que cuando vea un pedido por una *base_class_name* retorne un objeto del tipo *new_class_name*
@@ -5664,6 +5717,7 @@ la sección es configurar ese objeto.
   decide si el mensaje sale o no
 
 ```sv
+// ILLUSTRATION -- not compiled. The signature of each macro, not a call.
 `uvm_info   (Message ID String, Message String, Verbosity)
 `uvm_warning(Message ID String, Message String)
 `uvm_error  (Message ID String, Message String)
@@ -5687,13 +5741,17 @@ es la última parte de la sección.
   tiempo, el archivo y la línea, y la ruta jerárquica del componente que habló
 
 ```sv
-      data_str = $sformatf(" %2h %0s %2h = %4h (%4h predicted)",
-                           cmd.A, cmd.op.name() ,cmd.B, t,  predicted_result);
+      data_str = $sformatf(
+          " %2h %0s %2h = %4h (%4h predicted)",
+          cmd.A,
+          cmd.op.name(),
+          cmd.B,
+          t,
+          predicted_result
+      );
 
-      if (predicted_result != t)
-        `uvm_error ("SCOREBOARD", {"FAIL: ",data_str})
-      else
-        `uvm_info ( "SCOREBOARD", {"PASS: ",data_str}, UVM_HIGH)
+      if (predicted_result != t) `uvm_error("SCOREBOARD", {"FAIL: ", data_str})
+      else `uvm_info("SCOREBOARD", {"PASS: ", data_str}, UVM_HIGH)
 ```
 
 ```plaintext
@@ -5729,15 +5787,17 @@ escribe la ruta jerárquica, porque no la sabe.
   `UVM_NONE` sale siempre
 
 ```sv
-typedef enum
-{
-	UVM_NONE	= 0,
-	UVM_LOW		= 100,
-	UVM_MEDIUM	= 200, // Por Default Es Medium (si no ponemos nada usa Medium)
-	UVM_HIGH	= 300,
-	UVM_FULL	= 400,
-	UVM_DEBUG	= 500
-} uvm_verbosity
+// ILLUSTRATION -- not compiled. uvm_object_globals.svh:382-390, uvm-core 2020.3.1,
+// copied verbatim: code/.uvm/ is downloaded and gitignored, so the slide cannot
+// pull the enum straight out of the library.
+typedef enum {
+   UVM_NONE   = 0,
+   UVM_LOW    = 100,
+   UVM_MEDIUM = 200,  // the default: with nothing set, UVM_MEDIUM is what you get
+   UVM_HIGH   = 300,
+   UVM_FULL   = 400,
+   UVM_DEBUG  = 500
+} uvm_verbosity;
 
 // Any message above the verbosity that was set does not get printed
 ```
@@ -5779,8 +5839,9 @@ Que sea el nombre del componente, en mayúsculas, y siempre el mismo.
 
 Note:
 Conviene correrlo en vivo, porque es la demostración más barata de la sección:
-el mismo `make u4/reporting` con y sin `+UVM_VERBOSITY=UVM_HIGH`, y el log pasa
-de 7 `uvm_info` a 22. Sin recompilar nada — es el mismo binario. Parecen pocos
+la misma línea de arriba —`./obj_dir/top/sim +UVM_TESTNAME=random_test`— con y sin
+`+UVM_VERBOSITY=UVM_HIGH`, y el log pasa de 7 `uvm_info` a 22. Con `make` son 6 y
+21, porque `run_sim` agrega `+UVM_NO_RELNOTES` y eso se lleva el banner. Sin recompilar nada — es el mismo binario. Parecen pocos
 porque este ejemplo manda **diez** operaciones a propósito, para que el
 transcript entre en la pantalla; con las mil de las otras secciones la diferencia
 es de tres órdenes de magnitud.
@@ -5847,7 +5908,7 @@ se recuerda.
 - Es el mismo árbol del que sale el prefijo de cada mensaje, y el mismo que usa el
   `uvm_config_db` como ámbito
 
-![Jerarquia de instancias y de donde sale el prefijo de los mensajes](res/diagrams/UVM-hierarchy.svg)
+![Jerarquía de instancias que UVM arma en build_phase](res/diagrams/UVM-hierarchy.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -5879,11 +5940,13 @@ es la perilla del otro problema, el del ámbito que no matchea.
   `set_report_verbosity_level()`, sólo a él
 
 ```sv
-// Env class
-// sets the verbosity of the scoreboard component and of everything below it
-function void end_of_elaboration_phase(uvm_phase phase);
-   scoreboard_h.set_report_verbosity_level_hier(UVM_HIGH);
-endfunction : end_of_elaboration_phase
+   // To use the UVM hierarchy to control verbosity, the reporting methods have to
+   // be called after the UVM hierarchy has been built, but BEFORE the simulation
+   // starts. That is what end_of_elaboration_phase is for
+   function void end_of_elaboration_phase(uvm_phase phase);
+      //scoreboard_h.set_report_severity_action_hier(UVM_ERROR, UVM_NO_ACTION);
+      scoreboard_h.set_report_verbosity_level_hier(UVM_HIGH);
+   endfunction : end_of_elaboration_phase
 ```
 
 Note:
@@ -5961,17 +6024,19 @@ media tarde mientras otro arregla su clase, y se saca el mismo día.
 - Imprimir es sólo una de las siete cosas posibles
 
 ```sv
-typedef enum
-{
-	UVM_NO_ACTION = 7'b0000000,
-	UVM_DISPLAY   = 7'b0000001,
-	UVM_LOG       = 7'b0000010,
-	UVM_COUNT     = 7'b0000100,
-	UVM_EXIT      = 7'b0001000,
-	UVM_CALL_HOOK = 7'b0010000,
-	UVM_STOP      = 7'b0100000,
-	UVM_RM_RECORD = 7'b1000000
-} uvm_action_type
+// ILLUSTRATION -- not compiled. uvm_object_globals.svh:354-364, uvm-core 2020.3.1,
+// copied verbatim: code/.uvm/ is downloaded and gitignored, so the slide cannot
+// pull the enum straight out of the library.
+typedef enum {
+   UVM_NO_ACTION = 'b0000000,
+   UVM_DISPLAY   = 'b0000001,
+   UVM_LOG       = 'b0000010,
+   UVM_COUNT     = 'b0000100,
+   UVM_EXIT      = 'b0001000,
+   UVM_CALL_HOOK = 'b0010000,
+   UVM_STOP      = 'b0100000,
+   UVM_RM_RECORD = 'b1000000
+} uvm_action_type;
 ```
 
 Note:
@@ -6006,13 +6071,18 @@ mensaje. Ahí se paga la disciplina de haber usado siempre el mismo.
   verbosidad jerárquica
 - Y el log de abajo es el resultado: mismo DUT, mismo scoreboard roto, cero
   errores en el *Report Summary*
+- En `code/u4/reporting` la línea está escrita y **comentada**: se descomenta para
+  reproducir este log, y se vuelve a comentar. Que viva comentada en el repo es
+  parte de la lección
 
 ```sv
-function void end_of_elaboration_phase(uvm_phase phase);
-
-   scoreboard_h.set_report_severity_action_hier(UVM_ERROR, UVM_NO_ACTION);
-
-endfunction : end_of_elaboration_phase
+   // To use the UVM hierarchy to control verbosity, the reporting methods have to
+   // be called after the UVM hierarchy has been built, but BEFORE the simulation
+   // starts. That is what end_of_elaboration_phase is for
+   function void end_of_elaboration_phase(uvm_phase phase);
+      //scoreboard_h.set_report_severity_action_hier(UVM_ERROR, UVM_NO_ACTION);
+      scoreboard_h.set_report_verbosity_level_hier(UVM_HIGH);
+   endfunction : end_of_elaboration_phase
 ```
 
 ```plaintext
@@ -6334,7 +6404,7 @@ monitor"— es exactamente la que la unidad viene a desarmar.
 
 ---
 
-<!-- .slide: data-machete="res/diagrams/analysis-ports_fig102.svg,res/diagrams/threads_fig124.svg" -->
+<!-- .slide: data-machete="res/diagrams/analysis-ports_fig102.svg|Testbench del VTALU con analysis ports,res/diagrams/threads_fig124.svg|Comunicación entre threads con put port, get port y uvm_tlm_fifo" -->
 
 ## Agenda
 
@@ -6434,7 +6504,7 @@ cosa.
   - Un histograma con la frecuencia de valores
   - Un reporte de cobertura que muestre si salieron todos los posibles valores de 2 a 12
 
-![Dos d6 y el histograma de sus sumas](res/funs/dados.svg)
+![Tirar 2d6: la suma va de 2 a 12 y el 7 es la más probable](res/funs/dados.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -6637,7 +6707,7 @@ nombres.
 - La propiedad que compra todo: agregar un cuarto observador **no toca una línea**
   del que produce
 
-![Un emisor publica y N observadores reciben](res/funs/observer-broadcast.svg)
+![Observer: un emisor publica y N observadores reciben](res/funs/observer-broadcast.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -6657,7 +6727,7 @@ ruido del protocolo.
   - *uvm_analysis_port:* Envía data a un conjunto de subscribers (observadores)
   - *uvm_subscriber:* Extensión de uvm_component que permite al componente suscribirse a un uvm_analysis_port
 
-![Un uvm_analysis_port publicando hacia varios uvm_subscriber](res/diagrams/varios-objetos_ports.svg)
+![Notación: rombo = uvm_analysis_port, círculo = analysis_export](res/diagrams/varios-objetos_ports.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -6685,13 +6755,46 @@ compilador, no por un string.
 - Utilizamos el método *connect()* para conectar los subscribers al puerto. Este método tiene un único argumento, y es el **export** del subscriber (`analysis_export`), no otro port
 
 ```sv
+// Same as version 01, but publishing: instead of returning the number it writes
+// it to an analysis port, and stops knowing who reads it.
 class dice_roller extends uvm_component;
    `uvm_component_utils(dice_roller);
+
+   rand byte die1;
+   rand byte die2;
+
+   constraint d6 {
+      die1 >= 1;
+      die1 <= 6;
+      die2 >= 1;
+      die2 <= 6;
+   }
+
+   function new(string name, uvm_component parent);
+      super.new(name, parent);
+   endfunction : new
+
+   // 1) declare the port, with the data type it will carry
    uvm_analysis_port #(int) roll_ap;
 
-   function void build_phase (uvm_phase phase);
-      roll_ap = new("roll_ap",this);
+   // 2) instantiate it in build_phase, with new(): ports do not go through the factory
+   function void build_phase(uvm_phase phase);
+      roll_ap = new("roll_ap", this);
    endfunction : build_phase
+
+   task run_phase(uvm_phase phase);
+      int the_roll;
+      phase.raise_objection(this);
+      repeat (20) begin
+         void'(randomize());
+         the_roll = die1 + die2;
+         // 3) write: the port calls write() on every subscriber
+         roll_ap.write(the_roll);
+      end
+      phase.drop_objection(this);
+   endtask : run_phase
+
+endclass : dice_roller
 ```
 
 Note:
@@ -6888,7 +6991,7 @@ escribir la clase y **una** línea acá. Ni una en `dice_roller`.
 - Cada subscriber tiene un objeto analysis_export
 - La conexión entre ambos se realiza mediante el método connect()
 
-![El ejemplo de los dados cableado con analysis ports](res/diagrams/varios-objetos_spicy.svg)
+![Conexionado del ejemplo de los dados: roll_ap contra los tres analysis_export](res/diagrams/varios-objetos_spicy.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -6998,7 +7101,7 @@ la otra.
 
 #### *Diagrama del Testbench*
 
-![TB del VTALU con analysis ports](res/diagrams/analysis-ports_fig102.svg)
+![Testbench del VTALU con analysis ports](res/diagrams/analysis-ports_fig102.svg)
 <!-- .element: class="grande" -->
 
 ---
@@ -7174,8 +7277,11 @@ llenando bins con la nada.
 - El motivo del límite: `uvm_subscriber` te da **un solo** `write()`, y ése es el
   método que el puerto llama. Dos puertos no tienen dónde entrar
 - UVM lo resuelve sin partir el componente, con la clase *uvm_tlm_analysis_fifo*,
-  que es **ilimitada por construcción**: su `write()` es una `function` y no puede
-  bloquear, así que no puede tirar nada
+  que es **ilimitada por construcción**: su constructor le pasa `size = 0`
+  (`tlm1/uvm_tlm_fifos.svh:281`, con el comentario «analysis fifo must be unbounded»)
+- Y el `write()` es una `function` que hace `void'(this.try_put(t))`: descarta el
+  retorno. Si la FIFO estuviera acotada tiraría **sin avisar** — por eso ésta se
+  construye sin tope
 - Es paramétrica y tiene dos caras: un *analysis_export* de un lado —que se conecta
   como cualquier subscriber— y un `try_get()` del otro
 - `try_get()` saca un elemento y devuelve 0 si la FIFO está vacía, sin bloquear
@@ -7350,8 +7456,12 @@ El export no es del scoreboard, es **de la FIFO que el scoreboard tiene adentro*
 Un `uvm_analysis_port` puede tener varios destinos —el `ap` del command_monitor
 alimenta dos— y no le cuesta nada: `write()` los recorre a todos.
 Y el detalle que se olvida y no avisa: `cmd_f` se instancia con `new()`, no con
-la factory. Las FIFOs y los ports no están registrados. Si te olvidás del `new()`
-el `connect()` explota con un null, y ese al menos es un error honesto.
+la factory. La FIFO **sí** está registrada —`` `uvm_component_param_utils `` en
+`tlm1/uvm_tlm_fifos.svh:256`—, pero el curso la crea con `new()` porque le pasa el
+`size` por constructor y `create()` no puede. Los que no están en la factory son
+los *ports* y los *exports*: extienden `uvm_port_base` sin macro de utils. Si te
+olvidás del `new()` el `connect()` explota con un null, y ese al menos es un error
+honesto.
 
 ---
 
@@ -7472,6 +7582,8 @@ agent en los agents.
   puertos, cada uno con su `always`, pasándose datos
 
 ```sv
+// Sends the data through the shared variable and signals it by toggling get_it
+// Then the producer blocks on the put_it signal
 module producer (
     output byte shared,
     input  bit  put_it,
@@ -7685,7 +7797,8 @@ class communication_test extends uvm_test;
       fifo_h = new("fifo_h", this);
    endfunction : build_phase
 
-   // Connection Phase -> Detalles en next slide
+   // Connect phase: the two ports and the fifo already exist -- build_phase
+   // runs first, top-down -- so this is where they get wired together.
    function void connect_phase(uvm_phase phase);
       producer_h.put_port_h.connect(fifo_h.put_export);
       consumer_h.get_port_h.connect(fifo_h.get_export);
@@ -7730,11 +7843,12 @@ lado y el driver del otro.
   ports entre sí
 
 ```sv
-// Connection Phase
-function void connect_phase(uvm_phase phase);
-   producer_h.put_port_h.connect(fifo_h.put_export);
-   consumer_h.get_port_h.connect(fifo_h.get_export);
-endfunction : connect_phase
+   // Connect phase: the two ports and the fifo already exist -- build_phase
+   // runs first, top-down -- so this is where they get wired together.
+   function void connect_phase(uvm_phase phase);
+      producer_h.put_port_h.connect(fifo_h.put_export);
+      consumer_h.get_port_h.connect(fifo_h.get_export);
+   endfunction : connect_phase
 ```
 
 ```plaintext
@@ -7855,7 +7969,7 @@ sola línea de formateo.
 
 #### *Comunicación NO bloqueante: la línea de tiempo*
 
-![try_get() devuelve 0 cuando la FIFO está vacía](res/diagrams/threads_nonblocking.svg)
+![Línea de tiempo del ejemplo no bloqueante: en 7 ns y 49 ns la FIFO está vacía y try_get() devuelve 0](res/diagrams/threads_nonblocking.svg)
 <!-- .element: class="grande" -->
 
 - El producer pone un dato cada 17 ns y el consumer mira cada 14 ns: los relojes
@@ -7876,7 +7990,7 @@ un testbench con reloj eso es un flanco perdido.
 
 #### *Cómo se leen los diagramas TLM*
 
-![Put port, TLM FIFO y get port entre dos threads](res/diagrams/threads_fig124.svg)
+![Comunicación entre threads con put port, get port y uvm_tlm_fifo](res/diagrams/threads_fig124.svg)
 <!-- .element: class="grande" -->
 
 - La convención vale para todo el material de UVM que vayas a leer después:
@@ -7996,19 +8110,40 @@ task, `wait fork` es la respuesta.
 
 #### *⚠ La trampa: el índice del `for` adentro del `fork`*
 
-```systemverilog
-int i;                                  // declarado AFUERA del for: uno solo
-for (i = 0; i < 3; i++)
-   fork  $display("i = %0d", i);  join_none      //  i = 3   i = 3   i = 3
+```sv
+    // A -- a single variable, shared by the three threads. A join_none runs
+    // nothing: it schedules. By the time the three run, the for is over.
+    for (i = 0; i < 3; i++)
+      fork got = {got, $sformatf("%0d", i)}; join_none
+    wait fork;
+    check("int i outside the for, no copy", "333");
 
-for (int j = 0; j < 3; j++)             // declarado EN el for: uno por vuelta
-   fork  $display("j = %0d", j);  join_none      //  j = 0   j = 1   j = 2
+    // B -- declared inside the for: one per pass, and nothing to copy.
+    for (int j = 0; j < 3; j++)
+      fork got = {got, $sformatf("%0d", j)}; join_none
+    wait fork;
+    check("int j declared in the for", "012");
 
-for (i = 0; i < 3; i++)
-   fork  begin
-      automatic int k = i;              // la copia se hace AL EJECUTARSE el fork
-      $display("k = %0d", k);
-   end join_none                                 //  k = 0   k = 1   k = 2
+    // C -- the slide's one: the automatic as the first line of a begin/end.
+    // Here the copy is NOT made when the fork is scheduled, so k reads the same
+    // i that A does and gives the same answer as A. This is the finding.
+    for (i = 0; i < 3; i++)
+      fork begin
+        automatic int k = i;
+        got = {got, $sformatf("%0d", k)};
+      end join_none
+    wait fork;
+    check("fork begin automatic k = i; end  (the slide's)", "333");
+
+    // D -- the LRM 9.3.2 one: the automatic declared in the fork, no begin/end.
+    // Same workaround, written where the LRM puts it, and this one does copy.
+    for (i = 0; i < 3; i++)
+      fork
+        automatic int k = i;
+        got = {got, $sformatf("%0d", k)};
+      join_none
+    wait fork;
+    check("fork automatic k = i;  no begin/end (LRM 9.3.2)", "012");
 ```
 
 - Un `join_none` **no ejecuta nada todavía**: deja el thread listo y sigue. Para
@@ -8016,9 +8151,12 @@ for (i = 0; i < 3; i++)
 - Si la variable se declara **adentro** del `for`, cada vuelta tiene la suya y no
   hay problema. Es lo que dice el LRM y lo que Verilator hace
 - Si viene de afuera —un `int` del `run_phase`, un campo de la clase— hay que
-  **copiarla** con un `automatic` como primera línea del bloque
-- Medido en Verilator 5.052: las tres líneas de arriba imprimen `3 3 3`,
-  `0 1 2` y `0 1 2`
+  **copiarla** con un `automatic`, y **dónde** se escribe la copia cambia el
+  resultado: adentro de un `fork begin ... end` **no copia**; declarada en el
+  `fork` mismo, sin `begin`/`end` —que es la forma del LRM 1800-2017 §9.3.2—, sí
+- Medido en Verilator 5.052, y el archivo termina en `$fatal` si algún día cambia
+  (`make repros`): las cuatro variantes imprimen `3 3 3`, `0 1 2`, **`3 3 3`** y
+  `0 1 2`
 
 Note:
 Es el bug de threads que más caro sale y el que menos se ve leyendo el código,
@@ -8034,9 +8172,15 @@ parezca magia: el LRM declara automática la variable de un `for` que la declara
 así que cada vuelta tiene su copia. Está medido acá, no es teoría.
 El caso donde igual hace falta el `automatic` es el que aparece en la vida real:
 el índice no es del `for`, es un campo de la clase o un argumento de la task.
-Ahí no hay copia por vuelta y hay que hacerla a mano. La regla práctica para
-llevarse: **si un thread lanzado con `join_none` lee una variable de afuera,
-copiala en un `automatic` en su primera línea.**
+Ahí no hay copia por vuelta y hay que hacerla a mano — y acá está la parte que
+esta slide decía mal hasta ahora: **el `automatic` como primera línea de un
+`fork begin ... end` no copia**. En Verilator 5.052 la variante C imprime
+`3 3 3`, igual que la A. La que copia es la D, la del LRM §9.3.2: la declaración
+adentro del `fork`, sin `begin`/`end`. Las dos se parecen tanto que es fácil
+escribir la que no anda.
+La regla práctica para llevarse: **si un thread lanzado con `join_none` lee una
+variable de afuera, declarale la copia en el `fork`, no adentro de un
+`begin`.**
 
 ---
 
@@ -8159,7 +8303,7 @@ testbench que tiene derecho a escribir un `@(negedge clk)`.
 - El resultado: una clase decide **qué** mandar y otra sabe **cómo** mandarlo, y
   entre las dos hay una FIFO en vez de una llamada a método
 
-![El tester elige el estimulo y el driver lo aplica](res/diagrams/put-get_fig125.svg)
+![El tester y el driver del VTALU separados por una uvm_tlm_fifo](res/diagrams/put-get_fig125.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -8218,8 +8362,10 @@ El mantra tiene una razón que conviene dar y no repetir como loro: el *port* es
 el que pide el servicio, el *export* es el que lo ofrece. La FIFO ofrece las dos
 puntas, así que tiene dos exports. Si lo escribís al revés no compila, y el
 mensaje del compilador es de los peores de UVM.
-Y el detalle que se olvida: `command_f = new(...)`, no `create()`. Las FIFOs no
-están en la factory.
+Y el detalle que se olvida: `command_f = new(...)`, no `create()`. No es que la
+FIFO falte en la factory —está registrada, `tlm1/uvm_tlm_fifos.svh:62`—: es que el
+`size` va por constructor y `create()` no lo sabe pasar. Los que de verdad no están
+en la factory son los ports y los exports.
 
 ---
 
@@ -8389,7 +8535,7 @@ arreglar convirtiéndolas en transactions.
 - [ ] Registrando el componente dos veces en la factory, una por puerto
 - [ ] Conectando los dos puertos al mismo `analysis_export`
 
-> **Con una `uvm_tlm_analysis_fifo`** — un `uvm_subscriber` tiene un solo `write()`, así que sólo puede escuchar un puerto. La FIFO da un `analysis_export` de un lado y un `try_get()` del otro. Es lo que hace el scoreboard del VTALU.
+> **Con una `uvm_tlm_analysis_fifo`** — un `uvm_subscriber` tiene un solo `write()`, así que sólo puede escuchar un puerto. La FIFO da un `analysis_export` de un lado y un `try_get()` del otro. Es lo que hace el scoreboard del VTALU. La otra forma es `` `uvm_analysis_imp_decl ``, que fabrica un `write_` por sufijo: no son dos `write()` en la misma clase, que SystemVerilog no permite.
 
 ---
 
@@ -8437,8 +8583,8 @@ arreglar convirtiéndolas en transactions.
 
 - [ ] Se bloquea igual que `get()`
 - [ ] Devuelve 1 con un dato basura
-- [x] Devuelve 0 inmediatamente, sin bloquear
 - [ ] Espera un ciclo de reloj y reintenta, hasta el timeout de la fase
+- [x] Devuelve 0 inmediatamente, sin bloquear
 
 > **Devuelve 0 y sigue** — es la versión no bloqueante, y por eso puede ser una `function`. Fijate que el scoreboard la usa en un `do ... while` para saltear los `no_op` y los `rst_op`.
         </textarea>
@@ -8531,7 +8677,7 @@ Hoy eso pasa a ser `copy()` y `compare()`, escritos una vez.
 
 ---
 
-<!-- .slide: data-machete="res/machete-debug.svg,res/uvm_class_diagram.svg" -->
+<!-- .slide: data-machete="res/machete-debug.svg|Machete de debug: las siete perillas del curso y qué mirar según el síntoma,res/uvm_class_diagram.svg|Jerarquía de clases base de UVM" -->
 
 ## Agenda
 
@@ -8552,8 +8698,9 @@ Hoy eso pasa a ser `copy()` y `compare()`, escritos una vez.
 
 Note:
 El segundo es la novedad del día y el que más rinde en el trabajo: medir es la
-mitad, cerrar es la otra. Los tres ejercicios de la tarde son ese ciclo entero
-—medir el `dist`, cerrar el bin— y el día 7 lo termina acumulando semillas.
+mitad, cerrar es la otra. Los dos últimos ejercicios de la tarde son dos tercios
+de ese ciclo —medir el `dist`, cerrar el bin— y el día 7 lo cierra acumulando
+semillas.
 La 12 de la autoevaluación dice **medir**, no **escribir**, y es a propósito: un
 `dist` con los pesos bien puestos puede dar un histograma que miente, y el que no
 lo midió nunca no tiene forma de saberlo.
@@ -8625,7 +8772,8 @@ En OOP en vez de copiar código...
   de la clase base
 
 ```sv
-// The WRONG way to write convert2string!
+// ILLUSTRATION -- not compiled. The WRONG way to write convert2string!
+// The classes are drawn as comments: only the methods are on screen.
 //class trago;
    virtual function string convert2string();
       return $sformatf("Hielos: %0d", hielos);
@@ -8672,6 +8820,8 @@ un string.
 - Nadie sabe qué hay más arriba, así que insertar un nivel no rompe nada
 
 ```sv
+// ILLUSTRATION -- not compiled. The same three methods written deep, with the
+// classes drawn as comments. The version that does compile is deep.sv.
 //virtual class trago;
    virtual function string convert2string();
       return $sformatf("Hielos: %0d", hielos);
@@ -8732,6 +8882,7 @@ Copiar de verdad son dos pasos, y hay que escribirlos: **instanciar** un objeto
 nuevo y **pasarle los datos** campo por campo
 
 ```sv
+// ILLUSTRATION -- not compiled. The initial block of deep.sv:110-118, on its own.
 initial begin
    fernet_hielo1_h =
        new(.hielos(2), .con_coca(1), .graduacion(2), .mesa("mesa 4"), .medidas(2));
@@ -9001,6 +9152,8 @@ clases hay que tocar? Una.
   `command_transaction`, método por método
 
 ```sv
+// ILLUSTRATION -- not compiled. The struct as it is in code/u5/put-get/vtalu_pkg.sv,
+// the one this section turns into a class.
 typedef struct {
    byte unsigned A;
    byte unsigned B;
@@ -9032,6 +9185,9 @@ O sea que la clase base que elegimos hoy es la que nos deja seguir mañana.
 - SystemVerilog ya trae esto hecho, y no hace falta escribir ni un `$urandom`
 
 ```sv
+// ILLUSTRATION -- not compiled. The two functions as they are in
+// code/u5/put-get/tb_classes/random_tester.svh, the section this one replaces.
+//
 // This function handles the fact that
 // the operation bus has 8 possible values,
 // but only 6 of them are valid operations
@@ -9148,8 +9304,9 @@ verificación pide operaciones después de un reset.
 - Igual conviene darles nombre: es el que aparece en los mensajes de UVM
 
 ```sv
-   // Constructor for a uvm_object. Dead simple
-   function new (string name = "");
+   // Constructor of a uvm_object: dead simple, it only takes a name. A
+   // transaction has no parent because it does not live in the component tree.
+   function new(string name = "");
       super.new(name);
    endfunction : new
 ```
@@ -9177,22 +9334,23 @@ testbench, es un component. Si viaja por una flecha del diagrama, es un object.
 - La única diferencia es el argumento: tiene que ser un `uvm_object` —de ahí el `$cast`—. UVM lo llama *rhs* (*right hand side*) por convención, no por requisito
 
 ```sv
-function void do_copy(uvm_object rhs);
-   command_transaction copied_transaction_h;
+   function void do_copy(uvm_object rhs);
+      command_transaction copied_transaction_h;
 
-   // Checks that make DEBUG easier
-   if (rhs == null) `uvm_fatal("COMMAND TRANSACTION", "Tried to copy from a null pointer")
+      // Checks that make DEBUG easier
+      if (rhs == null)
+         `uvm_fatal("COMMAND TRANSACTION", "Tried to copy from a null pointer")
 
-   if (!$cast(copied_transaction_h, rhs))
-      `uvm_fatal("COMMAND TRANSACTION", "Tried to copy wrong type.")
+      if (!$cast(copied_transaction_h, rhs))
+         `uvm_fatal("COMMAND TRANSACTION", "Tried to copy wrong type.")
 
-   super.do_copy(rhs);  // copy all parent class data
+      super.do_copy(rhs);  // copy all parent class data
 
-   A = copied_transaction_h.A;
-   B = copied_transaction_h.B;
-   op = copied_transaction_h.op;
+      A = copied_transaction_h.A;
+      B = copied_transaction_h.B;
+      op = copied_transaction_h.op;
 
-endfunction : do_copy
+   endfunction : do_copy
 ```
 
 Note:
@@ -9261,14 +9419,14 @@ partes y es el único lugar del testbench donde se hace.
   de los que lo usan tenga que acordarse del cast
 
 ```sv
-function command_transaction clone_me();
-   command_transaction clone;
-   uvm_object tmp;
+   function command_transaction clone_me();
+      command_transaction clone;
+      uvm_object tmp;
 
-   tmp = this.clone();
-   $cast(clone, tmp);
-   return clone;
-endfunction : clone_me
+      tmp = this.clone();
+      $cast(clone, tmp);
+      return clone;
+   endfunction : clone_me
 ```
 
 Note:
@@ -9296,24 +9454,25 @@ otro nombre.
 - Casi nadie toca el comparer, pero hay que declararlo porque la firma lo pide
 
 ```sv
-function bit do_compare(uvm_object rhs, uvm_comparer comparer);
-   command_transaction compared_transaction_h;
-   bit same;
+   function bit do_compare(uvm_object rhs, uvm_comparer comparer);
+      command_transaction compared_transaction_h;
+      bit same;
 
-   if (rhs == null)
-      `uvm_fatal("RANDOM TRANSACTION", "Tried to do comparison to a null pointer");
+      if (rhs == null)
+         `uvm_fatal("RANDOM TRANSACTION", "Tried to do comparison to a null pointer");
 
-   // First check whether we are comparing the same type
-   if (!$cast(compared_transaction_h, rhs)) same = 0;
-   else
-      // Deep Comparation
-      same = super.do_compare(
-          rhs, comparer
-      ) && (compared_transaction_h.A == A) && (compared_transaction_h.B == B) &&
-          (compared_transaction_h.op == op);
+      // First check whether we are comparing the same type
+      if (!$cast(compared_transaction_h, rhs)) same = 0;
+      else
+         // Deep comparison: what the parent compares, plus the three fields of
+         // this class
+         same = super.do_compare(
+             rhs, comparer
+         ) && (compared_transaction_h.A == A) && (compared_transaction_h.B == B) &&
+             (compared_transaction_h.op == op);
 
-   return same;
-endfunction : do_compare
+      return same;
+   endfunction : do_compare
 ```
 
 Note:
@@ -9345,12 +9504,12 @@ la firma lo pide.
   `add_op` en vez de `3'b001`. Sin eso el error dice un número y nadie lo lee
 
 ```sv
-function string convert2string();
-   string s;
-   // op.name() can be add_op, no_op ...
-   s = $sformatf("A: %2h  B: %2h op: %s", A, B, op.name());
-   return s;
-endfunction : convert2string
+   function string convert2string();
+      string s;
+      // op.name() can be add_op, no_op ...
+      s = $sformatf("A: %2h  B: %2h op: %s", A, B, op.name());
+      return s;
+   endfunction : convert2string
 ```
 
 Note:
@@ -9519,6 +9678,20 @@ experimento de Constrained Random.
          if (!command.randomize()) `uvm_fatal("TESTER", "randomize() failed")
          command_port.put(command);
       end : random_loop
+
+      // Directed: the multiplier overflow case, which 1000 random operations
+      // might never touch. It comes out of the factory like the others, but
+      // since it is not randomized, add_transaction's constraint does not run:
+      // the factory picks the TYPE, constraints only act inside randomize().
+      command = command_transaction::type_id::create("command");
+      command.op = mul_op;
+      command.A = 8'hFF;
+      command.B = 8'hFF;
+      command_port.put(command);
+
+      #500;
+      phase.drop_objection(this);
+   endtask : run_phase
 ```
 
 - El testbench del env tenía `base_tester` y `add_tester`: dos clases
@@ -9661,8 +9834,10 @@ command.op = rst_op;
 - La regla, corta: **todo `uvm_object` que viaje por el testbench sale de
   `type_id::create()`** — las transactions del tester, y también las que arman los
   monitores y el `predicted` del scoreboard
-- Los *ports*, los *exports* y las *TLM FIFO* son la excepción: no están en la
-  factory y se instancian con `new()`, como vimos en un productor, muchos oyentes
+- Los *ports* y los *exports* son la excepción: no están en la factory y se
+  instancian con `new()`, como vimos en un productor, muchos oyentes. La *TLM
+  FIFO* sí está registrada, pero el curso la crea con `new()` igual porque el
+  `size` va por constructor y `create()` no lo puede pasar
 
 Note:
 Esta slide sale de un bug que tenía el código de este mismo curso: el tester
@@ -9945,6 +10120,8 @@ diez minutos y es la diferencia entre creer y saber.
 ```
 
 ```sv
+      // The portable workaround meanwhile: turn off the split, which for a
+      // directed case makes no sense anyway.
       c.data.constraint_mode(0);
       if (!c.randomize() with {
             op == mul_op;
@@ -10385,8 +10562,8 @@ Verilator resuelve `randomize()` devolviendo 0 **en silencio**. Está en
 
 - [ ] Un tercio de las veces: son tres entradas con el mismo peso
 - [ ] La mitad: los bordes se reparten entre los dos
-- [x] Una vez cada 256: con `:=` el peso va a **cada valor**
 - [ ] Nunca: `:=` sólo acepta valores sueltos, no rangos, y el rango se descarta
+- [x] Una vez cada 256: con `:=` el peso va a **cada valor**
 
 > **1 de cada 256** — `:=` le da peso 1 a *cada uno* de los 254 valores del medio, así que el rango pesa 254 contra 1 y 1 de los bordes. Para repartir el peso *dentro* del rango va `:/`. Las dos formas compilan y corren: la diferencia sólo aparece en la cobertura que no sube.
 
@@ -10435,9 +10612,9 @@ Verilator resuelve `randomize()` devolviendo 0 **en silencio**. Está en
 **¿Qué hace `cmd.A.rand_mode(0)`?**
 
 - [ ] Apaga todas las constraints que mencionan ese campo
-- [x] Saca el campo del sorteo y le deja el valor que tenía
 - [ ] Lo randomiza una sola vez y después lo congela
 - [ ] Hace que el solver lo resuelva último, después de todos los demás campos
+- [x] Saca el campo del sorteo y le deja el valor que tenía
 
 > **Deja de ser `rand`** — son las dos perillas de tiempo de ejecución y se confunden seguido: `rand_mode(0)` saca **un campo** del sorteo, `constraint_mode(0)` apaga **una constraint**. Una elige *qué se sortea*, la otra *qué reglas valen*. Sirve para fijar un operando a mano y seguir randomizando el resto.
 
@@ -10511,8 +10688,8 @@ La gracia está en el orden: se corre **antes** de tocar nada. El archivo dice 1
 sección — si los números están bien, ¿qué está mal? Está mal el operador, y no
 hay warning que lo diga.
 Conviene pedirles que lo corran dos o tres veces con `SEED=` distintas antes de
-darlo por cerrado: con 4000 muestras el casillero del 10 % se mueve medio punto
-entre corridas. Un porcentaje medido es una muestra, no la distribución — que es
+darlo por cerrado: con 4000 muestras el casillero del 10 % se mueve un punto
+largo entre corridas, entre 9 y 11 — por eso el corrector acepta ±2. Un porcentaje medido es una muestra, no la distribución — que es
 la otra mitad de la regla de la sección.
 Detalle de infraestructura que vale mencionar si alguien pregunta por qué tarda
 veinte segundos un programa que no tiene DUT: Verilator resuelve cada
@@ -10586,7 +10763,7 @@ Eso crece factorial, y es el motivo de que exista la unidad.
 
 ---
 
-<!-- .slide: data-machete="res/machete-debug.svg,res/diagrams/agents_agent.svg,res/diagrams/sequences_tb_completo.svg" -->
+<!-- .slide: data-machete="res/machete-debug.svg|Machete de debug: las siete perillas del curso y qué mirar según el síntoma,res/diagrams/agents_agent.svg|Estructura interna de un uvm_agent: sequencer · driver · monitores y los analysis ports que expone,res/diagrams/sequences_tb_completo.svg|El testbench completo: la nube de sequences · el agent con sequencer y driver · y la capa de análisis en el env" -->
 
 ## Agenda
 
@@ -10610,7 +10787,7 @@ y se contesta hoy: `uvm_object` son los **datos** y `uvm_component` es la
 **estructura**.
 El tercero es el que cierra la unidad y el día: cuando esa línea se va, ninguna
 del test nombra un componente de adentro del `env`, y recién ahí el testbench es
-reutilizable de verdad.
+reutilizable para un agent. Coordinar dos es el día 7.
         </textarea>
       </section>
       <!-- 140-agenda-day6.md -->
@@ -11593,7 +11770,7 @@ code/u7/callbacks/tb_classes/driver.svh`. Todo lo demás —el `get_next_item`, 
 El modo de falla del `uvm_register_cb` que falta no es el que uno espera, y vale
 contarlo con la fuente en la mano porque la mitad de los tutoriales lo dice al
 revés: `uvm_callback.svh:745` reporta un `UVM_WARNING CBUNREG` y **sigue de
-largo** — el `add()` mete el callback en `m_base_inst.m_pool` igual (`:777-783`),
+largo** — el `add()` mete el callback en `m_base_inst.m_pool` igual (`:781-785`),
 y `` `uvm_do_callbacks `` lee ese pool sin consultar el registro (`:964-1006`).
 O sea: sin la macro el callback corre, y lo que perdés es el chequeo de tipos y
 el `add_by_name` por tipo derivado. Es peor que un error: es un warning entre mil
@@ -11612,6 +11789,9 @@ compatibilidad hacia adelante. Por eso los VIP tienen tres o cuatro, no treinta.
 #### *Ponerlos: el test, y nada más que el test*
 
 ```sv
+   // end_of_elaboration and not build: the driver is a grandchild of the env,
+   // and build_phase runs top-down -- when this test's build_phase returns, the
+   // driver does not exist yet.
    function void end_of_elaboration_phase(uvm_phase phase);
       super.end_of_elaboration_phase(phase);
 
@@ -11623,6 +11803,10 @@ compatibilidad hacia adelante. Por eso los VIP tienen tres o cuatro, no treinta.
       // is nothing to hook there.
       uvm_callbacks #(driver, driver_callback)::add(env_h.clase_agent_h.driver_h, jitter_h);
       uvm_callbacks #(driver, driver_callback)::add(env_h.clase_agent_h.driver_h, flip_h);
+
+      if ($test$plusargs("CALLBACK_TRACE"))
+         uvm_callbacks #(driver, driver_callback)::display(env_h.clase_agent_h.driver_h);
+   endfunction : end_of_elaboration_phase
 ```
 
 - El test **no toca** el env, ni el agent, ni el driver, ni la sequence. Igual
@@ -12088,7 +12272,7 @@ Números para el pizarrón: 0 1 1 2 3 5 8 13 21 34 55 89 144 233. Se corta en 23
 porque el siguiente es 377 y `A` y `B` son de 8 bits. Que el alumno vea por qué el
 `for` va hasta 14 y no hasta 20 vale más que la sequence entera.
 Y una que se ve en la corrida real: el test entero tarda **500 unidades de
-tiempo**, contra las 44.000 del test random. Trece operaciones. Un test dirigido
+tiempo**, contra las 43.000 del test random. Trece operaciones. Un test dirigido
 bien escrito es barato; lo caro es el random, y por eso se corre de noche.
 
 ---
@@ -12254,8 +12438,8 @@ sequencer. Es la misma razón por la que las conexiones van en `connect_phase`.
   quiere decir *"en la `main_phase` de ese sequencer"*
 - Se puede configurar por **instancia** (como acá, con
   `uvm_config_db #(uvm_sequence_base)`) o por **tipo**
-  (`uvm_config_db #(uvm_object_wrapper)` + `get_type()`). La instancia gana si
-  están las dos
+  (`uvm_config_db #(uvm_object_wrapper)` + `get_type()`). Si están las dos gana
+  la de **mayor precedencia**, y a igual precedencia el **último `set()`**
 - El sequencer dejó de ser un handle y pasó a ser una **ruta**: eso ya es
   configuración, no código
 
@@ -12569,9 +12753,9 @@ estructura le corresponde.
 
 **Un agent en `UVM_PASSIVE`, ¿qué construye su `build_phase`?**
 
+- [x] Los monitores y los analysis ports; el driver y el sequencer, no
 - [ ] Nada: un agent pasivo es una cáscara vacía
 - [ ] Todo igual que uno activo, pero sin conectar el driver al sequencer
-- [x] Los monitores y los analysis ports; el driver y el sequencer, no
 - [ ] Sólo el sequencer, para poder recibir sequences de otro agent del mismo env
 
 > **Los monitores, siempre; el sequencer y el driver quedan en `null`** — mirar nunca es opcional: un agent pasivo sigue alimentando scoreboard y cobertura. Lo que se saltea es lo que *maneja* la interface, porque ahí ya hay otro manejándola.
@@ -12654,8 +12838,8 @@ estructura le corresponde.
 
 **¿Cuál es la diferencia práctica de que una `uvm_sequence` sea un `uvm_object` y no un `uvm_component`?**
 
-- [ ] Que no se puede registrar en la factory ni overridear
 - [x] Que se crea, corre y se tira
+- [ ] Que no se puede registrar en la factory ni overridear
 - [ ] Que no puede tener campos `rand` ni constraints
 - [ ] Que UVM la construye en `build_phase`, como a cualquier otra clase del árbol
 
@@ -12688,9 +12872,9 @@ estructura le corresponde.
 
 **¿En qué momento `command.result` tiene un valor que se puede leer?**
 
+- [x] Cuando volvió `finish_item()`, porque el driver lo escribió antes de llamar a `item_done()`
 - [ ] Apenas volvió `start_item()`
 - [ ] Cuando el `result_monitor` lo publica por su analysis port
-- [x] Cuando volvió `finish_item()`, porque el driver lo escribió antes de llamar a `item_done()`
 - [ ] Nunca: para recibir una respuesta hay que usar el par REQ/RSP de `uvm_sequence #(REQ, RSP)`
 
 > **Después de `finish_item()`** — no hay ningún canal de vuelta: hay un handle compartido y un acuerdo entre las dos partes. El par REQ/RSP existe y es el mecanismo formal, pero casi nadie lo usa: escribir el resultado en el request alcanza. Esto es lo que hace posible Fibonacci.
@@ -12835,8 +13019,9 @@ mirar qué salió al bus.
 
 #### *Dónde dejamos el testbench*
 
-- El testbench quedó **completo y reutilizable**: agents con `is_active`, el
-  análisis en el `env`, y el estímulo afuera del árbol, en sequences
+- El testbench quedó **reutilizable para un agent**: agents con `is_active`, el
+  análisis en el `env`, y el estímulo afuera del árbol, en sequences. La última
+  pieza —coordinar dos— es hoy a la mañana
 - Ninguna línea del test nombra un componente de adentro del `env`: la última
   se fue con el `default_sequence` por `uvm_config_db`
 - Y falta la otra mitad del plan de verificación: las filas que **ningún
@@ -12854,7 +13039,7 @@ se dejó abierto a propósito: el scoreboard chequea **qué**, la assertion cheq
 
 ---
 
-<!-- .slide: data-machete="res/diagrams/assertions_property.svg,res/machete-debug.svg" -->
+<!-- .slide: data-machete="res/diagrams/assertions_property.svg|Anatomía de una property: label · reloj · guarda · antecedente · implicación · consecuente y acción,res/machete-debug.svg|Machete de debug: las siete perillas del curso y qué mirar según el síntoma" -->
 
 ## Agenda
 
@@ -12867,6 +13052,8 @@ se dejó abierto a propósito: el scoreboard chequea **qué**, la assertion cheq
 - De la VTALU a un bus real
 - La caja de herramientas de debug · Las 21 trampas mudas
 - Glosario, referencias y cierre
+- Autoevaluación: quince cosas que a esta altura tendrías que poder hacer
+- *El lunes*: qué hacer con esto cuando se apaga la pantalla
 
 *Y después, el **día 8**: opcional, y para el que ya entregó el capstone*
 
@@ -12986,6 +13173,8 @@ endclass : virtual_sequencer
 ```
 
 ```sv
+      // The handles are passed HERE and not looked up by string: in connect_phase
+      // both agents already exist, and if somebody renames a component this does
       // not compile instead of returning null at simulation time.
       virtual_sequencer_h.clase_sequencer_h  = clase_agent_h.sequencer_h;
       virtual_sequencer_h.modulo_sequencer_h = modulo_agent_h.sequencer_h;
@@ -13016,12 +13205,19 @@ cambió, que es exactamente lo que uno quiere.
 #### *La sequence virtual: `p_sequencer` y dos ramas*
 
 ```sv
+// `uvm_declare_p_sequencer declares `p_sequencer` with the type above and casts
+// it on its own inside m_set_p_sequencer. Without it, get_sequencer() returns a
+// uvm_sequencer_base and every use would need a cast by hand.
 class coordinada_sequence extends uvm_sequence;
    `uvm_object_utils(coordinada_sequence)
    `uvm_declare_p_sequencer(virtual_sequencer)
 ```
 
 ```sv
+      // --- 1. Both ALUs get reset at the same time -----------------------------
+      // fork/join over TWO sequencers. Each branch blocks on its own driver, and
+      // the join waits for both: that cannot be written inside a normal
+      // sequence, which only knows the sequencer that started it.
       fork
          reset_a.start(p_sequencer.clase_sequencer_h);
          reset_b.start(p_sequencer.modulo_sequencer_h);
@@ -13062,6 +13258,10 @@ sequence normal con más ceremonia. La clase se justifica cuando hay dos.
 #### *Lo que ninguna sequence sola puede*
 
 ```sv
+      // --- 3. What no single sequence can do ----------------------------------
+      // The result of VTALU A is the operand of B. It is a dependency BETWEEN
+      // interfaces: the second one cannot even start being built until the
+      // first one answered.
       primera.A  = 8'h0F;
       primera.B  = 8'h07;
       primera.op = mul_op;
@@ -13190,7 +13390,7 @@ testbench no cubre.
 
 #### *Inmediatas y concurrentes: la que ya conocen y la nueva*
 
-```sv
+```systemverilog
 // INMEDIATA: es una SENTENCIA. Corre cuando el hilo pasa por ahí,
 // una vez, y nada más. La de las transactions es de esta familia.
 assert (cmd.op inside {add_op, sub_op, and_op, xor_op, mul_op})
@@ -13228,7 +13428,7 @@ misma palabra clave para dos cosas distintas.
 
 #### *Anatomía de una property*
 
-```sv
+```systemverilog
 a_done_llega :                      // <- el label: NO es opcional
 assert property (
    @(posedge clk)                   // <- el reloj: cuando se muestrea
@@ -13265,7 +13465,7 @@ positivos genera.
 
 #### *`|->` contra `|=>`, el error número uno*
 
-```sv
+```systemverilog
 // |->  overlapping: el consecuente empieza en EL MISMO flanco
 a : assert property (@(posedge clk) start |-> !done);
 
@@ -13306,7 +13506,7 @@ chequeo del chequeo.
 
 #### *Mirar el pasado: `$rose`, `$fell`, `$stable`, `$past`*
 
-```sv
+```systemverilog
 $rose(start)      // 0 -> 1 entre el flanco anterior y este
 $fell(done)       // 1 -> 0
 $stable(A)        // el valor es el mismo que en el flanco anterior
@@ -13358,8 +13558,8 @@ flujo: `$past` con el argumento de reloj explícito no lo soporta Verilator
                  "%m: operand changed with start up: A=%0d B=%0d op=%s", A, B, op2enum().name()))
 ```
 
-- Es **la regla de la slide 1 del día 1**: mientras `start` está arriba, los
-  operandos no se tocan. Estuvo escrita en prosa seis días
+- Es **la regla de *La spec del VTALU*, el día 1**: mientras `start` está arriba,
+  los operandos no se tocan. Estuvo escrita en prosa seis días
 - Once líneas, y chequean cada transacción de cada test, en los dos agents, sin
   que nadie las conecte a nada
 - El scoreboard **no puede** escribir esta regla: para cuando la transaction le
@@ -13367,10 +13567,10 @@ flujo: `$past` con el argumento de reloj explícito no lo soporta Verilator
 
 Note:
 Éste es el momento para volver a la slide de la spec y leerla textualmente.
-La distancia entre *"los operandos deben permanecer estables mientras `start`
-está activo"* y la línea de SVA que está en pantalla es casi cero — y ése es todo
-el argumento de por qué las assertions se escriben temprano y no al final: la
-especificación **ya está escrita**, sólo hay que traducirla.
+La distancia entre *"start debe permanecer en 1 y los operandos estables hasta
+que termina la operación"* y la línea de SVA que está en pantalla es casi cero —
+y ése es todo el argumento de por qué las assertions se escriben temprano y no al
+final: la especificación **ya está escrita**, sólo hay que traducirla.
 El `$stable(op_set)` del final es el que suele faltar y es el que caza el bug más
 feo: cambiar la operación a mitad de transacción es legal para el compilador,
 ilegal para el DUT y transparente para el scoreboard.
@@ -13514,7 +13714,7 @@ la slide anterior: `done` sale de un `always_ff`.
 
 #### *`disable iff` y el reset*
 
-```sv
+```systemverilog
 default disable iff (!reset_n);   // una vez, para toda la interface
 
 property p;
@@ -13622,8 +13822,8 @@ está en cero, el `bind` no llegó.
 
 #### *La integración con UVM: el `else` que hace que cuente*
 
-```sv
-// El default de SystemVerilog: MATA la simulacion en la primera falla
+```systemverilog
+// El default: $error, y en Verilator ademas $stop — se corta en la primera falla
 a : assert property (p);
 
 // Lo que se quiere en UVM: la falla cuenta y la simulacion sigue
@@ -13922,9 +14122,9 @@ existiera este testbench.
 
 **¿Cuál es la diferencia de fondo entre `assert(x.randomize())` y `assert property (@(posedge clk) …)`?**
 
+- [x] Una es una **sentencia**; la otra, una **declaración con reloj**
 - [ ] Ninguna: la segunda es azúcar sintáctico de la primera
 - [ ] La primera se puede apagar por línea de comandos y la segunda no
-- [x] Una es una **sentencia**; la otra, una **declaración con reloj**
 - [ ] La primera sólo vale adentro de una clase y la segunda sólo adentro de un módulo, por el scheduler
 
 > **Sentencia contra declaración** — la inmediata corre cuando el hilo pasa por ahí; la concurrente se evalúa sola, en cada flanco de su reloj. Es a un `if` lo que la concurrente es a un `always_ff`: una se ejecuta, la otra se instancia. Por eso sólo la concurrente puede describir algo que dura varios ciclos.
@@ -13958,8 +14158,8 @@ existiera este testbench.
 
 - [ ] Falta el `disable iff (!reset_n)`
 - [ ] El `posedge` es demasiado rápido: hay que dividir el reloj
-- [x] El estímulo se escribe en el `negedge` y el muestreo no lo ve
 - [ ] Los covergroups y las assertions no pueden compartir el reloj sin un `clocking block`
+- [x] El estímulo se escribe en el `negedge` y el muestreo no lo ve
 
 > **Una assertion vale lo que vale su muestreo** — la BFM escribe el estímulo en el `negedge`, y en dos `no_op` seguidas `start` baja y vuelve a subir entre dos `posedge`: el muestreo no lo ve bajar. El estímulo se muestrea donde el estímulo se escribe. Estímulo en `negedge`, respuesta del DUT en `posedge`: cero errores. Con un solo reloj no hay forma.
 
@@ -13973,9 +14173,9 @@ existiera este testbench.
 
 **Una property `assert` reporta 0 fallas durante toda la regresión. ¿Qué se sabe?**
 
+- [x] Nada todavía: puede que nunca se haya evaluado
 - [ ] Que la regla que describe se cumple
 - [ ] Que el DUT está libre de bugs de protocolo
-- [x] Nada todavía: puede que nunca se haya evaluado
 - [ ] Que la property tiene un `disable iff` mal escrito y quedó apagada todo el tiempo
 
 > **Cero fallas y cero evaluaciones se ven igual** — puede que su antecedente no haya ocurrido nunca, o que falte `--assert` y ni siquiera se esté evaluando. Por eso toda assertion va con su `cover property`: es el único chequeo del chequeo. En la sección, `c_mult_3ciclos` se queda en 0 y delata que la latencia real son cuatro flancos, no tres.
@@ -14168,7 +14368,7 @@ assertion dispara sobre el DUT sano. Esa regla es un `cover`, no un `assert`.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- .slide: id="apendice-bus" data-machete="res/diagrams/sequences_tb_completo.svg,res/diagrams/agents_agent.svg" -->
+<!-- .slide: id="apendice-bus" data-machete="res/diagrams/sequences_tb_completo.svg|El testbench completo: la nube de sequences · el agent con sequencer y driver · y la capa de análisis en el env,res/diagrams/agents_agent.svg|Estructura interna de un uvm_agent: sequencer · driver · monitores y los analysis ports que expone" -->
 
 ## Apéndice · De la VTALU a un bus real
 
@@ -14330,7 +14530,7 @@ que es exactamente lo que practicaron en los ejercicios de los días 3 y 6.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- .slide: id="apendice-debug" data-machete="res/machete-debug.svg" -->
+<!-- .slide: id="apendice-debug" data-machete="res/machete-debug.svg|Machete de debug: las siete perillas del curso y qué mirar según el síntoma" -->
 
 ## Apéndice · La caja de herramientas de debug
 
@@ -14581,7 +14781,7 @@ material largo está en `docs/clocking-blocks.md`.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- .slide: id="glosario" data-machete="res/uvm_class_diagram.svg,res/diagrams/sequences_tb_completo.svg" -->
+<!-- .slide: id="glosario" data-machete="res/uvm_class_diagram.svg|Jerarquía de clases base de UVM,res/diagrams/sequences_tb_completo.svg|El testbench completo: la nube de sequences · el agent con sequencer y driver · y la capa de análisis en el env" -->
 
 ## Glosario · ES → EN
 
@@ -14648,8 +14848,9 @@ sirve de repaso rápido antes de una entrevista.
 Las dos filas que más se confunden son *sequence* y *sequencer*, y la forma de no
 errarle es la del día 6: el que termina en **-er** es el **componente** —está en
 el árbol, tiene fases—; el otro es el objeto que se crea, corre y se tira. Lo
-mismo vale para *driver* y *monitor*: todos los que terminan en -er/-or son
-componentes.
+mismo vale para *driver* y *monitor*. La regla es de las piezas del árbol y no
+del sufijo: las *policies* de UVM —`uvm_printer`, `uvm_comparer`, `uvm_packer`,
+`uvm_recorder`— y el `uvm_report_catcher` terminan igual y son objects.
 Y la primera fila es la que más cuesta y la que más cara sale: *handle*. Si el
 alumno se lleva una sola palabra de este glosario, que sea que un handle no es un
 objeto.
@@ -14716,8 +14917,8 @@ distintas con dos números muy distintos.
 - **2024 Siemens EDA / Wilson Research Group Functional Verification Study**.
   Fuente de los **datos** de Tendencias. Los gráficos son propios: se generan
   con `make figs` desde `res/trends/data.json`.
-- **Sobre RAL**: el capítulo *Register Layer* del **UVM 1.2 User Guide** de
-  Accellera es la explicación larga, y la tabla de los veinticinco accesos de
+- **Sobre RAL**: el capítulo *Using the Register Layer Classes* del **UVM 1.2
+  User’s Guide** de Accellera es la explicación larga, y la tabla de los veinticinco accesos de
   campo —`RW`, `WOC`, `W1C`…— está en el **IEEE 1800.2**, en `uvm_reg_field`. Lo
   que la unidad no usa vive en el mismo lugar: `add_hdl_path` para el backdoor,
   y **IP-XACT** (IEEE 1685) o **SystemRDL** (Accellera) para generar el modelo en
@@ -14725,7 +14926,7 @@ distintas con dos números muy distintos.
 - **Sobre los clocking blocks**, que es la discusión más viva del curso: los
   hilos de **Dave Rich** en Verification Academy (2014, 2022 y 2024), su paper
   *The Missing Link: The Testbench to DUT Connection*, y el **DV Coding Style
-  Guide de lowRISC/OpenTitan**, que los hace obligatorios. El resumen, con los
+  Guide de lowRISC/OpenTitan**, que los prescribe como regla. El resumen, con los
   links y las citas, en **`docs/clocking-blocks.md`**.
 
 Note:
@@ -14858,8 +15059,9 @@ aprendan sin que les suene a chino.
 - Y si te trabás: **[Discussions](https://github.com/leandrotozzi/verifythis/discussions)**,
   con una categoría por día. Un ejemplo que no corre o una explicación que no se
   entiende son **issues del curso**, no problemas tuyos
-- Y si querés seguir acá mismo: el **día 8** es opcional y arranca en la slide
-  que sigue — RAL, el modelo de referencia en C, y un segundo capstone
+- Y si querés seguir acá mismo: el **día 8** es opcional y arranca después de la
+  autoevaluación y de *El lunes* — RAL, el modelo de referencia en C, y un
+  segundo capstone
 
 Note:
 **RAL salió de esta tabla y ahora es la unidad 9**, opcional, con el ejemplo que
@@ -14981,6 +15183,48 @@ quince y no lo termina no terminó el curso.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
+<!-- .slide: id="fin" -->
+
+## El lunes
+
+#### *Qué hacer con esto cuando se apaga la pantalla*
+
+- **Lo primero: un testbench propio andando.** El capstone es el mínimo. Si ya
+  está entregado, el que sigue es un DUT tuyo — el del trabajo, el de la tesis,
+  el que sea. Un curso terminado no prueba nada; un testbench sí
+- **Guardá dos páginas y tirá el resto:** el machete de una carilla y *Las 21
+  trampas mudas*. Son las dos que se abren con el simulador corriendo
+- **Si te trabás, preguntá acá:**
+  [Discussions](https://github.com/leandrotozzi/verifythis/discussions) tiene una
+  categoría por día. Un ejemplo que no corre es un **issue del curso**
+- **Y si algo te resultó confuso, arreglalo.** Es CC BY 4.0 y el repo está
+  entero: las slides, los ejemplos, los correctores y los linters. Un PR que
+  aclara una slide vale tanto como uno que agrega una sección
+
+*Gracias por llegar hasta acá.*
+
+Note:
+La última slide del curso, y conviene que sea corta y en imperativo: después de
+siete días nadie se lleva una idea nueva más, pero sí se lleva una instrucción.
+La instrucción es la primera línea, y vale decirla mirando a la cámara o al
+grupo: **lo único que prueba que alguien sabe hacer esto es un testbench propio
+andando**. No el capstone corregido, no las quince filas de la autoevaluación en
+verde: uno propio, sobre un DUT que nadie preparó para ser fácil.
+El segundo bullet es el consejo más práctico de la slide y el que más se
+agradece a los seis meses. De todo lo que se imprimió esta semana, lo que se
+vuelve a abrir son dos páginas: el machete —`docs/machete-uvm.pdf`, una carilla,
+A4— y la tabla de trampas mudas, que está escrita para buscar por síntoma y no
+para leer.
+Y la invitación del cuarto no es cortesía. El curso mejora por donde alguien se
+tropieza: la mitad de las notas del presentador existen porque alguien preguntó
+lo mismo dos veces. Si se dicta en clase, cerrar pidiendo explícitamente las tres
+cosas que no se entendieron — y anotarlas antes de que el grupo se vaya.
+        </textarea>
+      </section>
+      <!-- 176-the-end.md -->
+
+      <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
+        <textarea data-template>
 <!-- .slide: id="day8" -->
 
 ## Ayer quedó…
@@ -15007,7 +15251,7 @@ del primero. Sin el capstone hecho, las tres son abstracciones sin problema.
 
 ---
 
-<!-- .slide: data-machete="res/uvm_class_diagram.svg,res/diagrams/ral_camino.svg,res/diagrams/sequences_tb_completo.svg" -->
+<!-- .slide: data-machete="res/uvm_class_diagram.svg|Jerarquía de clases base de UVM,res/diagrams/ral_camino.svg|El camino de datos de RAL: del write del modelo al bus · y del monitor al espejo por el predictor,res/diagrams/sequences_tb_completo.svg|El testbench completo: la nube de sequences · el agent con sequencer y driver · y la capa de análisis en el env" -->
 
 ## Agenda
 
@@ -15176,6 +15420,8 @@ malos que uno se cruza son un campo `RW` con parches encima.
 #### *El adapter: lo único que sabe que hay un APB*
 
 ```sv
+   // Downstream: the model asks for a register access, this builds the bus item
+   // the sequencer will hand to the driver.
    virtual function uvm_sequence_item reg2bus(const ref uvm_reg_bus_op rw);
       apb_transaction t = apb_transaction::type_id::create("t");
       t.write = (rw.kind == UVM_WRITE);
@@ -15330,6 +15576,9 @@ decorativa: el modelo cree lo que el test quiso mandar, no lo que pasó.
 #### *El estímulo, sin un solo `PADDR`*
 
 ```sv
+      // --- the frontdoor -----------------------------------------------------
+      // write() puts the value on the wire through the sequencer. There is no
+      // second argument for the address: the address is in the map.
       model.CTRL.write(status, 'h1);              // EN = 1
       model.CTRL.read(status, data);
       `uvm_info("RAL", $sformatf("CTRL read back 0x%08h (status %s)", data, status.name()),
@@ -15458,6 +15707,13 @@ la etapa 1 del ejercicio imprime el mapa para compararlo a mano.
 #### *Lo que RAL no hace, y hay que decirlo*
 
 ```sv
+      // The honest line of the whole unit. ACC and STATUS have an address, but
+      // they are not registers: their value is produced by writes to OTHER
+      // addresses. A register model predicts "what I wrote is what I will read",
+      // and for these two that sentence is false, so mirror(UVM_CHECK) is turned
+      // off on them. Reads still update the mirror -- a read is a prediction --
+      // and the accumulator itself stays where it was in the capstone: in the
+      // scoreboard, which is the thing that does know how to add.
       ACC.VALUE.set_compare(UVM_NO_CHECK);
       STATUS.EN.set_compare(UVM_NO_CHECK);
       STATUS.OVF.set_compare(UVM_NO_CHECK);
@@ -15527,7 +15783,7 @@ la pantalla.
 
 #### *Modelar el mapa de registros*
 
-`cd code/ejercicios/d8-ral && cat README.md`
+`cd code/ejercicios/d8-ral && cat README.es.md`
 <!-- .element: class="comando" -->
 
 - Es **literalmente** lo primero que te piden en un proyecto con registros: te
@@ -15545,7 +15801,7 @@ las primeras semanas de un proyecto. Cuarenta líneas, y la mitad son copiar y
 pegar el patrón de `CTRL`.
 La etapa que enseña es la 1, y por una razón de método: el modelo se **imprime**
 —`+UVM_TESTNAME=mapa_test`— y se compara línea por línea contra la tabla de
-`spec.md`, antes de simular nada. Es lo que hay que hacer con un modelo de
+registros del README del ejercicio, antes de simular nada. Es lo que hay que hacer con un modelo de
 registros de verdad, donde el error típico no es de UVM sino un offset copiado
 mal de una planilla de 200 filas.
 La etapa 2 es donde cae `CLR`: el que lo declaró `RW` pasa la etapa 1 sin
@@ -15617,7 +15873,10 @@ archivo más en la línea de comandos y no hay nada que configurar.
    import "DPI-C" function void vtalu_golden_bug(input int on);
 ```
 
-```plaintext
+```c
+/* op, a and b arrive as SystemVerilog `int` (32-bit signed). The result goes
+ * back as the return value and the borrow through a pointer, which is how an
+ * `output int` argument crosses the boundary. */
 int vtalu_golden(int op, int a, int b, int *ovf) {
    int r;
 
@@ -15783,8 +16042,8 @@ que sí la justifica, y ese DUT llega antes de lo que uno cree.
 
 **¿Qué cambia entre `set_auto_predict(1)` y enganchar un `uvm_reg_predictor` al monitor?**
 
-- [ ] Nada: el predictor es la implementación interna del auto-predict
 - [x] Con auto-predict el modelo cree lo que **quiso** mandar, no lo que pasó
+- [ ] Nada: el predictor es la implementación interna del auto-predict
 - [ ] El predictor es más rápido: no arma la transaction del bus
 - [ ] El auto-predict sólo sirve para el frontdoor, y el predictor también para el backdoor
 
@@ -15800,8 +16059,8 @@ que sí la justifica, y ese DUT llega antes de lo que uno cree.
 
 **`STATUS` cambia solo, sin que nadie le escriba. ¿Qué querés decir al declararlo `volatile` en `configure()`?**
 
-- [ ] Que UVM lo va a releer del DUT antes de cada comparación, para no equivocarse
 - [x] Que el espejo no es evidencia: el valor pudo cambiar sin pasar por el bus
+- [ ] Que UVM lo va a releer del DUT antes de cada comparación, para no equivocarse
 - [ ] Que el campo queda fuera del mapa y deja de tener dirección
 - [ ] Que hay que leerlo por backdoor, porque el frontdoor no llega a tiempo
 
@@ -15818,9 +16077,9 @@ que sí la justifica, y ese DUT llega antes de lo que uno cree.
 **`model.CTRL.read(status, data)` y `model.CTRL.mirror(status, UVM_CHECK)`. ¿En qué se diferencian?**
 
 - [ ] `read` va por el bus y `mirror` se queda en el espejo, sin generar una transferencia
-- [x] Las dos leen del DUT; `mirror` además compara contra lo que el modelo creía
 - [ ] `mirror` escribe el espejo en el DUT, para dejar a los dos iguales
 - [ ] `read` actualiza el espejo y `mirror` no lo toca, para no tapar un error
+- [x] Las dos leen del DUT; `mirror` además compara contra lo que el modelo creía
 
 > **`mirror` es un scoreboard de registros en una palabra** — las dos leen del DUT; la diferencia es que `mirror` compara contra lo que el modelo creía **antes** de la lectura, y si no coincide reporta un `uvm_error` sin que nadie escriba un chequeo. Y una lectura *es* una predicción: las dos actualizan el espejo después.
 
@@ -15887,8 +16146,8 @@ que sí la justifica, y ese DUT llega antes de lo que uno cree.
 
 - [ ] Sí: mil comparaciones sin una sola diferencia es la definición de verificado
 - [ ] Sí, siempre que además la cobertura funcional haya cerrado al 100 %
-- [x] No: un scoreboard que nunca vio un error no está probado
 - [ ] No, porque los dos lados comparten el `enum` de opcodes y se anulan entre sí
+- [x] No: un scoreboard que nunca vio un error no está probado
 
 > **Hay que romper el modelo a propósito** — `vtalu_golden_bug(1)` muta la multiplicación y el `run.sh` exige que el scoreboard grite. Si no grita, el testbench está comparando contra sí mismo y nadie se iba a enterar: es el mismo test de mutación que el corrector del capstone hace con `+BUG=1`, del otro lado del cable. Y el `enum` duplicado es real pero es otro síntoma: si fallan **todas** las comparaciones a la vez, es el mapeo; si falla una de cada seis, es el DUT.
         </textarea>
@@ -15975,48 +16234,6 @@ apareciendo donde nadie lo esperaba.
         </textarea>
       </section>
       <!-- 183-ejercicio-day8-fifo.md -->
-
-      <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
-        <textarea data-template>
-<!-- .slide: id="fin" -->
-
-## El lunes
-
-#### *Qué hacer con esto cuando se apaga la pantalla*
-
-- **Lo primero: un testbench propio andando.** El capstone es el mínimo. Si ya
-  está entregado, el que sigue es un DUT tuyo — el del trabajo, el de la tesis,
-  el que sea. Un curso terminado no prueba nada; un testbench sí
-- **Guardá dos páginas y tirá el resto:** el machete de una carilla y *Las 21
-  trampas mudas*. Son las dos que se abren con el simulador corriendo
-- **Si te trabás, preguntá acá:**
-  [Discussions](https://github.com/leandrotozzi/verifythis/discussions) tiene una
-  categoría por día. Un ejemplo que no corre es un **issue del curso**
-- **Y si algo te resultó confuso, arreglalo.** Es CC BY 4.0 y el repo está
-  entero: las slides, los ejemplos, los correctores y los linters. Un PR que
-  aclara una slide vale tanto como uno que agrega una sección
-
-*Gracias por llegar hasta acá.*
-
-Note:
-La última slide del curso, y conviene que sea corta y en imperativo: después de
-siete días nadie se lleva una idea nueva más, pero sí se lleva una instrucción.
-La instrucción es la primera línea, y vale decirla mirando a la cámara o al
-grupo: **lo único que prueba que alguien sabe hacer esto es un testbench propio
-andando**. No el capstone corregido, no las quince filas de la autoevaluación en
-verde: uno propio, sobre un DUT que nadie preparó para ser fácil.
-El segundo bullet es el consejo más práctico de la slide y el que más se
-agradece a los seis meses. De todo lo que se imprimió esta semana, lo que se
-vuelve a abrir son dos páginas: el machete —`docs/machete-uvm.pdf`, una carilla,
-A4— y la tabla de trampas mudas, que está escrita para buscar por síntoma y no
-para leer.
-Y la invitación del cuarto no es cortesía. El curso mejora por donde alguien se
-tropieza: la mitad de las notas del presentador existen porque alguien preguntó
-lo mismo dos veces. Si se dicta en clase, cerrar pidiendo explícitamente las tres
-cosas que no se entendieron — y anotarlas antes de que el grupo se vaya.
-        </textarea>
-      </section>
-      <!-- 190-the-end.md -->
     </div>
   </div>
 
@@ -16127,17 +16344,17 @@ cosas que no se entendieron — y anotarlas antes de que el grupo se vaya.
           <li><a href="#/406" data-h="406"><span>Referencias</span><span class="ind-n">407</span></a></li>
           <li><a href="#/409" data-h="409"><span>Hasta acá llegamos</span><span class="ind-n">410</span></a></li>
           <li><a href="#/411" data-h="411"><span>Autoevaluación</span><span class="ind-n">412</span></a></li>
+          <li><a href="#/414" data-h="414"><span>El lunes</span><span class="ind-n">415</span></a></li>
         </ul>
         <h3 class="ind-grupo">Día 8 · opcional</h3>
         <ul>
-          <li><a href="#/414" data-h="414"><span>Ayer quedó…</span><span class="ind-n">415</span></a></li>
-          <li><a href="#/416" data-h="416"><span>RAL</span><span class="ind-n">417</span></a></li>
-          <li><a href="#/428" data-h="428"><span>Ejercicio · Día 8 · 1 de 2</span><span class="ind-n">429</span></a></li>
-          <li><a href="#/429" data-h="429"><span>El modelo de referencia en C</span><span class="ind-n">430</span></a></li>
-          <li><a href="#/433" data-h="433"><span>Repaso · Día 8</span><span class="ind-n">434</span></a></li>
-          <li><a href="#/441" data-h="441"><span>Ejercicio · Día 8 · 2 de 2</span><span class="ind-n">442</span></a></li>
-          <li><a href="#/442" data-h="442"><span>Capstone 2 · Día 8</span><span class="ind-n">443</span></a></li>
-          <li><a href="#/443" data-h="443"><span>El lunes</span><span class="ind-n">444</span></a></li>
+          <li><a href="#/415" data-h="415"><span>Ayer quedó…</span><span class="ind-n">416</span></a></li>
+          <li><a href="#/417" data-h="417"><span>RAL</span><span class="ind-n">418</span></a></li>
+          <li><a href="#/429" data-h="429"><span>Ejercicio · Día 8 · 1 de 2</span><span class="ind-n">430</span></a></li>
+          <li><a href="#/430" data-h="430"><span>El modelo de referencia en C</span><span class="ind-n">431</span></a></li>
+          <li><a href="#/434" data-h="434"><span>Repaso · Día 8</span><span class="ind-n">435</span></a></li>
+          <li><a href="#/442" data-h="442"><span>Ejercicio · Día 8 · 2 de 2</span><span class="ind-n">443</span></a></li>
+          <li><a href="#/443" data-h="443"><span>Capstone 2 · Día 8</span><span class="ind-n">444</span></a></li>
         </ul>
     </nav>
   </dialog>
@@ -16281,7 +16498,7 @@ cosas que no se entendieron — y anotarlas antes de que el grupo se vaya.
       // escribe esa coordenada en la URL y el de llegada la resuelve con SU
       // propio mapa: si todavia no tradujo esa seccion, avisa y arranca de
       // cero en vez de aterrizar en cualquier lado.
-      const SECCIONES = [["000-verify-this",1],["002-como-usar",2],["005-agenda-day1",1],["007-el-gancho",1],["010-tendencias",5],["015-introduccion",6],["020-spec-vtalu",8],["021-plan-de-verificacion",3],["025-testbench-convencional",5],["026-cobertura-funcional",13],["030-interfaces-bfm",13],["042-quiz-day1",7],["043-ejercicio-day1",1],["044-ejercicio-day1b",1],["045-agenda-day2",2],["046-clases-y-extensiones",6],["047-polimorfismo",7],["050-variables-estaticas",5],["055-clases-parametricas",5],["060-factory",6],["065-tb-en-objetos",9],["067-quiz-day2",8],["068-ejercicio-day2",1],["070-agenda-day3",2],["075-tests",12],["080-components",10],["085-env",17],["088-reporting",14],["092-quiz-day3",7],["093-ejercicio-day3",1],["093b-ejercicio-day3b",1],["095-agenda-day4",2],["100-varios-objetos",16],["105-analysis-ports",13],["110-threads",13],["115-put-get",7],["117-quiz-day4",5],["118-ejercicio-day4",1],["118b-ejercicio-day4b",1],["120-agenda-day5",2],["130-jerarquias",10],["135-transactions",20],["136-constrained-random",14],["137-quiz-day5",8],["138-ejercicio-day5",1],["139-ejercicio-day5b",1],["139b-ejercicio-day5c",1],["140-agenda-day6",2],["145-agents",19],["146-callbacks",5],["150-sequences",21],["151-quiz-day6",10],["152-ejercicio-day6-agents",1],["153-ejercicio-day6-sequences",1],["153d-ejercicio-day6-debug",1],["159-agenda-day7",2],["159a-ejercicio-day7-semillas",1],["159b-sequences-virtuales",5],["160-assertions",19],["161-ejercicio-day7-sva",1],["162-quiz-day7",5],["163-ejercicio-day7-capstone",4],["170-de-la-vtalu-a-un-bus",4],["171-apendice-debug",2],["172-apendice-trampas",5],["173-glosario",3],["174-referencias",3],["175-cierre",2],["175b-autoevaluacion",3],["179-agenda-day8",2],["180-ral",12],["181-ejercicio-day8-ral",1],["182-dpi",4],["182b-quiz-day8",8],["182c-ejercicio-day8-dpi",1],["183-ejercicio-day8-fifo",1],["190-the-end",1]];
+      const SECCIONES = [["000-verify-this",1],["002-como-usar",2],["005-agenda-day1",1],["007-el-gancho",1],["010-tendencias",5],["015-introduccion",6],["020-spec-vtalu",8],["021-plan-de-verificacion",3],["025-testbench-convencional",5],["026-cobertura-funcional",13],["030-interfaces-bfm",13],["042-quiz-day1",7],["043-ejercicio-day1",1],["044-ejercicio-day1b",1],["045-agenda-day2",2],["046-clases-y-extensiones",6],["047-polimorfismo",7],["050-variables-estaticas",5],["055-clases-parametricas",5],["060-factory",6],["065-tb-en-objetos",9],["067-quiz-day2",8],["068-ejercicio-day2",1],["070-agenda-day3",2],["075-tests",12],["080-components",10],["085-env",17],["088-reporting",14],["092-quiz-day3",7],["093-ejercicio-day3",1],["093b-ejercicio-day3b",1],["095-agenda-day4",2],["100-varios-objetos",16],["105-analysis-ports",13],["110-threads",13],["115-put-get",7],["117-quiz-day4",5],["118-ejercicio-day4",1],["118b-ejercicio-day4b",1],["120-agenda-day5",2],["130-jerarquias",10],["135-transactions",20],["136-constrained-random",14],["137-quiz-day5",8],["138-ejercicio-day5",1],["139-ejercicio-day5b",1],["139b-ejercicio-day5c",1],["140-agenda-day6",2],["145-agents",19],["146-callbacks",5],["150-sequences",21],["151-quiz-day6",10],["152-ejercicio-day6-agents",1],["153-ejercicio-day6-sequences",1],["153d-ejercicio-day6-debug",1],["159-agenda-day7",2],["159a-ejercicio-day7-semillas",1],["159b-sequences-virtuales",5],["160-assertions",19],["161-ejercicio-day7-sva",1],["162-quiz-day7",5],["163-ejercicio-day7-capstone",4],["170-de-la-vtalu-a-un-bus",4],["171-apendice-debug",2],["172-apendice-trampas",5],["173-glosario",3],["174-referencias",3],["175-cierre",2],["175b-autoevaluacion",3],["176-the-end",1],["179-agenda-day8",2],["180-ral",12],["181-ejercicio-day8-ral",1],["182-dpi",4],["182b-quiz-day8",8],["182c-ejercicio-day8-dpi",1],["183-ejercicio-day8-fifo",1]];
       const coordDe = h => {
         let base = 0;
         for (const [f, n] of SECCIONES) {
@@ -16356,8 +16573,18 @@ cosas que no se entendieron — y anotarlas antes de que el grupo se vaya.
         // no en el reescribido de rutas de build.mjs porque data-machete es una
         // LISTA separada por comas: el regex de src="/href=" solo alcanzaria la
         // primera. Aca la lista ya viene partida.
-        box.innerHTML = dm.split(',').filter(Boolean)
-          .map(src => `<img class="imagen" src="${src.trim()}" alt="">`).join('');
+        // Cada entrada es "ruta|alt": el alt lo escribe la slide, y sin el la
+        // figura del machete es una figura que el lector de pantalla saltea --
+        // en un curso donde el diagrama ES la explicacion, la slide entera.
+        // Se parte solo en la coma que abre una ruta nueva: el alt lleva comas
+        // adentro y con split(',') a secas sus pedazos salian como <img> rotos.
+        box.innerHTML = dm.split(/,(?=\s*res\/)/).filter(Boolean)
+          .map(e => {
+            const [ruta, alt = ''] = e.split('|');
+            const esc = s => s.trim().replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+                              .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return `<img class="imagen" src="${ruta.trim()}" alt="${esc(alt)}">`;
+          }).join('');
       };
       Reveal.on('slidechanged', paint);
       paint();

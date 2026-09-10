@@ -9,7 +9,7 @@
   que el curso da por sabido es **SystemVerilog**: si venís de VHDL o de
   Verilog-2001, media hora con
   **`docs/systemverilog-para-el-que-viene-de-vhdl.md`** antes de empezar
-- Son **siete días de clase**, de 4 a 5 horas y media — **≈ 30 h 30**, y cada
+- Son **siete días de clase**, de 4 a 5 horas y cuarto — **≈ 31 h**, y cada
   agenda trae el suyo. Y un **día 8 opcional**, después del cierre. Solo,
   calculá el doble: la mitad se va en correr los ejemplos, y ésa es la que enseña
 - <kbd>s</kbd> abre las **notas del presentador** en otra ventana ·
@@ -17,7 +17,8 @@
   instructor diría en voz alta: la trampa clásica, el porqué del número, el
   error que comete todo el mundo la primera vez. **No las saltees**
 - Cada día cierra con un **repaso** de opciones clickeables y con un
-  **ejercicio que se corrige solo**: `cd code/ejercicios/dN && bash run.sh`
+  **ejercicio que se corrige solo**: `cd code/ejercicios/d1 && bash run.sh`. Los
+  nombres de los otros dieciocho están en `code/ejercicios/README.es.md`
 
 Note:
 Si estás dictando el curso, estas dos slides se saltean con la tecla 1.

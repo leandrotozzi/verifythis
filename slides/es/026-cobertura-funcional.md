@@ -198,6 +198,11 @@ El error de escala que hay que anticipar: en un DUT real un cross de tres
 coverpoints con bins automáticos son miles de casilleros, y una regresión no los
 llena nunca. Cuando alguien dice "la cobertura no sube", en la mitad de los casos
 el problema es un cross sin filtrar, no un test que falta.
+Y el número que hay que tener a mano para la slide "Leer el número": los 45 son
+la cuenta del LRM, un bin por miembro del enum. **Verilator mide 54**, porque
+reparte los bins automáticos por el tipo base (`bit [2:0]`, 8 valores menos los
+2 de `ignore_bins`, o sea 3 × 3 × 6). Los 9 de más son el `3'b110` cruzado, y son
+exactamente los 9 que quedan en cero.
 
 ---
 
@@ -229,9 +234,10 @@ vale por ser el máximo del espacio de entrada, no por desbordar. La única
 operación que desborda es la resta, y sólo cuando A < B.
 La honestidad de esta slide es parte del curso, así que conviene decirla y no
 pasarla rápido: el 86,8 % que reporta el ejemplo **no es** el número que daría
-Questa. Verilator ignora el filtro y mide el cross entero —los 45, y además le
-suma un valor que el enum no tiene; la slide "Leer el número" dice cuál—, así
-que el porcentaje sale más bajo y por un motivo que no es del testbench. Está
+Questa. Verilator ignora el filtro y mide el cross entero, y además le suma un
+valor que el enum no tiene: donde el LRM cuenta 45, Verilator cuenta **54** (los
+9 de más son el `3'b110` cruzado, y son los 9 que quedan en cero). Por eso el
+porcentaje sale más bajo, y por un motivo que no es del testbench. Está
 escrito, fechado y con versión en `docs/verilator.md`.
 La pregunta útil para el aula: ¿eso invalida el ejercicio? No. Lo que se aprende
 —escribir el cross, filtrarlo, y saber qué bin corresponde a qué fila del plan—
@@ -323,8 +329,10 @@ Coverage Summary:
   covergroup : 86.8% (66/76)
 ```
 
-- 66 de 76 bins llenos, con 1000 operaciones al azar. Las otras filas del
-  resumen salen `0/0`: `--coverage-user` deja afuera la cobertura de código
+- 66 de 76 bins llenos, con **1000 randomizaciones** y **615 operaciones al bus**
+  —el `no_op` y el `rst_op` se sortean y no se envían, y el testbench lo imprime
+  dos líneas arriba de este resumen—. Las otras filas salen `0/0`:
+  `--coverage-user` deja afuera la cobertura de código
 - Los 10 que faltan son **un solo valor**: `all_ops.auto_5` y sus nueve cruces.
   Es `3'b110`, que el enum **no tiene** — Verilator reparte los bins
   automáticos por el tipo de base, `bit [2:0]`, y no por miembro del enum

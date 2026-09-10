@@ -64,7 +64,7 @@ herramienta comercial:
 |---|---|
 | bins de transicion (`=>`, `[* n]`) | Internal Error, no compila |
 | `binsof` / `intersect` / bins explicitos de cross | `%Warning-COVERIGN`, los ignora y sigue |
-| bins automaticos de un `enum` | uno por valor del **tipo base** y no por miembro: `operation_t` es `bit [2:0]`, y el `3'b110` que el enum no tiene sale como `auto_5` y queda en 0 para siempre. De ahi el 86.8 % de arriba: los 10 bins que faltan son ese valor y sus 9 cruces |
+| bins automaticos de un `enum` | uno por valor del **tipo base** y no por miembro: `operation_t` es `bit [2:0]`, y el `3'b110` que el enum no tiene sale como `auto_5` y queda en 0 para siempre. De ahi el 86,8 % de arriba: los 10 bins que faltan son ese valor y sus 9 cruces |
 | `option.at_least` en el **covergroup** | lo ignora **sin avisar**: los coverpoints siguen contando con un hit |
 | `option.weight` | `%Warning-COVERIGN`, lo ignora y sigue |
 | `ignore_bins` | los respeta al filtrar, pero **emite un bin por cada uno y lo cuenta como cubierto**: en `u2/convencional` son `all_ops.null_ops` (664 hits) y `borrow.resto` (2156). Una herramienta compatible no los reportaria |

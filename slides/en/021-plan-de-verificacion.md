@@ -1,4 +1,4 @@
-<!-- es-sha: f2e4b8bf2793 -->
+<!-- es-sha: 6470e3766d2e -->
 ## The verification plan
 
 #### *The most professional deliverable of the discipline, and the cheapest*
@@ -16,7 +16,7 @@ covergroups, the assertions— are columns of this table.
 It is worth saying it head on: the plan is not bureaucracy. It is the only serious
 answer to *"are you done verifying yet?"*, and it is the first thing a technical
 lead asks for when they ask how the block is going.
-The empty template is in `docs/plan-de-verificacion.md`, and it gets used twice in
+The empty template is in `docs/en/verification-plan.md`, and it gets used twice in
 the course: here to read it, and on day 7 to fill it from scratch.
 
 ---
@@ -37,8 +37,8 @@ the course: here to read it, and on day 7 to fill it from scratch.
   is three rows, and they get closed one at a time
 
 Note:
-It is worth reading the right-hand column out loud: they are the four mistakes people
-make the first time, and all four sound reasonable when you write them.
+It is worth reading the right-hand column out loud: they are the five mistakes people
+make the first time, and all five sound reasonable when you write them.
 The hardest column is the measure one, because it forces you to decide *beforehand* what
 you are going to count. It is the one that on day 1 still cannot be filled —the bins do not
 exist until the next unit— and that is why the plan gets filled as the

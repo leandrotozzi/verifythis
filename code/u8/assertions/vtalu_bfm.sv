@@ -138,7 +138,7 @@ interface vtalu_bfm;
    // The properties live HERE, with the signals, and not in the testbench: they
    // plug themselves in, nobody connects them, and the passive agent of the Agents
    // section gets them for free. All they need in order to run is --assert.
-   //
+
    // cb: two-clocks
    // TWO CLOCKS, and it is not an implementation detail: the BFM drives on
    // negedge and the DUT registers on posedge. An assertion samples in the

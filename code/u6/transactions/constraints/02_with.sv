@@ -58,9 +58,9 @@ module top_with;
           })
          $display("with with: randomize() gave 0  <- a Verilator limitation, not yours");
 
+      // cb: workaround
       // The portable workaround meanwhile: turn off the split, which for a
       // directed case makes no sense anyway.
-      // cb: workaround
       c.data.constraint_mode(0);
       if (!c.randomize() with {
             op == mul_op;

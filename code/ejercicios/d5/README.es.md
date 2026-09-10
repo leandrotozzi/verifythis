@@ -56,7 +56,7 @@ Los dos apéndices del final del deck están escritos para este ejercicio:
 - **La caja de herramientas de debug** — la tabla *"cuál usar según el síntoma"*
   tiene la fila `el scoreboard grita en todas`, y dice con qué se mira.
 - **Las 21 trampas mudas** — el catálogo de todo lo que compila, corre y
-  miente. La causa de este bug es una de las diecinueve.
+  miente. La causa de este bug es una de las veintiuna trampas.
 
 Se puede hacer el ejercicio sin haber visto reporting: alcanza con tener la
 slide de síntomas abierta al lado.

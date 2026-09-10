@@ -30,7 +30,7 @@ Todo el material vive en dos lugares: `slides/<idioma>/*.md` para el curso y
 
 El curso está en **dos idiomas** y sólo tres cosas existen por duplicado: las
 slides (`slides/es/` es el original, `slides/en/` la traducción), los `README`
-de los ejercicios (`README.md` y `README.en.md` al lado) y el README de la raíz
+de los ejercicios (`README.md` en inglés y `README.es.md` al lado) y el README de la raíz
 —que va al revés, porque GitHub sólo renderiza `README.md`: ahí está el
 **inglés**, y el original en castellano es `README.es.md`—. `code/`, `res/` y los
 diagramas **no se duplican** —están en inglés y los comparten las dos

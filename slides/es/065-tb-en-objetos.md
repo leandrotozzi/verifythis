@@ -46,7 +46,7 @@ justamente lo que se sintetiza.
 - scoreboard: Chequea que la VTALU está funcionando
 - coverage: Captura la información de cobertura funcional
 
-![El árbol de objetos: el top elabora, y adentro viven la clase testbench y sus tres piezas](res/diagrams/tb-en-objetos_arbol.svg)
+![El árbol de objetos del testbench sin módulos: el top elabora, y adentro viven la clase testbench y sus tres piezas](res/diagrams/tb-en-objetos_arbol.svg)
 <!-- .element: class="grande" -->
 
 Note:

@@ -1,5 +1,5 @@
-<!-- es-sha: 17ed06d3a38a -->
-<!-- .slide: id="day1" data-machete="res/diagrams/en/wave-dut.svg,res/en/TB.svg" -->
+<!-- es-sha: 8ed5ce2170ab -->
+<!-- .slide: id="day1" data-machete="res/diagrams/en/wave-dut.svg|VTALU protocol: start and operands stable until done,res/en/TB.svg|Anatomy of a SystemVerilog testbench: the DUT, the tester, the scoreboard and the interface" -->
 
 <!-- .slide: data-transition="concave" -->
 
@@ -33,12 +33,12 @@
 Note:
 The three verbs below are the contract of the day, and it is worth reading them
 out loud before starting: on video they are the ten seconds in which somebody
-decides whether this is the one they were looking for. They are the first three
-rows of the closing self-assessment, brought to the front; whoever can answer
-them at the end of the day does not need to look at anything else.
+decides whether this is the one they were looking for. They are rows 2, 4 and 5
+of the closing self-assessment, brought to the front; whoever can answer them at
+the end of the day does not need to look at anything else.
 And an honest warning for whoever comes from VHDL or from Verilog-2001, which is
 the declared audience: day 2 levels the OOP, but **nobody levels SystemVerilog**,
 and today `interface`, `logic`, `enum`, `package`, `covergroup`, `clocking` and an
 `assert property` all show up. It is all on one page in
-**`docs/systemverilog-para-el-que-viene-de-vhdl.md`**: half an hour before
-starting, and day 1 stops having two steps at once.
+**`docs/systemverilog-para-el-que-viene-de-vhdl.md`** (in Spanish): half an hour
+before starting, and day 1 stops having two steps at once.

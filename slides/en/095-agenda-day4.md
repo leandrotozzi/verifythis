@@ -1,4 +1,4 @@
-<!-- es-sha: 4e5dc0a70131 -->
+<!-- es-sha: 4cf43320e171 -->
 <!-- .slide: id="day4" -->
 
 ## Yesterday we left…
@@ -22,7 +22,7 @@ call in the monitor"— is exactly the one the unit comes to take apart.
 
 ---
 
-<!-- .slide: data-machete="res/diagrams/en/analysis-ports_fig102.svg,res/diagrams/en/threads_fig124.svg" -->
+<!-- .slide: data-machete="res/diagrams/en/analysis-ports_fig102.svg|VTALU testbench with analysis ports,res/diagrams/en/threads_fig124.svg|Interthread communication with put port, get port and uvm_tlm_fifo" -->
 
 ## Agenda
 

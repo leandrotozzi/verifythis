@@ -29,10 +29,10 @@ class fibonacci_sequence extends uvm_sequence #(command_transaction);
          command.A  = n_menos_2;
          command.B  = n_menos_1;
          command.op = add_op;
-         finish_item(command);        // vuelve cuando el driver hizo item_done()
+         finish_item(command);        // comes back when the driver did item_done()
 
          n_menos_2 = n_menos_1;
-         n_menos_1 = command.result;  // el driver lo escribio adentro del item
+         n_menos_1 = command.result;  // the driver wrote it inside the item
          `uvm_info("FIBONACCI", $sformatf("Fib(%02d) = %03d", ff, n_menos_1),
                    UVM_MEDIUM)
       end : fib_loop

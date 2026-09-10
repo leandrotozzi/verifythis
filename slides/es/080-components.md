@@ -58,7 +58,7 @@ avisa, y bien: `ILLCRT` te dice qué componente y bajo qué padre.
 
 #### *El árbol, dos veces: una baja y la otra sube*
 
-![El árbol recorrido dos veces: build_phase baja y connect_phase sube](res/diagrams/components_fases.svg)
+![El árbol recorrido dos veces: build_phase baja y connect_phase sube, y el orden real en que se construye un hijo](res/diagrams/components_fases.svg)
 <!-- .element: class="grande" -->
 
 - `build_phase` baja porque el padre tiene que existir para crear a sus hijos
@@ -91,7 +91,7 @@ para entonces ya existen.
 #### *¿Y el `super.build_phase()`?*
 
 ```systemverilog
-// uvm_component.svh — uvm-core 2020.3.1, tal cual
+// uvm_component.svh:2385-2393 — uvm-core 2020.3.1, con el return; elidido
 function void uvm_component::build_phase(uvm_phase phase);
    build();            // -> apply_config_settings(): la config automatica
 endfunction
@@ -134,9 +134,11 @@ hacía falta es silencio: el campo queda en su default y la simulación corre.
 Este curso puede nombrar por qué en su caso es un no-op —no hay una sola macro
 `` `uvm_field_* `` en `code/` fuera de la librería vendorizada —son
 {{count:uvm-field-macros}}, y el número lo cuenta el build—; el que entra a un testbench ajeno no
-puede. `uvm_agent` es el contraejemplo que tenemos a mano: es la única clase de
-la librería, además de `uvm_component`, que implementa `build_phase`, y lo que
-hace ahí es leer `is_active`. Vuelve en el día 6.
+puede. `uvm_agent` es el contraejemplo que tenemos a mano: además de `uvm_component`,
+lo implementan `uvm_agent` —que ahí lee `is_active`— y las dos bases del
+sequencer (`seq/uvm_sequencer_base.svh:122`, que lee
+`wait_for_sequences_count` del config_db, y `seq/uvm_sequencer_param_base.svh:236`).
+Vuelve en el día 6.
 Con las otras fases pasa lo mismo, más barato todavía: en `uvm_component` son
 `return;`, pero `uvm_driver::end_of_elaboration_phase` chequea que el
 `seq_item_port` esté conectado, y ése lo extendemos nosotros.
@@ -185,7 +187,7 @@ necesitan lo contrario — que los hijos ya estén. La otra top-down es
 
 #### *Y adentro del `run_phase`, un cronograma*
 
-![Las doce fases runtime en paralelo con run_phase, y dónde engancha la default_sequence](res/diagrams/components_runtime.svg)
+![Las doce fases runtime corriendo en paralelo con run_phase, y dónde se engancha la default_sequence](res/diagrams/components_runtime.svg)
 <!-- .element: class="grande" -->
 
 - Las doce son `task`, corren **en paralelo** con `run_phase`, y están para

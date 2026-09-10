@@ -21,7 +21,7 @@ Hoy eso pasa a ser `copy()` y `compare()`, escritos una vez.
 
 ---
 
-<!-- .slide: data-machete="res/machete-debug.svg,res/uvm_class_diagram.svg" -->
+<!-- .slide: data-machete="res/machete-debug.svg|Machete de debug: las siete perillas del curso y qué mirar según el síntoma,res/uvm_class_diagram.svg|Jerarquía de clases base de UVM" -->
 
 ## Agenda
 
@@ -42,8 +42,9 @@ Hoy eso pasa a ser `copy()` y `compare()`, escritos una vez.
 
 Note:
 El segundo es la novedad del día y el que más rinde en el trabajo: medir es la
-mitad, cerrar es la otra. Los tres ejercicios de la tarde son ese ciclo entero
-—medir el `dist`, cerrar el bin— y el día 7 lo termina acumulando semillas.
+mitad, cerrar es la otra. Los dos últimos ejercicios de la tarde son dos tercios
+de ese ciclo —medir el `dist`, cerrar el bin— y el día 7 lo cierra acumulando
+semillas.
 La 12 de la autoevaluación dice **medir**, no **escribir**, y es a propósito: un
 `dist` con los pesos bien puestos puede dar un histograma que miente, y el que no
 lo midió nunca no tiene forma de saberlo.

@@ -1,4 +1,5 @@
 vtalu_pkg.sv
+chequeo.sv
 ../../u5/analysis-ports/vtalu_bfm.sv
 ../../u5/analysis-ports/top.sv
 +incdir+.

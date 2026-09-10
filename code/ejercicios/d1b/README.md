@@ -1,4 +1,4 @@
-<!-- es-sha: a228f29e62af -->
+<!-- es-sha: f483d9e5167a -->
 **English** · [Castellano](README.es.md)
 
 # Day 1 — the waves: the log is not enough
@@ -74,10 +74,15 @@ SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 ```
 
 The checker goes in stages and each one prints its `STAGE N OK`, like the capstone.
-The two times it asks for are the shipped BFM's: the first run measures them
-off the waves and keeps them in `obj_dir`, so your answer does not expire when
-you touch the BFM —with the handshake properly waited for, the first
-multiplication moves earlier—. A `make clean` forgets them.
+The two times are measured **off the `ondas.vcd` that same run has just left**:
+what it asks you for is always what the waves you have open say, whatever order
+you run things in.
+
+Watch out for that in stage 2: when you fix the BFM, **the second number moves**.
+With the handshake properly waited for every one-cycle operation takes one edge
+less, so the first multiplication starts —and closes— earlier (830 ps become
+650 ps). Open the waves again and update `respuesta.txt`: that shift is the
+lesson of the exercise, seen in the viewer.
 
 ## How long it takes
 

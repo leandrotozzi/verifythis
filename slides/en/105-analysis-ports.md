@@ -1,4 +1,4 @@
-<!-- es-sha: 00464c069316 -->
+<!-- es-sha: 1b6b40495801 -->
 ## A single place that watches the wire
 
 #### *A single place that watches the wire*
@@ -64,7 +64,7 @@ the section that follows the other one gets done.
 
 #### *Testbench diagram*
 
-![The VTALU TB with analysis ports](res/diagrams/en/analysis-ports_fig102.svg)
+![VTALU testbench with analysis ports](res/diagrams/en/analysis-ports_fig102.svg)
 <!-- .element: class="grande" -->
 
 ---
@@ -170,8 +170,11 @@ old one was filling bins with nothing.
 - The reason for the limit: `uvm_subscriber` gives you **a single** `write()`, and
   that is the method the port calls. Two ports have nowhere to come in
 - UVM solves it without splitting the component, with the *uvm_tlm_analysis_fifo* class,
-  which is **unbounded by construction**: its `write()` is a `function` and cannot
-  block, so it cannot drop anything
+  which is **unbounded by construction**: its constructor passes `size = 0`
+  (`tlm1/uvm_tlm_fifos.svh:281`, with the comment "analysis fifo must be unbounded")
+- And `write()` is a `function` that does `void'(this.try_put(t))`: it throws the
+  return value away. A bounded FIFO would drop **without warning** — which is why
+  this one is built with no cap
 - It is parameterized and it has two faces: an *analysis_export* on one side
   —which gets connected like any subscriber— and a `try_get()` on the other
 - `try_get()` takes an element out and returns 0 if the FIFO is empty, without blocking
@@ -279,9 +282,12 @@ scoreboard has inside it**. A `uvm_analysis_port` can have several destinations
 —the `ap` of the command_monitor feeds two— and it costs it nothing: `write()`
 walks through all of them.
 And the detail that gets forgotten and gives no warning: `cmd_f` is instantiated
-with `new()`, not with the factory. FIFOs and ports are not registered. If you
-forget the `new()` the `connect()` blows up with a null, and that one at least is
-an honest error.
+with `new()`, not with the factory. The FIFO **is** registered —`` `uvm_component_param_utils ``
+in `tlm1/uvm_tlm_fifos.svh:256`— but the course builds it with `new()` because it
+passes the `size` through the constructor and `create()` cannot. What is not in the
+factory are the *ports* and the *exports*: they extend `uvm_port_base` with no utils
+macro. If you forget the `new()` the `connect()` blows up with a null, and that one
+at least is an honest error.
 
 ---
 
@@ -297,13 +303,13 @@ an honest error.
   the request of another, and screams on every one
 
 ```systemverilog
-transaction expected [int];              // associative, indexed by whatever pairs them up
+transaccion esperado [int];              // associative, indexed by whatever pairs them up
 
-function void write_cmd(transaction c);  expected[c.id] = c;  endfunction
+function void write_cmd(transaccion c);  esperado[c.id] = c;  endfunction
 
-function void write_result(response r);
-   if (!expected.exists(r.id)) `uvm_error("SB", "a response nobody asked for")
-   else begin compare(expected[r.id], r); expected.delete(r.id); end
+function void write_result(respuesta r);
+   if (!esperado.exists(r.id)) `uvm_error("SB", "a response nobody asked for")
+   else begin comparar(esperado[r.id], r); esperado.delete(r.id); end
 endfunction
 ```
 

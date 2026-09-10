@@ -1,4 +1,4 @@
-<!-- Generado por tools/build.mjs desde slides/172-apendice-trampas.md.
+<!-- Generado por tools/build.mjs desde slides/en/172-apendice-trampas.md.
      NO editar a mano: la fila se corrige en la slide y esto se regenera con
      `npm run build`. `npm run check` falla si quedo viejo. -->
 

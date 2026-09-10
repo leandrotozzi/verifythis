@@ -15,6 +15,10 @@
 # the run with +SIN_CIERRE leaves the bin open.)
 set -e
 . "$(dirname "${BASH_SOURCE[0]}")/../../verilator/common.sh"
+# chequeo.svh is the one that counts the FF x FF on the bus, and env.svh is the
+# one that plugs it in: what the checker measures comes out of those two and not
+# out of the file the exercise edits. See intocables.sha.
+intocables
 INC=${SOLUCION:+ +incdir+solucion}
 vlt_uvm top --coverage-user -Wno-fatal $INC -f dut.f -f tb.f
 
@@ -23,15 +27,23 @@ falta() { echo "not yet: $1" >&2; exit 1; }
 
 # The exercise asks for the directed case to be ASKED FOR, not assigned. Assigning
 # the three fields by hand also closes the bin -- the tester of the Transactions
-# section does exactly that -- but then neither the with{} nor the dist hole get
-# practised, and those are the topic. It is the only thing this checker looks at
-# in your file.
+# section does exactly that -- and the bus cannot tell the two apart: FF x FF in
+# mul_op looks the same however it got there. So this is the one thing read out
+# of your file, and it is read as a BAN, which is how the statement puts it:
+# whatever else the block does, the three fields are not written by hand. The
+# rest of the grading --that the transaction really went through, and that the
+# bin really closed-- comes from chequeo.svh and from the coverage report.
 #
 # The comment lines are dropped first: the header of tester.svh explains the
 # exercise and says "randomize()" three times, so a plain grep matched the
 # statement of the problem and the check passed on the untouched file.
-sed -n '/el_cierre/,/end : el_cierre/p' "${SOLUCION:+solucion/}tester.svh" |
-  grep -v '^[[:space:]]*//' | grep -q 'randomize()' ||
+cierre=$(sed -n '/el_cierre/,/end : el_cierre/p' "${SOLUCION:+solucion/}tester.svh" |
+         grep -v '^[[:space:]]*//')
+echo "$cierre" | grep -qE 'command\.(A|B|op)[[:space:]]*=[^=]' &&
+  falta "your directed case writes A, B or op by hand, and that is what the
+    statement rules out: ask for the case with randomize() with { ... }, which is
+    the tool of the Constrained random section."
+echo "$cierre" | grep -q 'randomize()' ||
   falta "your directed case does not call randomize(): the exercise asks for it
     with randomize() with {}, not by assigning A, B and op by hand."
 

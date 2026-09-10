@@ -12,7 +12,7 @@ question.
 The **key is at the end**, with the reason for each one: it is what you need
 in order to grade without going back to look for the slide.
 
-How to use it, and what to assess in each midterm: **[`para-docentes.md`](../para-docentes.md)** (in Spanish).
+How to use it, and what to assess in each midterm: **[`for-teachers.md`](for-teachers.md)**.
 
 > The course is **CC BY 4.0**: it can be printed, cut up, reordered and given as
 > your own exam. The only thing asked is that you cite the source.
@@ -23,7 +23,7 @@ How to use it, and what to assess in each midterm: **[`para-docentes.md`](../par
 
 **1. Trends**
 
-According to the Wilson 2024 study, where does most of a verifier's time go?
+According to the Wilson 2024 study, where does most of a verification engineer's time go?
 
 - **a)** Into writing the testbench
 - **b)** Into debug
@@ -44,16 +44,16 @@ While the VTALU is running an operation, what do `start` and the operands have t
 The test runs 1000 random operations and the *code* coverage reads 100 %. What does that tell you about the verification?
 
 - **a)** That the DUT is verified and the verification plan can be closed
-- **b)** Very little: it measures the RTL that ran, not the spec
-- **c)** That the testbench has no bugs
-- **d)** That few scenarios are missing: 100 % already walked the whole design
+- **b)** That the testbench has no bugs
+- **c)** That few scenarios are missing: 100 % already walked the whole design
+- **d)** Very little: it measures the RTL that ran, not the spec
 
 **4. covergroup**
 
 You declare a `covergroup`, you `new()` it, you run a thousand operations and the report reads 0 %. What is the first thing to look at?
 
-- **a)** That the bins are badly defined and match no value at all
-- **b)** That nobody is calling `sample()`
+- **a)** That nobody is calling `sample()`
+- **b)** That the bins are badly defined and match no value at all
 - **c)** That the DUT is not answering
 - **d)** That `ignore_bins` are missing
 
@@ -273,8 +273,8 @@ And `try_get()` with the FIFO empty?
 
 - **a)** It blocks just like `get()`
 - **b)** It returns 1 with a garbage value
-- **c)** It returns 0 immediately, without blocking
-- **d)** It waits one clock cycle and tries again, up to the timeout of the phase
+- **c)** It waits one clock cycle and tries again, up to the timeout of the phase
+- **d)** It returns 0 immediately, without blocking
 
 ---
 
@@ -313,8 +313,8 @@ Why does every `do_copy()` in the hierarchy have to call `super.do_copy()`?
 
 - **a)** A third of the time: they are three entries with the same weight
 - **b)** Half: the edges share it between the two of them
-- **c)** Once every 256: with `:=` the weight goes to **each value**
-- **d)** Never: `:=` only takes single values, not ranges, and the range is dropped
+- **c)** Never: `:=` only takes single values, not ranges, and the range is dropped
+- **d)** Once every 256: with `:=` the weight goes to **each value**
 
 **32. `randomize() with {}`**
 
@@ -327,7 +327,7 @@ Why does every `do_copy()` in the hierarchy have to call `super.do_copy()`?
 
 **33. constraint_mode()**
 
-`randomize() with { A == 8'hFF; }` on a field the class spreads with a `dist` returns 0 three times out of four. What is the way around it?
+`randomize() with { A == 8'hFF; }` on a field the class spreads with a `dist` returns 0 three times out of four. What is the workaround?
 
 - **a)** Retry in a `do ... while` until it returns 1
 - **b)** `constraint_mode(0)` on the `dist` constraint, for that object
@@ -339,9 +339,9 @@ Why does every `do_copy()` in the hierarchy have to call `super.do_copy()`?
 What does `cmd.A.rand_mode(0)` do?
 
 - **a)** It switches off every constraint that mentions that field
-- **b)** It takes the field out of the draw and leaves it the value it had
-- **c)** It randomizes it once and freezes it afterwards
-- **d)** It makes the solver resolve it last, after all the other fields
+- **b)** It randomizes it once and freezes it afterwards
+- **c)** It makes the solver resolve it last, after all the other fields
+- **d)** It takes the field out of the draw and leaves it the value it had
 
 **35. The order of resolution**
 
@@ -360,9 +360,9 @@ What does `cmd.A.rand_mode(0)` do?
 
 An agent in `UVM_PASSIVE`, what does its `build_phase` build?
 
-- **a)** Nothing: a passive agent is an empty shell
-- **b)** Everything the same as an active one, but without connecting the driver to the sequencer
-- **c)** The monitors and the analysis ports; the driver and the sequencer, no
+- **a)** The monitors and the analysis ports; the driver and the sequencer, no
+- **b)** Nothing: a passive agent is an empty shell
+- **c)** Everything the same as an active one, but without connecting the driver to the sequencer
 - **d)** Only the sequencer, so it can receive sequences from another agent of the same env
 
 **37. The handshake of the driver**
@@ -405,8 +405,8 @@ Instead of the config object, you put `is_active` straight into the `uvm_config_
 
 What is the practical difference of a `uvm_sequence` being a `uvm_object` and not a `uvm_component`?
 
-- **a)** That it cannot be registered in the factory nor overridden
-- **b)** That it gets created, runs and is thrown away
+- **a)** That it gets created, runs and is thrown away
+- **b)** That it cannot be registered in the factory nor overridden
 - **c)** That it cannot have `rand` fields nor constraints
 - **d)** That UVM builds it in `build_phase`, like any other class of the tree
 
@@ -423,9 +423,9 @@ What is the practical difference of a `uvm_sequence` being a `uvm_object` and no
 
 At what moment does `command.result` have a value that can be read?
 
-- **a)** As soon as `start_item()` came back
-- **b)** When the `result_monitor` publishes it through its analysis port
-- **c)** When `finish_item()` came back, because the driver wrote it before calling `item_done()`
+- **a)** When `finish_item()` came back, because the driver wrote it before calling `item_done()`
+- **b)** As soon as `start_item()` came back
+- **c)** When the `result_monitor` publishes it through its analysis port
 - **d)** Never: to receive a response you have to use the REQ/RSP pair of `uvm_sequence #(REQ, RSP)`
 
 **44. default_sequence**
@@ -454,9 +454,9 @@ You configure a `default_sequence` through `uvm_config_db` and forget the `set_a
 
 What is the underlying difference between `assert(x.randomize())` and `assert property (@(posedge clk) …)`?
 
-- **a)** None: the second is syntactic sugar for the first
-- **b)** The first can be switched off from the command line and the second cannot
-- **c)** One is a **statement**; the other, a **declaration with a clock**
+- **a)** One is a **statement**; the other, a **declaration with a clock**
+- **b)** None: the second is syntactic sugar for the first
+- **c)** The first can be switched off from the command line and the second cannot
 - **d)** The first is only valid inside a class and the second only inside a module, because of the scheduler
 
 **47. `|->` against `|=>`**
@@ -474,16 +474,16 @@ All the properties of the VTALU sampled on `@(posedge clk)` give 145 errors over
 
 - **a)** The `disable iff (!reset_n)` is missing
 - **b)** The `posedge` is too fast: the clock has to be divided
-- **c)** The stimulus is written on the `negedge` and the sampling does not see it
-- **d)** Covergroups and assertions cannot share the clock without a `clocking block`
+- **c)** Covergroups and assertions cannot share the clock without a `clocking block`
+- **d)** The stimulus is written on the `negedge` and the sampling does not see it
 
 **49. The assertion that checks nothing**
 
 An `assert` property reports 0 failures during the whole regression. What do you know?
 
-- **a)** That the rule it describes holds
-- **b)** That the DUT is free of protocol bugs
-- **c)** Nothing yet: it may never have been evaluated at all
+- **a)** Nothing yet: it may never have been evaluated at all
+- **b)** That the rule it describes holds
+- **c)** That the DUT is free of protocol bugs
 - **d)** That the property has a badly written `disable iff` and stayed off the whole time
 
 **50. Assertion or scoreboard**
@@ -512,8 +512,8 @@ The DUT gives back the right `result` but drops `done` one cycle earlier than th
 
 What changes between `set_auto_predict(1)` and hooking a `uvm_reg_predictor` to the monitor?
 
-- **a)** Nothing: the predictor is the internal implementation of auto-predict
-- **b)** With auto-predict the model believes what it **meant** to send, not what happened
+- **a)** With auto-predict the model believes what it **meant** to send, not what happened
+- **b)** Nothing: the predictor is the internal implementation of auto-predict
 - **c)** The predictor is faster: it does not build the bus transaction
 - **d)** Auto-predict only works frontdoor, and the predictor works backdoor too
 
@@ -521,8 +521,8 @@ What changes between `set_auto_predict(1)` and hooking a `uvm_reg_predictor` to 
 
 `STATUS` changes on its own, without anybody writing it. What are you saying when you declare it `volatile` in `configure()`?
 
-- **a)** That UVM is going to re-read it from the DUT before every comparison, to be safe
-- **b)** That the mirror is not evidence: the value can change without going through the bus
+- **a)** That the mirror is not evidence: the value can change without going through the bus
+- **b)** That UVM is going to re-read it from the DUT before every comparison, to be safe
 - **c)** That the field drops out of the map and stops having an address
 - **d)** That it has to be read backdoor, because the frontdoor does not get there in time
 
@@ -531,9 +531,9 @@ What changes between `set_auto_predict(1)` and hooking a `uvm_reg_predictor` to 
 `model.CTRL.read(status, data)` and `model.CTRL.mirror(status, UVM_CHECK)`. How do they differ?
 
 - **a)** `read` goes over the bus and `mirror` stays in the mirror, with no transfer at all
-- **b)** Both read from the DUT; `mirror` also compares against what the model believed
-- **c)** `mirror` writes the mirror into the DUT, to leave the two of them equal
-- **d)** `read` updates the mirror and `mirror` does not touch it, so as not to hide an error
+- **b)** `mirror` writes the mirror into the DUT, to leave the two of them equal
+- **c)** `read` updates the mirror and `mirror` does not touch it, so as not to hide an error
+- **d)** Both read from the DUT; `mirror` also compares against what the model believed
 
 **55. Who knows about the bus**
 
@@ -568,8 +568,8 @@ The scoreboard with the golden model in C runs a thousand operations and reports
 
 - **a)** Yes: a thousand comparisons without a single difference is the definition of verified
 - **b)** Yes, as long as the functional coverage closed at 100 % on top of that
-- **c)** No: a scoreboard that has never seen an error is not tested
-- **d)** No, because both sides share the opcode `enum` and cancel each other out
+- **c)** No, because both sides share the opcode `enum` and cancel each other out
+- **d)** No: a scoreboard that has never seen an error is not tested
 
 ---
 
@@ -577,10 +577,10 @@ The scoreboard with the golden model in C runs a thousand operations and reports
 
 | # | Day | Topic | Correct | Why |
 |--:|:--:|:--|:--:|:--|
-| 1 | 1 | Trends | **b** | **Into debug** — 47 % of the verifier's time goes there. That is why the course devotes a whole section to reporting: a scoreboard that only says "failed" leaves you right inside that 47 %. |
+| 1 | 1 | Trends | **b** | **Into debug** — 47 % of the verification engineer's time goes there. That is why the course devotes a whole section to reporting: a scoreboard that only says "failed" leaves you right inside that 47 %. |
 | 2 | 1 | The ALU spec | **d** | **Stable until `done`** — it is the DUT protocol, and it is exactly the reason the BFM exists: to wrap that rule in a single place so that no test forgets it. The first distractor describes a real protocol —pulse start, latched operands— that this DUT does not have. |
-| 3 | 1 | Functional coverage | **b** | **Very little** — code coverage measures the DUT; functional coverage measures the spec. A feature the designer never wrote gives 100 % of lines and 0 % of what matters, and the report is not going to tell you. |
-| 4 | 1 | covergroup | **b** | **The `sample()`** — a covergroup does not sample itself: somebody has to call it, on the edge or when a transaction arrives. Without that call the code compiles, runs, and the report reads 0 without a single warning. |
+| 3 | 1 | Functional coverage | **d** | **Very little** — code coverage measures the DUT; functional coverage measures the spec. A feature the designer never wrote gives 100 % of lines and 0 % of what matters, and the report is not going to tell you. |
+| 4 | 1 | covergroup | **a** | **The `sample()`** — a covergroup does not sample itself: somebody has to call it, on the edge or when a transaction arrives. Without that call the code compiles, runs, and the report reads 0 without a single warning. |
 | 5 | 1 | Interfaces and BFM | **a** | **It stops talking in signals** — the BFM translates *one operation* into *a handshake of signals*. The tester, the scoreboard and the coverage never touch a wire again: it is the first step towards UVM. |
 | 6 | 1 | The verification plan | **c** | **Which bin gets filled** — the five columns are *Feature*, *Scenario*, *Stimulus*, *Check* and *Measure*, and this is the one that costs the most: it forces you to decide **beforehand** what is going to be counted. If it is left empty, nobody is going to find out that the scenario never happened — a case the random never touched and that has no bin is indistinguishable from one that happened a thousand times. |
 | 7 | 1 | clocking block | **c** | **They are not needed, and they are worth using anyway** — they belong to **SystemVerilog**, not to UVM, and no `uvm_driver` samples for you. What avoids the race is understanding the scheduler: a driver that drives with `<=` against a DUT that registers with `<=` is already deterministic. The clocking block does not replace that understanding, it **wraps** it — and that is where it pays off: reusable agents, VIP, gate-level and protocols with setup/hold in the spec. |
@@ -600,38 +600,38 @@ The scoreboard with the golden model in C runs a thousand operations and reports
 | 21 | 3 | Verbosity | **b** | **Only on `` `uvm_info ``** — warnings, errors and fatals are **immune** to the verbosity ceiling, and it is right that they should be: nobody wants to switch off an error by accident. For those you need the *actions* mechanism. |
 | 22 | 3 | Report actions | **d** | **In `end_of_elaboration_phase`** — it has to be **after** the hierarchy is built (otherwise the component does not exist yet) and **before** the simulation starts. That phase is exactly that window. |
 | 23 | 4 | Observer Pattern | **d** | **It knows nothing** — and that ignorance is the whole point. Adding a fourth subscriber does not force you to touch one line of the one publishing. |
-| 24 | 4 | Analysis Ports | **b** | **With a `uvm_tlm_analysis_fifo`** — a `uvm_subscriber` has a single `write()`, so it can only listen to one port. The FIFO gives an `analysis_export` on one side and a `try_get()` on the other. It is what the VTALU scoreboard does. |
+| 24 | 4 | Analysis Ports | **b** | **With a `uvm_tlm_analysis_fifo`** — a `uvm_subscriber` has a single `write()`, so it can only listen to one port. The FIFO gives an `analysis_export` on one side and a `try_get()` on the other. It is what the VTALU scoreboard does. The other way is `` `uvm_analysis_imp_decl ``, which manufactures one `write_` per suffix: they are not two `write()` in the same class, which SystemVerilog does not allow. |
 | 25 | 4 | Intra vs. inter thread | **c** | **Only one, and it is intra-thread communication** — `write()` is a `function`, not a `task`: it consumes no time and runs in the thread of the one publishing. That is precisely why **another** mechanism (put/get + FIFO) is needed to talk between threads. |
 | 26 | 4 | Put and get ports | **a** | **It blocks** — `get()` is blocking, and that is why it is declared `task` and not `function`. That is the whole synchronization: no hand-written signal handshake is needed. |
-| 27 | 4 | try_get() | **c** | **It returns 0 and carries on** — it is the non-blocking version, and that is why it can be a `function`. Notice that the scoreboard uses it in a `do ... while` to skip over the `no_op`s and the `rst_op`s. |
+| 27 | 4 | try_get() | **d** | **It returns 0 and carries on** — it is the non-blocking version, and that is why it can be a `function`. Notice that the scoreboard uses it in a `do ... while` to skip over the `no_op`s and the `rst_op`s. |
 | 28 | 5 | Deep copy | **a** | **Nothing** — there is no copy, there is a second name for the same object. If you modify it through one handle, the other one sees it. Out of that comes the *MOOCOW* rule: if you are going to modify, copy first. |
 | 29 | 5 | super.do_copy() | **c** | **Otherwise the fields above get lost** — it is the same problem as `convert2string()`: the day somebody puts a new level in the middle, the method stops seeing half the data and nobody warns you. |
 | 30 | 5 | clone() | **a** | **So as not to repeat the `$cast`** — without it, every place that clones ends up writing its own cast. It is the same idea as always: if you are going to repeat it, wrap it. |
-| 31 | 5 | `dist`: `:=` against `:/` | **c** | **1 in 256** — `:=` gives weight 1 to *each one* of the 254 values in the middle, so the range weighs 254 against the 1 and 1 of the edges. To spread the weight *inside* the range you need `:/`. Both spellings compile and run: the difference only shows up in the coverage that does not go up. |
+| 31 | 5 | `dist`: `:=` against `:/` | **d** | **1 in 256** — `:=` gives weight 1 to *each one* of the 254 values in the middle, so the range weighs 254 against the 1 and 1 of the edges. To spread the weight *inside* the range you need `:/`. Both spellings compile and run: the difference only shows up in the coverage that does not go up. |
 | 32 | 5 | `randomize() with {}` | **b** | **They add up** — the `with {}` adds constraints **for that call only**, and erases nothing. That is why it is the tool for closing a bin without writing a new class: three lines at the point of use, and the rest of the stimulus stays what it always was. And that is also why it clashes with a `dist` that already biases the same field: both have to hold at once. |
 | 33 | 5 | constraint_mode() | **b** | **Switch off the constraint that gets in the way** — Verilator solves the `dist` by **picking a value first** and only then checking the rest, so the probability of success is the probability of the bin: measured, `with {A == 8'hFF}` solves 25 % of the time. `constraint_mode(0)` switches it off for that object alone and touches nobody else. It is exactly the line the `d5c` exercise asks for. |
-| 34 | 5 | rand_mode() | **b** | **It stops being `rand`** — they are the two run-time knobs and they get mixed up often: `rand_mode(0)` takes **a field** out of the draw, `constraint_mode(0)` switches off **a constraint**. One picks *what gets drawn*, the other *which rules hold*. It is what you use to pin one operand by hand and go on randomizing the rest. |
-| 35 | 5 | The order of resolution | **c** | **1 in 257** — the solver picks uniformly among the *solutions*, not among the values of each field: `es_reset=1` leaves a single combination (`A = 00`) and `es_reset=0` leaves 256. The *"any operation after a reset"* row of the plan does not get filled, and the report does not say why. The answer in the language is `solve es_reset before A`; Verilator accepts it and **does not honour it**, so the portable way around is to ask for the spread of the control field with a `dist`. |
-| 36 | 6 | is_active | **c** | **The monitors, always; the sequencer and the driver are left at `null`** — watching is never optional: a passive agent goes on feeding scoreboard and coverage. What gets skipped is what *drives* the interface, because there somebody else is already driving it. |
+| 34 | 5 | rand_mode() | **d** | **It stops being `rand`** — they are the two run-time knobs and they get mixed up often: `rand_mode(0)` takes **a field** out of the draw, `constraint_mode(0)` switches off **a constraint**. One picks *what gets drawn*, the other *which rules hold*. It is what you use to pin one operand by hand and go on randomizing the rest. |
+| 35 | 5 | The order of resolution | **c** | **1 in 257** — the solver picks uniformly among the *solutions*, not among the values of each field: `es_reset=1` leaves a single combination (`A = 00`) and `es_reset=0` leaves 256. The *"any operation after a reset"* bin of the plan does not get filled, and the report does not say why. The answer in the language is `solve es_reset before A`; Verilator accepts it and **does not honour it**, so the portable workaround is to ask for the spread of the control field with a `dist`. |
+| 36 | 6 | is_active | **a** | **The monitors, always; the sequencer and the driver are left at `null`** — watching is never optional: a passive agent goes on feeding scoreboard and coverage. What gets skipped is what *drives* the interface, because there somebody else is already driving it. |
 | 37 | 6 | The handshake of the driver | **d** | **It hangs inside `finish_item()`, and without saying anything** — it is the classic mistake of the first week, and the symptom misleads: there is no error and no warning, time stops advancing and the objection never gets dropped. `get_next_item()` is a loan; `item_done()` is giving it back. |
 | 38 | 6 | Scope of the config_db | **c** | **Both receive the same thing** — the `uvm_config_db` does not match by order nor by type: it matches by **path**. With `"*"` both entries describe the same components, so the last one wins. The scope is a path in the tree, not a label. |
 | 39 | 6 | The sequencer | **d** | **Because of the base class we chose in transactions** — `uvm_sequencer #(T)` requires that `T` derive from `uvm_sequence_item`. If that day the transaction had extended a plain `uvm_transaction`, this `typedef` would not compile today. A decision of one section enabling the next. |
 | 40 | 6 | super.build_phase() | **d** | **That mechanism is switched off** — `uvm_agent::build_phase` looks for `is_active` in the resource pool (it is in `code/.uvm/src/comps/uvm_agent.svh`, it can be opened). Without `super.build_phase()` that line never runs, and nobody warns you. Both ways are valid; what does not work is half of each one. |
-| 41 | 6 | Object, not component | **b** | **It gets created, runs and is thrown away** — you can start several, one after the other, on the same sequencer. A component is built once in `build_phase` and lives to the end. That is why the stimulus cannot be a component: it changes from test to test, and sometimes within the same test. Out of that comes as well that it can be configured between the `create()` and the `start()`, the way `full_seq.count = 200` does. |
+| 41 | 6 | Object, not component | **a** | **It gets created, runs and is thrown away** — you can start several, one after the other, on the same sequencer. A component is built once in `build_phase` and lives to the end. That is why the stimulus cannot be a component: it changes from test to test, and sometimes within the same test. Out of that comes as well that it can be configured between the `create()` and the `start()`, the way `full_seq.count = 200` does. |
 | 42 | 6 | start_item() | **b** | **You have the turn —nobody else is going to beat you to the driver— and you have not handed anything over yet** — and that is why the `randomize()` goes *after*: it is the last possible moment to choose the values, when you already know what state the DUT is in. That is late randomization, and it is where `pre_do()` and `mid_do()` hook on. |
-| 43 | 6 | The way back | **c** | **After `finish_item()`** — there is no way back at all: there is a shared handle and an agreement between the two parties. The REQ/RSP pair exists and is the formal mechanism, but almost nobody uses it: writing the result into the request is enough. This is what makes Fibonacci possible. |
+| 43 | 6 | The way back | **a** | **After `finish_item()`** — there is no return channel at all: there is a shared handle and an agreement between the two parties. The REQ/RSP pair exists and is the formal mechanism, but almost nobody uses it: writing the result into the request is enough. This is what makes Fibonacci possible. |
 | 44 | 6 | default_sequence | **c** | **It passes in zero seconds without sending a single piece of stimulus, and it lies** — a phase without an objection finishes as soon as it starts. It is the same kind of bug as the `new()` that eats the override: it does not break, it deceives. And in a regression of a thousand tests, the one that passes in zero seconds is one nobody looks at. |
 | 45 | 6 | Sub-sequences | **b** | **It declares the mother-daughter relationship** — without it, the sequencer treats the two as independent sequences and they compete for the turn. With it, the daughter inherits the mother's turn and her priority in the arbitration. And for the parallel that is not enough: a `fork` / `join` around the `start()` is needed. |
-| 46 | 7 | Immediate and concurrent | **c** | **Statement against declaration** — the immediate one runs when the thread goes past it; the concurrent one gets evaluated on its own, on every edge of its clock. It is to an `if` what the concurrent one is to an `always_ff`: one executes, the other gets instantiated. That is why only the concurrent one can describe something that lasts several cycles. |
+| 46 | 7 | Immediate and concurrent | **a** | **Statement against declaration** — the immediate one runs when the thread goes past it; the concurrent one gets evaluated on its own, on every edge of its clock. It is to an `if` what the concurrent one is to an `always_ff`: one executes, the other gets instantiated. That is why only the concurrent one can describe something that lasts several cycles. |
 | 47 | 7 | `\|->` against `\|=>` | **b** | **`\|=>` when the consequent comes out of a `<=`** — because `\|=>` *is* `\|-> ##1`, and the question to ask is how many edges later the spec promises it. With `\|->` against a registered signal the property does not pass vacuously: it **fails on every transaction**, because it compares against the old `done`. The one that passes quietly is the one whose antecedent never occurs — which is why it always goes with its `cover property`. |
-| 48 | 7 | The sampling edge | **c** | **An assertion is worth what its sampling is worth** — the BFM writes the stimulus on the `negedge`, and on two consecutive `no_op` `start` goes down and comes back up between two `posedge`: the sampling does not see it go down. The stimulus gets sampled where the stimulus gets written. Stimulus on `negedge`, response of the DUT on `posedge`: zero errors. With a single clock there is no way. |
-| 49 | 7 | The assertion that checks nothing | **c** | **Zero failures and zero evaluations look the same** — its antecedent may never have occurred, or `--assert` may be missing and it is not even being evaluated. That is why every assertion goes with its `cover property`: it is the only check of the check. In the section, `c_mult_3ciclos` stays at 0 and gives away that the real latency is four edges, not three. |
+| 48 | 7 | The sampling edge | **d** | **An assertion is worth what its sampling is worth** — the BFM writes the stimulus on the `negedge`, and on two consecutive `no_op` `start` goes down and comes back up between two `posedge`: the sampling does not see it go down. The stimulus gets sampled where the stimulus gets written. Stimulus on `negedge`, response of the DUT on `posedge`: zero errors. With a single clock there is no way. |
+| 49 | 7 | The assertion that checks nothing | **a** | **Zero failures and zero evaluations look the same** — its antecedent may never have occurred, or `--assert` may be missing and it is not even being evaluated. That is why every assertion goes with its `cover property`: it is the only check of the check. In the section, `c_mult_3ciclos` stays at 0 and gives away that the real latency is four edges, not three. |
 | 50 | 7 | Assertion or scoreboard | **c** | **Protocol → assertion. Data → scoreboard** — and it is not a preference: by the time the transaction reaches the scoreboard, the protocol is no longer there. Writing the check there would be rebuilding by hand the time the monitor has just erased. |
 | 51 | 8 | The access string | **c** | **Green is not checked** — `uvm_reg_bit_bash_seq.svh:129-133` skips every field whose access starts with `WO` (*"you are not supposed to read them"*), and `do_check` takes it out of the comparison mask (`uvm_reg.svh:2782-2788`). The only trace is in the timing: bashing `CTRL` takes four transfers less. The right access is `WC` (or `W1C`), and with it the bit does get bashed. A `WO*` access is the cheapest way there is of switching a check off without noticing. |
-| 52 | 8 | Automatic or explicit prediction | **b** | **The one who checks cannot believe the one who drives** — with `set_auto_predict(1)`, `model.CTRL.write()` updates the mirror at the moment of the call, before the bus has done anything: if the driver sends the transfer wrong, the model stays convinced. With the predictor, the mirror only changes once the monitor has seen the wire. It is the same drawing as the capstone scoreboard, with a library piece instead of a hand-written class. And it is free: the monitor and its analysis port **were already there**. |
-| 53 | 8 | volatile | **b** | **The mirror stops being evidence** — a model predicts *"what I wrote is what I am going to read"*, and for a `volatile` field that sentence is false. The two `UVM_WARNING GET_MIRRORED_VAL/VOL` of the example are the library saying exactly that, and they are in the output on purpose. What does have to be checked gets checked where it is known: in the **scoreboard**, and in the model goes `set_compare(UVM_NO_CHECK)` on that field so that RAL does not invent an error. |
-| 54 | 8 | mirror() against read() | **b** | **`mirror` is a register scoreboard in one word** — both read from the DUT; the difference is that `mirror` compares against what the model believed **before** the read, and if it does not match it reports a `uvm_error` without anybody writing a check. And a read *is* a prediction: both update the mirror afterwards. |
+| 52 | 8 | Automatic or explicit prediction | **a** | **The one who checks cannot believe the one who drives** — with `set_auto_predict(1)`, `model.CTRL.write()` updates the mirror at the moment of the call, before the bus has done anything: if the driver sends the transfer wrong, the model stays convinced. With the predictor, the mirror only changes once the monitor has seen the wire. It is the same drawing as the capstone scoreboard, with a library piece instead of a hand-written class. And it is free: the monitor and its analysis port **were already there**. |
+| 53 | 8 | volatile | **a** | **The mirror stops being evidence** — a model predicts *"what I wrote is what I am going to read"*, and for a `volatile` field that sentence is false. The two `UVM_WARNING GET_MIRRORED_VAL/VOL` of the example are the library saying exactly that, and they are in the output on purpose. What does have to be checked gets checked where it is known: in the **scoreboard**, and in the model goes `set_compare(UVM_NO_CHECK)` on that field so that RAL does not invent an error. |
+| 54 | 8 | mirror() against read() | **d** | **`mirror` is a register scoreboard in one word** — both read from the DUT; the difference is that `mirror` compares against what the model believed **before** the read, and if it does not match it reports a `uvm_error` without anybody writing a check. And a read *is* a prediction: both update the mirror afterwards. |
 | 55 | 8 | Who knows about the bus | **b** | **The model does not know there is an APB underneath** — swap the adapter and the same model drives an AHB. The adapter is twenty lines, once per protocol, and it is the file that comes with a VIP you bought. Watch out for one thing: `bus2reg` is called **by the predictor too**, with the item the monitor saw, so an adapter that depends on something the driver put there works in one direction and fails in the other. |
 | 56 | 8 | DPI and time | **b** | **Zero time, like any `function`** — to consume time you need `import "DPI-C" task`, and with a clarification almost every tutorial skips: C cannot block by itself. A DPI task consumes time **only** if it is declared `context` and from the C it calls back into an `export "DPI-C" task` of SystemVerilog, which is the one that waits for the edge. And at that point it is no longer a golden model, it is a bus model. |
 | 57 | 8 | undefined reference | **c** | **The compiler does not cross the two declarations: the one that joins them is the linker** — hence an error about something that is written, right there, in plain sight. It is almost always one of two things: the name does not match letter for letter, or the file got compiled as C++ and the symbol came out mangled. That last one is literally the case here: Verilator hands the user's sources to the C++ compiler, so the `.c` needs its `extern "C"`. And there is no DPI flag: the `.c` goes on the `verilator` command line like any other source. |
-| 58 | 8 | The scoreboard that never shouted | **c** | **The model has to be broken on purpose** — `vtalu_golden_bug(1)` mutates the multiplication and `run.sh` demands that the scoreboard shout. If it does not shout, the testbench is comparing against itself and nobody was going to find out: it is the same mutation test the capstone grader does with `+BUG=1`, from the other side of the wire. And the duplicated `enum` is real but it is a different symptom: if **every** comparison fails at once, it is the mapping; if one in six fails, it is the DUT. |
+| 58 | 8 | The scoreboard that never shouted | **d** | **The model has to be broken on purpose** — `vtalu_golden_bug(1)` mutates the multiplication and `run.sh` demands that the scoreboard shout. If it does not shout, the testbench is comparing against itself and nobody was going to find out: it is the same mutation test the capstone grader does with `+BUG=1`, from the other side of the wire. And the duplicated `enum` is real but it is a different symptom: if **every** comparison fails at once, it is the mapping; if one in six fails, it is the DUT. |

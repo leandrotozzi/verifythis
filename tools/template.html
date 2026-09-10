@@ -276,8 +276,18 @@
         // no en el reescribido de rutas de build.mjs porque data-machete es una
         // LISTA separada por comas: el regex de src="/href=" solo alcanzaria la
         // primera. Aca la lista ya viene partida.
-        box.innerHTML = dm.split(',').filter(Boolean)
-          .map(src => `<img class="imagen" src="{{base}}${src.trim()}" alt="">`).join('');
+        // Cada entrada es "ruta|alt": el alt lo escribe la slide, y sin el la
+        // figura del machete es una figura que el lector de pantalla saltea --
+        // en un curso donde el diagrama ES la explicacion, la slide entera.
+        // Se parte solo en la coma que abre una ruta nueva: el alt lleva comas
+        // adentro y con split(',') a secas sus pedazos salian como <img> rotos.
+        box.innerHTML = dm.split(/,(?=\s*res\/)/).filter(Boolean)
+          .map(e => {
+            const [ruta, alt = ''] = e.split('|');
+            const esc = s => s.trim().replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+                              .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return `<img class="imagen" src="{{base}}${ruta.trim()}" alt="${esc(alt)}">`;
+          }).join('');
       };
       Reveal.on('slidechanged', paint);
       paint();

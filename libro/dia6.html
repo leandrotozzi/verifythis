@@ -100,7 +100,7 @@ y se contesta hoy: <code>uvm_object</code> son los <strong>datos</strong> y <cod
 <strong>estructura</strong>.
 El tercero es el que cierra la unidad y el día: cuando esa línea se va, ninguna
 del test nombra un componente de adentro del <code>env</code>, y recién ahí el testbench es
-reutilizable de verdad.</p>
+reutilizable para un agent. Coordinar dos es el día 7.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/296">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -1414,7 +1414,7 @@ conviene mostrarlo con <code>diff</code> en vivo: <code>diff code/u7/agents/tb_c
 El modo de falla del <code>uvm_register_cb</code> que falta no es el que uno espera, y vale
 contarlo con la fuente en la mano porque la mitad de los tutoriales lo dice al
 revés: <code>uvm_callback.svh:745</code> reporta un <code>UVM_WARNING CBUNREG</code> y <strong>sigue de
-largo</strong> — el <code>add()</code> mete el callback en <code>m_base_inst.m_pool</code> igual (<code>:777-783</code>),
+largo</strong> — el <code>add()</code> mete el callback en <code>m_base_inst.m_pool</code> igual (<code>:781-785</code>),
 y <code>`uvm_do_callbacks</code> lee ese pool sin consultar el registro (<code>:964-1006</code>).
 O sea: sin la macro el callback corre, y lo que perdés es el chequeo de tipos y
 el <code>add_by_name</code> por tipo derivado. Es peor que un error: es un warning entre mil
@@ -1432,7 +1432,10 @@ compatibilidad hacia adelante. Por eso los VIP tienen tres o cuatro, no treinta.
 <section id="s319" class="slide">
 <h2 id="callbacks">Callbacks</h2>
 <h4 id="ponerlos-el-test-y-nada-más-que-el-test"><em>Ponerlos: el test, y nada más que el test</em></h4>
-<figure class="codigo"><figcaption><code>code/u7/callbacks/tb_classes/inject_test.svh</code> · #hooking-the-cb</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">end_of_elaboration_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
+<figure class="codigo"><figcaption><code>code/u7/callbacks/tb_classes/inject_test.svh</code> · #hooking-the-cb</figcaption><pre><code class="hljs">   <span class="hljs-comment">// end_of_elaboration and not build: the driver is a grandchild of the env,</span>
+   <span class="hljs-comment">// and build_phase runs top-down -- when this test&#x27;s build_phase returns, the</span>
+   <span class="hljs-comment">// driver does not exist yet.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">end_of_elaboration_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-keyword">super</span>.end_of_elaboration_phase(phase);
 
       flip_h   = flip_bit_cb::type_id::create(<span class="hljs-string">&quot;flip_h&quot;</span>);
@@ -1443,7 +1446,10 @@ compatibilidad hacia adelante. Por eso los VIP tienen tres o cuatro, no treinta.
       <span class="hljs-comment">// is nothing to hook there.</span>
       <span class="hljs-uvm-type">uvm_callbacks</span> #(<span class="hljs-type">driver</span>, driver_callback)::add(env_h.clase_agent_h.driver_h, jitter_h);
       <span class="hljs-uvm-type">uvm_callbacks</span> #(<span class="hljs-type">driver</span>, driver_callback)::add(env_h.clase_agent_h.driver_h, flip_h);
-</code></pre><details><summary>el archivo entero, 36 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The same test as ../agents, with two callbacks hung on the driver.</span>
+
+      <span class="hljs-keyword">if</span> (<span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;CALLBACK_TRACE&quot;</span>))
+         <span class="hljs-uvm-type">uvm_callbacks</span> #(<span class="hljs-type">driver</span>, driver_callback)::display(env_h.clase_agent_h.driver_h);
+   <span class="hljs-keyword">endfunction</span> : end_of_elaboration_phase</code></pre><details><summary>el archivo entero, 36 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The same test as ../agents, with two callbacks hung on the driver.</span>
 <span class="hljs-comment">//</span>
 <span class="hljs-comment">// Note what this class does NOT touch: not the env, not the agent, not the</span>
 <span class="hljs-comment">// driver, not the sequence. That is the whole promise of the third hook -- and</span>
@@ -2046,7 +2052,7 @@ Números para el pizarrón: 0 1 1 2 3 5 8 13 21 34 55 89 144 233. Se corta en 23
 porque el siguiente es 377 y <code>A</code> y <code>B</code> son de 8 bits. Que el alumno vea por qué el
 <code>for</code> va hasta 14 y no hasta 20 vale más que la sequence entera.
 Y una que se ve en la corrida real: el test entero tarda <strong>500 unidades de
-tiempo</strong>, contra las 44.000 del test random. Trece operaciones. Un test dirigido
+tiempo</strong>, contra las 43.000 del test random. Trece operaciones. Un test dirigido
 bien escrito es barato; lo caro es el random, y por eso se corre de noche.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/329">ver esta slide en el deck &rsaquo;</a></p>
@@ -2289,8 +2295,8 @@ empezar la fase</li>
 quiere decir <em>&quot;en la <code>main_phase</code> de ese sequencer&quot;</em></li>
 <li>Se puede configurar por <strong>instancia</strong> (como acá, con
 <code>uvm_config_db #(uvm_sequence_base)</code>) o por <strong>tipo</strong>
-(<code>uvm_config_db #(uvm_object_wrapper)</code> + <code>get_type()</code>). La instancia gana si
-están las dos</li>
+(<code>uvm_config_db #(uvm_object_wrapper)</code> + <code>get_type()</code>). Si están las dos gana
+la de <strong>mayor precedencia</strong>, y a igual precedencia el <strong>último <code>set()</code></strong></li>
 <li>El sequencer dejó de ser un handle y pasó a ser una <strong>ruta</strong>: eso ya es
 configuración, no código</li>
 </ul>
@@ -2656,9 +2662,9 @@ estructura le corresponde.</p>
 <h4 id="1-de-10-·-is_active"><em>1 de 10 · is_active</em></h4>
 <p><strong>Un agent en <code>UVM_PASSIVE</code>, ¿qué construye su <code>build_phase</code>?</strong></p>
 <ul>
+<li><input checked="" disabled="" type="checkbox"> Los monitores y los analysis ports; el driver y el sequencer, no</li>
 <li><input disabled="" type="checkbox"> Nada: un agent pasivo es una cáscara vacía</li>
 <li><input disabled="" type="checkbox"> Todo igual que uno activo, pero sin conectar el driver al sequencer</li>
-<li><input checked="" disabled="" type="checkbox"> Los monitores y los analysis ports; el driver y el sequencer, no</li>
 <li><input disabled="" type="checkbox"> Sólo el sequencer, para poder recibir sequences de otro agent del mismo env</li>
 </ul>
 <blockquote>
@@ -2736,8 +2742,8 @@ estructura le corresponde.</p>
 <h4 id="6-de-10-·-object-no-component"><em>6 de 10 · Object, no component</em></h4>
 <p><strong>¿Cuál es la diferencia práctica de que una <code>uvm_sequence</code> sea un <code>uvm_object</code> y no un <code>uvm_component</code>?</strong></p>
 <ul>
-<li><input disabled="" type="checkbox"> Que no se puede registrar en la factory ni overridear</li>
 <li><input checked="" disabled="" type="checkbox"> Que se crea, corre y se tira</li>
+<li><input disabled="" type="checkbox"> Que no se puede registrar en la factory ni overridear</li>
 <li><input disabled="" type="checkbox"> Que no puede tener campos <code>rand</code> ni constraints</li>
 <li><input disabled="" type="checkbox"> Que UVM la construye en <code>build_phase</code>, como a cualquier otra clase del árbol</li>
 </ul>
@@ -2768,9 +2774,9 @@ estructura le corresponde.</p>
 <h4 id="8-de-10-·-el-camino-de-vuelta"><em>8 de 10 · El camino de vuelta</em></h4>
 <p><strong>¿En qué momento <code>command.result</code> tiene un valor que se puede leer?</strong></p>
 <ul>
+<li><input checked="" disabled="" type="checkbox"> Cuando volvió <code>finish_item()</code>, porque el driver lo escribió antes de llamar a <code>item_done()</code></li>
 <li><input disabled="" type="checkbox"> Apenas volvió <code>start_item()</code></li>
 <li><input disabled="" type="checkbox"> Cuando el <code>result_monitor</code> lo publica por su analysis port</li>
-<li><input checked="" disabled="" type="checkbox"> Cuando volvió <code>finish_item()</code>, porque el driver lo escribió antes de llamar a <code>item_done()</code></li>
 <li><input disabled="" type="checkbox"> Nunca: para recibir una respuesta hay que usar el par REQ/RSP de <code>uvm_sequence #(REQ, RSP)</code></li>
 </ul>
 <blockquote>

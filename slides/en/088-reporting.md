@@ -1,9 +1,9 @@
-<!-- es-sha: bc809639adbf -->
+<!-- es-sha: 5f52e3174614 -->
 ## Reporting
 
 #### *47 % of the time goes here*
 
-- The first chart of the course said that almost half of a verifier's time
+- The first chart of the course said that almost half of a verification engineer's time
   goes into **debug**. This section is about that half
 - A scoreboard that only says `FAIL` leaves you right there: you know something is wrong and
   you do not know which component, at what moment, or with what data
@@ -90,7 +90,7 @@ is the last part of the section.
 - And this is how it comes out in the log. Look at what the line brings **without anybody asking
   for it**: the time, the file and the line, and the hierarchical path of the component that spoke
 
-{{code:code/u4/reporting/tb_classes/score_ppt.svh}}
+{{code:code/u4/reporting/tb_classes/scoreboard.svh#the-report}}
 
 {{code:code/u4/reporting/tb_classes/scoreboard_error.txt}}
 
@@ -159,8 +159,9 @@ Make it the name of the component, in capitals, and always the same one.
 
 Note:
 Worth running it live, because it is the cheapest demonstration of the section:
-the same `make u4/reporting` with and without `+UVM_VERBOSITY=UVM_HIGH`, and the log goes
-from 7 `uvm_info` to 22. Without recompiling anything — it is the same binary. They look
+the same line above —`./obj_dir/top/sim +UVM_TESTNAME=random_test`— with and without
+`+UVM_VERBOSITY=UVM_HIGH`, and the log goes from 7 `uvm_info` to 22. With `make` they are
+6 and 21, because `run_sim` adds `+UVM_NO_RELNOTES` and that takes the banner away. Without recompiling anything — it is the same binary. They look
 like few because this example sends **ten** operations on purpose, so the transcript fits
 on the screen; with the thousand of the other sections the difference is three orders of
 magnitude.
@@ -184,9 +185,9 @@ makes a regression log of a thousand tests readable. It is not classroom cosmeti
 
 ```systemverilog
 uvm_cmdline_processor clp = uvm_cmdline_processor::get_inst();
-string value;
+string valor;
 
-if (clp.get_arg_value("+COUNT=", value)) count = value.atoi();
+if (clp.get_arg_value("+COUNT=", valor)) count = valor.atoi();
 ```
 
 - It is a **singleton**: `get_inst()` from any class, without building anything and
@@ -226,7 +227,7 @@ so at least you can notice. It is the kind of thing you pay for once and remembe
 - It is the same tree the prefix of each message comes out of, and the same one the
   `uvm_config_db` uses as a scope
 
-![Instance hierarchy and where the prefix of the messages comes from](res/diagrams/en/UVM-hierarchy.svg)
+![Instance hierarchy UVM builds in build_phase](res/diagrams/en/UVM-hierarchy.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -258,7 +259,7 @@ does not match.
 - `set_report_verbosity_level_hier()` reaches the component **and its children**;
   `set_report_verbosity_level()`, only it
 
-{{code:code/u4/reporting/tb_classes/ceil_hierar.sv}}
+{{code:code/u4/reporting/tb_classes/env.svh#end_of_elaboration_phase}}
 
 Note:
 The window is what has to be left burned in, because the mistake gets made in both
@@ -351,8 +352,11 @@ message. That is where the discipline of having always used the same one gets pa
   hierarchical verbosity
 - And the log below is the result: same DUT, same broken scoreboard, zero
   errors in the *Report Summary*
+- In `code/u4/reporting` the line is written and **commented out**: you uncomment it
+  to reproduce this log, and comment it back. That it lives commented out in the repo
+  is part of the lesson
 
-{{code:code/u4/reporting/tb_classes/env_disable_error.sv}}
+{{code:code/u4/reporting/tb_classes/env.svh#end_of_elaboration_phase}}
 
 {{code:code/u4/reporting/scoreboard2.txt}}
 
@@ -379,7 +383,7 @@ default a uvm_error makes the run fail, and here the error is the example.
   has to be silenced is **one single one**, and the rest has to carry on shouting
 
 ```systemverilog
-class demote_pslverr extends uvm_report_catcher;
+class demotar_pslverr extends uvm_report_catcher;
    virtual function action_e catch();
       if (get_severity() == UVM_ERROR && get_id() == "PSLVERR")
          set_severity(UVM_INFO);      // stops counting as an error
@@ -387,7 +391,7 @@ class demote_pslverr extends uvm_report_catcher;
    endfunction
 endclass
 
-demote_pslverr c = new();
+demotar_pslverr c = new();
 uvm_report_cb::add(null, c);          // null = the whole testbench; or a component
 ```
 

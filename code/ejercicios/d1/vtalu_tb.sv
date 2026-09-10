@@ -15,7 +15,7 @@ module top;
                           and_op = 3'b011,
                           xor_op = 3'b100,
                           mul_op = 3'b101,
-                          // TODO(exercise 1): shr_op = 3'b110 is missing
+                          // TODO(exercise d1): shr_op = 3'b110 is missing
                           rst_op = 3'b111} operation_t;
    byte         unsigned        A;
    byte         unsigned        B;
@@ -36,7 +36,7 @@ module top;
    covergroup op_cov;
       coverpoint op_set {
          bins single_cycle[] = {[add_op : xor_op], rst_op,no_op};
-         // TODO(exercise 1): shr_op is one-cycle too, and the range
+         // TODO(exercise d1): shr_op is one-cycle too, and the range
          // [add_op:xor_op] only reaches 3'b100: it does not cover it
          bins multi_cycle = {mul_op};
 
@@ -154,7 +154,7 @@ module top;
         3'b011 : return and_op;
         3'b100 : return xor_op;
         3'b101 : return mul_op;
-        3'b110 : return rst_op;   // TODO(exercise 1): make it return shr_op
+        3'b110 : return rst_op;   // TODO(exercise d1): make it return shr_op
         3'b111 : return rst_op;
       endcase // case (op_choice)
    endfunction : get_op
@@ -186,7 +186,7 @@ module top;
         and_op: predicted_result = A & B;
         xor_op: predicted_result = A ^ B;
         mul_op: predicted_result = A * B;
-        // TODO(exercise 1): the shr_op case is missing
+        // TODO(exercise d1): the shr_op case is missing
       endcase // case (op_set)
 
       // ovf belongs to sub and to nobody else: with 8-bit inputs and a 16-bit
@@ -203,20 +203,15 @@ module top;
 
    end : scoreboard
 
-   // --- exercise checker (you do not need to touch this) ---------------------
-   // A $error in Verilator aborts the simulation, so a result that does not
-   // match shows up on its own: what is left to count are the shifts, and that
-   // every operation sent came back through the scoreboard.
+   // --- the counters, so the run says what this testbench did ----------------
+   // They are a REPORT and not the verdict: run.sh cross-checks them against
+   // what chequeo.sv counts off the bus, and that file you cannot edit. A
+   // $error in Verilator aborts the simulation, so a result that does not match
+   // shows up on its own; what these say is whether every operation sent came
+   // back through the scoreboard.
    int shifts = 0;
 
-   final begin
-      if (enviadas != chequeadas)
-        $display("EXERCISE INCOMPLETE: sent %0d operations, the scoreboard checked %0d", enviadas, chequeadas);
-      else if (shifts == 0)
-        $display("EXERCISE INCOMPLETE: the TB never sent a shift (look at get_op)");
-      else
-        $display("EXERCISE OK: %0d shifts checked, 0 errors", shifts);
-   end
+   final $display("TB COUNTERS: sent=%0d checked=%0d shifts=%0d", enviadas, chequeadas, shifts);
 
    // Randomize the stimulus
    // get_op and get_data are Constrained Random Data

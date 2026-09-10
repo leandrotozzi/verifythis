@@ -46,6 +46,6 @@ package vtalu_pkg;
    `include "add_test.svh"
    `include "default_seq_test.svh"
    `include "no_objection_test.svh"
-   `include "regresion_test.svh"  // el enunciado, ya escrito
+   `include "regresion_test.svh"  // the statement, already written
 
 endpackage : vtalu_pkg

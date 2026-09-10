@@ -1,4 +1,4 @@
-// TODO(exercise d3b) -- el uvm_error que no dice nada.
+// TODO(exercise d3b) -- the uvm_error that says nothing.
 //
 // This is the scoreboard as it gets written the first time: it is RIGHT --it
 // catches every mismatch-- and it is useless. It is the same line as the day 1

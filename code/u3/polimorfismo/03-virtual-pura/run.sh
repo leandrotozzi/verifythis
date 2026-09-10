@@ -5,7 +5,7 @@ set -e
 vlt top -f sv.f
 run_sim
 
-# Igual que 02-virtual: la pura obliga a la derivada a implementar servir(), y
-# el despacho por el handle de la base tiene que seguir dando dos de cada uno.
+# Same as 02-virtual: the pure one forces the derived class to implement
+# servir(), and dispatch through the base handle still has to give two of each.
 expect_in_log 2 'Fernet: 70/30, and the coke last'
 expect_in_log 2 'Mojito: mint, lime and crushed ice'

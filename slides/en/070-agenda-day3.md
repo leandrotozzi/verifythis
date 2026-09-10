@@ -1,4 +1,4 @@
-<!-- es-sha: 5f9fe43550a7 -->
+<!-- es-sha: cc81ae6d745b -->
 <!-- .slide: id="day3" -->
 
 ## Yesterday we left…
@@ -23,7 +23,7 @@ from being a magic formula.
 
 ---
 
-<!-- .slide: data-machete="res/en/TB_UVM.svg,res/diagrams/en/env_uvm_incantation.svg,res/diagrams/en/UVM-hierarchy.svg,res/en/machete-debug.svg" -->
+<!-- .slide: data-machete="res/en/TB_UVM.svg|The same testbench with UVM structure: test, env, tester, scoreboard and coverage,res/diagrams/en/env_uvm_incantation.svg|Anatomy of the line type::type_id::create(name, this),res/diagrams/en/UVM-hierarchy.svg|Instance hierarchy UVM builds in build_phase,res/en/machete-debug.svg|Debug cheat sheet: the seven knobs of the course and what to look at for each symptom" -->
 
 <!-- .slide: data-transition="convex" -->
 

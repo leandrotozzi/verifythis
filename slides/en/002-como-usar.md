@@ -1,4 +1,4 @@
-<!-- es-sha: 7e8da2447ee7 -->
+<!-- es-sha: df06c4599106 -->
 <!-- .slide: id="como-usar" -->
 
 ## How to use this course
@@ -9,8 +9,8 @@
   something. Object-oriented programming is **not** required — day 2 is exactly
   that. The only thing the course takes for granted is **SystemVerilog**: if you
   come from VHDL or Verilog-2001, half an hour with
-  **`docs/systemverilog-para-el-que-viene-de-vhdl.md`** before starting
-- It is **seven days of class**, of 4 to 5 and a half hours — **≈ 30 h 30**, and each
+  **`docs/systemverilog-para-el-que-viene-de-vhdl.md`** (in Spanish) before starting
+- It is **seven days of class**, of 4 to 5 and a quarter hours — **≈ 31 h**, and each
   agenda carries its own. Plus an **optional day 8**, after the wrap-up. On your own,
   count double: half of it goes into running the examples, and that is the half that teaches
 - <kbd>s</kbd> opens the **presenter notes** in another window ·
@@ -18,7 +18,8 @@
   instructor would say out loud lives: the classic trap, the reason behind the number, the
   mistake everybody makes the first time. **Do not skip them**
 - Every day closes with a **review** of clickable options and with a
-  **self-checking exercise**: `cd code/ejercicios/dN && bash run.sh`
+  **self-checking exercise**: `cd code/ejercicios/d1 && bash run.sh`. The names of
+  the other eighteen are in `code/ejercicios/README.md`
 
 Note:
 If you are teaching the course, these two slides are skipped with the 1 key.

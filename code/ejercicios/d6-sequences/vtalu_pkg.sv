@@ -39,7 +39,7 @@ package vtalu_pkg;
    `include "result_monitor.svh"
 
    `include "vtalu_agent.svh"
-   `include "chequeo.svh"  // el corrector del ejercicio
+   `include "chequeo.svh"  // the exercise checker
    `include "env.svh"
 
    `include "base_test.svh"

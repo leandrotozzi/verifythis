@@ -17,7 +17,7 @@ package vtalu_pkg;
    `include "random_tester.svh"
    `include "add_tester.svh"
    `include "scoreboard.svh"  // el tuyo
-   `include "chequeo.svh"  // el corrector del ejercicio
+   `include "chequeo.svh"  // the exercise checker
    `include "env.svh"
    `include "random_test.svh"
    `include "add_test.svh"

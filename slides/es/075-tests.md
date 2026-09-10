@@ -9,7 +9,7 @@
 - UVM da vuelta el orden: el testbench se compila **una vez**, y el test que
   corre se elige al arrancar la simulación
 
-```bash
+```sh
 $ ./obj_dir/top/sim +UVM_TESTNAME=random_test
 $ ./obj_dir/top/sim +UVM_TESTNAME=add_test     # el mismo binario
 ```
@@ -243,7 +243,7 @@ exactamente el caso de esta slide, y el capstone lo pisa de nuevo.
 
 #### *La línea de tiempo, de punta a punta*
 
-![Línea de tiempo de una objection: raise, estímulo, drop, drain y fin de la fase](res/diagrams/tests_objections.svg)
+![Línea de tiempo de una objection: raise, estímulo, drop, drain_time y fin de la fase, con las transacciones en vuelo](res/diagrams/tests_objections.svg)
 <!-- .element: class="grande" -->
 
 - `raise` y `drop` marcan **el estímulo**, y nada más que el estímulo

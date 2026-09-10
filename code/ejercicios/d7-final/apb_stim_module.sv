@@ -57,7 +57,7 @@ module apb_stim_module (apb_if bfm);
          xfer(0, 8'h08, 32'h0);          // lee ACC
          xfer(0, 8'h04, 32'h0);          // lee SCRATCH
          xfer(1, 8'h08, 32'h0000_00FF);  // escribe ACC: se ignora, y NO da error
-         xfer(0, 8'h10, 32'h0);          // fuera del mapa: PSLVERR
+         xfer(0, 8'h10, 32'h0);          // outside the map: PSLVERR
          xfer(0, 8'h0C, 32'h0);          // lee STATUS
       end
    end

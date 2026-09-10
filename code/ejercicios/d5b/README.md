@@ -1,4 +1,4 @@
-<!-- es-sha: 2d17b63420b1 -->
+<!-- es-sha: 41fccec72368 -->
 **English** · [Castellano](README.es.md)
 
 # Day 5 · second — measure your `dist`
@@ -21,6 +21,11 @@ That the three buckets give 10 / 80 / 10, with a tolerance of **±2 points** eac
 The weights are already written and they are the right ones. **Do not change the
 numbers.** What is wrong is something else, and the output of that first run tells
 you which.
+
+The loop that draws the 4000 samples and builds the histogram is in
+`histograma_top.sv`, and that one is **not to be touched**: `run.sh` checks its
+hash before compiling. What the checker measures has to come out of a file the
+exercise does not edit.
 
 Done when `bash run.sh` prints `EXERCISE OK`.
 

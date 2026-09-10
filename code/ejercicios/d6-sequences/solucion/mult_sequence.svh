@@ -1,9 +1,9 @@
 class mult_sequence extends uvm_sequence #(command_transaction);
    `uvm_object_utils(mult_sequence)
 
-   int unsigned      count = 20;   // cuantas multiplicaciones mandar
+   int unsigned      count = 20;   // how many multiplications to send
    int unsigned      items = 0;    // cuantas mando de verdad
-   shortint unsigned max = 0;      // el resultado mas grande que vio
+   shortint unsigned max = 0;      // the largest result it saw
 
    function new(string name = "mult_sequence");
       super.new(name);

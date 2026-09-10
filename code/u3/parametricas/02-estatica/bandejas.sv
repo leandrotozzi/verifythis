@@ -45,10 +45,10 @@ class mojito extends trago;
 
 endclass : mojito
 
+// cb: tray-and-top
 // Parameterized class
 // the T (type) parameter is what says which
 // kind of queue this is.
-// cb: tray-and-top
 class bandeja #(
     type T
 );

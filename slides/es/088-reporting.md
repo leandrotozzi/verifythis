@@ -89,7 +89,7 @@ es la última parte de la sección.
 - Y así sale en el log. Fijate lo que trae la línea **sin que nadie lo pida**: el
   tiempo, el archivo y la línea, y la ruta jerárquica del componente que habló
 
-{{code:code/u4/reporting/tb_classes/score_ppt.svh}}
+{{code:code/u4/reporting/tb_classes/scoreboard.svh#the-report}}
 
 {{code:code/u4/reporting/tb_classes/scoreboard_error.txt}}
 
@@ -158,8 +158,9 @@ Que sea el nombre del componente, en mayúsculas, y siempre el mismo.
 
 Note:
 Conviene correrlo en vivo, porque es la demostración más barata de la sección:
-el mismo `make u4/reporting` con y sin `+UVM_VERBOSITY=UVM_HIGH`, y el log pasa
-de 7 `uvm_info` a 22. Sin recompilar nada — es el mismo binario. Parecen pocos
+la misma línea de arriba —`./obj_dir/top/sim +UVM_TESTNAME=random_test`— con y sin
+`+UVM_VERBOSITY=UVM_HIGH`, y el log pasa de 7 `uvm_info` a 22. Con `make` son 6 y
+21, porque `run_sim` agrega `+UVM_NO_RELNOTES` y eso se lleva el banner. Sin recompilar nada — es el mismo binario. Parecen pocos
 porque este ejemplo manda **diez** operaciones a propósito, para que el
 transcript entre en la pantalla; con las mil de las otras secciones la diferencia
 es de tres órdenes de magnitud.
@@ -226,7 +227,7 @@ se recuerda.
 - Es el mismo árbol del que sale el prefijo de cada mensaje, y el mismo que usa el
   `uvm_config_db` como ámbito
 
-![Jerarquia de instancias y de donde sale el prefijo de los mensajes](res/diagrams/UVM-hierarchy.svg)
+![Jerarquía de instancias que UVM arma en build_phase](res/diagrams/UVM-hierarchy.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -257,7 +258,7 @@ es la perilla del otro problema, el del ámbito que no matchea.
 - `set_report_verbosity_level_hier()` alcanza al componente **y a sus hijos**;
   `set_report_verbosity_level()`, sólo a él
 
-{{code:code/u4/reporting/tb_classes/ceil_hierar.sv}}
+{{code:code/u4/reporting/tb_classes/env.svh#end_of_elaboration_phase}}
 
 Note:
 La ventana es lo que hay que dejar grabado, porque el error se comete en las dos
@@ -350,8 +351,11 @@ mensaje. Ahí se paga la disciplina de haber usado siempre el mismo.
   verbosidad jerárquica
 - Y el log de abajo es el resultado: mismo DUT, mismo scoreboard roto, cero
   errores en el *Report Summary*
+- En `code/u4/reporting` la línea está escrita y **comentada**: se descomenta para
+  reproducir este log, y se vuelve a comentar. Que viva comentada en el repo es
+  parte de la lección
 
-{{code:code/u4/reporting/tb_classes/env_disable_error.sv}}
+{{code:code/u4/reporting/tb_classes/env.svh#end_of_elaboration_phase}}
 
 {{code:code/u4/reporting/scoreboard2.txt}}
 

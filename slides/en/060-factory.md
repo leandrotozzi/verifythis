@@ -1,4 +1,4 @@
-<!-- es-sha: f067fec308e0 -->
+<!-- es-sha: 8fdd4d8e54aa -->
 ## The factory pattern
 
 #### *Who decides the type?*
@@ -50,7 +50,7 @@ that we invented nothing.
 
 ## The factory pattern
 
-![The cantina builds fernet and mojito, and returns a trago handle](res/diagrams/en/factory_diagram.svg)
+![cantina builds fernet and mojito, and returns a trago handle](res/diagrams/en/factory_diagram.svg)
 <!-- .element: class="grande" -->
 
 <br>

@@ -56,7 +56,7 @@
   your own, start here and keep the deck alongside for the reviews.</p>
 
 <section id="s238" class="slide">
-<!-- es-sha: c06c1cebd8c5 -->
+<!-- es-sha: 44299eb8fd5a -->
 
 
 <h2 id="yesterday-we-left">Yesterday we left…</h2>
@@ -98,9 +98,9 @@ and what happens when the object contains another</li>
 </ul>
 <div class="nota">
 <p>The second one is the novelty of the day and the one that pays off the most at
-work: measuring is half of it, closing is the other half. The three exercises of
-the afternoon are that whole cycle —measure the <code>dist</code>, close the bin— and day 7
-finishes it by accumulating seeds.
+work: measuring is half of it, closing is the other half. The last two exercises
+of the afternoon are two thirds of that cycle —measure the <code>dist</code>, close the
+bin— and day 7 closes it by accumulating seeds.
 Row 12 of the self-assessment says <strong>measure</strong>, not <strong>write</strong>, and that is on
 purpose: a <code>dist</code> with the weights right can give a histogram that lies, and
 whoever never measured it has no way of knowing.</p>
@@ -167,7 +167,8 @@ fields of its own</li>
 <li>This first version works. Count how many times the name of a field of the base
 class shows up</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u6/jerarquias/pre_convert2string.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// The WRONG way to write convert2string!</span>
+<figure class="codigo"><figcaption><code>code/u6/jerarquias/pre_convert2string.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// ILLUSTRATION -- not compiled. The WRONG way to write convert2string!</span>
+<span class="hljs-comment">// The classes are drawn as comments: only the methods are on screen.</span>
 <span class="hljs-comment">//class trago;</span>
    <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
       <span class="hljs-keyword">return</span> <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;Hielos: %0d&quot;</span>, hielos);
@@ -209,7 +210,9 @@ error: the method still returns a string</li>
 <code>super</code> for the rest</li>
 <li>Nobody knows what is further up, so inserting a level breaks nothing</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u6/jerarquias/pre_convert2string_ok.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">//virtual class trago;</span>
+<figure class="codigo"><figcaption><code>code/u6/jerarquias/pre_convert2string_ok.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// ILLUSTRATION -- not compiled. The same three methods written deep, with the</span>
+<span class="hljs-comment">// classes drawn as comments. The version that does compile is deep.sv.</span>
+<span class="hljs-comment">//virtual class trago;</span>
    <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
       <span class="hljs-keyword">return</span> <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;Hielos: %0d&quot;</span>, hielos);
    <span class="hljs-keyword">endfunction</span> : convert2string
@@ -268,7 +271,8 @@ from.</p>
 <h4 id="copying-for-real-is-two-steps"><em>Copying for real is two steps</em></h4>
 <p>Copying for real is two steps, and they have to be written: <strong>instantiate</strong> a new
 object and <strong>hand it the data</strong> field by field</p>
-<figure class="codigo"><figcaption><code>code/u6/jerarquias/pre_copy.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
+<figure class="codigo"><figcaption><code>code/u6/jerarquias/pre_copy.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// ILLUSTRATION -- not compiled. The initial block of deep.sv:110-118, on its own.</span>
+<span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
    fernet_hielo1_h =
        <span class="hljs-keyword">new</span>(.hielos(<span class="hljs-number">2</span>), .con_coca(<span class="hljs-number">1</span>), .graduacion(<span class="hljs-number">2</span>), .mesa(<span class="hljs-string">&quot;mesa 4&quot;</span>), .medidas(<span class="hljs-number">2</span>));
    <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;\n--- Fernet 1 ---\n&quot;</span>, fernet_hielo1_h.convert2string());
@@ -331,7 +335,9 @@ is worth leaving the question on the table.</p>
       <span class="hljs-keyword">this</span>.medidas = copia_fernet_con_hielo.medidas;
    <span class="hljs-keyword">endfunction</span> : do_copy
 
-<span class="hljs-keyword">endclass</span> : fernet_con_hielo</code></pre><details><summary>el archivo entero, 46 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">fernet_doble</span> <span class="hljs-keyword">extends</span> fernet;
+<span class="hljs-keyword">endclass</span> : fernet_con_hielo</code></pre><details><summary>el archivo entero, 48 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// ILLUSTRATION -- not compiled. The bottom two classes of the hierarchy, with the</span>
+<span class="hljs-comment">// comments that explain the do_copy() argument. The whole one is deep.sv:64-105.</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title">fernet_doble</span> <span class="hljs-keyword">extends</span> fernet;
    <span class="hljs-type">string</span> mesa;
 
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">int</span> hielos = <span class="hljs-number">0</span>, <span class="hljs-type">int</span> graduacion = <span class="hljs-number">0</span>, <span class="hljs-type">bit</span> con_coca = <span class="hljs-number">0</span>,
@@ -727,7 +733,7 @@ ready-made — which is exactly the unit that follows.</p>
 </section>
 
 <section id="s250" class="slide">
-<!-- es-sha: 3bd28085ff3a -->
+<!-- es-sha: d772f07da5a5 -->
 <h2 id="transactions">Transactions</h2>
 <h4 id="the-testbench-is-well-divided-up-and-the-data-is-not"><em>The testbench is well divided up, and the data is not</em></h4>
 <ul>
@@ -803,7 +809,9 @@ classes have to be touched? One.</p>
 <li>What follows is turning the old <code>command_s</code> structure into a class,
 <code>command_transaction</code>, method by method</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u6/transactions/command_s.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> {
+<figure class="codigo"><figcaption><code>code/u6/transactions/command_s.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// ILLUSTRATION -- not compiled. The struct as it is in code/u5/put-get/vtalu_pkg.sv,</span>
+<span class="hljs-comment">// the one this section turns into a class.</span>
+<span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> {
    <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
    <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> B;
    operation_t   op;
@@ -833,7 +841,10 @@ data</strong>, not of the test — and yet they live in the tester</li>
 <li>SystemVerilog already brings this ready-made, and there is no need to write a
 single <code>$urandom</code></li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u6/transactions/prev-random.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// This function handles the fact that</span>
+<figure class="codigo"><figcaption><code>code/u6/transactions/prev-random.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// ILLUSTRATION -- not compiled. The two functions as they are in</span>
+<span class="hljs-comment">// code/u5/put-get/tb_classes/random_tester.svh, the section this one replaces.</span>
+<span class="hljs-comment">//</span>
+<span class="hljs-comment">// This function handles the fact that</span>
 <span class="hljs-comment">// the operation bus has 8 possible values,</span>
 <span class="hljs-comment">// but only 6 of them are valid operations</span>
 <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">operation_t </span><span class="hljs-title">get_op</span>();
@@ -915,7 +926,7 @@ where the bias to the edges gets declared</li>
          [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>,
          <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>
       };
-   }</code></pre><details><summary>el archivo entero, 79 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">command_transaction</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence_item</span>;
+   }</code></pre><details><summary>el archivo entero, 86 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">command_transaction</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence_item</span>;
    <span class="hljs-uvm-macro">`uvm_object_utils</span>(command_transaction)
    <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
    <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> B;
@@ -943,6 +954,7 @@ where the bias to the edges gets declared</li>
    <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(<span class="hljs-uvm-type">uvm_object</span> rhs);
       command_transaction copied_transaction_h;
 
+      <span class="hljs-comment">// Checks that make DEBUG easier</span>
       <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
          <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy from a null pointer&quot;</span>)
 
@@ -973,8 +985,11 @@ where the bias to the edges gets declared</li>
       <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
          <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to do comparison to a null pointer&quot;</span>);
 
+      <span class="hljs-comment">// First check whether we are comparing the same type</span>
       <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(compared_transaction_h, rhs)) same = <span class="hljs-number">0</span>;
       <span class="hljs-keyword">else</span>
+         <span class="hljs-comment">// Deep comparison: what the parent compares, plus the three fields of</span>
+         <span class="hljs-comment">// this class</span>
          same = <span class="hljs-keyword">super</span>.do_compare(
              rhs, comparer
          ) &amp;&amp; (compared_transaction_h.A == A) &amp;&amp; (compared_transaction_h.B == B) &amp;&amp;
@@ -985,10 +1000,13 @@ where the bias to the edges gets declared</li>
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
       <span class="hljs-type">string</span> s;
+      <span class="hljs-comment">// op.name() can be add_op, no_op ...</span>
       s = <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;A: %2h  B: %2h op: %s&quot;</span>, A, B, op.name());
       <span class="hljs-keyword">return</span> s;
    <span class="hljs-keyword">endfunction</span> : convert2string
 
+   <span class="hljs-comment">// Constructor of a uvm_object: dead simple, it only takes a name. A</span>
+   <span class="hljs-comment">// transaction has no parent because it does not live in the component tree.</span>
    <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;&quot;</span>);
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name);
    <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
@@ -1024,10 +1042,96 @@ components get built once, before it starts, and they stay</li>
 <li>It is still worth giving them a name: it is the one that shows up in the UVM
 messages</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction_constructor.svh</code></figcaption><pre><code class="hljs">   <span class="hljs-comment">// Constructor for a uvm_object. Dead simple</span>
-   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span> (<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;&quot;</span>);
+<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction.svh</code> · #new</figcaption><pre><code class="hljs">   <span class="hljs-comment">// Constructor of a uvm_object: dead simple, it only takes a name. A</span>
+   <span class="hljs-comment">// transaction has no parent because it does not live in the component tree.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;&quot;</span>);
       <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name);
-   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span></code></pre></figure><div class="nota">
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span></code></pre><details><summary>el archivo entero, 86 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">command_transaction</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence_item</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(command_transaction)
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> B;
+   <span class="hljs-keyword">rand</span> operation_t   op;
+
+   <span class="hljs-comment">// :/ and NOT :=  ---  this is the line that reproduces the bias towards the</span>
+   <span class="hljs-comment">// corner cases that get_data() of the Functional coverage section did by hand (1/4 at 00, 1/4 at FF,</span>
+   <span class="hljs-comment">// 1/2 in the middle). With &quot;:=&quot; the weight applies to EVERY value of the range, so the</span>
+   <span class="hljs-comment">// middle takes 254 out of 256 and 00 comes up once every 256: the distribution</span>
+   <span class="hljs-comment">// ends up almost uniform and the corner bins never fill.</span>
+   <span class="hljs-comment">// The Constrained Random unit has the experiment with the numbers.</span>
+   <span class="hljs-keyword">constraint</span> data {
+      A <span class="hljs-keyword">dist</span> {
+         <span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>,
+         [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>,
+         <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>
+      };
+      B <span class="hljs-keyword">dist</span> {
+         <span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>,
+         [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>,
+         <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>
+      };
+   }
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(<span class="hljs-uvm-type">uvm_object</span> rhs);
+      command_transaction copied_transaction_h;
+
+      <span class="hljs-comment">// Checks that make DEBUG easier</span>
+      <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy from a null pointer&quot;</span>)
+
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(copied_transaction_h, rhs))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy wrong type.&quot;</span>)
+
+      <span class="hljs-keyword">super</span>.do_copy(rhs);  <span class="hljs-comment">// copy all parent class data</span>
+
+      A = copied_transaction_h.A;
+      B = copied_transaction_h.B;
+      op = copied_transaction_h.op;
+
+   <span class="hljs-keyword">endfunction</span> : do_copy
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">command_transaction </span><span class="hljs-title">clone_me</span>();
+      command_transaction clone;
+      <span class="hljs-uvm-type">uvm_object</span> tmp;
+
+      tmp = <span class="hljs-keyword">this</span>.clone();
+      <span class="hljs-built_in">$cast</span>(clone, tmp);
+      <span class="hljs-keyword">return</span> clone;
+   <span class="hljs-keyword">endfunction</span> : clone_me
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">bit </span><span class="hljs-title">do_compare</span>(<span class="hljs-uvm-type">uvm_object</span> rhs, <span class="hljs-uvm-type">uvm_comparer</span> comparer);
+      command_transaction compared_transaction_h;
+      <span class="hljs-type">bit</span> same;
+
+      <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to do comparison to a null pointer&quot;</span>);
+
+      <span class="hljs-comment">// First check whether we are comparing the same type</span>
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(compared_transaction_h, rhs)) same = <span class="hljs-number">0</span>;
+      <span class="hljs-keyword">else</span>
+         <span class="hljs-comment">// Deep comparison: what the parent compares, plus the three fields of</span>
+         <span class="hljs-comment">// this class</span>
+         same = <span class="hljs-keyword">super</span>.do_compare(
+             rhs, comparer
+         ) &amp;&amp; (compared_transaction_h.A == A) &amp;&amp; (compared_transaction_h.B == B) &amp;&amp;
+             (compared_transaction_h.op == op);
+
+      <span class="hljs-keyword">return</span> same;
+   <span class="hljs-keyword">endfunction</span> : do_compare
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-type">string</span> s;
+      <span class="hljs-comment">// op.name() can be add_op, no_op ...</span>
+      s = <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;A: %2h  B: %2h op: %s&quot;</span>, A, B, op.name());
+      <span class="hljs-keyword">return</span> s;
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-comment">// Constructor of a uvm_object: dead simple, it only takes a name. A</span>
+   <span class="hljs-comment">// transaction has no parent because it does not live in the component tree.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+<span class="hljs-keyword">endclass</span> : command_transaction</code></pre></details></figure><div class="nota">
 <p>It is the distinction that has to be left clear: <em>component</em> is structure —it is
 in the tree, it has a parent, it has phases—; <em>object</em> is data —it gets created,
 it travels around the testbench and it gets thrown away—. Both are UVM classes,
@@ -1051,22 +1155,108 @@ copy, but it does not know <strong>which fields</strong> your transaction has</l
 called, <code>do_copy()</code> is the one that gets written</li>
 <li>The only difference is the argument: it has to be a <code>uvm_object</code> —hence the <code>$cast</code>—. UVM calls it <em>rhs</em> (<em>right hand side</em>) by convention, not by requirement</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction_do_copy.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(<span class="hljs-uvm-type">uvm_object</span> rhs);
-   command_transaction copied_transaction_h;
+<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction.svh</code> · #do_copy</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(<span class="hljs-uvm-type">uvm_object</span> rhs);
+      command_transaction copied_transaction_h;
 
-   <span class="hljs-comment">// Checks that make DEBUG easier</span>
-   <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy from a null pointer&quot;</span>)
+      <span class="hljs-comment">// Checks that make DEBUG easier</span>
+      <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy from a null pointer&quot;</span>)
 
-   <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(copied_transaction_h, rhs))
-      <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy wrong type.&quot;</span>)
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(copied_transaction_h, rhs))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy wrong type.&quot;</span>)
 
-   <span class="hljs-keyword">super</span>.do_copy(rhs);  <span class="hljs-comment">// copy all parent class data</span>
+      <span class="hljs-keyword">super</span>.do_copy(rhs);  <span class="hljs-comment">// copy all parent class data</span>
 
-   A = copied_transaction_h.A;
-   B = copied_transaction_h.B;
-   op = copied_transaction_h.op;
+      A = copied_transaction_h.A;
+      B = copied_transaction_h.B;
+      op = copied_transaction_h.op;
 
-<span class="hljs-keyword">endfunction</span> : do_copy</code></pre></figure><div class="nota">
+   <span class="hljs-keyword">endfunction</span> : do_copy</code></pre><details><summary>el archivo entero, 86 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">command_transaction</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence_item</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(command_transaction)
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> B;
+   <span class="hljs-keyword">rand</span> operation_t   op;
+
+   <span class="hljs-comment">// :/ and NOT :=  ---  this is the line that reproduces the bias towards the</span>
+   <span class="hljs-comment">// corner cases that get_data() of the Functional coverage section did by hand (1/4 at 00, 1/4 at FF,</span>
+   <span class="hljs-comment">// 1/2 in the middle). With &quot;:=&quot; the weight applies to EVERY value of the range, so the</span>
+   <span class="hljs-comment">// middle takes 254 out of 256 and 00 comes up once every 256: the distribution</span>
+   <span class="hljs-comment">// ends up almost uniform and the corner bins never fill.</span>
+   <span class="hljs-comment">// The Constrained Random unit has the experiment with the numbers.</span>
+   <span class="hljs-keyword">constraint</span> data {
+      A <span class="hljs-keyword">dist</span> {
+         <span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>,
+         [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>,
+         <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>
+      };
+      B <span class="hljs-keyword">dist</span> {
+         <span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>,
+         [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>,
+         <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>
+      };
+   }
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(<span class="hljs-uvm-type">uvm_object</span> rhs);
+      command_transaction copied_transaction_h;
+
+      <span class="hljs-comment">// Checks that make DEBUG easier</span>
+      <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy from a null pointer&quot;</span>)
+
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(copied_transaction_h, rhs))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy wrong type.&quot;</span>)
+
+      <span class="hljs-keyword">super</span>.do_copy(rhs);  <span class="hljs-comment">// copy all parent class data</span>
+
+      A = copied_transaction_h.A;
+      B = copied_transaction_h.B;
+      op = copied_transaction_h.op;
+
+   <span class="hljs-keyword">endfunction</span> : do_copy
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">command_transaction </span><span class="hljs-title">clone_me</span>();
+      command_transaction clone;
+      <span class="hljs-uvm-type">uvm_object</span> tmp;
+
+      tmp = <span class="hljs-keyword">this</span>.clone();
+      <span class="hljs-built_in">$cast</span>(clone, tmp);
+      <span class="hljs-keyword">return</span> clone;
+   <span class="hljs-keyword">endfunction</span> : clone_me
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">bit </span><span class="hljs-title">do_compare</span>(<span class="hljs-uvm-type">uvm_object</span> rhs, <span class="hljs-uvm-type">uvm_comparer</span> comparer);
+      command_transaction compared_transaction_h;
+      <span class="hljs-type">bit</span> same;
+
+      <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to do comparison to a null pointer&quot;</span>);
+
+      <span class="hljs-comment">// First check whether we are comparing the same type</span>
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(compared_transaction_h, rhs)) same = <span class="hljs-number">0</span>;
+      <span class="hljs-keyword">else</span>
+         <span class="hljs-comment">// Deep comparison: what the parent compares, plus the three fields of</span>
+         <span class="hljs-comment">// this class</span>
+         same = <span class="hljs-keyword">super</span>.do_compare(
+             rhs, comparer
+         ) &amp;&amp; (compared_transaction_h.A == A) &amp;&amp; (compared_transaction_h.B == B) &amp;&amp;
+             (compared_transaction_h.op == op);
+
+      <span class="hljs-keyword">return</span> same;
+   <span class="hljs-keyword">endfunction</span> : do_compare
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-type">string</span> s;
+      <span class="hljs-comment">// op.name() can be add_op, no_op ...</span>
+      s = <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;A: %2h  B: %2h op: %s&quot;</span>, A, B, op.name());
+      <span class="hljs-keyword">return</span> s;
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-comment">// Constructor of a uvm_object: dead simple, it only takes a name. A</span>
+   <span class="hljs-comment">// transaction has no parent because it does not live in the component tree.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+<span class="hljs-keyword">endclass</span> : command_transaction</code></pre></details></figure><div class="nota">
 <p>The pattern is the one from the class hierarchies, with two UVM rules on top.
 The first one, the one that makes it compile: the argument has to be of type
 <code>uvm_object</code> —the base class of everything—, because what SystemVerilog demands for
@@ -1132,14 +1322,99 @@ that does both things and returns the right type already</li>
 <li>UVM does not bring it: it is four lines written once in the data, so that none
 of the ones who use it have to remember the cast</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction_do_clone.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">function</span> <span class="hljs-type">command_transaction </span><span class="hljs-title">clone_me</span>();
-   command_transaction clone;
-   <span class="hljs-uvm-type">uvm_object</span> tmp;
+<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction.svh</code> · #clone_me</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">command_transaction </span><span class="hljs-title">clone_me</span>();
+      command_transaction clone;
+      <span class="hljs-uvm-type">uvm_object</span> tmp;
 
-   tmp = <span class="hljs-keyword">this</span>.clone();
-   <span class="hljs-built_in">$cast</span>(clone, tmp);
-   <span class="hljs-keyword">return</span> clone;
-<span class="hljs-keyword">endfunction</span> : clone_me</code></pre></figure><div class="nota">
+      tmp = <span class="hljs-keyword">this</span>.clone();
+      <span class="hljs-built_in">$cast</span>(clone, tmp);
+      <span class="hljs-keyword">return</span> clone;
+   <span class="hljs-keyword">endfunction</span> : clone_me</code></pre><details><summary>el archivo entero, 86 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">command_transaction</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence_item</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(command_transaction)
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> B;
+   <span class="hljs-keyword">rand</span> operation_t   op;
+
+   <span class="hljs-comment">// :/ and NOT :=  ---  this is the line that reproduces the bias towards the</span>
+   <span class="hljs-comment">// corner cases that get_data() of the Functional coverage section did by hand (1/4 at 00, 1/4 at FF,</span>
+   <span class="hljs-comment">// 1/2 in the middle). With &quot;:=&quot; the weight applies to EVERY value of the range, so the</span>
+   <span class="hljs-comment">// middle takes 254 out of 256 and 00 comes up once every 256: the distribution</span>
+   <span class="hljs-comment">// ends up almost uniform and the corner bins never fill.</span>
+   <span class="hljs-comment">// The Constrained Random unit has the experiment with the numbers.</span>
+   <span class="hljs-keyword">constraint</span> data {
+      A <span class="hljs-keyword">dist</span> {
+         <span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>,
+         [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>,
+         <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>
+      };
+      B <span class="hljs-keyword">dist</span> {
+         <span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>,
+         [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>,
+         <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>
+      };
+   }
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(<span class="hljs-uvm-type">uvm_object</span> rhs);
+      command_transaction copied_transaction_h;
+
+      <span class="hljs-comment">// Checks that make DEBUG easier</span>
+      <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy from a null pointer&quot;</span>)
+
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(copied_transaction_h, rhs))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy wrong type.&quot;</span>)
+
+      <span class="hljs-keyword">super</span>.do_copy(rhs);  <span class="hljs-comment">// copy all parent class data</span>
+
+      A = copied_transaction_h.A;
+      B = copied_transaction_h.B;
+      op = copied_transaction_h.op;
+
+   <span class="hljs-keyword">endfunction</span> : do_copy
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">command_transaction </span><span class="hljs-title">clone_me</span>();
+      command_transaction clone;
+      <span class="hljs-uvm-type">uvm_object</span> tmp;
+
+      tmp = <span class="hljs-keyword">this</span>.clone();
+      <span class="hljs-built_in">$cast</span>(clone, tmp);
+      <span class="hljs-keyword">return</span> clone;
+   <span class="hljs-keyword">endfunction</span> : clone_me
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">bit </span><span class="hljs-title">do_compare</span>(<span class="hljs-uvm-type">uvm_object</span> rhs, <span class="hljs-uvm-type">uvm_comparer</span> comparer);
+      command_transaction compared_transaction_h;
+      <span class="hljs-type">bit</span> same;
+
+      <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to do comparison to a null pointer&quot;</span>);
+
+      <span class="hljs-comment">// First check whether we are comparing the same type</span>
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(compared_transaction_h, rhs)) same = <span class="hljs-number">0</span>;
+      <span class="hljs-keyword">else</span>
+         <span class="hljs-comment">// Deep comparison: what the parent compares, plus the three fields of</span>
+         <span class="hljs-comment">// this class</span>
+         same = <span class="hljs-keyword">super</span>.do_compare(
+             rhs, comparer
+         ) &amp;&amp; (compared_transaction_h.A == A) &amp;&amp; (compared_transaction_h.B == B) &amp;&amp;
+             (compared_transaction_h.op == op);
+
+      <span class="hljs-keyword">return</span> same;
+   <span class="hljs-keyword">endfunction</span> : do_compare
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-type">string</span> s;
+      <span class="hljs-comment">// op.name() can be add_op, no_op ...</span>
+      s = <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;A: %2h  B: %2h op: %s&quot;</span>, A, B, op.name());
+      <span class="hljs-keyword">return</span> s;
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-comment">// Constructor of a uvm_object: dead simple, it only takes a name. A</span>
+   <span class="hljs-comment">// transaction has no parent because it does not live in the component tree.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+<span class="hljs-keyword">endclass</span> : command_transaction</code></pre></details></figure><div class="nota">
 <p>It is a three-line method and it exists for one reason only: <code>clone()</code> returns a
 <code>uvm_object</code>, so everybody who uses it has to cast. Writing the <code>$cast</code> once
 inside the class is better than writing it fifty times outside.
@@ -1166,24 +1441,110 @@ is the comparison policy: how many differences to report and with what verbosity
 <li>Almost nobody touches the comparer, but it has to be declared because the
 signature asks for it</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction_do_comparer.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">function</span> <span class="hljs-type">bit </span><span class="hljs-title">do_compare</span>(<span class="hljs-uvm-type">uvm_object</span> rhs, <span class="hljs-uvm-type">uvm_comparer</span> comparer);
-   command_transaction compared_transaction_h;
-   <span class="hljs-type">bit</span> same;
+<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction.svh</code> · #do_compare</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">bit </span><span class="hljs-title">do_compare</span>(<span class="hljs-uvm-type">uvm_object</span> rhs, <span class="hljs-uvm-type">uvm_comparer</span> comparer);
+      command_transaction compared_transaction_h;
+      <span class="hljs-type">bit</span> same;
 
-   <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
-      <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to do comparison to a null pointer&quot;</span>);
+      <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to do comparison to a null pointer&quot;</span>);
 
-   <span class="hljs-comment">// First check whether we are comparing the same type</span>
-   <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(compared_transaction_h, rhs)) same = <span class="hljs-number">0</span>;
-   <span class="hljs-keyword">else</span>
-      <span class="hljs-comment">// Deep Comparation</span>
-      same = <span class="hljs-keyword">super</span>.do_compare(
-          rhs, comparer
-      ) &amp;&amp; (compared_transaction_h.A == A) &amp;&amp; (compared_transaction_h.B == B) &amp;&amp;
-          (compared_transaction_h.op == op);
+      <span class="hljs-comment">// First check whether we are comparing the same type</span>
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(compared_transaction_h, rhs)) same = <span class="hljs-number">0</span>;
+      <span class="hljs-keyword">else</span>
+         <span class="hljs-comment">// Deep comparison: what the parent compares, plus the three fields of</span>
+         <span class="hljs-comment">// this class</span>
+         same = <span class="hljs-keyword">super</span>.do_compare(
+             rhs, comparer
+         ) &amp;&amp; (compared_transaction_h.A == A) &amp;&amp; (compared_transaction_h.B == B) &amp;&amp;
+             (compared_transaction_h.op == op);
 
-   <span class="hljs-keyword">return</span> same;
-<span class="hljs-keyword">endfunction</span> : do_compare</code></pre></figure><div class="nota">
+      <span class="hljs-keyword">return</span> same;
+   <span class="hljs-keyword">endfunction</span> : do_compare</code></pre><details><summary>el archivo entero, 86 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">command_transaction</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence_item</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(command_transaction)
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> B;
+   <span class="hljs-keyword">rand</span> operation_t   op;
+
+   <span class="hljs-comment">// :/ and NOT :=  ---  this is the line that reproduces the bias towards the</span>
+   <span class="hljs-comment">// corner cases that get_data() of the Functional coverage section did by hand (1/4 at 00, 1/4 at FF,</span>
+   <span class="hljs-comment">// 1/2 in the middle). With &quot;:=&quot; the weight applies to EVERY value of the range, so the</span>
+   <span class="hljs-comment">// middle takes 254 out of 256 and 00 comes up once every 256: the distribution</span>
+   <span class="hljs-comment">// ends up almost uniform and the corner bins never fill.</span>
+   <span class="hljs-comment">// The Constrained Random unit has the experiment with the numbers.</span>
+   <span class="hljs-keyword">constraint</span> data {
+      A <span class="hljs-keyword">dist</span> {
+         <span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>,
+         [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>,
+         <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>
+      };
+      B <span class="hljs-keyword">dist</span> {
+         <span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>,
+         [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>,
+         <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>
+      };
+   }
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(<span class="hljs-uvm-type">uvm_object</span> rhs);
+      command_transaction copied_transaction_h;
+
+      <span class="hljs-comment">// Checks that make DEBUG easier</span>
+      <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy from a null pointer&quot;</span>)
+
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(copied_transaction_h, rhs))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy wrong type.&quot;</span>)
+
+      <span class="hljs-keyword">super</span>.do_copy(rhs);  <span class="hljs-comment">// copy all parent class data</span>
+
+      A = copied_transaction_h.A;
+      B = copied_transaction_h.B;
+      op = copied_transaction_h.op;
+
+   <span class="hljs-keyword">endfunction</span> : do_copy
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">command_transaction </span><span class="hljs-title">clone_me</span>();
+      command_transaction clone;
+      <span class="hljs-uvm-type">uvm_object</span> tmp;
+
+      tmp = <span class="hljs-keyword">this</span>.clone();
+      <span class="hljs-built_in">$cast</span>(clone, tmp);
+      <span class="hljs-keyword">return</span> clone;
+   <span class="hljs-keyword">endfunction</span> : clone_me
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">bit </span><span class="hljs-title">do_compare</span>(<span class="hljs-uvm-type">uvm_object</span> rhs, <span class="hljs-uvm-type">uvm_comparer</span> comparer);
+      command_transaction compared_transaction_h;
+      <span class="hljs-type">bit</span> same;
+
+      <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to do comparison to a null pointer&quot;</span>);
+
+      <span class="hljs-comment">// First check whether we are comparing the same type</span>
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(compared_transaction_h, rhs)) same = <span class="hljs-number">0</span>;
+      <span class="hljs-keyword">else</span>
+         <span class="hljs-comment">// Deep comparison: what the parent compares, plus the three fields of</span>
+         <span class="hljs-comment">// this class</span>
+         same = <span class="hljs-keyword">super</span>.do_compare(
+             rhs, comparer
+         ) &amp;&amp; (compared_transaction_h.A == A) &amp;&amp; (compared_transaction_h.B == B) &amp;&amp;
+             (compared_transaction_h.op == op);
+
+      <span class="hljs-keyword">return</span> same;
+   <span class="hljs-keyword">endfunction</span> : do_compare
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-type">string</span> s;
+      <span class="hljs-comment">// op.name() can be add_op, no_op ...</span>
+      s = <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;A: %2h  B: %2h op: %s&quot;</span>, A, B, op.name());
+      <span class="hljs-keyword">return</span> s;
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-comment">// Constructor of a uvm_object: dead simple, it only takes a name. A</span>
+   <span class="hljs-comment">// transaction has no parent because it does not live in the component tree.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+<span class="hljs-keyword">endclass</span> : command_transaction</code></pre></details></figure><div class="nota">
 <p>Two things that get copied wrong.
 The <code>$cast</code> here does <strong>not</strong> go with a <code>uvm_fatal</code>: if the type does not fit, the
 right answer is <code>same = 0</code> —they are different, obviously, if they are not even of
@@ -1212,12 +1573,97 @@ it is used by the scoreboard, the monitor and anybody who has to report</li>
 <code>add_op</code> instead of <code>3&#39;b001</code>. Without that the error says a number and nobody
 reads it</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction_convert2string.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
-   <span class="hljs-type">string</span> s;
-   <span class="hljs-comment">// op.name() can be add_op, no_op ...</span>
-   s = <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;A: %2h  B: %2h op: %s&quot;</span>, A, B, op.name());
-   <span class="hljs-keyword">return</span> s;
-<span class="hljs-keyword">endfunction</span> : convert2string</code></pre></figure><div class="nota">
+<figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction.svh</code> · #convert2string</figcaption><pre><code class="hljs">   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-type">string</span> s;
+      <span class="hljs-comment">// op.name() can be add_op, no_op ...</span>
+      s = <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;A: %2h  B: %2h op: %s&quot;</span>, A, B, op.name());
+      <span class="hljs-keyword">return</span> s;
+   <span class="hljs-keyword">endfunction</span> : convert2string</code></pre><details><summary>el archivo entero, 86 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">command_transaction</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_sequence_item</span>;
+   <span class="hljs-uvm-macro">`uvm_object_utils</span>(command_transaction)
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
+   <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> B;
+   <span class="hljs-keyword">rand</span> operation_t   op;
+
+   <span class="hljs-comment">// :/ and NOT :=  ---  this is the line that reproduces the bias towards the</span>
+   <span class="hljs-comment">// corner cases that get_data() of the Functional coverage section did by hand (1/4 at 00, 1/4 at FF,</span>
+   <span class="hljs-comment">// 1/2 in the middle). With &quot;:=&quot; the weight applies to EVERY value of the range, so the</span>
+   <span class="hljs-comment">// middle takes 254 out of 256 and 00 comes up once every 256: the distribution</span>
+   <span class="hljs-comment">// ends up almost uniform and the corner bins never fill.</span>
+   <span class="hljs-comment">// The Constrained Random unit has the experiment with the numbers.</span>
+   <span class="hljs-keyword">constraint</span> data {
+      A <span class="hljs-keyword">dist</span> {
+         <span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>,
+         [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>,
+         <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>
+      };
+      B <span class="hljs-keyword">dist</span> {
+         <span class="hljs-number">8&#x27;h00</span> :/ <span class="hljs-number">1</span>,
+         [<span class="hljs-number">8&#x27;h01</span> : <span class="hljs-number">8&#x27;hFE</span>] :/ <span class="hljs-number">2</span>,
+         <span class="hljs-number">8&#x27;hFF</span> :/ <span class="hljs-number">1</span>
+      };
+   }
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">void </span><span class="hljs-title">do_copy</span>(<span class="hljs-uvm-type">uvm_object</span> rhs);
+      command_transaction copied_transaction_h;
+
+      <span class="hljs-comment">// Checks that make DEBUG easier</span>
+      <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy from a null pointer&quot;</span>)
+
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(copied_transaction_h, rhs))
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;COMMAND TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to copy wrong type.&quot;</span>)
+
+      <span class="hljs-keyword">super</span>.do_copy(rhs);  <span class="hljs-comment">// copy all parent class data</span>
+
+      A = copied_transaction_h.A;
+      B = copied_transaction_h.B;
+      op = copied_transaction_h.op;
+
+   <span class="hljs-keyword">endfunction</span> : do_copy
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">command_transaction </span><span class="hljs-title">clone_me</span>();
+      command_transaction clone;
+      <span class="hljs-uvm-type">uvm_object</span> tmp;
+
+      tmp = <span class="hljs-keyword">this</span>.clone();
+      <span class="hljs-built_in">$cast</span>(clone, tmp);
+      <span class="hljs-keyword">return</span> clone;
+   <span class="hljs-keyword">endfunction</span> : clone_me
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">bit </span><span class="hljs-title">do_compare</span>(<span class="hljs-uvm-type">uvm_object</span> rhs, <span class="hljs-uvm-type">uvm_comparer</span> comparer);
+      command_transaction compared_transaction_h;
+      <span class="hljs-type">bit</span> same;
+
+      <span class="hljs-keyword">if</span> (rhs == <span class="hljs-keyword">null</span>)
+         <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;RANDOM TRANSACTION&quot;</span>, <span class="hljs-string">&quot;Tried to do comparison to a null pointer&quot;</span>);
+
+      <span class="hljs-comment">// First check whether we are comparing the same type</span>
+      <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">$cast</span>(compared_transaction_h, rhs)) same = <span class="hljs-number">0</span>;
+      <span class="hljs-keyword">else</span>
+         <span class="hljs-comment">// Deep comparison: what the parent compares, plus the three fields of</span>
+         <span class="hljs-comment">// this class</span>
+         same = <span class="hljs-keyword">super</span>.do_compare(
+             rhs, comparer
+         ) &amp;&amp; (compared_transaction_h.A == A) &amp;&amp; (compared_transaction_h.B == B) &amp;&amp;
+             (compared_transaction_h.op == op);
+
+      <span class="hljs-keyword">return</span> same;
+   <span class="hljs-keyword">endfunction</span> : do_compare
+
+   <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
+      <span class="hljs-type">string</span> s;
+      <span class="hljs-comment">// op.name() can be add_op, no_op ...</span>
+      s = <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;A: %2h  B: %2h op: %s&quot;</span>, A, B, op.name());
+      <span class="hljs-keyword">return</span> s;
+   <span class="hljs-keyword">endfunction</span> : convert2string
+
+   <span class="hljs-comment">// Constructor of a uvm_object: dead simple, it only takes a name. A</span>
+   <span class="hljs-comment">// transaction has no parent because it does not live in the component tree.</span>
+   <span class="hljs-keyword">function</span> <span class="hljs-title">new</span>(<span class="hljs-type">string</span> name = <span class="hljs-string">&quot;&quot;</span>);
+      <span class="hljs-keyword">super</span>.<span class="hljs-keyword">new</span>(name);
+   <span class="hljs-keyword">endfunction</span> : <span class="hljs-keyword">new</span>
+
+<span class="hljs-keyword">endclass</span> : command_transaction</code></pre></details></figure><div class="nota">
 <p>It is the most used of the three methods, and the one that gets the least
 attention: every message of the scoreboard and of the monitors of the rest of the
 course comes out of here.
@@ -1301,7 +1747,7 @@ on the spot.</p>
 </thead>
 <tbody><tr>
 <td align="right">1</td>
-<td>a <code>result_transaction</code> for the way back</td>
+<td>a <code>result_transaction</code> for the trip back</td>
 <td><code>result_transaction.svh</code></td>
 </tr>
 <tr>
@@ -1410,7 +1856,21 @@ case 1 of the Constrained random experiment.</p>
          <span class="hljs-comment">// silence: the TB carries on, sending garbage.</span>
          <span class="hljs-keyword">if</span> (!command.<span class="hljs-keyword">randomize</span>()) <span class="hljs-uvm-macro">`uvm_fatal</span>(<span class="hljs-string">&quot;TESTER&quot;</span>, <span class="hljs-string">&quot;randomize() failed&quot;</span>)
          command_port.put(command);
-      <span class="hljs-keyword">end</span> : random_loop</code></pre><details><summary>el archivo entero, 49 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">tester</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
+      <span class="hljs-keyword">end</span> : random_loop
+
+      <span class="hljs-comment">// Directed: the multiplier overflow case, which 1000 random operations</span>
+      <span class="hljs-comment">// might never touch. It comes out of the factory like the others, but</span>
+      <span class="hljs-comment">// since it is not randomized, add_transaction&#x27;s constraint does not run:</span>
+      <span class="hljs-comment">// the factory picks the TYPE, constraints only act inside randomize().</span>
+      command = command_transaction::type_id::create(<span class="hljs-string">&quot;command&quot;</span>);
+      command.op = mul_op;
+      command.A = <span class="hljs-number">8&#x27;hFF</span>;
+      command.B = <span class="hljs-number">8&#x27;hFF</span>;
+      command_port.put(command);
+
+      #<span class="hljs-number">500</span>;
+      phase.drop_objection(<span class="hljs-keyword">this</span>);
+   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 49 líneas</summary><pre><code class="hljs"><span class="hljs-keyword">class</span> <span class="hljs-title">tester</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(tester)
 
    <span class="hljs-uvm-type">uvm_put_port</span> #(<span class="hljs-type">command_transaction</span>) command_port;
@@ -1659,9 +2119,10 @@ already too late</li>
 <li>The rule, short: <strong>every <code>uvm_object</code> that travels around the testbench comes
 out of <code>type_id::create()</code></strong> — the transactions of the tester, and also the ones
 the monitors build and the <code>predicted</code> of the scoreboard</li>
-<li>The <em>ports</em>, the <em>exports</em> and the <em>TLM FIFO</em> are the exception: they are not in
-the factory and they get instantiated with <code>new()</code>, as we saw in one producer,
-many listeners</li>
+<li>The <em>ports</em> and the <em>exports</em> are the exception: they are not in the factory and
+they get instantiated with <code>new()</code>, as we saw in one producer, many listeners.
+The <em>TLM FIFO</em> is registered, but the course builds it with <code>new()</code> anyway
+because the <code>size</code> goes through the constructor and <code>create()</code> cannot pass it</li>
 </ul>
 <div class="nota">
 <p>This slide comes out of a bug this very course had: the tester created the two
@@ -2057,7 +2518,9 @@ the difference between believing and knowing.</p>
 
 <span class="hljs-keyword">endmodule</span> : top_with</code></pre></details></figure>
 
-<figure class="codigo"><figcaption><code>code/u6/transactions/constraints/02_with.sv</code> · #workaround</figcaption><pre><code class="hljs">      c.data.constraint_mode(<span class="hljs-number">0</span>);
+<figure class="codigo"><figcaption><code>code/u6/transactions/constraints/02_with.sv</code> · #workaround</figcaption><pre><code class="hljs">      <span class="hljs-comment">// The portable workaround meanwhile: turn off the split, which for a</span>
+      <span class="hljs-comment">// directed case makes no sense anyway.</span>
+      c.data.constraint_mode(<span class="hljs-number">0</span>);
       <span class="hljs-keyword">if</span> (!c.<span class="hljs-keyword">randomize</span>() <span class="hljs-keyword">with</span> {
             op == mul_op;
             A  == <span class="hljs-number">8&#x27;hFF</span>;
@@ -2167,7 +2630,7 @@ the bin. Measured: <code>with {A == 8&#39;hFF}</code> resolves 25 % of the time 
 that bin—, <code>with {A inside {[1:10]}}</code> 2 %, and a field with no <code>dist</code> 100 %.
 Why it matters more than it looks: the symptom is <strong>an intermittent directed
 case</strong>, which works when you try it and fails in the overnight regression. The
-numbers are in <code>code/verilator/repro-dist-with.sv</code>, and the way around it —turning
+numbers are in <code>code/verilator/repro-dist-with.sv</code>, and the workaround —turning
 the constraint off— is the same <code>constraint_mode()</code> you see further on.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/275">see this slide in the deck &rsaquo;</a></p>
@@ -2255,7 +2718,7 @@ time, so it goes where it is needed and not out of habit.</p>
 
 <section id="s278" class="slide">
 <h2 id="constrained-random">Constrained random</h2>
-<h4 id="measured-with-the-way-round-that-verilator-does-honour"><em>Measured, with the way round that Verilator does honour</em></h4>
+<h4 id="measured-with-the-workaround-that-verilator-does-honour"><em>Measured, with the workaround that Verilator does honour</em></h4>
 <figure class="codigo"><figcaption><code>code/u6/transactions/constraints/03_solve.sv</code> · #both-classes</figcaption><pre><code class="hljs">   <span class="hljs-keyword">class</span> <span class="hljs-title">sesgada</span>;
       <span class="hljs-keyword">rand</span> <span class="hljs-type">bit</span>           es_reset;
       <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
@@ -2332,14 +2795,14 @@ time, so it goes where it is needed and not out of habit.</p>
 <li>Verilator 5.052 <strong>accepts <code>solve ... before</code> and does not honour it</strong>: it leaves
 the field pinned at 0, which is worse than ignoring it. Repro in
 <code>code/verilator/repro-solve-before.sv</code></li>
-<li>The portable way round: ask for the share-out of the control field with a <code>dist</code>.
+<li>The portable workaround: ask for the spread of the control field with a <code>dist</code>.
 It says the same thing and it does not depend on the solver getting the order
 right</li>
 </ul>
 <div class="nota">
 <p>It is the second Verilator hole of the course, alongside the transition bins, and
 it gets treated the same way: it gets said head on, with a minimal repro and with
-a way round that works. The concept belongs to the language, not to the simulator.
+a workaround that works. The concept belongs to the language, not to the simulator.
 What does have to be stressed is the asymmetry: the <strong>biased</strong> constraint gives
 0.3 %, which is exactly what the theory predicts — which means the Verilator
 solver is fine; what is missing is the ordering directive.
@@ -2491,7 +2954,7 @@ DUT, not a preference of whoever wrote the class first.</p>
 <ul>
 <li>No step asks for a new class: <code>dist</code> and <code>inside</code> in the transaction, three
 lines of <code>with {}</code>, and <code>rand_mode(0)</code> or <code>constraint_mode(0)</code> to break a rule</li>
-<li>That is <em>coverage closure</em>, and it is what a verifier spends the day on</li>
+<li>That is <em>coverage closure</em>, and it is what a verification engineer spends the day on</li>
 <li>What it is <strong>not</strong>: writing one test per bin. Nor looking at the total percentage</li>
 <li>The stimulus still comes out of a <code>tester</code> you wrote yourself. In modern UVM
 that is a <code>uvm_sequence</code> — and that is day 6</li>
@@ -2580,13 +3043,13 @@ fields with the previous value and the testbench goes on sending stimulus that i
 not the one you think. The coverage is going to tell you three days later.
 And the tool notice that is needed from today: without <code>z3</code> installed, Verilator
 resolves <code>randomize()</code> by returning 0 <strong>in silence</strong>. It is in
-<code>docs/verilator.md</code>, and it is the reason day 5 asks for the solver.</p>
+<code>docs/en/verilator.md</code>, and it is the reason day 5 asks for the solver.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/283">see this slide in the deck &rsaquo;</a></p>
 </section>
 
 <section id="s284" class="slide quiz">
-<!-- es-sha: 15f1821ac679 -->
+<!-- es-sha: e4719bfcf668 -->
 
 
 <h2 id="review-·-day-5">Review · Day 5</h2>
@@ -2643,8 +3106,8 @@ resolves <code>randomize()</code> by returning 0 <strong>in silence</strong>. It
 <ul>
 <li><input disabled="" type="checkbox"> A third of the time: they are three entries with the same weight</li>
 <li><input disabled="" type="checkbox"> Half: the edges share it between the two of them</li>
-<li><input checked="" disabled="" type="checkbox"> Once every 256: with <code>:=</code> the weight goes to <strong>each value</strong></li>
 <li><input disabled="" type="checkbox"> Never: <code>:=</code> only takes single values, not ranges, and the range is dropped</li>
+<li><input checked="" disabled="" type="checkbox"> Once every 256: with <code>:=</code> the weight goes to <strong>each value</strong></li>
 </ul>
 <blockquote>
 <p><strong>1 in 256</strong> — <code>:=</code> gives weight 1 to <em>each one</em> of the 254 values in the middle, so the range weighs 254 against the 1 and 1 of the edges. To spread the weight <em>inside</em> the range you need <code>:/</code>. Both spellings compile and run: the difference only shows up in the coverage that does not go up.</p>
@@ -2671,7 +3134,7 @@ resolves <code>randomize()</code> by returning 0 <strong>in silence</strong>. It
 <section id="s289" class="slide quiz">
 <h2 id="review-·-day-5">Review · Day 5</h2>
 <h4 id="6-of-8-·-constraint_mode"><em>6 of 8 · constraint_mode()</em></h4>
-<p><strong><code>randomize() with { A == 8&#39;hFF; }</code> on a field the class spreads with a <code>dist</code> returns 0 three times out of four. What is the way around it?</strong></p>
+<p><strong><code>randomize() with { A == 8&#39;hFF; }</code> on a field the class spreads with a <code>dist</code> returns 0 three times out of four. What is the workaround?</strong></p>
 <ul>
 <li><input disabled="" type="checkbox"> Retry in a <code>do ... while</code> until it returns 1</li>
 <li><input checked="" disabled="" type="checkbox"> <code>constraint_mode(0)</code> on the <code>dist</code> constraint, for that object</li>
@@ -2690,9 +3153,9 @@ resolves <code>randomize()</code> by returning 0 <strong>in silence</strong>. It
 <p><strong>What does <code>cmd.A.rand_mode(0)</code> do?</strong></p>
 <ul>
 <li><input disabled="" type="checkbox"> It switches off every constraint that mentions that field</li>
-<li><input checked="" disabled="" type="checkbox"> It takes the field out of the draw and leaves it the value it had</li>
 <li><input disabled="" type="checkbox"> It randomizes it once and freezes it afterwards</li>
 <li><input disabled="" type="checkbox"> It makes the solver resolve it last, after all the other fields</li>
+<li><input checked="" disabled="" type="checkbox"> It takes the field out of the draw and leaves it the value it had</li>
 </ul>
 <blockquote>
 <p><strong>It stops being <code>rand</code></strong> — they are the two run-time knobs and they get mixed up often: <code>rand_mode(0)</code> takes <strong>a field</strong> out of the draw, <code>constraint_mode(0)</code> switches off <strong>a constraint</strong>. One picks <em>what gets drawn</em>, the other <em>which rules hold</em>. It is what you use to pin one operand by hand and go on randomizing the rest.</p>
@@ -2711,7 +3174,7 @@ resolves <code>randomize()</code> by returning 0 <strong>in silence</strong>. It
 <li><input disabled="" type="checkbox"> It depends on the seed, and over enough runs it averages out to half</li>
 </ul>
 <blockquote>
-<p><strong>1 in 257</strong> — the solver picks uniformly among the <em>solutions</em>, not among the values of each field: <code>es_reset=1</code> leaves a single combination (<code>A = 00</code>) and <code>es_reset=0</code> leaves 256. The <em>&quot;any operation after a reset&quot;</em> row of the plan does not get filled, and the report does not say why. The answer in the language is <code>solve es_reset before A</code>; Verilator accepts it and <strong>does not honour it</strong>, so the portable way around is to ask for the spread of the control field with a <code>dist</code>.</p>
+<p><strong>1 in 257</strong> — the solver picks uniformly among the <em>solutions</em>, not among the values of each field: <code>es_reset=1</code> leaves a single combination (<code>A = 00</code>) and <code>es_reset=0</code> leaves 256. The <em>&quot;any operation after a reset&quot;</em> bin of the plan does not get filled, and the report does not say why. The answer in the language is <code>solve es_reset before A</code>; Verilator accepts it and <strong>does not honour it</strong>, so the portable workaround is to ask for the spread of the control field with a <code>dist</code>.</p>
 </blockquote>
 <p class="al-deck"><a href="../index.html#/291">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -2742,7 +3205,7 @@ the two operands wrong.</p>
 </section>
 
 <section id="s293" class="slide">
-<!-- es-sha: 0ffe5105000d -->
+<!-- es-sha: be632c7afec5 -->
 <h2 id="exercise-·-day-5-·-2-of-3">Exercise · Day 5 · 2 of 3</h2>
 <h4 id="measure-your-dist"><em>Measure your <code>dist</code></em></h4>
 <p><code>cd code/ejercicios/d5b &amp;&amp; bash run.sh</code></p>
@@ -2760,8 +3223,8 @@ The point is in the order: it gets run <strong>before</strong> touching anything
 section appears on its own — if the numbers are right, what is wrong? The operator
 is wrong, and there is no warning to say so.
 It is worth asking them to run it two or three times with different <code>SEED=</code> before
-calling it closed: with 4000 samples the 10 % bucket moves half a point between
-runs. A measured percentage is a sample, not the distribution — which is the other
+calling it closed: with 4000 samples the 10 % bucket moves a good point between
+runs, between 9 and 11 — that is why the checker accepts ±2. A measured percentage is a sample, not the distribution — which is the other
 half of the rule of the section.
 An infrastructure detail worth mentioning if somebody asks why a program with no
 DUT takes twenty seconds: Verilator resolves every <code>randomize()</code> that has
@@ -2797,7 +3260,7 @@ a value <strong>before</strong> looking at the <code>with</code>. With the distr
 resolves one out of every four times and the rest returns 0. Whoever does not read the hint
 is going to see an exercise that sometimes passes and sometimes does not — which is exactly the
 symptom the section describes.
-The way around it is <code>constraint_mode(0)</code>, and it is worth defending it as a design decision and
+The workaround is <code>constraint_mode(0)</code>, and it is worth defending it as a design decision and
 not as a patch for the simulator: a <strong>directed</strong> case does not want a distribution of
 probabilities, it wants a value.
 The seed of the <code>run.sh</code> is fixed. Without fixing it, some runs would fill the

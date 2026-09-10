@@ -10,8 +10,8 @@ class apb_coverage extends uvm_subscriber #(apb_transaction);
    bit       wr;
    bit       slverr;
    bit       encadenada;
-   bit       ovf_leido;  // se leyo STATUS con OVF prendido
-   bit       clr_pedido; // se escribio CTRL con CLR
+   bit       ovf_leido;  // STATUS was read with OVF on
+   bit       clr_pedido; // CTRL was written with CLR
 
    covergroup apb_cov;
 

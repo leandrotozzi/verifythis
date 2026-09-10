@@ -1,4 +1,4 @@
-<!-- es-sha: db9414d4509a -->
+<!-- es-sha: b42e9a15dfcc -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 8
@@ -24,8 +24,8 @@
 
 **What changes between `set_auto_predict(1)` and hooking a `uvm_reg_predictor` to the monitor?**
 
-- [ ] Nothing: the predictor is the internal implementation of auto-predict
 - [x] With auto-predict the model believes what it **meant** to send, not what happened
+- [ ] Nothing: the predictor is the internal implementation of auto-predict
 - [ ] The predictor is faster: it does not build the bus transaction
 - [ ] Auto-predict only works frontdoor, and the predictor works backdoor too
 
@@ -41,8 +41,8 @@
 
 **`STATUS` changes on its own, without anybody writing it. What are you saying when you declare it `volatile` in `configure()`?**
 
-- [ ] That UVM is going to re-read it from the DUT before every comparison, to be safe
 - [x] That the mirror is not evidence: the value can change without going through the bus
+- [ ] That UVM is going to re-read it from the DUT before every comparison, to be safe
 - [ ] That the field drops out of the map and stops having an address
 - [ ] That it has to be read backdoor, because the frontdoor does not get there in time
 
@@ -59,9 +59,9 @@
 **`model.CTRL.read(status, data)` and `model.CTRL.mirror(status, UVM_CHECK)`. How do they differ?**
 
 - [ ] `read` goes over the bus and `mirror` stays in the mirror, with no transfer at all
-- [x] Both read from the DUT; `mirror` also compares against what the model believed
 - [ ] `mirror` writes the mirror into the DUT, to leave the two of them equal
 - [ ] `read` updates the mirror and `mirror` does not touch it, so as not to hide an error
+- [x] Both read from the DUT; `mirror` also compares against what the model believed
 
 > **`mirror` is a register scoreboard in one word** — both read from the DUT; the difference is that `mirror` compares against what the model believed **before** the read, and if it does not match it reports a `uvm_error` without anybody writing a check. And a read *is* a prediction: both update the mirror afterwards.
 
@@ -128,7 +128,7 @@
 
 - [ ] Yes: a thousand comparisons without a single difference is the definition of verified
 - [ ] Yes, as long as the functional coverage closed at 100 % on top of that
-- [x] No: a scoreboard that has never seen an error is not tested
 - [ ] No, because both sides share the opcode `enum` and cancel each other out
+- [x] No: a scoreboard that has never seen an error is not tested
 
 > **The model has to be broken on purpose** — `vtalu_golden_bug(1)` mutates the multiplication and `run.sh` demands that the scoreboard shout. If it does not shout, the testbench is comparing against itself and nobody was going to find out: it is the same mutation test the capstone grader does with `+BUG=1`, from the other side of the wire. And the duplicated `enum` is real but it is a different symptom: if **every** comparison fails at once, it is the mapping; if one in six fails, it is the DUT.

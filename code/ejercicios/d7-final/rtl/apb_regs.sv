@@ -86,10 +86,10 @@ module apb_regs (
                // +BUG=1 breaks.
                if (en || bug_en) begin
                   acc <= suma[31:0];
-                  if (suma[32]) ovf <= 1'b1;  // pegajoso hasta el proximo CLR
+                  if (suma[32]) ovf <= 1'b1;  // sticky until the next CLR
                end
             end
-            default: ;  // ACC y STATUS son de solo lectura: la escritura se ignora
+            default: ;  // ACC and STATUS are read-only: the write is ignored
          endcase
       end
    end

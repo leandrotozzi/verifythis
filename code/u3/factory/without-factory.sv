@@ -1,5 +1,5 @@
-// In the previous example, new() gets called every time an object is needed.
-// Building a new set of drinks means changing the source code
+// ILLUSTRATION -- not compiled. In the previous example, new() gets called every
+// time an object is needed: building a new set of drinks means editing the source.
 bandeja_de_fernet = new();
 fernet_h = new(15, "the one at the bar");
 bandeja_de_fernet.bandeja_trago(fernet_h);

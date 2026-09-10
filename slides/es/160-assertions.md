@@ -33,7 +33,7 @@ testbench no cubre.
 
 #### *Inmediatas y concurrentes: la que ya conocen y la nueva*
 
-```sv
+```systemverilog
 // INMEDIATA: es una SENTENCIA. Corre cuando el hilo pasa por ahí,
 // una vez, y nada más. La de las transactions es de esta familia.
 assert (cmd.op inside {add_op, sub_op, and_op, xor_op, mul_op})
@@ -71,7 +71,7 @@ misma palabra clave para dos cosas distintas.
 
 #### *Anatomía de una property*
 
-```sv
+```systemverilog
 a_done_llega :                      // <- el label: NO es opcional
 assert property (
    @(posedge clk)                   // <- el reloj: cuando se muestrea
@@ -108,7 +108,7 @@ positivos genera.
 
 #### *`|->` contra `|=>`, el error número uno*
 
-```sv
+```systemverilog
 // |->  overlapping: el consecuente empieza en EL MISMO flanco
 a : assert property (@(posedge clk) start |-> !done);
 
@@ -149,7 +149,7 @@ chequeo del chequeo.
 
 #### *Mirar el pasado: `$rose`, `$fell`, `$stable`, `$past`*
 
-```sv
+```systemverilog
 $rose(start)      // 0 -> 1 entre el flanco anterior y este
 $fell(done)       // 1 -> 0
 $stable(A)        // el valor es el mismo que en el flanco anterior
@@ -187,8 +187,8 @@ flujo: `$past` con el argumento de reloj explícito no lo soporta Verilator
 
 {{code:code/u8/assertions/vtalu_bfm.sv#stable-operands}}
 
-- Es **la regla de la slide 1 del día 1**: mientras `start` está arriba, los
-  operandos no se tocan. Estuvo escrita en prosa seis días
+- Es **la regla de *La spec del VTALU*, el día 1**: mientras `start` está arriba,
+  los operandos no se tocan. Estuvo escrita en prosa seis días
 - Once líneas, y chequean cada transacción de cada test, en los dos agents, sin
   que nadie las conecte a nada
 - El scoreboard **no puede** escribir esta regla: para cuando la transaction le
@@ -196,10 +196,10 @@ flujo: `$past` con el argumento de reloj explícito no lo soporta Verilator
 
 Note:
 Éste es el momento para volver a la slide de la spec y leerla textualmente.
-La distancia entre *"los operandos deben permanecer estables mientras `start`
-está activo"* y la línea de SVA que está en pantalla es casi cero — y ése es todo
-el argumento de por qué las assertions se escriben temprano y no al final: la
-especificación **ya está escrita**, sólo hay que traducirla.
+La distancia entre *"start debe permanecer en 1 y los operandos estables hasta
+que termina la operación"* y la línea de SVA que está en pantalla es casi cero —
+y ése es todo el argumento de por qué las assertions se escriben temprano y no al
+final: la especificación **ya está escrita**, sólo hay que traducirla.
 El `$stable(op_set)` del final es el que suele faltar y es el que caza el bug más
 feo: cambiar la operación a mitad de transacción es legal para el compilador,
 ilegal para el DUT y transparente para el scoreboard.
@@ -310,7 +310,7 @@ la slide anterior: `done` sale de un `always_ff`.
 
 #### *`disable iff` y el reset*
 
-```sv
+```systemverilog
 default disable iff (!reset_n);   // una vez, para toda la interface
 
 property p;
@@ -418,8 +418,8 @@ está en cero, el `bind` no llegó.
 
 #### *La integración con UVM: el `else` que hace que cuente*
 
-```sv
-// El default de SystemVerilog: MATA la simulacion en la primera falla
+```systemverilog
+// El default: $error, y en Verilator ademas $stop — se corta en la primera falla
 a : assert property (p);
 
 // Lo que se quiere en UVM: la falla cuenta y la simulacion sigue

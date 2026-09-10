@@ -1,4 +1,4 @@
-<!-- es-sha: 552644393658 -->
+<!-- es-sha: 23e74876b89e -->
 ## One producer, many listeners
 
 #### *Two ways of talking between objects*
@@ -69,7 +69,7 @@ between threads something else is needed.
   - A histogram with the frequency of values
   - A coverage report that shows whether every possible value from 2 to 12 came up
 
-![Two d6 and the histogram of their sums](res/funs/en/dados.svg)
+![Rolling 2d6: the sum goes from 2 to 12 and 7 is the most likely](res/funs/en/dados.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -205,7 +205,7 @@ with other names.
 - The property that buys everything: adding a fourth observer **does not touch
   one line** of the one producing
 
-![One emitter publishes and N observers receive](res/funs/en/observer-broadcast.svg)
+![Observer: one sender publishes and N observers receive](res/funs/en/observer-broadcast.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -226,7 +226,7 @@ the noise of the protocol.
   - *uvm_analysis_port:* Sends data to a set of subscribers (observers)
   - *uvm_subscriber:* An extension of uvm_component that lets the component subscribe to a uvm_analysis_port
 
-![A uvm_analysis_port publishing towards several uvm_subscriber](res/diagrams/en/varios-objetos_ports.svg)
+![Notation: diamond = uvm_analysis_port, circle = analysis_export](res/diagrams/en/varios-objetos_ports.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -253,7 +253,7 @@ by the compiler, not by a string.
 - Once we write data into the port, it goes to all of its subscribers
 - We use the *connect()* method to connect the subscribers to the port. This method takes a single argument, and it is the subscriber's **export** (`analysis_export`), not another port
 
-{{code:code/u5/varios-objetos/02-con-analysis-port/con-analysis-port.sv}}
+{{code:code/u5/varios-objetos/02-con-analysis-port/dice_roller.svh#dice_roller}}
 
 Note:
 Three steps and no more: declare the port, instantiate it in build_phase, write
@@ -289,7 +289,7 @@ who calls it. That is the entire point of the section — the observer never fin
 out that it is now an observer.
 And a detail that shows up in the output: here the coverage is read with
 `get_inst_coverage()`, not with `get_coverage()`. It is a Verilator limitation
-—the type-wide one always returns 0— and it is in `docs/verilator.md`.
+—the type-wide one always returns 0— and it is in `docs/en/verilator.md`.
 
 ---
 
@@ -383,7 +383,7 @@ class and **one** line here. Not one in `dice_roller`.
 - Each subscriber has an analysis_export object
 - The connection between the two is made through the connect() method
 
-![The dice example wired up with analysis ports](res/diagrams/en/varios-objetos_spicy.svg)
+![Wiring of the dice example: roll_ap against the three analysis_export](res/diagrams/en/varios-objetos_spicy.svg)
 <!-- .element: class="grande" -->
 
 Note:

@@ -11,7 +11,7 @@ class pepe;
 endclass : pepe
 
 //----------------------------------------
-module top;
+module top_pepes;
    initial begin
       pepe pepe1_h, pepe2_h;
 
@@ -26,4 +26,4 @@ module top;
       $display("NUMBER OF PEPES = %0d", pepe::cant);
 
    end
-endmodule : top
+endmodule : top_pepes

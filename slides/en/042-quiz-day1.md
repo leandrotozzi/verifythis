@@ -1,18 +1,18 @@
-<!-- es-sha: b07c9ddc47f6 -->
+<!-- es-sha: aaba2b840017 -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 1
 
 #### *1 of 7 · Trends*
 
-**According to the Wilson 2024 study, where does most of a verifier's time go?**
+**According to the Wilson 2024 study, where does most of a verification engineer's time go?**
 
 - [ ] Into writing the testbench
 - [x] Into debug
 - [ ] Into running regressions
 - [ ] Into writing the specification
 
-> **Into debug** — 47 % of the verifier's time goes there. That is why the course devotes a whole section to reporting: a scoreboard that only says "failed" leaves you right inside that 47 %.
+> **Into debug** — 47 % of the verification engineer's time goes there. That is why the course devotes a whole section to reporting: a scoreboard that only says "failed" leaves you right inside that 47 %.
 
 ---
 
@@ -42,9 +42,9 @@
 **The test runs 1000 random operations and the *code* coverage reads 100 %. What does that tell you about the verification?**
 
 - [ ] That the DUT is verified and the verification plan can be closed
-- [x] Very little: it measures the RTL that ran, not the spec
 - [ ] That the testbench has no bugs
 - [ ] That few scenarios are missing: 100 % already walked the whole design
+- [x] Very little: it measures the RTL that ran, not the spec
 
 > **Very little** — code coverage measures the DUT; functional coverage measures the spec. A feature the designer never wrote gives 100 % of lines and 0 % of what matters, and the report is not going to tell you.
 
@@ -58,8 +58,8 @@
 
 **You declare a `covergroup`, you `new()` it, you run a thousand operations and the report reads 0 %. What is the first thing to look at?**
 
-- [ ] That the bins are badly defined and match no value at all
 - [x] That nobody is calling `sample()`
+- [ ] That the bins are badly defined and match no value at all
 - [ ] That the DUT is not answering
 - [ ] That `ignore_bins` are missing
 

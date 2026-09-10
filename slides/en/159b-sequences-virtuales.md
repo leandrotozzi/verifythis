@@ -114,14 +114,14 @@ that crosses from one interface to the other in the middle of the scenario.
 It is exactly the shape of the real case the bus appendix promises:
 configure over APB, read the status, and only then send traffic over AXI with
 what the configuration returned. The protocol changes, not the structure.
-And the honest close: the example runs on two VTALU because it is the DUT we
-have. With two different interfaces —two transactions, two drivers— the
-virtual sequence is written **the same**: the handles would be of two types of
-sequencer, and nothing more.
 And the criterion for the afternoon: in the capstone the second slave is driven
 by a module, so there is **one** sequencer and this is not needed. The virtual
 sequence comes in the day both interfaces belong to the testbench and one depends
 on the other — and then it is written just like here.
+And the honest close: the example runs on two VTALU because it is the DUT we
+have. With two different interfaces —two transactions, two drivers— the
+virtual sequence is written **the same**: the handles would be of two types of
+sequencer, and nothing more.
 
 ---
 

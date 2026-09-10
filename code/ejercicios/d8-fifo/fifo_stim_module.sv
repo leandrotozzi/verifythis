@@ -36,8 +36,8 @@ module fifo_stim_module (fifo_if bfm);
          ciclo(1, 8'hA3, 1);  // 5  simultanea: entra A3 y sale A1
          ciclo(0, 8'h00, 1);  // 6
          ciclo(0, 8'h00, 1);  // 7
-         ciclo(0, 8'h00, 1);  // 8  la FIFO queda vacia
-         ciclo(0, 8'h00, 1);  // 9  lee vacia: NO pasa nada, y no es un error
+         ciclo(0, 8'h00, 1);  // 8  the FIFO ends up empty
+         ciclo(0, 8'h00, 1);  // 9  reads it empty: NOTHING happens, and it is not an error
          ciclo(1, 8'hB0, 0);  // 10
          ciclo(1, 8'hB1, 0);  // 11
          ciclo(0, 8'h00, 1);  // 12

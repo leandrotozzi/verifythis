@@ -1,4 +1,4 @@
-// TODO(exercise 3): write the mult_tester class here.
+// TODO(exercise d3): write the mult_tester class here.
 //
 // It has to extend random_tester and redefine get_op() so that it always
 // returns mul_op. The data (get_data) is still picked by random_tester.

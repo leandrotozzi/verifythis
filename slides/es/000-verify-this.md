@@ -1,4 +1,4 @@
-<!-- .slide: id="portada" data-machete="res/uvm_class_diagram.svg" -->
+<!-- .slide: id="portada" data-machete="res/uvm_class_diagram.svg|Jerarquía de clases base de UVM" -->
 
 # Verify This!
 

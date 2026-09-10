@@ -1,4 +1,4 @@
-<!-- es-sha: 42b61a50657d -->
+<!-- es-sha: 7f6efd2dbd7b -->
 <!-- .slide: id="referencias" -->
 
 ## References
@@ -14,8 +14,8 @@
 - **2024 Siemens EDA / Wilson Research Group Functional Verification Study**.
   Source of the **data** of Trends. The charts are our own: they are generated
   with `make figs` from `res/trends/data.json`.
-- **On RAL**: the *Register Layer* chapter of the **UVM 1.2 User Guide** from
-  Accellera is the long explanation, and the table of the twenty-five field
+- **On RAL**: the *Using the Register Layer Classes* chapter of the **UVM 1.2
+  User’s Guide** from Accellera is the long explanation, and the table of the twenty-five field
   accesses —`RW`, `WOC`, `W1C`…— is in the **IEEE 1800.2**, under `uvm_reg_field`. What
   the unit does not use lives in the same place: `add_hdl_path` for the backdoor,
   and **IP-XACT** (IEEE 1685) or **SystemRDL** (Accellera) to generate the model instead
@@ -23,7 +23,7 @@
 - **On clocking blocks**, which is the liveliest discussion of the course: the
   threads by **Dave Rich** on Verification Academy (2014, 2022 and 2024), his paper
   *The Missing Link: The Testbench to DUT Connection*, and the **DV Coding Style
-  Guide from lowRISC/OpenTitan**, which makes them mandatory. The summary, with the
+  Guide from lowRISC/OpenTitan**, which prescribes them as a rule. The summary, with the
   links and the quotes, in **`docs/clocking-blocks.md`** (in Spanish).
 
 Note:

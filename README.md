@@ -1,4 +1,4 @@
-<!-- es-sha: 235a190b58a2 -->
+<!-- es-sha: dccdec82bb0c -->
 **English** · [Castellano](README.es.md)
 
 <div align="center">
@@ -62,9 +62,9 @@ does not have. This course:
   the slides. Teach it, adapt it, charge for it — just cite the source.
 
 <div align="center">
-<img src="docs/demo.gif" width="820" height="470" alt="make u4/tests: Verilator + UVM 2020.3.1, 0 errors, 86.8% functional coverage">
+<img src="docs/demo.gif" width="820" height="470" alt="make u4/tests: Verilator + UVM 2020.3.1, 0 errors, 86.8 % functional coverage">
 <br>
-<sub><code>make u4/tests</code> — UVM 2020.3.1 on Verilator, 0 errors, 86.8% functional coverage</sub>
+<sub><code>make u4/tests</code> — UVM 2020.3.1 on Verilator, 0 errors, 86.8 % functional coverage</sub>
 </div>
 
 ---
@@ -140,7 +140,7 @@ The examples are not run by hand: CI runs the 38 examples and the 19 solutions
 | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> | search the deck |
 | <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>P</kbd> | print: reloads the deck in the light theme —the same one the PDF uses— and opens the dialog there. Closing it puts you back on the slide you were on |
 
-The **"Machete UVM"** ribbon in the top right corner opens the cheat sheet with
+The **"UVM cheat sheet"** ribbon in the top right corner opens the cheat sheet with
 the reference diagrams for the day.
 
 </details>
@@ -149,8 +149,8 @@ the reference diagrams for the day.
 
 ## What is in it
 
-Eight units, grouped by the problem they solve, taught over **seven days**: day 1
-carries two short units, days 2 to 7 one unit each. Then an **optional day 8**
+Eight units, grouped by the problem they solve, taught over **seven days**: days 1
+and 7 carry two units each, days 2 to 6 one apiece. Then an **optional day 8**
 —RAL, a C reference model over DPI and a second capstone— which comes **after the
 closing** because all three need the day 7 capstone to be done already.
 
@@ -162,11 +162,12 @@ closing** because all three need the day 7 capstone to be done already.
 | **3** | **4 ·** Enter UVM | Tests · Components and phases · The env: structure and stimulus · Reporting | ≈ 4 h 30 |
 | **4** | **5 ·** How components talk | One producer, many listeners · One single place that watches the wire · When somebody has to wait · Who waits for whom | ≈ 4 h |
 | **5** | **6 ·** The data | Copying an object that contains another · Transactions · Constrained random | ≈ 4 h 30 |
-| **6** | **7 ·** The reusable testbench | Agents · Callbacks · Sequences | ≈ 4 h 15 |
-| **7** | **8 ·** The other half | Virtual sequences · Assertions (SVA) · the capstone · the four appendices · glossary, references and closing | ≈ 5 h 15 |
+| **6** | **7 ·** The reusable testbench | Agents · Callbacks · Sequences | ≈ 4 h 45 |
+| **7** | **7 ·** The reusable testbench *(closing)* | Virtual sequences | ≈ 5 h 15 |
+| | **8 ·** The other half | Assertions (SVA) · the capstone · the three appendices · glossary, references and closing | |
 | **8** *(opt.)* | **9 ·** RAL · and what comes next | The register model over the capstone's APB · the C reference model over DPI · the second capstone: a FIFO with backpressure | ≈ 4 h |
 
-**≈ 34 h 30 of class**, of which **30 h 30 are the seven days** and the rest is the
+**≈ 35 h of class**, of which **31 h are the seven days** and the rest is the
 optional day 8. The number is not a promise: it comes from each day's slides at
 **4 minutes** —notes read out and examples actually run— plus the exercise,
 measured. Doing it alone, count on double: half the time goes into running
@@ -174,11 +175,11 @@ things, and that half is the half that teaches.
 
 Day 7 is the closing: *Assertions* in the morning, and in the afternoon the
 **capstone** — an APB slave with a spec and nothing else, where the testbench is
-written from a blank page. Then the four appendices: **from the VTALU to a real
+written from a blank page. Then the three appendices: **from the VTALU to a real
 bus**, **the debug toolbox** (the seven knobs, and which one to turn for which
-symptom), **the 21 silent traps** —everything that compiles, runs and lies— and
-an **ES ↔ EN glossary**, because everything a student reads after this course is
-going to be in English.
+symptom) and **the 21 silent traps** —everything that compiles, runs and lies.
+It closes with an **ES ↔ EN glossary**, because everything a student reads after
+this course is going to be in English.
 
 Each day ends with a **quiz**: 58 questions in total, answered by clicking. The
 deck marks the right one green, the wrong choice red, and explains why
@@ -220,7 +221,7 @@ does not, with version, date and the coverage number of each example:
 
 **Nineteen**, in [`code/ejercicios/`](code/ejercicios/): `run.sh` **fails until you
 solve it**, and the solution sits next to it (`SOLUCION=1 bash run.sh`). Every
-statement has an English version (`README.en.md`).
+statement has a Spanish version (`README.es.md`; the English one is `README.md`).
 
 Three of them —`d5b`, `d5c` and `d7-semillas`— are the *coverage closure*
 loop done by hand. `d7-final` is the **capstone**: a four-register APB slave, its

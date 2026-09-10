@@ -1,4 +1,4 @@
-<!-- es-sha: de322b440014 -->
+<!-- es-sha: 1784df9533e3 -->
 ## A testbench without a single module
 
 #### *The same testbench, without a single module*
@@ -47,7 +47,7 @@ precisely what gets synthesized.
 - scoreboard: Checks that the VTALU is working
 - coverage: Captures the functional coverage information
 
-![The object tree: top elaborates, and inside live the testbench class and its three pieces](res/diagrams/en/tb-en-objetos_arbol.svg)
+![The object tree of the testbench without modules: top elaborates, and inside live the testbench class and its three pieces](res/diagrams/en/tb-en-objetos_arbol.svg)
 <!-- .element: class="grande" -->
 
 Note:

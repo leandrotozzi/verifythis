@@ -1,4 +1,4 @@
-<!-- es-sha: 793393cd944c -->
+<!-- es-sha: 65e6fe7b4340 -->
 ## When somebody has to wait
 
 #### *You were already doing this, with modules*
@@ -154,12 +154,12 @@ sequencer on one side and the driver on the other.
 - It is the same `connect()` as the analysis ports: on one side the **port**, on
   the other the **export** the FIFO provides
 - `uvm_tlm_fifo` exposes twelve handles; the two that get used are `put_export` for
-  the one that puts and `get_export`
-  for the one that takes out
+  the one that puts and `get_export` for the one that takes out —which is an alias of
+  `get_peek_export`, and that is the name you are going to see in `print_topology()`—
 - The rule that holds for all of TLM: **the port connects to the export**, never
   two ports to each other
 
-{{code:code/u5/threads/02-bloqueante/connect_phase.sv}}
+{{code:code/u5/threads/02-bloqueante/communication_test.svh#connect_phase}}
 
 {{code:code/u5/threads/02-bloqueante/result.txt}}
 
@@ -208,7 +208,7 @@ written a single line of formatting.
 
 #### *NON-blocking communication: the timeline*
 
-![try_get() returns 0 when the FIFO is empty](res/diagrams/en/threads_nonblocking.svg)
+![Timeline of the non-blocking example: at 7 ns and 49 ns the FIFO is empty and try_get() returns 0](res/diagrams/en/threads_nonblocking.svg)
 <!-- .element: class="grande" -->
 
 - The producer puts a piece of data in every 17 ns and the consumer looks every
@@ -230,7 +230,7 @@ with a clock that is a lost edge.
 
 #### *How TLM diagrams are read*
 
-![Put port, TLM FIFO and get port between two threads](res/diagrams/en/threads_fig124.svg)
+![Interthread communication with put port, get port and uvm_tlm_fifo](res/diagrams/en/threads_fig124.svg)
 <!-- .element: class="grande" -->
 
 - The convention holds for all the UVM material you are going to read afterwards:
@@ -351,29 +351,19 @@ task, `wait fork` is the answer.
 
 #### *⚠ The trap: the `for` index inside the `fork`*
 
-```systemverilog
-int i;                                  // declared OUTSIDE the for: there is only one
-for (i = 0; i < 3; i++)
-   fork  $display("i = %0d", i);  join_none      //  i = 3   i = 3   i = 3
-
-for (int j = 0; j < 3; j++)             // declared IN the for: one per pass
-   fork  $display("j = %0d", j);  join_none      //  j = 0   j = 1   j = 2
-
-for (i = 0; i < 3; i++)
-   fork  begin
-      automatic int k = i;              // the copy is made WHEN THE FORK RUNS
-      $display("k = %0d", k);
-   end join_none                                 //  k = 0   k = 1   k = 2
-```
+{{code:code/verilator/repro-fork-automatic.sv#las-cuatro-variantes}}
 
 - A `join_none` **does not execute anything yet**: it leaves the thread ready and goes on. By
   the time the thread runs, the `for` has already finished and the variable holds the last value
 - If the variable is declared **inside** the `for`, each pass has its own and there
   is no problem. It is what the LRM says and what Verilator does
 - If it comes from outside —an `int` of the `run_phase`, a field of the class— it has to be
-  **copied** with an `automatic` as the first line of the block
-- Measured on Verilator 5.052: the three lines above print `3 3 3`,
-  `0 1 2` and `0 1 2`
+  **copied** with an `automatic`, and **where** the copy is written changes the
+  result: inside a `fork begin ... end` it **does not copy**; declared in the
+  `fork` itself, with no `begin`/`end` —which is the LRM 1800-2017 §9.3.2 form— it does
+- Measured on Verilator 5.052, and the file ends in `$fatal` the day any of it changes
+  (`make repros`): the four variants print `3 3 3`, `0 1 2`, **`3 3 3`** and
+  `0 1 2`
 
 Note:
 It is the most expensive threads bug and the hardest to see when reading the code,
@@ -389,9 +379,14 @@ look like magic: the LRM declares automatic the variable of a `for` that declare
 so each pass has its own copy. It is measured here, it is not theory.
 The case where the `automatic` is needed anyway is the one that shows up in real life:
 the index is not the `for`'s, it is a field of the class or an argument of the task.
-There is no copy per pass there and it has to be made by hand. The practical rule to
-take home: **if a thread launched with `join_none` reads a variable from outside,
-copy it into an `automatic` on its first line.**
+There is no copy per pass there and it has to be made by hand — and here is the part
+this slide used to get wrong: **the `automatic` as the first line of a
+`fork begin ... end` does not copy**. On Verilator 5.052 variant C prints `3 3 3`,
+just like A. The one that copies is D, the LRM §9.3.2 one: the declaration inside the
+`fork`, with no `begin`/`end`. The two look so alike that it is easy to write the one
+that does not work.
+The practical rule to take home: **if a thread launched with `join_none` reads a
+variable from outside, declare the copy in the `fork`, not inside a `begin`.**
 
 ---
 

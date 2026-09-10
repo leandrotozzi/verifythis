@@ -94,7 +94,7 @@ and `:/`. Worth naming it now so that the saving is visible later.
   scoreboard predicts the result and compares it
 - The `#1` is not decoration: without it the signals get read at the same instant
   `done` goes up and a delta race can be swallowed
-- `no_op` and `rst_op` do not raise `done`, so this block should never run with
+- `no_op` and `rst_op` do not raise `done`, so this block should not run with
   them. The `if` is defensive —with no prediction for those two it would compare
   garbage— and inside goes `chequeadas++`, the other half of the counter
 - The covergroup —the third leg— is the section that follows

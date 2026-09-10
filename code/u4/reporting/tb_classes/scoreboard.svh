@@ -26,7 +26,7 @@ class scoreboard extends uvm_subscriber #(shortint);
          xor_op: predicted_result = cmd.A ^ cmd.B;
          mul_op: predicted_result = cmd.A * cmd.B;
       endcase  // case (op_set)
-
+      // cb: the-report
       data_str = $sformatf(
           " %2h %0s %2h = %4h (%4h predicted)",
           cmd.A,
@@ -38,7 +38,7 @@ class scoreboard extends uvm_subscriber #(shortint);
 
       if (predicted_result != t) `uvm_error("SCOREBOARD", {"FAIL: ", data_str})
       else `uvm_info("SCOREBOARD", {"PASS: ", data_str}, UVM_HIGH)
-
+      // cb: end
    endfunction : write
 
    function new(string name, uvm_component parent);

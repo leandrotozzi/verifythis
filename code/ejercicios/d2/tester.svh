@@ -6,7 +6,7 @@ class tester;
       bfm = b;
    endfunction : new
 
-   // TODO(exercise 2): one word is missing here. Without it, execute() always
+   // TODO(exercise d2): one word is missing here. Without it, execute() always
    // calls THIS get_op(), even when the object is of a derived class.
    // Polymorphism section.
    protected function operation_t get_op();

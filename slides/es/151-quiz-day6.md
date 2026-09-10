@@ -6,9 +6,9 @@
 
 **Un agent en `UVM_PASSIVE`, ¿qué construye su `build_phase`?**
 
+- [x] Los monitores y los analysis ports; el driver y el sequencer, no
 - [ ] Nada: un agent pasivo es una cáscara vacía
 - [ ] Todo igual que uno activo, pero sin conectar el driver al sequencer
-- [x] Los monitores y los analysis ports; el driver y el sequencer, no
 - [ ] Sólo el sequencer, para poder recibir sequences de otro agent del mismo env
 
 > **Los monitores, siempre; el sequencer y el driver quedan en `null`** — mirar nunca es opcional: un agent pasivo sigue alimentando scoreboard y cobertura. Lo que se saltea es lo que *maneja* la interface, porque ahí ya hay otro manejándola.
@@ -91,8 +91,8 @@
 
 **¿Cuál es la diferencia práctica de que una `uvm_sequence` sea un `uvm_object` y no un `uvm_component`?**
 
-- [ ] Que no se puede registrar en la factory ni overridear
 - [x] Que se crea, corre y se tira
+- [ ] Que no se puede registrar en la factory ni overridear
 - [ ] Que no puede tener campos `rand` ni constraints
 - [ ] Que UVM la construye en `build_phase`, como a cualquier otra clase del árbol
 
@@ -125,9 +125,9 @@
 
 **¿En qué momento `command.result` tiene un valor que se puede leer?**
 
+- [x] Cuando volvió `finish_item()`, porque el driver lo escribió antes de llamar a `item_done()`
 - [ ] Apenas volvió `start_item()`
 - [ ] Cuando el `result_monitor` lo publica por su analysis port
-- [x] Cuando volvió `finish_item()`, porque el driver lo escribió antes de llamar a `item_done()`
 - [ ] Nunca: para recibir una respuesta hay que usar el par REQ/RSP de `uvm_sequence #(REQ, RSP)`
 
 > **Después de `finish_item()`** — no hay ningún canal de vuelta: hay un handle compartido y un acuerdo entre las dos partes. El par REQ/RSP existe y es el mecanismo formal, pero casi nadie lo usa: escribir el resultado en el request alcanza. Esto es lo que hace posible Fibonacci.
