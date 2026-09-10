@@ -1,136 +1,138 @@
-# Capstone 2 · una FIFO con backpressure
+<!-- es-sha: 81f8ae5c1cf3 -->
+**English** · [Castellano](README.es.md)
 
-> **Esto se hace después del `d7-final`.** No porque sea más difícil de
-> escribir —el protocolo es más simple, no hay direcciones ni wait states—
-> sino porque el que ya hizo el APB llega acá con un patrón en la cabeza, y
-> **el patrón no alcanza.**
+# Capstone 2 · a FIFO with backpressure
+
+> **This gets done after the `d7-final`.** Not because it is harder to
+> write —the protocol is simpler, there are no addresses and no wait states—
+> but because whoever already did the APB arrives here with a pattern in their head, and
+> **the pattern is not enough.**
 
 ```sh
 cd code/ejercicios/d8-fifo
-cat spec.md
-bash run.sh              # con tus archivos
-SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
+cat spec.en.md
+bash run.sh              # with your files
+SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 ```
 
-## Por qué existe este segundo final
+## Why this second final exists
 
-El DUT del capstone del APB es un **esclavo sin memoria útil**: escribís una
-dirección, leés esa dirección, y el scoreboard puede ser una tabla de cuatro
-filas. Eso es la mayoría de los DUTs que uno se cruza el primer año, y por eso
-va primero.
+The DUT of the APB capstone is a **slave with no useful memory**: you write an
+address, you read that address, and the scoreboard can be a table of four
+rows. That is most of the DUTs you run into in the first year, and that is why
+it goes first.
 
-Éste no. Una FIFO no tiene direcciones: tiene **orden** y tiene **ocupación**.
-El modelo de referencia es una cola con estado, y las banderas que hay que
-predecir dependen de todo lo que pasó antes. No hay tabla que sirva.
+This one is not. A FIFO has no addresses: it has **order** and it has **occupancy**.
+The reference model is a queue with state, and the flags that have to be
+predicted depend on everything that happened before. There is no table that will do.
 
-La diferencia se ve en una línea del corrector:
+The difference shows up in one line of the checker:
 
 ```
 with +BUG=1 almost_full goes up one place late, and your scoreboard said nothing.
 The data still comes out right.
 ```
 
-Un scoreboard que compara sólo lo que sale por `rd_data` cierra seis de las
-siete filas del plan y **pasa en verde con el DUT roto**. Ése es el ejercicio.
+A scoreboard that compares only what comes out of `rd_data` closes six of the
+seven rows of the plan and **passes green with the DUT broken**. That is the exercise.
 
-## Lo que se da hecho, y no se toca
+## What is given done, and does not get touched
 
-| Archivo | Qué es |
+| File | What it is |
 |---|---|
-| `rtl/sync_fifo.sv` | el DUT. Con `+BUG=1` corre `almost_full` un lugar |
-| `top.sv` | dos FIFOs: la tuya y la del módulo de siempre |
-| `fifo_stim_module.sv` | el módulo de siempre: doce ciclos, sin una línea de UVM |
-| `spec.md` | la spec, la letra chica y el plan de verificación |
-| `run.sh` | el corrector, por etapas |
+| `rtl/sync_fifo.sv` | the DUT. With `+BUG=1` it runs `almost_full` one place off |
+| `top.sv` | two FIFOs: yours and the one of the ordinary module |
+| `fifo_stim_module.sv` | the ordinary module: twelve cycles, without one line of UVM |
+| `spec.en.md` | the spec, the small print and the verification plan |
+| `run.sh` | the checker, in stages |
 
-## Lo que escribís vos
+## What you write
 
-En este orden, que es el del corrector y el del apéndice *De la VTALU a un bus
-real*:
+In this order, which is the checker's and the one of the appendix *From the VTALU to a real
+bus*:
 
-1. **`fifo_if.sv`** — los pines, el reloj, `reset()`, `ciclo()` y el enganche
-   del monitor.
-2. **`fifo_pkg.sv`** — el package que incluye tus clases, con `DEPTH`, `AF` y
-   `AE` escritos **una sola vez**.
-3. **`tb_classes/`** — la transaction, el monitor, el driver, el agent, el env,
-   el scoreboard, la cobertura, las sequences y los tests.
+1. **`fifo_if.sv`** — the pins, the clock, `reset()`, `ciclo()` and the monitor
+   hook.
+2. **`fifo_pkg.sv`** — the package that includes your classes, with `DEPTH`, `AF` and
+   `AE` written **only once**.
+3. **`tb_classes/`** — the transaction, the monitor, the driver, the agent, the env,
+   the scoreboard, the coverage, the sequences and the tests.
 
-## Las cuatro etapas
+## The four stages
 
-- **1 · El monitor.** Un agent **pasivo** sobre la FIFO del módulo de siempre,
-  a ver los doce ciclos con actividad. Sin driver. Ojo con `rd_data`, que llega
-  un ciclo tarde.
-- **2 · El driver.** Una sequence dirigida que **llene hasta el tope y se pase**,
-  y después vacíe y se pase. Los dos bordes en un solo test.
-- **3 · El scoreboard.** El modelo de referencia con estado. El corrector lo
-  corre dos veces: contra el DUT sano tiene que callarse, y con **`+BUG=1`**
-  tiene que gritar.
-- **4 · La cobertura.** El `covergroup` con las siete filas del plan: más de
-  20 puntos, 90 % cubierto.
+- **1 · The monitor.** A **passive** agent on the FIFO of the ordinary module,
+  to see the twelve cycles with activity. Without a driver. Careful with `rd_data`, which arrives
+  one cycle late.
+- **2 · The driver.** A directed sequence that **fills it to the top and goes past it**,
+  and then empties it and goes past that. Both edges in a single test.
+- **3 · The scoreboard.** The reference model with state. The checker runs it
+  twice: against the healthy DUT it has to keep quiet, and with **`+BUG=1`**
+  it has to scream.
+- **4 · The coverage.** The `covergroup` with the seven rows of the plan: more than
+  20 points, 90 % covered.
 
-Listo cuando `bash run.sh` imprime las cuatro etapas y termina con
-`EXERCISE OK`.
+Done when `bash run.sh` prints the four stages and ends with `EXERCISE OK`.
 
-## El contrato con el corrector
+## The contract with the checker
 
-Igual que en el `d7-final`, el corrector no lee tu código: lee el log. Cuatro
-cosas tienen que ser así:
+Just like in `d7-final`, the checker does not read your code: it reads the log.
+Four things have to be like this:
 
-- Los **tests** se llaman `monitor_test`, `smoke_test` y `random_test`.
-- El **monitor** imprime una línea por ciclo con actividad, con el id `MONITOR`
-  y con las banderas adentro:
+- The **tests** are called `monitor_test`, `smoke_test` and `random_test`.
+- The **monitor** prints one line per cycle with activity, with the id `MONITOR`
+  and with the flags in it:
 
   ```
   wr=1 data=a3 rd=0 | count=3 full=0 af=0 empty=0 ae=0
   ```
 
-  Las etapas 1 y 2 se corrigen contando esas líneas y buscando `full=1` y
-  `empty=1`: si tu formato no las escribe, la etapa 2 no pasa aunque la
-  sequence esté bien.
-- El **scoreboard** reporta con `` `uvm_error("SCOREBOARD", ...) ``.
-- La sequence dirigida del `smoke_test` tiene que llegar a `full=1` **y** a
-  `empty=1` en la misma corrida.
+  Stages 1 and 2 get graded by counting those lines and looking for `full=1` and
+  `empty=1`: if your format does not write them, stage 2 does not pass even if
+  the sequence is right.
+- The **scoreboard** reports with `` `uvm_error("SCOREBOARD", ...) ``.
+- The directed sequence of the `smoke_test` has to reach `full=1` **and**
+  `empty=1` in the same run.
 
-## Cuánto tarda
+## How long it takes
 
-Compila UVM entera, igual que el `d7-final`: ~2 min la primera vez, y ~15 s las
-siguientes con `ccache`. Necesita **`z3`**: el `random_test` randomiza con
-constraints, y sin el solver `randomize()` devuelve 0 en silencio.
+It compiles the whole of UVM, like `d7-final`: ~2 min the first time, and ~15 s
+the following ones with `ccache`. It needs **`z3`**: the `random_test` randomizes
+with constraints, and without the solver `randomize()` returns 0 in silence.
 
-## Pistas, en orden de utilidad
+## Hints, in order of usefulness
 
-- **El scoreboard son dos colas, no una.** Una es lo que la FIFO tiene adentro;
-  la otra, lo que ya se leyó y todavía no salió por `rd_data`. Con una sola no
-  se puede modelar la latencia de un ciclo.
-- **Chequeá las banderas antes de aplicar el ciclo.** Describen el estado
-  previo al flanco. Si primero aplicás y después comparás, te vas a comer un
-  error por ciclo y vas a culpar al DUT.
-- **El orden de la actualización es la letra chica.** Primero mirá si la
-  lectura saca —eso libera un lugar—, y recién entonces si la escritura entra.
-  Al revés, la simultánea con la FIFO llena te va a dar un dato perdido que el
-  DUT no perdió.
-- **El driver no mira las banderas.** Manda lo que la sequence pidió, aunque
-  esté llena. Un driver que se autocensura tapa justo el caso que hay que
-  verificar — y deja el bin `escribe_llena` en cero para siempre.
-- Si el `check_phase` te dice *"quedaron N datos que nunca salieron"*, casi
-  siempre es que el test terminó un ciclo antes de tiempo. El dato de la última
-  lectura sale **después**: hace falta un colchón, que es el `drain_time` del
-  día 3.
-- Si la cobertura no llega, no agregues ciclos: **sesgá el `dist`** de la
-  transaction para que escriba más de lo que lee. Con 50/50 la FIFO se queda
-  rondando la mitad y no toca ningún borde. Es la lección del día 5.
+- **The scoreboard is two queues, not one.** One is what the FIFO has inside;
+  the other, what has already been read and has not come out of `rd_data` yet. With a single one you
+  cannot model the one-cycle latency.
+- **Check the flags before applying the cycle.** They describe the state
+  before the edge. If you apply first and compare afterwards, you are going to get one
+  error per cycle and you are going to blame the DUT.
+- **The order of the update is the small print.** First look at whether the
+  read takes something out —that frees a place—, and only then whether the write goes in.
+  The other way round, the simultaneous one with the FIFO full is going to give you a lost piece of data the
+  DUT did not lose.
+- **The driver does not look at the flags.** It sends what the sequence asked for, even if
+  it is full. A driver that censors itself covers up precisely the case that has to be
+  verified — and leaves the bin `escribe_llena` at zero forever.
+- If the `check_phase` tells you *"N data were left that never came out"*, almost
+  always it is that the test ended one cycle too early. The data of the last
+  read comes out **afterwards**: a cushion is needed, which is the `drain_time` of
+  day 3.
+- If the coverage does not get there, do not add cycles: **bias the `dist`** of the
+  transaction so it writes more than it reads. With 50/50 the FIFO stays
+  hovering around the middle and does not touch any edge. It is the lesson of day 5.
 
-## Y después
+## And afterwards
 
-`ci/regresion.yml` del `d7-final` sirve igual para éste: cambiale el `DIR` y
-tenés la regresión de esta FIFO corriendo sola, con la cobertura acumulada de N
-semillas.
+`ci/regresion.yml` of the `d7-final` works for this one just the same: change its `DIR` and
+you have the regression of this FIFO running on its own, with the accumulated coverage of N
+seeds.
 
-## Lo que practica
+## What it practises
 
-Todo lo del primer capstone —interface, agent activo y pasivo, `config_db`,
-sequences, tests, covergroup— más lo que el primero no podía pedir: un
-**modelo de referencia con estado**, la predicción de **salidas de control** y
-no sólo de datos, y una latencia de un ciclo entre el pedido y la respuesta.
-Y una cosa más, que tampoco es de UVM: **saber cuándo tu scoreboard no está
-chequeando lo que creés que chequea**.
+Everything from the first capstone —interface, active and passive agent, `config_db`,
+sequences, tests, covergroup— plus what the first one could not ask for: a
+**reference model with state**, the prediction of **control outputs** and
+not only of data, and a one-cycle latency between the request and the response.
+And one more thing, which is not about UVM either: **knowing when your scoreboard is not
+checking what you think it is checking**.

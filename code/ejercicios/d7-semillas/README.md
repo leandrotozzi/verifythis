@@ -1,70 +1,72 @@
-# Día 7 · calentamiento — la misma sequence, otra semilla
+<!-- es-sha: 5cc966a06ca2 -->
+**English** · [Castellano](README.es.md)
 
-La tabla *"así se cierra la cobertura"* de la sección Constrained random termina
-con una fila que el curso nunca hace: **repetir con otra semilla**. Este
-ejercicio la hace, y abre el día 7: son diez minutos, no se escribe
-SystemVerilog, y deja instalado el `make regresion` que el capstone de la tarde
-va a pedir.
+# Day 7 · warm-up — the same sequence, another seed
 
-Es el único del curso donde no escribís SystemVerilog. El testbench y el test ya
-están: reset y **25** operaciones al azar. Lo que escribís es la regresión.
+The table *"this is how coverage gets closed"* of the Constrained random section ends with a row that
+the course never does: **repeat with another seed**. This exercise does it, and it
+opens day 7: it is ten minutes, no SystemVerilog gets written, and it leaves in
+place the `make regresion` that the afternoon's capstone is going to ask for.
+
+It is the only one of the course where you do not write SystemVerilog. The testbench and the test are
+already there: reset and **25** random operations. What you write is the regression.
 
 ```sh
 bash run.sh
 ```
 
-## Qué se pide
+## What is asked
 
-**`regresion.sh`** — que corra el mismo test con las semillas **1 a 5**, deje la
-cobertura de cada una en `$VLT_OBJ/seed.<N>.dat`, y mergee las cinco en
+**`regresion.sh`** — that it run the same test with seeds **1 to 5**, leave the
+coverage of each one in `$VLT_OBJ/seed.<N>.dat`, and merge the five into
 `$VLT_OBJ/regresion.dat`.
 
-El archivo tiene arriba todo lo que hay disponible (`run_sim`, `SEED`,
-`$VLT_OBJ`) y el comando del merge. Son seis líneas de shell.
+The file has at the top everything that is available (`run_sim`, `SEED`,
+`$VLT_OBJ`) and the merge command. It is six lines of shell.
 
-Listo cuando `bash run.sh` imprime `EXERCISE OK` — o sea, cuando el merge de las
-cinco cubre **más** que la mejor de las cinco sola.
+Done when `bash run.sh` prints `EXERCISE OK` — that is, when the merge of the
+five covers **more** than the best of the five on its own.
 
-## Cómo se corre
+## How to run it
 
 ```sh
-bash run.sh              # con tu regresion.sh
-SOLUCION=1 bash run.sh   # con el de solucion/, para comparar
+bash run.sh              # with your regresion.sh
+SOLUCION=1 bash run.sh   # with the one in solucion/, to compare
 ```
 
-## Por qué 25 operaciones y no 1000
+## Why 25 operations and not 1000
 
-Porque con 1000 **esto no funciona**, y esa es la mitad de la lección.
+Because with 1000 **this does not work**, and that is half the lesson.
 
-Está medido y está en la slide *"otra semilla, y de nuevo"*: `code/u2/convencional` y
-`code/u7/sequences` dan 66 de 76 bins con la semilla por defecto, con la 7 y con la 8, y
-el merge de las tres también da 66. Con 1000 operaciones el random ya llegó hasta
-donde puede llegar, y los 10 bins que faltan no faltan por suerte — son los
-slots de `rst_op` y `no_op` en el cross, que `ignore_bins` debería sacar y
-Verilator no saca. Ninguna semilla los va a tocar nunca.
+It is measured and it is on the slide *"another seed, and again"*: `code/u2/convencional` and
+`code/u7/sequences` give 66 out of 76 bins with the default seed, with seed 7 and with seed 8, and
+the merge of the three also gives 66. With 1000 operations the random has already got as far
+as it can get, and the 10 bins that are missing are not missing by luck — they are the
+slots of `rst_op` and `no_op` in the cross, which `ignore_bins` should take out and
+Verilator does not. No seed is ever going to touch them.
 
-Con 25 el estímulo todavía no saturó, y ahí sí: cada semilla cubre un pedazo
-distinto y el merge suma. Que es exactamente la situación de un chip de verdad,
-donde el espacio es tan grande que nunca se satura.
+With 25 the stimulus has not saturated yet, and there it does: each seed covers a
+different piece and the merge adds up. Which is exactly the situation of a real chip,
+where the space is so large that it never saturates.
 
-**La regla que queda:** otra semilla sirve para **acumular** mientras el estímulo
-no saturó, y para **reproducir** un fallo intermitente. No sirve para llenar un
-bin que el estímulo no puede alcanzar — para eso está el caso dirigido del
-ejercicio [`d5c`](../d5c/).
+**The rule that remains:** another seed is good for **accumulating** while the stimulus
+has not saturated, and for **reproducing** an intermittent failure. It is no good for filling a
+bin the stimulus cannot reach — that is what the directed case of the
+exercise [`d5c`](../d5c/) is for.
 
-## Cuánto tarda
+## How long it takes
 
-Compila UVM entera la primera vez: ~1 min 30 en una laptop de 12 cores, ~4 min en
-un Codespaces gratis. Las siguientes, ~15 s en cualquiera de las dos con `ccache`
-instalado. Las cinco simulaciones juntas son un segundo: son 25 operaciones cada
-una.
+It compiles the whole of UVM the first time: ~1 min 30 on a 12-core laptop, ~4 min on
+a free Codespaces. The following ones, ~15 s on either of the two with `ccache`
+installed. The five simulations together are one second: they are 25 operations each
+one.
 
-Hace falta también **`z3`**, el solver de `randomize()`.
+**`z3`** is also needed, the solver of `randomize()`.
 
-## Lo que practica
+## What it practises
 
-Que una **regresión** es un test corrido muchas veces con semillas distintas, no
-muchos tests distintos. Que la cobertura **se acumula** y hay que mergearla —
-`verilator_coverage --write` es acá lo que el merge de `ucdb` es en Questa. Y que
-`SEED=N` es lo que hace reproducible un fallo que aparece una vez cada diez
-corridas: sin eso no se debuggea, porque no se puede repetir.
+That a **regression** is one test run many times with different seeds, not
+many different tests. That coverage **accumulates** and has to be merged —
+`verilator_coverage --write` is here what the `ucdb` merge is in Questa. And that
+`SEED=N` is what makes a failure that shows up once every ten runs reproducible:
+without that it cannot be debugged, because it cannot be repeated.

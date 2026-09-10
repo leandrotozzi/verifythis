@@ -1,166 +1,177 @@
-# Ejemplos de código
+<!-- es-sha: 5409279503c8 -->
+**English** · [Castellano](README.es.md)
 
-Un directorio por unidad —`u2/` a `u9/`—, y adentro un directorio por ejemplo,
-con el nombre de la sección que lo usa. Cada ejemplo es **autocontenido a
-propósito**: podés copiar `code/u4/env/` a otro lado y correrlo tal cual. Por eso
-`vtalu_bfm.sv`, `vtalu_pkg.sv` y compañía aparecen repetidos entre unidades — no
-es duplicación a limpiar, es que cada ejemplo muestra su propia versión de esos
-archivos a medida que el testbench evoluciona.
+# Code examples
 
-| | Unidad | Ejemplos |
+One directory per unit —`u2/` to `u9/`—, and inside it one directory per example,
+named after the section that uses it. Each example is **self-contained on
+purpose**: you can copy `code/u4/env/` somewhere else and run it as is. That is
+why `vtalu_bfm.sv`, `vtalu_pkg.sv` and company show up repeated across units — it
+is not duplication waiting to be cleaned up, it is that each example shows its own
+version of those files as the testbench evolves.
+
+| | Unit | Examples |
 |:--|:--|:--|
-| `u2/` | El testbench sin UVM | `convencional`, `interfaces-bfm` |
-| `u3/` | La OOP que UVM da por sabida | `clases`, `polimorfismo`, `estaticas`, `parametricas`, `factory`, `tb-en-objetos` |
-| `u4/` | Entra UVM | `tests`, `components`, `env`, `reporting` |
-| `u5/` | Cómo hablan los componentes | `varios-objetos`, `analysis-ports`, `threads`, `put-get` |
-| `u6/` | El dato | `jerarquias`, `transactions` (+ `constraints`) |
-| `u7/` | El testbench reutilizable | `agents`, `callbacks`, `sequences` (+ `virtual`) |
-| `u8/` | La otra mitad | `assertions` |
-| `u9/` | RAL — la unidad opcional | `ral` |
+| `u2/` | The testbench without UVM | `convencional`, `interfaces-bfm` |
+| `u3/` | The OOP that UVM takes for granted | `clases`, `polimorfismo`, `estaticas`, `parametricas`, `factory`, `tb-en-objetos` |
+| `u4/` | UVM enters | `tests`, `components`, `env`, `reporting` |
+| `u5/` | How the components talk | `varios-objetos`, `analysis-ports`, `threads`, `put-get` |
+| `u6/` | The data | `jerarquias`, `transactions` (+ `constraints`) |
+| `u7/` | The reusable testbench | `agents`, `callbacks`, `sequences` (+ `virtual`) |
+| `u8/` | The other half | `assertions` |
+| `u9/` | RAL — the optional unit | `ral` |
 
-No hay `u1/`: el código de la unidad 1 es el DUT, que vive en `code/vtalu_dut/`
-porque lo usan todos.
+There is no `u1/`: the code of unit 1 is the DUT, which lives in `code/vtalu_dut/`
+because every unit uses it.
 
-`u9/ral` es la excepción a lo de *autocontenido*, y a propósito: no trae DUT ni
-testbench, los toma del capstone (`ejercicios/d7-final/`) por `+incdir`. Es la
-forma de decir en el código lo que la unidad dice en las slides — RAL es una capa
-sobre un testbench que ya funciona, no un testbench distinto.
+`u9/ral` is the exception to the *self-contained* rule, and on purpose: it brings
+neither DUT nor testbench, it takes them from the capstone
+(`ejercicios/d7-final/`) through `+incdir`. It is the way of saying in code what
+the unit says in the slides — RAL is a layer on top of a testbench that already
+works, not a different testbench.
 
-## El idioma de `code/`
+## The language of `code/`
 
-**Todo lo que hay acá adentro está en inglés**, y es a propósito: comentarios,
-`TODO(exercise <dir>)`, los mensajes que imprimen los correctores, los `$display` que
-narran un ejemplo, y las cabeceras de los `run.sh`.
+**Everything in here is in English**, and that is deliberate: comments,
+`TODO(exercise <dir>)`, the messages the graders print, the `$display` calls that
+narrate an example, and the headers of the `run.sh` files.
 
-La razón es una sola y vale la pena decirla entera. El curso se dicta en dos
-idiomas, y las slides no pegan el código: lo **incluyen** con `{{code:}}`. Si los
-comentarios estuvieran en el idioma del curso habría que mantener dos copias de
-`code/` —dos veces los ejemplos, dos veces los ejercicios, dos veces las
-soluciones— y el día que una se arregla la otra queda rota sin que nada avise.
-Escribirlo una sola vez, en inglés, es lo que hace que las dos versiones del
-curso muestren y corran exactamente el mismo código. Y de paso es el idioma en el
-que el alumno va a escribir comentarios en el trabajo.
+There is a single reason and it is worth stating in full. The course is taught in
+two languages, and the slides do not paste the code: they **include** it with
+`{{code:}}`. If the comments were in the language of the course there would have
+to be two copies of `code/` —the examples twice, the exercises twice, the
+solutions twice— and the day one of them is fixed the other stays broken with
+nothing to warn you. Writing it once, in English, is what makes both versions of
+the course show and run exactly the same code. And it happens to be the language
+the student will write comments in at work.
 
-**La única excepción son los `README.md`**, que son el enunciado del ejercicio y
-no documentación del código: ahí sí hay dos, `README.md` en castellano y
-`README.en.md` al lado. `npm run check` verifica que el par no se haya
-desincronizado — ver `tools/lint-i18n.mjs`.
+**The only exception are the `README` files**, which are the statement of the
+exercise and not documentation of the code: there there are indeed two,
+`README.md` in English and `README.es.md` next to it. The English one is the one
+called `README.md` because it is the only one GitHub renders when you enter a
+directory, and whoever lands here from a search almost always reads in English —
+the same reason the README at the root goes the other way round from the rest of
+the repo. It is still written in Spanish: the source is the `.es.md` and
+`npm run check` verifies that the pair has not drifted apart — see
+`tools/lint-i18n.mjs`.
 
-Los identificadores son otra cosa y no se traducen: la nomenclatura de UVM ya es
-inglesa (`driver`, `scoreboard`, `env`), y las pocas excepciones en castellano
-—la bandeja de fernet de `u6/jerarquias`, el `chequeo` de los correctores,
-`clase_`/`modulo_` de `u7/agents`, que además no pueden llamarse `class_`/`module_`
-porque son keywords— son metáforas del curso y se explican en la slide.
+Identifiers are a different matter and are not translated: UVM's nomenclature is
+already English (`driver`, `scoreboard`, `env`), and the few exceptions in Spanish
+—the fernet tray of `u6/jerarquias`, the `chequeo` of the graders,
+`clase_`/`modulo_` of `u7/agents`, which on top of that cannot be called
+`class_`/`module_` because those are keywords— are metaphors of the course and are
+explained on the slide.
 
-## Requisitos
+## Requirements
 
-**Verilator ≥ 5.050** — libre, sin licencia. Los covergroups entraron en esa
-versión: antes la cobertura funcional no se medía. Qué anda y qué no, con el
-número de cobertura de cada ejemplo, en
+**Verilator ≥ 5.050** — free, no licence. Covergroups landed in that version:
+before it, functional coverage was not measured. What works and what does not,
+with the coverage number of each example, in
 [`../docs/verilator.md`](../docs/verilator.md).
 
-UVM 2020.3.1 (Accellera `uvm-core`, IEEE 1800.2-2020) se baja aparte, una sola
-vez: `make uvm` (o lo hace `make` solo). Verilator la soporta oficialmente desde
-5.052.
+UVM 2020.3.1 (Accellera `uvm-core`, IEEE 1800.2-2020) is downloaded separately,
+once: `make uvm` (or `make` does it by itself). Verilator has supported it
+officially since 5.052.
 
-## Correr un ejemplo
+## Running an example
 
 ```sh
-make u3/tb-en-objetos             # desde la raíz del repo
+make u3/tb-en-objetos             # from the root of the repo
 cd code/u3/tb-en-objetos && ./run.sh
 ```
 
-Cada directorio de ejemplo trae:
+Every example directory brings:
 
-| Archivo     | Qué es |
+| File        | What it is |
 |-------------|--------|
-| `run.sh`    | compila con Verilator y simula |
-| `dut.f`     | fuentes del DUT |
-| `tb.f`      | lista de fuentes del testbench |
+| `run.sh`    | compiles with Verilator and simulates |
+| `dut.f`     | DUT sources |
+| `tb.f`      | list of testbench sources |
 
-## El test negativo: `make mutante`
+## The negative test: `make mutante`
 
-Que un ejemplo **corra** no dice nada de si **chequea**. Un scoreboard con el
-analysis port sin conectar, un `uvm_error` que no se puede disparar nunca, un
-covergroup cuyo bin es trivial: los tres pasan verdes y no prueban nada.
+That an example **runs** says nothing about whether it **checks**. A scoreboard
+with the analysis port left unconnected, a `uvm_error` that can never fire, a
+covergroup whose bin is trivial: all three pass green and prove nothing.
 
-Por eso el DUT trae una mutación inyectable. Con `+VTALU_BUG` —lo pone
-`common.sh` cuando ve `VTALU_BUG` en el ambiente— el bit 0 de `result` sale dado
-vuelta para todas las operaciones, y **el ejemplo tiene que fallar**:
-
-```sh
-make mutante                                    # los tres sin UVM: segundos
-make mutante MUTANTES="u4/tests u7/sequences"   # los de UVM: minutos
-cd code/u2/interfaces-bfm && VTALU_BUG=1 ./run.sh    # a mano, uno solo
-```
-
-Es la única diferencia entre "el ejemplo corre" y "el ejemplo prueba". Es la
-misma libertad que se toma `apb_regs.sv` con su `bug_en`, y está declarada en el
-comentario de `vtalu_dut/vtalu.sv`.
-
-Los ejemplos de `u7/callbacks`, `u8/assertions`, `u8/dpi` y `u9/ral` traen su
-propia mutación adentro del `run.sh` —el bit dado vuelta por el callback, el
-`+BUG=1` de la property, el `+GOLDEN_BUG` del modelo en C, el `+MAL` del modelo
-de RAL— y chequean el resultado ellos mismos. Por eso no están en `MUTANTES`.
-
-`code/verilator/` tiene lo compartido por los `run.sh`: los flags, el shim de
-DPI que hace compilar UVM, y cuatro repros mínimos de limitaciones de
-Verilator —los bins de transición y `binsof`/`intersect`, las opciones del
-covergroup (`at_least`, `weight`, `merge_instances`), `solve ... before` y
-`randomize() with` sobre un campo con `dist`— explicados en
-`docs/verilator.md`. El quinto, `repro-vif-task.sv`, documenta un bug que **ya
-se arregló** en Verilator 5.052 y queda como evidencia fechada.
-Se corren a mano; `make matrix` sólo corre los `run.sh` de `code/u*/`.
-
-Los ejemplos con varias variantes (`u3/polimorfismo`, `u3/estaticas`,
-`u3/parametricas`, `u5/varios-objetos`, `u5/threads`) tienen un subdirectorio por
-variante, cada uno con su `run.sh`.
-
-`u8/assertions` es el único ejemplo cuyo `run.sh` compila con `--assert`, y el
-único que corre dos veces: una limpia y otra con `+BUG=1`, que es lo que hace
-gritar a la property.
-
-`u6/transactions/constraints/` es la excepción a la regla de autocontención: son los cuatro experimentos
-de la unidad de Constrained Random, sin UVM y sin DUT, con un solo `run.sh` que
-compila los cuatro tops. Compilan en segundos y se pueden correr sueltos.
-
-`u7/sequences/virtual/` es la otra: la **sequence virtual**, que necesita las dos VTALU
-con los dos agents **activos** y por lo tanto un `top.sv` y un `env.svh`
-distintos. En vez de copiar el ejemplo entero, ese directorio tiene sólo los
-cinco archivos que cambian y trae el resto por `+incdir`. Lo que enseña es
-exactamente el tamaño del diff.
-
-`u7/callbacks/` es la tercera, y por la misma razón: el diff contra `u7/agents`
-son **dos líneas** del driver —`` `uvm_register_cb `` y `` `uvm_do_callbacks ``—
-más el callback y el test que lo cuelga. Copiar los 900 líneas del ejemplo de al
-lado para mostrar dos escondería justo lo que se quiere mostrar, así que su
-`tb.f` pone `+incdir+tb_classes` **antes** de `+incdir+../agents/tb_classes` y
-sólo `driver.svh` le gana al de la otra sección. Es el mismo mecanismo que usan
-los ejercicios.
-
-## Archivos de salida esperada
-
-Los `.txt` que muestran las slides (`u4/tests/output.txt`, los de `u5/threads`, los de
-`u4/reporting`) **no son basura de simulación**: son la salida real de correr el
-ejemplo, capturada a propósito para que la slide muestre lo mismo que va a ver
-el alumno en su terminal. Se regeneran con:
+That is why the DUT brings an injectable mutation. With `+VTALU_BUG` —which
+`common.sh` sets when it sees `VTALU_BUG` in the environment— bit 0 of `result`
+comes out flipped for every operation, and **the example has to fail**:
 
 ```sh
-sh tools/regen-outputs.sh          # todas
-sh tools/regen-outputs.sh u4/reporting     # solo las que matcheen
+make mutante                                    # the three without UVM: seconds
+make mutante MUTANTES="u4/tests u7/sequences"   # the UVM ones: minutes
+cd code/u2/interfaces-bfm && VTALU_BUG=1 ./run.sh    # by hand, just one
 ```
 
-No es parte de `make`: se corre a mano cuando cambia la versión de UVM o del
-simulador. Cada build con UVM tarda varios minutos.
+It is the only difference between "the example runs" and "the example proves".
+It is the same liberty `apb_regs.sv` takes with its `bug_en`, and it is declared
+in the comment of `vtalu_dut/vtalu.sv`.
 
-`u4/tests/output.questa` es distinto: es la corrida de referencia con Questa y UVM
-1.1d, de antes de sacar el flujo Questa del repo. Ya no se muestra en ninguna
-slide — queda como **testigo** de que la cadena de comparación cierra (Questa
-1.1d → Verilator + UVM 1.2 → Verilator + UVM 2020.3.1). No lo borres, pero
-tampoco lo actualices.
+The examples of `u7/callbacks`, `u8/assertions`, `u8/dpi` and `u9/ral` bring their
+own mutation inside the `run.sh` —the bit flipped by the callback, the `+BUG=1` of
+the property, the `+GOLDEN_BUG` of the C model, the `+MAL` of the RAL model— and
+check the result themselves. That is why they are not in `MUTANTES`.
 
-> Los `.txt` de u4/reporting salen de un scoreboard con un bug puesto a propósito
-> (`add_op` suma de más), que es lo que le permite a la sección mostrar cómo se
-> ve un `uvm_error` y cómo se lo silencia. `scoreboard2.txt` es la misma
-> corrida con `set_report_severity_action_hier()` puesto; el script lo hace
-> tocando `env.svh` y dejándolo como estaba.
+`code/verilator/` holds what the `run.sh` files share: the flags, the DPI shim
+that makes UVM compile, and four minimal repros of Verilator limitations —the
+transition bins and `binsof`/`intersect`, the covergroup options (`at_least`,
+`weight`, `merge_instances`), `solve ... before` and `randomize() with` over a
+field with `dist`— explained in `docs/verilator.md`. The fifth,
+`repro-vif-task.sv`, documents a bug that **has already been fixed** in Verilator
+5.052 and stays as dated evidence.
+They are run by hand; `make matrix` only runs the `run.sh` of `code/u*/`.
+
+The examples with several variants (`u3/polimorfismo`, `u3/estaticas`,
+`u3/parametricas`, `u5/varios-objetos`, `u5/threads`) have one subdirectory per
+variant, each with its own `run.sh`.
+
+`u8/assertions` is the only example whose `run.sh` compiles with `--assert`, and
+the only one that runs twice: once clean and once with `+BUG=1`, which is what
+makes the property shout.
+
+`u6/transactions/constraints/` is the exception to the self-containment rule: they are the four
+experiments of the Constrained Random unit, without UVM and without DUT, with a
+single `run.sh` that compiles the four tops. They compile in seconds and can be
+run on their own.
+
+`u7/sequences/virtual/` is the other one: the **virtual sequence**, which needs the two
+VTALU with both agents **active** and therefore a different `top.sv` and `env.svh`.
+Instead of copying the whole example, that directory has only the five files that
+change and brings the rest through `+incdir`. What it teaches is exactly the size
+of the diff.
+
+`u7/callbacks/` is the third, and for the same reason: the diff against `u7/agents`
+is **two lines** of the driver —`` `uvm_register_cb `` and `` `uvm_do_callbacks ``—
+plus the callback and the test that hangs it. Copying the 900 lines of the example
+next door to show two would hide precisely what we want to show, so its `tb.f`
+puts `+incdir+tb_classes` **before** `+incdir+../agents/tb_classes` and only
+`driver.svh` beats the one from the other section. It is the same mechanism the
+exercises use.
+
+## Expected output files
+
+The `.txt` files the slides show (`u4/tests/output.txt`, the ones of `u5/threads`, the ones of
+`u4/reporting`) **are not simulation garbage**: they are the real output of running
+the example, captured on purpose so that the slide shows the same thing the
+student is going to see in their terminal. They are regenerated with:
+
+```sh
+sh tools/regen-outputs.sh          # all of them
+sh tools/regen-outputs.sh u4/reporting     # only the ones that match
+```
+
+It is not part of `make`: it is run by hand when the version of UVM or of the
+simulator changes. Each build with UVM takes several minutes.
+
+`u4/tests/output.questa` is different: it is the reference run with Questa and UVM
+1.1d, from before the Questa flow was taken out of the repo. It is no longer shown
+on any slide — it stays as **witness** that the comparison chain closes (Questa
+1.1d → Verilator + UVM 1.2 → Verilator + UVM 2020.3.1). Do not delete it, but do
+not update it either.
+
+> The `.txt` files of u4/reporting come from a scoreboard with a bug put there on
+> purpose (`add_op` adds too much), which is what lets the section show what a
+> `uvm_error` looks like and how it is silenced. `scoreboard2.txt` is the same
+> run with `set_report_severity_action_hier()` in place; the script does it by
+> touching `env.svh` and leaving it as it was.

@@ -1,95 +1,98 @@
-# Día 8 · RAL — modelar el mapa de registros
+<!-- es-sha: 60043d7ad0ec -->
+**English** · [Castellano](README.es.md)
 
-Es lo primero que te piden en un proyecto con registros, y es literalmente esto:
-te dan la tabla de la spec y devolvés el modelo.
+# Day 8 · RAL — modelling the register map
 
-El DUT es el del capstone —el esclavo APB de cuatro registros— y el testbench
-también: la interface, la transaction, el driver, el monitor y el agent salen de
-[`d7-final/solucion/`](../d7-final/solucion/), así que el ejercicio corre aunque
-todavía no hayas terminado el capstone. El adapter, el predictor y los tres
-tests salen de [`code/u9/ral/`](../../u9/ral/) y no se tocan.
+It is the first thing you get asked for in a project with registers, and it is literally this:
+they give you the table of the spec and you give back the model.
 
-**De todo eso, lo único que escribís es el modelo de registros.**
+The DUT is the one from the capstone —the APB slave with four registers— and so is the
+testbench: the interface, the transaction, the driver, the monitor and the agent come
+from [`d7-final/solucion/`](../d7-final/solucion/), so this exercise runs even if you
+have not finished the capstone yet. The adapter, the predictor and the three
+tests come from [`code/u9/ral/`](../../u9/ral/) and do not get touched.
+
+**Of all that, the only thing you write is the register model.**
 
 ```sh
 bash run.sh
 ```
 
-## Qué se pide
+## What is asked
 
-**`apb_reg_block.svh`** — la tabla de
-[`../d7-final/spec.md`](../d7-final/spec.md), sección *El mapa de registros*,
-escrita como modelo de UVM. Cuatro registros, seis campos, cuatro direcciones.
+**`apb_reg_block.svh`** — the table of
+[`../d7-final/spec.en.md`](../d7-final/spec.en.md), section *The register map*,
+written as a UVM model. Four registers, six fields, four addresses.
 
-| Dir | Nombre | Acceso | Campos |
+| Addr | Name | Access | Fields |
 |---|---|:--:|---|
 | `0x00` | `CTRL` | RW | `EN` bit 0 · `CLR` bit 1, **autoclear** |
 | `0x04` | `SCRATCH` | RW | 32 bits |
-| `0x08` | `ACC` | RO | 32 bits, y **cambia solo** |
-| `0x0C` | `STATUS` | RO | `EN` bit 0 · `OVF` bit 1, y **cambian solos** |
+| `0x08` | `ACC` | RO | 32 bits, and it **changes on its own** |
+| `0x0C` | `STATUS` | RO | `EN` bit 0 · `OVF` bit 1, and they **change on their own** |
 
-El corrector va por etapas y cada una imprime su `STAGE N OK`:
+The checker goes in stages and each one prints its `STAGE N OK`:
 
-1. **El mapa.** Sin simular nada: el modelo se imprime y se compara con la
-   tabla. Un offset o un ancho mal se ven acá.
-2. **Los accesos.** `uvm_reg_hw_reset_seq` y `uvm_reg_bit_bash_seq`, que salen de
-   `uvm-core` y no saben nada de este DUT: leen tu modelo y generan el estímulo y
-   el chequeo. Son **los tests que no escribiste**, y es el argumento entero a
-   favor de RAL.
-3. **Lo que el modelo no puede predecir.** `ACC` y `STATUS` tienen dirección pero
-   no son registros: su valor lo produce una escritura a *otra* dirección. Un
-   modelo que no diga eso da falsos positivos, y el falso positivo es del modelo,
-   no del DUT.
+1. **The map.** Without simulating anything: the model gets printed and compared with the
+   table. An offset or a width that is wrong shows up here.
+2. **The accesses.** `uvm_reg_hw_reset_seq` and `uvm_reg_bit_bash_seq`, which come from
+   `uvm-core` and know nothing about this DUT: they read your model and generate the stimulus and
+   the check. They are **the tests you did not write**, and they are the whole argument
+   in favour of RAL.
+3. **What the model cannot predict.** `ACC` and `STATUS` have an address but
+   they are not registers: their value gets produced by a write to *another* address. A
+   model that does not say so gives false positives, and the false positive belongs to the model,
+   not to the DUT.
 
-Listo cuando `bash run.sh` imprime las tres etapas y termina con `EXERCISE OK`.
+Done when `bash run.sh` prints the three stages and ends with `EXERCISE OK`.
 
-## Cómo se corre
+## How to run it
 
 ```sh
-bash run.sh              # con tu archivo
-SOLUCION=1 bash run.sh   # con el de solucion/, para comparar
+bash run.sh              # with your file
+SOLUCION=1 bash run.sh   # with the one in solucion/, to compare
 ```
 
-El modelo se imprime solo, y es lo primero que conviene mirar:
+The model prints itself, and it is the first thing worth looking at:
 
 ```sh
 bash run.sh 2>&1 | grep MAPA
 ```
 
-## Cuánto tarda
+## How long it takes
 
-Compila UVM entera, incluido `uvm-core/src/reg`. Medido con Verilator 5.052:
+It compiles the whole of UVM, including `uvm-core/src/reg`. Measured with Verilator 5.052:
 
-| | 12 cores | 2 cores (Codespaces gratis) |
+| | 12 cores | 2 cores (free Codespaces) |
 |---|---|---|
-| la primera vez | ~1 min 30 | ~4 min |
-| las siguientes, con `ccache` | ~15 s | ~15 s |
+| the first time | ~1 min 30 | ~4 min |
+| the following ones, with `ccache` | ~15 s | ~15 s |
 
-## Pistas, en orden de utilidad
+## Hints, in order of usefulness
 
-- **`CLR` no es RW.** La spec dice *"escribir un 1 pone `ACC` y `OVF` en cero, y
-  el bit siempre se lee 0"*. El bit **se lee**, así que el acceso es de la familia
-  que borra en la escritura y devuelve ese cero en la lectura. Si le ponés `RW`,
-  la etapa 1 pasa y la **etapa 2** te lo dice con el número del bit — que es
-  exactamente lo que hace bien `bit_bash`.
-- **Y no es `WO` ni `WOC`.** Cualquier acceso que arranque con `WO` saca al campo
-  de `bit_bash` (`uvm_reg_bit_bash_seq.svh:129-135`, *"Ignore Write-only fields"*)
-  y de la máscara de `do_check` (`uvm_reg.svh:2782-2788`). Las dos etapas pasan en
-  verde **sin haber mirado el bit**: es la trampa muda de RAL.
-- El argumento `volatile` de `configure()` no cambia la predicción: es una
-  declaración de intención, y UVM la usa para avisarte con un `UVM_WARNING`
-  cuando leés el espejo de un campo que cambia por atrás.
-- `set_compare(UVM_NO_CHECK)` va sobre el **campo**, no sobre el registro, y
-  apaga sólo el `mirror(UVM_CHECK)`. La lectura sigue actualizando el espejo:
-  una lectura *es* una predicción.
-- `build()` de un `uvm_reg_block` **no es un `build_phase`**. Un block es un
-  `uvm_object`: nadie lo llama por vos. Lo llama el test, una línea después del
+- **`CLR` is not RW.** The spec says *"writing a 1 puts `ACC` and `OVF` at zero, and
+  the bit always reads 0"*. The bit **is readable**, so the access belongs to the
+  family that clears on the write and returns that zero on the read. If you put
+  `RW` on it, stage 1 passes and **stage 2** tells you so with the number of the
+  bit — which is exactly what `bit_bash` does well.
+- **And it is not `WO` nor `WOC`.** Any access starting with `WO` takes the field
+  out of `bit_bash` (`uvm_reg_bit_bash_seq.svh:129-135`, *"Ignore Write-only
+  fields"*) and out of the `do_check` mask (`uvm_reg.svh:2782-2788`). Both stages
+  go green **without anyone having looked at the bit**: that is RAL's silent trap.
+- The `volatile` argument of `configure()` does not change the prediction: it is a
+  declaration of intent, and UVM uses it to warn you with a `UVM_WARNING`
+  when you read the mirror of a field that changes behind your back.
+- `set_compare(UVM_NO_CHECK)` goes on the **field**, not on the register, and it
+  switches off only the `mirror(UVM_CHECK)`. The read goes on updating the mirror:
+  a read *is* a prediction.
+- `build()` of a `uvm_reg_block` **is not a `build_phase`**. A block is a
+  `uvm_object`: nobody calls it for you. The test calls it, one line after the
   `create()`.
-- Si `bit_bash` no reporta nada sobre un registro, fijate si lo agregaste al
-  mapa. Un registro que no está en ningún mapa no existe para la sequence.
+- If `bit_bash` reports nothing about a register, check whether you added it to the
+  map. A register that is not in any map does not exist for the sequence.
 
-## Lo que practica
+## What it practises
 
-La sección de RAL entera, que es corta a propósito: el modelo, el
-`uvm_reg_field` y su cadena de accesos, `add_reg` y el mapa. Y una idea que no
-es de UVM: **la diferencia entre un registro y una dirección**.
+The whole of the RAL section, which is short on purpose: the model, the `uvm_reg_field` and its
+chain of accesses, `add_reg` and the map. And an idea that is not about UVM: **the
+difference between a register and an address**.

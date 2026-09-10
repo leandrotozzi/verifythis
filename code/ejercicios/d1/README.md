@@ -1,62 +1,67 @@
-# Día 1 — una operación nueva, de punta a punta
+<!-- es-sha: 3e6f505703e5 -->
+**English** · [Castellano](README.es.md)
 
-Dos archivos: una copia del bloque de un ciclo del DUT y una copia del testbench
-convencional, puestas acá para que las rompas tranquilo. El top del VTALU y el
-multiplicador salen del curso, sin tocar.
+# Day 1 — a new operation, end to end
 
-La VTALU tiene **un opcode libre**: `3'b110`. Está reservado a propósito, y hoy
-no hace nada. Vas a enseñarle a desplazar, y a enseñarle también al testbench
-que lo tiene que verificar.
+Two files: a copy of the DUT single-cycle block and a copy of the conventional
+testbench, put here so that you can break them in peace. The VTALU top and the
+multiplier come from the course, untouched.
 
-## Qué se pide
+The VTALU has **one free opcode**: `3'b110`. It is reserved on purpose, and today
+it does nothing. You are going to teach it to shift, and to teach the testbench
+that it has to verify it too.
 
-1. **`vtalu_1c.sv`** — implementá el shift a la derecha en `3'b110`.
-   Ojo con el ancho: el hardware desplaza por `B[2:0]`, no por `B` entero. Con
-   `B = 8'h20` corre **cero** lugares, no treinta y dos.
-2. **`vtalu_tb.sv`** — agregá `shr_op = 3'b110` al `operation_t`, hacé que
-   `get_op()` la genere y que el scoreboard la prediga **igual que el hardware**.
-3. **`vtalu_tb.sv`, el covergroup** — `bins single_cycle[]` cubre el rango
-   `[add_op : xor_op]`, que llega hasta `3'b100`. `shr_op` queda **afuera de
-   todos los bins**: se ejecuta, pasa el scoreboard, y no aparece en el reporte.
-   Metelo.
+## What is asked
 
-Listo cuando `bash run.sh` termina con `EXERCISE OK` **y** el reporte de
-cobertura cierra con **77 bins cubiertos o más**. Son dos condiciones porque el
-paso 3 no mueve la primera: la que lo agarra es la segunda.
+1. **`vtalu_1c.sv`** — implement the right shift on `3'b110`.
+   Careful with the width: the hardware shifts by `B[2:0]`, not by the whole `B`. With
+   `B = 8'h20` it shifts **zero** places, not thirty-two.
+2. **`vtalu_tb.sv`** — add `shr_op = 3'b110` to the `operation_t`, make
+   `get_op()` generate it and the scoreboard predict it **the same way the hardware does**.
+3. **`vtalu_tb.sv`, the covergroup** — `bins single_cycle[]` covers the range
+   `[add_op : xor_op]`, which reaches up to `3'b100`. `shr_op` falls **outside
+   every bin**: it runs, it passes the scoreboard, and it does not show up in the report.
+   Put it in.
 
-## Cómo se corre
+Done when `bash run.sh` finishes with `EXERCISE OK` **and** the coverage report
+closes with **77 covered bins or more**. Two conditions, because step 3 does not
+move the first one: the one that catches it is the second.
+
+## How to run it
 
 ```sh
-bash run.sh              # con tus archivos
-SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
+bash run.sh              # with your files
+SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 ```
 
-Si un resultado no coincide con el modelo, el `$error` del scoreboard aborta la
-simulación: Verilator lo trata como una aserción.
+If a result does not match the model, the scoreboard's `$error` aborts the
+simulation: Verilator treats it as an assertion.
 
-## Cuánto tarda
+## How long it takes
 
-No usa UVM: compila y corre en **segundos**, sin `ccache` y sin `z3`.
+It does not use UVM: it compiles and runs in **seconds**, without `ccache` and
+without `z3`.
 
-## Lo que practica
+## What it practises
 
-La spec del VTALU, el testbench convencional y la cobertura funcional. Y dos
-lecciones que no están en ninguna slide:
+The VTALU spec, the conventional testbench and functional coverage. Plus two
+lessons that are on no slide:
 
-- **Una operación nueva se toca en tres lugares** —el DUT, el estímulo con su
-  chequeo, y la medida— y si te olvidás de uno, el que se entera es el TB.
-- **Un opcode que nadie mide es un opcode que nadie verificó.** El paso 3 es el
-  que más se saltea, y es el único de los tres que la simulación deja pasar **en
-  silencio**: sin tocar los bins pasa en verde, y el porcentaje de cobertura
-  igual te dice 100 %. Por eso el corrector cuenta bins y no mira el porcentaje.
+- **A new operation gets touched in three places** —the DUT, the stimulus with its
+  check, and the measure— and if you forget one, the one that finds out is the TB.
+- **An opcode nobody measures is an opcode nobody verified.** Step 3 is the
+  most skipped one, and it is the only one of the three the simulation lets
+  through **silently**: without touching the bins it passes green, and the
+  coverage percentage still reads 100 %. That is why the checker counts bins and
+  does not look at the percentage.
 
-Con la solución, la cobertura pasa de **86,8 % (66 bins de 76) a 100 %
-(77 de 77)**: el shift agrega su propio bin y de paso cierra los que quedaban
-abiertos. Los diez que faltaban eran **uno solo**: Verilator reparte los bins
-automáticos de `all_ops` por el tipo de base —`bit [2:0]`— y no por miembro del
-enum, así que inventa un casillero para `3'b110`, el valor que el enum no
-tenía, y lo cruza nueve veces con `a_leg` y `b_leg`. El shift es justamente
-`3'b110`, y por eso lo llena de paso; en Questa se arranca de 100 %. Mirá el
-denominador, no el porcentaje: un covergroup que nunca declaró el bin tampoco
-lo cuenta como faltante, así que sin el paso 3 el reporte también dice 100 %,
-pero de 76.
+With the solution, the coverage goes from **86.8 % (66 bins out of 76) to 100 %
+(77 out of 77)**: the shift adds its own bin and along the way closes the ones
+that were still open. The ten that were missing were **a single one**: Verilator
+hands out the automatic bins of `all_ops` by the base type —`bit [2:0]`— and not
+by enum member, so it invents a bucket for `3'b110`, the value the enum did not
+have, and crosses it nine times with `a_leg` and `b_leg`. The shift is precisely
+`3'b110`, which is why it fills it along the way; on Questa you start from
+100 %. Look at the denominator, not at the percentage: a covergroup that never
+declared the bin does not count it as missing either, so without step 3 the
+report also says 100 % — out of 76.

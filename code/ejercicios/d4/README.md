@@ -1,52 +1,56 @@
-# Día 4 — un observador más, sin tocar a los que ya miran
+<!-- es-sha: 7615e866ac47 -->
+**English** · [Castellano](README.es.md)
 
-El testbench es el de los analysis ports: el `command_monitor` publica cada comando
-por un `uvm_analysis_port`, y del otro lado escuchan el `coverage` y el
-`scoreboard`. Queremos agregar uno que cuente.
+# Day 4 — one more observer, without touching the ones already watching
 
-## Qué se pide
+The testbench is the one from the analysis ports: the `command_monitor` publishes
+every command over a `uvm_analysis_port`, and on the other side the `coverage`
+and the `scoreboard` are listening. We want to add one that counts.
 
-1. **`op_counter.svh`** — un `uvm_subscriber #(command_s)` que cuente los
-   comandos que le llegan (y aparte las `mul_op`), y que en `report_phase`
-   imprima, con verbosidad `UVM_NONE` y con el id `OP_COUNTER`:
+## What is asked
+
+1. **`op_counter.svh`** — a `uvm_subscriber #(command_s)` that counts the
+   commands that reach it (and the `mul_op`s separately), and that in
+   `report_phase` prints, with `UVM_NONE` verbosity and the id `OP_COUNTER`:
 
    ```
    commands=<n> multiplications=<m>
    ```
 
-   El corrector busca esa línea tal cual: `commands=` es lo que grepea.
+   The checker looks for that line as it is: `commands=` is what it greps for.
 
-2. **`env.svh`** — instancialo y conectalo al analysis port del
-   `command_monitor`, sin tocar las conexiones que ya están.
+2. **`env.svh`** — instantiate it and connect it to the analysis port of the
+   `command_monitor`, without touching the connections that are already there.
 
-Listo cuando `bash run.sh` imprime `EXERCISE OK`.
+Done when `bash run.sh` prints `EXERCISE OK`.
 
-La corrección es cruzada: tu `commands=` tiene que dar igual que la cantidad de
-líneas `[COMMAND MONITOR]` que imprime el monitor, que no las escribiste vos. Si
-te olvidás del `connect`, tu contador dice 0 y el monitor dice 1000.
+The marking is done by cross-checking: your `commands=` has to come out the same
+as the number of `[COMMAND MONITOR]` lines the monitor prints, which you did not
+write. If you forget the `connect`, your counter says 0 and the monitor says 1000.
 
-## Cómo se corre
+## How to run it
 
 ```sh
-bash run.sh              # con tus archivos
-SOLUCION=1 bash run.sh   # con los de solucion/, para comparar
+bash run.sh              # with your files
+SOLUCION=1 bash run.sh   # with the ones in solucion/, to compare
 ```
 
-## Cuánto tarda
+## How long it takes
 
-Este ejercicio compila UVM entera. Medido con Verilator 5.052:
+This exercise compiles the whole of UVM. Measured with Verilator 5.052:
 
-| | 12 cores | 2 cores (Codespaces gratis) |
+| | 12 cores | 2 cores (free Codespaces) |
 |---|---|---|
-| la primera vez | ~1 min 30 | ~4 min |
-| las siguientes, con `ccache` | ~15 s | ~15 s |
+| the first time | ~1 min 30 | ~4 min |
+| the following ones, with `ccache` | ~15 s | ~15 s |
 
-El hit de `ccache` es copiar un archivo, así que la segunda compilación tarda lo
-mismo en cualquier máquina. Instalalo antes de empezar —el `run.sh` lo detecta
-solo— o usá Codespaces, que ya lo trae.
+A `ccache` hit is copying a file, so the second compilation takes the
+same on any machine. Install it before starting —the `run.sh` detects it
+on its own— or use Codespaces, which already brings it.
 
-## Lo que practica
+## What it practises
 
-Analysis ports y el observer pattern, `build_phase` y `connect_phase`.
-El punto de fondo: **el que publica no se entera de quién escucha**, y por
-eso agregar un observador no toca una línea de los que ya estaban.
+Analysis ports and the observer pattern, `build_phase` and `connect_phase`. The
+underlying point: **the one who publishes never finds out who is listening**, and
+that is why adding an observer does not touch one line of the ones that were
+already there.
