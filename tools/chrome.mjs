@@ -26,3 +26,11 @@ if (!encontrado) {
 }
 
 export const chrome = encontrado;
+
+// Los flags que necesitan LOS CUATRO. --no-sandbox estaba en dos de ellos y
+// faltaba en los otros dos: en Ubuntu 24.04 el CI no puede abrir el namespace
+// del sandbox y Chrome se muere sin escribir nada, que es como se rompio el
+// build. Va aca por la misma razon que la lista de arriba.
+export const BASE = [
+  '--headless', '--disable-gpu', '--no-sandbox', '--allow-file-access-from-files',
+];

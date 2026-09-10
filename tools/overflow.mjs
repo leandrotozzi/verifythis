@@ -9,7 +9,7 @@
 import { spawn } from 'node:child_process';
 import { writeFile, unlink, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { chrome } from './chrome.mjs';
+import { chrome, BASE } from './chrome.mjs';
 import { IDIOMAS, SALIDAS } from './i18n.mjs';
 
 const PROBE = `
@@ -76,17 +76,20 @@ async function run(mode, deck) {
   const html = (await readFile(deck, 'utf8')).replace('</body>', PROBE + '\n</body>');
   await writeFile(tmp, html);
   const url = `file://${path.resolve(tmp)}` + (mode === 'print' ? '?print-pdf' : '');
-  const out = await new Promise(res => {
-    let buf = '';
-    const p = spawn(chrome, ['--headless', '--disable-gpu', `--window-size=${process.env.WINDOW || '1600,1000'}`,
-      '--virtual-time-budget=180000', '--dump-dom', '--allow-file-access-from-files', url],
-      { stdio: ['ignore', 'pipe', 'ignore'] });
+  const { out, err } = await new Promise(res => {
+    let buf = '', errBuf = '';
+    const p = spawn(chrome, [...BASE, `--window-size=${process.env.WINDOW || '1600,1000'}`,
+      '--virtual-time-budget=180000', '--dump-dom', url],
+      { stdio: ['ignore', 'pipe', 'pipe'] });
     p.stdout.on('data', d => (buf += d));
-    p.on('close', () => res(buf));
+    p.stderr.on('data', d => (errBuf += d));
+    p.on('close', () => res({ out: buf, err: errBuf }));
   });
   await unlink(tmp);
   const m = out.match(/REPORT:(\{.*?\})<\/pre>/s);
-  if (!m) throw new Error(`${mode}: no pude leer el reporte (¿Reveal no inicializo?)`);
+  // Sin el stderr, un Chrome que ni arranco se leia como "Reveal no inicializo"
+  // y mandaba a buscar el problema al deck.
+  if (!m) throw new Error(`${mode}: no pude leer el reporte. Chrome dijo:\n${err.trim() || '(nada)'}`);
   return JSON.parse(m[1]);
 }
 

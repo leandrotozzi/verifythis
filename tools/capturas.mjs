@@ -26,7 +26,7 @@
 import { spawn } from 'node:child_process';
 import { writeFile, unlink, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { chrome } from './chrome.mjs';
+import { chrome, BASE } from './chrome.mjs';
 import { SALIDAS } from './i18n.mjs';
 import { inventario } from './inventario.mjs';
 
@@ -108,8 +108,8 @@ const SONDA = `
 function chromeRun(args) {
   return new Promise((res, rej) => {
     let buf = '';
-    const p = spawn(chrome, ['--headless', '--disable-gpu', '--hide-scrollbars',
-      '--allow-file-access-from-files', ...args], { stdio: ['ignore', 'pipe', 'ignore'] });
+    const p = spawn(chrome, [...BASE, '--hide-scrollbars', ...args],
+      { stdio: ['ignore', 'pipe', 'ignore'] });
     p.stdout.on('data', d => (buf += d));
     p.on('error', rej);
     p.on('close', () => res(buf));

@@ -3,7 +3,7 @@
 import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
-import { chrome } from './chrome.mjs';
+import { chrome, BASE } from './chrome.mjs';
 import { idiomaDeArgv, SALIDAS } from './i18n.mjs';
 
 const OUT_LANG = SALIDAS[idiomaDeArgv()];
@@ -12,8 +12,7 @@ const OUT = OUT_LANG.pdf;
 await mkdir('dist', { recursive: true });
 const url = `file://${path.resolve(OUT_LANG.html)}?print-pdf`;
 const args = [
-  '--headless', '--disable-gpu', '--no-sandbox',
-  '--allow-file-access-from-files',
+  ...BASE,
   '--virtual-time-budget=60000',
   '--no-pdf-header-footer',
   `--print-to-pdf=${OUT}`,

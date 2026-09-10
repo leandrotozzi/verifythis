@@ -14,7 +14,7 @@
 import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
-import { chrome } from './chrome.mjs';
+import { chrome, BASE } from './chrome.mjs';
 
 const CARILLAS = [
   ['res/machete.html',    'docs/machete-uvm.pdf'],
@@ -22,8 +22,7 @@ const CARILLAS = [
 ];
 
 const pdf = (src, out) => new Promise((res, rej) => spawn(chrome, [
-  '--headless', '--disable-gpu', '--no-sandbox',
-  '--allow-file-access-from-files',
+  ...BASE,
   '--virtual-time-budget=10000',
   '--no-pdf-header-footer',
   `--print-to-pdf=${out}`,
