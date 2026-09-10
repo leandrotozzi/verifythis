@@ -117,6 +117,21 @@ import path from 'node:path';
 // ese elemento es el comando que la genera.
 const HECHOS = [
   {
+    // reveal.js vive en DOS lugares: el pin de package.json y la copia
+    // vendorizada, que es la que el deck de verdad carga --index.html pide
+    // vendor/reveal/dist/reveal.js, no node_modules--. El PR #1 de dependabot
+    // subia el pin a 6.0.1 y dejaba la copia en 5.2.1, y ningun check lo miraba:
+    // `npm run check` no corre `vendor`. El bump quedaba INERTE hasta que alguien
+    // re-vendorizara, y ahi el deck cambiaba de major sin que nadie lo pidiera.
+    // Por eso el pin es exacto y sin `^`: tiene que ser el mismo numero.
+    // Cuando reveal se suba de verdad, se cambian los dos y tambien este hecho.
+    que: 'el reveal.js que carga el deck es el 5.2.1 de vendor/reveal/, no el de node_modules',
+    fuente: ['package.json', /"reveal\.js": "5\.2\.1"/],
+    lugares: [
+      ['vendor/reveal/VERSION', /reveal\.js 5\.2\.1/],
+    ],
+  },
+  {
     que: 'la tercera clase del ejemplo de polimorfismo se llama `mojito`',
     fuente: ['code/u3/polimorfismo/01-sin-virtual/not_virtual.sv', /class mojito extends trago/],
     lugares: [
@@ -565,7 +580,8 @@ for (const h of HECHOS) {
       errores.push(`${rutaF} — la fuente de "${h.que}" no existe`); continue;
     } else sinFuente++;
   } else if (!reF.test(fuente)) {
-    errores.push(`${rutaF} — cambio el hecho "${h.que}". Revisa los ${h.lugares.length} lugares que lo repiten y actualiza este lint`);
+    const n = h.lugares.length;
+    errores.push(`${rutaF} — cambio el hecho "${h.que}". Revisa ${n === 1 ? 'el lugar que lo repite' : `los ${n} lugares que lo repiten`} y actualiza este lint`);
     continue;
   }
   for (const [ruta, debe, nunca] of h.lugares) {
