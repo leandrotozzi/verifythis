@@ -12,6 +12,15 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 DEST=$ROOT/code/.uvm
 VERSION=2020.3.1
 URL=https://github.com/accellera-official/uvm-core/archive/refs/tags/$VERSION.tar.gz
+# Un tag de git se puede mover; el hash no. Esto es lo que separa "la UVM de
+# Accellera" de "lo que hoy haya atras de ese tag".
+#
+# Si alguna vez falla sin que hayas tocado nada: GitHub genera este .tar.gz al
+# vuelo y una vez en 2023 cambio la compresion de los archivos automaticos. Antes
+# de re-blesear el hash, compara el contenido -- que el tag apunte al commit
+# 78c06547a2a0a29b3dc9dcafae62b75b2ff61544 -- y recien ahi actualizalo aca y en
+# el Dockerfile, que lleva el mismo.
+SHA256=f55bdbc02cc500d4a2f41b31bad127653289eb2073f806ce156fb82662b362b8
 
 [ -f "$DEST/src/uvm_pkg.sv" ] && { echo "UVM ya esta en $DEST"; exit 0; }
 
@@ -20,6 +29,22 @@ mkdir -p "$DEST"
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 curl -sSL --max-time 180 -o "$tmp/uvm.tgz" "$URL"
+
+# sha256sum en Linux, shasum en macOS. Si no hay ninguno se avisa y se sigue:
+# quedarse sin curso por no tener un binario de hash seria peor que el riesgo
+# que esto cubre.
+real=""
+if command -v sha256sum >/dev/null 2>&1; then real=$(sha256sum "$tmp/uvm.tgz" | cut -d' ' -f1)
+elif command -v shasum   >/dev/null 2>&1; then real=$(shasum -a 256 "$tmp/uvm.tgz" | cut -d' ' -f1)
+else echo "aviso: sin sha256sum ni shasum, no puedo verificar el tarball" >&2; fi
+
+if [ -n "$real" ] && [ "$real" != "$SHA256" ]; then
+  echo "fallo: el tarball de UVM no es el esperado" >&2
+  echo "  esperaba $SHA256" >&2
+  echo "  vino     $real" >&2
+  exit 1
+fi
+
 tar xzf "$tmp/uvm.tgz" -C "$DEST" --strip-components=1
 
 [ -f "$DEST/src/uvm_pkg.sv" ] || { echo "fallo: no aparecio src/uvm_pkg.sv" >&2; exit 1; }

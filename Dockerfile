@@ -13,6 +13,9 @@ FROM debian:bookworm-slim
 
 ARG VERILATOR_VERSION=v5.052
 ARG UVM_VERSION=2020.3.1
+# El mismo hash que tools/get-uvm.sh: si se cambia uno, se cambian los dos.
+# El pipe a tar de antes no dejaba lugar para verificar nada.
+ARG UVM_SHA256=f55bdbc02cc500d4a2f41b31bad127653289eb2073f806ce156fb82662b362b8
 
 # g++, make y perl no son solo del build de Verilator: cada simulacion se
 # compila a un binario nativo, asi que se quedan en la imagen.
@@ -26,8 +29,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
  && cd /tmp/verilator && autoconf && ./configure && make -j4 && make install \
  && rm -rf /tmp/verilator \
  && mkdir -p /opt/uvm \
- && curl -sSL "https://github.com/accellera-official/uvm-core/archive/refs/tags/$UVM_VERSION.tar.gz" \
-      | tar xz -C /opt/uvm --strip-components=1 \
+ && curl -sSL -o /tmp/uvm.tgz "https://github.com/accellera-official/uvm-core/archive/refs/tags/$UVM_VERSION.tar.gz" \
+ && echo "$UVM_SHA256  /tmp/uvm.tgz" | sha256sum -c - \
+ && tar xzf /tmp/uvm.tgz -C /opt/uvm --strip-components=1 \
+ && rm /tmp/uvm.tgz \
  && rm -rf /var/lib/apt/lists/*
 
 # common.sh y el Makefile leen UVM_HOME: apuntando afuera del repo, el

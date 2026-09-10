@@ -1,0 +1,30 @@
+# Dependabot. Existe por las actions pineadas a SHA: un SHA no se actualiza
+# solo, y sin esto el repo se queda con la version de hoy para siempre.
+# Dependabot lee el comentario "# v4" que va al lado del SHA, lo sube y deja el
+# comentario nuevo -- que es exactamente lo que hace falta.
+#
+# Mensual y no semanal a proposito: es un curso, no un servicio. Los avisos de
+# seguridad llegan igual, cuando pasan y no cuando toca.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "chore(ci)"
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # Las cuatro devDependencies del build (esbuild y compania). El curso no tiene
+  # dependencias de runtime: lo que se publica es HTML, PDF y SystemVerilog.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      dev:
+        patterns: ["*"]
