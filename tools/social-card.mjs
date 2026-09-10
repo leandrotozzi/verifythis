@@ -1,29 +1,36 @@
-// La tarjeta que GitHub muestra al compartir el link del repo
-// (Settings > General > Social preview) y el og:image de respaldo.
+// Los dos PNG de la marca, los dos con el tilde del favicon:
 //
-//   node tools/social-card.mjs      tools/social-card.html -> docs/social-card.png
+//   docs/social-card.png  1280x640  la tarjeta al compartir el link del repo
+//                                   (Settings > General > Social preview)
+//   docs/avatar.png        500x500  el avatar de una cuenta u organizacion
 //
-// GitHub NO expone esa imagen por API: el PNG se sube a mano, una vez. Esto
+//   node tools/social-card.mjs
+//
+// GitHub NO expone ninguna de las dos por API: se suben a mano, una vez. Esto
 // existe para que el dia que cambien los numeros o el hook no haya que
-// redibujarla en un editor -- se edita el HTML y se vuelve a rendir.
+// redibujarlas en un editor -- se edita el HTML y se vuelve a rendir.
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { chrome, BASE } from './chrome.mjs';
 
-const SRC = path.resolve('tools/social-card.html');
-const OUT = path.resolve('docs/social-card.png');
-
-// 1280x640 es lo que pide GitHub. Sin --window-size el screenshot sale del
-// tamano del viewport por defecto y la tarjeta queda cortada.
+// 1280x640 es lo que pide GitHub para la tarjeta; 500x500 para el avatar. Sin
+// --window-size el screenshot sale del viewport por defecto y quedan cortados.
+const PIEZAS = [
+  ['tools/social-card.html', 'docs/social-card.png', '1280,640'],
+  ['tools/avatar.html',      'docs/avatar.png',      '500,500'],
+];
 // El stderr se guarda y solo se imprime si falla: en macOS Chrome escupe una
 // docena de warnings de CVDisplayLink en cada corrida buena.
-let err = '';
-const p = spawn(chrome, [...BASE, '--window-size=1280,640', '--hide-scrollbars',
-  '--virtual-time-budget=30000', `--screenshot=${OUT}`, `file://${SRC}`],
-  { stdio: ['ignore', 'ignore', 'pipe'] });
-p.stderr.on('data', d => (err += d));
-p.on('close', c => {
-  if (c === 0) console.log(`ok: ${OUT}  1280x640`);
-  else console.error(`chrome salio con ${c}:\n${err.trim() || '(nada)'}`);
-  process.exit(c);
+const rendir = (src, out, tam) => new Promise((res, rej) => {
+  let err = '';
+  const p = spawn(chrome, [...BASE, `--window-size=${tam}`, '--hide-scrollbars',
+    '--virtual-time-budget=30000', `--screenshot=${path.resolve(out)}`,
+    `file://${path.resolve(src)}`], { stdio: ['ignore', 'ignore', 'pipe'] });
+  p.stderr.on('data', d => (err += d));
+  p.on('close', c => (c === 0
+    ? res(console.log(`ok: ${out}  ${tam.replace(',', 'x')}`))
+    : rej(new Error(`chrome salio con ${c} en ${src}:\n${err.trim() || '(nada)'}`))));
 });
+
+// De a una: dos Chrome headless a la vez en un runner de 2 cores se pelean.
+for (const [src, out, tam] of PIEZAS) await rendir(src, out, tam);
