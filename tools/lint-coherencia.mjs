@@ -146,12 +146,22 @@ const leer = f => readFile(f, 'utf8').catch(() => null);
 const errores = [];
 const linea = (t, i) => t.slice(0, i).split('\n').length;
 
+// code/.uvm es la libreria vendorizada: la baja `make uvm` y el job de docs del
+// CI no la tiene. Sin ella no se puede PROBAR que el hecho siga siendo cierto,
+// pero si se puede chequear que los N lugares digan lo mismo entre si -- que es
+// la parte que ataja el defecto. Un fuente que falta y NO es de la libreria si
+// es un error: alguien borro o movio el archivo que sostiene el hecho.
+const VENDORIZADA = /^code\/\.uvm\//;
+let sinFuente = 0;
+
 // --- Regla 1: los hechos ---
 for (const h of HECHOS) {
   const [rutaF, reF] = h.fuente;
   const fuente = await leer(rutaF);
-  if (fuente === null) { errores.push(`${rutaF} — la fuente de "${h.que}" no existe`); continue; }
-  if (!reF.test(fuente)) {
+  if (fuente === null) {
+    if (!VENDORIZADA.test(rutaF)) { errores.push(`${rutaF} — la fuente de "${h.que}" no existe`); continue; }
+    sinFuente++;
+  } else if (!reF.test(fuente)) {
     errores.push(`${rutaF} — cambio el hecho "${h.que}". Revisa los ${h.lugares.length} lugares que lo repiten y actualiza este lint`);
     continue;
   }
@@ -181,4 +191,6 @@ if (errores.length) {
   errores.forEach(e => console.error('  ✗ ' + e));
   process.exit(1);
 }
-console.log(`✓ lint de coherencia: ${HECHOS.length} hechos con ${HECHOS.reduce((n, h) => n + h.lugares.length, 0)} lugares al dia, y ninguna referencia de distancia`);
+const lugares = HECHOS.reduce((n, h) => n + h.lugares.length, 0);
+console.log(`✓ lint de coherencia: ${HECHOS.length} hechos con ${lugares} lugares al dia, y ninguna referencia de distancia`);
+if (sinFuente) console.log(`  (${sinFuente} sin verificar contra la fuente: code/.uvm no esta vendorizada — corre 'make uvm')`);
