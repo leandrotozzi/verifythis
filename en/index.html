@@ -200,7 +200,7 @@ starting, and day 1 stops having two steps at once.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 494d5a6b24a5 -->
+<!-- es-sha: 6fd844c44c0d -->
 ## The log says it failed
 
 #### *And the DUT is healthy*
@@ -222,15 +222,18 @@ Note:
 This is the first slide with something running, and it goes here on purpose:
 before any chart, before the word UVM, the student has to have seen the problem.
 It is the `d1b` exercise, the second one of today, and in class it is worth
-running it live — it is four seconds, it does not compile UVM.
+running it live: it is four seconds because there is no UVM to compile here yet.
+It builds and runs fine —the DUT is healthy—; what fails is the test, and that is
+what has to be debugged.
 The question to throw out and **not** answer: *"with that line, where would you
 start?"*. The answers that will come are `$display` and running again, which is
 exactly what the course comes to replace. The answer is in an `ondas.vcd` the run
 left alongside and nobody has opened yet.
 And the honest close, which is the promise of the whole course: this is not about
 writing testbenches faster, it is about the log saying why when it fails — and it
-will fail. The figure in the bullet below, the 47 %, comes from the survey on the
-next slide.
+will fail. The *almost half* in the last bullet is the 47 % of the verification
+engineer's time that goes into debug: the figure comes from the Wilson Research
+Group 2024 survey and the chart is on the next slide.
         </textarea>
       </section>
       <!-- 007-el-gancho.md -->
@@ -314,7 +317,7 @@ It is useful for lowering the anxiety of whoever arrives scared by the size of U
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 31496a304ebf -->
+<!-- es-sha: 3f6b82db4897 -->
 ## Introduction
 
 #### *What is UVM?*
@@ -423,6 +426,10 @@ half the course: hanging off `uvm_object` is the **data** —the transactions, t
 sequences, the configs— and hanging off `uvm_component` is the **structure** —everything
 that lives in the tree and has phases—. An object is created and thrown away; a component
 is built once and lasts the whole simulation.
+The colours say what you do with each one: the amber ones you extend yourself, the
+grey ones are never touched —they are only there for the others to inherit from—
+and `uvm_sequencer` is the only green one because it is the only one used as is,
+with a parameterized `typedef`. That comes on day 6.
 The question to throw at the group when we get to agents: is a
 `uvm_sequence` an object or a component? An object. And that is why it does not show up in
 `print_topology()`.

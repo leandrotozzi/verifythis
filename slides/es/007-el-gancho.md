@@ -19,12 +19,15 @@ Note:
 Ésta es la primera slide con algo corriendo, y va acá a propósito: antes de
 cualquier gráfico, antes de la palabra UVM, el alumno tiene que haber visto el
 problema. Es el ejercicio `d1b`, el segundo de hoy, y en clase conviene correrlo
-en vivo — son cuatro segundos, no compila UVM.
+en vivo: son cuatro segundos porque acá todavía no hay UVM que compilar. Compila
+y corre bien —el DUT está sano—; lo que falla es el test, y eso es lo que hay que
+debuggear.
 La pregunta para tirar y **no** contestar: *"con esa línea, ¿por dónde
 empezarías?"*. Las respuestas que van a salir son `$display` y volver a correr,
 que es exactamente lo que el curso viene a reemplazar. La respuesta está en un
 `ondas.vcd` que la corrida dejó al lado y que nadie abrió todavía.
 Y el cierre honesto, que es la promesa del curso entero: no se trata de escribir
 testbenches más rápido, se trata de que cuando falle —y va a fallar— el log diga
-por qué. La cifra del bullet de abajo, el 47 %, sale de la encuesta que viene en
-la slide que sigue.
+por qué. El *casi la mitad* del último bullet es el 47 % del tiempo del
+verificador que se va en debug: el dato sale de la encuesta del Wilson Research
+Group 2024 y el gráfico está en la slide que sigue.

@@ -1,4 +1,4 @@
-<!-- es-sha: 494d5a6b24a5 -->
+<!-- es-sha: 6fd844c44c0d -->
 ## The log says it failed
 
 #### *And the DUT is healthy*
@@ -20,12 +20,15 @@ Note:
 This is the first slide with something running, and it goes here on purpose:
 before any chart, before the word UVM, the student has to have seen the problem.
 It is the `d1b` exercise, the second one of today, and in class it is worth
-running it live — it is four seconds, it does not compile UVM.
+running it live: it is four seconds because there is no UVM to compile here yet.
+It builds and runs fine —the DUT is healthy—; what fails is the test, and that is
+what has to be debugged.
 The question to throw out and **not** answer: *"with that line, where would you
 start?"*. The answers that will come are `$display` and running again, which is
 exactly what the course comes to replace. The answer is in an `ondas.vcd` the run
 left alongside and nobody has opened yet.
 And the honest close, which is the promise of the whole course: this is not about
 writing testbenches faster, it is about the log saying why when it fails — and it
-will fail. The figure in the bullet below, the 47 %, comes from the survey on the
-next slide.
+will fail. The *almost half* in the last bullet is the 47 % of the verification
+engineer's time that goes into debug: the figure comes from the Wilson Research
+Group 2024 survey and the chart is on the next slide.

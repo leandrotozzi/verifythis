@@ -1,4 +1,4 @@
-<!-- es-sha: 31496a304ebf -->
+<!-- es-sha: 3f6b82db4897 -->
 ## Introduction
 
 #### *What is UVM?*
@@ -107,6 +107,10 @@ half the course: hanging off `uvm_object` is the **data** —the transactions, t
 sequences, the configs— and hanging off `uvm_component` is the **structure** —everything
 that lives in the tree and has phases—. An object is created and thrown away; a component
 is built once and lasts the whole simulation.
+The colours say what you do with each one: the amber ones you extend yourself, the
+grey ones are never touched —they are only there for the others to inherit from—
+and `uvm_sequencer` is the only green one because it is the only one used as is,
+with a parameterized `typedef`. That comes on day 6.
 The question to throw at the group when we get to agents: is a
 `uvm_sequence` an object or a component? An object. And that is why it does not show up in
 `print_topology()`.
