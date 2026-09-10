@@ -1,4 +1,4 @@
-<!-- es-sha: 972e9ea3237a -->
+<!-- es-sha: db9414d4509a -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 8
@@ -12,7 +12,7 @@
 - [x] Both skip `WO*` accesses: that bit never got tested
 - [ ] The predictor leaves the mirror at `x`, and a comparison against `x` always passes
 
-> **Green is not checked** — `uvm_reg_bit_bash_seq.svh:129-135` skips every field whose access starts with `WO` (*"you are not supposed to read them"*), and `do_check` takes it out of the comparison mask (`uvm_reg.svh:2782-2788`). The only trace is in the timing: bashing `CTRL` takes four transfers less. The right access is `WC` (or `W1C`), and with it the bit does get bashed. A `WO*` access is the cheapest way there is of switching a check off without noticing.
+> **Green is not checked** — `uvm_reg_bit_bash_seq.svh:129-133` skips every field whose access starts with `WO` (*"you are not supposed to read them"*), and `do_check` takes it out of the comparison mask (`uvm_reg.svh:2782-2788`). The only trace is in the timing: bashing `CTRL` takes four transfers less. The right access is `WC` (or `W1C`), and with it the bit does get bashed. A `WO*` access is the cheapest way there is of switching a check off without noticing.
 
 ---
 

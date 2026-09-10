@@ -1,4 +1,4 @@
-<!-- es-sha: 95c0ec3c3c89 -->
+<!-- es-sha: 8ea38651fef0 -->
 ## Callbacks
 
 #### *The third hook*
@@ -81,7 +81,7 @@ code/u7/callbacks/tb_classes/driver.svh`. Everything else —the `get_next_item`
 `send_op`, the `item_done`— is the same.
 The failure mode of the missing `uvm_register_cb` is not the one you expect, and it
 is worth telling it with the source in hand because half the tutorials get it
-backwards: `uvm_callback.svh:744` reports a `UVM_WARNING CBUNREG` and **carries
+backwards: `uvm_callback.svh:745` reports a `UVM_WARNING CBUNREG` and **carries
 on** — the `add()` puts the callback into `m_base_inst.m_pool` all the same
 (`:777-783`), and `` `uvm_do_callbacks `` reads that pool without consulting the
 registry (`:964-1006`). Which means: without the macro the callback runs, and what

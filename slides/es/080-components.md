@@ -118,8 +118,9 @@ respuesta honesta no es "se olvidaron": es que sin las macros de campo la llamad
 al de `uvm_component` no hace nada.
 Los números, para que nadie tenga que creernos:
 `grep -rn 'super\.build_phase' code/ --include='*.sv' --include='*.svh' --exclude-dir=.uvm`
-da quince llamadas reales —más seis comentarios que hablan de ellas— sobre 309
-`build_phase`. Las quince llaman al
+da {{count:super-build-phase}} llamadas reales —más {{count:super-build-phase-comentarios}}
+comentarios que hablan de ellas— sobre {{count:build-phase}} `build_phase`. Las
+{{count:super-build-phase}} llaman al
 `super` de un `base_test` o un `random_test` **nuestro**, que construye el env.
 Ninguna llama al de `uvm_component`, que es de lo que habla la slide.
 La otra diferencia de fondo: hay dos formas de configurar un componente. La
@@ -131,7 +132,8 @@ Por qué la recomendación de afuera es la contraria a lo que hace el curso: el
 modo de falla es asimétrico. Ponerlo de más es cero efecto. No ponerlo cuando
 hacía falta es silencio: el campo queda en su default y la simulación corre.
 Este curso puede nombrar por qué en su caso es un no-op —no hay una sola macro
-`` `uvm_field_* `` en `code/` fuera de la librería vendorizada, verificalo—; el que entra a un testbench ajeno no
+`` `uvm_field_* `` en `code/` fuera de la librería vendorizada —son
+{{count:uvm-field-macros}}, y el número lo cuenta el build—; el que entra a un testbench ajeno no
 puede. `uvm_agent` es el contraejemplo que tenemos a mano: es la única clase de
 la librería, además de `uvm_component`, que implementa `build_phase`, y lo que
 hace ahí es leer `is_active`. Vuelve en el día 6.
@@ -145,6 +147,7 @@ Con las otras fases pasa lo mismo, más barato todavía: en `uvm_component` son
 
 #### *El cuadro completo: son nueve, no cinco*
 
+<!-- tabla: fases -->
 | Fase | Para qué | Orden |
 | --- | --- | --- |
 | `build_phase` | instanciar los componentes | **top-down** |
@@ -155,7 +158,8 @@ Con las otras fases pasa lo mismo, más barato todavía: en `uvm_component` son
 | `extract_phase` | juntar los datos de la corrida | bottom-up |
 | `check_phase` | decidir si pasó o no | bottom-up |
 | `report_phase` | imprimir el veredicto | bottom-up |
-| `final_phase` | cerrar archivos y salir | top-down |
+| `final_phase` | cerrar archivos y salir | **top-down** |
+<!-- tabla: end -->
 
 - El curso usa cinco. Las otras cuatro existen, están vacías, y las vas a ver
 

@@ -21,6 +21,7 @@ import hljs from './hljs-slim.mjs';
 import { UI, idiomaDeArgv, SALIDAS } from './i18n.mjs';
 import { seo } from './sitio.mjs';
 import { RE_CODE, recortar } from './codigo.mjs';
+import { expandirContadores } from './contadores.mjs';
 
 const IDIOMA = idiomaDeArgv();
 const OUT = SALIDAS[IDIOMA];
@@ -128,6 +129,10 @@ async function renderSlide(s) {
     if (c) for (const k of c[1].split(/\s+/)) clases.add(k);
     return '';
   }).replace(RE_ELEM_ATTR, '');
+
+  // Antes de partir la nota: los contadores viven sobre todo en las notas del
+  // presentador, que a partir de la linea de abajo dejan de estar en `md`.
+  md = await expandirContadores(md);
 
   // La nota del presentador: en el deck se esconde detras de la tecla S; aca es
   // la mitad del texto.

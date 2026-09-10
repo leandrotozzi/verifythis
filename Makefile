@@ -144,6 +144,7 @@ figs:
 # esto saca los dos PDF que se imprimen, y van commiteados. Necesita Chrome,
 # igual que 'npm run pdf'.
 machete:
+	node tools/tablas.mjs
 	node tools/machete.mjs
 
 deck:

@@ -113,7 +113,7 @@ four-row table.</p>
 </section>
 
 <section id="s416" class="slide">
-<!-- es-sha: c3e3e3361662 -->
+<!-- es-sha: 67f09cf19dc7 -->
 
 
 <h2 id="ral">RAL</h2>
@@ -395,7 +395,7 @@ that says exactly that is <strong><code>WC</code></strong>: the write clears the
 to zero, and the read returns that zero. <code>W1C</code> works just as well here.
 And here is RAL&#39;s silent trap, which is worth more than the slide. <code>WOC</code> —the name
 you write first, because it sounds like &quot;write-only, clears&quot;— <strong>also</strong> gives zero
-errors, but it gives them for the wrong reason: <code>uvm_reg_bit_bash_seq.svh:129-135</code>
+errors, but it gives them for the wrong reason: <code>uvm_reg_bit_bash_seq.svh:129-133</code>
 skips every field whose access starts with <code>WO</code> (Accellera&#39;s own comment says
 <em>&quot;Ignore Write-only fields because you are not supposed to read them&quot;</em>), and
 <code>do_check</code> takes it out of the comparison mask (<code>uvm_reg.svh:2782-2788</code>), so the
@@ -1579,7 +1579,7 @@ justify it comes along, and that DUT arrives sooner than you think.</p>
 </section>
 
 <section id="s433" class="slide quiz">
-<!-- es-sha: 972e9ea3237a -->
+<!-- es-sha: db9414d4509a -->
 
 
 <h2 id="review-·-day-8">Review · Day 8</h2>
@@ -1592,7 +1592,7 @@ justify it comes along, and that DUT arrives sooner than you think.</p>
 <li><input disabled="" type="checkbox"> The predictor leaves the mirror at <code>x</code>, and a comparison against <code>x</code> always passes</li>
 </ul>
 <blockquote>
-<p><strong>Green is not checked</strong> — <code>uvm_reg_bit_bash_seq.svh:129-135</code> skips every field whose access starts with <code>WO</code> (<em>&quot;you are not supposed to read them&quot;</em>), and <code>do_check</code> takes it out of the comparison mask (<code>uvm_reg.svh:2782-2788</code>). The only trace is in the timing: bashing <code>CTRL</code> takes four transfers less. The right access is <code>WC</code> (or <code>W1C</code>), and with it the bit does get bashed. A <code>WO*</code> access is the cheapest way there is of switching a check off without noticing.</p>
+<p><strong>Green is not checked</strong> — <code>uvm_reg_bit_bash_seq.svh:129-133</code> skips every field whose access starts with <code>WO</code> (<em>&quot;you are not supposed to read them&quot;</em>), and <code>do_check</code> takes it out of the comparison mask (<code>uvm_reg.svh:2782-2788</code>). The only trace is in the timing: bashing <code>CTRL</code> takes four transfers less. The right access is <code>WC</code> (or <code>W1C</code>), and with it the bit does get bashed. A <code>WO*</code> access is the cheapest way there is of switching a check off without noticing.</p>
 </blockquote>
 <p class="al-deck"><a href="../index.html#/433">see this slide in the deck &rsaquo;</a></p>
 </section>

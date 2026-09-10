@@ -33,21 +33,26 @@
 //      ~80, rompieron 3 veces, y son la forma natural de hablar apuntando a la
 //      pantalla. Prohibirlas seria mucho ruido para poca senal.
 //
+//   3. CITAS A UN ARCHIVO Y LINEA. El curso cita la libreria por linea en ~34
+//      lugares (`uvm_root.svh:1187`, `uvm_reg.svh:2782-2788`). Es lo que le da
+//      autoridad, y es lo que nadie puede verificar leyendo la slide. Se chequea
+//      que el archivo exista, que la linea exista y --lo que ataja el caso
+//      real-- que NO este en blanco: `uvm_callback.svh:744` apuntaba a una linea
+//      vacia y el `uvm_report_warning` estaba en la 745, y el rango
+//      `uvm_reg_bit_bash_seq.svh:129-135` terminaba dos lineas despues del
+//      `case` que dice cerrar. Las dos sobrevivieron dos revisiones.
+//
+//   4. EL ORDEN DE LAS NUEVE FASES contra uvm_common_phases.svh. Las tablas ya
+//      salen de una fuente unica (tools/datos-machete.mjs -> tools/tablas.mjs),
+//      pero el `orden` de cada fase sigue escrito a mano ahi; esto lo ata a la
+//      clase de la que cada fase extiende, que es quien lo decide.
+//
 // Uso: node tools/lint-coherencia.mjs
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
+import path from 'node:path';
 
 // [ruta, /debe aparecer/] o [ruta, /debe/, /nunca/] o [ruta, null, /nunca/]
 const HECHOS = [
-  {
-    que: '`uvm_final_phase` es top-down, no bottom-up',
-    fuente: ['code/.uvm/src/base/uvm_common_phases.svh', /class uvm_final_phase extends uvm_topdown_phase/],
-    lugares: [
-      ['slides/es/080-components.md', /final_phase.{0,40}top-down/s],
-      ['slides/en/080-components.md', /final_phase.{0,40}top-down/s],
-      ['res/machete.html', /final<\/td><td>cerrar archivos y salir<\/td><td><b>top-down<\/b>/],
-      ['res/en/machete.html', /final<\/td><td>close files and exit<\/td><td><b>top-down<\/b>/],
-    ],
-  },
   {
     que: 'la tercera clase del ejemplo de polimorfismo se llama `mojito`',
     fuente: ['code/u3/polimorfismo/01-sin-virtual/not_virtual.sv', /class mojito extends trago/],
@@ -186,6 +191,76 @@ for (const dir of ['slides/es', 'slides/en']) {
   }
 }
 
+// --- Regla 3: las citas archivo:linea ---
+// Se acepta con o sin backticks y con o sin parte de la ruta: la slide escribe
+// `uvm_root.svh:1187` y tambien `seq/uvm_sequencer_base.svh:1258-1267`.
+const RE_CITA = /(?:^|[\s`(\/])((?:[\w-]+\/)*[\w-]+\.svh?):(\d+)(?:-(\d+))?/g;
+const hayUvm = await stat('code/.uvm').then(() => true, () => false);
+let citasSinFuente = 0, citas = 0;
+
+const indice = new Map();
+async function* fuentes(dir) {
+  for (const e of await readdir(dir, { withFileTypes: true })) {
+    const p = path.join(dir, e.name);
+    if (/(^|\/)obj_dir(\/|$)/.test(p)) continue;
+    if (e.isDirectory()) yield* fuentes(p); else yield p;
+  }
+}
+for await (const f of fuentes('code')) {
+  const b = path.basename(f);
+  if (!indice.has(b)) indice.set(b, []);
+  indice.get(b).push(f);
+}
+
+for (const dir of ['slides/es', 'slides/en', 'docs', 'docs/en']) {
+  for (const f of (await readdir(dir)).filter(x => x.endsWith('.md'))) {
+    const ruta = `${dir}/${f}`;
+    const texto = await leer(ruta);
+    for (const m of texto.matchAll(RE_CITA)) {
+      const [, ref, desde, hasta] = m;
+      citas++;
+      const cands = (indice.get(path.basename(ref)) || []).filter(p => p.endsWith(ref));
+      if (!cands.length) {
+        // Sin la libreria vendorizada no se puede resolver una cita a uvm_*.
+        if (!hayUvm) { citasSinFuente++; continue; }
+        errores.push(`${ruta}:${linea(texto, m.index)} — cita \`${ref}:${desde}\` y ese archivo no existe`);
+        continue;
+      }
+      if (cands.length > 1) {
+        errores.push(`${ruta}:${linea(texto, m.index)} — \`${ref}\` es ambiguo (${cands.length} archivos): agrega parte de la ruta`);
+        continue;
+      }
+      const src = (await leer(cands[0])).split('\n');
+      for (const n of [desde, hasta].filter(Boolean).map(Number)) {
+        if (n > src.length) errores.push(`${ruta}:${linea(texto, m.index)} — cita ${ref}:${n} y el archivo tiene ${src.length} lineas`);
+        else if (!src[n - 1].trim()) errores.push(`${ruta}:${linea(texto, m.index)} — ${ref}:${n} es una linea EN BLANCO: la cita esta corrida`);
+      }
+    }
+  }
+}
+
+// --- Regla 4: el orden de las nueve fases, contra la libreria ---
+// tools/datos-machete.mjs es la fuente unica de las tablas (tools/tablas.mjs las
+// renderiza a los ocho destinos), pero el `orden` de cada fase sigue siendo un
+// dato escrito a mano ahi. Esto lo ata a uvm_common_phases.svh, que es quien lo
+// decide de verdad: `uvm_final_phase extends uvm_topdown_phase`. Es el hecho que
+// el machete impreso tuvo mal durante dos revisiones.
+const COMUNES = 'code/.uvm/src/base/uvm_common_phases.svh';
+const src = await leer(COMUNES);
+if (src === null) {
+  sinFuente++;
+} else {
+  const { FASES } = await import('./datos-machete.mjs');
+  const KIND = { topdown: 'top-down', bottomup: 'bottom-up', task: 'un thread c/u' };
+  for (const f of FASES) {
+    const m = src.match(new RegExp(`^class uvm_${f.fase}_phase extends uvm_(topdown|bottomup|task)_phase`, 'm'));
+    if (!m) { errores.push(`${COMUNES} — no encontre \`uvm_${f.fase}_phase\`: cambio la libreria`); continue; }
+    if (KIND[m[1]] !== f.orden) {
+      errores.push(`tools/datos-machete.mjs — \`${f.fase}\` dice "${f.orden}" y la libreria dice "${KIND[m[1]]}" (${COMUNES})`);
+    }
+  }
+}
+
 if (errores.length) {
   console.error(`✗ ${errores.length} problema(s) de coherencia:`);
   errores.forEach(e => console.error('  ✗ ' + e));
@@ -193,4 +268,5 @@ if (errores.length) {
 }
 const lugares = HECHOS.reduce((n, h) => n + h.lugares.length, 0);
 console.log(`✓ lint de coherencia: ${HECHOS.length} hechos con ${lugares} lugares al dia, y ninguna referencia de distancia`);
-if (sinFuente) console.log(`  (${sinFuente} sin verificar contra la fuente: code/.uvm no esta vendorizada — corre 'make uvm')`);
+console.log(`✓ lint de citas: ${citas} citas archivo:linea, todas a una linea que existe y no esta en blanco`);
+if (sinFuente || citasSinFuente) console.log(`  (${sinFuente} hecho(s) y ${citasSinFuente} cita(s) sin verificar: code/.uvm no esta vendorizada — corre 'make uvm')`);

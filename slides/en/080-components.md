@@ -1,4 +1,4 @@
-<!-- es-sha: 0c2b1a730b11 -->
+<!-- es-sha: fed3add9fd3f -->
 ## Components and phases
 
 #### *A component is what is in the tree, and the tree is walked by UVM*
@@ -120,8 +120,9 @@ there. The honest answer is not "they forgot": it is that without the field macr
 call to `uvm_component`'s does nothing.
 The numbers, so that nobody has to take our word for it:
 `grep -rn 'super\.build_phase' code/ --include='*.sv' --include='*.svh' --exclude-dir=.uvm`
-gives fifteen real calls —plus six comments that talk about them— over 309
-`build_phase`. Those fifteen call the `super` of a
+gives {{count:super-build-phase}} real calls —plus {{count:super-build-phase-comentarios}}
+comments that talk about them— over {{count:build-phase}} `build_phase`. Those
+{{count:super-build-phase}} call the `super` of a
 `base_test` or a `random_test` of **ours**, which builds the env. None of them calls
 `uvm_component`'s, which is what the slide is about.
 The other underlying difference: there are two ways of configuring a component. The
@@ -133,7 +134,8 @@ Why the recommendation for out there is the opposite of what the course does: th
 failure mode is asymmetric. Putting it in for nothing has zero effect. Leaving it out
 when it was needed is silence: the field stays at its default and the simulation runs.
 This course can name why in its case it is a no-op —there is not a single
-`` `uvm_field_* `` macro in `code/` outside the vendored library, check it—; whoever walks into somebody else's
+`` `uvm_field_* `` macro in `code/` outside the vendored library —there are
+{{count:uvm-field-macros}}, and the build counts them—; whoever walks into somebody else's
 testbench cannot. `uvm_agent` is the counterexample we have at hand: it is the only
 class in the library, besides `uvm_component`, that implements `build_phase`, and what
 it does there is read `is_active`. It comes back on day 6.
@@ -147,17 +149,19 @@ is connected, and that one we do extend.
 
 #### *The full picture: there are nine, not five*
 
+<!-- tabla: fases -->
 | Phase | What for | Order |
 | --- | --- | --- |
 | `build_phase` | instantiate the components | **top-down** |
 | `connect_phase` | connect the ports | bottom-up |
 | `end_of_elaboration_phase` | hierarchy ready, before simulating | bottom-up |
-| `start_of_simulation_phase` | last warning before time 0 | bottom-up |
+| `start_of_simulation_phase` | last call before time 0 | bottom-up |
 | `run_phase` | **task**: this is where the simulation happens | one thread each |
-| `extract_phase` | gather the data of the run | bottom-up |
-| `check_phase` | decide whether it passed or not | bottom-up |
+| `extract_phase` | gather the data from the run | bottom-up |
+| `check_phase` | decide whether it passed | bottom-up |
 | `report_phase` | print the verdict | bottom-up |
-| `final_phase` | close files and exit | top-down |
+| `final_phase` | close files and exit | **top-down** |
+<!-- tabla: end -->
 
 - The course uses five. The other four exist, they are empty, and you are going to see them
 

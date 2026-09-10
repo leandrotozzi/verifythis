@@ -12,6 +12,7 @@ import path from 'node:path';
 import { UI, grupos as gruposDelIndice, idiomaDeArgv, SALIDAS } from './i18n.mjs';
 import { seo } from './sitio.mjs';
 import { RE_CODE, recortar } from './codigo.mjs';
+import { expandirContadores } from './contadores.mjs';
 
 // El idioma del curso. code/ y res/ NO se duplican: estan en ingles y los
 // comparten las dos versiones. Lo unico que cambia de idioma es slides/.
@@ -43,6 +44,13 @@ const fail = (file, msg) => errors.push(`${file}: ${msg}`);
 const stats = { includes: 0, recortados: 0 };
 
 async function expand(md, src) {
+  // Los contadores primero: son numeros sueltos, no bloques, asi que no tocan
+  // el fence ni el separador de slides.
+  try {
+    md = await expandirContadores(md);
+  } catch (e) { fail(src, e.message); }
+  for (const m of md.matchAll(/\{\{count:[^}]*\}\}/g)) fail(src, `${m[0]} -> no es una directiva valida`);
+
   const jobs = [];
   md.replace(RE_CODE, (...m) => { jobs.push(m); return ''; });
 
