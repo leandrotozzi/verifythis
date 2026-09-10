@@ -781,13 +781,13 @@ course goes inside an <code>if</code> with its <code>uvm_fatal</code>.</p>
 </section>
 
 <section id="s130" class="slide">
-<!-- es-sha: 28668dba74f2 -->
+<!-- es-sha: 0c2b1a730b11 -->
 <h2 id="components-and-phases">Components and phases</h2>
 <h4 id="a-component-is-what-is-in-the-tree-and-the-tree-is-walked-by-uvm"><em>A component is what is in the tree, and the tree is walked by UVM</em></h4>
 <ul>
 <li><p>A testbench has three different things: the <strong>structure</strong> —what parts there are and
 how they connect—, the <strong>sequences</strong> —which commands, in what order— and the
-<strong>data</strong>. This unit is the first one; the other two are day 6</p>
+<strong>data</strong>. This unit is the first one; the data is day 5 and the sequences day 6</p>
 </li>
 <li><p>In the tests the test did <code>new()</code> on three loose objects and called them
 itself. That is not a structure: it is a long function</p>
@@ -845,8 +845,8 @@ Whether it is also worth calling <code>super</code> is the topic of the next sli
 <div class="nota">
 <p>Three things that have to be said no matter what: build_phase is top-down, connect_phase is
 bottom-up, and every run_phase runs in parallel, each one in its thread.
-And the classic mistake: instantiating components outside build_phase. UVM does not warn you
-kindly.</p>
+And the classic mistake: creating components <strong>after</strong> build has ended. UVM does warn
+you, and well: <code>ILLCRT</code> tells you which component and under which parent.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/131">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -912,8 +912,9 @@ piece of material on the internet and in most of the course&#39;s <code>build_ph
 there. The honest answer is not &quot;they forgot&quot;: it is that without the field macros the
 call to <code>uvm_component</code>&#39;s does nothing.
 The numbers, so that nobody has to take our word for it:
-<code>grep -rn &#39;super\.build_phase&#39; code/</code> gives eleven real calls —plus three comments
-that talk about them— over 122 <code>build_phase</code>. Those eleven call the <code>super</code> of a
+<code>grep -rn &#39;super\.build_phase&#39; code/ --include=&#39;*.sv&#39; --include=&#39;*.svh&#39; --exclude-dir=.uvm</code>
+gives fifteen real calls —plus six comments that talk about them— over 309
+<code>build_phase</code>. Those fifteen call the <code>super</code> of a
 <code>base_test</code> or a <code>random_test</code> of <strong>ours</strong>, which builds the env. None of them calls
 <code>uvm_component</code>&#39;s, which is what the slide is about.
 The other underlying difference: there are two ways of configuring a component. The
@@ -925,7 +926,7 @@ Why the recommendation for out there is the opposite of what the course does: th
 failure mode is asymmetric. Putting it in for nothing has zero effect. Leaving it out
 when it was needed is silence: the field stays at its default and the simulation runs.
 This course can name why in its case it is a no-op —there is not a single
-<code>`uvm_field_*</code> macro in <code>code/</code>, check it—; whoever walks into somebody else&#39;s
+<code>`uvm_field_*</code> macro in <code>code/</code> outside the vendored library, check it—; whoever walks into somebody else&#39;s
 testbench cannot. <code>uvm_agent</code> is the counterexample we have at hand: it is the only
 class in the library, besides <code>uvm_component</code>, that implements <code>build_phase</code>, and what
 it does there is read <code>is_active</code>. It comes back on day 6.
@@ -1265,7 +1266,7 @@ not valid is doing half of each.</p>
 </section>
 
 <section id="s140" class="slide">
-<!-- es-sha: e6223ecdb679 -->
+<!-- es-sha: 419c266d8a3d -->
 <h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
 <h4 id="two-things-that-change-for-different-reasons"><em>Two things that change for different reasons</em></h4>
 <ul>
@@ -1422,7 +1423,6 @@ and if it forgets, it does not compile.</p>
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(add_tester)
 
    <span class="hljs-keyword">function</span> <span class="hljs-type">operation_t </span><span class="hljs-title">get_op</span>();
-      <span class="hljs-type">bit</span> [<span class="hljs-number">2</span>:<span class="hljs-number">0</span>] op_choice;
       <span class="hljs-keyword">return</span> add_op;
    <span class="hljs-keyword">endfunction</span> : get_op
 
@@ -1695,7 +1695,7 @@ call, another type.</p>
 <section id="s153" class="slide">
 <h2 id="the-env-structure-and-stimulus">The env: structure and stimulus</h2>
 <h4 id="the-factory-override"><em>The factory override</em></h4>
-<p><img src="../../res/print/diagrams/en/env_uvm_incantation_2.svg" alt="set_type_override_by_type: the factory returns add_tester where base_tester is asked for"></p>
+<p><img src="../../res/print/diagrams/en/env_uvm_incantation_2.svg" alt="set_type_override: the factory returns add_tester where base_tester is asked for"></p>
 <ul>
 <li>The static method <em>set_type_override()</em> tells the factory that when it sees a request for a <em>base_class_name</em> it should return an object of type <em>new_class_name</em></li>
 <li>This feature is the one that lets us separate the structure of the TB (<em>uvm_env</em>) from the type of stimulus generated (<em>uvm_test</em>)</li>
@@ -1732,7 +1732,7 @@ the factory does not find the class and the error message does not help at all.<
 <ul>
 <li>We can see that this version is more adaptable</li>
 <li>Every test does an override of base_tester depending on the tester it needs for its stimulus</li>
-<li>The env class creates the object and sets it running</li>
+<li>The env class creates the object; running it is UVM&#39;s job</li>
 <li>Now the test class does one thing well (generating stimulus) and the env class does another thing very well (creating the structure)</li>
 </ul>
 <div class="nota">
@@ -1772,7 +1772,7 @@ Type Overrides:
 the instance one wins</li>
 <li>The path is <strong>absolute and starts at <code>uvm_test_top</code></strong>. Measured: <code>&quot;env_h.t3_h&quot;</code> gets
 registered all the same, gives no error, and <code>t3_h</code> comes out an <code>add_tester</code></li>
-<li><code>factory.print(0)</code> is the counterpart of <code>+TOPOLOGY</code>: one says what you
+<li><code>factory.print(0)</code> is the counterpart of <code>uvm_top.print_topology()</code>: one says what you
 <strong>asked for</strong>, the other what <strong>came out</strong>. When they do not match, the bug is in between</li>
 <li>With <code>*</code> it works: <code>&quot;*.env_h.t4_h&quot;</code> applies. It is the way round when the test does not know where
 it is going to be instantiated</li>
@@ -1787,7 +1787,7 @@ as if it were working. There is no warning, there is no error, and the component
 of the base type. It is the same family as the late <code>set_type_override</code> of the traps
 appendix: the factory does not validate paths because it cannot — when the
 override is registered, the component does not exist yet.
-The practical rule: the path is the one <code>+TOPOLOGY</code> prints, without the <code>&lt;unnamed&gt;</code> at the
+The practical rule: the path is the one <code>uvm_top.print_topology()</code> prints, without the <code>&lt;unnamed&gt;</code> at the
 top. If the tree says <code>uvm_test_top.env_h.t2_h</code>, that is what goes between
 quotes. And if you do not want to depend on where they instantiate you, <code>*.env_h.t2_h</code>,
 which is also measured and also applies.
@@ -1829,7 +1829,7 @@ always it is duplicated structure.</p>
 </section>
 
 <section id="s157" class="slide">
-<!-- es-sha: 5c9f5d528669 -->
+<!-- es-sha: bc809639adbf -->
 <h2 id="reporting">Reporting</h2>
 <h4 id="47--of-the-time-goes-here"><em>47 % of the time goes here</em></h4>
 <ul>
@@ -2179,26 +2179,28 @@ half an afternoon while somebody else fixes their class, and it comes out the sa
 that they should be: nobody wants to switch off an error by accident</li>
 <li>The knob that does reach them is called <strong>actions</strong>, and it answers another question:
 not <em>&quot;does it get printed?&quot;</em> but <em>&quot;what gets done with this message?&quot;</em></li>
-<li>Printing is only one of the six possible things</li>
+<li>Printing is only one of the seven possible things</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u4/reporting/tb_classes/UVM_report_actions.sv</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">enum</span>
 {
-	<span class="hljs-uvm-const">UVM_NO_ACTION</span> = <span class="hljs-number">6&#x27;b000000</span>,
-	<span class="hljs-uvm-const">UVM_DISPLAY</span>   = <span class="hljs-number">6&#x27;b000001</span>,
-	<span class="hljs-uvm-const">UVM_LOG</span>       = <span class="hljs-number">6&#x27;b000010</span>,
-	<span class="hljs-uvm-const">UVM_COUNT</span>     = <span class="hljs-number">6&#x27;b000100</span>,
-	<span class="hljs-uvm-const">UVM_EXIT</span>      = <span class="hljs-number">6&#x27;b001000</span>,
-	<span class="hljs-uvm-const">UVM_CALL_HOOK</span> = <span class="hljs-number">6&#x27;b010000</span>,
-	<span class="hljs-uvm-const">UVM_STOP</span>      = <span class="hljs-number">6&#x27;b100000</span>
+	<span class="hljs-uvm-const">UVM_NO_ACTION</span> = <span class="hljs-number">7&#x27;b0000000</span>,
+	<span class="hljs-uvm-const">UVM_DISPLAY</span>   = <span class="hljs-number">7&#x27;b0000001</span>,
+	<span class="hljs-uvm-const">UVM_LOG</span>       = <span class="hljs-number">7&#x27;b0000010</span>,
+	<span class="hljs-uvm-const">UVM_COUNT</span>     = <span class="hljs-number">7&#x27;b0000100</span>,
+	<span class="hljs-uvm-const">UVM_EXIT</span>      = <span class="hljs-number">7&#x27;b0001000</span>,
+	<span class="hljs-uvm-const">UVM_CALL_HOOK</span> = <span class="hljs-number">7&#x27;b0010000</span>,
+	<span class="hljs-uvm-const">UVM_STOP</span>      = <span class="hljs-number">7&#x27;b0100000</span>,
+	<span class="hljs-uvm-const">UVM_RM_RECORD</span> = <span class="hljs-number">7&#x27;b1000000</span>
 } <span class="hljs-uvm-type">uvm_action_type</span></code></pre></figure><div class="nota">
-<p>The six actions are a bitwise OR, not a list of mutually exclusive options: the
+<p>The seven actions are a bitwise OR, not a list of mutually exclusive options: the
 same message can be printed <strong>and</strong> written to a file <strong>and</strong> counted towards the
 summary. That is why they combine with <code>|</code>.
 <code>UVM_COUNT</code> is the one most often explained wrong, and it is worth saying it in full:
 it is already switched on by default on every <code>`uvm_error</code>, and what it increments
 is **a global counter** for the run, not one per ID. On its own it kills nothing,
 because the default maximum is 0, which means &quot;no limit&quot;. The one that cuts is
-<code>+UVM_MAX_QUIT_COUNT=N</code> —or <code>set_report_max_quit_count(N)</code>, <code>uvm_root.svh:1187</code>—, and
+<code>+UVM_MAX_QUIT_COUNT=N</code> (<code>uvm_root.svh:1187</code>) —or <code>set_report_max_quit_count(N)</code>,
+<code>uvm_report_object.svh:578</code>—, and
 that one really is the answer to the four-gigabyte log when a scoreboard fails on
 every transaction: you find out anyway, and in thirty seconds instead of in twenty
 minutes.
@@ -2246,7 +2248,7 @@ UVM_FATAL :    0
 fixes their class, not so that the regression comes out green.
 And showing the <em>Report Summary</em> of the second log next to the first one is the best
 warning the section gives: the testbench says <strong>0 UVM_ERROR</strong> and the DUT is still
-exactly as broken as it was two slides ago. That is the reason a
+exactly as broken as it was when we broke it. That is the reason a
 <code>UVM_NO_ACTION</code> cannot survive a commit — it is a silent trap, and it is in
 the appendix.
 The scoreboard of this section adds too much ON PURPOSE, it is the bug we are
@@ -2450,7 +2452,7 @@ the verbosity.</p>
 </section>
 
 <section id="s178" class="slide">
-<!-- es-sha: 25b9c04216ce -->
+<!-- es-sha: 0da6a8002847 -->
 <h2 id="exercise-·-day-3-·-1-of-2">Exercise · Day 3 · 1 of 2</h2>
 <h4 id="a-new-test-without-touching-the-structure"><em>A new test without touching the structure</em></h4>
 <p><code>cd code/ejercicios/d3 &amp;&amp; bash run.sh</code></p>
@@ -2463,7 +2465,8 @@ the verbosity.</p>
 <p>Before turning them loose on the exercise, go back to the slide <em>&quot;The map of day 3: what
 replaces what&quot;</em> of the object-based testbench and read the right-hand column straight through: the
 <code>build_phase</code> of the env, the config_db, the <code>run_phase</code>, the objections and the
-<code>set_type_override</code>. The five rows are crossed out, and the day closes there.
+<code>set_type_override</code> and the <code>$display</code> that became <code>uvm_info</code>. The six rows are
+crossed out, and the day closes there.
 It is the day 2 exercise again, but with the factory. Worth having them
 compare the two: on day 2 the type was picked in the code of the testbench, here
 the factory picks it and the testbench does not change one line.
@@ -2475,13 +2478,13 @@ the reason adding one has to be cheap.</p>
 </section>
 
 <section id="s179" class="slide">
-<!-- es-sha: 631437948cb3 -->
+<!-- es-sha: 75044b3a4bce -->
 <h2 id="exercise-·-day-3-·-2-of-2">Exercise · Day 3 · 2 of 2</h2>
 <h4 id="the-uvm_error-that-says-nothing"><em>The <code>uvm_error</code> that says nothing</em></h4>
 <p><code>cd code/ejercicios/d3b &amp;&amp; bash run.sh</code></p>
 <ul>
 <li>The scoreboard is <strong>right</strong> —it catches every mismatch— and when it fails it
-says <code>FAILED</code> and nothing else. It is the line day 1 started with</li>
+says <code>FAILED</code> and nothing else: even less than the line day 1 started with</li>
 <li>Make the <code>uvm_error</code> say <strong>which one</strong> failed: <code>A</code>, <code>B</code>, the operation, the
 DUT&#39;s result and the one you predicted</li>
 <li>And make the one that <strong>passes</strong> get printed too, at <code>UVM_HIGH</code>, so that it

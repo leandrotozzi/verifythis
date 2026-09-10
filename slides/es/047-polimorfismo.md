@@ -38,7 +38,7 @@ distintas. Acá es la primera.
 - `mojito` —que no entra en pantalla— es igual que `fernet`, con otro `$display`
 
 Note:
-El `$fatal` en la clase base es un patrón que se ve mucho y que en dos slides
+El `$fatal` en la clase base es un patrón que se ve mucho y que en esta misma sección
 vamos a reemplazar por algo mejor: si el método no se puede implementar acá, lo
 correcto no es explotar en simulación, es no dejar compilar.
 Que las tres clases tengan un método con el mismo nombre y la misma firma es lo
@@ -127,7 +127,7 @@ Dónde se va a volver a ver: `uvm_object` y `uvm_component` están declaradas
 hace `` `uvm_component_utils `` es obligarte a implementar nada: al revés, te
 *provee* el `get_type_name()` y el `type_id` del registro. El `pure virtual` de
 verdad en UVM es `uvm_subscriber::write()`, que vas a tener que escribir sí o sí
-en el día 4. Y en el ejercicio del día 2, la clase base del testbench.
+en el día 4. Y en el ejercicio del día 3, la `virtual class base_tester`.
 
 ---
 

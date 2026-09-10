@@ -1,6 +1,6 @@
 ## La spec del VTALU
 
-![ALU waveform](res/diagrams/wave-dut.svg)
+![Diagrama de ondas de la VTALU: start, done y el resultado](res/diagrams/wave-dut.svg)
 <!-- .element: class="grande" -->
 
 - *start* debe permanecer en 1 y los operandos estables hasta  
@@ -32,7 +32,7 @@ sabe por qué.
 | and_op | 3'b011 | 1 | 0 |
 | xor_op | 3'b100 | 1 | 0 |
 | mul_op | 3'b101 | 4 | 0 |
-| *libre* | 3'b110 | — | — |
+| *libre* | 3'b110 | 1 | 0 |
 | rst_op | 3'b111 | — | — |
 
 - **Ciclos** cuenta flancos de `clk` con `start` arriba, hasta el que levanta
@@ -126,7 +126,7 @@ Que los dos bloques compartan `A`, `B` y `clk` y sólo se separen por el `start`
 es lo que hace que el DUT tenga una sola interface. Vale señalarlo porque es la
 forma que va a tener la `vtalu_bfm` de interfaces y BFM.
 El archivo completo, con las dos instancias y sus conexiones, está en
-`code/vtalu_dut/vtalu.sv`. Acá sólo están las cuatro líneas que deciden.
+`code/vtalu_dut/vtalu.sv`. Acá sólo están el decode y las cuatro líneas que deciden.
 Vale señalar por qué es un decode y no un bit suelto: con un `op[2]` los
 opcodes tendrían que quedar en mitades prolijas del espacio, y el diseño
 perdería la libertad de asignarlos como convenga. Un decode cuesta una compuerta
@@ -213,8 +213,9 @@ que en el código.
 - `ovf` es una salida más, y es del `sub_op` y de nadie más
 - `rst_op` **no existe para el RTL**: es una convención del testbench para
   pulsar `reset_n`, y por eso entra en la cobertura
-- El DUT no valida el opcode: el que está libre no hace nada. Atajarlo es
-  trabajo del **plan de verificación**, no del diseño
+- El DUT no valida el opcode: el que está libre **levanta `done` igual**, con el
+  `result` de la operación anterior. Atajarlo es trabajo del **plan de
+  verificación**, no del diseño
 - Y la herramienta que se usa el 47 % del tiempo ya está instalada:
   `VLT_TRACE=1` y GTKWave
 

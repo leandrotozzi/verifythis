@@ -1,4 +1,4 @@
-<!-- es-sha: 27c7476ffa1d -->
+<!-- es-sha: 793393cd944c -->
 ## When somebody has to wait
 
 #### *You were already doing this, with modules*
@@ -153,7 +153,8 @@ sequencer on one side and the driver on the other.
 
 - It is the same `connect()` as the analysis ports: on one side the **port**, on
   the other the **export** the FIFO provides
-- `uvm_tlm_fifo` exposes two: `put_export` for the one that puts and `get_export`
+- `uvm_tlm_fifo` exposes twelve handles; the two that get used are `put_export` for
+  the one that puts and `get_export`
   for the one that takes out
 - The rule that holds for all of TLM: **the port connects to the export**, never
   two ports to each other
@@ -258,9 +259,9 @@ two are one to one.
 #### *`fork`: the three ways of starting in parallel*
 
 ```systemverilog
-fork  esperar_done();  contar_ciclos();  join        // goes on when BOTH have finished
-fork  esperar_done();  contar_ciclos();  join_any    // goes on with THE FIRST; the other stays alive
-fork  esperar_done();  contar_ciclos();  join_none   // goes on NOW; both stay running
+fork  wait_done();  count_cycles();  join        // goes on when BOTH have finished
+fork  wait_done();  count_cycles();  join_any    // goes on with THE FIRST; the other stays alive
+fork  wait_done();  count_cycles();  join_none   // goes on NOW; both stay running
 ```
 
 | Variant | The parent goes on… | What it is used for |
@@ -306,7 +307,7 @@ a coincidence nor a trick — it is exactly what UVM does when it runs the
 // The response-against-timeout idiom. The outer fork ISOLATES
 fork begin
    fork
-      begin  esperar_done();          `uvm_info("BFM", "it arrived", UVM_LOW)  end
+      begin  wait_done();          `uvm_info("BFM", "it arrived", UVM_LOW)  end
       begin  repeat (100) @(posedge clk);  `uvm_error("BFM", "timeout")        end
    join_any
    disable fork;      // kills the sister that lost, and nobody else
@@ -322,8 +323,9 @@ wait fork;            // kills nobody: it waits for ALL the children of this thr
   It is what a test uses so as not to close with transactions in flight
 - The `join_any` + `disable fork` pair is the timeout of every production BFM. It gets
   written once and copied forever
-- Measured: with the `disable fork`, the 5-unit branch that was going to print
-  *"the response arrived"* **prints nothing** — the timeout of 3 killed it
+- Whichever finishes first wins: if `done` arrives before the 100 edges, the
+  timeout `uvm_error` is not printed; if it does not, the `uvm_info` of `"it arrived"`
+  is not printed. The `disable fork` kills the loser
 
 Note:
 The `disable fork` without the isolating `fork ... join` is the classic bug of this
@@ -359,7 +361,7 @@ for (int j = 0; j < 3; j++)             // declared IN the for: one per pass
 
 for (i = 0; i < 3; i++)
    fork  begin
-      automatic int k = i;              // the copy is made WHEN the thread starts
+      automatic int k = i;              // the copy is made WHEN THE FORK RUNS
       $display("k = %0d", k);
    end join_none                                 //  k = 0   k = 1   k = 2
 ```

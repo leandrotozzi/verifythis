@@ -192,13 +192,14 @@ diez minutos y es la diferencia entre creer y saber.
 {{code:code/u6/transactions/constraints/02_with.sv#workaround}}
 
 - `inside {a, b, c}` es el conjunto de valores legales: sin él, el random también
-  pide `no_op` y `rst_op`, que no calculan nada
+  pide `no_op` y `rst_op`, que no calculan nada. Acá además deja afuera a `sub_op`,
+  para que el sorteo quede uniforme entre cuatro
 - `randomize() with { ... }` agrega constraints **sólo para esa llamada**: el
   caso dirigido se pide en el punto de uso, sin tocar la clase ni escribir un
   tester nuevo. Es la herramienta del *coverage closure*
 
 Note:
-El número de la corrida es el argumento entero de la sección: 400 intentos al
+El número que sale de correr `02_with.sv` es el argumento entero de la sección: 400 intentos al
 azar llenan `mul_max` un puñado de veces —6 con la semilla por defecto, entre 2 y
 8 según cuál uses— **porque el `dist` sesga a los bordes**. La cuenta conviene
 hacerla en voz alta: `op` sale uniforme entre cuatro y cada pata cae en `FF` una
@@ -207,7 +208,7 @@ seis y pico. Con el `dist` mal escrito de la slide anterior, la probabilidad de
 que las dos patas caigan en `FF` es 1/65536 por operación: no lo tocás nunca.
 La secuencia mental es siempre la misma: corro random, miro qué bin quedó vacío,
 escribo un `with {}` de tres líneas, vuelvo a correr. Nunca "escribo 76 tests".
-La limitación de Verilator que aparece en la salida está puesta a propósito, y
+La limitación de Verilator que la sección enuncia está puesta a propósito, y
 conviene enunciarla bien porque no es "anda o no anda". Verilator resuelve el
 `dist` **eligiendo un valor concreto primero** y recién después chequea el resto:
 si el sorteado no cumple el `with`, devuelve 0 en vez de buscar otro. La tasa de
@@ -348,7 +349,8 @@ confíes en que salga parejo. Medilo.
 ```
 
 - `constraint_mode(0)` apaga **una constraint** en tiempo de ejecución;
-  `rand_mode(0)` saca **un campo** del sorteo y le deja el valor que tenía
+  `rand_mode(0)` saca **un campo** del sorteo y le deja el valor que tenía — y si ese
+  valor no cumple las constraints que lo nombran, `randomize()` devuelve 0
 - Sirven para el test que necesita romper una regla a propósito — inyectar un
   opcode ilegal, por ejemplo — sin tocar la clase que todos los demás usan
 
@@ -464,9 +466,10 @@ Note:
 Esta slide existe para desactivar un malentendido que el ciclo anterior invita:
 *"si no cierro, corro otra semilla"*. Se midió, y no: `code/u2/convencional` da 66 de 76 con
 la semilla por defecto, con la 7 y con la 8, y el merge de las tres da 66. Los 10
-que faltan no faltan por suerte — faltan porque son bins de transición que
-Verilator no mide y crosses que el estímulo no alcanza. Ninguna semilla los va a
-tocar.
+que faltan no faltan por suerte — faltan porque Verilator genera los bins
+automáticos del enum sobre el **tipo base**: `3'b110` no existe en `operation_t`,
+así que `auto_5` queda en 0 para siempre, con sus nueve cruces. Ninguna semilla
+los va a tocar.
 La semilla sirve para otras dos cosas, y las dos son de oficio. Primera:
 **reproducir**. Un bug intermitente no se debuggea, se repite; y para repetirlo
 hay que saber con qué semilla salió, que es exactamente por qué `run_sim` la

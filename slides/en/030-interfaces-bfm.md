@@ -1,4 +1,4 @@
-<!-- es-sha: d3b5d4c3a279 -->
+<!-- es-sha: e198e9427073 -->
 ## Interfaces and BFM
 
 #### *First: the signals stop being loose*
@@ -89,8 +89,8 @@ previous version you had to remember to wire it in every instance.
 
 {{code:code/u2/interfaces-bfm/scoreboard.sv}}
 
-- It is the conventional testbench's `scoreboard` without one line of logic changed: it predicts and
-  compares the same
+- It is the conventional testbench's `scoreboard`: it predicts and compares with the
+  same logic
 - The only thing that changed is where it gets the signals from: they used to be variables of the
   same module, now they are `bfm.A`, `bfm.B`, `bfm.op_set`
 - And that is why it is a **separate module** now: it can live in its own file
@@ -346,8 +346,8 @@ The long material, with the sources, is in `docs/clocking-blocks.md`.
   through there** — and you wait on `@(bfm.cb)`, not on `@(posedge bfm.clk)`
 
 Note:
-This is the flip side of the previous slide and the reason the course does not
-put clocking blocks in on day 1: used badly they are **worse** than not using them, because
+This is the flip side of the previous slide and the reason the course does not use
+them in its BFM: used badly they are **worse** than not using them, because
 the failure mode is intermittent and the waveform looks fine.
 The real mistake, the one that shows up in the forums, has two shapes and it is worth
 naming both. One is mixing the event: `@(posedge vif.clk)` and then reading

@@ -5,7 +5,7 @@
 `cd code/ejercicios/d7-final && cat spec.md`
 <!-- .element: class="comando" -->
 
-- Los otros trece ejercicios daban un archivo con un agujero. Éste da un **DUT,
+- Los ejercicios anteriores daban un archivo con un agujero. Éste da un **DUT,
   una spec y nada más**
 - El DUT no es la VTALU: es un **esclavo APB3** de cuatro registros. Tiene
   direcciones, dos fases por transferencia, un *wait state* y respuesta de error
@@ -72,7 +72,7 @@ puede pasar.
 - **3 · El scoreboard.** El DUT modelado en software. El corrector lo corre dos
   veces: contra el DUT sano tiene que callarse, y con **`+BUG=1`** tiene que gritar
 - **4 · La cobertura.** El covergroup con las nueve filas del plan de
-  verificación de la spec: más de 20 puntos, 90 % cubierto. Y **dos filas vienen
+  verificación de la spec: al menos 20 puntos, 90 % cubierto. Y **dos filas vienen
   vacías**
 - **5 · Las properties.** El protocolo del APB adentro de `apb_if.sv`, con
   `--assert`. Con **`+BUG=2`** hay un bug que el scoreboard no puede ver

@@ -314,19 +314,20 @@ media tarde mientras otro arregla su clase, y se saca el mismo día.
   que así sea: nadie quiere apagar un error sin querer
 - La perilla que sí los alcanza se llama **actions**, y responde a otra pregunta:
   no *"¿se imprime?"* sino *"¿qué se hace con este mensaje?"*
-- Imprimir es sólo una de las seis cosas posibles
+- Imprimir es sólo una de las siete cosas posibles
 
 {{code:code/u4/reporting/tb_classes/UVM_report_actions.sv}}
 
 Note:
-Las seis acciones son un OR de bits, no una lista de opciones excluyentes: un
+Las siete acciones son un OR de bits, no una lista de opciones excluyentes: un
 mismo mensaje puede imprimirse **y** escribirse a un archivo **y** contar para el
 resumen. Por eso se combinan con `|`.
 `UVM_COUNT` es la que más se explica mal, y conviene decirla completa: ya está
 puesta por defecto en todo `` `uvm_error ``, y lo que incrementa es **un contador
 global** de la corrida, no uno por ID. Sola no mata nada, porque el máximo por
 defecto es 0, que quiere decir "sin límite". La que corta es
-`+UVM_MAX_QUIT_COUNT=N` —o `set_report_max_quit_count(N)`, `uvm_root.svh:1187`—, y
+`+UVM_MAX_QUIT_COUNT=N` (`uvm_root.svh:1187`) —o `set_report_max_quit_count(N)`,
+`uvm_report_object.svh:578`—, y
 ésa sí es la respuesta al log de cuatro gigas cuando un scoreboard falla en cada
 transacción: te enterás igual, y en treinta segundos en vez de en veinte minutos.
 `UVM_NO_ACTION` es la que usa la slide siguiente para apagar los errores, y hay
@@ -359,7 +360,7 @@ Decirlo en voz alta: apagar errores sirve para seguir trabajando mientras otro
 arregla su clase, no para que la regresión dé verde.
 Y mostrar el *Report Summary* del segundo log al lado del primero es la mejor
 advertencia que da la sección: el testbench dice **0 UVM_ERROR** y el DUT sigue
-exactamente igual de roto que hace dos slides. Ésa es la razón de que un
+exactamente igual de roto que cuando lo rompimos. Ésa es la razón de que un
 `UVM_NO_ACTION` no pueda sobrevivir a un commit — es una trampa muda, y está en
 el apéndice.
 El scoreboard de esta sección suma de más A PROPÓSITO, es el bug que estamos

@@ -200,7 +200,7 @@ starting, and day 1 stops having two steps at once.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 6fd844c44c0d -->
+<!-- es-sha: 1b3fafb460c5 -->
 ## The log says it failed
 
 #### *And the DUT is healthy*
@@ -233,19 +233,20 @@ And the honest close, which is the promise of the whole course: this is not abou
 writing testbenches faster, it is about the log saying why when it fails — and it
 will fail. The *almost half* in the last bullet is the 47 % of the verification
 engineer's time that goes into debug: the figure comes from the Wilson Research
-Group 2024 survey and the chart is on the next slide.
+Group 2024 survey, and the chart is *Verification is not a stage*, the third of
+the trends that come next.
         </textarea>
       </section>
       <!-- 007-el-gancho.md -->
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 42c12a76b98e -->
+<!-- es-sha: dbd1ef9ec078 -->
 ## Trends
 
 #### *First silicon almost never comes out right*
 
-![Percentage of projects reaching first silicon with no bugs, by year](../res/trends/en/resultado.svg)
+![How IC/ASIC projects end in 2024: 14 % get first silicon right and 75 % run late](../res/trends/en/resultado.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -262,7 +263,7 @@ regenerated with `make figs`.
 
 #### *Why: what is inside a chip today*
 
-![Growth in the number of blocks and embedded processors per chip](../res/trends/en/complejidad.svg)
+![What is inside 2024 IC/ASICs: asynchronous clocks, embedded processor, security, AI, RISC-V and safety](../res/trends/en/complejidad.svg)
 <!-- .element: class="grande" -->
 
 ---
@@ -271,7 +272,7 @@ regenerated with `make figs`.
 
 #### *Verification is not a stage, it is half the work*
 
-![How the verifier's time is split: almost half of it goes into debug](../res/trends/en/esfuerzo.svg)
+![49 % of the designer's time goes to verification; 47 % of the verifier's time goes to debug](../res/trends/en/esfuerzo.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -285,7 +286,7 @@ half the project, with its own team and its own language.
 
 #### *And it is verified, mostly, with UVM*
 
-![Adoption of verification methodologies: UVM against the rest](../res/trends/en/metodologia.svg)
+![What verification uses in 2024: UVM at 80 % in IC/ASIC and 50 % in FPGA](../res/trends/en/metodologia.svg)
 <!-- .element: class="grande" -->
 
 ---
@@ -317,7 +318,7 @@ It is useful for lowering the anxiety of whoever arrives scared by the size of U
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 3f6b82db4897 -->
+<!-- es-sha: 9ea40ec498c1 -->
 ## Introduction
 
 #### *What is UVM?*
@@ -330,7 +331,7 @@ It is useful for lowering the anxiety of whoever arrives scared by the size of U
   **IEEE 1800.2**. The course uses the reference implementation, `uvm-core
   2020.3.1`
 - It comes from OVM (Cadence + Mentor), with ideas from VMM (Synopsys) and from eRM
-  (Verisity): the methodologies of three vendors that competed, until the
+  (Verisity): the methodologies of four vendors that competed, until the
   industry got tired of translating testbenches between tools
 - And there is the goal, and it is a single one: **that the testbench of the person next to
   you looks like yours**
@@ -418,9 +419,9 @@ not little.
 
 Note:
 This diagram is scary and that is why it is worth defusing it right away: **out of all of
-this we are going to use seven classes**. `uvm_object`, `uvm_component`, `uvm_test`,
-`uvm_env`, `uvm_agent`, `uvm_driver`, `uvm_monitor` and `uvm_sequence` — all right,
-eight.
+this we are going to extend ten**: `uvm_component`, `uvm_test`, `uvm_env`, `uvm_agent`,
+`uvm_driver`, `uvm_monitor`, `uvm_scoreboard`, `uvm_subscriber`,
+`uvm_sequence_item` and `uvm_sequence`. They are the amber ones in the drawing, plus the sequence.
 What does have to be marked is the split at the top, because it explains
 half the course: hanging off `uvm_object` is the **data** —the transactions, the
 sequences, the configs— and hanging off `uvm_component` is the **structure** —everything
@@ -428,8 +429,9 @@ that lives in the tree and has phases—. An object is created and thrown away; 
 is built once and lasts the whole simulation.
 The colours say what you do with each one: the amber ones you extend yourself, the
 grey ones are never touched —they are only there for the others to inherit from—
-and `uvm_sequencer` is the only green one because it is the only one used as is,
-with a parameterized `typedef`. That comes on day 6.
+and `uvm_sequencer` is the only green one because it is the only one instantiated
+without extending it, with a parameterized `typedef`. That comes on day 6; the only
+time the course extends it is for the virtual sequencer on day 7.
 The question to throw at the group when we get to agents: is a
 `uvm_sequence` an object or a component? An object. And that is why it does not show up in
 `print_topology()`.
@@ -474,10 +476,10 @@ one. It is literally the `d7-semillas` exercise, the one day 7 starts with.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: d339e0e31c8e -->
+<!-- es-sha: fb322a53c041 -->
 ## The VTALU spec
 
-![ALU waveform](../res/diagrams/en/wave-dut.svg)
+![VTALU waveform: start, done and the result](../res/diagrams/en/wave-dut.svg)
 <!-- .element: class="grande" -->
 
 - *start* has to stay at 1 and the operands stable until  
@@ -509,7 +511,7 @@ knows why.
 | and_op | 3'b011 | 1 | 0 |
 | xor_op | 3'b100 | 1 | 0 |
 | mul_op | 3'b101 | 4 | 0 |
-| *free* | 3'b110 | — | — |
+| *free* | 3'b110 | 1 | 0 |
 | rst_op | 3'b111 | — | — |
 
 - **Cycles** counts `clk` edges with `start` up, up to and including the one
@@ -644,7 +646,7 @@ That both blocks share `A`, `B` and `clk` and only split on the `start`
 is what makes the DUT have a single interface. Worth pointing out because it is the
 shape the `vtalu_bfm` of interfaces and BFM is going to have.
 The complete file, with both instances and their connections, is in
-`code/vtalu_dut/vtalu.sv`. Here there are only the four lines that decide.
+`code/vtalu_dut/vtalu.sv`. Here there are only the decode and the four lines that decide.
 Worth pointing out why it is a decode and not a loose bit: with an `op[2]` the
 opcodes would have to sit in tidy halves of the space, and the design
 would lose the freedom to assign them as convenient. A decode costs one gate
@@ -731,8 +733,9 @@ it is in the code.
 - `ovf` is one more output, and it belongs to `sub_op` and to nobody else
 - `rst_op` **does not exist for the RTL**: it is a testbench convention for
   pulsing `reset_n`, and that is why it enters the coverage
-- The DUT does not validate the opcode: the free one does nothing. Catching it is
-  the **verification plan's** job, not the design's
+- The DUT does not validate the opcode: the free one **raises `done` all the same**,
+  with the `result` of the previous operation. Catching it is the **verification
+  plan's** job, not the design's
 - And the tool used 47 % of the time is already installed:
   `VLT_TRACE=1` and GTKWave
 
@@ -905,7 +908,6 @@ and nothing else passes green with `ovf` stuck at zero.
          endcase // case (op_set)
       end
       $finish;
-   end : tester
 ```
 
 - A thousand rounds: pick the operation, pick the operands, raise `start`, wait for
@@ -1028,7 +1030,7 @@ open question instead of answering it here.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 4756ea71ccfa -->
+<!-- es-sha: d4d4df2ea27b -->
 ## Functional coverage
 
 #### *When are you done verifying?*
@@ -1070,7 +1072,7 @@ The six points of the plan from the previous section, translated:
   code, and the simulator tells you which ones have not happened yet
 
 Note:
-It is worth going back to the previous slide and reading the plan out loud before
+It is worth going back to the plan of the previous section and reading it out loud before
 showing this table: the point is that there is not one item of the plan left
 untranslated.
 The order matters — the plan first, the covergroup after. The other way round you end up
@@ -1145,10 +1147,10 @@ reports changes completely.
 The practical consequence has to be said loudly because it is a silent trap: a
 bin without `[]` over a large range **always gives 100 %**. You covered one value out of
 a thousand and the tool tells you it is done. Nobody warns you.
-And the last bullet is the warning that orders the next slide: a bin that
+And the last bullet is the warning that orders what comes next: a bin that
 cannot be filled is not a tool problem, it is a decision somebody did not write down.
-The way to write it down is called `ignore_bins` and it comes in
-two slides.
+The way to write it down is called `ignore_bins`, and it has its own slide in this
+section.
 
 ---
 
@@ -1183,8 +1185,8 @@ two slides.
 ```
 
 - `single_cycle[]` generates six bins —one per operation—, `multi_cycle` a single one
-- What is inside `` `ifndef VERILATOR `` are the transition bins: two
-  slides further on
+- What is inside `` `ifndef VERILATOR `` are the transition bins, which come
+  further on in this same section
 
 Note:
 This is the first real covergroup of the course, and it is worth reading it top to
@@ -1289,7 +1291,6 @@ the problem is an unfiltered cross, not a missing test.
 
          ignore_bins others_only =
                          binsof(a_leg.others) && binsof(b_leg.others);
-      }
 ```
 
 - `mul_00` reads straight through: *a multiplication where A **or** B is 0x00*.
@@ -1386,8 +1387,7 @@ The field rule, and it is worth giving because the question comes on its own: `a
 high on the bins that represent a rare case, default on the ones that represent a
 value. Raising it for the whole covergroup is not rigour, it is a regression that never
 closes and a number nobody looks at.
-`auto_bin_max` is the flip side of the bracket trap from three
-slides ago. There the problem was a surplus bin; here it is the other way round: if the coverpoint is
+`auto_bin_max` is the flip side of the bracket trap, the one on the bins slide. There the problem was a surplus bin; here it is the other way round: if the coverpoint is
 an `int` and you write it no bins, the tool invents 64 ranges that do not
 correspond to any row of the plan. The number that comes out is real and means
 nothing.
@@ -1514,7 +1514,7 @@ And the operational mistake that repeats the most, to leave it burned in: the mi
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: d3b5d4c3a279 -->
+<!-- es-sha: e198e9427073 -->
 ## Interfaces and BFM
 
 #### *First: the signals stop being loose*
@@ -1723,8 +1723,8 @@ module scoreboard (
 endmodule : scoreboard
 ```
 
-- It is the conventional testbench's `scoreboard` without one line of logic changed: it predicts and
-  compares the same
+- It is the conventional testbench's `scoreboard`: it predicts and compares with the
+  same logic
 - The only thing that changed is where it gets the signals from: they used to be variables of the
   same module, now they are `bfm.A`, `bfm.B`, `bfm.op_set`
 - And that is why it is a **separate module** now: it can live in its own file
@@ -1763,7 +1763,6 @@ stop knowing that a `clk` exists.
       end : random_loop
       $finish;
    end  // initial begin
-endmodule : tester
 ```
 
 - The tester no longer touches `start` or waits for `done`: it calls `bfm.send_op(...)` and
@@ -2033,6 +2032,7 @@ The long material, with the sources, is in `docs/clocking-blocks.md`.
       $display("");
       $display("They differ by one cycle, and no warning says so. A monitor that");
       $display("reads through the clocking block and a scoreboard that reads the");
+      $display("raw wire do not fail every time: they fail when the data changes.");
 ```
 
 - With the signal inside a clocking block there are **two** ways of reading it:
@@ -2046,8 +2046,8 @@ The long material, with the sources, is in `docs/clocking-blocks.md`.
   through there** — and you wait on `@(bfm.cb)`, not on `@(posedge bfm.clk)`
 
 Note:
-This is the flip side of the previous slide and the reason the course does not
-put clocking blocks in on day 1: used badly they are **worse** than not using them, because
+This is the flip side of the previous slide and the reason the course does not use
+them in its BFM: used badly they are **worse** than not using them, because
 the failure mode is intermittent and the waveform looks fine.
 The real mistake, the one that shows up in the forums, has two shapes and it is worth
 naming both. One is mixing the event: `@(posedge vif.clk)` and then reading
@@ -2262,7 +2262,7 @@ the `run.sh` demands the bin count and not 100 %, which a half-done job reaches 
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: be650bb551ef -->
+<!-- es-sha: 22a0374e05f0 -->
 ## Exercise · Day 1 · 2 of 2
 
 #### *The waves: when the log is not enough*
@@ -2270,8 +2270,8 @@ the `run.sh` demands the bin count and not 100 %, which a half-done job reaches 
 `cd code/ejercicios/d1b && bash run.sh`
 <!-- .element: class="comando" -->
 
-- The run aborts with **a single line**: `FAILED: A: e5 B: 0 op: mul_op
-  result: fe01`. `e5 * 00` is `0`, not `fe01` — and the DUT is healthy
+- The run aborts with **a single line**: `FAILED: A: e5  B: 0  op: mul_op
+  result: fe01 ovf: 0`. `e5 * 00` is `0`, not `fe01` — and the DUT is healthy
 - That is where what the log gives you ends. The `run.sh` leaves **`ondas.vcd`** next to it:
   `gtkwave ondas.vcd`
 - **Stage 1:** two times that only exist in the viewer, in `respuesta.txt`.
@@ -2364,7 +2364,7 @@ exercise. The first two are rows 6 and 7 of the closing self-assessment.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 038f21a96f50 -->
+<!-- es-sha: de259d352aef -->
 ## Classes and extensions
 
 #### *Why OOP in a testbench?*
@@ -2429,7 +2429,7 @@ The three bullets are three different things and it is worth separating them. Th
 is **cohesion**: the data is here and the operation on the data is in another file,
 so nothing forces them to agree. The second is **inheritance**: a
 square *is* a rectangle and the language has no way of saying so, so it gets
-copied and pasted. The third is the one that gets charged on day 5: a `command_s` does not
+copied and pasted. The third is the one you pay for on day 5: a `command_s` does not
 know how to randomize itself or compare itself against itself, and all of that has to be
 written outside, once for every place that uses it.
 The honest punchline, so that nobody leaves with a religious idea: the `command_s` of the
@@ -2560,7 +2560,7 @@ endclass
 
 Note:
 The constructor order is the first thing to nail down, because it is mandatory and
-it fails ugly: `super.new()` goes **before** anything else of the child. The reason
+it fails badly: `super.new()` goes **before** anything else of the child. The reason
 is physical — the object is a single one, and the part the base class contributes has to
 be built before touching anything. If you forget it, SystemVerilog calls it on its own
 when the base constructor takes no arguments, and it does not compile when it does
@@ -2569,7 +2569,7 @@ The last bullet is the whole argument of the unit and it is worth saying with an
 example: if `area()` changes tomorrow, in the `struct` version you have to remember
 both places; here it changes in one and the other finds out on its own. That "finds out
 on its own" is what inheritance buys you, and it is the same promise the `env` makes
-to the tests on day 6.
+to the tests on day 3.
 And the warning about where this is heading, so that the word does not turn up cold on the
 next slide: inheriting lets the child *use* what belongs to the parent. What still cannot
 be done is for the parent to call the child's version — that is polymorphism, and it is the
@@ -2609,7 +2609,7 @@ worth naming it all three.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 85efb3009aa8 -->
+<!-- es-sha: b40e985a82e7 -->
 ## Polymorphism
 
 #### *A `trago` variable, a `fernet` object: which `servir()` runs?*
@@ -2675,7 +2675,7 @@ endclass : fernet
   `$display`
 
 Note:
-The `$fatal` in the base class is a pattern you see a lot and that in two slides
+The `$fatal` in the base class is a pattern you see a lot and that in this same section
 we are going to replace with something better: if the method cannot be implemented here, the
 right thing is not to explode in simulation, it is not to let it compile.
 That the three classes have a method with the same name and the same signature is what
@@ -2785,7 +2785,7 @@ Where it is going to show up again: `uvm_object` and `uvm_component` are declare
 does **not** do is force you to implement anything: the other way round, it *provides*
 `get_type_name()` and the registry's `type_id`. The real `pure virtual` in UVM is
 `uvm_subscriber::write()`, which you are going to have to write no matter what on day 4.
-And in the day 2 exercise, the base class of the testbench.
+And in the day 3 exercise, the `virtual class base_tester`.
 
 ---
 
@@ -3301,7 +3301,7 @@ each monitor has its own. With that they can already read both.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: b23240cf9ba2 -->
+<!-- es-sha: f067fec308e0 -->
 ## The factory pattern
 
 #### *Who decides the type?*
@@ -3325,7 +3325,7 @@ detour: the `+UVM_TESTNAME=add_test` of the tests, tomorrow, is going to be a fa
 UVM reads a string from the command line and builds the class that corresponds.
 Here you see the mechanism from the inside.
 And for whoever comes from software: yes, it is the GoF Factory Method, and we
-invented nothing. The Python version on the last slide is there precisely for that.
+invented nothing. The Python version that closes the section is there precisely for that.
 
 ---
 
@@ -3357,7 +3357,7 @@ bandeja_de_mojito.bandeja_trago(mojito_h);
 // Consider the case where a set of random drinks has to be read from a file
 // dynamically.
 //    --> Doing that with NON hardcoded code is impossible
-//        You would need a script that generates the source, recompile it....
+//        You would need a script that generates the source, recompile it...
 ```
 
 > *The idea is to create data of random types without changing the code.*
@@ -3373,7 +3373,7 @@ that we invented nothing.
 
 ## The factory pattern
 
-![UML Class Example Diagram](../res/diagrams/en/factory_diagram.svg)
+![The cantina builds fernet and mojito, and returns a trago handle](../res/diagrams/en/factory_diagram.svg)
 <!-- .element: class="grande" -->
 
 <br>
@@ -3429,7 +3429,10 @@ class cantina;
             return nuevo_mojito;
          end
 
-         default: $fatal(1, {"No such drink: ", pedido});
+         default: begin
+            $fatal(1, {"No such drink: ", pedido});
+            return null;
+         end
 
       endcase  // case (pedido)
 
@@ -3448,8 +3451,7 @@ endclass : cantina
 
       // Reaching a member of fernet (derived from trago) through a trago variable
       // requires casting it to fernet.
-      cast_ok = $cast(fernet_h, trago_h);
-      if (!cast_ok) $fatal(1, "Could not cast trago_h to fernet_h");
+      if (!$cast(fernet_h, trago_h)) $fatal(1, "Could not cast trago_h to fernet_h");
 
       if (fernet_h.sin_hielo) $display("And on top of that it comes warm!");
       bandeja#(fernet)::bandeja_trago(fernet_h);
@@ -3550,13 +3552,13 @@ Python it takes ten lines. We invented nothing, and that is good news.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 454b20650c1d -->
+<!-- es-sha: de322b440014 -->
 ## A testbench without a single module
 
 #### *The same testbench, without a single module*
 
-- Nine sections later, this section **adds no functionality**:
-  it does exactly the same as the interfaces and BFM testbench
+- This section **adds no functionality**:
+  it verifies the same as the interfaces and BFM testbench
 - What changes is what it is made of. The three modules —tester, scoreboard,
   coverage— become three **classes**, and the `initial` becomes a method
 - The piece that binds them appears: a `testbench` class that instantiates the others,
@@ -3716,7 +3718,7 @@ endclass : testbench
 ```
 
 Note:
-This is the class UVM is going to run over, so it is worth reading it line by
+This is the class UVM is going to replace, so it is worth reading it line by
 line: `new()` on the three objects, `fork ... join_none` to start them, and
 that is it. That is an `env` written by hand.
 Two things to flag. The first is the `virtual vtalu_bfm bfm`: the word
@@ -4645,14 +4647,14 @@ course goes inside an `if` with its `uvm_fatal`.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 28668dba74f2 -->
+<!-- es-sha: 0c2b1a730b11 -->
 ## Components and phases
 
 #### *A component is what is in the tree, and the tree is walked by UVM*
 
 - A testbench has three different things: the **structure** —what parts there are and
   how they connect—, the **sequences** —which commands, in what order— and the
-  **data**. This unit is the first one; the other two are day 6
+  **data**. This unit is the first one; the data is day 5 and the sequences day 6
 - In the tests the test did `new()` on three loose objects and called them
   itself. That is not a structure: it is a long function
 - A `uvm_component` is a **node with a name and a parent**. UVM assembles the whole
@@ -4697,8 +4699,8 @@ sequences.
 Note:
 Three things that have to be said no matter what: build_phase is top-down, connect_phase is
 bottom-up, and every run_phase runs in parallel, each one in its thread.
-And the classic mistake: instantiating components outside build_phase. UVM does not warn you
-kindly.
+And the classic mistake: creating components **after** build has ended. UVM does warn
+you, and well: `ILLCRT` tells you which component and under which parent.
 
 ---
 
@@ -4766,8 +4768,9 @@ piece of material on the internet and in most of the course's `build_phase` it i
 there. The honest answer is not "they forgot": it is that without the field macros the
 call to `uvm_component`'s does nothing.
 The numbers, so that nobody has to take our word for it:
-`grep -rn 'super\.build_phase' code/` gives eleven real calls —plus three comments
-that talk about them— over 122 `build_phase`. Those eleven call the `super` of a
+`grep -rn 'super\.build_phase' code/ --include='*.sv' --include='*.svh' --exclude-dir=.uvm`
+gives fifteen real calls —plus six comments that talk about them— over 309
+`build_phase`. Those fifteen call the `super` of a
 `base_test` or a `random_test` of **ours**, which builds the env. None of them calls
 `uvm_component`'s, which is what the slide is about.
 The other underlying difference: there are two ways of configuring a component. The
@@ -4779,7 +4782,7 @@ Why the recommendation for out there is the opposite of what the course does: th
 failure mode is asymmetric. Putting it in for nothing has zero effect. Leaving it out
 when it was needed is silence: the field stays at its default and the simulation runs.
 This course can name why in its case it is a no-op —there is not a single
-`` `uvm_field_* `` macro in `code/`, check it—; whoever walks into somebody else's
+`` `uvm_field_* `` macro in `code/` outside the vendored library, check it—; whoever walks into somebody else's
 testbench cannot. `uvm_agent` is the counterexample we have at hand: it is the only
 class in the library, besides `uvm_component`, that implements `build_phase`, and what
 it does there is read `is_active`. It comes back on day 6.
@@ -5030,7 +5033,7 @@ not valid is doing half of each.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: e6223ecdb679 -->
+<!-- es-sha: 419c266d8a3d -->
 ## The env: structure and stimulus
 
 #### *Two things that change for different reasons*
@@ -5193,7 +5196,6 @@ class add_tester extends random_tester;
    `uvm_component_utils(add_tester)
 
    function operation_t get_op();
-      bit [2:0] op_choice;
       return add_op;
    endfunction : get_op
 
@@ -5472,7 +5474,7 @@ call, another type.
 
 #### *The factory override*
 
-![set_type_override_by_type: the factory returns add_tester where base_tester is asked for](../res/diagrams/en/env_uvm_incantation_2.svg)
+![set_type_override: the factory returns add_tester where base_tester is asked for](../res/diagrams/en/env_uvm_incantation_2.svg)
 <!-- .element: class="grande" -->
 
 - The static method *set_type_override()* tells the factory that when it sees a request for a *base_class_name* it should return an object of type *new_class_name*
@@ -5511,7 +5513,7 @@ endclass
 
 - We can see that this version is more adaptable
 - Every test does an override of base_tester depending on the tester it needs for its stimulus
-- The env class creates the object and sets it running
+- The env class creates the object; running it is UVM's job
 - Now the test class does one thing well (generating stimulus) and the env class does another thing very well (creating the structure)
 
 Note:
@@ -5555,7 +5557,7 @@ Type Overrides:
   the instance one wins
 - The path is **absolute and starts at `uvm_test_top`**. Measured: `"env_h.t3_h"` gets
   registered all the same, gives no error, and `t3_h` comes out an `add_tester`
-- `factory.print(0)` is the counterpart of `+TOPOLOGY`: one says what you
+- `factory.print(0)` is the counterpart of `uvm_top.print_topology()`: one says what you
   **asked for**, the other what **came out**. When they do not match, the bug is in between
 - With `*` it works: `"*.env_h.t4_h"` applies. It is the way round when the test does not know where
   it is going to be instantiated
@@ -5570,7 +5572,7 @@ as if it were working. There is no warning, there is no error, and the component
 of the base type. It is the same family as the late `set_type_override` of the traps
 appendix: the factory does not validate paths because it cannot — when the
 override is registered, the component does not exist yet.
-The practical rule: the path is the one `+TOPOLOGY` prints, without the `<unnamed>` at the
+The practical rule: the path is the one `uvm_top.print_topology()` prints, without the `<unnamed>` at the
 top. If the tree says `uvm_test_top.env_h.t2_h`, that is what goes between
 quotes. And if you do not want to depend on where they instantiate you, `*.env_h.t2_h`,
 which is also measured and also applies.
@@ -5612,7 +5614,7 @@ always it is duplicated structure.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 5c9f5d528669 -->
+<!-- es-sha: bc809639adbf -->
 ## Reporting
 
 #### *47 % of the time goes here*
@@ -5980,30 +5982,32 @@ half an afternoon while somebody else fixes their class, and it comes out the sa
   that they should be: nobody wants to switch off an error by accident
 - The knob that does reach them is called **actions**, and it answers another question:
   not *"does it get printed?"* but *"what gets done with this message?"*
-- Printing is only one of the six possible things
+- Printing is only one of the seven possible things
 
 ```sv
 typedef enum
 {
-	UVM_NO_ACTION = 6'b000000,
-	UVM_DISPLAY   = 6'b000001,
-	UVM_LOG       = 6'b000010,
-	UVM_COUNT     = 6'b000100,
-	UVM_EXIT      = 6'b001000,
-	UVM_CALL_HOOK = 6'b010000,
-	UVM_STOP      = 6'b100000
+	UVM_NO_ACTION = 7'b0000000,
+	UVM_DISPLAY   = 7'b0000001,
+	UVM_LOG       = 7'b0000010,
+	UVM_COUNT     = 7'b0000100,
+	UVM_EXIT      = 7'b0001000,
+	UVM_CALL_HOOK = 7'b0010000,
+	UVM_STOP      = 7'b0100000,
+	UVM_RM_RECORD = 7'b1000000
 } uvm_action_type
 ```
 
 Note:
-The six actions are a bitwise OR, not a list of mutually exclusive options: the
+The seven actions are a bitwise OR, not a list of mutually exclusive options: the
 same message can be printed **and** written to a file **and** counted towards the
 summary. That is why they combine with `|`.
 `UVM_COUNT` is the one most often explained wrong, and it is worth saying it in full:
 it is already switched on by default on every `` `uvm_error ``, and what it increments
 is **a global counter** for the run, not one per ID. On its own it kills nothing,
 because the default maximum is 0, which means "no limit". The one that cuts is
-`+UVM_MAX_QUIT_COUNT=N` —or `set_report_max_quit_count(N)`, `uvm_root.svh:1187`—, and
+`+UVM_MAX_QUIT_COUNT=N` (`uvm_root.svh:1187`) —or `set_report_max_quit_count(N)`,
+`uvm_report_object.svh:578`—, and
 that one really is the answer to the four-gigabyte log when a scoreboard fails on
 every transaction: you find out anyway, and in thirty seconds instead of in twenty
 minutes.
@@ -6056,7 +6060,7 @@ Say it out loud: switching off errors is for carrying on working while somebody 
 fixes their class, not so that the regression comes out green.
 And showing the *Report Summary* of the second log next to the first one is the best
 warning the section gives: the testbench says **0 UVM_ERROR** and the DUT is still
-exactly as broken as it was two slides ago. That is the reason a
+exactly as broken as it was when we broke it. That is the reason a
 `UVM_NO_ACTION` cannot survive a commit — it is a silent trap, and it is in
 the appendix.
 The scoreboard of this section adds too much ON PURPOSE, it is the bug we are
@@ -6268,7 +6272,7 @@ the verbosity.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 25b9c04216ce -->
+<!-- es-sha: 0da6a8002847 -->
 ## Exercise · Day 3 · 1 of 2
 
 #### *A new test without touching the structure*
@@ -6284,7 +6288,8 @@ Note:
 Before turning them loose on the exercise, go back to the slide *"The map of day 3: what
 replaces what"* of the object-based testbench and read the right-hand column straight through: the
 `build_phase` of the env, the config_db, the `run_phase`, the objections and the
-`set_type_override`. The five rows are crossed out, and the day closes there.
+`set_type_override` and the `$display` that became `uvm_info`. The six rows are
+crossed out, and the day closes there.
 It is the day 2 exercise again, but with the factory. Worth having them
 compare the two: on day 2 the type was picked in the code of the testbench, here
 the factory picks it and the testbench does not change one line.
@@ -6297,7 +6302,7 @@ the reason adding one has to be cheap.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 631437948cb3 -->
+<!-- es-sha: 75044b3a4bce -->
 ## Exercise · Day 3 · 2 of 2
 
 #### *The `uvm_error` that says nothing*
@@ -6306,7 +6311,7 @@ the reason adding one has to be cheap.
 <!-- .element: class="comando" -->
 
 - The scoreboard is **right** —it catches every mismatch— and when it fails it
-  says `FAILED` and nothing else. It is the line day 1 started with
+  says `FAILED` and nothing else: even less than the line day 1 started with
 - Make the `uvm_error` say **which one** failed: `A`, `B`, the operation, the
   DUT's result and the one you predicted
 - And make the one that **passes** get printed too, at `UVM_HIGH`, so that it
@@ -6393,7 +6398,7 @@ out forces you to understand what keeps the simulation alive.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 3eb7ead07ccc -->
+<!-- es-sha: 552644393658 -->
 ## One producer, many listeners
 
 #### *Two ways of talking between objects*
@@ -6518,9 +6523,9 @@ endclass : average
 Note:
 It is worth showing the whole class only once —this one— and after that only the
 `write()`s, because what matters is that the shape repeats.
-Two details that get collected later: the `report_phase` runs **when the last
-objection drops**, not at the end of the `run_phase`, and that is why the average
-comes out complete. And `dice_total` and `count` are `protected`: the one
+Two details that get collected later: the `report_phase` runs **after** the
+`run_phase` —and after `extract` and `check`—, not inside it, and that is why the
+average comes out complete. And `dice_total` and `count` are `protected`: the one
 publishing cannot touch them, only call `write()`.
 When this is the VTALU, in the analysis ports, `average` is going to be the
 scoreboard and the `report_phase` the verdict of the run. Same shape.
@@ -6820,8 +6825,7 @@ And a detail that shows up in the output: here the coverage is read with
    task run_phase(uvm_phase phase);
       int the_roll;
       phase.raise_objection(this);
-      void'(randomize());
-      repeat (40) begin
+      repeat (20) begin
          void'(randomize());
          the_roll = die1 + die2;
          // 3) write: the port calls write() on every subscriber
@@ -6902,8 +6906,8 @@ a mistake because there is nothing to instantiate.
 ```
 
 Note:
-This is the "after", and it has to be put next to the "before" from five slides
-back. The `run_phase` of the test is left without the three `write()`s: now it
+This is the "after", and it has to be put next to the "before", the version
+without the analysis port. The `run_phase` of the test is left without the three `write()`s: now it
 only raises the objection and starts the producer. The distribution moved to the
 `connect_phase`, which is where the structure goes.
 The line to read slowly is
@@ -6979,7 +6983,7 @@ naming convention, it is the language telling you which side you are on.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: ceed568d8fe9 -->
+<!-- es-sha: 00464c069316 -->
 ## A single place that watches the wire
 
 #### *A single place that watches the wire*
@@ -7222,7 +7226,9 @@ old one was filling bins with nothing.
 - However, in cases like a scoreboard, we need one and the same component to receive data from 2 analysis ports
 - The reason for the limit: `uvm_subscriber` gives you **a single** `write()`, and
   that is the method the port calls. Two ports have nowhere to come in
-- UVM solves it without splitting the component, with the *uvm_tlm_analysis_fifo* class
+- UVM solves it without splitting the component, with the *uvm_tlm_analysis_fifo* class,
+  which is **unbounded by construction**: its `write()` is a `function` and cannot
+  block, so it cannot drop anything
 - It is parameterized and it has two faces: an *analysis_export* on one side
   —which gets connected like any subscriber— and a `try_get()` on the other
 - `try_get()` takes an element out and returns 0 if the FIFO is empty, without blocking
@@ -7520,7 +7526,7 @@ outside the agent in the agents.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 27c7476ffa1d -->
+<!-- es-sha: 793393cd944c -->
 ## When somebody has to wait
 
 #### *You were already doing this, with modules*
@@ -7785,7 +7791,8 @@ sequencer on one side and the driver on the other.
 
 - It is the same `connect()` as the analysis ports: on one side the **port**, on
   the other the **export** the FIFO provides
-- `uvm_tlm_fifo` exposes two: `put_export` for the one that puts and `get_export`
+- `uvm_tlm_fifo` exposes twelve handles; the two that get used are `put_export` for
+  the one that puts and `get_export`
   for the one that takes out
 - The rule that holds for all of TLM: **the port connects to the export**, never
   two ports to each other
@@ -7970,9 +7977,9 @@ two are one to one.
 #### *`fork`: the three ways of starting in parallel*
 
 ```systemverilog
-fork  esperar_done();  contar_ciclos();  join        // goes on when BOTH have finished
-fork  esperar_done();  contar_ciclos();  join_any    // goes on with THE FIRST; the other stays alive
-fork  esperar_done();  contar_ciclos();  join_none   // goes on NOW; both stay running
+fork  wait_done();  count_cycles();  join        // goes on when BOTH have finished
+fork  wait_done();  count_cycles();  join_any    // goes on with THE FIRST; the other stays alive
+fork  wait_done();  count_cycles();  join_none   // goes on NOW; both stay running
 ```
 
 | Variant | The parent goes on… | What it is used for |
@@ -8018,7 +8025,7 @@ a coincidence nor a trick — it is exactly what UVM does when it runs the
 // The response-against-timeout idiom. The outer fork ISOLATES
 fork begin
    fork
-      begin  esperar_done();          `uvm_info("BFM", "it arrived", UVM_LOW)  end
+      begin  wait_done();          `uvm_info("BFM", "it arrived", UVM_LOW)  end
       begin  repeat (100) @(posedge clk);  `uvm_error("BFM", "timeout")        end
    join_any
    disable fork;      // kills the sister that lost, and nobody else
@@ -8034,8 +8041,9 @@ wait fork;            // kills nobody: it waits for ALL the children of this thr
   It is what a test uses so as not to close with transactions in flight
 - The `join_any` + `disable fork` pair is the timeout of every production BFM. It gets
   written once and copied forever
-- Measured: with the `disable fork`, the 5-unit branch that was going to print
-  *"the response arrived"* **prints nothing** — the timeout of 3 killed it
+- Whichever finishes first wins: if `done` arrives before the 100 edges, the
+  timeout `uvm_error` is not printed; if it does not, the `uvm_info` of `"it arrived"`
+  is not printed. The `disable fork` kills the loser
 
 Note:
 The `disable fork` without the isolating `fork ... join` is the classic bug of this
@@ -8071,7 +8079,7 @@ for (int j = 0; j < 3; j++)             // declared IN the for: one per pass
 
 for (i = 0; i < 3; i++)
    fork  begin
-      automatic int k = i;              // the copy is made WHEN the thread starts
+      automatic int k = i;              // the copy is made WHEN THE FORK RUNS
       $display("k = %0d", k);
    end join_none                                 //  k = 0   k = 1   k = 2
 ```
@@ -8317,7 +8325,6 @@ FIFOs are not in the factory.
 virtual class base_tester extends uvm_component;
 
    `uvm_component_utils(base_tester)
-   virtual vtalu_bfm bfm;
 
    // the handle to the BFM is replaced by a uvm_put_port
    uvm_put_port #(command_s) command_port;
@@ -8652,7 +8659,7 @@ whoever never measured it has no way of knowing.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: ff2e67a23c5a -->
+<!-- es-sha: 5d1f4dd9fcd3 -->
 ## Copying an object that contains another
 
 #### *The handle is not the object*
@@ -8716,7 +8723,7 @@ In OOP, instead of copying code...
   class shows up
 
 ```sv
-// Wrong Way de hacer convert2string!
+// The WRONG way to write convert2string!
 //class trago;
    virtual function string convert2string();
       return $sformatf("Hielos: %0d", hielos);
@@ -8752,7 +8759,7 @@ The method still returns a string.
 
 #### *`convert2string()`: the deep version*
 
-![The deep copy, level by level](../res/diagrams/en/jerarquias_convert2string_deep.svg)
+![A new level in the hierarchy breaks convert2string(): graduacion does not appear in the string](../res/diagrams/en/jerarquias_convert2string_deep.svg)
 <!-- .element: class="grande" -->
 
 - The day somebody puts a class **in the middle**, the ones below go on printing
@@ -8939,8 +8946,8 @@ this?" is this slide.
 Note:
 The rule to leave behind: **a class only writes on its own fields.** Everything
 else it asks `super` for.
-It is worth counting on screen: `hielos` and `con_coca` show up in four different
-`convert2string()` of this file. Four places to remember, and not one of them
+It is worth counting on screen: `hielos` shows up in four different `convert2string()`
+of this file and `con_coca` in three. Seven places to remember, and not one of them
 fails if you forget one.
 There is a `bad_copy()` a little further down the file worth opening if there is
 time to spare: it takes a `fernet_con_hielo` as an argument instead of a `trago`.
@@ -9024,7 +9031,7 @@ ready-made — which is exactly the unit that follows.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 0ab8683f26bb -->
+<!-- es-sha: 3bd28085ff3a -->
 ## Transactions
 
 #### *The testbench is well divided up, and the data is not*
@@ -9069,7 +9076,7 @@ tidiness: it is the only way.
   - `do_compare()` — it compares itself
 - What changes is not the data: it is **who knows things about it**. The `tester`
   used to know which values were legal; now it only says *"randomize yourself"*
-- And the rest of the testbench shrinks: the four hand-written `$sformatf` become
+- And the rest of the testbench shrinks: the three hand-written `$sformatf` become
   one call to `convert2string()`
 
 Note:
@@ -9311,7 +9318,8 @@ thing to do is cast it. And since the `$cast` checks at run time, it goes with i
 further on.
 The second one: the `super.do_copy(rhs)` goes **before** touching your own
 fields. It is the same discipline as in the class hierarchies and here it matters
-more, because `uvm_object` has fields of its own that you do not see.
+more, because `uvm_transaction` —two levels up— has fields of its own that you do
+not see: `accept_time`, `begin_time`, `end_time` and `initiator`.
 And the detail that confuses everybody: you write `do_copy()`, but you **never
 call it**. The testbench calls `copy()`, which lives in `uvm_object`, and that one
 takes care of invoking your `do_copy()`. It is the same division as the phases —
@@ -9453,7 +9461,7 @@ because the signature asks for it.
 ```sv
 function string convert2string();
    string s;
-   // op.name() puede ser add_op, no_op ...
+   // op.name() can be add_op, no_op ...
    s = $sformatf("A: %2h  B: %2h op: %s", A, B, op.name());
    return s;
 endfunction : convert2string
@@ -9706,7 +9714,7 @@ transaction that travels —even if it only travels as far as the `compare()` on
 next line—, so it comes out of the factory like all the others.
 And the `do ... while` that skips `no_op` and `rst_op` is still the same as in the
 analysis ports: those operations produce no result, and if they are not thrown
-away the comparison shifts by one and everything fails. It is the day 5 exercise.
+away the comparison shifts by one and everything fails.
 
 
 ---
@@ -9845,7 +9853,7 @@ an agent. That is day 6.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: efe7f071236a -->
+<!-- es-sha: 7513efd43da7 -->
 ## Constrained random
 
 #### *The other half of the pincer*
@@ -10080,13 +10088,14 @@ the difference between believing and knowing.
 ```
 
 - `inside {a, b, c}` is the set of legal values: without it, the random also asks
-  for `no_op` and `rst_op`, which compute nothing
+  for `no_op` and `rst_op`, which compute nothing. Here it also leaves out `sub_op`,
+  so that the draw comes out uniform among four
 - `randomize() with { ... }` adds constraints **for that call only**: the directed
   case gets asked for at the point of use, without touching the class and without
   writing a new tester. It is the tool of *coverage closure*
 
 Note:
-The number from the run is the whole argument of the section: 400 random attempts
+The number that comes out of running `02_with.sv` is the whole argument of the section: 400 random attempts
 fill `mul_max` a handful of times —6 with the default seed, between 2 and 8
 depending on which one you use— **because the `dist` biases towards the edges**.
 The arithmetic is worth doing out loud: `op` comes out uniform among four and each
@@ -10096,7 +10105,7 @@ slide, the probability of both legs landing on `FF` is 1/65536 per operation: yo
 never touch it.
 The mental sequence is always the same: I run random, I look at which bin was left
 empty, I write a three-line `with {}`, I run again. Never "I write 76 tests".
-The Verilator limitation that shows up in the output is there on purpose, and it
+The Verilator limitation the section states is there on purpose, and it
 is worth stating it properly because it is not a matter of "it works or it does
 not". Verilator resolves the `dist` **by picking a concrete value first** and only
 then checks the rest: if the one drawn does not satisfy the `with`, it returns 0
@@ -10252,7 +10261,7 @@ out even. Measure it.
    class comando;
       rand byte unsigned A;
       constraint chico {A < 8'h10;}
-      constraint grande {A > 8'hF0;}  // contradice a la anterior: no hay solucion
+      constraint grande {A > 8'hF0;}  // contradicts the previous one: no solution
    endclass
 
    initial begin
@@ -10283,7 +10292,8 @@ out even. Measure it.
 ```
 
 - `constraint_mode(0)` turns **one constraint** off at run time; `rand_mode(0)`
-  takes **one field** out of the draw and leaves it with the value it had
+  takes **one field** out of the draw and leaves it with the value it had — and if
+  that value does not satisfy the constraints that name it, `randomize()` returns 0
 - They are for the test that needs to break a rule on purpose — injecting an
   illegal opcode, for instance — without touching the class everybody else uses
 
@@ -10401,8 +10411,9 @@ This slide exists to defuse a misunderstanding the previous cycle invites: *"if 
 do not close, I run another seed"*. It was measured, and no: `code/u2/convencional`
 gives 66 out of 76 with the default seed, with 7 and with 8, and the merge of the
 three gives 66. The 10 that are missing are not missing out of luck — they are
-missing because they are transition bins Verilator does not measure and crosses the
-stimulus does not reach. No seed is going to touch them.
+missing because Verilator generates the enum's automatic bins over the **base
+type**: `3'b110` does not exist in `operation_t`, so `auto_5` stays at 0 forever,
+with its nine crosses. No seed is going to touch them.
 The seed is good for two other things, and both are matters of craft. First:
 **reproducing**. An intermittent bug does not get debugged, it gets repeated; and
 to repeat it you have to know which seed it came up with, which is exactly why
@@ -10695,7 +10706,7 @@ with.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 246c56e3b625 -->
+<!-- es-sha: a117462e4a31 -->
 <!-- .slide: id="day6" -->
 
 ## Yesterday we left…
@@ -10726,7 +10737,7 @@ grows factorially, and it is the reason the unit exists.
 
 ## Agenda
 
-#### *Day 6 · ≈ 4 h 15 · unit 7 · the reusable testbench*
+#### *Day 6 · ≈ 4 h 45 · unit 7 · the reusable testbench*
 
 - Agents
 - Callbacks
@@ -10742,7 +10753,7 @@ grows factorially, and it is the reason the unit exists.
 
 Note:
 The first two are rows 13 and 14 of the closing self-assessment. The 14th is the
-question thrown on day 3, when the UVM class diagram showed up, and it gets
+question thrown on day 1, when the UVM class diagram showed up, and it gets
 answered today: `uvm_object` is the **data** and `uvm_component` is the
 **structure**.
 The third one is what closes the unit and the day: when that line goes, no line
@@ -10754,7 +10765,7 @@ testbench truly reusable.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 9368389b7634 -->
+<!-- es-sha: b1c9dffa7311 -->
 ## Agents
 
 #### *The problem: a testbench that cannot be copied*
@@ -11126,7 +11137,7 @@ built two objects fewer. Both monitors are in both, because watching
 is never optional.
 And the one that is not there: there is no `sequence` in this tree. A sequence is a
 `uvm_object`, not a `uvm_component`, so it does not live in the topology. It is the
-question thrown out on day 3 with the class diagram, and here it can be answered
+question thrown out on day 1 with the class diagram, and here it can be answered
 pointing at the screen.
 
 ---
@@ -11835,7 +11846,7 @@ the DUT, not the stimulus — which is exactly what the `+BUG=1` of the capstone
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: fd3d44b98f43 -->
+<!-- es-sha: 7bab513dd9ec -->
 ## Sequences
 
 #### *The only thing left hard-wired*
@@ -11895,8 +11906,8 @@ somebody looks for `sequencer_h.full_seq` with `uvm_root::get().find()` they are
 find it.
 The other consequence, the one used every day: since it is not a component, a
 sequence can have configurable fields that get changed **between** the `create()`
-and the `start()`. That is what `full_seq.count = 200` does two slides
-further on, and with a component it could not be done: by the time you want to change it, the
+and the `start()`. That is what `full_seq.count = 200` does at the end of the
+unit, and with a component it could not be done: by the time you want to change it, the
 `build_phase` has already gone by.
 
 ---
@@ -11924,9 +11935,9 @@ class reset_sequence extends uvm_sequence #(command_transaction);
    task body();
       command_transaction command;
       command = command_transaction::type_id::create("command");
-      start_item(command);    // bloquea hasta que el sequencer nos da el turno
-      command.op = rst_op;    // recien ahora decidimos que mandar
-      finish_item(command);   // bloquea hasta el item_done() del driver
+      start_item(command);    // blocks until the sequencer gives us our turn
+      command.op = rst_op;    // only now do we decide what to send
+      finish_item(command);   // blocks until the driver calls item_done()
    endtask : body
 
 endclass : reset_sequence
@@ -11977,13 +11988,14 @@ Note:
 Confusion number one of the section: believing that `finish_item()` comes back when the
 item **was delivered**. No: it comes back when the driver called `item_done()`, that is
 when the operation **finished in the DUT**. It is the difference between "I sent it" and
-"it is done", and it is what makes Fibonacci possible four slides further on.
+"it is done", and it is what makes the Fibonacci sequence possible.
 Out of that comes as well why the `#500` that the `tester` of the transactions
 had at the end disappeared: it was not stimulus, it was a patch so the objection would not drop
 before its time. With `finish_item()` the stimulus no longer gets cut in half. Careful,
 honesty: the **last** result can still end up uncompared, because the
 objection gets dropped as soon as `start()` comes back and the `result_monitor` publishes one edge
-later. It can be seen in the log of the `add_test`: 1001 commands, 1000 comparisons.
+later. It can be seen in the log of the `add_test` run with `+UVM_VERBOSITY=UVM_HIGH`: 1001
+commands, 1000 comparisons.
 If somebody asks about the non-blocking cousin: there is `try_next_item()`, which
 comes back right away with `null` if the sequencer has nothing. It is the same
 `get()` / `try_get()` pair from the communication between threads and it is useful when the protocol forces you to drive
@@ -12095,10 +12107,10 @@ edges; if you already know which value you want, it has nothing to contribute.
       command_transaction command;
       shortint unsigned   alu_result;
       forever begin : command_loop
-         seq_item_port.get_next_item(command);  // bloquea hasta que haya item
+         seq_item_port.get_next_item(command);  // blocks until there is an item
          bfm.send_op(command.A, command.B, command.op, alu_result);
-         command.result = alu_result;  // el camino de vuelta
-         seq_item_port.item_done();  // desbloquea el finish_item()
+         command.result = alu_result;  // the way back
+         seq_item_port.item_done();  // unblocks the finish_item()
       end : command_loop
    endtask : run_phase
 ```
@@ -12124,6 +12136,7 @@ vast majority of cases. It is worth naming so they recognise it if they see it.
 An implementation detail that does matter: the `send_op` reads `bfm.result` on the
 same edge on which it sees `done` high. One edge later the DUT has already started the
 next operation.
+
 ---
 
 ## Sequences
@@ -12203,10 +12216,10 @@ bug until proven otherwise.
          command.A  = n_menos_2;
          command.B  = n_menos_1;
          command.op = add_op;
-         finish_item(command);        // vuelve cuando el driver hizo item_done()
+         finish_item(command);        // returns when the driver called item_done()
 
          n_menos_2 = n_menos_1;
-         n_menos_1 = command.result;  // el driver lo escribio adentro del item
+         n_menos_1 = command.result;  // the driver wrote it inside the item
          `uvm_info("FIBONACCI", $sformatf("Fib(%02d) = %03d", ff, n_menos_1),
                    UVM_MEDIUM)
       end : fib_loop
@@ -12332,7 +12345,7 @@ sequencer, and there are six modes, one of them with weights.
       // THE TEST raises the objection, not the sequence: the sequence knows
       // nothing about phases, and has to be able to run inside another sequence.
       phase.raise_objection(this);
-      full_seq.start(sequencer_h);   // no vuelve hasta que body() termino
+      full_seq.start(sequencer_h);   // does not return until body() finished
       phase.drop_objection(this);
    endtask : run_phase
 ```
@@ -12548,6 +12561,7 @@ join
 | `UVM_SEQ_ARB_STRICT_FIFO` | the priority rules; at equal priority, order of arrival |
 | `UVM_SEQ_ARB_WEIGHTED` | at random, with the priority as the weight |
 | `UVM_SEQ_ARB_RANDOM` | at random, all equal |
+| `UVM_SEQ_ARB_STRICT_RANDOM` | at random, but only among the highest priority ones |
 | `UVM_SEQ_ARB_USER` | `user_priority_arbitration()`, you write it |
 
 - The default **ignores the priority**: putting a 500 in and not changing the mode is the
@@ -12663,6 +12677,7 @@ design, the analysis per verification plan.
   the way back, and it is what makes a stimulus that reacts possible
 - Two ways of starting: explicit `start(sequencer)`, or `default_sequence` through
   `uvm_config_db` — which besides takes the last hard-wired line out of the testbench
+
 Note:
 The first half of the summary is the mechanism: what a sequence is, where the
 `randomize()` lives, and which way the result comes back. Anyone who got lost in
@@ -12676,7 +12691,7 @@ the unit catches up here.
 
 - Sequences compose: one calls others, in series or with `fork`/`join`
 - And when there is **more than one sequencer**, the one that composes is a
-  **virtual sequence**, which is first thing tomorrow ↪ day 7
+  **virtual sequence**, which comes just as day 7 starts ↪ day 7
 - With **two sequences on the same sequencer** the one who hands out is the sequencer:
   priority and `set_arbitration(...)`, and `lock()`/`grab()` for the scenario that cannot
   be interleaved
@@ -13303,7 +13318,7 @@ moving on.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 5c2088d92c4e -->
+<!-- es-sha: 6fb7203e5453 -->
 ## Assertions (SVA)
 
 #### *The hole the scoreboard left*
@@ -13342,7 +13357,7 @@ testbench does not cover.
 ```sv
 // IMMEDIATE: it is a STATEMENT. It runs when the thread goes past it,
 // once, and that is all. The one from the transactions is of this family.
-assert (cmd.op inside {add_op, and_op, xor_op, mul_op})
+assert (cmd.op inside {add_op, sub_op, and_op, xor_op, mul_op})
    else `uvm_error("SEQ", "invalid operation");
 
 // CONCURRENT -- the new thing. It is a DECLARATION with a clock: it gets
@@ -13491,7 +13506,7 @@ $past expr2 and/or clock arguments*).
 #### *The property that is worth the section*
 
 ```sv
-   // --- El estimulo ---
+   // --- The stimulus ---
 
    // The rule from slide 1 of day 1, executable at last: while start is up, the
    // operands and the operation are not touched.
@@ -13612,7 +13627,7 @@ about something else.
 #### *Variable latency, in one line*
 
 ```sv
-   // The variable latency of the The VTALU spec section in one line: one cycle for the
+   // The variable latency from the VTALU spec section, in one line: one cycle for the
    // one-cycle ops, four edges for the multiplication.
    property p_done_llega;
       @(posedge clk) start && (op_set != no_op) |-> ##[1:5] done;
@@ -13633,7 +13648,7 @@ about something else.
 ```
 
 - `##[1:5] done` says *"between one and five edges later"*. The VTALU takes **one**
-  on `add`/`and`/`xor` and **four** on the multiplication: one property covers
+  on `add`/`sub`/`and`/`xor` and **four** on the multiplication: one property covers
   both
 - `##n` is an exact delay, `##[a:b]` a window, `##[1:$]` *"at some
   point"* — which is almost never what you want: a property without an upper bound
@@ -13816,7 +13831,7 @@ instead of the one of the library.
 
    c_mult_3ciclos : cover property (@(posedge clk) $rose(start) && (op_set == mul_op) ##3 done);
    c_mult_4ciclos : cover property (@(posedge clk) $rose(start) && (op_set == mul_op) ##4 done);
-   c_un_ciclo : cover property (@(posedge clk) $rose(start) && (op_set inside {add_op, and_op, xor_op}) ##1 done);
+   c_un_ciclo : cover property (@(posedge clk) $rose(start) && (op_set inside {add_op, sub_op, and_op, xor_op}) ##1 done);
 ```
 
 ```plaintext
@@ -13960,7 +13975,7 @@ property`. If the cover is at zero, either the property does not run, or its ant
 occur. In both cases you have to go and look, and in both cases the `assert` on its own
 would have said that everything is fine.
 These four are added to the appendix of the silent traps, which from this
-section on are twenty.
+section on are twenty-one.
 
 ---
 
@@ -14152,7 +14167,7 @@ this testbench existed.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 58d61a3aa27d -->
+<!-- es-sha: 2e112e1fa061 -->
 ## Capstone · Day 7
 
 #### *The whole testbench, from a blank sheet*
@@ -14160,7 +14175,7 @@ this testbench existed.
 `cd code/ejercicios/d7-final && cat spec.en.md`
 <!-- .element: class="comando" -->
 
-- The other thirteen exercises gave you a file with a hole in it. This one gives a **DUT,
+- The previous exercises gave you a file with a hole in it. This one gives a **DUT,
   a spec and nothing else**
 - The DUT is not the VTALU: it is an **APB3 slave** with four registers. It has
   addresses, two phases per transfer, a *wait state* and an error response
@@ -14218,7 +14233,7 @@ The four traps of the spec are put there on purpose and all four are about
 a spec badly read, not about UVM: the wait state of the read, the `CLR` that never gets read
 at 1, the read-only register that gets written without giving an error, and the accumulator
 that only runs with `EN=1`. They are the four that hang the first testbench, and
-they are together in a section of `spec.md` called *The small print* — in
+they are together in a section of `spec.en.md` called *The small print* — in
 a real spec they are not going to be together nor in a section with that name.
 The `assign` of the `PREADY` is the whole slide if one has to be picked: it says that the
 write does not wait and the read does, and out of that comes the `do @(posedge PCLK); while
@@ -14240,7 +14255,7 @@ can happen.
 - **3 · The scoreboard.** The DUT modelled in software. The checker runs it twice:
   against the healthy DUT it has to keep quiet, and with **`+BUG=1`** it has to scream
 - **4 · The coverage.** The covergroup with the nine rows of the verification
-  plan of the spec: more than 20 points, 90 % covered. And **two rows come empty**
+  plan of the spec: at least 20 points, 90 % covered. And **two rows come empty**
 - **5 · The properties.** The APB protocol inside `apb_if.sv`, with
   `--assert`. With **`+BUG=2`** there is a bug the scoreboard cannot see
 
@@ -14481,7 +14496,7 @@ to it** — which is exactly what they practised in the exercises of days 3 and 
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: d485ca9d682c -->
+<!-- es-sha: de50dab17882 -->
 <!-- .slide: id="apendice-debug" data-machete="res/en/machete-debug.svg" -->
 
 ## Appendix · The debug toolbox
@@ -14510,8 +14525,10 @@ the handshake of the driver on a single A4 side. The source is `res/en/machete.h
 it opens with a double click and it prints with Ctrl+P.
 The point to say out loud is the one about the plusargs. A `$display`
 added by hand costs a recompilation of UVM —minutes— and on top of that you have to
-remember to take it out. These seven knobs are already fitted in the binary you
-compiled: they get switched on from the command line and they leave no trace.
+remember to take it out. Six of these seven are already fitted in the binary you compiled: they get switched
+on from the command line and they leave no trace. The seventh, `VLT_TRACE`, also
+needs the `$dumpfile`/`$dumpvars` block in the top — today `u2/convencional` and
+`ejercicios/d1b` have it.
 And one detail of `+UVM_TIMEOUT` that bites, because it does not error out: the value
 is an integer in time units, not an expression with a unit. UVM reads it with
 `$sscanf(…, "%d,%s")` (`uvm_root.svh:916`), so `+UVM_TIMEOUT=5ms` does not complain:
@@ -14567,7 +14584,7 @@ the next step is the waveforms, which is the tool that does
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: c17f3821f756 -->
+<!-- es-sha: 0c261c51b6f1 -->
 <!-- .slide: id="apendice-trampas" -->
 
 ## Appendix · The 21 silent traps
@@ -14885,7 +14902,7 @@ The LRM and the *User Guide* are for consulting: nobody reads them straight thro
 look things up when there is a discussion about syntax or semantics. The Verification
 Academy is the place where almost everything this course left out lives, and it is
 free with registration.
-About Salemi's book it is worth repeating what `docs/en-que-se-diferencia.md` says: this
+About Salemi's book it is worth repeating what `docs/en-que-se-diferencia.md` (in Spanish) says: this
 course does not replace it and does not follow it. If somebody wants a second pass over
 the same concepts written by another person, it is the best one there is to start with.
 And the point about the charts, because it is the part a student may want to
@@ -14908,7 +14925,7 @@ is in the repo. Nothing in unit 1 is an image downloaded from the internet.
 <span class="libro-pie">Ray Salemi &middot; Boston Light Press, 2013 &middot; ISBN 978-0974164939</span>
 </span>
 </a>
-<p class="libro-nota">This course is not that book: it has another structure, another DUT, another simulator and four units of material the book does not cover. What it does share is credited in <code>NOTICE</code>, and the complete list of differences is in <code>docs/en-que-se-diferencia.md</code>.</p>
+<p class="libro-nota">This course is not that book: it has another structure, another DUT, another simulator and four units of material the book does not cover. What it does share is credited in <code>NOTICE</code>, and the complete list of differences is in <code>docs/en-que-se-diferencia.md</code> (in Spanish).</p>
 </div>
 
 Note:
@@ -14949,7 +14966,7 @@ tools are software and MIT is what anybody copying them expects.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 2f21e65454e9 -->
+<!-- es-sha: 71028ffd7dd5 -->
 <!-- .slide: id="cierre" -->
 
 ## This is as far as we got
@@ -14975,7 +14992,7 @@ tools are software and MIT is what anybody copying them expects.
 
 Note:
 It is worth reading the list out loud and slowly, because after seven days nobody
-has a sense of how much they saw. It is five bullets and each one was a whole course
+has a sense of how much they saw. It is seven bullets and each one was a whole course
 a week ago.
 The one to underline is the last, and not out of activism: **all of this runs on
 the student's machine**. There is no part of the course left in demo mode
@@ -15047,7 +15064,7 @@ library stops being magic.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: d97533d950af -->
+<!-- es-sha: 99b0bd93451b -->
 ## Self-assessment
 
 #### *Fifteen things you should be able to do by now · 1 of 3*
@@ -15116,7 +15133,7 @@ testbench that works and one you can work with.
   spec, and the whole testbench from a blank sheet
 
 Note:
-The 14 is the question thrown out on day 3, when the UVM class diagram
+The 14 is the question thrown out on day 1, when the UVM class diagram
 shows up, and it gets answered on day 6. If the student can answer it, they understood the
 division that explains half the library: `uvm_object` is the **data** and
 `uvm_component` is the **structure**. An object gets created and thrown away; a component
@@ -15134,7 +15151,7 @@ fifteen and does not finish it did not finish the course.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 21fce0178178 -->
+<!-- es-sha: 3d57bdc4c97f -->
 <!-- .slide: id="day8" -->
 
 ## Yesterday we left…
@@ -15162,7 +15179,7 @@ without a problem.
 
 ---
 
-<!-- .slide: data-machete="res/en/uvm_class_diagram.svg,res/diagrams/en/sequences_tb_completo.svg" -->
+<!-- .slide: data-machete="res/en/uvm_class_diagram.svg,res/diagrams/en/ral_camino.svg,res/diagrams/en/sequences_tb_completo.svg" -->
 
 ## Agenda
 
@@ -15184,8 +15201,8 @@ For whoever teaches it: in a company this is another half day, and it usually
 gets taught when the group has real registers in the project. In a term it is the
 optional unit, or the final assignment for those who want a high mark.
 The three objectives are deliberately concrete and not "understand RAL": day 8
-has no self-assessment of its own, so these three verbs are the only rubric the
-student takes away. The third is the one that pays off the most of the three and
+has no row in the `175b` self-assessment, so the rubric the student takes away is
+these three verbs and the eight-question review. The third is the one that pays off the most of the three and
 the least expected — a FIFO has order and occupancy, and that does not fit in a
 four-row table.
         </textarea>
@@ -15194,7 +15211,7 @@ four-row table.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 24324cf31de1 -->
+<!-- es-sha: c3e3e3361662 -->
 <!-- .slide: id="ral" -->
 
 ## RAL
@@ -15287,7 +15304,7 @@ class ctrl_reg extends uvm_reg;
       // the mirror drops to zero, and the read returns that zero. Modelling it as
       // "RW" is the classic mistake, and it is what +MAL does. "WOC" also passes,
       // for the wrong reason: any WO* access takes the field out of bit_bash and
-      // out of do_check, so nobody looks at it. See slides/es/180-ral.md.
+      // out of do_check, so nobody looks at it. See the RAL unit slides.
       CLR = uvm_reg_field::type_id::create("CLR");
       CLR.configure(this, 1, 1, $test$plusargs("MAL") ? "RW" : "WC", 0, 'h0, 1, 1, 0);
    endfunction : build
@@ -15298,7 +15315,7 @@ endclass : ctrl_reg
 - A field gets declared with `configure()`, and the argument that matters is the
   **access string**: `"RW"`, `"RO"`, `"WC"`…
 - That string **is the specification**. It is not documentation: it is what UVM uses
-  to predict, and to generate the tests of the last slide
+  to predict, and to generate the tests of *The tests you did not write*
 
 Note:
 `configure(parent, size, lsb_pos, access, volatile, reset, has_reset, is_rand,
@@ -15576,8 +15593,8 @@ test they give you is exactly the quality of the model you wrote.
 ```
     CTRL.CLR as "WC"   0 UVM_ERROR, and bit_bash did write bit 1
     CTRL.CLR as "RW"   2 UVM_ERROR, from uvm_reg_bit_bash_seq
-    > Writing a 1 in bit #1 of register "model.CTRL" ... yielded 'h0
-      instead of 'h2
+    > Writing a 1 in bit #1 of register "model.CTRL" ...
+      yielded 'h0000000000000000 instead of 'h0000000000000002
 ```
 
 - One word changed in a string, and a sequence nobody wrote catches it
@@ -15613,9 +15630,9 @@ stage 1 of the exercise prints the map so it can be compared by hand.
 #### *What RAL does not do, and it has to be said*
 
 ```sv
-      // scoreboard, which is the thing that does know how to add.
       ACC.VALUE.set_compare(UVM_NO_CHECK);
       STATUS.EN.set_compare(UVM_NO_CHECK);
+      STATUS.OVF.set_compare(UVM_NO_CHECK);
 ```
 
 - `ACC` and `STATUS` have an address, but **they are not registers**: their value gets
@@ -15719,7 +15736,7 @@ the whole check off.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 0b0f4099bdcd -->
+<!-- es-sha: 86c7a5166fdf -->
 <!-- .slide: id="dpi" -->
 
 ## The reference model in C
@@ -15852,8 +15869,8 @@ data fits in an `int`, the signature writes itself; if not, you look up annex H 
   analysis port, the FIFO, the `do_compare` and the `uvm_error` do not change
 - The golden model replaces the six lines of predicting, and no other piece
   of the testbench finds out there is C on the other side
-- And the border gets crossed in both directions: `vtalu_golden_bug(1)` is
-  SystemVerilog **changing the state** of the C model
+- And the traffic goes both ways: the result comes back from C, and
+  `vtalu_golden_bug(1)` goes from SystemVerilog to **change the state** of the model
 
 Note:
 The count is worth doing out loud because it is the design argument of the whole

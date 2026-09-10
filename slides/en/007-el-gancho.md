@@ -1,4 +1,4 @@
-<!-- es-sha: 6fd844c44c0d -->
+<!-- es-sha: 1b3fafb460c5 -->
 ## The log says it failed
 
 #### *And the DUT is healthy*
@@ -31,4 +31,5 @@ And the honest close, which is the promise of the whole course: this is not abou
 writing testbenches faster, it is about the log saying why when it fails — and it
 will fail. The *almost half* in the last bullet is the 47 % of the verification
 engineer's time that goes into debug: the figure comes from the Wilson Research
-Group 2024 survey and the chart is on the next slide.
+Group 2024 survey, and the chart is *Verification is not a stage*, the third of
+the trends that come next.

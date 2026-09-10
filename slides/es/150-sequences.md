@@ -57,8 +57,8 @@ alguien busca `sequencer_h.full_seq` con `uvm_root::get().find()` no lo va a
 encontrar nunca.
 La otra consecuencia, la que se usa todos los días: como no es un componente, una
 sequence puede tener campos configurables que se cambian **entre** el `create()`
-y el `start()`. Eso es lo que hace `full_seq.count = 200` dos slides más
-adelante, y con un componente no se podría: para cuando querés cambiarlo, el
+y el `start()`. Eso es lo que hace `full_seq.count = 200` al final de la
+unidad, y con un componente no se podría: para cuando querés cambiarlo, el
 `build_phase` ya pasó.
 
 ---
@@ -114,13 +114,14 @@ Note:
 La confusión número uno de la sección: creer que `finish_item()` vuelve cuando el
 item **se entregó**. No: vuelve cuando el driver llamó a `item_done()`, o sea
 cuando la operación **terminó en el DUT**. Es la diferencia entre "lo mandé" y
-"ya está hecho", y es lo que hace posible Fibonacci cuatro slides más adelante.
+"ya está hecho", y es lo que hace posible la sequence de Fibonacci.
 De ahí sale también por qué desapareció el `#500` que el `tester` de las transactions
 tenía al final: no era estímulo, era un parche para que el objection no se cayera
 antes de tiempo. Con `finish_item()` el estímulo ya no se corta a la mitad. Ojo,
 honestidad: el **último** resultado puede quedar sin comparar igual, porque el
 objection se baja apenas vuelve `start()` y el `result_monitor` publica un flanco
-después. Se ve en el log del `add_test`: 1001 comandos, 1000 comparaciones.
+después. Se ve en el log del `add_test` corrido con `+UVM_VERBOSITY=UVM_HIGH`: 1001
+comandos, 1000 comparaciones.
 Si alguien pregunta por el primo no bloqueante: existe `try_next_item()`, que
 vuelve enseguida con `null` si el sequencer no tiene nada. Es la misma pareja
 `get()` / `try_get()` de la comunicación entre threads y sirve cuando el protocolo obliga a manejar
@@ -231,6 +232,7 @@ enorme mayoría de los casos. Vale nombrarlo para que lo reconozcan si lo ven.
 Detalle de implementación que sí importa: el `send_op` lee `bfm.result` en el
 mismo flanco en que ve `done` alto. Un flanco más tarde el DUT ya arrancó la
 operación siguiente.
+
 ---
 
 ## Sequences
@@ -556,6 +558,7 @@ join
 | `UVM_SEQ_ARB_STRICT_FIFO` | la prioridad manda; a igual prioridad, orden de llegada |
 | `UVM_SEQ_ARB_WEIGHTED` | al azar, con la prioridad como peso |
 | `UVM_SEQ_ARB_RANDOM` | al azar, todas igual |
+| `UVM_SEQ_ARB_STRICT_RANDOM` | al azar, pero sólo entre las de mayor prioridad |
 | `UVM_SEQ_ARB_USER` | `user_priority_arbitration()`, la escribís vos |
 
 - El default **ignora la prioridad**: poner un 500 y no cambiar el modo es el
@@ -670,6 +673,7 @@ diseño, el análisis por plan de verificación.
   el camino de vuelta, y es lo que hace posible un estímulo que reacciona
 - Dos formas de arrancar: `start(sequencer)` explícito, o `default_sequence` por
   `uvm_config_db` — que además saca la última línea cableada del testbench
+
 Note:
 La primera mitad del resumen es el mecanismo: qué es una sequence, dónde
 vive el `randomize()`, y por dónde vuelve el resultado. Si alguien se perdió en
@@ -683,7 +687,7 @@ la unidad, se recupera acá.
 
 - Las sequences se componen: una llama a otras, en serie o con `fork`/`join`
 - Y cuando hay **más de un sequencer**, la que compone es una **sequence
-  virtual**, que es lo primero de mañana ↪ día 7
+  virtual**, que llega apenas empieza el día 7 ↪ día 7
 - Con **dos sequences sobre el mismo sequencer** el que reparte es el sequencer:
   prioridad y `set_arbitration(...)`, y `lock()`/`grab()` para el escenario que no
   se puede intercalar

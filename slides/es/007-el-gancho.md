@@ -30,4 +30,5 @@ Y el cierre honesto, que es la promesa del curso entero: no se trata de escribir
 testbenches más rápido, se trata de que cuando falle —y va a fallar— el log diga
 por qué. El *casi la mitad* del último bullet es el 47 % del tiempo del
 verificador que se va en debug: el dato sale de la encuesta del Wilson Research
-Group 2024 y el gráfico está en la slide que sigue.
+Group 2024, y el gráfico es *Verificar no es una etapa*, la tercera de las
+tendencias que vienen ahora.

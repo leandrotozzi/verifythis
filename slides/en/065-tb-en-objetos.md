@@ -1,10 +1,10 @@
-<!-- es-sha: 454b20650c1d -->
+<!-- es-sha: de322b440014 -->
 ## A testbench without a single module
 
 #### *The same testbench, without a single module*
 
-- Nine sections later, this section **adds no functionality**:
-  it does exactly the same as the interfaces and BFM testbench
+- This section **adds no functionality**:
+  it verifies the same as the interfaces and BFM testbench
 - What changes is what it is made of. The three modules —tester, scoreboard,
   coverage— become three **classes**, and the `initial` becomes a method
 - The piece that binds them appears: a `testbench` class that instantiates the others,
@@ -102,7 +102,7 @@ first time the compilation order matters, and it will not be the last.
 {{code:code/u3/tb-en-objetos/tb_classes/testbench.svh}}
 
 Note:
-This is the class UVM is going to run over, so it is worth reading it line by
+This is the class UVM is going to replace, so it is worth reading it line by
 line: `new()` on the three objects, `fork ... join_none` to start them, and
 that is it. That is an `env` written by hand.
 Two things to flag. The first is the `virtual vtalu_bfm bfm`: the word

@@ -293,7 +293,7 @@ construyó dos objetos menos. Los dos monitores están en los dos, porque mirar
 nunca es opcional.
 Y la que no está: no hay ninguna `sequence` en este árbol. Una sequence es un
 `uvm_object`, no un `uvm_component`, así que no vive en la topología. Es la
-pregunta que se tiró el día 3 con el diagrama de clases, y acá se puede contestar
+pregunta que se tiró el día 1 con el diagrama de clases, y acá se puede contestar
 señalando la pantalla.
 
 ---

@@ -19,10 +19,10 @@ class driver extends uvm_driver #(command_transaction);
       command_transaction command;
       shortint unsigned   alu_result;
       forever begin : command_loop
-         seq_item_port.get_next_item(command);  // bloquea hasta que haya item
+         seq_item_port.get_next_item(command);  // blocks until there is an item
          bfm.send_op(command.A, command.B, command.op, alu_result);
-         command.result = alu_result;  // el camino de vuelta
-         seq_item_port.item_done();  // desbloquea el finish_item()
+         command.result = alu_result;  // the way back
+         seq_item_port.item_done();  // unblocks the finish_item()
       end : command_loop
    endtask : run_phase
 

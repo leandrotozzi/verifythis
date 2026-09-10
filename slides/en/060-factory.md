@@ -1,4 +1,4 @@
-<!-- es-sha: b23240cf9ba2 -->
+<!-- es-sha: f067fec308e0 -->
 ## The factory pattern
 
 #### *Who decides the type?*
@@ -22,7 +22,7 @@ detour: the `+UVM_TESTNAME=add_test` of the tests, tomorrow, is going to be a fa
 UVM reads a string from the command line and builds the class that corresponds.
 Here you see the mechanism from the inside.
 And for whoever comes from software: yes, it is the GoF Factory Method, and we
-invented nothing. The Python version on the last slide is there precisely for that.
+invented nothing. The Python version that closes the section is there precisely for that.
 
 ---
 
@@ -50,7 +50,7 @@ that we invented nothing.
 
 ## The factory pattern
 
-![UML Class Example Diagram](res/diagrams/en/factory_diagram.svg)
+![The cantina builds fernet and mojito, and returns a trago handle](res/diagrams/en/factory_diagram.svg)
 <!-- .element: class="grande" -->
 
 <br>

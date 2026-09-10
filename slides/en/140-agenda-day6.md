@@ -1,4 +1,4 @@
-<!-- es-sha: 246c56e3b625 -->
+<!-- es-sha: a117462e4a31 -->
 <!-- .slide: id="day6" -->
 
 ## Yesterday we left…
@@ -29,7 +29,7 @@ grows factorially, and it is the reason the unit exists.
 
 ## Agenda
 
-#### *Day 6 · ≈ 4 h 15 · unit 7 · the reusable testbench*
+#### *Day 6 · ≈ 4 h 45 · unit 7 · the reusable testbench*
 
 - Agents
 - Callbacks
@@ -45,7 +45,7 @@ grows factorially, and it is the reason the unit exists.
 
 Note:
 The first two are rows 13 and 14 of the closing self-assessment. The 14th is the
-question thrown on day 3, when the UVM class diagram showed up, and it gets
+question thrown on day 1, when the UVM class diagram showed up, and it gets
 answered today: `uvm_object` is the **data** and `uvm_component` is the
 **structure**.
 The third one is what closes the unit and the day: when that line goes, no line

@@ -36,7 +36,7 @@ testbench no cubre.
 ```sv
 // INMEDIATA: es una SENTENCIA. Corre cuando el hilo pasa por ahí,
 // una vez, y nada más. La de las transactions es de esta familia.
-assert (cmd.op inside {add_op, and_op, xor_op, mul_op})
+assert (cmd.op inside {add_op, sub_op, and_op, xor_op, mul_op})
    else `uvm_error("SEQ", "operacion invalida");
 
 // CONCURRENTE — la novedad. Es una DECLARACION con reloj: se enchufa
@@ -281,7 +281,7 @@ operandos y no de otra cosa.
 {{code:code/u8/assertions/vtalu_bfm.sv#done-arrives}}
 
 - `##[1:5] done` dice *"entre uno y cinco flancos después"*. La VTALU tarda **uno**
-  en `add`/`and`/`xor` y **cuatro** en la multiplicación: una property las cubre a
+  en `add`/`sub`/`and`/`xor` y **cuatro** en la multiplicación: una property las cubre a
   las dos
 - `##n` es un retardo exacto, `##[a:b]` una ventana, `##[1:$]` *"en algún
   momento"* — que casi nunca es lo que se quiere: una property sin cota superior
@@ -573,7 +573,7 @@ property`. Si el cover está en cero, o la property no corre, o su antecedente n
 ocurre. En los dos casos hay que ir a mirar, y en los dos casos el `assert` solo
 habría dicho que todo está bien.
 Estas cuatro se suman al apéndice de las trampas mudas, que a partir de esta
-sección son veinte.
+sección son veintiuna.
 
 ---
 

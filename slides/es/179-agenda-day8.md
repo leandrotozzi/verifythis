@@ -24,7 +24,7 @@ del primero. Sin el capstone hecho, las tres son abstracciones sin problema.
 
 ---
 
-<!-- .slide: data-machete="res/uvm_class_diagram.svg,res/diagrams/sequences_tb_completo.svg" -->
+<!-- .slide: data-machete="res/uvm_class_diagram.svg,res/diagrams/ral_camino.svg,res/diagrams/sequences_tb_completo.svg" -->
 
 ## Agenda
 
@@ -46,7 +46,7 @@ Para el que dicta: en una empresa esto es media jornada más, y suele darse
 cuando el grupo tiene registros de verdad en el proyecto. En un cuatrimestre es
 la unidad optativa, o el trabajo final de los que quieren nota alta.
 Los tres objetivos son deliberadamente concretos y no "entender RAL": el día 8
-no tiene autoevaluación propia, así que estos tres verbos son la única rúbrica
-que el alumno se lleva. El tercero es el que más rinde de los tres y el que menos
+no tiene fila en la autoevaluación de `175b`, así que la rúbrica que el alumno se
+lleva son estos tres verbos y el repaso de ocho preguntas. El tercero es el que más rinde de los tres y el que menos
 se espera — una FIFO tiene orden y ocupación, y eso no entra en una tabla de
 cuatro filas.

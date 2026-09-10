@@ -21,7 +21,7 @@ programación: el `+UVM_TESTNAME=add_test` de los tests, mañana, va a ser una
 factory — UVM lee un string de la línea de comandos y construye la clase que
 corresponde. Acá se ve el mecanismo por dentro.
 Y para el que viene de software: sí, es el Factory Method del GoF, y no
-inventamos nada. La versión en Python de la última slide está justamente para
+inventamos nada. La versión en Python que cierra la sección está justamente para
 eso.
 
 ---
@@ -50,7 +50,7 @@ muestra que no inventamos nada.
 
 ## El patrón factory
 
-![UML Class Example Diagram](res/diagrams/factory_diagram.svg)
+![La cantina fabrica fernet y mojito, y devuelve un handle trago](res/diagrams/factory_diagram.svg)
 <!-- .element: class="grande" -->
 
 <br>

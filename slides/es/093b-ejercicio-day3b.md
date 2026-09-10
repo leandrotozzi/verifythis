@@ -6,7 +6,7 @@
 <!-- .element: class="comando" -->
 
 - El scoreboard está **bien** —atrapa todos los errores— y cuando falla dice
-  `FAILED` y nada más. Es la línea con la que arrancó el día 1
+  `FAILED` y nada más: menos todavía que la línea con la que arrancó el día 1
 - Que el `uvm_error` diga **cuál** falló: `A`, `B`, la operación, el resultado
   del DUT y el que predijiste
 - Y que el que **pasa** también se imprima, con `UVM_HIGH`, para que no aparezca

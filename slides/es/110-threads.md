@@ -147,8 +147,9 @@ lado y el driver del otro.
 
 - Es el mismo `connect()` de los analysis ports: de un lado el **port**, del otro
   el **export** que provee la FIFO
-- `uvm_tlm_fifo` expone dos: `put_export` para el que pone y `get_export` para el
-  que saca
+- `uvm_tlm_fifo` expone doce handles; los dos que se usan son `put_export` para el
+  que pone y `get_export` para el que saca —que es un alias de `get_peek_export`,
+  que es el nombre que vas a ver en `print_topology()`—
 - La regla que vale para todo TLM: **el port se conecta al export**, nunca dos
   ports entre sí
 
@@ -247,9 +248,9 @@ uno.
 #### *`fork`: las tres formas de arrancar en paralelo*
 
 ```systemverilog
-fork  esperar_done();  contar_ciclos();  join        // sigue cuando terminaron LAS DOS
-fork  esperar_done();  contar_ciclos();  join_any    // sigue con LA PRIMERA; la otra sigue viva
-fork  esperar_done();  contar_ciclos();  join_none   // sigue YA; las dos quedan corriendo
+fork  wait_done();  count_cycles();  join        // sigue cuando terminaron LAS DOS
+fork  wait_done();  count_cycles();  join_any    // sigue con LA PRIMERA; la otra sigue viva
+fork  wait_done();  count_cycles();  join_none   // sigue YA; las dos quedan corriendo
 ```
 
 | Variante | El padre sigue… | Para qué se usa |
@@ -295,7 +296,7 @@ una casualidad ni un truco — es exactamente lo que hace UVM cuando corre la
 // El idiom de la respuesta contra el timeout. El fork de afuera AÍSLA
 fork begin
    fork
-      begin  esperar_done();          `uvm_info("BFM", "llegó", UVM_LOW)  end
+      begin  wait_done();          `uvm_info("BFM", "llegó", UVM_LOW)  end
       begin  repeat (100) @(posedge clk);  `uvm_error("BFM", "timeout")   end
    join_any
    disable fork;      // mata a la hermana que perdió, y a nadie más
@@ -311,8 +312,9 @@ wait fork;            // no mata a nadie: espera a TODOS los hijos de este threa
   Es lo que usa un test para no cerrar con transacciones en vuelo
 - El par `join_any` + `disable fork` es el timeout de todo BFM de producción. Se
   escribe una vez y se copia siempre
-- Medido: con el `disable fork`, la rama de 5 unidades que iba a imprimir
-  *"llegó la respuesta"* **no imprime nada** — el timeout de 3 la mató
+- Gana la que termine primero: si `done` llega antes de los 100 flancos, el
+  `uvm_error` del timeout no se imprime; si no, el `uvm_info` del `"llegó"` no se
+  imprime. El `disable fork` mata a la que perdió
 
 Note:
 El `disable fork` sin el `fork ... join` de aislamiento es el bug clásico de esta
@@ -348,7 +350,7 @@ for (int j = 0; j < 3; j++)             // declarado EN el for: uno por vuelta
 
 for (i = 0; i < 3; i++)
    fork  begin
-      automatic int k = i;              // la copia se hace AL ARRANCAR el thread
+      automatic int k = i;              // la copia se hace AL EJECUTARSE el fork
       $display("k = %0d", k);
    end join_none                                 //  k = 0   k = 1   k = 2
 ```

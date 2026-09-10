@@ -1,4 +1,4 @@
-<!-- es-sha: 5c2088d92c4e -->
+<!-- es-sha: 6fb7203e5453 -->
 ## Assertions (SVA)
 
 #### *The hole the scoreboard left*
@@ -37,7 +37,7 @@ testbench does not cover.
 ```sv
 // IMMEDIATE: it is a STATEMENT. It runs when the thread goes past it,
 // once, and that is all. The one from the transactions is of this family.
-assert (cmd.op inside {add_op, and_op, xor_op, mul_op})
+assert (cmd.op inside {add_op, sub_op, and_op, xor_op, mul_op})
    else `uvm_error("SEQ", "invalid operation");
 
 // CONCURRENT -- the new thing. It is a DECLARATION with a clock: it gets
@@ -281,7 +281,7 @@ about something else.
 {{code:code/u8/assertions/vtalu_bfm.sv#done-arrives}}
 
 - `##[1:5] done` says *"between one and five edges later"*. The VTALU takes **one**
-  on `add`/`and`/`xor` and **four** on the multiplication: one property covers
+  on `add`/`sub`/`and`/`xor` and **four** on the multiplication: one property covers
   both
 - `##n` is an exact delay, `##[a:b]` a window, `##[1:$]` *"at some
   point"* — which is almost never what you want: a property without an upper bound
@@ -573,7 +573,7 @@ property`. If the cover is at zero, either the property does not run, or its ant
 occur. In both cases you have to go and look, and in both cases the `assert` on its own
 would have said that everything is fine.
 These four are added to the appendix of the silent traps, which from this
-section on are twenty.
+section on are twenty-one.
 
 ---
 

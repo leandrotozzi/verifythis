@@ -128,7 +128,7 @@ ejercicios: $(UVM)
 
 # Una regresion: el MISMO test, N semillas, y el merge de la cobertura. El
 # reporte dice que bins quedaron ABIERTOS, que es la unica pregunta util despues
-# de una regresion. Es el ejercicio d6-semillas hecho herramienta.
+# de una regresion. Es el ejercicio d7-semillas hecho herramienta.
 #
 #   make regresion
 #   make regresion EJEMPLO=u6/transactions N=20

@@ -4,7 +4,7 @@
 
 - Un testbench tiene tres cosas distintas: la **estructura** —qué partes hay y
   cómo se conectan—, las **secuencias** —qué comandos, en qué orden— y los
-  **datos**. Esta unidad es la primera; las otras dos son el día 6
+  **datos**. Esta unidad es la primera; los datos son el día 5 y las secuencias el día 6
 - En los tests el test hacía `new()` de tres objetos sueltos y los llamaba
   él mismo. Eso no es una estructura: es una función larga
 - Un `uvm_component` es un **nodo con nombre y con padre**. UVM arma el árbol
@@ -49,8 +49,8 @@ secuencias.
 Note:
 Tres cosas que hay que decir sí o sí: build_phase es top-down, connect_phase es
 bottom-up, y todos los run_phase corren en paralelo, cada uno en su thread.
-Y el error clásico: instanciar componentes fuera de build_phase. UVM no te avisa
-amablemente.
+Y el error clásico: crear componentes **después** de que build terminó. UVM sí te
+avisa, y bien: `ILLCRT` te dice qué componente y bajo qué padre.
 
 ---
 
@@ -117,8 +117,9 @@ material de internet y en la mayoría de los `build_phase` del curso no está. L
 respuesta honesta no es "se olvidaron": es que sin las macros de campo la llamada
 al de `uvm_component` no hace nada.
 Los números, para que nadie tenga que creernos:
-`grep -rn 'super\.build_phase' code/` da once llamadas reales —más tres
-comentarios que hablan de ellas— sobre 122 `build_phase`. Las once llaman al
+`grep -rn 'super\.build_phase' code/ --include='*.sv' --include='*.svh' --exclude-dir=.uvm`
+da quince llamadas reales —más seis comentarios que hablan de ellas— sobre 309
+`build_phase`. Las quince llaman al
 `super` de un `base_test` o un `random_test` **nuestro**, que construye el env.
 Ninguna llama al de `uvm_component`, que es de lo que habla la slide.
 La otra diferencia de fondo: hay dos formas de configurar un componente. La
@@ -130,7 +131,7 @@ Por qué la recomendación de afuera es la contraria a lo que hace el curso: el
 modo de falla es asimétrico. Ponerlo de más es cero efecto. No ponerlo cuando
 hacía falta es silencio: el campo queda en su default y la simulación corre.
 Este curso puede nombrar por qué en su caso es un no-op —no hay una sola macro
-`` `uvm_field_* `` en `code/`, verificalo—; el que entra a un testbench ajeno no
+`` `uvm_field_* `` en `code/` fuera de la librería vendorizada, verificalo—; el que entra a un testbench ajeno no
 puede. `uvm_agent` es el contraejemplo que tenemos a mano: es la única clase de
 la librería, además de `uvm_component`, que implementa `build_phase`, y lo que
 hace ahí es leer `is_active`. Vuelve en el día 6.

@@ -1,4 +1,4 @@
-<!-- es-sha: 038f21a96f50 -->
+<!-- es-sha: de259d352aef -->
 ## Classes and extensions
 
 #### *Why OOP in a testbench?*
@@ -44,7 +44,7 @@ The three bullets are three different things and it is worth separating them. Th
 is **cohesion**: the data is here and the operation on the data is in another file,
 so nothing forces them to agree. The second is **inheritance**: a
 square *is* a rectangle and the language has no way of saying so, so it gets
-copied and pasted. The third is the one that gets charged on day 5: a `command_s` does not
+copied and pasted. The third is the one you pay for on day 5: a `command_s` does not
 know how to randomize itself or compare itself against itself, and all of that has to be
 written outside, once for every place that uses it.
 The honest punchline, so that nobody leaves with a religious idea: the `command_s` of the
@@ -123,7 +123,7 @@ not read from the config_db is left at null.
 
 Note:
 The constructor order is the first thing to nail down, because it is mandatory and
-it fails ugly: `super.new()` goes **before** anything else of the child. The reason
+it fails badly: `super.new()` goes **before** anything else of the child. The reason
 is physical — the object is a single one, and the part the base class contributes has to
 be built before touching anything. If you forget it, SystemVerilog calls it on its own
 when the base constructor takes no arguments, and it does not compile when it does
@@ -132,7 +132,7 @@ The last bullet is the whole argument of the unit and it is worth saying with an
 example: if `area()` changes tomorrow, in the `struct` version you have to remember
 both places; here it changes in one and the other finds out on its own. That "finds out
 on its own" is what inheritance buys you, and it is the same promise the `env` makes
-to the tests on day 6.
+to the tests on day 3.
 And the warning about where this is heading, so that the word does not turn up cold on the
 next slide: inheriting lets the child *use* what belongs to the parent. What still cannot
 be done is for the parent to call the child's version — that is polymorphism, and it is the

@@ -201,7 +201,8 @@ Y el cierre honesto, que es la promesa del curso entero: no se trata de escribir
 testbenches más rápido, se trata de que cuando falle —y va a fallar— el log diga
 por qué. El <em>casi la mitad</em> del último bullet es el 47 % del tiempo del
 verificador que se va en debug: el dato sale de la encuesta del Wilson Research
-Group 2024 y el gráfico está en la slide que sigue.</p>
+Group 2024, y el gráfico es <em>Verificar no es una etapa</em>, la tercera de las
+tendencias que vienen ahora.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/4">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -209,7 +210,7 @@ Group 2024 y el gráfico está en la slide que sigue.</p>
 <section id="s5" class="slide">
 <h2 id="tendencias">Tendencias</h2>
 <h4 id="el-primer-silicio-casi-nunca-sale-bien"><em>El primer silicio casi nunca sale bien</em></h4>
-<p><img src="../res/print/trends/resultado.svg" alt="Porcentaje de proyectos que llegan al primer silicio sin errores, por año"></p>
+<p><img src="../res/print/trends/resultado.svg" alt="Cómo terminan los proyectos IC/ASIC en 2024: 14 % acierta el primer silicio y 75 % llega atrasado"></p>
 <div class="nota">
 <p>El número es del Wilson Research Group 2024, no es una impresión: sólo el 14 %
 de los proyectos sale bien en el primer silicio, o sea que seis de cada siete
@@ -224,14 +225,14 @@ regeneran con <code>make figs</code>.</p>
 <section id="s6" class="slide">
 <h2 id="tendencias">Tendencias</h2>
 <h4 id="por-qué-lo-que-hay-adentro-de-un-chip-hoy"><em>Por qué: lo que hay adentro de un chip hoy</em></h4>
-<p><img src="../res/print/trends/complejidad.svg" alt="Crecimiento de la cantidad de bloques y de procesadores embebidos por chip"></p>
+<p><img src="../res/print/trends/complejidad.svg" alt="Qué tienen adentro los IC/ASIC de 2024: relojes asincrónicos, procesador embebido, seguridad, IA, RISC-V y safety"></p>
 <p class="al-deck"><a href="../index.html#/6">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
 <section id="s7" class="slide">
 <h2 id="tendencias">Tendencias</h2>
 <h4 id="verificar-no-es-una-etapa-es-la-mitad-del-trabajo"><em>Verificar no es una etapa, es la mitad del trabajo</em></h4>
-<p><img src="../res/print/trends/esfuerzo.svg" alt="Reparto del tiempo del verificador: casi la mitad se va en debug"></p>
+<p><img src="../res/print/trends/esfuerzo.svg" alt="Del tiempo del diseñador, 49 % va a verificación; del tiempo del verificador, 47 % va a debug"></p>
 <div class="nota">
 <p>Acá está el argumento de por qué existe este curso: el esfuerzo de verificación
 ya empató al de diseño. Verificar no es el paso final antes del tape-out: es la
@@ -243,7 +244,7 @@ mitad del proyecto, con su propio equipo y su propio lenguaje.</p>
 <section id="s8" class="slide">
 <h2 id="tendencias">Tendencias</h2>
 <h4 id="y-se-verifica-sobre-todo-con-uvm"><em>Y se verifica, sobre todo, con UVM</em></h4>
-<p><img src="../res/print/trends/metodologia.svg" alt="Adopcion de metodologias de verificacion: UVM contra las demas"></p>
+<p><img src="../res/print/trends/metodologia.svg" alt="Con qué se verifica en 2024: UVM al 80 % en IC/ASIC y al 50 % en FPGA"></p>
 <p class="al-deck"><a href="../index.html#/8">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
@@ -310,7 +311,7 @@ puede escribir a mano — y en los días 1 y 2 lo vamos a escribir a mano</li>
 <li>La hace <strong>Accellera</strong>, el mismo consorcio que estandarizó SystemVerilog, y es
 <strong>IEEE 1800.2</strong>. El curso usa la implementación de referencia, <code>uvm-core 2020.3.1</code></li>
 <li>Viene de OVM (Cadence + Mentor), con ideas de VMM (Synopsys) y de eRM
-(Verisity): las metodologías de tres vendors que competían, hasta que la
+(Verisity): las metodologías de cuatro vendors que competían, hasta que la
 industria se cansó de traducir testbenches entre herramientas</li>
 <li>Y ahí está el objetivo, que es uno solo: <strong>que el testbench del de al lado se
 parezca al tuyo</strong></li>
@@ -391,9 +392,9 @@ poco.</p>
 <p><img src="../res/print/uvm_class_diagram.svg" alt="Arbol de clases base de UVM"></p>
 <div class="nota">
 <p>Este diagrama asusta y por eso conviene desactivarlo de entrada: <strong>de todo esto
-vamos a usar siete clases</strong>. <code>uvm_object</code>, <code>uvm_component</code>, <code>uvm_test</code>,
-<code>uvm_env</code>, <code>uvm_agent</code>, <code>uvm_driver</code>, <code>uvm_monitor</code> y <code>uvm_sequence</code> — bueno,
-ocho.
+vamos a extender diez</strong>: <code>uvm_component</code>, <code>uvm_test</code>, <code>uvm_env</code>, <code>uvm_agent</code>,
+<code>uvm_driver</code>, <code>uvm_monitor</code>, <code>uvm_scoreboard</code>, <code>uvm_subscriber</code>,
+<code>uvm_sequence_item</code> y <code>uvm_sequence</code>. Son las ámbar del dibujo, más la sequence.
 Lo que sí hay que dejar marcado es la división de más arriba, porque explica
 medio curso: de <code>uvm_object</code> cuelgan los <strong>datos</strong> —las transactions, las
 sequences, los configs— y de <code>uvm_component</code> cuelga la <strong>estructura</strong> —todo lo
@@ -401,8 +402,9 @@ que vive en el árbol y tiene fases—. Un objeto se crea y se tira; un componen
 se construye una vez y dura toda la simulación.
 Los colores dicen qué hacés con cada una: las ámbar las extendés vos, las grises
 no se tocan nunca —están sólo para que las otras hereden— y el <code>uvm_sequencer</code> es
-la única verde porque es la única que se usa tal cual, con un <code>typedef</code>
-parametrizado. Eso llega el día 6.
+la única verde porque es la única que se instancia sin extenderla, con un
+<code>typedef</code> parametrizado. Eso llega el día 6; la única vez que el curso la
+extiende es para el sequencer virtual del día 7.
 La pregunta para tirar al grupo cuando lleguemos a los agents: ¿una
 <code>uvm_sequence</code> es un object o un component? Object. Y por eso no aparece en
 <code>print_topology()</code>.
@@ -450,7 +452,7 @@ uno. Es literalmente el ejercicio <code>d7-semillas</code>, con el que arranca e
 
 <section id="s16" class="slide">
 <h2 id="la-spec-del-vtalu">La spec del VTALU</h2>
-<p><img src="../res/print/diagrams/wave-dut.svg" alt="ALU waveform"></p>
+<p><img src="../res/print/diagrams/wave-dut.svg" alt="Diagrama de ondas de la VTALU: start, done y el resultado"></p>
 <ul>
 <li><em>start</em> debe permanecer en 1 y los operandos estables hasta<br>que termina la operación</li>
 <li><em>done</em> se levanta cuando termina la operación: en la multiplicación<br>es un pulso de un ciclo; en add/sub/and/xor es un <strong>nivel</strong>, y se queda<br>arriba mientras <em>start</em> siga arriba</li>
@@ -517,8 +519,8 @@ sabe por qué.</p>
 <tr>
 <td><em>libre</em></td>
 <td>3&#39;b110</td>
-<td align="center">—</td>
-<td>—</td>
+<td align="center">1</td>
+<td>0</td>
 </tr>
 <tr>
 <td>rst_op</td>
@@ -819,7 +821,7 @@ distintas: lo que el testbench ve es <code>start</code> → <code>done</code></l
 es lo que hace que el DUT tenga una sola interface. Vale señalarlo porque es la
 forma que va a tener la <code>vtalu_bfm</code> de interfaces y BFM.
 El archivo completo, con las dos instancias y sus conexiones, está en
-<code>code/vtalu_dut/vtalu.sv</code>. Acá sólo están las cuatro líneas que deciden.
+<code>code/vtalu_dut/vtalu.sv</code>. Acá sólo están el decode y las cuatro líneas que deciden.
 Vale señalar por qué es un decode y no un bit suelto: con un <code>op[2]</code> los
 opcodes tendrían que quedar en mitades prolijas del espacio, y el diseño
 perdería la libertad de asignarlos como convenga. Un decode cuesta una compuerta
@@ -907,8 +909,9 @@ top <strong>decodifica</strong> el opcode. Afuera, el bus es uno solo</li>
 <li><code>ovf</code> es una salida más, y es del <code>sub_op</code> y de nadie más</li>
 <li><code>rst_op</code> <strong>no existe para el RTL</strong>: es una convención del testbench para
 pulsar <code>reset_n</code>, y por eso entra en la cobertura</li>
-<li>El DUT no valida el opcode: el que está libre no hace nada. Atajarlo es
-trabajo del <strong>plan de verificación</strong>, no del diseño</li>
+<li>El DUT no valida el opcode: el que está libre <strong>levanta <code>done</code> igual</strong>, con el
+<code>result</code> de la operación anterior. Atajarlo es trabajo del <strong>plan de
+verificación</strong>, no del diseño</li>
 <li>Y la herramienta que se usa el 47 % del tiempo ya está instalada:
 <code>VLT_TRACE=1</code> y GTKWave</li>
 </ul>
@@ -1107,8 +1110,7 @@ y nada más pasa en verde con el <code>ovf</code> clavado en cero.</p>
            <span class="hljs-keyword">end</span>
          <span class="hljs-keyword">endcase</span> <span class="hljs-comment">// case (op_set)</span>
       <span class="hljs-keyword">end</span>
-      <span class="hljs-built_in">$finish</span>;
-   <span class="hljs-keyword">end</span> : tester</code></pre><details><summary>el archivo entero, 258 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
+      <span class="hljs-built_in">$finish</span>;</code></pre><details><summary>el archivo entero, 258 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
 <span class="hljs-comment">// ----------</span>
 <span class="hljs-comment">//  * Functional Coverage</span>
 <span class="hljs-comment">//  * Self Checking</span>
@@ -1807,7 +1809,7 @@ líneas — las líneas que no escribió nadie no aparecen en el reporte.</p>
 código, y el simulador te dice cuáles todavía no pasaron</li>
 </ul>
 <div class="nota">
-<p>Vale la pena volver a la slide anterior y leer el plan en voz alta antes de
+<p>Vale la pena volver al plan de la sección anterior y leerlo en voz alta antes de
 mostrar esta tabla: la gracia es que no hay ni un punto del plan que se quede
 sin traducir.
 El orden importa — el plan primero, el covergroup después. Al revés terminás
@@ -1880,10 +1882,10 @@ reporta la herramienta cambia por completo.
 La consecuencia práctica hay que decirla fuerte porque es una trampa muda: un
 bin sin <code>[]</code> sobre un rango grande <strong>siempre da 100 %</strong>. Cubriste un valor de
 mil y la herramienta te dice que está listo. Nadie te avisa.
-Y el último bullet es la advertencia que ordena la slide siguiente: un bin que
+Y el último bullet es la advertencia que ordena lo que viene: un bin que
 no se puede llenar no es un problema de la herramienta, es una decisión que
-alguien no escribió. La forma de escribirla se llama <code>ignore_bins</code> y viene en
-dos slides.</p>
+alguien no escribió. La forma de escribirla se llama <code>ignore_bins</code>, y tiene su
+propia slide en esta sección.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/35">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -2174,8 +2176,8 @@ dos slides.</p>
 
 <ul>
 <li><code>single_cycle[]</code> genera seis bins —uno por operación—, <code>multi_cycle</code> uno solo</li>
-<li>Lo que está entre <code>`ifndef VERILATOR</code> son los bins de transición: dos
-slides más adelante</li>
+<li>Lo que está entre <code>`ifndef VERILATOR</code> son los bins de transición, que
+vienen más adelante en esta misma sección</li>
 </ul>
 <div class="nota">
 <p>Éste es el primer covergroup real del curso, y conviene leerlo de arriba hacia
@@ -2533,8 +2535,7 @@ el problema es un cross sin filtrar, no un test que falta.</p>
                         (binsof (a_leg.ones) &amp;&amp; binsof (b_leg.ones));
 
          <span class="hljs-keyword">ignore_bins</span> others_only =
-                         binsof(a_leg.others) &amp;&amp; binsof(b_leg.others);
-      }</code></pre><details><summary>el archivo entero, 258 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
+                         binsof(a_leg.others) &amp;&amp; binsof(b_leg.others);</code></pre><details><summary>el archivo entero, 258 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Typical TB:</span>
 <span class="hljs-comment">// ----------</span>
 <span class="hljs-comment">//  * Functional Coverage</span>
 <span class="hljs-comment">//  * Self Checking</span>
@@ -2885,8 +2886,8 @@ La regla de campo, y conviene darla porque la pregunta viene sola: <code>at_leas
 alto en los bins que representan un caso raro, default en los que representan un
 valor. Subirlo para todo el covergroup no es rigor, es una regresión que no
 cierra nunca y un número que nadie mira.
-<code>auto_bin_max</code> es la contracara de la trampa de los corchetes de hace tres
-slides. Ahí el problema era un bin de más; acá es al revés: si el coverpoint es
+<code>auto_bin_max</code> es la contracara de la trampa de los corchetes, la de la slide de
+los bins. Ahí el problema era un bin de más; acá es al revés: si el coverpoint es
 un <code>int</code> y no le escribís bins, la herramienta inventa 64 rangos que no
 corresponden a ninguna fila del plan. El número que sale es real y no significa
 nada.
@@ -3445,8 +3446,8 @@ versión anterior había que acordarse de cablearla en cada instancia.</p>
 <span class="hljs-keyword">endmodule</span> : scoreboard</code></pre></figure>
 
 <ul>
-<li>Es el <code>scoreboard</code> del testbench convencional sin una línea de lógica cambiada: predice y
-compara igual</li>
+<li>Es el <code>scoreboard</code> del testbench convencional: predice y compara con la misma
+lógica</li>
 <li>Lo único que cambió es de dónde saca las señales: antes eran variables del
 mismo módulo, ahora son <code>bfm.A</code>, <code>bfm.B</code>, <code>bfm.op_set</code></li>
 <li>Y por eso ahora es un <strong>módulo aparte</strong>: puede vivir en su propio archivo
@@ -3483,8 +3484,7 @@ dejar de saber que existe un <code>clk</code>.</p>
          bfm.send_op(iA, iB, op_set, result);
       <span class="hljs-keyword">end</span> : random_loop
       <span class="hljs-built_in">$finish</span>;
-   <span class="hljs-keyword">end</span>  <span class="hljs-comment">// initial begin</span>
-<span class="hljs-keyword">endmodule</span> : tester</code></pre><details><summary>el archivo entero, 46 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The Tester module is simpler now, because it no</span>
+   <span class="hljs-keyword">end</span>  <span class="hljs-comment">// initial begin</span></code></pre><details><summary>el archivo entero, 46 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The Tester module is simpler now, because it no</span>
 <span class="hljs-comment">// longer has to deal with low-level signals</span>
 <span class="hljs-keyword">module</span> <span class="hljs-title">tester</span> (
     vtalu_bfm bfm
@@ -3927,7 +3927,8 @@ El material largo, con las fuentes, está en <code>docs/clocking-blocks.md</code
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;  bfm.d_out    (the live wire)                   : %0d&quot;</span>, crudo);
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;&quot;</span>);
       <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;They differ by one cycle, and no warning says so. A monitor that&quot;</span>);
-      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;reads through the clocking block and a scoreboard that reads the&quot;</span>);</code></pre><details><summary>el archivo entero, 53 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The trap that comes with the clocking block: mixing the two domains.</span>
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;reads through the clocking block and a scoreboard that reads the&quot;</span>);
+      <span class="hljs-built_in">$display</span>(<span class="hljs-string">&quot;raw wire do not fail every time: they fail when the data changes.&quot;</span>);</code></pre><details><summary>el archivo entero, 53 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The trap that comes with the clocking block: mixing the two domains.</span>
 <span class="hljs-comment">//</span>
 <span class="hljs-comment">// Once a signal belongs to a clocking block, there are TWO names for the same</span>
 <span class="hljs-comment">// wire -- bfm.d_out and bfm.cb.d_out -- and they are NOT the same value. One is</span>
@@ -3993,8 +3994,8 @@ cambia</strong></li>
 por ahí</strong> — y se espera <code>@(bfm.cb)</code>, no <code>@(posedge bfm.clk)</code></li>
 </ul>
 <div class="nota">
-<p>Ésta es la contracara de la slide anterior y la razón por la que el curso no
-mete clocking blocks el día 1: mal usados son <strong>peores</strong> que no usarlos, porque
+<p>Ésta es la contracara de la slide anterior y la razón por la que el curso no los
+usa en su BFM: mal usados son <strong>peores</strong> que no usarlos, porque
 el modo de falla es intermitente y el waveform se ve bien.
 El error de verdad, el que aparece en los foros, tiene dos formas y conviene
 nombrar las dos. Una es mezclar el evento: <code>@(posedge vif.clk)</code> y después leer
@@ -4197,7 +4198,7 @@ también alcanza.</p>
 <h4 id="las-ondas-cuando-el-log-no-alcanza"><em>Las ondas: cuando el log no alcanza</em></h4>
 <p><code>cd code/ejercicios/d1b &amp;&amp; bash run.sh</code></p>
 <ul>
-<li>La corrida aborta con <strong>una sola línea</strong>: <code>FAILED: A: e5 B: 0 op: mul_op result: fe01</code>. <code>e5 * 00</code> es <code>0</code>, no <code>fe01</code> — y el DUT está sano</li>
+<li>La corrida aborta con <strong>una sola línea</strong>: <code>FAILED: A: e5  B: 0  op: mul_op result: fe01 ovf: 0</code>. <code>e5 * 00</code> es <code>0</code>, no <code>fe01</code> — y el DUT está sano</li>
 <li>Ahí se termina lo que el log te da. El <code>run.sh</code> deja <strong><code>ondas.vcd</code></strong> al lado:
 <code>gtkwave ondas.vcd</code></li>
 <li><strong>Etapa 1:</strong> dos tiempos que sólo están en el visor, en <code>respuesta.txt</code>.

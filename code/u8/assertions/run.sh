@@ -4,7 +4,7 @@
 # The testbench is the Sequences section's without touching a class: the only thing that changes is
 # that the BFM now carries an assertions block. Two runs:
 #
-#   full_test           the healthy DUT: 0 UVM_ERROR, the three assertions stay quiet
+#   full_test           the healthy DUT: 0 UVM_ERROR, the four assertions stay quiet
 #   full_test +BUG=1    the BFM changes B halfway through the multiplication. The
 #                       RESULT does not change --the multiplier already latched the
 #                       operands-- so the scoreboard stays green and the

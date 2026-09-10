@@ -29,8 +29,7 @@ class dice_roller extends uvm_component;
    task run_phase(uvm_phase phase);
       int the_roll;
       phase.raise_objection(this);
-      void'(randomize());
-      repeat (40) begin
+      repeat (20) begin
          void'(randomize());
          the_roll = die1 + die2;
          // 3) write: the port calls write() on every subscriber

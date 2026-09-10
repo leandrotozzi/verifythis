@@ -66,7 +66,7 @@ testbench que funciona y uno con el que se puede trabajar.
   spec, y el testbench entero desde una hoja en blanco
 
 Note:
-La 14 es la pregunta que se tira el día 3, cuando aparece el diagrama de clases
+La 14 es la pregunta que se tira el día 1, cuando aparece el diagrama de clases
 de UVM, y se contesta el día 6. Si el alumno la puede contestar, entendió la
 división que explica media librería: `uvm_object` son los **datos** y
 `uvm_component` es la **estructura**. Un objeto se crea y se tira; un componente

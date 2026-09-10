@@ -225,9 +225,9 @@ el resultado recién existe cuando terminó todo</li>
 <div class="nota">
 <p>Vale mostrar la clase entera una sola vez —ésta— y después sólo los <code>write()</code>,
 porque lo que interesa es que la forma se repita.
-Dos detalles que se cobran después: el <code>report_phase</code> corre <strong>cuando cae la
-última objection</strong>, no al final del <code>run_phase</code>, y por eso el promedio sale
-completo. Y <code>dice_total</code> y <code>count</code> son <code>protected</code>: el que publica no puede
+Dos detalles que se cobran después: el <code>report_phase</code> corre <strong>después</strong> del
+<code>run_phase</code> —y después de <code>extract</code> y <code>check</code>—, no adentro, y por eso el promedio
+sale completo. Y <code>dice_total</code> y <code>count</code> son <code>protected</code>: el que publica no puede
 tocarlos, sólo llamar a <code>write()</code>.
 Cuando esto sea el VTALU, en los analysis ports, <code>average</code> va a ser el scoreboard y el
 <code>report_phase</code> el veredicto de la corrida. Misma forma.</p>
@@ -617,15 +617,14 @@ Y un detalle que aparece en la salida: acá la cobertura se lee con
    <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-type">int</span> the_roll;
       phase.raise_objection(<span class="hljs-keyword">this</span>);
-      <span class="hljs-type">void</span>&#x27;(<span class="hljs-keyword">randomize</span>());
-      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">40</span>) <span class="hljs-keyword">begin</span>
+      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">20</span>) <span class="hljs-keyword">begin</span>
          <span class="hljs-type">void</span>&#x27;(<span class="hljs-keyword">randomize</span>());
          the_roll = die1 + die2;
          <span class="hljs-comment">// 3) write: the port calls write() on every subscriber</span>
          roll_ap.write(the_roll);
       <span class="hljs-keyword">end</span>
       phase.drop_objection(<span class="hljs-keyword">this</span>);
-   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 41 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Same as version 01, but publishing: instead of returning the number it writes</span>
+   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 40 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// Same as version 01, but publishing: instead of returning the number it writes</span>
 <span class="hljs-comment">// it to an analysis port, and stops knowing who reads it.</span>
 <span class="hljs-keyword">class</span> <span class="hljs-title">dice_roller</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(dice_roller);
@@ -655,8 +654,7 @@ Y un detalle que aparece en la salida: acá la cobertura se lee con
    <span class="hljs-keyword">task</span> <span class="hljs-title">run_phase</span>(<span class="hljs-uvm-type">uvm_phase</span> phase);
       <span class="hljs-type">int</span> the_roll;
       phase.raise_objection(<span class="hljs-keyword">this</span>);
-      <span class="hljs-type">void</span>&#x27;(<span class="hljs-keyword">randomize</span>());
-      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">40</span>) <span class="hljs-keyword">begin</span>
+      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">20</span>) <span class="hljs-keyword">begin</span>
          <span class="hljs-type">void</span>&#x27;(<span class="hljs-keyword">randomize</span>());
          the_roll = die1 + die2;
          <span class="hljs-comment">// 3) write: the port calls write() on every subscriber</span>
@@ -768,8 +766,8 @@ port: <code>ap.connect(sub_h.analysis_export)</code></li>
    <span class="hljs-keyword">endfunction</span> : connect_phase
 
 <span class="hljs-keyword">endclass</span> : dice_test</code></pre></details></figure><div class="nota">
-<p>Éste es el &quot;después&quot;, y hay que ponerlo al lado del &quot;antes&quot; de cinco slides
-atrás. El <code>run_phase</code> del test se quedó sin los tres <code>write()</code>: ahora sólo levanta
+<p>Éste es el &quot;después&quot;, y hay que ponerlo al lado del &quot;antes&quot;, la versión
+sin analysis port. El <code>run_phase</code> del test se quedó sin los tres <code>write()</code>: ahora sólo levanta
 el objection y arranca al productor. La distribución se mudó al
 <code>connect_phase</code>, que es donde va la estructura.
 La línea que hay que leer despacio es
@@ -1455,7 +1453,9 @@ llenando bins con la nada.</p>
 <li>Sin embargo, en casos como un scoreboard, necesitamos que un mismo componente reciba datos de 2 analysis port</li>
 <li>El motivo del límite: <code>uvm_subscriber</code> te da <strong>un solo</strong> <code>write()</code>, y ése es el
 método que el puerto llama. Dos puertos no tienen dónde entrar</li>
-<li>UVM lo resuelve sin partir el componente, con la clase <em>uvm_tlm_analysis_fifo</em></li>
+<li>UVM lo resuelve sin partir el componente, con la clase <em>uvm_tlm_analysis_fifo</em>,
+que es <strong>ilimitada por construcción</strong>: su <code>write()</code> es una <code>function</code> y no puede
+bloquear, así que no puede tirar nada</li>
 <li>Es paramétrica y tiene dos caras: un <em>analysis_export</em> de un lado —que se conecta
 como cualquier subscriber— y un <code>try_get()</code> del otro</li>
 <li><code>try_get()</code> saca un elemento y devuelve 0 si la FIFO está vacía, sin bloquear</li>
@@ -2089,8 +2089,9 @@ lado y el driver del otro.</p>
 <ul>
 <li>Es el mismo <code>connect()</code> de los analysis ports: de un lado el <strong>port</strong>, del otro
 el <strong>export</strong> que provee la FIFO</li>
-<li><code>uvm_tlm_fifo</code> expone dos: <code>put_export</code> para el que pone y <code>get_export</code> para el
-que saca</li>
+<li><code>uvm_tlm_fifo</code> expone doce handles; los dos que se usan son <code>put_export</code> para el
+que pone y <code>get_export</code> para el que saca —que es un alias de <code>get_peek_export</code>,
+que es el nombre que vas a ver en <code>print_topology()</code>—</li>
 <li>La regla que vale para todo TLM: <strong>el port se conecta al export</strong>, nunca dos
 ports entre sí</li>
 </ul>
@@ -2256,9 +2257,9 @@ uno.</p>
 <section id="s220" class="slide">
 <h2 id="cuando-alguien-tiene-que-esperar">Cuando alguien tiene que esperar</h2>
 <h4 id="fork-las-tres-formas-de-arrancar-en-paralelo"><em><code>fork</code>: las tres formas de arrancar en paralelo</em></h4>
-<pre><code class="language-systemverilog">fork  esperar_done();  contar_ciclos();  join        // sigue cuando terminaron LAS DOS
-fork  esperar_done();  contar_ciclos();  join_any    // sigue con LA PRIMERA; la otra sigue viva
-fork  esperar_done();  contar_ciclos();  join_none   // sigue YA; las dos quedan corriendo
+<pre><code class="language-systemverilog">fork  wait_done();  count_cycles();  join        // sigue cuando terminaron LAS DOS
+fork  wait_done();  count_cycles();  join_any    // sigue con LA PRIMERA; la otra sigue viva
+fork  wait_done();  count_cycles();  join_none   // sigue YA; las dos quedan corriendo
 </code></pre>
 <table>
 <thead>
@@ -2320,7 +2321,7 @@ una casualidad ni un truco — es exactamente lo que hace UVM cuando corre la
 <pre><code class="language-systemverilog">// El idiom de la respuesta contra el timeout. El fork de afuera AÍSLA
 fork begin
    fork
-      begin  esperar_done();          `uvm_info(&quot;BFM&quot;, &quot;llegó&quot;, UVM_LOW)  end
+      begin  wait_done();          `uvm_info(&quot;BFM&quot;, &quot;llegó&quot;, UVM_LOW)  end
       begin  repeat (100) @(posedge clk);  `uvm_error(&quot;BFM&quot;, &quot;timeout&quot;)   end
    join_any
    disable fork;      // mata a la hermana que perdió, y a nadie más
@@ -2336,8 +2337,9 @@ que ya estaba corriendo</li>
 Es lo que usa un test para no cerrar con transacciones en vuelo</li>
 <li>El par <code>join_any</code> + <code>disable fork</code> es el timeout de todo BFM de producción. Se
 escribe una vez y se copia siempre</li>
-<li>Medido: con el <code>disable fork</code>, la rama de 5 unidades que iba a imprimir
-<em>&quot;llegó la respuesta&quot;</em> <strong>no imprime nada</strong> — el timeout de 3 la mató</li>
+<li>Gana la que termine primero: si <code>done</code> llega antes de los 100 flancos, el
+<code>uvm_error</code> del timeout no se imprime; si no, el <code>uvm_info</code> del <code>&quot;llegó&quot;</code> no se
+imprime. El <code>disable fork</code> mata a la que perdió</li>
 </ul>
 <div class="nota">
 <p>El <code>disable fork</code> sin el <code>fork ... join</code> de aislamiento es el bug clásico de esta
@@ -2371,7 +2373,7 @@ for (int j = 0; j &lt; 3; j++)             // declarado EN el for: uno por vuelt
 
 for (i = 0; i &lt; 3; i++)
    fork  begin
-      automatic int k = i;              // la copia se hace AL ARRANCAR el thread
+      automatic int k = i;              // la copia se hace AL EJECUTARSE el fork
       $display(&quot;k = %0d&quot;, k);
    end join_none                                 //  k = 0   k = 1   k = 2
 </code></pre>
@@ -2670,7 +2672,6 @@ la clase base</li>
 <figure class="codigo"><figcaption><code>code/u5/put-get/tb_classes/base_tester.svh</code> · #class-and-run</figcaption><pre><code class="hljs"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">base_tester</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
 
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(base_tester)
-   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
 
    <span class="hljs-comment">// the handle to the BFM is replaced by a uvm_put_port</span>
    <span class="hljs-uvm-type">uvm_put_port</span> #(<span class="hljs-type">command_s</span>) command_port;
@@ -2700,14 +2701,13 @@ la clase base</li>
       <span class="hljs-keyword">end</span> : random_loop
       #<span class="hljs-number">500</span>;
       phase.drop_objection(<span class="hljs-keyword">this</span>);
-   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 44 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// This version does not hold a handle to the BFM</span>
+   <span class="hljs-keyword">endtask</span> : run_phase</code></pre><details><summary>el archivo entero, 43 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// This version does not hold a handle to the BFM</span>
 <span class="hljs-comment">// Since add_tester and random_tester inherit from this one</span>
 <span class="hljs-comment">// and the connection is untouched, those classes get new behaviour</span>
 <span class="hljs-comment">// just by changing this base class</span>
 <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">class</span> <span class="hljs-title">base_tester</span> <span class="hljs-keyword">extends</span> <span class="hljs-uvm-type">uvm_component</span>;
 
    <span class="hljs-uvm-macro">`uvm_component_utils</span>(base_tester)
-   <span class="hljs-keyword">virtual</span> vtalu_bfm bfm;
 
    <span class="hljs-comment">// the handle to the BFM is replaced by a uvm_put_port</span>
    <span class="hljs-uvm-type">uvm_put_port</span> #(<span class="hljs-type">command_s</span>) command_port;

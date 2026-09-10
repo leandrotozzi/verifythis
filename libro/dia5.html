@@ -162,7 +162,7 @@ entero, sin que se pierda nada de los niveles de arriba</li>
 <li>Esta primera versión funciona. Contá cuántas veces aparece el nombre de un campo
 de la clase base</li>
 </ul>
-<figure class="codigo"><figcaption><code>code/u6/jerarquias/pre_convert2string.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// Wrong Way de hacer convert2string!</span>
+<figure class="codigo"><figcaption><code>code/u6/jerarquias/pre_convert2string.sv</code></figcaption><pre><code class="hljs"><span class="hljs-comment">// The WRONG way to write convert2string!</span>
 <span class="hljs-comment">//class trago;</span>
    <span class="hljs-keyword">virtual</span> <span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
       <span class="hljs-keyword">return</span> <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;Hielos: %0d&quot;</span>, hielos);
@@ -195,7 +195,7 @@ un string.</p>
 <section id="s243" class="slide">
 <h2 id="copiar-un-objeto-que-contiene-otro">Copiar un objeto que contiene otro</h2>
 <h4 id="convert2string-la-versión-deep"><em><code>convert2string()</code>: la versión deep</em></h4>
-<p><img src="../res/print/diagrams/jerarquias_convert2string_deep.svg" alt="La copia profunda, nivel por nivel"></p>
+<p><img src="../res/print/diagrams/jerarquias_convert2string_deep.svg" alt="Un nivel nuevo en la jerarquía rompe convert2string(): graduacion no aparece en el string"></p>
 <ul>
 <li>El día que alguien mete una clase <strong>en el medio</strong>, los de abajo siguen
 imprimiendo lo que sabían y la del medio no aparece. Y no hay error: el método
@@ -520,8 +520,8 @@ ahí sí llaman a <code>super</code>; la que tiene el vicio es <code>bad_copy()<
 <div class="nota">
 <p>La regla que hay que dejar: <strong>una clase sólo escribe sobre sus propios campos.</strong>
 Todo lo demás se lo pide a <code>super</code>.
-Conviene contar en pantalla: <code>hielos</code> y <code>con_coca</code> aparecen en cuatro
-<code>convert2string()</code> distintos de este archivo. Cuatro lugares para acordarse, y
+Conviene contar en pantalla: <code>hielos</code> aparece en cuatro <code>convert2string()</code>
+distintos de este archivo y <code>con_coca</code> en tres. Siete lugares para acordarse, y
 ninguno falla si te olvidás de uno.
 Hay una <code>bad_copy()</code> un poco más abajo en el archivo que vale la pena abrir si
 sobra tiempo: toma un <code>fernet_con_hielo</code> como argumento en vez de un <code>trago</code>. Compila
@@ -764,7 +764,7 @@ primera vez en el curso que la clase no es prolijidad: es la única forma.</p>
 </li>
 <li>Lo que cambia no es el dato: es <strong>quién sabe cosas sobre él</strong>. El <code>tester</code>
 dejaba de saber qué valores son legales; ahora sólo dice <em>&quot;randomizate&quot;</em></li>
-<li>Y el resto del testbench se achica: los cuatro <code>$sformatf</code> escritos a mano se
+<li>Y el resto del testbench se achica: los tres <code>$sformatf</code> escritos a mano se
 vuelven una llamada a <code>convert2string()</code></li>
 </ul>
 <div class="nota">
@@ -1061,8 +1061,9 @@ castear. Y como el <code>$cast</code> chequea en runtime, va con su <code>uvm_fa
 intenta copiar un <code>result_transaction</code> sobre un <code>command_transaction</code>, querés
 enterarte ahí y no tres componentes más adelante.
 La segunda: el <code>super.do_copy(rhs)</code> va <strong>antes</strong> de tocar los campos propios. Es
-la misma disciplina de las jerarquías de clases y acá importa más, porque <code>uvm_object</code> tiene
-campos propios que uno no ve.
+la misma disciplina de las jerarquías de clases y acá importa más, porque <code>uvm_transaction</code> —dos
+niveles más arriba— tiene campos propios que uno no ve: <code>accept_time</code>,
+<code>begin_time</code>, <code>end_time</code> e <code>initiator</code>.
 Y el detalle que confunde a todos: vos escribís <code>do_copy()</code>, pero <strong>nunca lo
 llamás</strong>. El testbench llama a <code>copy()</code>, que está en <code>uvm_object</code>, y ésa se
 encarga de invocar tu <code>do_copy()</code>. Es el mismo reparto que las fases — vos ponés
@@ -1192,7 +1193,7 @@ siempre</li>
 </ul>
 <figure class="codigo"><figcaption><code>code/u6/transactions/tb_classes/command_transaction_convert2string.svh</code></figcaption><pre><code class="hljs"><span class="hljs-keyword">function</span> <span class="hljs-type">string </span><span class="hljs-title">convert2string</span>();
    <span class="hljs-type">string</span> s;
-   <span class="hljs-comment">// op.name() puede ser add_op, no_op ...</span>
+   <span class="hljs-comment">// op.name() can be add_op, no_op ...</span>
    s = <span class="hljs-built_in">$sformatf</span>(<span class="hljs-string">&quot;A: %2h  B: %2h op: %s&quot;</span>, A, B, op.name());
    <span class="hljs-keyword">return</span> s;
 <span class="hljs-keyword">endfunction</span> : convert2string</code></pre></figure><div class="nota">
@@ -1564,7 +1565,7 @@ viaja —aunque sólo viaje hasta el <code>compare()</code> de la línea siguien
 de la factory como todas.
 Y el <code>do ... while</code> que saltea <code>no_op</code> y <code>rst_op</code> sigue igual que en los analysis ports: esas
 operaciones no producen resultado, y si no se descartan la comparación se corre un
-lugar y falla todo. Es el ejercicio del día 5.</p>
+lugar y falla todo.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/265">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -1628,7 +1629,7 @@ se nota nunca; el día que el override sí importaba, ya es tarde</li>
 <code>type_id::create()</code></strong> — las transactions del tester, y también las que arman los
 monitores y el <code>predicted</code> del scoreboard</li>
 <li>Los <em>ports</em>, los <em>exports</em> y las <em>TLM FIFO</em> son la excepción: no están en la
-factory y se instancian con <code>new()</code>, como vimos en hablar con varios objetos</li>
+factory y se instancian con <code>new()</code>, como vimos en un productor, muchos oyentes</li>
 </ul>
 <div class="nota">
 <p>Esta slide sale de un bug que tenía el código de este mismo curso: el tester
@@ -2101,13 +2102,14 @@ diez minutos y es la diferencia entre creer y saber.</p>
 
 <ul>
 <li><code>inside {a, b, c}</code> es el conjunto de valores legales: sin él, el random también
-pide <code>no_op</code> y <code>rst_op</code>, que no calculan nada</li>
+pide <code>no_op</code> y <code>rst_op</code>, que no calculan nada. Acá además deja afuera a <code>sub_op</code>,
+para que el sorteo quede uniforme entre cuatro</li>
 <li><code>randomize() with { ... }</code> agrega constraints <strong>sólo para esa llamada</strong>: el
 caso dirigido se pide en el punto de uso, sin tocar la clase ni escribir un
 tester nuevo. Es la herramienta del <em>coverage closure</em></li>
 </ul>
 <div class="nota">
-<p>El número de la corrida es el argumento entero de la sección: 400 intentos al
+<p>El número que sale de correr <code>02_with.sv</code> es el argumento entero de la sección: 400 intentos al
 azar llenan <code>mul_max</code> un puñado de veces —6 con la semilla por defecto, entre 2 y
 8 según cuál uses— <strong>porque el <code>dist</code> sesga a los bordes</strong>. La cuenta conviene
 hacerla en voz alta: <code>op</code> sale uniforme entre cuatro y cada pata cae en <code>FF</code> una
@@ -2116,7 +2118,7 @@ seis y pico. Con el <code>dist</code> mal escrito de la slide anterior, la proba
 que las dos patas caigan en <code>FF</code> es 1/65536 por operación: no lo tocás nunca.
 La secuencia mental es siempre la misma: corro random, miro qué bin quedó vacío,
 escribo un <code>with {}</code> de tres líneas, vuelvo a correr. Nunca &quot;escribo 76 tests&quot;.
-La limitación de Verilator que aparece en la salida está puesta a propósito, y
+La limitación de Verilator que la sección enuncia está puesta a propósito, y
 conviene enunciarla bien porque no es &quot;anda o no anda&quot;. Verilator resuelve el
 <code>dist</code> <strong>eligiendo un valor concreto primero</strong> y recién después chequea el resto:
 si el sorteado no cumple el <code>with</code>, devuelve 0 en vez de buscar otro. La tasa de
@@ -2311,7 +2313,7 @@ confíes en que salga parejo. Medilo.</p>
 <figure class="codigo"><figcaption><code>code/u6/transactions/constraints/04_falla.sv</code> · #the-unsolvable</figcaption><pre><code class="hljs">   <span class="hljs-keyword">class</span> <span class="hljs-title">comando</span>;
       <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
       <span class="hljs-keyword">constraint</span> chico {A &lt; <span class="hljs-number">8&#x27;h10</span>;}
-      <span class="hljs-keyword">constraint</span> grande {A &gt; <span class="hljs-number">8&#x27;hF0</span>;}  <span class="hljs-comment">// contradice a la anterior: no hay solucion</span>
+      <span class="hljs-keyword">constraint</span> grande {A &gt; <span class="hljs-number">8&#x27;hF0</span>;}  <span class="hljs-comment">// contradicts the previous one: no solution</span>
    <span class="hljs-keyword">endclass</span>
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
@@ -2342,7 +2344,7 @@ confíes en que salga parejo. Medilo.</p>
    <span class="hljs-keyword">class</span> <span class="hljs-title">comando</span>;
       <span class="hljs-keyword">rand</span> <span class="hljs-type">byte</span> <span class="hljs-type">unsigned</span> A;
       <span class="hljs-keyword">constraint</span> chico {A &lt; <span class="hljs-number">8&#x27;h10</span>;}
-      <span class="hljs-keyword">constraint</span> grande {A &gt; <span class="hljs-number">8&#x27;hF0</span>;}  <span class="hljs-comment">// contradice a la anterior: no hay solucion</span>
+      <span class="hljs-keyword">constraint</span> grande {A &gt; <span class="hljs-number">8&#x27;hF0</span>;}  <span class="hljs-comment">// contradicts the previous one: no solution</span>
    <span class="hljs-keyword">endclass</span>
 
    <span class="hljs-keyword">initial</span> <span class="hljs-keyword">begin</span>
@@ -2374,7 +2376,8 @@ confíes en que salga parejo. Medilo.</p>
 </code></pre>
 <ul>
 <li><code>constraint_mode(0)</code> apaga <strong>una constraint</strong> en tiempo de ejecución;
-<code>rand_mode(0)</code> saca <strong>un campo</strong> del sorteo y le deja el valor que tenía</li>
+<code>rand_mode(0)</code> saca <strong>un campo</strong> del sorteo y le deja el valor que tenía — y si ese
+valor no cumple las constraints que lo nombran, <code>randomize()</code> devuelve 0</li>
 <li>Sirven para el test que necesita romper una regla a propósito — inyectar un
 opcode ilegal, por ejemplo — sin tocar la clase que todos los demás usan</li>
 </ul>
@@ -2486,9 +2489,10 @@ primero: primero el <code>with {}</code></li>
 <p>Esta slide existe para desactivar un malentendido que el ciclo anterior invita:
 <em>&quot;si no cierro, corro otra semilla&quot;</em>. Se midió, y no: <code>code/u2/convencional</code> da 66 de 76 con
 la semilla por defecto, con la 7 y con la 8, y el merge de las tres da 66. Los 10
-que faltan no faltan por suerte — faltan porque son bins de transición que
-Verilator no mide y crosses que el estímulo no alcanza. Ninguna semilla los va a
-tocar.
+que faltan no faltan por suerte — faltan porque Verilator genera los bins
+automáticos del enum sobre el <strong>tipo base</strong>: <code>3&#39;b110</code> no existe en <code>operation_t</code>,
+así que <code>auto_5</code> queda en 0 para siempre, con sus nueve cruces. Ninguna semilla
+los va a tocar.
 La semilla sirve para otras dos cosas, y las dos son de oficio. Primera:
 <strong>reproducir</strong>. Un bug intermitente no se debuggea, se repite; y para repetirlo
 hay que saber con qué semilla salió, que es exactamente por qué <code>run_sim</code> la

@@ -16,13 +16,13 @@ package vtalu_pkg;
    `include "add_transaction.svh"
    `include "result_transaction.svh"
    `include "coverage.svh"
-   `include "tester.svh"  // el tuyo
+   `include "tester.svh"  // yours
    `include "scoreboard.svh"
    `include "driver.svh"
    `include "command_monitor.svh"
    `include "result_monitor.svh"
 
-   `include "chequeo.svh"  // el corrector del ejercicio
+   `include "chequeo.svh"  // the exercise checker
    `include "env.svh"
 
    `include "random_test.svh"

@@ -1,9 +1,9 @@
-<!-- es-sha: 42c12a76b98e -->
+<!-- es-sha: dbd1ef9ec078 -->
 ## Trends
 
 #### *First silicon almost never comes out right*
 
-![Percentage of projects reaching first silicon with no bugs, by year](res/trends/en/resultado.svg)
+![How IC/ASIC projects end in 2024: 14 % get first silicon right and 75 % run late](res/trends/en/resultado.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -20,7 +20,7 @@ regenerated with `make figs`.
 
 #### *Why: what is inside a chip today*
 
-![Growth in the number of blocks and embedded processors per chip](res/trends/en/complejidad.svg)
+![What is inside 2024 IC/ASICs: asynchronous clocks, embedded processor, security, AI, RISC-V and safety](res/trends/en/complejidad.svg)
 <!-- .element: class="grande" -->
 
 ---
@@ -29,7 +29,7 @@ regenerated with `make figs`.
 
 #### *Verification is not a stage, it is half the work*
 
-![How the verifier's time is split: almost half of it goes into debug](res/trends/en/esfuerzo.svg)
+![49 % of the designer's time goes to verification; 47 % of the verifier's time goes to debug](res/trends/en/esfuerzo.svg)
 <!-- .element: class="grande" -->
 
 Note:
@@ -43,7 +43,7 @@ half the project, with its own team and its own language.
 
 #### *And it is verified, mostly, with UVM*
 
-![Adoption of verification methodologies: UVM against the rest](res/trends/en/metodologia.svg)
+![What verification uses in 2024: UVM at 80 % in IC/ASIC and 50 % in FPGA](res/trends/en/metodologia.svg)
 <!-- .element: class="grande" -->
 
 ---

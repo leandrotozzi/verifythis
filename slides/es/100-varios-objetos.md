@@ -96,9 +96,9 @@ cuarto informe —la tirada más repetida, digamos—, ¿qué archivos hay que t
 Note:
 Vale mostrar la clase entera una sola vez —ésta— y después sólo los `write()`,
 porque lo que interesa es que la forma se repita.
-Dos detalles que se cobran después: el `report_phase` corre **cuando cae la
-última objection**, no al final del `run_phase`, y por eso el promedio sale
-completo. Y `dice_total` y `count` son `protected`: el que publica no puede
+Dos detalles que se cobran después: el `report_phase` corre **después** del
+`run_phase` —y después de `extract` y `check`—, no adentro, y por eso el promedio
+sale completo. Y `dice_total` y `count` son `protected`: el que publica no puede
 tocarlos, sólo llamar a `write()`.
 Cuando esto sea el VTALU, en los analysis ports, `average` va a ser el scoreboard y el
 `report_phase` el veredicto de la corrida. Misma forma.
@@ -343,8 +343,8 @@ hay nada que instanciar.
 {{code:code/u5/varios-objetos/02-con-analysis-port/dice_test.svh#build-and-connect}}
 
 Note:
-Éste es el "después", y hay que ponerlo al lado del "antes" de cinco slides
-atrás. El `run_phase` del test se quedó sin los tres `write()`: ahora sólo levanta
+Éste es el "después", y hay que ponerlo al lado del "antes", la versión
+sin analysis port. El `run_phase` del test se quedó sin los tres `write()`: ahora sólo levanta
 el objection y arranca al productor. La distribución se mudó al
 `connect_phase`, que es donde va la estructura.
 La línea que hay que leer despacio es

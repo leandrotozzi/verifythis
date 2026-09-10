@@ -29,7 +29,7 @@ class ctrl_reg extends uvm_reg;
       // the mirror drops to zero, and the read returns that zero. Modelling it as
       // "RW" is the classic mistake, and it is what +MAL does. "WOC" also passes,
       // for the wrong reason: any WO* access takes the field out of bit_bash and
-      // out of do_check, so nobody looks at it. See slides/es/180-ral.md.
+      // out of do_check, so nobody looks at it. See the RAL unit slides.
       CLR = uvm_reg_field::type_id::create("CLR");
       CLR.configure(this, 1, 1, $test$plusargs("MAL") ? "RW" : "WC", 0, 'h0, 1, 1, 0);
    endfunction : build
@@ -138,12 +138,12 @@ class apb_reg_block extends uvm_reg_block;
       // and for these two that sentence is false, so mirror(UVM_CHECK) is turned
       // off on them. Reads still update the mirror -- a read is a prediction --
       // and the accumulator itself stays where it was in the capstone: in the
-      // cb: no-check
       // scoreboard, which is the thing that does know how to add.
+      // cb: no-check
       ACC.VALUE.set_compare(UVM_NO_CHECK);
       STATUS.EN.set_compare(UVM_NO_CHECK);
-      // cb: end
       STATUS.OVF.set_compare(UVM_NO_CHECK);
+      // cb: end
 
       lock_model();
    endfunction : build

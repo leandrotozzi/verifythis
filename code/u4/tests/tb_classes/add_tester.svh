@@ -5,7 +5,6 @@ class add_tester extends random_tester;
    endfunction : new
 
    function operation_t get_op();
-      bit [2:0] op_choice;
       return add_op;
    endfunction : get_op
 

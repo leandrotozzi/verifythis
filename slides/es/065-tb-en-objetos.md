@@ -2,8 +2,8 @@
 
 #### *El mismo testbench, sin un solo módulo*
 
-- Nueve secciones después, esta sección **no agrega ninguna funcionalidad**:
-  hace exactamente lo mismo que el testbench de interfaces y BFM
+- Esta sección **no agrega ninguna funcionalidad**:
+  verifica lo mismo que el testbench de interfaces y BFM
 - Lo que cambia es de qué está hecho. Los tres módulos —tester, scoreboard,
   coverage— pasan a ser tres **clases**, y el `initial` pasa a ser un método
 - Aparece la pieza que los une: una clase `testbench` que instancia a las otras,

@@ -9,7 +9,7 @@ module top_falla;
    class comando;
       rand byte unsigned A;
       constraint chico {A < 8'h10;}
-      constraint grande {A > 8'hF0;}  // contradice a la anterior: no hay solucion
+      constraint grande {A > 8'hF0;}  // contradicts the previous one: no solution
    endclass
 
    initial begin

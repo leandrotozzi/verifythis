@@ -156,7 +156,7 @@ interface vtalu_bfm;
    // cb: end
 
    // cb: stable-operands
-   // --- El estimulo ---
+   // --- The stimulus ---
 
    // The rule from slide 1 of day 1, executable at last: while start is up, the
    // operands and the operation are not touched.
@@ -174,7 +174,7 @@ interface vtalu_bfm;
    // --- The DUT's answer ---
 
    // cb: done-arrives
-   // The variable latency of the The VTALU spec section in one line: one cycle for the
+   // The variable latency from the VTALU spec section, in one line: one cycle for the
    // one-cycle ops, four edges for the multiplication.
    property p_done_llega;
       @(posedge clk) start && (op_set != no_op) |-> ##[1:5] done;
@@ -221,7 +221,7 @@ interface vtalu_bfm;
 
    c_mult_3ciclos : cover property (@(posedge clk) $rose(start) && (op_set == mul_op) ##3 done);
    c_mult_4ciclos : cover property (@(posedge clk) $rose(start) && (op_set == mul_op) ##4 done);
-   c_un_ciclo : cover property (@(posedge clk) $rose(start) && (op_set inside {add_op, and_op, xor_op}) ##1 done);
+   c_un_ciclo : cover property (@(posedge clk) $rose(start) && (op_set inside {add_op, sub_op, and_op, xor_op}) ##1 done);
    // cb: end
 
 endinterface : vtalu_bfm

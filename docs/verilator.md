@@ -17,7 +17,8 @@ make u4/tests         # uno solo
 make matrix       # todos, y regenera este archivo
 ```
 
-Los ejemplos con UVM tardan **minutos** en compilar (uno tardo 12). La corrida
+Los ejemplos con UVM tardan **minutos** en compilar (100-121 s cada uno en el CI,
+15 s con ccache caliente). La corrida
 completa es de casi una hora. Los flags compartidos estan en
 `code/verilator/common.sh`.
 
@@ -47,7 +48,8 @@ Coverage Summary:
   covergroup : 86.8% (66/76)
 ```
 
-Lo que **si** mide: coverpoints, bins de valor y de rango, `ignore_bins`,
+Lo que **si** mide: coverpoints, bins de valor y de rango, `ignore_bins`
+—con la salvedad de la tabla de abajo—,
 cross implicito, y de las opciones del covergroup estas dos:
 
 | Anda | Detalle |
@@ -65,6 +67,7 @@ herramienta comercial:
 | bins automaticos de un `enum` | uno por valor del **tipo base** y no por miembro: `operation_t` es `bit [2:0]`, y el `3'b110` que el enum no tiene sale como `auto_5` y queda en 0 para siempre. De ahi el 86.8 % de arriba: los 10 bins que faltan son ese valor y sus 9 cruces |
 | `option.at_least` en el **covergroup** | lo ignora **sin avisar**: los coverpoints siguen contando con un hit |
 | `option.weight` | `%Warning-COVERIGN`, lo ignora y sigue |
+| `ignore_bins` | los respeta al filtrar, pero **emite un bin por cada uno y lo cuenta como cubierto**: en `u2/convencional` son `all_ops.null_ops` (664 hits) y `borrow.resto` (2156). Una herramienta compatible no los reportaria |
 | `type_option.merge_instances` | sin efecto observable, porque la cobertura type-wide da 0 igual |
 | `get_coverage()` type-wide | devuelve siempre 0 — hay que usar `get_inst_coverage()` |
 | `$stop` | aborta antes de escribir el `.dat` — hay que terminar con `$finish` |
@@ -81,7 +84,8 @@ seis numeros cambia.
 
 ## Assertions (SVA): andan, y hay que pedirlas
 
-El ejemplo de assertions es el unico que compila con `--assert`. **Sin ese flag las
+Los tres ejemplos de SVA compilan con `--assert` (`u8/assertions`, `ejercicios/d7-sva`
+y la etapa 5 de `ejercicios/d7-final`). **Sin ese flag las
 properties concurrentes se compilan y no se evaluan**: no hay warning, la
 corrida da 0 errores y el bloque entero de la interface queda de adorno. Es el
 peor modo de falla despues del de `z3`, y por la misma razon: es mudo.

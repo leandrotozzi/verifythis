@@ -5,8 +5,8 @@
 `cd code/ejercicios/d1b && bash run.sh`
 <!-- .element: class="comando" -->
 
-- La corrida aborta con **una sola línea**: `FAILED: A: e5 B: 0 op: mul_op
-  result: fe01`. `e5 * 00` es `0`, no `fe01` — y el DUT está sano
+- La corrida aborta con **una sola línea**: `FAILED: A: e5  B: 0  op: mul_op
+  result: fe01 ovf: 0`. `e5 * 00` es `0`, no `fe01` — y el DUT está sano
 - Ahí se termina lo que el log te da. El `run.sh` deja **`ondas.vcd`** al lado:
   `gtkwave ondas.vcd`
 - **Etapa 1:** dos tiempos que sólo están en el visor, en `respuesta.txt`.

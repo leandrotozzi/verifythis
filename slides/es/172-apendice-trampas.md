@@ -56,7 +56,7 @@ capa. El que reporta un mismatch es el último de la cadena; el bug casi siempre
 está en el que le da de comer.
 Las dos últimas son las de las *deep operations* de las jerarquías de clases y conviene
 señalar la asimetría: `do_copy()` sin `super` pierde datos en silencio;
-`do_compare()` sin `&&` los compara de más, y devuelve *iguales* a dos objetos
+`do_compare()` sin `&&` los compara de menos, y devuelve *iguales* a dos objetos
 que no lo son. La segunda es peor, porque apaga el scoreboard entero sin apagarlo.
 
 ---

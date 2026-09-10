@@ -35,6 +35,12 @@ class fifo_coverage extends uvm_subscriber #(fifo_transaction);
 
       // The three crosses that count, and they are filtered on purpose: the full
       // product is 32 buckets and the plan asks for these.
+      // Careful with the number Verilator reports: the binsof/intersect of a
+      // cross gets a %Warning-COVERIGN (it ignores it and carries on) and each
+      // ignore_bins comes out as a bin counted as COVERED. So the 58/58 of
+      // cov.report is not the 40 a compliant tool would report. Same for the
+      // option.at_least inside a cross: docs/verilator.md only guarantees it
+      // written on the coverpoint.
       escribe_llena: cross pedido, lleno {
          option.at_least = 2;
          ignore_bins nada_ = binsof(pedido.nada);

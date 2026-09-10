@@ -1,4 +1,4 @@
-<!-- es-sha: 25b9c04216ce -->
+<!-- es-sha: 0da6a8002847 -->
 ## Exercise · Day 3 · 1 of 2
 
 #### *A new test without touching the structure*
@@ -14,7 +14,8 @@ Note:
 Before turning them loose on the exercise, go back to the slide *"The map of day 3: what
 replaces what"* of the object-based testbench and read the right-hand column straight through: the
 `build_phase` of the env, the config_db, the `run_phase`, the objections and the
-`set_type_override`. The five rows are crossed out, and the day closes there.
+`set_type_override` and the `$display` that became `uvm_info`. The six rows are
+crossed out, and the day closes there.
 It is the day 2 exercise again, but with the factory. Worth having them
 compare the two: on day 2 the type was picked in the code of the testbench, here
 the factory picks it and the testbench does not change one line.

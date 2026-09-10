@@ -56,7 +56,7 @@
   your own, start here and keep the deck alongside for the reviews.</p>
 
 <section id="s414" class="slide">
-<!-- es-sha: 21fce0178178 -->
+<!-- es-sha: 3d57bdc4c97f -->
 
 
 <h2 id="yesterday-we-left">Yesterday we left…</h2>
@@ -104,8 +104,8 @@ say what the adapter and the predictor do</li>
 gets taught when the group has real registers in the project. In a term it is the
 optional unit, or the final assignment for those who want a high mark.
 The three objectives are deliberately concrete and not &quot;understand RAL&quot;: day 8
-has no self-assessment of its own, so these three verbs are the only rubric the
-student takes away. The third is the one that pays off the most of the three and
+has no row in the <code>175b</code> self-assessment, so the rubric the student takes away is
+these three verbs and the eight-question review. The third is the one that pays off the most of the three and
 the least expected — a FIFO has order and occupancy, and that does not fit in a
 four-row table.</p>
 </div>
@@ -113,7 +113,7 @@ four-row table.</p>
 </section>
 
 <section id="s416" class="slide">
-<!-- es-sha: 24324cf31de1 -->
+<!-- es-sha: c3e3e3361662 -->
 
 
 <h2 id="ral">RAL</h2>
@@ -223,7 +223,7 @@ tools. The frontdoor —the one that uses the real bus— is the one you have to
       <span class="hljs-comment">// the mirror drops to zero, and the read returns that zero. Modelling it as</span>
       <span class="hljs-comment">// &quot;RW&quot; is the classic mistake, and it is what +MAL does. &quot;WOC&quot; also passes,</span>
       <span class="hljs-comment">// for the wrong reason: any WO* access takes the field out of bit_bash and</span>
-      <span class="hljs-comment">// out of do_check, so nobody looks at it. See slides/es/180-ral.md.</span>
+      <span class="hljs-comment">// out of do_check, so nobody looks at it. See the RAL unit slides.</span>
       CLR = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;CLR&quot;</span>);
       CLR.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;MAL&quot;</span>) ? <span class="hljs-string">&quot;RW&quot;</span> : <span class="hljs-string">&quot;WC&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
    <span class="hljs-keyword">endfunction</span> : build
@@ -259,7 +259,7 @@ tools. The frontdoor —the one that uses the real bus— is the one you have to
       <span class="hljs-comment">// the mirror drops to zero, and the read returns that zero. Modelling it as</span>
       <span class="hljs-comment">// &quot;RW&quot; is the classic mistake, and it is what +MAL does. &quot;WOC&quot; also passes,</span>
       <span class="hljs-comment">// for the wrong reason: any WO* access takes the field out of bit_bash and</span>
-      <span class="hljs-comment">// out of do_check, so nobody looks at it. See slides/es/180-ral.md.</span>
+      <span class="hljs-comment">// out of do_check, so nobody looks at it. See the RAL unit slides.</span>
       CLR = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;CLR&quot;</span>);
       CLR.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;MAL&quot;</span>) ? <span class="hljs-string">&quot;RW&quot;</span> : <span class="hljs-string">&quot;WC&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
    <span class="hljs-keyword">endfunction</span> : build
@@ -382,7 +382,7 @@ tools. The frontdoor —the one that uses the real bus— is the one you have to
 <li>A field gets declared with <code>configure()</code>, and the argument that matters is the
 <strong>access string</strong>: <code>&quot;RW&quot;</code>, <code>&quot;RO&quot;</code>, <code>&quot;WC&quot;</code>…</li>
 <li>That string <strong>is the specification</strong>. It is not documentation: it is what UVM uses
-to predict, and to generate the tests of the last slide</li>
+to predict, and to generate the tests of <em>The tests you did not write</em></li>
 </ul>
 <div class="nota">
 <p><code>configure(parent, size, lsb_pos, access, volatile, reset, has_reset, is_rand, individually_accessible)</code> — nine positional arguments, and it is the ugliest signature
@@ -908,8 +908,8 @@ test they give you is exactly the quality of the model you wrote.</p>
 <h4 id="and-that-is-why-the-model-is-the-spec"><em>And that is why the model is the spec</em></h4>
 <pre><code>    CTRL.CLR as &quot;WC&quot;   0 UVM_ERROR, and bit_bash did write bit 1
     CTRL.CLR as &quot;RW&quot;   2 UVM_ERROR, from uvm_reg_bit_bash_seq
-    &gt; Writing a 1 in bit #1 of register &quot;model.CTRL&quot; ... yielded &#39;h0
-      instead of &#39;h2
+    &gt; Writing a 1 in bit #1 of register &quot;model.CTRL&quot; ...
+      yielded &#39;h0000000000000000 instead of &#39;h0000000000000002
 </code></pre>
 <ul>
 <li>One word changed in a string, and a sequence nobody wrote catches it
@@ -942,9 +942,9 @@ stage 1 of the exercise prints the map so it can be compared by hand.</p>
 <section id="s426" class="slide">
 <h2 id="ral">RAL</h2>
 <h4 id="what-ral-does-not-do-and-it-has-to-be-said"><em>What RAL does not do, and it has to be said</em></h4>
-<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/apb_reg_block.svh</code> · #no-check</figcaption><pre><code class="hljs">      <span class="hljs-comment">// scoreboard, which is the thing that does know how to add.</span>
-      ACC.VALUE.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);
-      STATUS.EN.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);</code></pre><details><summary>el archivo entero, 149 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The register map of spec.md, written as a UVM register model.</span>
+<figure class="codigo"><figcaption><code>code/u9/ral/tb_classes/apb_reg_block.svh</code> · #no-check</figcaption><pre><code class="hljs">      ACC.VALUE.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);
+      STATUS.EN.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);
+      STATUS.OVF.set_compare(<span class="hljs-uvm-const">UVM_NO_CHECK</span>);</code></pre><details><summary>el archivo entero, 149 líneas</summary><pre><code class="hljs"><span class="hljs-comment">// The register map of spec.md, written as a UVM register model.</span>
 <span class="hljs-comment">//</span>
 <span class="hljs-comment">// The table of the spec maps one to one onto this file, and that is the check</span>
 <span class="hljs-comment">// worth doing out loud: four registers, six fields, four addresses. Nothing here</span>
@@ -975,7 +975,7 @@ stage 1 of the exercise prints the map so it can be compared by hand.</p>
       <span class="hljs-comment">// the mirror drops to zero, and the read returns that zero. Modelling it as</span>
       <span class="hljs-comment">// &quot;RW&quot; is the classic mistake, and it is what +MAL does. &quot;WOC&quot; also passes,</span>
       <span class="hljs-comment">// for the wrong reason: any WO* access takes the field out of bit_bash and</span>
-      <span class="hljs-comment">// out of do_check, so nobody looks at it. See slides/es/180-ral.md.</span>
+      <span class="hljs-comment">// out of do_check, so nobody looks at it. See the RAL unit slides.</span>
       CLR = <span class="hljs-uvm-type">uvm_reg_field</span>::type_id::create(<span class="hljs-string">&quot;CLR&quot;</span>);
       CLR.configure(<span class="hljs-keyword">this</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-built_in">$test</span><span class="hljs-built_in">$plusargs</span>(<span class="hljs-string">&quot;MAL&quot;</span>) ? <span class="hljs-string">&quot;RW&quot;</span> : <span class="hljs-string">&quot;WC&quot;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">&#x27;h0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>);
    <span class="hljs-keyword">endfunction</span> : build
@@ -1192,7 +1192,7 @@ the whole check off.</p>
 </section>
 
 <section id="s429" class="slide">
-<!-- es-sha: 0b0f4099bdcd -->
+<!-- es-sha: 86c7a5166fdf -->
 
 
 <h2 id="the-reference-model-in-c">The reference model in C</h2>
@@ -1500,8 +1500,8 @@ data fits in an <code>int</code>, the signature writes itself; if not, you look 
 analysis port, the FIFO, the <code>do_compare</code> and the <code>uvm_error</code> do not change</li>
 <li>The golden model replaces the six lines of predicting, and no other piece
 of the testbench finds out there is C on the other side</li>
-<li>And the border gets crossed in both directions: <code>vtalu_golden_bug(1)</code> is
-SystemVerilog <strong>changing the state</strong> of the C model</li>
+<li>And the traffic goes both ways: the result comes back from C, and
+<code>vtalu_golden_bug(1)</code> goes from SystemVerilog to <strong>change the state</strong> of the model</li>
 </ul>
 <div class="nota">
 <p>The count is worth doing out loud because it is the design argument of the whole

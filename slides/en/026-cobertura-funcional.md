@@ -1,4 +1,4 @@
-<!-- es-sha: 4756ea71ccfa -->
+<!-- es-sha: d4d4df2ea27b -->
 ## Functional coverage
 
 #### *When are you done verifying?*
@@ -40,7 +40,7 @@ The six points of the plan from the previous section, translated:
   code, and the simulator tells you which ones have not happened yet
 
 Note:
-It is worth going back to the previous slide and reading the plan out loud before
+It is worth going back to the plan of the previous section and reading it out loud before
 showing this table: the point is that there is not one item of the plan left
 untranslated.
 The order matters — the plan first, the covergroup after. The other way round you end up
@@ -115,10 +115,10 @@ reports changes completely.
 The practical consequence has to be said loudly because it is a silent trap: a
 bin without `[]` over a large range **always gives 100 %**. You covered one value out of
 a thousand and the tool tells you it is done. Nobody warns you.
-And the last bullet is the warning that orders the next slide: a bin that
+And the last bullet is the warning that orders what comes next: a bin that
 cannot be filled is not a tool problem, it is a decision somebody did not write down.
-The way to write it down is called `ignore_bins` and it comes in
-two slides.
+The way to write it down is called `ignore_bins`, and it has its own slide in this
+section.
 
 ---
 
@@ -129,8 +129,8 @@ two slides.
 {{code:code/u2/convencional/vtalu_tb.sv#op_cov}}
 
 - `single_cycle[]` generates six bins —one per operation—, `multi_cycle` a single one
-- What is inside `` `ifndef VERILATOR `` are the transition bins: two
-  slides further on
+- What is inside `` `ifndef VERILATOR `` are the transition bins, which come
+  further on in this same section
 
 Note:
 This is the first real covergroup of the course, and it is worth reading it top to
@@ -302,8 +302,7 @@ The field rule, and it is worth giving because the question comes on its own: `a
 high on the bins that represent a rare case, default on the ones that represent a
 value. Raising it for the whole covergroup is not rigour, it is a regression that never
 closes and a number nobody looks at.
-`auto_bin_max` is the flip side of the bracket trap from three
-slides ago. There the problem was a surplus bin; here it is the other way round: if the coverpoint is
+`auto_bin_max` is the flip side of the bracket trap, the one on the bins slide. There the problem was a surplus bin; here it is the other way round: if the coverpoint is
 an `int` and you write it no bins, the tool invents 64 ranges that do not
 correspond to any row of the plan. The number that comes out is real and means
 nothing.
