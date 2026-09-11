@@ -137,7 +137,7 @@ things up in rather than to read straight through.</p>
 </section>
 
 <section id="s3" class="slide">
-<!-- es-sha: 4e7881abc7c4 -->
+<!-- es-sha: 8dee50734645 -->
 
 
 
@@ -158,6 +158,9 @@ things up in rather than to read straight through.</p>
 <li>Interfaces and BFM · the <code>clocking block</code></li>
 </ul>
 <p><strong>Two exercises</strong>, and the second one is solved with the wave viewer</p>
+<ul>
+<li><strong>And closing the day</strong>, going back to the first slide</li>
+</ul>
 <p><strong>By the end of the day you can:</strong></p>
 <ul>
 <li><strong>Write</strong> a five-column verification plan for a DUT you have not seen before</li>
@@ -4322,12 +4325,13 @@ the <code>run.sh</code> demands the bin count and not 100 %, which a half-done j
 </section>
 
 <section id="s65" class="slide">
-<!-- es-sha: 22a0374e05f0 -->
+<!-- es-sha: 60c8c24dbcc2 -->
 <h2 id="exercise-·-day-1-·-2-of-2">Exercise · Day 1 · 2 of 2</h2>
 <h4 id="the-waves-when-the-log-is-not-enough"><em>The waves: when the log is not enough</em></h4>
 <p><code>cd code/ejercicios/d1b &amp;&amp; bash run.sh</code></p>
 <ul>
-<li>The run aborts with <strong>a single line</strong>: <code>FAILED: A: e5  B: 0  op: mul_op result: fe01 ovf: 0</code>. <code>e5 * 00</code> is <code>0</code>, not <code>fe01</code> — and the DUT is healthy</li>
+<li>The run aborts with <strong>a single line</strong>: <code>FAILED: A: e5  B: 0  op: mul_op result: fe01 ovf: 0</code>. <code>e5 * 00</code> is <code>0</code>, not <code>fe01</code>. The scoreboard is right,
+and so is the DUT: what got it wrong is the BFM&#39;s <strong>handshake</strong></li>
 <li>That is where what the log gives you ends. The <code>run.sh</code> leaves <strong><code>ondas.vcd</code></strong> next to it:
 <code>gtkwave ondas.vcd</code></li>
 <li><strong>Stage 1:</strong> two times that only exist in the viewer, in <code>respuesta.txt</code>.
@@ -4350,9 +4354,47 @@ read it in the log.
 The question to throw at the group when they finish: if the multiplier went
 from four edges to five, which of the two versions of <code>send_op</code> finds out?
 Neither counts right; only the one that waits for <code>done</code> keeps working. It is literally the
-clue of the APB wait state of day 7.</p>
+clue of the APB wait state of day 7.
+And this is the 47 % from the trends slide, seen up close: the log says
+<em>failed</em> and for the <em>why</em> you have to go somewhere else. Today that somewhere
+else is the waves; on day 3, in reporting, it is the log that learns to say it.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/65">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s66" class="slide">
+<!-- es-sha: b4dd499f8c55 -->
+<h2 id="six-out-of-seven-again">Six out of seven, again</h2>
+<h4 id="closing-the-day"><em>Closing the day</em></h4>
+<ul>
+<li>The regression that sent the bug to the fab said <code>PASS</code>. Today you have three
+ways of knowing whether that <code>PASS</code> was worth anything, and all three are
+columns of one table</li>
+<li><strong>What had to be tested?</strong> A plan: one row per scenario, written before the
+testbench, from the spec</li>
+<li><strong>Who said it was right?</strong> A scoreboard that predicts and compares — and that
+you watched fail with a bug inside</li>
+<li><strong>How much of the plan passed?</strong> A <code>covergroup</code> with one bin per row, and the
+per-bin report, not the percentage</li>
+<li>All three already ask for operations instead of moving wires: that was the
+BFM. What you still cannot do is <strong>change the stimulus without editing the
+file</strong>. Tomorrow is that</li>
+</ul>
+<div class="nota">
+<p>Thirty seconds, and they are the ones that close the arc of the day: the first
+slide asked a question and this one answers it with what the student wrote,
+not with theory. If the group is tired, put the 14 % slide back up for a second
+before this one: the question was <em>&quot;how do you know you verified?&quot;</em>, and the
+short answer is <em>&quot;I have the plan, I watched it fail and I know which bin is
+missing&quot;</em>.
+What not to over-promise: this does not prevent the respin. What it prevents
+is sending to the fab a <code>PASS</code> nobody knew the meaning of.
+The last bullet is the one day 2 opens with <em>&quot;Yesterday we left…&quot;</em>: a tester
+that only multiplies is copying the file and deleting five lines. That is the
+problem classes solve, and it is worth leaving as a problem and not as a
+promise.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/66">see this slide in the deck &rsaquo;</a></p>
 </section>
 </main>
 

@@ -172,6 +172,8 @@ para leer de corrido.
 
 **Dos ejercicios**, y el segundo se resuelve con el visor de ondas
 
+- **Y el cierre del día**, que vuelve a la primera slide
+
 **Al final del día podés:**
 
 - **Escribir** un plan de verificación de cinco columnas para un DUT que no
@@ -2334,7 +2336,8 @@ también alcanza.
 <!-- .element: class="comando" -->
 
 - La corrida aborta con **una sola línea**: `FAILED: A: e5  B: 0  op: mul_op
-  result: fe01 ovf: 0`. `e5 * 00` es `0`, no `fe01` — y el DUT está sano
+  result: fe01 ovf: 0`. `e5 * 00` es `0`, no `fe01`. El scoreboard tiene razón,
+  y el DUT también: el que se equivocó es el **handshake** de la BFM
 - Ahí se termina lo que el log te da. El `run.sh` deja **`ondas.vcd`** al lado:
   `gtkwave ondas.vcd`
 - **Etapa 1:** dos tiempos que sólo están en el visor, en `respuesta.txt`.
@@ -2358,9 +2361,45 @@ La pregunta para tirar al grupo cuando lo terminen: si el multiplicador pasara
 de cuatro flancos a cinco, ¿cuál de las dos versiones de `send_op` se entera?
 Ninguna cuenta bien; sólo la que espera `done` sigue andando. Es literalmente la
 pista del wait state del APB del día 7.
+Y éste es el 47 % de la slide de tendencias, visto de cerca: el log dice
+*falló* y para el *por qué* hay que ir a otro lado. Hoy ese otro lado son las
+ondas; el día 3, en reporting, es el log el que aprende a decirlo.
         </textarea>
       </section>
       <!-- 044-ejercicio-day1b.md -->
+
+      <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
+        <textarea data-template>
+## Seis de cada siete, otra vez
+
+#### *Cierre del día*
+
+- La regresión que mandó el bug a fabricar dijo `PASS`. Hoy tenés tres formas
+  de saber si ese `PASS` valía algo, y las tres son columnas de una tabla
+- **¿Qué había que probar?** Un plan: una fila por escenario, escrito antes que
+  el testbench, desde la spec
+- **¿Quién dijo que estuvo bien?** Un scoreboard que predice y compara — y que
+  viste fallar con un bug adentro
+- **¿Cuánto del plan pasó?** Un `covergroup` con un bin por fila, y el reporte
+  por bin, no el porcentaje
+- Las tres ya piden operaciones en vez de mover cables: eso fue la BFM. Lo que
+  todavía no se puede es **cambiar el estímulo sin editar el archivo**. Mañana
+  es eso
+
+Note:
+Treinta segundos, y son los que cierran el arco del día: la primera slide hizo
+una pregunta y ésta la contesta con lo que el alumno escribió, no con teoría.
+Si el grupo está cansado, volver a poner la slide del 14 % un segundo antes de
+ésta: la pregunta era *"¿cómo sabés que verificaste?"*, y la respuesta corta es
+*"tengo el plan, lo vi fallar y sé qué bin falta"*.
+Lo que no hay que prometer de más: esto no evita el respin. Lo que evita es
+mandar a fabricar un `PASS` que nadie sabía qué significaba.
+El último bullet es el que el día 2 abre con *"Ayer quedó"*: un tester que sólo
+multiplica es copiar el archivo y borrarle cinco líneas. Ése es el problema que
+las clases resuelven, y conviene dejarlo como problema y no como promesa.
+        </textarea>
+      </section>
+      <!-- 044b-cierre-day1.md -->
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
@@ -16312,90 +16351,91 @@ apareciendo donde nadie lo esperaba.
           <li><a href="#/57" data-h="57"><span>Repaso · Día 1</span><span class="ind-n">58</span></a></li>
           <li><a href="#/64" data-h="64"><span>Ejercicio · Día 1 · 1 de 2</span><span class="ind-n">65</span></a></li>
           <li><a href="#/65" data-h="65"><span>Ejercicio · Día 1 · 2 de 2</span><span class="ind-n">66</span></a></li>
+          <li><a href="#/66" data-h="66"><span>Seis de cada siete, otra vez</span><span class="ind-n">67</span></a></li>
         </ul>
         <h3 class="ind-grupo">Día 2</h3>
         <ul>
-          <li><a href="#/66" data-h="66"><span>Ayer quedó…</span><span class="ind-n">67</span></a></li>
-          <li><a href="#/68" data-h="68"><span>Clases y extensiones</span><span class="ind-n">69</span></a></li>
-          <li><a href="#/74" data-h="74"><span>Polimorfismo</span><span class="ind-n">75</span></a></li>
-          <li><a href="#/81" data-h="81"><span>Variables estáticas</span><span class="ind-n">82</span></a></li>
-          <li><a href="#/86" data-h="86"><span>Clases paramétricas</span><span class="ind-n">87</span></a></li>
-          <li><a href="#/91" data-h="91"><span>El patrón factory</span><span class="ind-n">92</span></a></li>
-          <li><a href="#/97" data-h="97"><span>Un testbench sin un solo módulo</span><span class="ind-n">98</span></a></li>
-          <li><a href="#/106" data-h="106"><span>Repaso · Día 2</span><span class="ind-n">107</span></a></li>
-          <li><a href="#/114" data-h="114"><span>Ejercicio · Día 2</span><span class="ind-n">115</span></a></li>
+          <li><a href="#/67" data-h="67"><span>Ayer quedó…</span><span class="ind-n">68</span></a></li>
+          <li><a href="#/69" data-h="69"><span>Clases y extensiones</span><span class="ind-n">70</span></a></li>
+          <li><a href="#/75" data-h="75"><span>Polimorfismo</span><span class="ind-n">76</span></a></li>
+          <li><a href="#/82" data-h="82"><span>Variables estáticas</span><span class="ind-n">83</span></a></li>
+          <li><a href="#/87" data-h="87"><span>Clases paramétricas</span><span class="ind-n">88</span></a></li>
+          <li><a href="#/92" data-h="92"><span>El patrón factory</span><span class="ind-n">93</span></a></li>
+          <li><a href="#/98" data-h="98"><span>Un testbench sin un solo módulo</span><span class="ind-n">99</span></a></li>
+          <li><a href="#/107" data-h="107"><span>Repaso · Día 2</span><span class="ind-n">108</span></a></li>
+          <li><a href="#/115" data-h="115"><span>Ejercicio · Día 2</span><span class="ind-n">116</span></a></li>
         </ul>
         <h3 class="ind-grupo">Día 3</h3>
         <ul>
-          <li><a href="#/115" data-h="115"><span>Ayer quedó…</span><span class="ind-n">116</span></a></li>
-          <li><a href="#/117" data-h="117"><span>Tests</span><span class="ind-n">118</span></a></li>
-          <li><a href="#/129" data-h="129"><span>Components y fases</span><span class="ind-n">130</span></a></li>
-          <li><a href="#/139" data-h="139"><span>El env: estructura y estímulo</span><span class="ind-n">140</span></a></li>
-          <li><a href="#/156" data-h="156"><span>Reporting</span><span class="ind-n">157</span></a></li>
-          <li><a href="#/170" data-h="170"><span>Repaso · Día 3</span><span class="ind-n">171</span></a></li>
-          <li><a href="#/177" data-h="177"><span>Ejercicio · Día 3 · 1 de 2</span><span class="ind-n">178</span></a></li>
-          <li><a href="#/178" data-h="178"><span>Ejercicio · Día 3 · 2 de 2</span><span class="ind-n">179</span></a></li>
+          <li><a href="#/116" data-h="116"><span>Ayer quedó…</span><span class="ind-n">117</span></a></li>
+          <li><a href="#/118" data-h="118"><span>Tests</span><span class="ind-n">119</span></a></li>
+          <li><a href="#/130" data-h="130"><span>Components y fases</span><span class="ind-n">131</span></a></li>
+          <li><a href="#/140" data-h="140"><span>El env: estructura y estímulo</span><span class="ind-n">141</span></a></li>
+          <li><a href="#/157" data-h="157"><span>Reporting</span><span class="ind-n">158</span></a></li>
+          <li><a href="#/171" data-h="171"><span>Repaso · Día 3</span><span class="ind-n">172</span></a></li>
+          <li><a href="#/178" data-h="178"><span>Ejercicio · Día 3 · 1 de 2</span><span class="ind-n">179</span></a></li>
+          <li><a href="#/179" data-h="179"><span>Ejercicio · Día 3 · 2 de 2</span><span class="ind-n">180</span></a></li>
         </ul>
         <h3 class="ind-grupo">Día 4</h3>
         <ul>
-          <li><a href="#/179" data-h="179"><span>Ayer quedó…</span><span class="ind-n">180</span></a></li>
-          <li><a href="#/181" data-h="181"><span>Un productor, muchos oyentes</span><span class="ind-n">182</span></a></li>
-          <li><a href="#/197" data-h="197"><span>Un solo lugar que mira el cable</span><span class="ind-n">198</span></a></li>
-          <li><a href="#/210" data-h="210"><span>Cuando alguien tiene que esperar</span><span class="ind-n">211</span></a></li>
-          <li><a href="#/223" data-h="223"><span>Quién espera a quién</span><span class="ind-n">224</span></a></li>
-          <li><a href="#/230" data-h="230"><span>Repaso · Día 4</span><span class="ind-n">231</span></a></li>
-          <li><a href="#/235" data-h="235"><span>Ejercicio · Día 4 · 1 de 2</span><span class="ind-n">236</span></a></li>
-          <li><a href="#/236" data-h="236"><span>Ejercicio · Día 4 · 2 de 2</span><span class="ind-n">237</span></a></li>
+          <li><a href="#/180" data-h="180"><span>Ayer quedó…</span><span class="ind-n">181</span></a></li>
+          <li><a href="#/182" data-h="182"><span>Un productor, muchos oyentes</span><span class="ind-n">183</span></a></li>
+          <li><a href="#/198" data-h="198"><span>Un solo lugar que mira el cable</span><span class="ind-n">199</span></a></li>
+          <li><a href="#/211" data-h="211"><span>Cuando alguien tiene que esperar</span><span class="ind-n">212</span></a></li>
+          <li><a href="#/224" data-h="224"><span>Quién espera a quién</span><span class="ind-n">225</span></a></li>
+          <li><a href="#/231" data-h="231"><span>Repaso · Día 4</span><span class="ind-n">232</span></a></li>
+          <li><a href="#/236" data-h="236"><span>Ejercicio · Día 4 · 1 de 2</span><span class="ind-n">237</span></a></li>
+          <li><a href="#/237" data-h="237"><span>Ejercicio · Día 4 · 2 de 2</span><span class="ind-n">238</span></a></li>
         </ul>
         <h3 class="ind-grupo">Día 5</h3>
         <ul>
-          <li><a href="#/237" data-h="237"><span>Ayer quedó…</span><span class="ind-n">238</span></a></li>
-          <li><a href="#/239" data-h="239"><span>Copiar un objeto que contiene otro</span><span class="ind-n">240</span></a></li>
-          <li><a href="#/249" data-h="249"><span>Transactions</span><span class="ind-n">250</span></a></li>
-          <li><a href="#/269" data-h="269"><span>Constrained random</span><span class="ind-n">270</span></a></li>
-          <li><a href="#/283" data-h="283"><span>Repaso · Día 5</span><span class="ind-n">284</span></a></li>
-          <li><a href="#/291" data-h="291"><span>Ejercicio · Día 5 · 1 de 3</span><span class="ind-n">292</span></a></li>
-          <li><a href="#/292" data-h="292"><span>Ejercicio · Día 5 · 2 de 3</span><span class="ind-n">293</span></a></li>
-          <li><a href="#/293" data-h="293"><span>Ejercicio · Día 5 · 3 de 3</span><span class="ind-n">294</span></a></li>
+          <li><a href="#/238" data-h="238"><span>Ayer quedó…</span><span class="ind-n">239</span></a></li>
+          <li><a href="#/240" data-h="240"><span>Copiar un objeto que contiene otro</span><span class="ind-n">241</span></a></li>
+          <li><a href="#/250" data-h="250"><span>Transactions</span><span class="ind-n">251</span></a></li>
+          <li><a href="#/270" data-h="270"><span>Constrained random</span><span class="ind-n">271</span></a></li>
+          <li><a href="#/284" data-h="284"><span>Repaso · Día 5</span><span class="ind-n">285</span></a></li>
+          <li><a href="#/292" data-h="292"><span>Ejercicio · Día 5 · 1 de 3</span><span class="ind-n">293</span></a></li>
+          <li><a href="#/293" data-h="293"><span>Ejercicio · Día 5 · 2 de 3</span><span class="ind-n">294</span></a></li>
+          <li><a href="#/294" data-h="294"><span>Ejercicio · Día 5 · 3 de 3</span><span class="ind-n">295</span></a></li>
         </ul>
         <h3 class="ind-grupo">Día 6</h3>
         <ul>
-          <li><a href="#/294" data-h="294"><span>Ayer quedó…</span><span class="ind-n">295</span></a></li>
-          <li><a href="#/296" data-h="296"><span>Agents</span><span class="ind-n">297</span></a></li>
-          <li><a href="#/315" data-h="315"><span>Callbacks</span><span class="ind-n">316</span></a></li>
-          <li><a href="#/320" data-h="320"><span>Sequences</span><span class="ind-n">321</span></a></li>
-          <li><a href="#/341" data-h="341"><span>Repaso · Día 6</span><span class="ind-n">342</span></a></li>
-          <li><a href="#/351" data-h="351"><span>Ejercicio · Día 6 · 1 de 3</span><span class="ind-n">352</span></a></li>
-          <li><a href="#/352" data-h="352"><span>Ejercicio · Día 6 · 2 de 3</span><span class="ind-n">353</span></a></li>
-          <li><a href="#/353" data-h="353"><span>Ejercicio · Día 6 · 3 de 3</span><span class="ind-n">354</span></a></li>
+          <li><a href="#/295" data-h="295"><span>Ayer quedó…</span><span class="ind-n">296</span></a></li>
+          <li><a href="#/297" data-h="297"><span>Agents</span><span class="ind-n">298</span></a></li>
+          <li><a href="#/316" data-h="316"><span>Callbacks</span><span class="ind-n">317</span></a></li>
+          <li><a href="#/321" data-h="321"><span>Sequences</span><span class="ind-n">322</span></a></li>
+          <li><a href="#/342" data-h="342"><span>Repaso · Día 6</span><span class="ind-n">343</span></a></li>
+          <li><a href="#/352" data-h="352"><span>Ejercicio · Día 6 · 1 de 3</span><span class="ind-n">353</span></a></li>
+          <li><a href="#/353" data-h="353"><span>Ejercicio · Día 6 · 2 de 3</span><span class="ind-n">354</span></a></li>
+          <li><a href="#/354" data-h="354"><span>Ejercicio · Día 6 · 3 de 3</span><span class="ind-n">355</span></a></li>
         </ul>
         <h3 class="ind-grupo">Día 7</h3>
         <ul>
-          <li><a href="#/354" data-h="354"><span>Ayer quedó…</span><span class="ind-n">355</span></a></li>
-          <li><a href="#/356" data-h="356"><span>Ejercicio · Día 7 · 1 de 2</span><span class="ind-n">357</span></a></li>
-          <li><a href="#/357" data-h="357"><span>Sequences virtuales</span><span class="ind-n">358</span></a></li>
-          <li><a href="#/362" data-h="362"><span>Assertions (SVA)</span><span class="ind-n">363</span></a></li>
-          <li><a href="#/381" data-h="381"><span>Ejercicio · Día 7 · 2 de 2</span><span class="ind-n">382</span></a></li>
-          <li><a href="#/382" data-h="382"><span>Repaso · Día 7</span><span class="ind-n">383</span></a></li>
-          <li><a href="#/387" data-h="387"><span>Capstone · Día 7</span><span class="ind-n">388</span></a></li>
-          <li><a href="#/391" data-h="391"><span>Apéndice · De la VTALU a un bus real</span><span class="ind-n">392</span></a></li>
-          <li><a href="#/395" data-h="395"><span>Apéndice · La caja de herramientas de debug</span><span class="ind-n">396</span></a></li>
-          <li><a href="#/397" data-h="397"><span>Apéndice · Las 21 trampas mudas</span><span class="ind-n">398</span></a></li>
-          <li><a href="#/402" data-h="402"><span>Glosario · ES → EN</span><span class="ind-n">403</span></a></li>
-          <li><a href="#/405" data-h="405"><span>Referencias</span><span class="ind-n">406</span></a></li>
-          <li><a href="#/408" data-h="408"><span>Hasta acá llegamos</span><span class="ind-n">409</span></a></li>
-          <li><a href="#/410" data-h="410"><span>Autoevaluación</span><span class="ind-n">411</span></a></li>
-          <li><a href="#/413" data-h="413"><span>El lunes</span><span class="ind-n">414</span></a></li>
+          <li><a href="#/355" data-h="355"><span>Ayer quedó…</span><span class="ind-n">356</span></a></li>
+          <li><a href="#/357" data-h="357"><span>Ejercicio · Día 7 · 1 de 2</span><span class="ind-n">358</span></a></li>
+          <li><a href="#/358" data-h="358"><span>Sequences virtuales</span><span class="ind-n">359</span></a></li>
+          <li><a href="#/363" data-h="363"><span>Assertions (SVA)</span><span class="ind-n">364</span></a></li>
+          <li><a href="#/382" data-h="382"><span>Ejercicio · Día 7 · 2 de 2</span><span class="ind-n">383</span></a></li>
+          <li><a href="#/383" data-h="383"><span>Repaso · Día 7</span><span class="ind-n">384</span></a></li>
+          <li><a href="#/388" data-h="388"><span>Capstone · Día 7</span><span class="ind-n">389</span></a></li>
+          <li><a href="#/392" data-h="392"><span>Apéndice · De la VTALU a un bus real</span><span class="ind-n">393</span></a></li>
+          <li><a href="#/396" data-h="396"><span>Apéndice · La caja de herramientas de debug</span><span class="ind-n">397</span></a></li>
+          <li><a href="#/398" data-h="398"><span>Apéndice · Las 21 trampas mudas</span><span class="ind-n">399</span></a></li>
+          <li><a href="#/403" data-h="403"><span>Glosario · ES → EN</span><span class="ind-n">404</span></a></li>
+          <li><a href="#/406" data-h="406"><span>Referencias</span><span class="ind-n">407</span></a></li>
+          <li><a href="#/409" data-h="409"><span>Hasta acá llegamos</span><span class="ind-n">410</span></a></li>
+          <li><a href="#/411" data-h="411"><span>Autoevaluación</span><span class="ind-n">412</span></a></li>
+          <li><a href="#/414" data-h="414"><span>El lunes</span><span class="ind-n">415</span></a></li>
         </ul>
         <h3 class="ind-grupo">Día 8 · opcional</h3>
         <ul>
-          <li><a href="#/414" data-h="414"><span>Ayer quedó…</span><span class="ind-n">415</span></a></li>
-          <li><a href="#/416" data-h="416"><span>RAL</span><span class="ind-n">417</span></a></li>
-          <li><a href="#/428" data-h="428"><span>Ejercicio · Día 8 · 1 de 2</span><span class="ind-n">429</span></a></li>
-          <li><a href="#/429" data-h="429"><span>El modelo de referencia en C</span><span class="ind-n">430</span></a></li>
-          <li><a href="#/433" data-h="433"><span>Repaso · Día 8</span><span class="ind-n">434</span></a></li>
-          <li><a href="#/441" data-h="441"><span>Ejercicio · Día 8 · 2 de 2</span><span class="ind-n">442</span></a></li>
-          <li><a href="#/442" data-h="442"><span>Capstone 2 · Día 8</span><span class="ind-n">443</span></a></li>
+          <li><a href="#/415" data-h="415"><span>Ayer quedó…</span><span class="ind-n">416</span></a></li>
+          <li><a href="#/417" data-h="417"><span>RAL</span><span class="ind-n">418</span></a></li>
+          <li><a href="#/429" data-h="429"><span>Ejercicio · Día 8 · 1 de 2</span><span class="ind-n">430</span></a></li>
+          <li><a href="#/430" data-h="430"><span>El modelo de referencia en C</span><span class="ind-n">431</span></a></li>
+          <li><a href="#/434" data-h="434"><span>Repaso · Día 8</span><span class="ind-n">435</span></a></li>
+          <li><a href="#/442" data-h="442"><span>Ejercicio · Día 8 · 2 de 2</span><span class="ind-n">443</span></a></li>
+          <li><a href="#/443" data-h="443"><span>Capstone 2 · Día 8</span><span class="ind-n">444</span></a></li>
         </ul>
     </nav>
   </dialog>
@@ -16539,7 +16579,7 @@ apareciendo donde nadie lo esperaba.
       // escribe esa coordenada en la URL y el de llegada la resuelve con SU
       // propio mapa: si todavia no tradujo esa seccion, avisa y arranca de
       // cero en vez de aterrizar en cualquier lado.
-      const SECCIONES = [["000-verify-this",1],["002-como-usar",2],["005-agenda-day1",1],["007-el-gancho",1],["010-tendencias",4],["015-introduccion",6],["020-spec-vtalu",8],["021-plan-de-verificacion",3],["025-testbench-convencional",5],["026-cobertura-funcional",13],["030-interfaces-bfm",13],["042-quiz-day1",7],["043-ejercicio-day1",1],["044-ejercicio-day1b",1],["045-agenda-day2",2],["046-clases-y-extensiones",6],["047-polimorfismo",7],["050-variables-estaticas",5],["055-clases-parametricas",5],["060-factory",6],["065-tb-en-objetos",9],["067-quiz-day2",8],["068-ejercicio-day2",1],["070-agenda-day3",2],["075-tests",12],["080-components",10],["085-env",17],["088-reporting",14],["092-quiz-day3",7],["093-ejercicio-day3",1],["093b-ejercicio-day3b",1],["095-agenda-day4",2],["100-varios-objetos",16],["105-analysis-ports",13],["110-threads",13],["115-put-get",7],["117-quiz-day4",5],["118-ejercicio-day4",1],["118b-ejercicio-day4b",1],["120-agenda-day5",2],["130-jerarquias",10],["135-transactions",20],["136-constrained-random",14],["137-quiz-day5",8],["138-ejercicio-day5",1],["139-ejercicio-day5b",1],["139b-ejercicio-day5c",1],["140-agenda-day6",2],["145-agents",19],["146-callbacks",5],["150-sequences",21],["151-quiz-day6",10],["152-ejercicio-day6-agents",1],["153-ejercicio-day6-sequences",1],["153d-ejercicio-day6-debug",1],["159-agenda-day7",2],["159a-ejercicio-day7-semillas",1],["159b-sequences-virtuales",5],["160-assertions",19],["161-ejercicio-day7-sva",1],["162-quiz-day7",5],["163-ejercicio-day7-capstone",4],["170-de-la-vtalu-a-un-bus",4],["171-apendice-debug",2],["172-apendice-trampas",5],["173-glosario",3],["174-referencias",3],["175-cierre",2],["175b-autoevaluacion",3],["176-the-end",1],["179-agenda-day8",2],["180-ral",12],["181-ejercicio-day8-ral",1],["182-dpi",4],["182b-quiz-day8",8],["182c-ejercicio-day8-dpi",1],["183-ejercicio-day8-fifo",1]];
+      const SECCIONES = [["000-verify-this",1],["002-como-usar",2],["005-agenda-day1",1],["007-el-gancho",1],["010-tendencias",4],["015-introduccion",6],["020-spec-vtalu",8],["021-plan-de-verificacion",3],["025-testbench-convencional",5],["026-cobertura-funcional",13],["030-interfaces-bfm",13],["042-quiz-day1",7],["043-ejercicio-day1",1],["044-ejercicio-day1b",1],["044b-cierre-day1",1],["045-agenda-day2",2],["046-clases-y-extensiones",6],["047-polimorfismo",7],["050-variables-estaticas",5],["055-clases-parametricas",5],["060-factory",6],["065-tb-en-objetos",9],["067-quiz-day2",8],["068-ejercicio-day2",1],["070-agenda-day3",2],["075-tests",12],["080-components",10],["085-env",17],["088-reporting",14],["092-quiz-day3",7],["093-ejercicio-day3",1],["093b-ejercicio-day3b",1],["095-agenda-day4",2],["100-varios-objetos",16],["105-analysis-ports",13],["110-threads",13],["115-put-get",7],["117-quiz-day4",5],["118-ejercicio-day4",1],["118b-ejercicio-day4b",1],["120-agenda-day5",2],["130-jerarquias",10],["135-transactions",20],["136-constrained-random",14],["137-quiz-day5",8],["138-ejercicio-day5",1],["139-ejercicio-day5b",1],["139b-ejercicio-day5c",1],["140-agenda-day6",2],["145-agents",19],["146-callbacks",5],["150-sequences",21],["151-quiz-day6",10],["152-ejercicio-day6-agents",1],["153-ejercicio-day6-sequences",1],["153d-ejercicio-day6-debug",1],["159-agenda-day7",2],["159a-ejercicio-day7-semillas",1],["159b-sequences-virtuales",5],["160-assertions",19],["161-ejercicio-day7-sva",1],["162-quiz-day7",5],["163-ejercicio-day7-capstone",4],["170-de-la-vtalu-a-un-bus",4],["171-apendice-debug",2],["172-apendice-trampas",5],["173-glosario",3],["174-referencias",3],["175-cierre",2],["175b-autoevaluacion",3],["176-the-end",1],["179-agenda-day8",2],["180-ral",12],["181-ejercicio-day8-ral",1],["182-dpi",4],["182b-quiz-day8",8],["182c-ejercicio-day8-dpi",1],["183-ejercicio-day8-fifo",1]];
       const coordDe = h => {
         let base = 0;
         for (const [f, n] of SECCIONES) {

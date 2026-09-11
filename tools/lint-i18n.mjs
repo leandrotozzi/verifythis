@@ -26,7 +26,7 @@
 // Y una tercera, que no es divergencia sino traduccion a medias (regla 8):
 // castellano que quedo sin traducir en el arbol EN. Estructuralmente no se ve
 // -- la slide tiene la misma cantidad de bullets -- y el sello es-sha tampoco,
-// porque se sella igual. La unica forma de cacharlo era leer las 443 slides.
+// porque se sella igual. La unica forma de cacharlo era leer las 444 slides.
 // Es LA falla tipica de una traduccion larga: un bullet, una Note: o la celda
 // de una tabla que se saltearon, en el medio de una seccion por lo demas
 // completa. Se buscan palabras funcionales del castellano que no son palabras
@@ -217,7 +217,7 @@ const CASTELLANO = ['qué', 'que', 'para', 'porque', 'pero', 'cuando', 'cuándo'
   // tres <li> del temario de la landing en ingles que quedaron en castellano
   // son "uvm_test y +UVM_TESTNAME", "uvm_component y las fases" y "|-> contra
   // |=>", y con la lista vieja no habia una sola palabra que los marcara. En
-  // los .md no cambian nada: medido, cero hits nuevos sobre las 443 slides.
+  // los .md no cambian nada: medido, cero hits nuevos sobre todas las slides.
   'y', 'contra'];
 const RE_CASTELLANO = new RegExp(String.raw`(?<![\w'’-])(${CASTELLANO.join('|')})(?![\w'’-])`, 'gi');
 
@@ -361,7 +361,7 @@ function glosario(fEs, fEn, aEs, aEn) {
 // que la motiva: el castellano avisa que `get_export` es un alias de
 // `get_peek_export` y que ESE es el nombre que se ve en `print_topology()`; el
 // ingles corto la aposicion entera, y `get_peek_export` no aparece ni una vez
-// en las 443 slides en ingles. Estructuralmente los dos archivos son identicos.
+// en el arbol en ingles. Estructuralmente los dos archivos son identicos.
 //
 // Tokenizador de backticks de verdad y no una regex suelta: una corrida de N
 // backticks abre y la siguiente corrida de N cierra (asi ``a ` b`` es un span y

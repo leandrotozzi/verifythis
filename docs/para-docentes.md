@@ -104,7 +104,7 @@ Lo que **no** conviene sacar, aunque tiente:
   covergroup del día 1 en algo que se deduce en vez de inventarse. Sin él, la
   etapa 4 del capstone no tiene de dónde salir.
 - **Reporting** (U4). Parece accesorio y es el 47 % del trabajo real. El curso
-  entero apunta a esa cifra desde la primera slide.
+  entero apunta a esa cifra desde el día 1.
 - **El capstone**. Es la diferencia entre *"hice el curso"* y *"sé hacerlo"*.
   Si no hay tiempo para el capstone entero, pedir **sólo la etapa 1** —el
   monitor sobre el esclavo APB pasivo—: se hace en media hora y ya deja algo

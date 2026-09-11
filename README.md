@@ -1,4 +1,4 @@
-<!-- es-sha: 7b2d11644a64 -->
+<!-- es-sha: fad82be67b5b -->
 **English** · [Castellano](README.es.md)
 
 <div align="center">
@@ -9,7 +9,7 @@
 
 *Universal Verification Methodology · IEEE 1800.2 · SystemVerilog · open source EDA*
 
-8 units over 7 days —plus an optional day 8— · 443 slides · **38 examples that really run**,
+8 units over 7 days —plus an optional day 8— · 444 slides · **38 examples that really run**,
 with functional coverage, on the **VTALU** DUT
 
 [![build](https://github.com/leandrotozzi/verifythis/actions/workflows/build.yml/badge.svg)](https://github.com/leandrotozzi/verifythis/actions/workflows/build.yml)
@@ -40,7 +40,7 @@ or clone the repo and open `en/index.html` with a double click
 
 > ## Also available in Spanish — the complete course, not a summary
 >
-> The whole thing exists twice: the same 443 slides, the same book, the same 38
+> The whole thing exists twice: the same 444 slides, the same book, the same 38
 > examples and the same 19 exercises, written in Spanish rather than
 > machine-translated. Almost every other UVM course is English-only, so if you
 > read Spanish this is very likely the only complete one there is.
@@ -130,9 +130,9 @@ The examples are not run by hand: CI runs the 38 examples and the 19 solutions
 
 | Key | Action |
 |:--|:--|
-| <kbd>i</kbd> | course index: 77 sections —talks, quizzes, exercises and appendices— grouped by day, or the ☰ button in the top left corner |
+| <kbd>i</kbd> | course index: 78 sections —talks, quizzes, exercises and appendices— grouped by day, or the ☰ button in the top left corner |
 | <kbd>0</kbd>–<kbd>8</kbd> | jump to the cover / to Day 1–8 (the cover has the same clickable jumps, and they end up in the URL: `en/index.html#/day3`) |
-| <kbd>Esc</kbd> | overview of all 443 slides |
+| <kbd>Esc</kbd> | overview of all 444 slides |
 | <kbd>s</kbd> | speaker notes, in a separate window |
 | <kbd>n</kbd> | the same notes, below the slide and without leaving the page (remembered) |
 | <kbd>v</kbd> | on quiz slides, reveal the answer without clicking |

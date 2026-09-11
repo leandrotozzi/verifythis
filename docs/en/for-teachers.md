@@ -1,4 +1,4 @@
-<!-- es-sha: 924f58da5ec2 -->
+<!-- es-sha: f6ad424629c7 -->
 # For teachers
 
 *Verify This!* is written as **seven days of class** —plus an **optional day
@@ -104,7 +104,7 @@ What it is **not** wise to cut, however tempting:
   day 1 covergroup into something you derive instead of invent. Without it,
   stage 4 of the capstone has nowhere to come from.
 - **Reporting** (U4). It looks like an accessory and it is 47 % of the real
-  work. The whole course aims at that figure from the very first slide.
+  work. The whole course aims at that figure from day 1.
 - **The capstone**. It is the difference between *"I took the course"* and *"I
   know how to do it"*. If there is no time for the whole capstone, ask for
   **stage 1 only** —the monitor over the passive APB slave—: it takes half an

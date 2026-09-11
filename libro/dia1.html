@@ -147,6 +147,9 @@ para leer de corrido.</p>
 <li>Interfaces y BFM · el <code>clocking block</code></li>
 </ul>
 <p><strong>Dos ejercicios</strong>, y el segundo se resuelve con el visor de ondas</p>
+<ul>
+<li><strong>Y el cierre del día</strong>, que vuelve a la primera slide</li>
+</ul>
 <p><strong>Al final del día podés:</strong></p>
 <ul>
 <li><strong>Escribir</strong> un plan de verificación de cinco columnas para un DUT que no
@@ -4301,7 +4304,8 @@ también alcanza.</p>
 <h4 id="las-ondas-cuando-el-log-no-alcanza"><em>Las ondas: cuando el log no alcanza</em></h4>
 <p><code>cd code/ejercicios/d1b &amp;&amp; bash run.sh</code></p>
 <ul>
-<li>La corrida aborta con <strong>una sola línea</strong>: <code>FAILED: A: e5  B: 0  op: mul_op result: fe01 ovf: 0</code>. <code>e5 * 00</code> es <code>0</code>, no <code>fe01</code> — y el DUT está sano</li>
+<li>La corrida aborta con <strong>una sola línea</strong>: <code>FAILED: A: e5  B: 0  op: mul_op result: fe01 ovf: 0</code>. <code>e5 * 00</code> es <code>0</code>, no <code>fe01</code>. El scoreboard tiene razón,
+y el DUT también: el que se equivocó es el <strong>handshake</strong> de la BFM</li>
 <li>Ahí se termina lo que el log te da. El <code>run.sh</code> deja <strong><code>ondas.vcd</code></strong> al lado:
 <code>gtkwave ondas.vcd</code></li>
 <li><strong>Etapa 1:</strong> dos tiempos que sólo están en el visor, en <code>respuesta.txt</code>.
@@ -4324,9 +4328,43 @@ leerla en el log.
 La pregunta para tirar al grupo cuando lo terminen: si el multiplicador pasara
 de cuatro flancos a cinco, ¿cuál de las dos versiones de <code>send_op</code> se entera?
 Ninguna cuenta bien; sólo la que espera <code>done</code> sigue andando. Es literalmente la
-pista del wait state del APB del día 7.</p>
+pista del wait state del APB del día 7.
+Y éste es el 47 % de la slide de tendencias, visto de cerca: el log dice
+<em>falló</em> y para el <em>por qué</em> hay que ir a otro lado. Hoy ese otro lado son las
+ondas; el día 3, en reporting, es el log el que aprende a decirlo.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/65">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s66" class="slide">
+<h2 id="seis-de-cada-siete-otra-vez">Seis de cada siete, otra vez</h2>
+<h4 id="cierre-del-día"><em>Cierre del día</em></h4>
+<ul>
+<li>La regresión que mandó el bug a fabricar dijo <code>PASS</code>. Hoy tenés tres formas
+de saber si ese <code>PASS</code> valía algo, y las tres son columnas de una tabla</li>
+<li><strong>¿Qué había que probar?</strong> Un plan: una fila por escenario, escrito antes que
+el testbench, desde la spec</li>
+<li><strong>¿Quién dijo que estuvo bien?</strong> Un scoreboard que predice y compara — y que
+viste fallar con un bug adentro</li>
+<li><strong>¿Cuánto del plan pasó?</strong> Un <code>covergroup</code> con un bin por fila, y el reporte
+por bin, no el porcentaje</li>
+<li>Las tres ya piden operaciones en vez de mover cables: eso fue la BFM. Lo que
+todavía no se puede es <strong>cambiar el estímulo sin editar el archivo</strong>. Mañana
+es eso</li>
+</ul>
+<div class="nota">
+<p>Treinta segundos, y son los que cierran el arco del día: la primera slide hizo
+una pregunta y ésta la contesta con lo que el alumno escribió, no con teoría.
+Si el grupo está cansado, volver a poner la slide del 14 % un segundo antes de
+ésta: la pregunta era <em>&quot;¿cómo sabés que verificaste?&quot;</em>, y la respuesta corta es
+<em>&quot;tengo el plan, lo vi fallar y sé qué bin falta&quot;</em>.
+Lo que no hay que prometer de más: esto no evita el respin. Lo que evita es
+mandar a fabricar un <code>PASS</code> que nadie sabía qué significaba.
+El último bullet es el que el día 2 abre con <em>&quot;Ayer quedó&quot;</em>: un tester que sólo
+multiplica es copiar el archivo y borrarle cinco líneas. Ése es el problema que
+las clases resuelven, y conviene dejarlo como problema y no como promesa.</p>
+</div>
+<p class="al-deck"><a href="../index.html#/66">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 </main>
 

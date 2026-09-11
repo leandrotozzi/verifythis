@@ -21,6 +21,8 @@
 
 **Dos ejercicios**, y el segundo se resuelve con el visor de ondas
 
+- **Y el cierre del día**, que vuelve a la primera slide
+
 **Al final del día podés:**
 
 - **Escribir** un plan de verificación de cinco columnas para un DUT que no

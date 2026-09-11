@@ -1,4 +1,4 @@
-<!-- es-sha: 4e7881abc7c4 -->
+<!-- es-sha: 8dee50734645 -->
 <!-- .slide: id="day1" data-machete="res/diagrams/en/wave-dut.svg|VTALU protocol: start and operands stable until done,res/en/TB.svg|Anatomy of a SystemVerilog testbench: the DUT, the tester, the scoreboard and the interface" -->
 
 <!-- .slide: data-transition="concave" -->
@@ -21,6 +21,8 @@
 - Interfaces and BFM · the `clocking block`
 
 **Two exercises**, and the second one is solved with the wave viewer
+
+- **And closing the day**, going back to the first slide
 
 **By the end of the day you can:**
 

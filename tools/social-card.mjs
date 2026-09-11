@@ -15,7 +15,7 @@
 // generadas del repo sin ningun chequeo: docs/portada.png tiene el de
 // capturas.mjs, las figuras tienen el de figs-print.mjs, y estas no tenian
 // nada. Y la tarjeta dibuja tres numeros escritos a mano en
-// tools/social-card.html ("8 units - 443 slides - 38 runnable examples"), que
+// tools/social-card.html ("8 units - 444 slides - 38 runnable examples"), que
 // es exactamente la forma en que envejecio la portada: la slide 0 anunciaba
 // seis dias cuando el curso ya tenia ocho, y nadie se entero hasta que
 // capturas.mjs empezo a mirarlo.

@@ -1,4 +1,4 @@
-<!-- es-sha: 22a0374e05f0 -->
+<!-- es-sha: 60c8c24dbcc2 -->
 ## Exercise · Day 1 · 2 of 2
 
 #### *The waves: when the log is not enough*
@@ -7,7 +7,8 @@
 <!-- .element: class="comando" -->
 
 - The run aborts with **a single line**: `FAILED: A: e5  B: 0  op: mul_op
-  result: fe01 ovf: 0`. `e5 * 00` is `0`, not `fe01` — and the DUT is healthy
+  result: fe01 ovf: 0`. `e5 * 00` is `0`, not `fe01`. The scoreboard is right,
+  and so is the DUT: what got it wrong is the BFM's **handshake**
 - That is where what the log gives you ends. The `run.sh` leaves **`ondas.vcd`** next to it:
   `gtkwave ondas.vcd`
 - **Stage 1:** two times that only exist in the viewer, in `respuesta.txt`.
@@ -31,3 +32,6 @@ The question to throw at the group when they finish: if the multiplier went
 from four edges to five, which of the two versions of `send_op` finds out?
 Neither counts right; only the one that waits for `done` keeps working. It is literally the
 clue of the APB wait state of day 7.
+And this is the 47 % from the trends slide, seen up close: the log says
+*failed* and for the *why* you have to go somewhere else. Today that somewhere
+else is the waves; on day 3, in reporting, it is the log that learns to say it.

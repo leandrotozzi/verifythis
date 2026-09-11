@@ -6,7 +6,8 @@
 <!-- .element: class="comando" -->
 
 - La corrida aborta con **una sola línea**: `FAILED: A: e5  B: 0  op: mul_op
-  result: fe01 ovf: 0`. `e5 * 00` es `0`, no `fe01` — y el DUT está sano
+  result: fe01 ovf: 0`. `e5 * 00` es `0`, no `fe01`. El scoreboard tiene razón,
+  y el DUT también: el que se equivocó es el **handshake** de la BFM
 - Ahí se termina lo que el log te da. El `run.sh` deja **`ondas.vcd`** al lado:
   `gtkwave ondas.vcd`
 - **Etapa 1:** dos tiempos que sólo están en el visor, en `respuesta.txt`.
@@ -30,3 +31,6 @@ La pregunta para tirar al grupo cuando lo terminen: si el multiplicador pasara
 de cuatro flancos a cinco, ¿cuál de las dos versiones de `send_op` se entera?
 Ninguna cuenta bien; sólo la que espera `done` sigue andando. Es literalmente la
 pista del wait state del APB del día 7.
+Y éste es el 47 % de la slide de tendencias, visto de cerca: el log dice
+*falló* y para el *por qué* hay que ir a otro lado. Hoy ese otro lado son las
+ondas; el día 3, en reporting, es el log el que aprende a decirlo.
