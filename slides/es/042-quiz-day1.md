@@ -2,16 +2,16 @@
 
 ## Repaso · Día 1
 
-#### *1 de 7 · Tendencias*
+#### *1 de 7 · La pregunta del día*
 
-**Según el estudio de Wilson 2024, ¿en qué se le va la mayor parte del tiempo a un verificador?**
+**Mil operaciones al azar, el scoreboard no reportó ningún error y el log termina en `PASS`. ¿Qué te falta para decir que el DUT está verificado?**
 
-- [ ] En escribir el testbench
-- [x] En debug
-- [ ] En correr regresiones
-- [ ] En escribir la especificación
+- [ ] Nada: mil operaciones sin un error es un DUT verificado
+- [ ] Correr más semillas hasta que la cobertura de código llegue al 100 %
+- [x] Saber qué habría dicho el log con un bug adentro: correrlo con el DUT mutado
+- [ ] Reemplazar el scoreboard por assertions, que chequean el protocolo en el flanco exacto y no al final
 
-> **En debug** — el 47 % del tiempo del verificador se va ahí. Por eso el curso le dedica una sección entera al reporting: un scoreboard que sólo dice "falló" te deja justo en ese 47 %.
+> **Verlo fallar** — el `PASS` de un scoreboard que nunca vio un error no dice nada: pudo no haber comparado. `VTALU_BUG=1` da vuelta un bit del resultado y el testbench tiene que fallar; `make mutante` lo exige para los tres testbenches de los días 1 y 2.
 
 ---
 

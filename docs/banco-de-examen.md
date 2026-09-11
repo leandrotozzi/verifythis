@@ -21,14 +21,14 @@ Cómo se usa, y qué evaluar en cada parcial: **[`para-docentes.md`](para-docent
 
 ## Día 1 · 7 preguntas
 
-**1. Tendencias**
+**1. La pregunta del día**
 
-Según el estudio de Wilson 2024, ¿en qué se le va la mayor parte del tiempo a un verificador?
+Mil operaciones al azar, el scoreboard no reportó ningún error y el log termina en `PASS`. ¿Qué te falta para decir que el DUT está verificado?
 
-- **a)** En escribir el testbench
-- **b)** En debug
-- **c)** En correr regresiones
-- **d)** En escribir la especificación
+- **a)** Nada: mil operaciones sin un error es un DUT verificado
+- **b)** Correr más semillas hasta que la cobertura de código llegue al 100 %
+- **c)** Saber qué habría dicho el log con un bug adentro: correrlo con el DUT mutado
+- **d)** Reemplazar el scoreboard por assertions, que chequean el protocolo en el flanco exacto y no al final
 
 **2. La spec de la ALU**
 
@@ -577,7 +577,7 @@ El scoreboard con golden model en C corre mil operaciones y no reporta ni una. �
 
 | # | Día | Tema | Correcta | Por qué |
 |--:|:--:|:--|:--:|:--|
-| 1 | 1 | Tendencias | **b** | **En debug** — el 47 % del tiempo del verificador se va ahí. Por eso el curso le dedica una sección entera al reporting: un scoreboard que sólo dice "falló" te deja justo en ese 47 %. |
+| 1 | 1 | La pregunta del día | **c** | **Verlo fallar** — el `PASS` de un scoreboard que nunca vio un error no dice nada: pudo no haber comparado. `VTALU_BUG=1` da vuelta un bit del resultado y el testbench tiene que fallar; `make mutante` lo exige para los tres testbenches de los días 1 y 2. |
 | 2 | 1 | La spec de la ALU | **d** | **Estables hasta `done`** — es el protocolo del DUT, y es exactamente el motivo por el que existe el BFM: encapsular esa regla en un solo lugar para que ningún test se la olvide. El primer distractor describe un protocolo real —arranque por pulso, operandos latcheados— que este DUT no tiene. |
 | 3 | 1 | Cobertura funcional | **d** | **Muy poco** — la cobertura de código mide el DUT; la funcional mide la spec. Una feature que el diseñador nunca escribió da 100 % de líneas y 0 % de lo que importa, y el reporte no te lo va a decir. |
 | 4 | 1 | covergroup | **a** | **El `sample()`** — el covergroup no se muestrea solo: alguien tiene que llamarlo, en el flanco o cuando llega una transacción. Sin esa llamada el código compila, corre, y el reporte da 0 sin una sola advertencia. |

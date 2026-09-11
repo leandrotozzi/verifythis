@@ -1,46 +1,37 @@
 ## El testbench convencional
 
-#### *Coverage First Methodology*
+#### *El plan del VTALU, con tres columnas por llenar*
 
-- Definimos qué queremos cubrir y luego creamos el TB
-- El objetivo es testear toda la funcionalidad de la ALU y  
-  simular *TODAS* las líneas del código RTL
-- El TB tiene 3 partes: stimulus, self-checking y coverage
+| Feature | Escenario | Estímulo | Chequeo | Medida |
+| --- | --- | --- | --- | --- |
+| ALU | las seis operaciones | | | |
+| ALU | operandos en `00` y en `FF` | | | |
+| reset | operar después de un reset | | | |
+| mult | una mult después de una de un ciclo | | | |
+| ALU | la misma operación dos veces seguidas | | | |
+| sub | restar de menos: `A < B`, y el `ovf` sube | | | |
 
-Note:
-El orden importa: primero el plan de cobertura, después el testbench. Si
-escribís el TB primero, terminás midiendo lo que el TB hace en vez de lo que la
-spec pide. Los seis bullets de la slide siguiente son el plan de verificación
-del VTALU entero: leerlos de a uno y preguntar cuál falta.
-
----
-
-## El testbench convencional
-
-#### *El plan de verificación del VTALU*
-
-- Testear todas las operaciones
-- Casos borde: entradas todas en 0/1 para todas las operaciones
-- Ejecutar todas las ops luego de un reset
-- Ejecutar una multiplicación luego de una single cycle op y viceversa
-- Simular todas las operaciones ejecutadas 2 veces seguidas
-- **Restar de menos** —`A < B`— y ver que el `ovf` sube
-
-- Seis frases en castellano. Toda la sección es traducirlas a código: el
-  **estímulo** las produce, el **covergroup** las cuenta, el **scoreboard** dice
-  si el resultado estuvo bien
+- Seis filas que salen de la spec, y todavía ninguna columna de la derecha.
+  Esta sección llena **dos**: el estímulo las provoca y el scoreboard dice si
+  el resultado estuvo bien
+- La tercera —**qué bin se llena cuando pasa**— es la sección que sigue
+- El testbench tiene tres partes porque el plan tiene tres columnas
 
 Note:
-Vale leer los seis puntos de a uno y preguntar cuál falta. La respuesta que
-suele aparecer —"probar valores intermedios"— es buena para discutir por qué no
-está: 256×256×5 combinaciones no se simulan, y ahí es donde entra el random.
-El plan escrito antes que el testbench es la disciplina entera de la unidad. Si
-lo escribís después, terminás describiendo lo que el testbench ya hace.
-Los seis puntos vuelven en la sección siguiente convertidos en bins, uno por
-uno. Conviene avisarlo ahora para que nadie los lea como decoración.
-El último es el que trae el tema del día: el DUT tiene DOS salidas, y una fila
-del plan que sólo se cierra mirando las dos. Un scoreboard que compara `result`
-y nada más pasa en verde con el `ovf` clavado en cero.
+El orden importa y es el de la unidad anterior: primero el plan, después el
+testbench. Si escribís el testbench primero, terminás midiendo lo que el
+testbench hace en vez de lo que la spec pide.
+Vale leer las seis filas de a una y preguntar cuál falta. La respuesta que
+suele aparecer —"probar valores intermedios"— es buena para discutir por qué
+no está: 256 × 256 × 5 combinaciones no se simulan, y ahí es donde entra el
+random.
+La última es la que trae el tema del día: el DUT tiene DOS salidas, y una fila
+del plan que sólo se cierra mirando las dos. Un scoreboard que compara
+`result` y nada más pasa en verde con el `ovf` clavado en cero.
+La tabla vuelve dos veces: en cobertura funcional con la columna de medida
+llena, fila por fila, y al final de esa sección entera, con las doce filas y
+las tres columnas. Conviene avisarlo ahora para que nadie la lea como
+decoración: es la misma tabla, llenándose.
 
 ---
 
@@ -113,25 +104,56 @@ concepto, con un contador y una política de severidad detrás.
 
 ## El testbench convencional
 
+#### *¿Cómo sabés que el scoreboard chequea algo?*
+
+{{code:code/u2/convencional/mutante.txt}}
+
+- Mil operaciones y ningún error. Ahora **el mismo testbench con el DUT roto a
+  propósito**: `VTALU_BUG=1 bash run.sh` da vuelta el bit 0 del resultado
+- Falla en la primera comparación. Eso —y no el `PASS` de antes— es lo que
+  prueba que el scoreboard mira el resultado
+- Un scoreboard que **nunca vio un error** no está probado: pudo haber comparado
+  contra sí mismo, o no haber comparado nada
+- `make mutante` hace esto con los tres testbenches de los días 1 y 2, y falla
+  si alguno **no** falla. Es la primera respuesta a la pregunta del día
+
+Note:
+Correrlo en vivo, que son segundos porque no hay UVM: primero `bash run.sh`
+—mil operaciones, silencio, y el resumen de cobertura—, y después
+`VTALU_BUG=1 bash run.sh`, que termina en la línea de la slide y un `$stop`.
+Lo que hay que decir con todas las letras es qué prueba esa línea y qué no. Prueba
+que el scoreboard compara el bit que el bug tocó. No prueba que compare `ovf`:
+un bug que sólo tocara `ovf` es otra corrida, y por eso el plan tiene una fila
+para cada salida.
+Ésta es la respuesta corta a la primera slide del día: la regresión que dijo
+`PASS` y mandó el bug a fabricar nunca había visto un `FAILED`. No sabía si
+chequeaba. Un `PASS` no dice nada hasta que sabés qué habría dicho `FAILED`.
+Y no es un truco del día 1: es la práctica que atraviesa el curso. `+BUG=1` en
+el capstone del día 7 y `+GOLDEN_BUG` en el modelo de referencia del día 8 son
+esto mismo, y los correctores de los ejercicios lo exigen.
+
+---
+
+## El testbench convencional
+
 #### *Resumen de la unidad*
 
-- El orden es **cobertura primero**: se escribe qué hay que cubrir, y recién
-  después el testbench que lo cubre
-- El plan de verificación del VTALU son **seis frases en castellano**. Todo el
-  día 1 es traducirlas a código
-- Un testbench tiene **tres partes**, y en esta sección las tres están sueltas:
-  estímulo, self-checking y cobertura
+- El testbench tiene **tres partes** porque el plan tiene tres columnas:
+  estímulo, self-checking y medida. Hoy están sueltas en un archivo
 - El estímulo **sesga el random hacia los bordes** —`00` y `FF`— porque el azar
   uniforme casi nunca los visita
 - El `#1` antes de leer las señales no es adorno: sin él se lee en el mismo
   instante en que el DUT escribe, y el resultado es indefinido
-- Y lo que hay que mirar para la sección que sigue: **el tester sabe del
+- Un `PASS` no prueba nada hasta que viste el `FAILED`: **`VTALU_BUG=1`** es la
+  forma de verlo, y `make mutante` la de no olvidarse
+- Y lo que hay que mirar para interfaces y BFM: **el tester sabe del
   protocolo**. Mueve `start` y espera `done` con la mano
 
 Note:
-El último bullet es el que ordena el día: este testbench funciona y está mal
-repartido. El tester sabe cómo se menea `start` y el scoreboard sabe cuándo leer
-`done`: el protocolo vive en dos lugares del mismo archivo, y el día que cambie
-hay que tocar los dos.
+El último bullet es el que ordena el resto del día: este testbench funciona,
+está probado, y está mal repartido. El tester sabe cómo se menea `start` y el
+scoreboard sabe cuándo leer `done`: el protocolo vive en dos lugares del mismo
+archivo, y el día que cambie hay que tocar los dos.
 Ésa es toda la motivación de interfaces y BFM, y conviene dejarla como pregunta
-abierta en vez de contestarla acá.
+abierta en vez de contestarla acá. Antes, la sección que sigue llena la tercera
+columna.

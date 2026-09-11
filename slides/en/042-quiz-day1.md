@@ -1,18 +1,18 @@
-<!-- es-sha: aaba2b840017 -->
+<!-- es-sha: d94e6d21d363 -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 1
 
-#### *1 of 7 · Trends*
+#### *1 of 7 · The question of the day*
 
-**According to the Wilson 2024 study, where does most of a verification engineer's time go?**
+**A thousand random operations, the scoreboard reported no error and the log ends in `PASS`. What are you missing to say the DUT is verified?**
 
-- [ ] Into writing the testbench
-- [x] Into debug
-- [ ] Into running regressions
-- [ ] Into writing the specification
+- [ ] Nothing: a thousand operations without an error is a verified DUT
+- [ ] Running more seeds until code coverage reaches 100 %
+- [x] Knowing what the log would have said with a bug inside: run it with the mutated DUT
+- [ ] Replacing the scoreboard with assertions, which check the protocol on the exact edge and not at the end
 
-> **Into debug** — 47 % of the verification engineer's time goes there. That is why the course devotes a whole section to reporting: a scoreboard that only says "failed" leaves you right inside that 47 %.
+> **Watch it fail** — the `PASS` of a scoreboard that never saw an error says nothing: it may not have compared. `VTALU_BUG=1` flips one bit of the result and the testbench has to fail; `make mutante` demands it for the three testbenches of days 1 and 2.
 
 ---
 

@@ -24,18 +24,18 @@ líneas — las líneas que no escribió nadie no aparecen en el reporte.
 
 #### *Del plan de verificación al covergroup*
 
-Los seis puntos del plan de la sección anterior, traducidos:
+Las seis filas del plan de la sección anterior, traducidas:
 
 | Del plan | Cómo se mide |
 | --- | --- |
-| Todas las operaciones | `coverpoint op_set` con un bin por operación |
-| Casos borde: entradas en 0 y en 1 | `cross` de A, B y la operación |
-| Todas las ops después de un reset | bin de transición `rst_op => op` |
-| Mult después de single cycle y viceversa | bin de transición |
-| Cada operación dos veces seguidas | bin de repetición `[* 2]` |
-| Restar de menos: `A < B` y el `ovf` sube | `coverpoint borrow` con el bin `hubo_borrow` |
+| las seis operaciones | `coverpoint op_set` con un bin por operación |
+| operandos en `00` y en `FF` | `cross` de A, B y la operación |
+| operar después de un reset | bin de transición `rst_op => op` |
+| una mult después de una de un ciclo | bin de transición |
+| la misma operación dos veces seguidas | bin de repetición `[* 2]` |
+| restar de menos: `A < B`, y el `ovf` sube | `coverpoint borrow` con el bin `hubo_borrow` |
 
-- Los seis bullets dejan de ser buenas intenciones: cada uno es una línea de
+- Las seis filas dejan de ser buenas intenciones: cada una es una línea de
   código, y el simulador te dice cuáles todavía no pasaron
 
 Note:

@@ -1,47 +1,38 @@
-<!-- es-sha: c1b76b51fba2 -->
+<!-- es-sha: 873afc4332fa -->
 ## The conventional testbench
 
-#### *Coverage First Methodology*
+#### *The VTALU plan, with three columns to fill*
 
-- We define what we want to cover and then we build the TB
-- The goal is to test the whole functionality of the ALU and  
-  simulate *ALL* the lines of the RTL code
-- The TB has 3 parts: stimulus, self-checking and coverage
+| Feature | Scenario | Stimulus | Check | Measure |
+| --- | --- | --- | --- | --- |
+| ALU | the six operations | | | |
+| ALU | operands at `00` and at `FF` | | | |
+| reset | operate after a reset | | | |
+| mult | a mult after a single-cycle one | | | |
+| ALU | the same operation twice in a row | | | |
+| sub | subtract too much: `A < B`, and `ovf` goes up | | | |
 
-Note:
-The order matters: the coverage plan first, the testbench after. If you
-write the TB first, you end up measuring what the TB does instead of what the
-spec asks for. The six bullets on the next slide are the verification plan
-of the whole VTALU: read them one at a time and ask which one is missing.
-
----
-
-## The conventional testbench
-
-#### *The VTALU verification plan*
-
-- Test every operation
-- Corner cases: inputs all at 0/1 for every operation
-- Run every op after a reset
-- Run a multiplication after a single-cycle op and the other way round
-- Simulate every operation run twice in a row
-- **Subtract too much** —`A < B`— and see that `ovf` goes up
-
-- Six sentences in plain English. The whole section is translating them into code: the
-  **stimulus** produces them, the **covergroup** counts them, the **scoreboard** says
+- Six rows that come out of the spec, and none of the right-hand columns yet.
+  This section fills **two**: the stimulus provokes them and the scoreboard says
   whether the result was right
+- The third one —**which bin gets filled when it happens**— is the next section
+- The testbench has three parts because the plan has three columns
 
 Note:
-Worth reading the six points one at a time and asking which one is missing. The answer that
-usually comes up —"test intermediate values"— is a good one to discuss why it is not
-there: 256×256×5 combinations do not get simulated, and that is where the random comes in.
-The plan written before the testbench is the whole discipline of the unit. If
-you write it after, you end up describing what the testbench already does.
-The six points come back in the next section turned into bins, one by
-one. Worth announcing now so that nobody reads them as decoration.
-The last one is the one that brings the topic of the day: the DUT has TWO outputs, and one row
-of the plan that only closes by looking at both. A scoreboard that compares `result`
-and nothing else passes green with `ovf` stuck at zero.
+The order matters and it is the one from the previous unit: the plan first,
+the testbench after. If you write the testbench first, you end up measuring
+what the testbench does instead of what the spec asks for.
+Worth reading the six rows one at a time and asking which one is missing. The
+answer that usually comes up —"test intermediate values"— is good for
+discussing why it is not there: 256 × 256 × 5 combinations do not get
+simulated, and that is where random comes in.
+The last one is the one that brings today's topic: the DUT has TWO outputs, and
+a row of the plan that only closes by looking at both. A scoreboard that
+compares `result` and nothing else passes green with `ovf` stuck at zero.
+The table comes back twice: in functional coverage with the measure column
+filled in, row by row, and at the end of that whole section, with the twelve
+rows and the three columns. Worth announcing now so nobody reads it as
+decoration: it is the same table, filling up.
 
 ---
 
@@ -114,25 +105,58 @@ concept, with a counter and a severity policy behind it.
 
 ## The conventional testbench
 
-#### *Summary of the unit*
+#### *How do you know the scoreboard checks anything?*
 
-- The order is **coverage first**: you write what has to be covered, and only
-  then the testbench that covers it
-- The VTALU verification plan is **six sentences in plain English**. The whole
-  day 1 is translating them into code
-- A testbench has **three parts**, and in this section all three are loose:
-  stimulus, self-checking and coverage
-- The stimulus **biases the random towards the edges** —`00` and `FF`— because uniform
-  chance almost never visits them
-- The `#1` before reading the signals is not decoration: without it you read at the same
-  instant the DUT writes, and the result is undefined
-- And what to look at for the section that follows: **the tester knows about the
+{{code:code/u2/convencional/mutante.txt}}
+
+- A thousand operations and not one error. Now **the same testbench with the
+  DUT broken on purpose**: `VTALU_BUG=1 bash run.sh` flips bit 0 of the result
+- It fails on the first comparison. That —and not the earlier `PASS`— is what
+  proves the scoreboard looks at the result
+- A scoreboard that **never saw an error** is not proven: it may have compared
+  against itself, or compared nothing at all
+- `make mutante` does this with the three testbenches of days 1 and 2, and
+  fails if any of them does **not** fail. It is the first answer to the
+  question of the day
+
+Note:
+Run it live, it takes seconds because there is no UVM: first `bash run.sh` —a
+thousand operations, silence, and the coverage summary—, then
+`VTALU_BUG=1 bash run.sh`, which ends in the line on the slide and a `$stop`.
+What has to be said in so many words is what that line proves and what it does
+not. It proves the scoreboard compares the bit the bug touched. It does not
+prove it compares `ovf`: a bug that only touched `ovf` is another run, and that
+is why the plan has a row for each output.
+This is the short answer to the first slide of the day: the regression that
+said `PASS` and sent the bug to the fab had never seen a `FAILED`. It did not
+know whether it was checking. A `PASS` says nothing until you know what
+`FAILED` would have said.
+And it is not a day-1 trick: it is the practice that runs through the course.
+`+BUG=1` in the day 7 capstone and `+GOLDEN_BUG` in the day 8 reference model
+are this very thing, and the exercise checkers demand it.
+
+---
+
+## The conventional testbench
+
+#### *Unit summary*
+
+- The testbench has **three parts** because the plan has three columns:
+  stimulus, self-checking and measure. Today they are loose in one file
+- The stimulus **biases the random towards the edges** —`00` and `FF`— because
+  uniform randomness almost never visits them
+- The `#1` before reading the signals is not decoration: without it you read in
+  the very instant the DUT writes, and the result is undefined
+- A `PASS` proves nothing until you have seen the `FAILED`: **`VTALU_BUG=1`** is
+  the way to see it, and `make mutante` the way not to forget
+- And what to look at for interfaces and BFM: **the tester knows the
   protocol**. It moves `start` and waits for `done` by hand
 
 Note:
-The last bullet is the one that orders the day: this testbench works and is badly
-split up. The tester knows how `start` gets wiggled and the scoreboard knows when
-to read `done`: the protocol lives in two places of the same file, and the day it
-changes both have to be touched.
-That is the whole motivation for interfaces and BFM, and it is worth leaving it as an
-open question instead of answering it here.
+The last bullet is the one that orders the rest of the day: this testbench
+works, it is proven, and it is badly divided. The tester knows how `start` is
+wiggled and the scoreboard knows when to read `done`: the protocol lives in two
+places of the same file, and the day it changes both have to be touched.
+That is the whole motivation for interfaces and BFM, and it is worth leaving as
+an open question instead of answering it here. Before that, the next section
+fills in the third column.

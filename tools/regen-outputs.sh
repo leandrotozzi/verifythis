@@ -66,6 +66,23 @@ escribe() {
   echo "  -> $out"
 }
 
+# --- u2/convencional: el mutante ------------------------------------------------
+# La slide "Como sabes que el scoreboard chequea algo?" muestra la linea con la
+# que el testbench convencional falla cuando el DUT corre con +VTALU_BUG. La
+# corrida TIENE que fallar, asi que no pasa por corre(): un run.sh que termina
+# en cero aca es el error. Se guarda solo el mensaje del scoreboard, sin el
+# prefijo de Verilator, que trae el numero de linea del $error y envejece.
+if quiere code/u2/convencional; then
+  log=$TMP/u2_convencional_mutante.log
+  printf '  corriendo %-24s ' "u2/convencional +VTALU_BUG" >&2
+  if ( cd code/u2/convencional && VTALU_BUG=1 bash ./run.sh ) >"$log" 2>&1; then
+    echo "NO FALLO — el scoreboard no atrapa el bug" >&2; exit 1
+  fi
+  echo "ok (fallo, que es lo que tenia que pasar)" >&2
+  grep -m1 'FAILED:' "$log" | sed -E 's/.*Assertion failed in [^:]+: //' \
+    | escribe code/u2/convencional/mutante.txt
+fi
+
 # --- u4/tests: la corrida de referencia ------------------------------------------
 # Reemplaza a output.questa en la slide. El .questa se queda en el repo como
 # testigo historico (ver code/README.md), pero no es lo que ve el alumno.

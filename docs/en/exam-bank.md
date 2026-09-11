@@ -21,14 +21,14 @@ How to use it, and what to assess in each midterm: **[`for-teachers.md`](for-tea
 
 ## Day 1 · 7 questions
 
-**1. Trends**
+**1. The question of the day**
 
-According to the Wilson 2024 study, where does most of a verification engineer's time go?
+A thousand random operations, the scoreboard reported no error and the log ends in `PASS`. What are you missing to say the DUT is verified?
 
-- **a)** Into writing the testbench
-- **b)** Into debug
-- **c)** Into running regressions
-- **d)** Into writing the specification
+- **a)** Nothing: a thousand operations without an error is a verified DUT
+- **b)** Running more seeds until code coverage reaches 100 %
+- **c)** Knowing what the log would have said with a bug inside: run it with the mutated DUT
+- **d)** Replacing the scoreboard with assertions, which check the protocol on the exact edge and not at the end
 
 **2. The ALU spec**
 
@@ -577,7 +577,7 @@ The scoreboard with the golden model in C runs a thousand operations and reports
 
 | # | Day | Topic | Correct | Why |
 |--:|:--:|:--|:--:|:--|
-| 1 | 1 | Trends | **b** | **Into debug** — 47 % of the verification engineer's time goes there. That is why the course devotes a whole section to reporting: a scoreboard that only says "failed" leaves you right inside that 47 %. |
+| 1 | 1 | The question of the day | **c** | **Watch it fail** — the `PASS` of a scoreboard that never saw an error says nothing: it may not have compared. `VTALU_BUG=1` flips one bit of the result and the testbench has to fail; `make mutante` demands it for the three testbenches of days 1 and 2. |
 | 2 | 1 | The ALU spec | **d** | **Stable until `done`** — it is the DUT protocol, and it is exactly the reason the BFM exists: to wrap that rule in a single place so that no test forgets it. The first distractor describes a real protocol —pulse start, latched operands— that this DUT does not have. |
 | 3 | 1 | Functional coverage | **d** | **Very little** — code coverage measures the DUT; functional coverage measures the spec. A feature the designer never wrote gives 100 % of lines and 0 % of what matters, and the report is not going to tell you. |
 | 4 | 1 | covergroup | **a** | **The `sample()`** — a covergroup does not sample itself: somebody has to call it, on the edge or when a transaction arrives. Without that call the code compiles, runs, and the report reads 0 without a single warning. |

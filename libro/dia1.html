@@ -1069,58 +1069,87 @@ assertion.</p>
 
 <section id="s26" class="slide">
 <h2 id="el-testbench-convencional">El testbench convencional</h2>
-<h4 id="coverage-first-methodology"><em>Coverage First Methodology</em></h4>
+<h4 id="el-plan-del-vtalu-con-tres-columnas-por-llenar"><em>El plan del VTALU, con tres columnas por llenar</em></h4>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Escenario</th>
+<th>Estímulo</th>
+<th>Chequeo</th>
+<th>Medida</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ALU</td>
+<td>las seis operaciones</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ALU</td>
+<td>operandos en <code>00</code> y en <code>FF</code></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>reset</td>
+<td>operar después de un reset</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>mult</td>
+<td>una mult después de una de un ciclo</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ALU</td>
+<td>la misma operación dos veces seguidas</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>sub</td>
+<td>restar de menos: <code>A &lt; B</code>, y el <code>ovf</code> sube</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
 <ul>
-<li>Definimos qué queremos cubrir y luego creamos el TB</li>
-<li>El objetivo es testear toda la funcionalidad de la ALU y<br>simular <em>TODAS</em> las líneas del código RTL</li>
-<li>El TB tiene 3 partes: stimulus, self-checking y coverage</li>
+<li>Seis filas que salen de la spec, y todavía ninguna columna de la derecha.
+Esta sección llena <strong>dos</strong>: el estímulo las provoca y el scoreboard dice si
+el resultado estuvo bien</li>
+<li>La tercera —<strong>qué bin se llena cuando pasa</strong>— es la sección que sigue</li>
+<li>El testbench tiene tres partes porque el plan tiene tres columnas</li>
 </ul>
 <div class="nota">
-<p>El orden importa: primero el plan de cobertura, después el testbench. Si
-escribís el TB primero, terminás midiendo lo que el TB hace en vez de lo que la
-spec pide. Los seis bullets de la slide siguiente son el plan de verificación
-del VTALU entero: leerlos de a uno y preguntar cuál falta.</p>
+<p>El orden importa y es el de la unidad anterior: primero el plan, después el
+testbench. Si escribís el testbench primero, terminás midiendo lo que el
+testbench hace en vez de lo que la spec pide.
+Vale leer las seis filas de a una y preguntar cuál falta. La respuesta que
+suele aparecer —&quot;probar valores intermedios&quot;— es buena para discutir por qué
+no está: 256 × 256 × 5 combinaciones no se simulan, y ahí es donde entra el
+random.
+La última es la que trae el tema del día: el DUT tiene DOS salidas, y una fila
+del plan que sólo se cierra mirando las dos. Un scoreboard que compara
+<code>result</code> y nada más pasa en verde con el <code>ovf</code> clavado en cero.
+La tabla vuelve dos veces: en cobertura funcional con la columna de medida
+llena, fila por fila, y al final de esa sección entera, con las doce filas y
+las tres columnas. Conviene avisarlo ahora para que nadie la lea como
+decoración: es la misma tabla, llenándose.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/26">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
 <section id="s27" class="slide">
-<h2 id="el-testbench-convencional">El testbench convencional</h2>
-<h4 id="el-plan-de-verificación-del-vtalu"><em>El plan de verificación del VTALU</em></h4>
-<ul>
-<li><p>Testear todas las operaciones</p>
-</li>
-<li><p>Casos borde: entradas todas en 0/1 para todas las operaciones</p>
-</li>
-<li><p>Ejecutar todas las ops luego de un reset</p>
-</li>
-<li><p>Ejecutar una multiplicación luego de una single cycle op y viceversa</p>
-</li>
-<li><p>Simular todas las operaciones ejecutadas 2 veces seguidas</p>
-</li>
-<li><p><strong>Restar de menos</strong> —<code>A &lt; B</code>— y ver que el <code>ovf</code> sube</p>
-</li>
-<li><p>Seis frases en castellano. Toda la sección es traducirlas a código: el
-<strong>estímulo</strong> las produce, el <strong>covergroup</strong> las cuenta, el <strong>scoreboard</strong> dice
-si el resultado estuvo bien</p>
-</li>
-</ul>
-<div class="nota">
-<p>Vale leer los seis puntos de a uno y preguntar cuál falta. La respuesta que
-suele aparecer —&quot;probar valores intermedios&quot;— es buena para discutir por qué no
-está: 256×256×5 combinaciones no se simulan, y ahí es donde entra el random.
-El plan escrito antes que el testbench es la disciplina entera de la unidad. Si
-lo escribís después, terminás describiendo lo que el testbench ya hace.
-Los seis puntos vuelven en la sección siguiente convertidos en bins, uno por
-uno. Conviene avisarlo ahora para que nadie los lea como decoración.
-El último es el que trae el tema del día: el DUT tiene DOS salidas, y una fila
-del plan que sólo se cierra mirando las dos. Un scoreboard que compara <code>result</code>
-y nada más pasa en verde con el <code>ovf</code> clavado en cero.</p>
-</div>
-<p class="al-deck"><a href="../index.html#/27">ver esta slide en el deck &rsaquo;</a></p>
-</section>
-
-<section id="s28" class="slide">
 <h2 id="el-testbench-convencional">El testbench convencional</h2>
 <h4 id="el-estímulo-mil-operaciones-y-el-protocolo-a-mano"><em>El estímulo: mil operaciones, y el protocolo a mano</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #stimulus-loop</figcaption><pre><code class="hljs">      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">1000</span>) <span class="hljs-keyword">begin</span>
@@ -1439,10 +1468,10 @@ El sesgo de <code>get_data()</code> —un cuarto en 00, un cuarto en FF, la mita
 medio— es exactamente lo que las transactions van a escribir en una línea con <code>dist</code>
 y <code>:/</code>. Conviene nombrarlo ahora para que después se vea el ahorro.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/28">ver esta slide en el deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/27">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
-<section id="s29" class="slide">
+<section id="s28" class="slide">
 <h2 id="el-testbench-convencional">El testbench convencional</h2>
 <h4 id="el-self-checking-predecir-y-comparar"><em>El self-checking: predecir y comparar</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #scoreboard-block</figcaption><pre><code class="hljs">   <span class="hljs-comment">// Sent by the tester, compared by the scoreboard: the final block below</span>
@@ -1750,6 +1779,39 @@ los analysis ports se va a reemplazar por una cola de comandos que manda el moni
 Y el <code>$error</code> de acá va a ser un <code>`uvm_error</code> desde reporting: mismo
 concepto, con un contador y una política de severidad detrás.</p>
 </div>
+<p class="al-deck"><a href="../index.html#/28">ver esta slide en el deck &rsaquo;</a></p>
+</section>
+
+<section id="s29" class="slide">
+<h2 id="el-testbench-convencional">El testbench convencional</h2>
+<h4 id="¿cómo-sabés-que-el-scoreboard-chequea-algo"><em>¿Cómo sabés que el scoreboard chequea algo?</em></h4>
+<figure class="codigo"><figcaption><code>code/u2/convencional/mutante.txt</code></figcaption><pre><code class="hljs">FAILED: A: 15  B: ce  op: xor_op result: da ovf: 0</code></pre></figure>
+
+<ul>
+<li>Mil operaciones y ningún error. Ahora <strong>el mismo testbench con el DUT roto a
+propósito</strong>: <code>VTALU_BUG=1 bash run.sh</code> da vuelta el bit 0 del resultado</li>
+<li>Falla en la primera comparación. Eso —y no el <code>PASS</code> de antes— es lo que
+prueba que el scoreboard mira el resultado</li>
+<li>Un scoreboard que <strong>nunca vio un error</strong> no está probado: pudo haber comparado
+contra sí mismo, o no haber comparado nada</li>
+<li><code>make mutante</code> hace esto con los tres testbenches de los días 1 y 2, y falla
+si alguno <strong>no</strong> falla. Es la primera respuesta a la pregunta del día</li>
+</ul>
+<div class="nota">
+<p>Correrlo en vivo, que son segundos porque no hay UVM: primero <code>bash run.sh</code>
+—mil operaciones, silencio, y el resumen de cobertura—, y después
+<code>VTALU_BUG=1 bash run.sh</code>, que termina en la línea de la slide y un <code>$stop</code>.
+Lo que hay que decir con todas las letras es qué prueba esa línea y qué no. Prueba
+que el scoreboard compara el bit que el bug tocó. No prueba que compare <code>ovf</code>:
+un bug que sólo tocara <code>ovf</code> es otra corrida, y por eso el plan tiene una fila
+para cada salida.
+Ésta es la respuesta corta a la primera slide del día: la regresión que dijo
+<code>PASS</code> y mandó el bug a fabricar nunca había visto un <code>FAILED</code>. No sabía si
+chequeaba. Un <code>PASS</code> no dice nada hasta que sabés qué habría dicho <code>FAILED</code>.
+Y no es un truco del día 1: es la práctica que atraviesa el curso. <code>+BUG=1</code> en
+el capstone del día 7 y <code>+GOLDEN_BUG</code> en el modelo de referencia del día 8 son
+esto mismo, y los correctores de los ejercicios lo exigen.</p>
+</div>
 <p class="al-deck"><a href="../index.html#/29">ver esta slide en el deck &rsaquo;</a></p>
 </section>
 
@@ -1757,26 +1819,25 @@ concepto, con un contador y una política de severidad detrás.</p>
 <h2 id="el-testbench-convencional">El testbench convencional</h2>
 <h4 id="resumen-de-la-unidad"><em>Resumen de la unidad</em></h4>
 <ul>
-<li>El orden es <strong>cobertura primero</strong>: se escribe qué hay que cubrir, y recién
-después el testbench que lo cubre</li>
-<li>El plan de verificación del VTALU son <strong>seis frases en castellano</strong>. Todo el
-día 1 es traducirlas a código</li>
-<li>Un testbench tiene <strong>tres partes</strong>, y en esta sección las tres están sueltas:
-estímulo, self-checking y cobertura</li>
+<li>El testbench tiene <strong>tres partes</strong> porque el plan tiene tres columnas:
+estímulo, self-checking y medida. Hoy están sueltas en un archivo</li>
 <li>El estímulo <strong>sesga el random hacia los bordes</strong> —<code>00</code> y <code>FF</code>— porque el azar
 uniforme casi nunca los visita</li>
 <li>El <code>#1</code> antes de leer las señales no es adorno: sin él se lee en el mismo
 instante en que el DUT escribe, y el resultado es indefinido</li>
-<li>Y lo que hay que mirar para la sección que sigue: <strong>el tester sabe del
+<li>Un <code>PASS</code> no prueba nada hasta que viste el <code>FAILED</code>: <strong><code>VTALU_BUG=1</code></strong> es la
+forma de verlo, y <code>make mutante</code> la de no olvidarse</li>
+<li>Y lo que hay que mirar para interfaces y BFM: <strong>el tester sabe del
 protocolo</strong>. Mueve <code>start</code> y espera <code>done</code> con la mano</li>
 </ul>
 <div class="nota">
-<p>El último bullet es el que ordena el día: este testbench funciona y está mal
-repartido. El tester sabe cómo se menea <code>start</code> y el scoreboard sabe cuándo leer
-<code>done</code>: el protocolo vive en dos lugares del mismo archivo, y el día que cambie
-hay que tocar los dos.
+<p>El último bullet es el que ordena el resto del día: este testbench funciona,
+está probado, y está mal repartido. El tester sabe cómo se menea <code>start</code> y el
+scoreboard sabe cuándo leer <code>done</code>: el protocolo vive en dos lugares del mismo
+archivo, y el día que cambie hay que tocar los dos.
 Ésa es toda la motivación de interfaces y BFM, y conviene dejarla como pregunta
-abierta en vez de contestarla acá.</p>
+abierta en vez de contestarla acá. Antes, la sección que sigue llena la tercera
+columna.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/30">ver esta slide en el deck &rsaquo;</a></p>
 </section>
@@ -1807,7 +1868,7 @@ líneas — las líneas que no escribió nadie no aparecen en el reporte.</p>
 <section id="s32" class="slide">
 <h2 id="cobertura-funcional">Cobertura funcional</h2>
 <h4 id="del-plan-de-verificación-al-covergroup"><em>Del plan de verificación al covergroup</em></h4>
-<p>Los seis puntos del plan de la sección anterior, traducidos:</p>
+<p>Las seis filas del plan de la sección anterior, traducidas:</p>
 <table>
 <thead>
 <tr>
@@ -1816,32 +1877,32 @@ líneas — las líneas que no escribió nadie no aparecen en el reporte.</p>
 </tr>
 </thead>
 <tbody><tr>
-<td>Todas las operaciones</td>
+<td>las seis operaciones</td>
 <td><code>coverpoint op_set</code> con un bin por operación</td>
 </tr>
 <tr>
-<td>Casos borde: entradas en 0 y en 1</td>
+<td>operandos en <code>00</code> y en <code>FF</code></td>
 <td><code>cross</code> de A, B y la operación</td>
 </tr>
 <tr>
-<td>Todas las ops después de un reset</td>
+<td>operar después de un reset</td>
 <td>bin de transición <code>rst_op =&gt; op</code></td>
 </tr>
 <tr>
-<td>Mult después de single cycle y viceversa</td>
+<td>una mult después de una de un ciclo</td>
 <td>bin de transición</td>
 </tr>
 <tr>
-<td>Cada operación dos veces seguidas</td>
+<td>la misma operación dos veces seguidas</td>
 <td>bin de repetición <code>[* 2]</code></td>
 </tr>
 <tr>
-<td>Restar de menos: <code>A &lt; B</code> y el <code>ovf</code> sube</td>
+<td>restar de menos: <code>A &lt; B</code>, y el <code>ovf</code> sube</td>
 <td><code>coverpoint borrow</code> con el bin <code>hubo_borrow</code></td>
 </tr>
 </tbody></table>
 <ul>
-<li>Los seis bullets dejan de ser buenas intenciones: cada uno es una línea de
+<li>Las seis filas dejan de ser buenas intenciones: cada una es una línea de
 código, y el simulador te dice cuáles todavía no pasaron</li>
 </ul>
 <div class="nota">
@@ -4090,16 +4151,16 @@ un driver de dispositivo es al sistema operativo.</p>
 
 <section id="s57" class="slide quiz">
 <h2 id="repaso-·-día-1">Repaso · Día 1</h2>
-<h4 id="1-de-7-·-tendencias"><em>1 de 7 · Tendencias</em></h4>
-<p><strong>Según el estudio de Wilson 2024, ¿en qué se le va la mayor parte del tiempo a un verificador?</strong></p>
+<h4 id="1-de-7-·-la-pregunta-del-día"><em>1 de 7 · La pregunta del día</em></h4>
+<p><strong>Mil operaciones al azar, el scoreboard no reportó ningún error y el log termina en <code>PASS</code>. ¿Qué te falta para decir que el DUT está verificado?</strong></p>
 <ul>
-<li><input disabled="" type="checkbox"> En escribir el testbench</li>
-<li><input checked="" disabled="" type="checkbox"> En debug</li>
-<li><input disabled="" type="checkbox"> En correr regresiones</li>
-<li><input disabled="" type="checkbox"> En escribir la especificación</li>
+<li><input disabled="" type="checkbox"> Nada: mil operaciones sin un error es un DUT verificado</li>
+<li><input disabled="" type="checkbox"> Correr más semillas hasta que la cobertura de código llegue al 100 %</li>
+<li><input checked="" disabled="" type="checkbox"> Saber qué habría dicho el log con un bug adentro: correrlo con el DUT mutado</li>
+<li><input disabled="" type="checkbox"> Reemplazar el scoreboard por assertions, que chequean el protocolo en el flanco exacto y no al final</li>
 </ul>
 <blockquote>
-<p><strong>En debug</strong> — el 47 % del tiempo del verificador se va ahí. Por eso el curso le dedica una sección entera al reporting: un scoreboard que sólo dice &quot;falló&quot; te deja justo en ese 47 %.</p>
+<p><strong>Verlo fallar</strong> — el <code>PASS</code> de un scoreboard que nunca vio un error no dice nada: pudo no haber comparado. <code>VTALU_BUG=1</code> da vuelta un bit del resultado y el testbench tiene que fallar; <code>make mutante</code> lo exige para los tres testbenches de los días 1 y 2.</p>
 </blockquote>
 <p class="al-deck"><a href="../index.html#/57">ver esta slide en el deck &rsaquo;</a></p>
 </section>

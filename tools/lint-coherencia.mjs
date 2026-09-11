@@ -231,6 +231,29 @@ const HECHOS = [
       ['slides/en/007-el-gancho.md', /\*\*14 %\*\* of projects/],
     ],
   },
+  {
+    // La slide del mutante describe lo que hace +VTALU_BUG con las palabras del
+    // comentario del DUT. Si el mutante cambia de bit, cambian las dos slides.
+    que: 'el mutante del VTALU (+VTALU_BUG) da vuelta el bit 0 del resultado',
+    fuente: ['code/vtalu_dut/vtalu.sv', /With \+VTALU_BUG, bit 0 of the result/],
+    lugares: [
+      ['slides/es/025-testbench-convencional.md', /da vuelta el bit 0 del resultado/],
+      ['slides/en/025-testbench-convencional.md', /flips bit 0 of the result/],
+    ],
+  },
+  {
+    // "los tres testbenches de los dias 1 y 2" es la lista MUTANTES del
+    // Makefile. Agregar un cuarto sin tocar las slides es la forma clasica de
+    // dejar viejo un numero.
+    que: 'make mutante corre exactamente tres ejemplos',
+    fuente: ['Makefile', /^MUTANTES \?= \S+ \S+ \S+$/m],
+    lugares: [
+      ['slides/es/025-testbench-convencional.md', /los tres testbenches de los días 1 y 2/],
+      ['slides/en/025-testbench-convencional.md', /the three testbenches of days 1 and 2/],
+      ['slides/es/042-quiz-day1.md', /los tres testbenches de los días 1 y 2/],
+      ['slides/en/042-quiz-day1.md', /the three testbenches of days 1 and 2/],
+    ],
+  },
 
   // --- Figuras que contradicen al codigo o a la slide que las proyecta ---
   {

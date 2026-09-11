@@ -1084,60 +1084,89 @@ assertion ones.</p>
 </section>
 
 <section id="s26" class="slide">
-<!-- es-sha: c1b76b51fba2 -->
+<!-- es-sha: 873afc4332fa -->
 <h2 id="the-conventional-testbench">The conventional testbench</h2>
-<h4 id="coverage-first-methodology"><em>Coverage First Methodology</em></h4>
+<h4 id="the-vtalu-plan-with-three-columns-to-fill"><em>The VTALU plan, with three columns to fill</em></h4>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Scenario</th>
+<th>Stimulus</th>
+<th>Check</th>
+<th>Measure</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ALU</td>
+<td>the six operations</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ALU</td>
+<td>operands at <code>00</code> and at <code>FF</code></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>reset</td>
+<td>operate after a reset</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>mult</td>
+<td>a mult after a single-cycle one</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ALU</td>
+<td>the same operation twice in a row</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>sub</td>
+<td>subtract too much: <code>A &lt; B</code>, and <code>ovf</code> goes up</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
 <ul>
-<li>We define what we want to cover and then we build the TB</li>
-<li>The goal is to test the whole functionality of the ALU and<br>simulate <em>ALL</em> the lines of the RTL code</li>
-<li>The TB has 3 parts: stimulus, self-checking and coverage</li>
+<li>Six rows that come out of the spec, and none of the right-hand columns yet.
+This section fills <strong>two</strong>: the stimulus provokes them and the scoreboard says
+whether the result was right</li>
+<li>The third one —<strong>which bin gets filled when it happens</strong>— is the next section</li>
+<li>The testbench has three parts because the plan has three columns</li>
 </ul>
 <div class="nota">
-<p>The order matters: the coverage plan first, the testbench after. If you
-write the TB first, you end up measuring what the TB does instead of what the
-spec asks for. The six bullets on the next slide are the verification plan
-of the whole VTALU: read them one at a time and ask which one is missing.</p>
+<p>The order matters and it is the one from the previous unit: the plan first,
+the testbench after. If you write the testbench first, you end up measuring
+what the testbench does instead of what the spec asks for.
+Worth reading the six rows one at a time and asking which one is missing. The
+answer that usually comes up —&quot;test intermediate values&quot;— is good for
+discussing why it is not there: 256 × 256 × 5 combinations do not get
+simulated, and that is where random comes in.
+The last one is the one that brings today&#39;s topic: the DUT has TWO outputs, and
+a row of the plan that only closes by looking at both. A scoreboard that
+compares <code>result</code> and nothing else passes green with <code>ovf</code> stuck at zero.
+The table comes back twice: in functional coverage with the measure column
+filled in, row by row, and at the end of that whole section, with the twelve
+rows and the three columns. Worth announcing now so nobody reads it as
+decoration: it is the same table, filling up.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/26">see this slide in the deck &rsaquo;</a></p>
 </section>
 
 <section id="s27" class="slide">
-<h2 id="the-conventional-testbench">The conventional testbench</h2>
-<h4 id="the-vtalu-verification-plan"><em>The VTALU verification plan</em></h4>
-<ul>
-<li><p>Test every operation</p>
-</li>
-<li><p>Corner cases: inputs all at 0/1 for every operation</p>
-</li>
-<li><p>Run every op after a reset</p>
-</li>
-<li><p>Run a multiplication after a single-cycle op and the other way round</p>
-</li>
-<li><p>Simulate every operation run twice in a row</p>
-</li>
-<li><p><strong>Subtract too much</strong> —<code>A &lt; B</code>— and see that <code>ovf</code> goes up</p>
-</li>
-<li><p>Six sentences in plain English. The whole section is translating them into code: the
-<strong>stimulus</strong> produces them, the <strong>covergroup</strong> counts them, the <strong>scoreboard</strong> says
-whether the result was right</p>
-</li>
-</ul>
-<div class="nota">
-<p>Worth reading the six points one at a time and asking which one is missing. The answer that
-usually comes up —&quot;test intermediate values&quot;— is a good one to discuss why it is not
-there: 256×256×5 combinations do not get simulated, and that is where the random comes in.
-The plan written before the testbench is the whole discipline of the unit. If
-you write it after, you end up describing what the testbench already does.
-The six points come back in the next section turned into bins, one by
-one. Worth announcing now so that nobody reads them as decoration.
-The last one is the one that brings the topic of the day: the DUT has TWO outputs, and one row
-of the plan that only closes by looking at both. A scoreboard that compares <code>result</code>
-and nothing else passes green with <code>ovf</code> stuck at zero.</p>
-</div>
-<p class="al-deck"><a href="../index.html#/27">see this slide in the deck &rsaquo;</a></p>
-</section>
-
-<section id="s28" class="slide">
 <h2 id="the-conventional-testbench">The conventional testbench</h2>
 <h4 id="the-stimulus-a-thousand-operations-and-the-protocol-by-hand"><em>The stimulus: a thousand operations, and the protocol by hand</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #stimulus-loop</figcaption><pre><code class="hljs">      <span class="hljs-keyword">repeat</span> (<span class="hljs-number">1000</span>) <span class="hljs-keyword">begin</span>
@@ -1456,10 +1485,10 @@ The bias of <code>get_data()</code> —a quarter at 00, a quarter at FF, half in
 middle— is exactly what the transactions are going to write in one line with <code>dist</code>
 and <code>:/</code>. Worth naming it now so that the saving is visible later.</p>
 </div>
-<p class="al-deck"><a href="../index.html#/28">see this slide in the deck &rsaquo;</a></p>
+<p class="al-deck"><a href="../index.html#/27">see this slide in the deck &rsaquo;</a></p>
 </section>
 
-<section id="s29" class="slide">
+<section id="s28" class="slide">
 <h2 id="the-conventional-testbench">The conventional testbench</h2>
 <h4 id="the-self-checking-predict-and-compare"><em>The self-checking: predict and compare</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/convencional/vtalu_tb.sv</code> · #scoreboard-block</figcaption><pre><code class="hljs">   <span class="hljs-comment">// Sent by the tester, compared by the scoreboard: the final block below</span>
@@ -1767,39 +1796,73 @@ the analysis ports it will be replaced by a queue of commands the monitor sends.
 And the <code>$error</code> here is going to be a <code>`uvm_error</code> from reporting on: same
 concept, with a counter and a severity policy behind it.</p>
 </div>
+<p class="al-deck"><a href="../index.html#/28">see this slide in the deck &rsaquo;</a></p>
+</section>
+
+<section id="s29" class="slide">
+<h2 id="the-conventional-testbench">The conventional testbench</h2>
+<h4 id="how-do-you-know-the-scoreboard-checks-anything"><em>How do you know the scoreboard checks anything?</em></h4>
+<figure class="codigo"><figcaption><code>code/u2/convencional/mutante.txt</code></figcaption><pre><code class="hljs">FAILED: A: 15  B: ce  op: xor_op result: da ovf: 0</code></pre></figure>
+
+<ul>
+<li>A thousand operations and not one error. Now <strong>the same testbench with the
+DUT broken on purpose</strong>: <code>VTALU_BUG=1 bash run.sh</code> flips bit 0 of the result</li>
+<li>It fails on the first comparison. That —and not the earlier <code>PASS</code>— is what
+proves the scoreboard looks at the result</li>
+<li>A scoreboard that <strong>never saw an error</strong> is not proven: it may have compared
+against itself, or compared nothing at all</li>
+<li><code>make mutante</code> does this with the three testbenches of days 1 and 2, and
+fails if any of them does <strong>not</strong> fail. It is the first answer to the
+question of the day</li>
+</ul>
+<div class="nota">
+<p>Run it live, it takes seconds because there is no UVM: first <code>bash run.sh</code> —a
+thousand operations, silence, and the coverage summary—, then
+<code>VTALU_BUG=1 bash run.sh</code>, which ends in the line on the slide and a <code>$stop</code>.
+What has to be said in so many words is what that line proves and what it does
+not. It proves the scoreboard compares the bit the bug touched. It does not
+prove it compares <code>ovf</code>: a bug that only touched <code>ovf</code> is another run, and that
+is why the plan has a row for each output.
+This is the short answer to the first slide of the day: the regression that
+said <code>PASS</code> and sent the bug to the fab had never seen a <code>FAILED</code>. It did not
+know whether it was checking. A <code>PASS</code> says nothing until you know what
+<code>FAILED</code> would have said.
+And it is not a day-1 trick: it is the practice that runs through the course.
+<code>+BUG=1</code> in the day 7 capstone and <code>+GOLDEN_BUG</code> in the day 8 reference model
+are this very thing, and the exercise checkers demand it.</p>
+</div>
 <p class="al-deck"><a href="../index.html#/29">see this slide in the deck &rsaquo;</a></p>
 </section>
 
 <section id="s30" class="slide">
 <h2 id="the-conventional-testbench">The conventional testbench</h2>
-<h4 id="summary-of-the-unit"><em>Summary of the unit</em></h4>
+<h4 id="unit-summary"><em>Unit summary</em></h4>
 <ul>
-<li>The order is <strong>coverage first</strong>: you write what has to be covered, and only
-then the testbench that covers it</li>
-<li>The VTALU verification plan is <strong>six sentences in plain English</strong>. The whole
-day 1 is translating them into code</li>
-<li>A testbench has <strong>three parts</strong>, and in this section all three are loose:
-stimulus, self-checking and coverage</li>
-<li>The stimulus <strong>biases the random towards the edges</strong> —<code>00</code> and <code>FF</code>— because uniform
-chance almost never visits them</li>
-<li>The <code>#1</code> before reading the signals is not decoration: without it you read at the same
-instant the DUT writes, and the result is undefined</li>
-<li>And what to look at for the section that follows: <strong>the tester knows about the
+<li>The testbench has <strong>three parts</strong> because the plan has three columns:
+stimulus, self-checking and measure. Today they are loose in one file</li>
+<li>The stimulus <strong>biases the random towards the edges</strong> —<code>00</code> and <code>FF</code>— because
+uniform randomness almost never visits them</li>
+<li>The <code>#1</code> before reading the signals is not decoration: without it you read in
+the very instant the DUT writes, and the result is undefined</li>
+<li>A <code>PASS</code> proves nothing until you have seen the <code>FAILED</code>: <strong><code>VTALU_BUG=1</code></strong> is
+the way to see it, and <code>make mutante</code> the way not to forget</li>
+<li>And what to look at for interfaces and BFM: <strong>the tester knows the
 protocol</strong>. It moves <code>start</code> and waits for <code>done</code> by hand</li>
 </ul>
 <div class="nota">
-<p>The last bullet is the one that orders the day: this testbench works and is badly
-split up. The tester knows how <code>start</code> gets wiggled and the scoreboard knows when
-to read <code>done</code>: the protocol lives in two places of the same file, and the day it
-changes both have to be touched.
-That is the whole motivation for interfaces and BFM, and it is worth leaving it as an
-open question instead of answering it here.</p>
+<p>The last bullet is the one that orders the rest of the day: this testbench
+works, it is proven, and it is badly divided. The tester knows how <code>start</code> is
+wiggled and the scoreboard knows when to read <code>done</code>: the protocol lives in two
+places of the same file, and the day it changes both have to be touched.
+That is the whole motivation for interfaces and BFM, and it is worth leaving as
+an open question instead of answering it here. Before that, the next section
+fills in the third column.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/30">see this slide in the deck &rsaquo;</a></p>
 </section>
 
 <section id="s31" class="slide">
-<!-- es-sha: a88102953876 -->
+<!-- es-sha: 3d6cf351ca3c -->
 <h2 id="functional-coverage">Functional coverage</h2>
 <h4 id="when-are-you-done-verifying"><em>When are you done verifying?</em></h4>
 <ul>
@@ -1825,7 +1888,7 @@ lines — the lines nobody wrote do not show up in the report.</p>
 <section id="s32" class="slide">
 <h2 id="functional-coverage">Functional coverage</h2>
 <h4 id="from-the-verification-plan-to-the-covergroup"><em>From the verification plan to the covergroup</em></h4>
-<p>The six points of the plan from the previous section, translated:</p>
+<p>The six rows of the plan from the previous section, translated:</p>
 <table>
 <thead>
 <tr>
@@ -1834,32 +1897,32 @@ lines — the lines nobody wrote do not show up in the report.</p>
 </tr>
 </thead>
 <tbody><tr>
-<td>Every operation</td>
+<td>the six operations</td>
 <td><code>coverpoint op_set</code> with one bin per operation</td>
 </tr>
 <tr>
-<td>Corner cases: inputs at 0 and at 1</td>
+<td>operands at <code>00</code> and at <code>FF</code></td>
 <td><code>cross</code> of A, B and the operation</td>
 </tr>
 <tr>
-<td>Every op after a reset</td>
+<td>operate after a reset</td>
 <td>transition bin <code>rst_op =&gt; op</code></td>
 </tr>
 <tr>
-<td>Mult after single cycle and the other way round</td>
+<td>a mult after a single-cycle one</td>
 <td>transition bin</td>
 </tr>
 <tr>
-<td>Every operation twice in a row</td>
+<td>the same operation twice in a row</td>
 <td>repetition bin <code>[* 2]</code></td>
 </tr>
 <tr>
-<td>Subtract too much: <code>A &lt; B</code> and <code>ovf</code> goes up</td>
+<td>subtract too much: <code>A &lt; B</code>, and <code>ovf</code> goes up</td>
 <td><code>coverpoint borrow</code> with the <code>hubo_borrow</code> bin</td>
 </tr>
 </tbody></table>
 <ul>
-<li>The six bullets stop being good intentions: each one is a line of
+<li>The six rows stop being good intentions: each one is a line of
 code, and the simulator tells you which ones have not happened yet</li>
 </ul>
 <div class="nota">
@@ -4108,20 +4171,20 @@ a device driver is to the operating system.</p>
 </section>
 
 <section id="s57" class="slide quiz">
-<!-- es-sha: aaba2b840017 -->
+<!-- es-sha: d94e6d21d363 -->
 
 
 <h2 id="review-·-day-1">Review · Day 1</h2>
-<h4 id="1-of-7-·-trends"><em>1 of 7 · Trends</em></h4>
-<p><strong>According to the Wilson 2024 study, where does most of a verification engineer&#39;s time go?</strong></p>
+<h4 id="1-of-7-·-the-question-of-the-day"><em>1 of 7 · The question of the day</em></h4>
+<p><strong>A thousand random operations, the scoreboard reported no error and the log ends in <code>PASS</code>. What are you missing to say the DUT is verified?</strong></p>
 <ul>
-<li><input disabled="" type="checkbox"> Into writing the testbench</li>
-<li><input checked="" disabled="" type="checkbox"> Into debug</li>
-<li><input disabled="" type="checkbox"> Into running regressions</li>
-<li><input disabled="" type="checkbox"> Into writing the specification</li>
+<li><input disabled="" type="checkbox"> Nothing: a thousand operations without an error is a verified DUT</li>
+<li><input disabled="" type="checkbox"> Running more seeds until code coverage reaches 100 %</li>
+<li><input checked="" disabled="" type="checkbox"> Knowing what the log would have said with a bug inside: run it with the mutated DUT</li>
+<li><input disabled="" type="checkbox"> Replacing the scoreboard with assertions, which check the protocol on the exact edge and not at the end</li>
 </ul>
 <blockquote>
-<p><strong>Into debug</strong> — 47 % of the verification engineer&#39;s time goes there. That is why the course devotes a whole section to reporting: a scoreboard that only says &quot;failed&quot; leaves you right inside that 47 %.</p>
+<p><strong>Watch it fail</strong> — the <code>PASS</code> of a scoreboard that never saw an error says nothing: it may not have compared. <code>VTALU_BUG=1</code> flips one bit of the result and the testbench has to fail; <code>make mutante</code> demands it for the three testbenches of days 1 and 2.</p>
 </blockquote>
 <p class="al-deck"><a href="../index.html#/57">see this slide in the deck &rsaquo;</a></p>
 </section>

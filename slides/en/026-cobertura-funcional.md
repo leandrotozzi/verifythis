@@ -1,4 +1,4 @@
-<!-- es-sha: a88102953876 -->
+<!-- es-sha: 3d6cf351ca3c -->
 ## Functional coverage
 
 #### *When are you done verifying?*
@@ -25,18 +25,18 @@ lines — the lines nobody wrote do not show up in the report.
 
 #### *From the verification plan to the covergroup*
 
-The six points of the plan from the previous section, translated:
+The six rows of the plan from the previous section, translated:
 
 | From the plan | How it gets measured |
 | --- | --- |
-| Every operation | `coverpoint op_set` with one bin per operation |
-| Corner cases: inputs at 0 and at 1 | `cross` of A, B and the operation |
-| Every op after a reset | transition bin `rst_op => op` |
-| Mult after single cycle and the other way round | transition bin |
-| Every operation twice in a row | repetition bin `[* 2]` |
-| Subtract too much: `A < B` and `ovf` goes up | `coverpoint borrow` with the `hubo_borrow` bin |
+| the six operations | `coverpoint op_set` with one bin per operation |
+| operands at `00` and at `FF` | `cross` of A, B and the operation |
+| operate after a reset | transition bin `rst_op => op` |
+| a mult after a single-cycle one | transition bin |
+| the same operation twice in a row | repetition bin `[* 2]` |
+| subtract too much: `A < B`, and `ovf` goes up | `coverpoint borrow` with the `hubo_borrow` bin |
 
-- The six bullets stop being good intentions: each one is a line of
+- The six rows stop being good intentions: each one is a line of
   code, and the simulator tells you which ones have not happened yet
 
 Note:
