@@ -1,27 +1,17 @@
-<!-- es-sha: dbd1ef9ec078 -->
+<!-- es-sha: 96825f1c552c -->
 ## Trends
 
-#### *First silicon almost never comes out right*
-
-![How IC/ASIC projects end in 2024: 14 % get first silicon right and 75 % run late](res/trends/en/resultado.svg)
-<!-- .element: class="grande" -->
-
-Note:
-The number is from the Wilson Research Group 2024, it is not an impression: only 14 %
-of projects come out right on first silicon, which means six out of every seven
-need at least one respin. And it is the worst figure in twenty years of the survey.
-Asking who has done a tape-out and how it went hooks people better than the chart.
-If they ask where the data comes from: `res/trends/data.json`, and the figures are
-regenerated with `make figs`.
-
----
-
-## Trends
-
-#### *Why: what is inside a chip today*
+#### *Why they come back: what is inside a chip today*
 
 ![What is inside 2024 IC/ASICs: asynchronous clocks, embedded processor, security, AI, RISC-V and safety](res/trends/en/complejidad.svg)
 <!-- .element: class="grande" -->
+
+Note:
+It is the first half of the answer to *why they come back*: inside there are
+two asynchronous clocks in almost all of them, a processor in five out of six
+and an AI accelerator in more than half. It is not that verification is done
+worse than twenty years ago; it is that there is much more to verify, and the
+question on the first slide is harder to answer than ever.
 
 ---
 
@@ -36,6 +26,9 @@ Note:
 Here is the argument for why this course exists: the verification effort has
 already caught up with design. Verifying is not the final step before tape-out: it is
 half the project, with its own team and its own language.
+The 47 % on the right is planted today and collected twice: in the second
+exercise this afternoon, when the log says `FAILED` and nothing else, and in
+the reporting section on day 3, which is where the log learns to say why.
 
 ---
 
@@ -45,6 +38,13 @@ half the project, with its own team and its own language.
 
 ![What verification uses in 2024: UVM at 80 % in IC/ASIC and 50 % in FPGA](res/trends/en/metodologia.svg)
 <!-- .element: class="grande" -->
+
+Note:
+This one answers *with what*: eight out of ten ASIC projects verify with UVM,
+and half of the FPGA ones. What follows —the COBOL joke and the introduction—
+is what that UVM is and why it is not scary. And one thing worth leaving said
+now: UVM does not answer the question on the first slide. The testbench does;
+UVM is the way to write it so that the person next to you recognizes it.
 
 ---
 
@@ -69,3 +69,6 @@ of IEEE 1800-2017— and nobody uses them all. In this course we are going to us
 thirty. The same thing happens with UVM: the library is enormous and with six or seven
 classes you put together a complete testbench.
 It is useful for lowering the anxiety of whoever arrives scared by the size of UVM.
+And it is the bridge to the next section: eight out of ten verify with UVM, UVM
+is written in this language, and on days 1 and 2 everything UVM will later hand
+you ready-made gets written by hand. Thirty keywords are enough.

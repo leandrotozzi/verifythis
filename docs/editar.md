@@ -113,7 +113,7 @@ Lo que hay que decir y no entra en la slide: el porqué del dato, la analogía q
 engancha, la trampa clásica.
 ```
 
-Van en las slides que cargan el concepto, no en las 444 slides. `npm run check` corre
+Van en las slides que cargan el concepto, no en las 443 slides. `npm run check` corre
 `tools/lint-slides.mjs`, que **falla** si una slide con `{{code:}}` no tiene ni un
 bullet ni una `Note:` —una slide de código muda sólo se entiende con el
 instructor al lado—, y avisa si un `{{code:}}` sin recortar trae más de 35 líneas
@@ -181,7 +181,7 @@ npm run inventario  # cuántos ejemplos, slides, secciones… hay ahora
 
 ### Los números del curso no se escriben a mano
 
-*"444 slides"*, *"38 ejemplos"*, *"19 ejercicios"* aparecen repartidos en **más
+*"443 slides"*, *"38 ejemplos"*, *"19 ejercicios"* aparecen repartidos en **más
 de veinticinco lugares** —el README, la landing, el `CITATION.cff`, el
 `Makefile`, los workflows, los docs y las propias slides—, y agregar una slide
 los desactualizaba todos en silencio.
@@ -209,7 +209,7 @@ sigue siendo prosa, y el que miente falla en CI.
 > hace que el deck y el libro funcionen sin build. `npm run check` falla si te lo
 > olvidaste, y corre en CI.
 
-`npm run overflow` recorre las 444 slides en Chrome headless y falla si alguna no
+`npm run overflow` recorre las 443 slides en Chrome headless y falla si alguna no
 entra en el canvas de 1100×700, tanto en pantalla como en la maquetación del PDF.
 Es la red que garantiza que ninguna diapositiva salga cortada.
 

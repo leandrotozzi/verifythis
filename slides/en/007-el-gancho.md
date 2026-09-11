@@ -1,35 +1,39 @@
-<!-- es-sha: 1b3fafb460c5 -->
-## The log says it failed
+<!-- es-sha: 30b1f1d7713d -->
+## Six out of seven
 
-#### *And the DUT is healthy*
+#### *And the bug that reached silicon passed a green regression*
 
-```text
-$ cd code/ejercicios/d1b && bash run.sh
-FAILED: A: e5  B: 0  op: mul_op result: fe01 ovf: 0
-```
+![How IC/ASIC projects end in 2024: 14 % get first silicon right and 75 % run late](res/trends/en/resultado.svg)
+<!-- .element: class="grande" -->
 
-- `e5 × 00` is `0`, not `fe01`. The scoreboard is right: **something failed**
-- The DUT is right too: **it is not broken**. That `fe01` is the result of
-  another operation, which arrived late
-- And the log has not one line more. Which operation, in which cycle, who
-  overwrote whom: none of that is here
-- That gap between *"it failed"* and *"why"* is **almost half** of a verification
-  engineer's time, and it is what the week is about
+- **14 %** of projects get first silicon right. Six out of seven go back to
+  the fab, and it is the worst figure in twenty years of the survey
+- Every functional bug that reached silicon went through a testbench first.
+  That testbench ran, finished, and **said everything was fine**
+- Nobody tapes out with a `FAILED` in the log. You tape out with a `PASS`
+- Today has a single question: **how do you know you verified?** And *"I ran
+  a lot of tests"* is not an answer
 
 Note:
-This is the first slide with something running, and it goes here on purpose:
-before any chart, before the word UVM, the student has to have seen the problem.
-It is the `d1b` exercise, the second one of today, and in class it is worth
-running it live: it is four seconds because there is no UVM to compile here yet.
-It builds and runs fine —the DUT is healthy—; what fails is the test, and that is
-what has to be debugged.
-The question to throw out and **not** answer: *"with that line, where would you
-start?"*. The answers that will come are `$display` and running again, which is
-exactly what the course comes to replace. The answer is in an `ondas.vcd` the run
-left alongside and nobody has opened yet.
-And the honest close, which is the promise of the whole course: this is not about
-writing testbenches faster, it is about the log saying why when it fails — and it
-will fail. The *almost half* in the last bullet is the 47 % of the verification
-engineer's time that goes into debug: the figure comes from the Wilson Research
-Group 2024 survey, and the chart is *Verification is not a stage*, the third of
-the trends that come next.
+It is the first slide of the course on purpose: before the word UVM and before
+any other chart, a question the student cannot answer yet. The number is from
+the Wilson Research Group 2024 survey and it is not an impression: only 14 %
+come out right on first silicon, so six out of seven need at least one respin,
+and it is the worst figure in twenty years of the survey. Asking who has done a
+tape-out and how it went hooks better than the chart. If they ask where the
+data comes from: `res/trends/data.json`, and the figures are regenerated with
+`make figs`.
+The honesty worth saying out loud: not every respin is functional —there are
+timing ones, analog ones, a spec that changed late—. But the one that is went
+through a regression that said `PASS`, because had it said `FAILED` it would
+not have been fabricated. That is the enemy of the day, and it is not the
+verification engineer nor their testbench: it is a `PASS` nobody knew the
+meaning of.
+The question in the last bullet is thrown to the group and **not** answered.
+The answers that will come are *"100 % coverage"*, *"I ran a thousand
+operations"* and *"nothing failed"*, and all three come back today: the first
+is the coverage section, the second is the plan, and the third is the one that
+hurts most, because *nothing failed* is exactly what the respin's regression
+said. The short answer arrives in the conventional testbench, when we put a bug
+into the DUT on purpose; the long one is the whole day, and the last slide of
+the day comes back to this question with what the student wrote.

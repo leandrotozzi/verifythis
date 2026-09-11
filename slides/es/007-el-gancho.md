@@ -1,34 +1,37 @@
-## El log dice que falló
+## Seis de cada siete
 
-#### *Y el DUT está sano*
+#### *Y el bug que llegó al silicio pasó una regresión en verde*
 
-```text
-$ cd code/ejercicios/d1b && bash run.sh
-FAILED: A: e5  B: 0  op: mul_op result: fe01 ovf: 0
-```
+![Cómo terminan los proyectos IC/ASIC en 2024: 14 % acierta el primer silicio y 75 % llega atrasado](res/trends/resultado.svg)
+<!-- .element: class="grande" -->
 
-- `e5 × 00` es `0`, no `fe01`. El scoreboard tiene razón: **algo falló**
-- El DUT también tiene razón: **no está roto**. Ese `fe01` es el resultado de
-  otra operación, que llegó tarde
-- Y el log no tiene una línea más. Qué operación, en qué ciclo, quién pisó a
-  quién: nada de eso está acá
-- Ese hueco entre *"falló"* y *"por qué"* es **casi la mitad** del tiempo de un
-  verificador, y es de lo que trata la semana
+- El **14 %** de los proyectos acierta el primer silicio. Seis de cada siete
+  vuelven a la fábrica, y es el peor valor en veinte años de encuesta
+- Cada bug funcional que llegó al silicio pasó antes por un testbench. Ese
+  testbench corrió, terminó, y **dijo que estaba bien**
+- Nadie manda a fabricar con un `FAILED` en el log. Se manda con un `PASS`
+- La pregunta de hoy es una sola: **¿cómo sabés que verificaste?** Y *"corrí
+  muchos tests"* no es una respuesta
 
 Note:
-Ésta es la primera slide con algo corriendo, y va acá a propósito: antes de
-cualquier gráfico, antes de la palabra UVM, el alumno tiene que haber visto el
-problema. Es el ejercicio `d1b`, el segundo de hoy, y en clase conviene correrlo
-en vivo: son cuatro segundos porque acá todavía no hay UVM que compilar. Compila
-y corre bien —el DUT está sano—; lo que falla es el test, y eso es lo que hay que
-debuggear.
-La pregunta para tirar y **no** contestar: *"con esa línea, ¿por dónde
-empezarías?"*. Las respuestas que van a salir son `$display` y volver a correr,
-que es exactamente lo que el curso viene a reemplazar. La respuesta está en un
-`ondas.vcd` que la corrida dejó al lado y que nadie abrió todavía.
-Y el cierre honesto, que es la promesa del curso entero: no se trata de escribir
-testbenches más rápido, se trata de que cuando falle —y va a fallar— el log diga
-por qué. El *casi la mitad* del último bullet es el 47 % del tiempo del
-verificador que se va en debug: el dato sale de la encuesta del Wilson Research
-Group 2024, y el gráfico es *Verificar no es una etapa*, la tercera de las
-tendencias que vienen ahora.
+Es la primera slide del curso a propósito: antes de la palabra UVM y antes de
+cualquier otro gráfico, una pregunta que el alumno no puede contestar todavía.
+El número es del Wilson Research Group 2024 y no es una impresión: sólo el 14 %
+sale bien en el primer silicio, o sea que seis de cada siete necesitan al menos
+un respin, y es el peor valor en veinte años de encuesta. Preguntar quién hizo
+un tape-out y cómo salió engancha más que el gráfico. Si preguntan de dónde
+salen los datos: `res/trends/data.json`, y las figuras se regeneran con
+`make figs`.
+La honestidad que hay que decir en voz alta: no todos los respins son
+funcionales —hay de timing, de analógica, de una spec que cambió tarde—. Pero
+el que lo es pasó por una regresión que dijo `PASS`, porque si hubiera dicho
+`FAILED` no se fabricaba. Ése es el enemigo del día, y no es el verificador ni
+su testbench: es un `PASS` que nadie sabía qué significaba.
+La pregunta del último bullet se tira al grupo y **no** se contesta. Las
+respuestas que van a salir son *"cobertura al 100 %"*, *"corrí mil
+operaciones"* y *"no falló nada"*, y las tres vuelven hoy mismo: la primera es
+la sección de cobertura, la segunda es el plan, y la tercera es la que más
+duele, porque *no falló nada* es exactamente lo que dijo la regresión del
+respin. La respuesta corta llega en el testbench convencional, cuando le
+metamos un bug al DUT a propósito; la larga es el día entero, y la última
+slide del día vuelve a esta pregunta con lo que el alumno escribió.

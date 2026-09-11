@@ -1,4 +1,4 @@
-<!-- es-sha: 8ed5ce2170ab -->
+<!-- es-sha: 4e7881abc7c4 -->
 <!-- .slide: id="day1" data-machete="res/diagrams/en/wave-dut.svg|VTALU protocol: start and operands stable until done,res/en/TB.svg|Anatomy of a SystemVerilog testbench: the DUT, the tester, the scoreboard and the interface" -->
 
 <!-- .slide: data-transition="concave" -->
@@ -25,17 +25,21 @@
 **By the end of the day you can:**
 
 - **Write** a five-column verification plan for a DUT you have not seen before
-- **Read** the number a `covergroup` gives, and say what to look at first when it
-  reads 0 %
+- **Prove** that your scoreboard checks something: put a bug into the DUT on
+  purpose and watch it fail
+- **Read** the number a `covergroup` gives, say which row of the plan is
+  missing, and what to look at first when it reads 0 %
 - **Explain** which race a `clocking block` avoids — and why they are optional
   anyway
 
 Note:
-The three verbs below are the contract of the day, and it is worth reading them
-out loud before starting: on video they are the ten seconds in which somebody
-decides whether this is the one they were looking for. They are rows 2, 4 and 5
-of the closing self-assessment, brought to the front; whoever can answer them at
-the end of the day does not need to look at anything else.
+The four verbs below are the contract of the day, and it is worth reading them
+out loud before starting: on video they are the ten seconds in which someone
+decides whether this is the one they were looking for. Three are rows 2, 4 and
+5 of the closing self-assessment, brought to the front; the one about the bug
+on purpose is the practice that runs through the whole course, from `make
+mutante` today to `+BUG=1` in the capstone. Whoever can answer them at the end
+of the day does not need to watch anything else.
 And an honest warning for whoever comes from VHDL or from Verilog-2001, which is
 the declared audience: day 2 levels the OOP, but **nobody levels SystemVerilog**,
 and today `interface`, `logic`, `enum`, `package`, `covergroup`, `clocking` and an

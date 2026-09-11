@@ -16,6 +16,11 @@
   parezca al tuyo**
 
 Note:
+El enganche con lo anterior es de una línea: ocho de cada diez proyectos
+verifican con esto. Y la aclaración que evita que UVM parezca la respuesta a la
+pregunta del día: no lo es. La respuesta es un testbench con plan, chequeo y
+medida; UVM es la forma de escribirlo para que escale y para que otro lo
+reconozca.
 La frase que ordena la sección es la del segundo bullet, y conviene decirla
 fuerte porque baja la ansiedad del que llega asustado: **UVM no hace nada que no
 puedas hacer vos**. No hay magia adentro. Hay una fábrica, unos puertos, unas
@@ -150,3 +155,6 @@ esta slide se puede volver a poner tres veces.
 Y la última línea es la que más se subestima. Un test con mil semillas no es
 "el mismo test mil veces": es mil escenarios distintos por el precio de escribir
 uno. Es literalmente el ejercicio `d7-semillas`, con el que arranca el día 7.
+Y el cierre que lleva al DUT: nada de esta slide contesta todavía *¿cómo sabés
+que verificaste?*. Contestarla es lo que sigue —la spec, el plan y un testbench
+que se pueda probar—, y recién con eso escrito a mano se ve qué le agrega UVM.

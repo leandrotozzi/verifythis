@@ -1,4 +1,4 @@
-<!-- es-sha: bca8c0839486 -->
+<!-- es-sha: be56f017219d -->
 ## Introduction
 
 #### *What is UVM?*
@@ -17,6 +17,11 @@
   you looks like yours**
 
 Note:
+The link with what came before is one line: eight out of ten projects verify
+with this. And the clarification that keeps UVM from looking like the answer
+to the question of the day: it is not. The answer is a testbench with a plan, a
+check and a measure; UVM is the way to write it so it scales and so someone
+else recognizes it.
 The sentence that orders the section is the one in the second bullet, and it is worth saying
 it loudly because it lowers the anxiety of whoever arrives scared: **UVM does nothing you
 could not do yourself**. There is no magic inside. There is a factory, some ports, some
@@ -150,3 +155,7 @@ this slide can be put up three more times.
 And the last line is the most underestimated one. A test with a thousand seeds is not
 "the same test a thousand times": it is a thousand different scenarios for the price of writing
 one. It is literally the `d7-semillas` exercise, the one day 7 starts with.
+And the close that leads to the DUT: nothing on this slide answers *how do you
+know you verified?* yet. Answering it is what comes next —the spec, the plan
+and a testbench that can be put to the test—, and only with that written by
+hand does what UVM adds become visible.

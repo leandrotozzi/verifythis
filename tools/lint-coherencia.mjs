@@ -220,6 +220,17 @@ const HECHOS = [
       ['slides/en/020-spec-vtalu.md', /raises `done` all the same/, /the free one does nothing/],
     ],
   },
+  {
+    // El gancho del dia 1 cita el 14 % en prosa, y el numero vive en data.json,
+    // de donde salen las figuras. Si Wilson publica otro estudio y se actualiza
+    // el json, la slide tiene que cambiar con el.
+    que: 'el 14 % de exito en primer silicio del gancho es el de res/trends/data.json',
+    fuente: ['res/trends/data.json', /"First-silicon success" \}, "value": 14,/],
+    lugares: [
+      ['slides/es/007-el-gancho.md', /\*\*14 %\*\* de los proyectos/],
+      ['slides/en/007-el-gancho.md', /\*\*14 %\*\* of projects/],
+    ],
+  },
 
   // --- Figuras que contradicen al codigo o a la slide que las proyecta ---
   {
