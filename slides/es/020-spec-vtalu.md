@@ -52,7 +52,7 @@ La columna del ovf es la que más discusión da, y está buena: con operandos de
 bits y resultado de 16, ni la suma ni la multiplicación pueden desbordar — la
 resta sí, y sólo cuando A < B. O sea que hay una salida del DUT que para cinco
 de las seis operaciones vale siempre 0. Preguntar en voz alta: ¿cómo se verifica
-una señal que casi nunca se mueve? La respuesta es la de mañana, y es un bin.
+una señal que casi nunca se mueve? La respuesta es la de hoy, en cobertura funcional, y es un bin.
 Y el opcode libre: 3'b110 no está ahí por casualidad ni por olvido. Es el
 ejercicio de esta tarde, y conviene decirlo ahora para que nadie lo lea como un
 descuido del diseño.
@@ -75,6 +75,10 @@ Note:
 La asimetría de los dos resets no es un descuido: viene del VHDL original y está
 copiada tal cual a propósito. Es exactamente el tipo de detalle que un testbench
 tiene que exponer, y por eso el DUT no se "limpió" al traducirlo.
+Decirlo en voz alta: esto contradice el *asíncrono* a secas del bullet de la
+spec, y ninguna fila del plan mira qué deja el reset en las salidas: la fila del
+reset mira la operación que viene después. Es un hueco del plan, y por ahora se
+queda así.
 Que `done` sea un nivel acá y un pulso en la multiplicación es la letra chica que
 va a colgar al primer testbench del curso. Conviene volver al diagrama de ondas
 de la primera slide y señalarlo de nuevo.

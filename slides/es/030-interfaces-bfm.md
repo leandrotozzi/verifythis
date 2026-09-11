@@ -185,8 +185,8 @@ es *"porque la BFM escribe en el negedge, y eso solo se ve entero en las asserti
 
 Note:
 La frase que conviene dejar escrita en el pizarrón todo el curso: *el scoreboard
-chequea qué calcula el DUT; las assertions, cómo se habla con él.* Las tres
-secciones que faltan del día 1 y los seis días que siguen son la primera mitad;
+chequea qué calcula el DUT; las assertions, cómo se habla con él.* Lo que
+queda del día 1 y los seis días que siguen son la primera mitad;
 la segunda llega al final, y llega sobre este mismo ejemplo.
 No hay que prometer más que eso. Las assertions vuelven con la property de esta
 slide, la escribe de verdad, y muestra por qué el flanco que eligió no es un

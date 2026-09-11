@@ -14,8 +14,9 @@
   muchos tests"* no es una respuesta
 
 Note:
-Es la primera slide del curso a propósito: antes de la palabra UVM y antes de
-cualquier otro gráfico, una pregunta que el alumno no puede contestar todavía.
+Es la primera slide con contenido del curso a propósito: antes de explicar qué
+es UVM y antes de cualquier otro gráfico, una pregunta que el alumno no puede
+contestar todavía.
 El número es del Wilson Research Group 2024 y no es una impresión: sólo el 14 %
 sale bien en el primer silicio, o sea que seis de cada siete necesitan al menos
 un respin, y es el peor valor en veinte años de encuesta. Preguntar quién hizo

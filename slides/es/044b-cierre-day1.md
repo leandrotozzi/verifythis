@@ -10,7 +10,7 @@
   viste fallar con un bug adentro
 - **¿Cuánto del plan pasó?** Un `covergroup` con un bin por fila, y el reporte
   por bin, no el porcentaje
-- Las tres ya piden operaciones en vez de mover cables: eso fue la BFM. Lo que
+- El tester ya pide operaciones en vez de mover cables: eso fue la BFM. Lo que
   todavía no se puede es **cambiar el estímulo sin editar el archivo**. Mañana
   es eso
 

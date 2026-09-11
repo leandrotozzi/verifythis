@@ -79,7 +79,7 @@
 - [ ] Se puede sintetizar el testbench
 - [ ] Se ahorra tener que declarar un `clk`
 
-> **Deja de hablar en señales** — el BFM traduce *una operación* a *un handshake de señales*. El tester, el scoreboard y el coverage no vuelven a tocar un cable: es el primer paso hacia UVM.
+> **Deja de hablar en señales** — el BFM traduce *una operación* a *un handshake de señales*. El tester no vuelve a tocar un cable; el scoreboard y el coverage siguen leyéndolos, por la interface, hasta que un monitor les mande transactions. Es el primer paso hacia UVM.
 
 ---
 

@@ -1,9 +1,9 @@
-<!-- es-sha: b38d22aba396 -->
+<!-- es-sha: 8ae6887f5afb -->
 **English** · [Castellano](README.es.md)
 
 # Day 3 — the `uvm_error` that says nothing
 
-Day 1 started with this line:
+The day-1 waves exercise ended with this line:
 
 ```
 FAILED: A: e5  B: 0  op: mul_op result: fe01 ovf: 0

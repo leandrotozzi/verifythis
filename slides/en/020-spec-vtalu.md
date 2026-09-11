@@ -1,4 +1,4 @@
-<!-- es-sha: e3c167e629e6 -->
+<!-- es-sha: 25e133965ee6 -->
 ## The VTALU spec
 
 ![VTALU protocol: start and operands stable until done](res/diagrams/en/wave-dut.svg)
@@ -53,7 +53,7 @@ The ovf column is the one that gets the most discussion, and that is good: with 
 operands and a 16-bit result, neither the addition nor the multiplication can overflow — the
 subtraction can, and only when A < B. Which means there is an output of the DUT that for five
 of the six operations is always 0. Ask out loud: how do you verify
-a signal that almost never moves? The answer is tomorrow's, and it is a bin.
+a signal that almost never moves? The answer is today's, in functional coverage, and it is a bin.
 And the free opcode: 3'b110 is not there by chance and not by oversight. It is
 this afternoon's exercise, and it is worth saying now so that nobody reads it as a
 design slip.
@@ -76,6 +76,10 @@ Note:
 The asymmetry of the two resets is not an oversight: it comes from the original VHDL and is
 copied as is on purpose. It is exactly the kind of detail a testbench
 has to expose, and that is why the DUT was not "cleaned up" when it was translated.
+Say it out loud: this contradicts the bare *asynchronous* of the spec bullet,
+and no row of the plan looks at what the reset leaves on the outputs: the reset
+row looks at the operation that comes after. It is a gap in the plan, and for
+now it stays that way.
 That `done` is a level here and a pulse on the multiplication is the fine print that
 is going to hang the first testbench of the course. It is worth going back to the waveform
 of the first slide and pointing at it again.

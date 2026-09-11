@@ -15,7 +15,7 @@
   Esta sección llena **dos**: el estímulo las provoca y el scoreboard dice si
   el resultado estuvo bien
 - La tercera —**qué bin se llena cuando pasa**— es la sección que sigue
-- El testbench tiene tres partes porque el plan tiene tres columnas
+- El testbench tiene tres partes porque el plan tiene tres columnas por llenar
 
 Note:
 El orden importa y es el de la unidad anterior: primero el plan, después el
@@ -50,7 +50,7 @@ decoración: es la misma tabla, llenándose.
 - `enviadas` se cuenta acá y `chequeadas` en el scoreboard, y un `final` exige
   que sean iguales: es el testbench chequeándose a sí mismo
 - Fijate quién sabe del protocolo acá: **el tester**. En interfaces y BFM eso se muda
-  a la BFM y esta task se achica a una línea
+  a la BFM y en el cuerpo del `repeat` se achica a una línea
 
 Note:
 Ésta es la slide del "antes" de todo el curso: el estímulo y el protocolo mezclados
@@ -138,8 +138,8 @@ esto mismo, y los correctores de los ejercicios lo exigen.
 
 #### *Resumen de la unidad*
 
-- El testbench tiene **tres partes** porque el plan tiene tres columnas:
-  estímulo, self-checking y medida. Hoy están sueltas en un archivo
+- El testbench tiene **tres partes** porque el plan tiene tres columnas por
+  llenar: estímulo, self-checking y medida. Hoy están sueltas en un archivo
 - El estímulo **sesga el random hacia los bordes** —`00` y `FF`— porque el azar
   uniforme casi nunca los visita
 - El `#1` antes de leer las señales no es adorno: sin él se lee en el mismo

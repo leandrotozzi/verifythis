@@ -2,8 +2,8 @@
 
 #### *El 47 % del tiempo se va acá*
 
-- El primer gráfico del curso decía que casi la mitad del tiempo de un verificador
-  se va en **debug**. Esta sección es sobre esa mitad
+- El gráfico de tendencias del día 1 decía que casi la mitad del tiempo de un
+  verificador se va en **debug**. Esta sección es sobre esa mitad
 - Un scoreboard que sólo dice `FAIL` te deja justo ahí: sabés que algo está mal y
   no sabés qué componente, en qué momento, ni con qué datos
 - La reacción natural es llenar el código de `$display`, y después borrarlos.

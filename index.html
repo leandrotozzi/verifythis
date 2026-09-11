@@ -220,8 +220,9 @@ arrancar, y el día 1 deja de tener dos escalones a la vez.
   muchos tests"* no es una respuesta
 
 Note:
-Es la primera slide del curso a propósito: antes de la palabra UVM y antes de
-cualquier otro gráfico, una pregunta que el alumno no puede contestar todavía.
+Es la primera slide con contenido del curso a propósito: antes de explicar qué
+es UVM y antes de cualquier otro gráfico, una pregunta que el alumno no puede
+contestar todavía.
 El número es del Wilson Research Group 2024 y no es una impresión: sólo el 14 %
 sale bien en el primer silicio, o sea que seis de cada siete necesitan al menos
 un respin, y es el peor valor en veinte años de encuesta. Preguntar quién hizo
@@ -274,7 +275,7 @@ Note:
 Acá está el argumento de por qué existe este curso: el esfuerzo de verificación
 ya empató al de diseño. Verificar no es el paso final antes del tape-out: es la
 mitad del proyecto, con su propio equipo y su propio lenguaje.
-El 47 % de la derecha se siembra hoy y se cobra dos veces: en el segundo
+El 47 % de abajo se siembra hoy y se cobra dos veces: en el segundo
 ejercicio de esta tarde, cuando el log diga `FAILED` y nada más, y en la
 sección de reporting del día 3, que es donde el log aprende a decir por qué.
 
@@ -396,7 +397,7 @@ testbench anterior a 2011 que nadie migró. Pasa más de lo que parece.
 Note:
 Éste es el testbench que vamos a escribir **nosotros**, a mano, en los días 1 y
 2. Conviene decirlo así: las cajas de este diagrama no son teoría, son los
-archivos que van a estar abiertos hoy mismo.
+archivos que van a estar abiertos entre hoy y el día 4.
 Señalar el tester, el driver, el monitor y el scoreboard, y hacer notar que
 ninguno de esos nombres es de UVM: son los nombres que cualquiera le pone a las
 piezas de un testbench, en cualquier lenguaje. UVM no los inventó; los
@@ -414,8 +415,8 @@ estandarizó.
 Note:
 Vale la pena quedarse un rato acá: este diagrama es el mapa del resto del curso.
 Señalar driver, monitor, scoreboard y sequencer, y decir que cada uno va a ser
-una sección. Al final del día 5 el alumno va a tener todo menos el sequencer,
-que es el día 6.
+una sección. Al final del día 5 el alumno va a tener todo menos el agent y el
+sequencer, que son el día 6.
 La comparación que conviene hacer en vivo es contra el diagrama anterior: **son
 las mismas cajas**. Lo que agrega UVM es el árbol que las contiene, los puertos
 por los que se hablan y las fases que las construyen en orden. Nada más, y no es
@@ -433,8 +434,9 @@ poco.
 Note:
 Este diagrama asusta y por eso conviene desactivarlo de entrada: **de todo esto
 vamos a extender diez**: `uvm_component`, `uvm_test`, `uvm_env`, `uvm_agent`,
-`uvm_driver`, `uvm_monitor`, `uvm_scoreboard`, `uvm_subscriber`,
-`uvm_sequence_item` y `uvm_sequence`. Son las ámbar del dibujo, más la sequence.
+`uvm_driver`, `uvm_monitor`, `uvm_subscriber`, `uvm_sequence_item`,
+`uvm_sequence` y `uvm_callback`. Son las ámbar del dibujo menos el scoreboard
+—que en el curso es un `uvm_subscriber`—, más la sequence y el callback.
 Lo que sí hay que dejar marcado es la división de más arriba, porque explica
 medio curso: de `uvm_object` cuelgan los **datos** —las transactions, las
 sequences, los configs— y de `uvm_component` cuelga la **estructura** —todo lo
@@ -448,8 +450,8 @@ extiende es para el sequencer virtual del día 7.
 La pregunta para tirar al grupo cuando lleguemos a los agents: ¿una
 `uvm_sequence` es un object o un component? Object. Y por eso no aparece en
 `print_topology()`.
-Es el mismo diagrama que está en el machete, arriba a la derecha, para volver a
-mirarlo cuando haga falta.
+Es el mismo árbol que está en el machete impreso, arriba a la izquierda, como
+texto, para volver a mirarlo cuando haga falta.
 
 ---
 
@@ -546,7 +548,7 @@ La columna del ovf es la que más discusión da, y está buena: con operandos de
 bits y resultado de 16, ni la suma ni la multiplicación pueden desbordar — la
 resta sí, y sólo cuando A < B. O sea que hay una salida del DUT que para cinco
 de las seis operaciones vale siempre 0. Preguntar en voz alta: ¿cómo se verifica
-una señal que casi nunca se mueve? La respuesta es la de mañana, y es un bin.
+una señal que casi nunca se mueve? La respuesta es la de hoy, en cobertura funcional, y es un bin.
 Y el opcode libre: 3'b110 no está ahí por casualidad ni por olvido. Es el
 ejercicio de esta tarde, y conviene decirlo ahora para que nadie lo lea como un
 descuido del diseño.
@@ -593,6 +595,10 @@ Note:
 La asimetría de los dos resets no es un descuido: viene del VHDL original y está
 copiada tal cual a propósito. Es exactamente el tipo de detalle que un testbench
 tiene que exponer, y por eso el DUT no se "limpió" al traducirlo.
+Decirlo en voz alta: esto contradice el *asíncrono* a secas del bullet de la
+spec, y ninguna fila del plan mira qué deja el reset en las salidas: la fila del
+reset mira la operación que viene después. Es un hueco del plan, y por ahora se
+queda así.
 Que `done` sea un nivel acá y un pulso en la multiplicación es la letra chica que
 va a colgar al primer testbench del curso. Conviene volver al diagrama de ondas
 de la primera slide y señalarlo de nuevo.
@@ -879,7 +885,7 @@ assertion.
   Esta sección llena **dos**: el estímulo las provoca y el scoreboard dice si
   el resultado estuvo bien
 - La tercera —**qué bin se llena cuando pasa**— es la sección que sigue
-- El testbench tiene tres partes porque el plan tiene tres columnas
+- El testbench tiene tres partes porque el plan tiene tres columnas por llenar
 
 Note:
 El orden importa y es el de la unidad anterior: primero el plan, después el
@@ -943,7 +949,7 @@ decoración: es la misma tabla, llenándose.
 - `enviadas` se cuenta acá y `chequeadas` en el scoreboard, y un `final` exige
   que sean iguales: es el testbench chequeándose a sí mismo
 - Fijate quién sabe del protocolo acá: **el tester**. En interfaces y BFM eso se muda
-  a la BFM y esta task se achica a una línea
+  a la BFM y en el cuerpo del `repeat` se achica a una línea
 
 Note:
 Ésta es la slide del "antes" de todo el curso: el estímulo y el protocolo mezclados
@@ -1062,8 +1068,8 @@ esto mismo, y los correctores de los ejercicios lo exigen.
 
 #### *Resumen de la unidad*
 
-- El testbench tiene **tres partes** porque el plan tiene tres columnas:
-  estímulo, self-checking y medida. Hoy están sueltas en un archivo
+- El testbench tiene **tres partes** porque el plan tiene tres columnas por
+  llenar: estímulo, self-checking y medida. Hoy están sueltas en un archivo
 - El estímulo **sesga el random hacia los bordes** —`00` y `FF`— porque el azar
   uniforme casi nunca los visita
 - El `#1` antes de leer las señales no es adorno: sin él se lee en el mismo
@@ -1405,7 +1411,7 @@ bins twoops[]  = ([add_op:mul_op] [* 2]);       // dos veces seguidas
 bins manymult  = (mul_op [* 3:5]);              // entre 3 y 5 veces seguidas
 ```
 
-- Los últimos tres puntos del plan no son valores, son **secuencias**: "después
+- Tres filas del plan no son valores, son **secuencias**: "después
   de un reset", "una mult después de una de un ciclo"
 - Verilator 5.052 todavía **no los compila** (Internal Error). En el código
   están entre `` `ifndef VERILATOR ``: son parte del tema y se leen igual
@@ -1479,7 +1485,7 @@ Coverage Summary:
 
 - 66 de 76 bins llenos, con **1000 randomizaciones** y **615 operaciones al bus**
   —el `no_op` y el `rst_op` se sortean y no se envían, y el testbench lo imprime
-  dos líneas arriba de este resumen—. Las otras filas salen `0/0`:
+  justo antes del reporte de Verilator—. Las otras filas salen `0/0`:
   `--coverage-user` deja afuera la cobertura de código
 - Los 10 que faltan son **un solo valor**: `all_ops.auto_5` y sus nueve cruces.
   Es `3'b110`, que el enum **no tiene** — Verilator reparte los bins
@@ -1540,10 +1546,10 @@ conviene decir de frente por qué llega recién ahora: las tres columnas de la
 derecha son estímulo, self-checking y cobertura — las tres partes que la unidad
 anterior mostró **sueltas**. El plan es la tabla que las hace una sola cosa.
 La fila que más discusión da es la del producto máximo, y está buena: `FF` × `FF`
-es el único caso que **no** sale del random en un tiempo razonable, y por eso su
-columna de estímulo dice *caso dirigido*. Ahí se ve que el plan no sólo mide, y
-también decide qué test hay que escribir. Es el ejercicio `d5c`, el último de la
-tarde del día 5, con esta misma fila.
+es el caso que un test **corto** no llena, y por eso su columna de estímulo dice
+*caso dirigido*: el plan se decide antes de saber cuánto va a correr el random.
+Ahí se ve que el plan no sólo mide, y también decide qué test hay que escribir.
+Es el ejercicio `d5c`, el último de la tarde del día 5, con esta misma fila.
 Las tres filas de protocolo conviene nombrarlas y seguir: son la mitad que el
 curso no toca hasta el día 7, y sirven para dejar sembrado que un scoreboard no
 chequea todo. Un plan de verificación serio tiene las dos columnas.
@@ -1906,8 +1912,8 @@ es *"porque la BFM escribe en el negedge, y eso solo se ve entero en las asserti
 
 Note:
 La frase que conviene dejar escrita en el pizarrón todo el curso: *el scoreboard
-chequea qué calcula el DUT; las assertions, cómo se habla con él.* Las tres
-secciones que faltan del día 1 y los seis días que siguen son la primera mitad;
+chequea qué calcula el DUT; las assertions, cómo se habla con él.* Lo que
+queda del día 1 y los seis días que siguen son la primera mitad;
 la segunda llega al final, y llega sobre este mismo ejemplo.
 No hay que prometer más que eso. Las assertions vuelven con la property de esta
 slide, la escribe de verdad, y muestra por qué el flanco que eligió no es un
@@ -2248,7 +2254,7 @@ un driver de dispositivo es al sistema operativo.
 - [ ] Se puede sintetizar el testbench
 - [ ] Se ahorra tener que declarar un `clk`
 
-> **Deja de hablar en señales** — el BFM traduce *una operación* a *un handshake de señales*. El tester, el scoreboard y el coverage no vuelven a tocar un cable: es el primer paso hacia UVM.
+> **Deja de hablar en señales** — el BFM traduce *una operación* a *un handshake de señales*. El tester no vuelve a tocar un cable; el scoreboard y el coverage siguen leyéndolos, por la interface, hasta que un monitor les mande transactions. Es el primer paso hacia UVM.
 
 ---
 
@@ -2320,8 +2326,8 @@ Con la solución son 77 de 77, y se arranca en 86,8 % (66 de 76). Los diez que
 faltaban eran uno solo: el casillero que Verilator inventa para `3'b110`, el
 valor que el enum no tenía — y el shift es justamente `3'b110`, así que lo llena
 de paso. Vale mostrar los dos números, no sólo el porcentaje: por eso el
-`run.sh` exige la cantidad de bins y no el 100 %, que un trabajo a medias
-también alcanza.
+`run.sh` exige, además del 100 %, que `single_cycle` tenga un bin más: el 100 %
+un trabajo a medias también lo alcanza.
         </textarea>
       </section>
       <!-- 043-ejercicio-day1.md -->
@@ -2382,7 +2388,7 @@ ondas; el día 3, en reporting, es el log el que aprende a decirlo.
   viste fallar con un bug adentro
 - **¿Cuánto del plan pasó?** Un `covergroup` con un bin por fila, y el reporte
   por bin, no el porcentaje
-- Las tres ya piden operaciones en vez de mover cables: eso fue la BFM. Lo que
+- El tester ya pide operaciones en vez de mover cables: eso fue la BFM. Lo que
   todavía no se puede es **cambiar el estímulo sin editar el archivo**. Mañana
   es eso
 
@@ -5727,8 +5733,8 @@ siempre es estructura duplicada.
 
 #### *El 47 % del tiempo se va acá*
 
-- El primer gráfico del curso decía que casi la mitad del tiempo de un verificador
-  se va en **debug**. Esta sección es sobre esa mitad
+- El gráfico de tendencias del día 1 decía que casi la mitad del tiempo de un
+  verificador se va en **debug**. Esta sección es sobre esa mitad
 - Un scoreboard que sólo dice `FAIL` te deja justo ahí: sabés que algo está mal y
   no sabés qué componente, en qué momento, ni con qué datos
 - La reacción natural es llenar el código de `$display`, y después borrarlos.
@@ -6433,7 +6439,8 @@ que agregar uno tenga que ser barato.
 <!-- .element: class="comando" -->
 
 - El scoreboard está **bien** —atrapa todos los errores— y cuando falla dice
-  `FAILED` y nada más: menos todavía que la línea con la que arrancó el día 1
+  `FAILED` y nada más: menos todavía que la línea del ejercicio de las ondas
+  del día 1
 - Que el `uvm_error` diga **cuál** falló: `A`, `B`, la operación, el resultado
   del DUT y el que predijiste
 - Y que el que **pasa** también se imprima, con `UVM_HIGH`, para que no aparezca
@@ -6441,8 +6448,9 @@ que agregar uno tenga que ser barato.
 - El corrector mira el mismo bus que vos y sabe cuál fue la primera que falló
 
 Note:
-Es el ejercicio corto del día 3 y cierra el arco que abrió la primera slide del
-curso: ahí el alumno era el que leía el `FAILED`, acá es el que lo escribe.
+Es el ejercicio corto del día 3 y cierra el arco que abrió el ejercicio de las
+ondas del día 1: ahí el alumno era el que leía el `FAILED`, acá es el que lo
+escribe.
 Diez minutos de tipeo, y el punto no está en el `$sformatf`.
 El punto está en el segundo pedido, que es el que sorprende: el `PASS` **también**
 se escribe. La reacción típica es *"¿para qué quiero mil líneas de PASS?"*, y la

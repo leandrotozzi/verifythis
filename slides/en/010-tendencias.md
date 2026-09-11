@@ -1,4 +1,4 @@
-<!-- es-sha: 96825f1c552c -->
+<!-- es-sha: 4198c1f13da0 -->
 ## Trends
 
 #### *Why they come back: what is inside a chip today*
@@ -26,7 +26,7 @@ Note:
 Here is the argument for why this course exists: the verification effort has
 already caught up with design. Verifying is not the final step before tape-out: it is
 half the project, with its own team and its own language.
-The 47 % on the right is planted today and collected twice: in the second
+The lower 47 % is planted today and collected twice: in the second
 exercise this afternoon, when the log says `FAILED` and nothing else, and in
 the reporting section on day 3, which is where the log learns to say why.
 

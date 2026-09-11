@@ -257,7 +257,7 @@ bins twoops[]  = ([add_op:mul_op] [* 2]);       // dos veces seguidas
 bins manymult  = (mul_op [* 3:5]);              // entre 3 y 5 veces seguidas
 ```
 
-- Los últimos tres puntos del plan no son valores, son **secuencias**: "después
+- Tres filas del plan no son valores, son **secuencias**: "después
   de un reset", "una mult después de una de un ciclo"
 - Verilator 5.052 todavía **no los compila** (Internal Error). En el código
   están entre `` `ifndef VERILATOR ``: son parte del tema y se leen igual
@@ -331,7 +331,7 @@ Coverage Summary:
 
 - 66 de 76 bins llenos, con **1000 randomizaciones** y **615 operaciones al bus**
   —el `no_op` y el `rst_op` se sortean y no se envían, y el testbench lo imprime
-  dos líneas arriba de este resumen—. Las otras filas salen `0/0`:
+  justo antes del reporte de Verilator—. Las otras filas salen `0/0`:
   `--coverage-user` deja afuera la cobertura de código
 - Los 10 que faltan son **un solo valor**: `all_ops.auto_5` y sus nueve cruces.
   Es `3'b110`, que el enum **no tiene** — Verilator reparte los bins
@@ -392,10 +392,10 @@ conviene decir de frente por qué llega recién ahora: las tres columnas de la
 derecha son estímulo, self-checking y cobertura — las tres partes que la unidad
 anterior mostró **sueltas**. El plan es la tabla que las hace una sola cosa.
 La fila que más discusión da es la del producto máximo, y está buena: `FF` × `FF`
-es el único caso que **no** sale del random en un tiempo razonable, y por eso su
-columna de estímulo dice *caso dirigido*. Ahí se ve que el plan no sólo mide, y
-también decide qué test hay que escribir. Es el ejercicio `d5c`, el último de la
-tarde del día 5, con esta misma fila.
+es el caso que un test **corto** no llena, y por eso su columna de estímulo dice
+*caso dirigido*: el plan se decide antes de saber cuánto va a correr el random.
+Ahí se ve que el plan no sólo mide, y también decide qué test hay que escribir.
+Es el ejercicio `d5c`, el último de la tarde del día 5, con esta misma fila.
 Las tres filas de protocolo conviene nombrarlas y seguir: son la mitad que el
 curso no toca hasta el día 7, y sirven para dejar sembrado que un scoreboard no
 chequea todo. Un plan de verificación serio tiene las dos columnas.

@@ -189,7 +189,7 @@ before starting, and day 1 stops having two steps at once.</p>
 </section>
 
 <section id="s4" class="slide">
-<!-- es-sha: 30b1f1d7713d -->
+<!-- es-sha: 077c28d8fbc4 -->
 <h2 id="six-out-of-seven">Six out of seven</h2>
 <h4 id="and-the-bug-that-reached-silicon-passed-a-green-regression"><em>And the bug that reached silicon passed a green regression</em></h4>
 <p><img src="../../res/print/trends/en/resultado.svg" alt="How IC/ASIC projects end in 2024: 14 % get first silicon right and 75 % run late"></p>
@@ -203,14 +203,14 @@ That testbench ran, finished, and <strong>said everything was fine</strong></li>
 a lot of tests&quot;</em> is not an answer</li>
 </ul>
 <div class="nota">
-<p>It is the first slide of the course on purpose: before the word UVM and before
-any other chart, a question the student cannot answer yet. The number is from
-the Wilson Research Group 2024 survey and it is not an impression: only 14 %
-come out right on first silicon, so six out of seven need at least one respin,
-and it is the worst figure in twenty years of the survey. Asking who has done a
-tape-out and how it went hooks better than the chart. If they ask where the
-data comes from: <code>res/trends/data.json</code>, and the figures are regenerated with
-<code>make figs</code>.
+<p>It is the first content slide of the course on purpose: before explaining what
+UVM is and before any other chart, a question the student cannot answer yet. The
+number is from the Wilson Research Group 2024 survey and it is not an
+impression: only 14 % come out right on first silicon, so six out of seven need
+at least one respin, and it is the worst figure in twenty years of the survey.
+Asking who has done a tape-out and how it went hooks better than the chart. If
+they ask where the data comes from: <code>res/trends/data.json</code>, and the figures are
+regenerated with <code>make figs</code>.
 The honesty worth saying out loud: not every respin is functional —there are
 timing ones, analog ones, a spec that changed late—. But the one that is went
 through a regression that said <code>PASS</code>, because had it said <code>FAILED</code> it would
@@ -230,7 +230,7 @@ the day comes back to this question with what the student wrote.</p>
 </section>
 
 <section id="s5" class="slide">
-<!-- es-sha: 96825f1c552c -->
+<!-- es-sha: 4198c1f13da0 -->
 <h2 id="trends">Trends</h2>
 <h4 id="why-they-come-back-what-is-inside-a-chip-today"><em>Why they come back: what is inside a chip today</em></h4>
 <p><img src="../../res/print/trends/en/complejidad.svg" alt="What is inside 2024 IC/ASICs: asynchronous clocks, embedded processor, security, AI, RISC-V and safety"></p>
@@ -252,7 +252,7 @@ question on the first slide is harder to answer than ever.</p>
 <p>Here is the argument for why this course exists: the verification effort has
 already caught up with design. Verifying is not the final step before tape-out: it is
 half the project, with its own team and its own language.
-The 47 % on the right is planted today and collected twice: in the second
+The lower 47 % is planted today and collected twice: in the second
 exercise this afternoon, when the log says <code>FAILED</code> and nothing else, and in
 the reporting section on day 3, which is where the log learns to say why.</p>
 </div>
@@ -329,7 +329,7 @@ you ready-made gets written by hand. Thirty keywords are enough.</p>
 </section>
 
 <section id="s9" class="slide">
-<!-- es-sha: be56f017219d -->
+<!-- es-sha: 5f6660a0b2ef -->
 <h2 id="introduction">Introduction</h2>
 <h4 id="what-is-uvm"><em>What is UVM?</em></h4>
 <ul>
@@ -394,7 +394,7 @@ testbench from before 2011 that nobody migrated. It happens more than it seems.<
 <div class="nota">
 <p>This is the testbench <strong>we</strong> are going to write, by hand, on days 1 and
 2. It is worth saying it like that: the boxes in this diagram are not theory, they are the
-files that are going to be open today.
+files that are going to be open between today and day 4.
 Point at the tester, the driver, the monitor and the scoreboard, and make the point that
 none of those names is UVM&#39;s: they are the names anybody gives to the pieces of a
 testbench, in any language. UVM did not invent them; it standardized them.</p>
@@ -409,8 +409,8 @@ testbench, in any language. UVM did not invent them; it standardized them.</p>
 <div class="nota">
 <p>It is worth staying here a while: this diagram is the map of the rest of the course.
 Point at driver, monitor, scoreboard and sequencer, and say that each one is going to be
-a section. By the end of day 5 the student is going to have everything except the sequencer,
-which is day 6.
+a section. By the end of day 5 the student is going to have everything except the agent and
+the sequencer, which are day 6.
 The comparison worth making live is against the previous diagram: <strong>they are
 the same boxes</strong>. What UVM adds is the tree that contains them, the ports
 they talk through and the phases that build them in order. Nothing else, and that is
@@ -426,8 +426,9 @@ not little.</p>
 <div class="nota">
 <p>This diagram is scary and that is why it is worth defusing it right away: <strong>out of all of
 this we are going to extend ten</strong>: <code>uvm_component</code>, <code>uvm_test</code>, <code>uvm_env</code>, <code>uvm_agent</code>,
-<code>uvm_driver</code>, <code>uvm_monitor</code>, <code>uvm_scoreboard</code>, <code>uvm_subscriber</code>,
-<code>uvm_sequence_item</code> and <code>uvm_sequence</code>. They are the amber ones in the drawing, plus the sequence.
+<code>uvm_driver</code>, <code>uvm_monitor</code>, <code>uvm_subscriber</code>, <code>uvm_sequence_item</code>,
+<code>uvm_sequence</code> and <code>uvm_callback</code>. They are the amber ones in the drawing minus the scoreboard
+—which in the course is a <code>uvm_subscriber</code>—, plus the sequence and the callback.
 What does have to be marked is the split at the top, because it explains
 half the course: hanging off <code>uvm_object</code> is the <strong>data</strong> —the transactions, the
 sequences, the configs— and hanging off <code>uvm_component</code> is the <strong>structure</strong> —everything
@@ -441,8 +442,8 @@ time the course extends it is for the virtual sequencer on day 7.
 The question to throw at the group when we get to agents: is a
 <code>uvm_sequence</code> an object or a component? An object. And that is why it does not show up in
 <code>print_topology()</code>.
-It is the same diagram that is in the cheat sheet, top right, to look at again
-when needed.</p>
+It is the same tree that is in the printed cheat sheet, top left, as text, to
+look at again when needed.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/13">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -488,7 +489,7 @@ hand does what UVM adds become visible.</p>
 </section>
 
 <section id="s15" class="slide">
-<!-- es-sha: e3c167e629e6 -->
+<!-- es-sha: 25e133965ee6 -->
 <h2 id="the-vtalu-spec">The VTALU spec</h2>
 <p><img src="../../res/print/diagrams/en/wave-dut.svg" alt="VTALU protocol: start and operands stable until done"></p>
 <ul>
@@ -585,7 +586,7 @@ The ovf column is the one that gets the most discussion, and that is good: with 
 operands and a 16-bit result, neither the addition nor the multiplication can overflow — the
 subtraction can, and only when A &lt; B. Which means there is an output of the DUT that for five
 of the six operations is always 0. Ask out loud: how do you verify
-a signal that almost never moves? The answer is tomorrow&#39;s, and it is a bin.
+a signal that almost never moves? The answer is today&#39;s, in functional coverage, and it is a bin.
 And the free opcode: 3&#39;b110 is not there by chance and not by oversight. It is
 this afternoon&#39;s exercise, and it is worth saying now so that nobody reads it as a
 design slip.</p>
@@ -674,6 +675,10 @@ a <strong>level</strong> and stays up while <code>start</code> is</li>
 <p>The asymmetry of the two resets is not an oversight: it comes from the original VHDL and is
 copied as is on purpose. It is exactly the kind of detail a testbench
 has to expose, and that is why the DUT was not &quot;cleaned up&quot; when it was translated.
+Say it out loud: this contradicts the bare <em>asynchronous</em> of the spec bullet,
+and no row of the plan looks at what the reset leaves on the outputs: the reset
+row looks at the operation that comes after. It is a gap in the plan, and for
+now it stays that way.
 That <code>done</code> is a level here and a pulse on the multiplication is the fine print that
 is going to hang the first testbench of the course. It is worth going back to the waveform
 of the first slide and pointing at it again.
@@ -1087,7 +1092,7 @@ assertion ones.</p>
 </section>
 
 <section id="s26" class="slide">
-<!-- es-sha: 873afc4332fa -->
+<!-- es-sha: 82fae0933b90 -->
 <h2 id="the-conventional-testbench">The conventional testbench</h2>
 <h4 id="the-vtalu-plan-with-three-columns-to-fill"><em>The VTALU plan, with three columns to fill</em></h4>
 <table>
@@ -1148,7 +1153,7 @@ assertion ones.</p>
 This section fills <strong>two</strong>: the stimulus provokes them and the scoreboard says
 whether the result was right</li>
 <li>The third one —<strong>which bin gets filled when it happens</strong>— is the next section</li>
-<li>The testbench has three parts because the plan has three columns</li>
+<li>The testbench has three parts because the plan has three columns to fill</li>
 </ul>
 <div class="nota">
 <p>The order matters and it is the one from the previous unit: the plan first,
@@ -1466,7 +1471,7 @@ reach the cases the plan asks for. It is <em>constrained random</em> written by 
 <li><code>enviadas</code> gets counted here and <code>chequeadas</code> in the scoreboard, and a <code>final</code>
 demands they match: it is the testbench checking itself</li>
 <li>Notice who knows about the protocol here: <strong>the tester</strong>. In interfaces and BFM that moves
-to the BFM and this task shrinks to one line</li>
+to the BFM and in the body of the <code>repeat</code> shrinks to one line</li>
 </ul>
 <div class="nota">
 <p>This is the &quot;before&quot; slide of the whole course: the stimulus and the protocol mixed
@@ -1841,8 +1846,8 @@ are this very thing, and the exercise checkers demand it.</p>
 <h2 id="the-conventional-testbench">The conventional testbench</h2>
 <h4 id="unit-summary"><em>Unit summary</em></h4>
 <ul>
-<li>The testbench has <strong>three parts</strong> because the plan has three columns:
-stimulus, self-checking and measure. Today they are loose in one file</li>
+<li>The testbench has <strong>three parts</strong> because the plan has three columns to
+fill: stimulus, self-checking and measure. Today they are loose in one file</li>
 <li>The stimulus <strong>biases the random towards the edges</strong> —<code>00</code> and <code>FF</code>— because
 uniform randomness almost never visits them</li>
 <li>The <code>#1</code> before reading the signals is not decoration: without it you read in
@@ -1865,7 +1870,7 @@ fills in the third column.</p>
 </section>
 
 <section id="s31" class="slide">
-<!-- es-sha: 3d6cf351ca3c -->
+<!-- es-sha: ad0311a3ecf8 -->
 <h2 id="functional-coverage">Functional coverage</h2>
 <h4 id="when-are-you-done-verifying"><em>When are you done verifying?</em></h4>
 <ul>
@@ -2964,7 +2969,7 @@ bins twoops[]  = ([add_op:mul_op] [* 2]);       // twice in a row
 bins manymult  = (mul_op [* 3:5]);              // between 3 and 5 times in a row
 </code></pre>
 <ul>
-<li>The last three points of the plan are not values, they are <strong>sequences</strong>: &quot;after
+<li>Three rows of the plan are not values, they are <strong>sequences</strong>: &quot;after
 a reset&quot;, &quot;a mult after a single-cycle one&quot;</li>
 <li>Verilator 5.052 still <strong>does not compile them</strong> (Internal Error). In the code
 they are inside <code>`ifndef VERILATOR</code>: they are part of the topic and read just the same</li>
@@ -3035,7 +3040,7 @@ Coverage Summary:
 <ul>
 <li>66 of 76 bins filled, with <strong>1000 randomizations</strong> and <strong>615 operations on the
 bus</strong> —<code>no_op</code> and <code>rst_op</code> get drawn and never sent, and the testbench prints
-that two lines above this summary—. The other rows come out <code>0/0</code>:
+that right before the Verilator report—. The other rows come out <code>0/0</code>:
 <code>--coverage-user</code> leaves code coverage out</li>
 <li>The 10 that are missing are <strong>a single value</strong>: <code>all_ops.auto_5</code> and its nine
 crosses. It is <code>3&#39;b110</code>, which the enum <strong>does not have</strong> — Verilator hands out
@@ -3190,10 +3195,10 @@ it is worth saying head on why it only arrives now: the three right-hand columns
 are stimulus, self-checking and coverage — the three parts the previous
 unit showed <strong>loose</strong>. The plan is the table that makes them one thing.
 The row that gets the most discussion is the maximum-product one, and that is good: <code>FF</code> × <code>FF</code>
-is the only case that does <strong>not</strong> come out of the random in reasonable time, and that is why its
-stimulus column says <em>directed case</em>. There you see that the plan does not only measure,
-it also decides which test has to be written. It is the <code>d5c</code> exercise, the last
-one of the day 5 afternoon, with this same row.
+is the case a <strong>short</strong> test does not fill, and that is why its stimulus column says
+<em>directed case</em>: the plan is decided before knowing how long the random will run.
+There you see that the plan does not only measure, it also decides which test has to be written.
+It is the <code>d5c</code> exercise, the last one of the day 5 afternoon, with this same row.
 The three protocol rows are worth naming and moving on: they are the half the
 course does not touch until day 7, and they serve to plant the idea that a scoreboard does not
 check everything. A serious verification plan has both columns.
@@ -3235,7 +3240,7 @@ And the operational mistake that repeats the most, to leave it burned in: the mi
 </section>
 
 <section id="s44" class="slide">
-<!-- es-sha: 69fe6bc50975 -->
+<!-- es-sha: 35731d650a36 -->
 <h2 id="interfaces-and-bfm">Interfaces and BFM</h2>
 <h4 id="first-the-signals-stop-being-loose"><em>First: the signals stop being loose</em></h4>
 <figure class="codigo"><figcaption><code>code/u2/interfaces-bfm/vtalu_bfm.sv</code> · #signals-and-clock</figcaption><pre><code class="hljs"><span class="hljs-keyword">interface</span> <span class="hljs-title">vtalu_bfm</span>;
@@ -3732,8 +3737,8 @@ every test</strong> of the next six days. Nobody is watching it</li>
 </ul>
 <div class="nota">
 <p>The sentence worth leaving on the board for the whole course: <em>the scoreboard
-checks what the DUT computes; the assertions, how it is talked to.</em> The three
-sections left of day 1 and the six days that follow are the first half;
+checks what the DUT computes; the assertions, how it is talked to.</em> What is
+left of day 1 and the six days that follow are the first half;
 the second arrives at the end, and it arrives on this same example.
 There is no need to promise more than that. The assertions come back with the property of this
 slide, write it for real, and show why the edge chosen is not a
@@ -4174,7 +4179,7 @@ a device driver is to the operating system.</p>
 </section>
 
 <section id="s57" class="slide quiz">
-<!-- es-sha: d94e6d21d363 -->
+<!-- es-sha: a4e9b3e529df -->
 
 
 <h2 id="review-·-day-1">Review · Day 1</h2>
@@ -4251,7 +4256,7 @@ a device driver is to the operating system.</p>
 <li><input disabled="" type="checkbox"> You save having to declare a <code>clk</code></li>
 </ul>
 <blockquote>
-<p><strong>It stops talking in signals</strong> — the BFM translates <em>one operation</em> into <em>a handshake of signals</em>. The tester, the scoreboard and the coverage never touch a wire again: it is the first step towards UVM.</p>
+<p><strong>It stops talking in signals</strong> — the BFM translates <em>one operation</em> into <em>a handshake of signals</em>. The tester never touches a wire again; the scoreboard and the coverage keep reading them, through the interface, until a monitor sends them transactions. It is the first step towards UVM.</p>
 </blockquote>
 <p class="al-deck"><a href="../index.html#/61">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -4289,7 +4294,7 @@ a device driver is to the operating system.</p>
 </section>
 
 <section id="s64" class="slide">
-<!-- es-sha: 21796343bcf4 -->
+<!-- es-sha: 5efbb277640f -->
 <h2 id="exercise-·-day-1-·-1-of-2">Exercise · Day 1 · 1 of 2</h2>
 <h4 id="a-new-operation-end-to-end"><em>A new operation, end to end</em></h4>
 <p><code>cd code/ejercicios/d1 &amp;&amp; bash run.sh</code></p>
@@ -4319,7 +4324,8 @@ With the solution it is 77 out of 77, starting from 86.8 % (66 out of 76). The t
 that were missing were a single one: the bucket Verilator invents for <code>3&#39;b110</code>, the
 value the enum did not have — and the shift is precisely <code>3&#39;b110</code>, so it fills it
 along the way. Worth showing both numbers and not only the percentage: that is why
-the <code>run.sh</code> demands the bin count and not 100 %, which a half-done job reaches too.</p>
+the <code>run.sh</code> demands, on top of the 100 %, that <code>single_cycle</code> has one more bin: a
+half-done job reaches the 100 % too.</p>
 </div>
 <p class="al-deck"><a href="../index.html#/64">see this slide in the deck &rsaquo;</a></p>
 </section>
@@ -4363,7 +4369,7 @@ else is the waves; on day 3, in reporting, it is the log that learns to say it.<
 </section>
 
 <section id="s66" class="slide">
-<!-- es-sha: b4dd499f8c55 -->
+<!-- es-sha: 4b2f35c78822 -->
 <h2 id="six-out-of-seven-again">Six out of seven, again</h2>
 <h4 id="closing-the-day"><em>Closing the day</em></h4>
 <ul>
@@ -4376,7 +4382,7 @@ testbench, from the spec</li>
 you watched fail with a bug inside</li>
 <li><strong>How much of the plan passed?</strong> A <code>covergroup</code> with one bin per row, and the
 per-bin report, not the percentage</li>
-<li>All three already ask for operations instead of moving wires: that was the
+<li>The tester already asks for operations instead of moving wires: that was the
 BFM. What you still cannot do is <strong>change the stimulus without editing the
 file</strong>. Tomorrow is that</li>
 </ul>

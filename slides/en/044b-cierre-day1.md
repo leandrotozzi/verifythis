@@ -1,4 +1,4 @@
-<!-- es-sha: b4dd499f8c55 -->
+<!-- es-sha: 4b2f35c78822 -->
 ## Six out of seven, again
 
 #### *Closing the day*
@@ -12,7 +12,7 @@
   you watched fail with a bug inside
 - **How much of the plan passed?** A `covergroup` with one bin per row, and the
   per-bin report, not the percentage
-- All three already ask for operations instead of moving wires: that was the
+- The tester already asks for operations instead of moving wires: that was the
   BFM. What you still cannot do is **change the stimulus without editing the
   file**. Tomorrow is that
 

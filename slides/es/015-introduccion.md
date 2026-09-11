@@ -68,7 +68,7 @@ testbench anterior a 2011 que nadie migró. Pasa más de lo que parece.
 Note:
 Éste es el testbench que vamos a escribir **nosotros**, a mano, en los días 1 y
 2. Conviene decirlo así: las cajas de este diagrama no son teoría, son los
-archivos que van a estar abiertos hoy mismo.
+archivos que van a estar abiertos entre hoy y el día 4.
 Señalar el tester, el driver, el monitor y el scoreboard, y hacer notar que
 ninguno de esos nombres es de UVM: son los nombres que cualquiera le pone a las
 piezas de un testbench, en cualquier lenguaje. UVM no los inventó; los
@@ -86,8 +86,8 @@ estandarizó.
 Note:
 Vale la pena quedarse un rato acá: este diagrama es el mapa del resto del curso.
 Señalar driver, monitor, scoreboard y sequencer, y decir que cada uno va a ser
-una sección. Al final del día 5 el alumno va a tener todo menos el sequencer,
-que es el día 6.
+una sección. Al final del día 5 el alumno va a tener todo menos el agent y el
+sequencer, que son el día 6.
 La comparación que conviene hacer en vivo es contra el diagrama anterior: **son
 las mismas cajas**. Lo que agrega UVM es el árbol que las contiene, los puertos
 por los que se hablan y las fases que las construyen en orden. Nada más, y no es
@@ -105,8 +105,9 @@ poco.
 Note:
 Este diagrama asusta y por eso conviene desactivarlo de entrada: **de todo esto
 vamos a extender diez**: `uvm_component`, `uvm_test`, `uvm_env`, `uvm_agent`,
-`uvm_driver`, `uvm_monitor`, `uvm_scoreboard`, `uvm_subscriber`,
-`uvm_sequence_item` y `uvm_sequence`. Son las ámbar del dibujo, más la sequence.
+`uvm_driver`, `uvm_monitor`, `uvm_subscriber`, `uvm_sequence_item`,
+`uvm_sequence` y `uvm_callback`. Son las ámbar del dibujo menos el scoreboard
+—que en el curso es un `uvm_subscriber`—, más la sequence y el callback.
 Lo que sí hay que dejar marcado es la división de más arriba, porque explica
 medio curso: de `uvm_object` cuelgan los **datos** —las transactions, las
 sequences, los configs— y de `uvm_component` cuelga la **estructura** —todo lo
@@ -120,8 +121,8 @@ extiende es para el sequencer virtual del día 7.
 La pregunta para tirar al grupo cuando lleguemos a los agents: ¿una
 `uvm_sequence` es un object o un component? Object. Y por eso no aparece en
 `print_topology()`.
-Es el mismo diagrama que está en el machete, arriba a la derecha, para volver a
-mirarlo cuando haga falta.
+Es el mismo árbol que está en el machete impreso, arriba a la izquierda, como
+texto, para volver a mirarlo cuando haga falta.
 
 ---
 

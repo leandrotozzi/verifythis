@@ -6,7 +6,8 @@
 <!-- .element: class="comando" -->
 
 - El scoreboard está **bien** —atrapa todos los errores— y cuando falla dice
-  `FAILED` y nada más: menos todavía que la línea con la que arrancó el día 1
+  `FAILED` y nada más: menos todavía que la línea del ejercicio de las ondas
+  del día 1
 - Que el `uvm_error` diga **cuál** falló: `A`, `B`, la operación, el resultado
   del DUT y el que predijiste
 - Y que el que **pasa** también se imprima, con `UVM_HIGH`, para que no aparezca
@@ -14,8 +15,9 @@
 - El corrector mira el mismo bus que vos y sabe cuál fue la primera que falló
 
 Note:
-Es el ejercicio corto del día 3 y cierra el arco que abrió la primera slide del
-curso: ahí el alumno era el que leía el `FAILED`, acá es el que lo escribe.
+Es el ejercicio corto del día 3 y cierra el arco que abrió el ejercicio de las
+ondas del día 1: ahí el alumno era el que leía el `FAILED`, acá es el que lo
+escribe.
 Diez minutos de tipeo, y el punto no está en el `$sformatf`.
 El punto está en el segundo pedido, que es el que sorprende: el `PASS` **también**
 se escribe. La reacción típica es *"¿para qué quiero mil líneas de PASS?"*, y la

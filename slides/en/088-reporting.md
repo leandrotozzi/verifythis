@@ -1,9 +1,9 @@
-<!-- es-sha: 5f52e3174614 -->
+<!-- es-sha: 531f0fb22582 -->
 ## Reporting
 
 #### *47 % of the time goes here*
 
-- The first chart of the course said that almost half of a verification engineer's time
+- The day-1 trends chart said that almost half of a verification engineer's time
   goes into **debug**. This section is about that half
 - A scoreboard that only says `FAIL` leaves you right there: you know something is wrong and
   you do not know which component, at what moment, or with what data

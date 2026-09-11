@@ -1,4 +1,4 @@
-<!-- es-sha: 75044b3a4bce -->
+<!-- es-sha: d70d6dfe50a4 -->
 ## Exercise · Day 3 · 2 of 2
 
 #### *The `uvm_error` that says nothing*
@@ -7,7 +7,8 @@
 <!-- .element: class="comando" -->
 
 - The scoreboard is **right** —it catches every mismatch— and when it fails it
-  says `FAILED` and nothing else: even less than the line day 1 started with
+  says `FAILED` and nothing else: even less than the line of the day-1 waves
+  exercise
 - Make the `uvm_error` say **which one** failed: `A`, `B`, the operation, the
   DUT's result and the one you predicted
 - And make the one that **passes** get printed too, at `UVM_HIGH`, so that it
@@ -16,9 +17,9 @@
   failed
 
 Note:
-It is the short exercise of day 3 and it closes the arc the first slide of the
-course opened: there the student was the one reading the `FAILED`, here they are
-the one writing it. Ten minutes of typing, and the point is not the `$sformatf`.
+It is the short exercise of day 3 and it closes the arc the day-1 waves
+exercise opened: there the student was the one reading the `FAILED`, here they
+are the one writing it. Ten minutes of typing, and the point is not the `$sformatf`.
 The point is the second request, which is the one that surprises: the `PASS`
 **also** gets written. The typical reaction is *"what do I want a thousand PASS
 lines for?"*, and the answer is that you do not want them today: you want them

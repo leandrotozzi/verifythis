@@ -1,4 +1,4 @@
-<!-- es-sha: 21796343bcf4 -->
+<!-- es-sha: 5efbb277640f -->
 ## Exercise · Day 1 · 1 of 2
 
 #### *A new operation, end to end*
@@ -31,4 +31,5 @@ With the solution it is 77 out of 77, starting from 86.8 % (66 out of 76). The t
 that were missing were a single one: the bucket Verilator invents for `3'b110`, the
 value the enum did not have — and the shift is precisely `3'b110`, so it fills it
 along the way. Worth showing both numbers and not only the percentage: that is why
-the `run.sh` demands the bin count and not 100 %, which a half-done job reaches too.
+the `run.sh` demands, on top of the 100 %, that `single_cycle` has one more bin: a
+half-done job reaches the 100 % too.

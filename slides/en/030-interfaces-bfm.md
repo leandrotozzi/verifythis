@@ -1,4 +1,4 @@
-<!-- es-sha: 69fe6bc50975 -->
+<!-- es-sha: 35731d650a36 -->
 ## Interfaces and BFM
 
 #### *First: the signals stop being loose*
@@ -186,8 +186,8 @@ is *"because the BFM writes on the negedge, and that is only fully visible in th
 
 Note:
 The sentence worth leaving on the board for the whole course: *the scoreboard
-checks what the DUT computes; the assertions, how it is talked to.* The three
-sections left of day 1 and the six days that follow are the first half;
+checks what the DUT computes; the assertions, how it is talked to.* What is
+left of day 1 and the six days that follow are the first half;
 the second arrives at the end, and it arrives on this same example.
 There is no need to promise more than that. The assertions come back with the property of this
 slide, write it for real, and show why the edge chosen is not a

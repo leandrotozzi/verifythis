@@ -2,7 +2,7 @@
 
 # Día 3 — el `uvm_error` que no dice nada
 
-El día 1 arrancó con esta línea:
+El ejercicio de las ondas del día 1 terminaba con esta línea:
 
 ```
 FAILED: A: e5  B: 0  op: mul_op result: fe01 ovf: 0

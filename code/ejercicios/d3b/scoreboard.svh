@@ -1,9 +1,9 @@
 // TODO(exercise d3b) -- the uvm_error that says nothing.
 //
 // This is the scoreboard as it gets written the first time: it is RIGHT --it
-// catches every mismatch-- and it is useless. It is the same line as the day 1
-// hook, the one where the log said FAILED and the answer was in a waveform file
-// that nobody had opened.
+// catches every mismatch-- and it is useless. It is the same line as the day-1
+// waves exercise, the one where the log said FAILED and the answer was in a
+// waveform file that nobody had opened.
 //
 // Two things are asked, and both are in the Reporting section:
 //

@@ -1,4 +1,4 @@
-<!-- es-sha: 3d6cf351ca3c -->
+<!-- es-sha: ad0311a3ecf8 -->
 ## Functional coverage
 
 #### *When are you done verifying?*
@@ -258,7 +258,7 @@ bins twoops[]  = ([add_op:mul_op] [* 2]);       // twice in a row
 bins manymult  = (mul_op [* 3:5]);              // between 3 and 5 times in a row
 ```
 
-- The last three points of the plan are not values, they are **sequences**: "after
+- Three rows of the plan are not values, they are **sequences**: "after
   a reset", "a mult after a single-cycle one"
 - Verilator 5.052 still **does not compile them** (Internal Error). In the code
   they are inside `` `ifndef VERILATOR ``: they are part of the topic and read just the same
@@ -331,7 +331,7 @@ Coverage Summary:
 
 - 66 of 76 bins filled, with **1000 randomizations** and **615 operations on the
   bus** —`no_op` and `rst_op` get drawn and never sent, and the testbench prints
-  that two lines above this summary—. The other rows come out `0/0`:
+  that right before the Verilator report—. The other rows come out `0/0`:
   `--coverage-user` leaves code coverage out
 - The 10 that are missing are **a single value**: `all_ops.auto_5` and its nine
   crosses. It is `3'b110`, which the enum **does not have** — Verilator hands out
@@ -392,10 +392,10 @@ it is worth saying head on why it only arrives now: the three right-hand columns
 are stimulus, self-checking and coverage — the three parts the previous
 unit showed **loose**. The plan is the table that makes them one thing.
 The row that gets the most discussion is the maximum-product one, and that is good: `FF` × `FF`
-is the only case that does **not** come out of the random in reasonable time, and that is why its
-stimulus column says *directed case*. There you see that the plan does not only measure,
-it also decides which test has to be written. It is the `d5c` exercise, the last
-one of the day 5 afternoon, with this same row.
+is the case a **short** test does not fill, and that is why its stimulus column says
+*directed case*: the plan is decided before knowing how long the random will run.
+There you see that the plan does not only measure, it also decides which test has to be written.
+It is the `d5c` exercise, the last one of the day 5 afternoon, with this same row.
 The three protocol rows are worth naming and moving on: they are the half the
 course does not touch until day 7, and they serve to plant the idea that a scoreboard does not
 check everything. A serious verification plan has both columns.

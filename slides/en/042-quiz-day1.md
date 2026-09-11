@@ -1,4 +1,4 @@
-<!-- es-sha: d94e6d21d363 -->
+<!-- es-sha: a4e9b3e529df -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 1
@@ -80,7 +80,7 @@
 - [ ] The testbench becomes synthesizable
 - [ ] You save having to declare a `clk`
 
-> **It stops talking in signals** — the BFM translates *one operation* into *a handshake of signals*. The tester, the scoreboard and the coverage never touch a wire again: it is the first step towards UVM.
+> **It stops talking in signals** — the BFM translates *one operation* into *a handshake of signals*. The tester never touches a wire again; the scoreboard and the coverage keep reading them, through the interface, until a monitor sends them transactions. It is the first step towards UVM.
 
 ---
 

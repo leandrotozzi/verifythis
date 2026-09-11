@@ -1,4 +1,4 @@
-<!-- es-sha: be56f017219d -->
+<!-- es-sha: 5f6660a0b2ef -->
 ## Introduction
 
 #### *What is UVM?*
@@ -69,7 +69,7 @@ testbench from before 2011 that nobody migrated. It happens more than it seems.
 Note:
 This is the testbench **we** are going to write, by hand, on days 1 and
 2. It is worth saying it like that: the boxes in this diagram are not theory, they are the
-files that are going to be open today.
+files that are going to be open between today and day 4.
 Point at the tester, the driver, the monitor and the scoreboard, and make the point that
 none of those names is UVM's: they are the names anybody gives to the pieces of a
 testbench, in any language. UVM did not invent them; it standardized them.
@@ -86,8 +86,8 @@ testbench, in any language. UVM did not invent them; it standardized them.
 Note:
 It is worth staying here a while: this diagram is the map of the rest of the course.
 Point at driver, monitor, scoreboard and sequencer, and say that each one is going to be
-a section. By the end of day 5 the student is going to have everything except the sequencer,
-which is day 6.
+a section. By the end of day 5 the student is going to have everything except the agent and
+the sequencer, which are day 6.
 The comparison worth making live is against the previous diagram: **they are
 the same boxes**. What UVM adds is the tree that contains them, the ports
 they talk through and the phases that build them in order. Nothing else, and that is
@@ -105,8 +105,9 @@ not little.
 Note:
 This diagram is scary and that is why it is worth defusing it right away: **out of all of
 this we are going to extend ten**: `uvm_component`, `uvm_test`, `uvm_env`, `uvm_agent`,
-`uvm_driver`, `uvm_monitor`, `uvm_scoreboard`, `uvm_subscriber`,
-`uvm_sequence_item` and `uvm_sequence`. They are the amber ones in the drawing, plus the sequence.
+`uvm_driver`, `uvm_monitor`, `uvm_subscriber`, `uvm_sequence_item`,
+`uvm_sequence` and `uvm_callback`. They are the amber ones in the drawing minus the scoreboard
+—which in the course is a `uvm_subscriber`—, plus the sequence and the callback.
 What does have to be marked is the split at the top, because it explains
 half the course: hanging off `uvm_object` is the **data** —the transactions, the
 sequences, the configs— and hanging off `uvm_component` is the **structure** —everything
@@ -120,8 +121,8 @@ time the course extends it is for the virtual sequencer on day 7.
 The question to throw at the group when we get to agents: is a
 `uvm_sequence` an object or a component? An object. And that is why it does not show up in
 `print_topology()`.
-It is the same diagram that is in the cheat sheet, top right, to look at again
-when needed.
+It is the same tree that is in the printed cheat sheet, top left, as text, to
+look at again when needed.
 
 ---
 

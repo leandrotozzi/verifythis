@@ -29,5 +29,5 @@ Con la solución son 77 de 77, y se arranca en 86,8 % (66 de 76). Los diez que
 faltaban eran uno solo: el casillero que Verilator inventa para `3'b110`, el
 valor que el enum no tenía — y el shift es justamente `3'b110`, así que lo llena
 de paso. Vale mostrar los dos números, no sólo el porcentaje: por eso el
-`run.sh` exige la cantidad de bins y no el 100 %, que un trabajo a medias
-también alcanza.
+`run.sh` exige, además del 100 %, que `single_cycle` tenga un bin más: el 100 %
+un trabajo a medias también lo alcanza.

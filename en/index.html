@@ -207,7 +207,7 @@ before starting, and day 1 stops having two steps at once.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 30b1f1d7713d -->
+<!-- es-sha: 077c28d8fbc4 -->
 ## Six out of seven
 
 #### *And the bug that reached silicon passed a green regression*
@@ -224,14 +224,14 @@ before starting, and day 1 stops having two steps at once.
   a lot of tests"* is not an answer
 
 Note:
-It is the first slide of the course on purpose: before the word UVM and before
-any other chart, a question the student cannot answer yet. The number is from
-the Wilson Research Group 2024 survey and it is not an impression: only 14 %
-come out right on first silicon, so six out of seven need at least one respin,
-and it is the worst figure in twenty years of the survey. Asking who has done a
-tape-out and how it went hooks better than the chart. If they ask where the
-data comes from: `res/trends/data.json`, and the figures are regenerated with
-`make figs`.
+It is the first content slide of the course on purpose: before explaining what
+UVM is and before any other chart, a question the student cannot answer yet. The
+number is from the Wilson Research Group 2024 survey and it is not an
+impression: only 14 % come out right on first silicon, so six out of seven need
+at least one respin, and it is the worst figure in twenty years of the survey.
+Asking who has done a tape-out and how it went hooks better than the chart. If
+they ask where the data comes from: `res/trends/data.json`, and the figures are
+regenerated with `make figs`.
 The honesty worth saying out loud: not every respin is functional —there are
 timing ones, analog ones, a spec that changed late—. But the one that is went
 through a regression that said `PASS`, because had it said `FAILED` it would
@@ -252,7 +252,7 @@ the day comes back to this question with what the student wrote.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 96825f1c552c -->
+<!-- es-sha: 4198c1f13da0 -->
 ## Trends
 
 #### *Why they come back: what is inside a chip today*
@@ -280,7 +280,7 @@ Note:
 Here is the argument for why this course exists: the verification effort has
 already caught up with design. Verifying is not the final step before tape-out: it is
 half the project, with its own team and its own language.
-The 47 % on the right is planted today and collected twice: in the second
+The lower 47 % is planted today and collected twice: in the second
 exercise this afternoon, when the log says `FAILED` and nothing else, and in
 the reporting section on day 3, which is where the log learns to say why.
 
@@ -332,7 +332,7 @@ you ready-made gets written by hand. Thirty keywords are enough.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: be56f017219d -->
+<!-- es-sha: 5f6660a0b2ef -->
 ## Introduction
 
 #### *What is UVM?*
@@ -403,7 +403,7 @@ testbench from before 2011 that nobody migrated. It happens more than it seems.
 Note:
 This is the testbench **we** are going to write, by hand, on days 1 and
 2. It is worth saying it like that: the boxes in this diagram are not theory, they are the
-files that are going to be open today.
+files that are going to be open between today and day 4.
 Point at the tester, the driver, the monitor and the scoreboard, and make the point that
 none of those names is UVM's: they are the names anybody gives to the pieces of a
 testbench, in any language. UVM did not invent them; it standardized them.
@@ -420,8 +420,8 @@ testbench, in any language. UVM did not invent them; it standardized them.
 Note:
 It is worth staying here a while: this diagram is the map of the rest of the course.
 Point at driver, monitor, scoreboard and sequencer, and say that each one is going to be
-a section. By the end of day 5 the student is going to have everything except the sequencer,
-which is day 6.
+a section. By the end of day 5 the student is going to have everything except the agent and
+the sequencer, which are day 6.
 The comparison worth making live is against the previous diagram: **they are
 the same boxes**. What UVM adds is the tree that contains them, the ports
 they talk through and the phases that build them in order. Nothing else, and that is
@@ -439,8 +439,9 @@ not little.
 Note:
 This diagram is scary and that is why it is worth defusing it right away: **out of all of
 this we are going to extend ten**: `uvm_component`, `uvm_test`, `uvm_env`, `uvm_agent`,
-`uvm_driver`, `uvm_monitor`, `uvm_scoreboard`, `uvm_subscriber`,
-`uvm_sequence_item` and `uvm_sequence`. They are the amber ones in the drawing, plus the sequence.
+`uvm_driver`, `uvm_monitor`, `uvm_subscriber`, `uvm_sequence_item`,
+`uvm_sequence` and `uvm_callback`. They are the amber ones in the drawing minus the scoreboard
+—which in the course is a `uvm_subscriber`—, plus the sequence and the callback.
 What does have to be marked is the split at the top, because it explains
 half the course: hanging off `uvm_object` is the **data** —the transactions, the
 sequences, the configs— and hanging off `uvm_component` is the **structure** —everything
@@ -454,8 +455,8 @@ time the course extends it is for the virtual sequencer on day 7.
 The question to throw at the group when we get to agents: is a
 `uvm_sequence` an object or a component? An object. And that is why it does not show up in
 `print_topology()`.
-It is the same diagram that is in the cheat sheet, top right, to look at again
-when needed.
+It is the same tree that is in the printed cheat sheet, top left, as text, to
+look at again when needed.
 
 ---
 
@@ -499,7 +500,7 @@ hand does what UVM adds become visible.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: e3c167e629e6 -->
+<!-- es-sha: 25e133965ee6 -->
 ## The VTALU spec
 
 ![VTALU protocol: start and operands stable until done](../res/diagrams/en/wave-dut.svg)
@@ -554,7 +555,7 @@ The ovf column is the one that gets the most discussion, and that is good: with 
 operands and a 16-bit result, neither the addition nor the multiplication can overflow — the
 subtraction can, and only when A < B. Which means there is an output of the DUT that for five
 of the six operations is always 0. Ask out loud: how do you verify
-a signal that almost never moves? The answer is tomorrow's, and it is a bin.
+a signal that almost never moves? The answer is today's, in functional coverage, and it is a bin.
 And the free opcode: 3'b110 is not there by chance and not by oversight. It is
 this afternoon's exercise, and it is worth saying now so that nobody reads it as a
 design slip.
@@ -601,6 +602,10 @@ Note:
 The asymmetry of the two resets is not an oversight: it comes from the original VHDL and is
 copied as is on purpose. It is exactly the kind of detail a testbench
 has to expose, and that is why the DUT was not "cleaned up" when it was translated.
+Say it out loud: this contradicts the bare *asynchronous* of the spec bullet,
+and no row of the plan looks at what the reset leaves on the outputs: the reset
+row looks at the operation that comes after. It is a gap in the plan, and for
+now it stays that way.
 That `done` is a level here and a pulse on the multiplication is the fine print that
 is going to hang the first testbench of the course. It is worth going back to the waveform
 of the first slide and pointing at it again.
@@ -871,7 +876,7 @@ assertion ones.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 873afc4332fa -->
+<!-- es-sha: 82fae0933b90 -->
 ## The conventional testbench
 
 #### *The VTALU plan, with three columns to fill*
@@ -889,7 +894,7 @@ assertion ones.
   This section fills **two**: the stimulus provokes them and the scoreboard says
   whether the result was right
 - The third one —**which bin gets filled when it happens**— is the next section
-- The testbench has three parts because the plan has three columns
+- The testbench has three parts because the plan has three columns to fill
 
 Note:
 The order matters and it is the one from the previous unit: the plan first,
@@ -953,7 +958,7 @@ decoration: it is the same table, filling up.
 - `enviadas` gets counted here and `chequeadas` in the scoreboard, and a `final`
   demands they match: it is the testbench checking itself
 - Notice who knows about the protocol here: **the tester**. In interfaces and BFM that moves
-  to the BFM and this task shrinks to one line
+  to the BFM and in the body of the `repeat` shrinks to one line
 
 Note:
 This is the "before" slide of the whole course: the stimulus and the protocol mixed
@@ -1074,8 +1079,8 @@ are this very thing, and the exercise checkers demand it.
 
 #### *Unit summary*
 
-- The testbench has **three parts** because the plan has three columns:
-  stimulus, self-checking and measure. Today they are loose in one file
+- The testbench has **three parts** because the plan has three columns to
+  fill: stimulus, self-checking and measure. Today they are loose in one file
 - The stimulus **biases the random towards the edges** —`00` and `FF`— because
   uniform randomness almost never visits them
 - The `#1` before reading the signals is not decoration: without it you read in
@@ -1099,7 +1104,7 @@ fills in the third column.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 3d6cf351ca3c -->
+<!-- es-sha: ad0311a3ecf8 -->
 ## Functional coverage
 
 #### *When are you done verifying?*
@@ -1418,7 +1423,7 @@ bins twoops[]  = ([add_op:mul_op] [* 2]);       // twice in a row
 bins manymult  = (mul_op [* 3:5]);              // between 3 and 5 times in a row
 ```
 
-- The last three points of the plan are not values, they are **sequences**: "after
+- Three rows of the plan are not values, they are **sequences**: "after
   a reset", "a mult after a single-cycle one"
 - Verilator 5.052 still **does not compile them** (Internal Error). In the code
   they are inside `` `ifndef VERILATOR ``: they are part of the topic and read just the same
@@ -1491,7 +1496,7 @@ Coverage Summary:
 
 - 66 of 76 bins filled, with **1000 randomizations** and **615 operations on the
   bus** —`no_op` and `rst_op` get drawn and never sent, and the testbench prints
-  that two lines above this summary—. The other rows come out `0/0`:
+  that right before the Verilator report—. The other rows come out `0/0`:
   `--coverage-user` leaves code coverage out
 - The 10 that are missing are **a single value**: `all_ops.auto_5` and its nine
   crosses. It is `3'b110`, which the enum **does not have** — Verilator hands out
@@ -1552,10 +1557,10 @@ it is worth saying head on why it only arrives now: the three right-hand columns
 are stimulus, self-checking and coverage — the three parts the previous
 unit showed **loose**. The plan is the table that makes them one thing.
 The row that gets the most discussion is the maximum-product one, and that is good: `FF` × `FF`
-is the only case that does **not** come out of the random in reasonable time, and that is why its
-stimulus column says *directed case*. There you see that the plan does not only measure,
-it also decides which test has to be written. It is the `d5c` exercise, the last
-one of the day 5 afternoon, with this same row.
+is the case a **short** test does not fill, and that is why its stimulus column says
+*directed case*: the plan is decided before knowing how long the random will run.
+There you see that the plan does not only measure, it also decides which test has to be written.
+It is the `d5c` exercise, the last one of the day 5 afternoon, with this same row.
 The three protocol rows are worth naming and moving on: they are the half the
 course does not touch until day 7, and they serve to plant the idea that a scoreboard does not
 check everything. A serious verification plan has both columns.
@@ -1597,7 +1602,7 @@ And the operational mistake that repeats the most, to leave it burned in: the mi
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 69fe6bc50975 -->
+<!-- es-sha: 35731d650a36 -->
 ## Interfaces and BFM
 
 #### *First: the signals stop being loose*
@@ -1919,8 +1924,8 @@ is *"because the BFM writes on the negedge, and that is only fully visible in th
 
 Note:
 The sentence worth leaving on the board for the whole course: *the scoreboard
-checks what the DUT computes; the assertions, how it is talked to.* The three
-sections left of day 1 and the six days that follow are the first half;
+checks what the DUT computes; the assertions, how it is talked to.* What is
+left of day 1 and the six days that follow are the first half;
 the second arrives at the end, and it arrives on this same example.
 There is no need to promise more than that. The assertions come back with the property of this
 slide, write it for real, and show why the edge chosen is not a
@@ -2180,7 +2185,7 @@ a device driver is to the operating system.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: d94e6d21d363 -->
+<!-- es-sha: a4e9b3e529df -->
 <!-- .slide: class="quiz" -->
 
 ## Review · Day 1
@@ -2262,7 +2267,7 @@ a device driver is to the operating system.
 - [ ] The testbench becomes synthesizable
 - [ ] You save having to declare a `clk`
 
-> **It stops talking in signals** — the BFM translates *one operation* into *a handshake of signals*. The tester, the scoreboard and the coverage never touch a wire again: it is the first step towards UVM.
+> **It stops talking in signals** — the BFM translates *one operation* into *a handshake of signals*. The tester never touches a wire again; the scoreboard and the coverage keep reading them, through the interface, until a monitor sends them transactions. It is the first step towards UVM.
 
 ---
 
@@ -2303,7 +2308,7 @@ a device driver is to the operating system.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 21796343bcf4 -->
+<!-- es-sha: 5efbb277640f -->
 ## Exercise · Day 1 · 1 of 2
 
 #### *A new operation, end to end*
@@ -2336,7 +2341,8 @@ With the solution it is 77 out of 77, starting from 86.8 % (66 out of 76). The t
 that were missing were a single one: the bucket Verilator invents for `3'b110`, the
 value the enum did not have — and the shift is precisely `3'b110`, so it fills it
 along the way. Worth showing both numbers and not only the percentage: that is why
-the `run.sh` demands the bin count and not 100 %, which a half-done job reaches too.
+the `run.sh` demands, on top of the 100 %, that `single_cycle` has one more bin: a
+half-done job reaches the 100 % too.
         </textarea>
       </section>
       <!-- 043-ejercicio-day1.md -->
@@ -2386,7 +2392,7 @@ else is the waves; on day 3, in reporting, it is the log that learns to say it.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: b4dd499f8c55 -->
+<!-- es-sha: 4b2f35c78822 -->
 ## Six out of seven, again
 
 #### *Closing the day*
@@ -2400,7 +2406,7 @@ else is the waves; on day 3, in reporting, it is the log that learns to say it.
   you watched fail with a bug inside
 - **How much of the plan passed?** A `covergroup` with one bin per row, and the
   per-bin report, not the percentage
-- All three already ask for operations instead of moving wires: that was the
+- The tester already asks for operations instead of moving wires: that was the
   BFM. What you still cannot do is **change the stimulus without editing the
   file**. Tomorrow is that
 
@@ -5761,12 +5767,12 @@ always it is duplicated structure.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 5f52e3174614 -->
+<!-- es-sha: 531f0fb22582 -->
 ## Reporting
 
 #### *47 % of the time goes here*
 
-- The first chart of the course said that almost half of a verification engineer's time
+- The day-1 trends chart said that almost half of a verification engineer's time
   goes into **debug**. This section is about that half
 - A scoreboard that only says `FAIL` leaves you right there: you know something is wrong and
   you do not know which component, at what moment, or with what data
@@ -6466,7 +6472,7 @@ the reason adding one has to be cheap.
 
       <section data-markdown data-separator="\r?\n---\r?\n" data-separator-notes="^Note:">
         <textarea data-template>
-<!-- es-sha: 75044b3a4bce -->
+<!-- es-sha: d70d6dfe50a4 -->
 ## Exercise · Day 3 · 2 of 2
 
 #### *The `uvm_error` that says nothing*
@@ -6475,7 +6481,8 @@ the reason adding one has to be cheap.
 <!-- .element: class="comando" -->
 
 - The scoreboard is **right** —it catches every mismatch— and when it fails it
-  says `FAILED` and nothing else: even less than the line day 1 started with
+  says `FAILED` and nothing else: even less than the line of the day-1 waves
+  exercise
 - Make the `uvm_error` say **which one** failed: `A`, `B`, the operation, the
   DUT's result and the one you predicted
 - And make the one that **passes** get printed too, at `UVM_HIGH`, so that it
@@ -6484,9 +6491,9 @@ the reason adding one has to be cheap.
   failed
 
 Note:
-It is the short exercise of day 3 and it closes the arc the first slide of the
-course opened: there the student was the one reading the `FAILED`, here they are
-the one writing it. Ten minutes of typing, and the point is not the `$sformatf`.
+It is the short exercise of day 3 and it closes the arc the day-1 waves
+exercise opened: there the student was the one reading the `FAILED`, here they
+are the one writing it. Ten minutes of typing, and the point is not the `$sformatf`.
 The point is the second request, which is the one that surprises: the `PASS`
 **also** gets written. The typical reaction is *"what do I want a thousand PASS
 lines for?"*, and the answer is that you do not want them today: you want them

@@ -227,7 +227,7 @@ npm run pptx    # dist/curso-uvm.pptx  — texto editable
 | **Cómo** | Chrome headless sobre `?print-pdf` | pandoc |
 | **Fidelidad** | mismo layout, paleta clara | deck limpio, *no* reproduce el tema |
 | **Editable** | no | sí, texto y bullets reales |
-| **Páginas** | 653 en castellano y 669 en inglés (los archivos largos fluyen a varias páginas en vez de recortarse) | 1 por slide |
+| **Páginas** | 654 en castellano y 671 en inglés (los archivos largos fluyen a varias páginas en vez de recortarse) | 1 por slide |
 
 El PDF **se puede imprimir**, y es también lo que sale con <kbd>Ctrl</kbd>+<kbd>P</kbd>
 desde el deck: papel blanco, tinta oscura, el código sobre una

@@ -1,4 +1,4 @@
-<!-- es-sha: 873afc4332fa -->
+<!-- es-sha: 82fae0933b90 -->
 ## The conventional testbench
 
 #### *The VTALU plan, with three columns to fill*
@@ -16,7 +16,7 @@
   This section fills **two**: the stimulus provokes them and the scoreboard says
   whether the result was right
 - The third one —**which bin gets filled when it happens**— is the next section
-- The testbench has three parts because the plan has three columns
+- The testbench has three parts because the plan has three columns to fill
 
 Note:
 The order matters and it is the one from the previous unit: the plan first,
@@ -51,7 +51,7 @@ decoration: it is the same table, filling up.
 - `enviadas` gets counted here and `chequeadas` in the scoreboard, and a `final`
   demands they match: it is the testbench checking itself
 - Notice who knows about the protocol here: **the tester**. In interfaces and BFM that moves
-  to the BFM and this task shrinks to one line
+  to the BFM and in the body of the `repeat` shrinks to one line
 
 Note:
 This is the "before" slide of the whole course: the stimulus and the protocol mixed
@@ -141,8 +141,8 @@ are this very thing, and the exercise checkers demand it.
 
 #### *Unit summary*
 
-- The testbench has **three parts** because the plan has three columns:
-  stimulus, self-checking and measure. Today they are loose in one file
+- The testbench has **three parts** because the plan has three columns to
+  fill: stimulus, self-checking and measure. Today they are loose in one file
 - The stimulus **biases the random towards the edges** —`00` and `FF`— because
   uniform randomness almost never visits them
 - The `#1` before reading the signals is not decoration: without it you read in

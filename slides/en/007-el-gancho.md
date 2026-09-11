@@ -1,4 +1,4 @@
-<!-- es-sha: 30b1f1d7713d -->
+<!-- es-sha: 077c28d8fbc4 -->
 ## Six out of seven
 
 #### *And the bug that reached silicon passed a green regression*
@@ -15,14 +15,14 @@
   a lot of tests"* is not an answer
 
 Note:
-It is the first slide of the course on purpose: before the word UVM and before
-any other chart, a question the student cannot answer yet. The number is from
-the Wilson Research Group 2024 survey and it is not an impression: only 14 %
-come out right on first silicon, so six out of seven need at least one respin,
-and it is the worst figure in twenty years of the survey. Asking who has done a
-tape-out and how it went hooks better than the chart. If they ask where the
-data comes from: `res/trends/data.json`, and the figures are regenerated with
-`make figs`.
+It is the first content slide of the course on purpose: before explaining what
+UVM is and before any other chart, a question the student cannot answer yet. The
+number is from the Wilson Research Group 2024 survey and it is not an
+impression: only 14 % come out right on first silicon, so six out of seven need
+at least one respin, and it is the worst figure in twenty years of the survey.
+Asking who has done a tape-out and how it went hooks better than the chart. If
+they ask where the data comes from: `res/trends/data.json`, and the figures are
+regenerated with `make figs`.
 The honesty worth saying out loud: not every respin is functional —there are
 timing ones, analog ones, a spec that changed late—. But the one that is went
 through a regression that said `PASS`, because had it said `FAILED` it would

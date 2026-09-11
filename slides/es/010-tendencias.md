@@ -25,7 +25,7 @@ Note:
 Acá está el argumento de por qué existe este curso: el esfuerzo de verificación
 ya empató al de diseño. Verificar no es el paso final antes del tape-out: es la
 mitad del proyecto, con su propio equipo y su propio lenguaje.
-El 47 % de la derecha se siembra hoy y se cobra dos veces: en el segundo
+El 47 % de abajo se siembra hoy y se cobra dos veces: en el segundo
 ejercicio de esta tarde, cuando el log diga `FAILED` y nada más, y en la
 sección de reporting del día 3, que es donde el log aprende a decir por qué.
 

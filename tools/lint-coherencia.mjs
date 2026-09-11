@@ -286,6 +286,8 @@ const HECHOS = [
       ['res/en/TB_UVM.svg', /uvm_subscriber/, /uvm_scoreboard/],
       ['res/machete.html', null, /uvm_scoreboard/],
       ['res/en/machete.html', null, /uvm_scoreboard/],
+      ['slides/es/015-introduccion.md', /el scoreboard\n?—que en el curso es un `uvm_subscriber`—/, /uvm_scoreboard/],
+      ['slides/en/015-introduccion.md', /the scoreboard\n?—which in the course is a `uvm_subscriber`—/, /uvm_scoreboard/],
     ],
   },
   {
